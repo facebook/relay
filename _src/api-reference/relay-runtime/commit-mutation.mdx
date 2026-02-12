@@ -57,7 +57,7 @@ function likeFeedback(environment: IEnvironment): Disposable {
 ### Return Value
 
 * A [`Disposable`](#interface-disposable) which:
-  * If called while before the request completes, will cancel revert any optimistic updates and prevent the `onComplete` and `onError` callbacks from being executed. It will not necessarily cancel any network request. Will cause the `onUnsubscribe` callback to be called.
+  * If called before the request completes, will cancel and revert any optimistic updates and prevent the `onComplete` and `onError` callbacks from being executed. It will not necessarily cancel any network request. Will cause the `onUnsubscribe` callback to be called.
   * If called after the initial request completes, will do nothing.
 
 <Disposable />

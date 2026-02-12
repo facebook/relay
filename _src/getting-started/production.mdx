@@ -13,13 +13,13 @@ Getting the most out of Relay in production requires a few extra steps. This pag
 
 One of GraphQL's key innovations is that it enables clients to define arbitrary queries. While this unlocks a lot of flexibility, it also opens the doors to abuse. Scrapers can use GraphQL to scrape data from your site, and malicious users can use GraphQL to send large requests to your server that cause a denial of service. To prevent this, we recommend using [Persisted Queries](../guides/persisted-queries.mdx) also know as [Trusted Documents](https://benjie.dev/graphql/trusted-documents).
 
-With Persisted Queries, the set of queries that the client can send is locked in at build time. This means that scrapers and malicious attackers are limited to sending only the queries used by the client, just like REST. It also has the added benefit that the client code only needs to include an single id for each query rather than the whole query text.
+With Persisted Queries, the set of queries that the client can send is locked in at build time. This means that scrapers and malicious attackers are limited to sending only the queries used by the client, just like REST. It also has the added benefit that the client code only needs to include a single id for each query rather than the whole query text.
 
 <!-- TODO add Entry Points here once we have better docs -->
 
 ## Relay Lint Rules
 
-A key principal of Relay is data colocation where each component defines its own data dependencies. It's critical to [How Relay Enables Optimal Data Fetching](https://relay.dev/blog/2023/10/24/how-relay-enables-optimal-data-fetching/). However, this is often unintuitive for developers who are used to fetching data in a single query. Relay's ESLint rules can help enforce this pattern by ensuring no component fetches fields which it does not itself use.
+A key principle of Relay is data colocation where each component defines its own data dependencies. It's critical to [How Relay Enables Optimal Data Fetching](https://relay.dev/blog/2023/10/24/how-relay-enables-optimal-data-fetching/). However, this is often unintuitive for developers who are used to fetching data in a single query. Relay's ESLint rules can help enforce this pattern by ensuring no component fetches fields which it does not itself use.
 
 We recommend using the [`eslint-plugin-relay`](https://github.com/relayjs/eslint-plugin-relay), especially the `relay/unused-fields` rule.
 

@@ -126,7 +126,7 @@ export function pet(user: User): {id: DataID, __typename: AnimalTypenames } {
 ```
 
 :::tip
-Relay will generate type assertions to ensure your resolver function returns the expected type. However, not all combinations are supported. For example, Relay does not yet support the following permutations of abstract types: Unions including weak types, abstract types which mix strong add weak types, and abstract types which include server-backed types.
+Relay will generate type assertions to ensure your resolver function returns the expected type. However, not all combinations are supported. For example, Relay does not yet support the following permutations of abstract types: Unions including weak types, abstract types which mix strong and weak types, and abstract types which include server-backed types.
 :::
 
 While abstract types themselves cannot be defined using Resolver syntax today, you may define interfaces and unions, as well as their members, using [Client Schema Extensions](../client-schema-extensions.mdx). For example:

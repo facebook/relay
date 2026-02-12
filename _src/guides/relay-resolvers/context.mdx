@@ -39,7 +39,7 @@ const store = new RelayModernStore(source, {
   })}>
   <TabItem value="JavaScript">
 
-The last argument in a resolver will contain the context type which contains the value passed into the store on initialization. If the resolver is on a model type or reads a `@rootFragment`, the context value will be the third argument. If the resolver is _not_ on a model type and does _not_ read a `@rootFragment` the context value will be passed as the thrid argument. Relay's generated artifacts will include generated type assertions to check that your resolver is typed correctly.
+The last argument in a resolver will contain the context type which contains the value passed into the store on initialization. If the resolver is on a model type or reads a `@rootFragment`, the context value will be the third argument. If the resolver is _not_ on a model type and does _not_ read a `@rootFragment` the context value will be passed as the third argument. Relay's generated artifacts will include generated type assertions to check that your resolver is typed correctly.
 
 ```js
 import type { LiveState } from 'relay-runtime';

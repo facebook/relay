@@ -16,7 +16,7 @@ import DocsRating from '@site/src/core/DocsRating';
 
 ## `waitForFragmentData`
 
-In some cases it can be useful to define data that you wish to read using a GraphQL fragment, but then consume it just once outside of React render function. `waitForFragmentData` allows you to wait for the data of a fragment to be avalaible,
+In some cases it can be useful to define data that you wish to read using a GraphQL fragment, but then consume it just once outside of React render function. `waitForFragmentData` allows you to wait for the data of a fragment to be available,
 
 To read a fragment's data as it changes over time, see [`observeFragment`](./observe-fragment.mdx).
 
@@ -82,7 +82,7 @@ function MyComponent({ key }) {
 
 * A `Promise<T>` where `T` is the data defined in the fragment.
 
-The Promise will wait for all network data to become avaliable as well as any [`@live` Relay Resolver](../../guides/relay-resolvers/live-fields.mdx) to be in a non-suspended state before it resolves.
+The Promise will wait for all network data to become available as well as any [`@live` Relay Resolver](../../guides/relay-resolvers/live-fields.mdx) to be in a non-suspended state before it resolves.
 
 In the case of a network error, or a field-level error due to [`@throwOnFieldError`](../../guides/throw-on-field-error-directive.mdx) or [`@required(action: THROW)`](../../guides/required-directive.mdx), the Promise will reject with an error.
 

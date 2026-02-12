@@ -54,7 +54,7 @@ function updater(store) {
 
 ## Subscribing to Data Invalidation
 
-Just marking the store or records as stale will cause queries to be refetched they next time they are evaluated; so for example, the next time you navigate back to a page that renders a stale query, the query will be refetched even if the data is cached, since the query references stale data.
+Just marking the store or records as stale will cause queries to be refetched the next time they are evaluated; so for example, the next time you navigate back to a page that renders a stale query, the query will be refetched even if the data is cached, since the query references stale data.
 
 This is useful for a lot of use cases, but there are some times when we'd like to immediately refetch some data upon invalidation, for example:
 

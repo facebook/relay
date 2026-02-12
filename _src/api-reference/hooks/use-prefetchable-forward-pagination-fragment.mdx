@@ -104,7 +104,7 @@ Object containing the following properties:
             * `onComplete`: Function that will be called whenever the request has completed, including any incremental data payloads. If an error occurs during the request, `onComplete` will be called with an `Error` object as the first parameter.
     * Return Value: void
     * Behavior:
-        * Calling `loadNext`  *will not* cause the component to suspend. The component first try to fill the request using items prefetched in the buffer, if there isn't enough item, it sends a request. The `isLoadingNext` value will be set to true while the request is in flight.
+        * Calling `loadNext`  *will not* cause the component to suspend. The component first tries to fill the request using items prefetched in the buffer, if there aren't enough items, it sends a request. The `isLoadingNext` value will be set to true while the request is in flight.
         * Pagination requests initiated from calling `loadNext` will *always* use the same variables that were originally used to fetch the connection, *except* pagination variables (which need to change in order to perform pagination); changing variables other than the pagination variables during pagination doesn't make sense, since that'd mean we'd be querying for a different connection.
 
 * `refetch`: Function used to refetch the connection fragment with a potentially new set of variables.

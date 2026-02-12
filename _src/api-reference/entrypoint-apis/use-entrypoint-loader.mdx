@@ -92,7 +92,7 @@ A tuple containing the following values:
 ### Behavior
 
 * When the `loadEntryPoint` callback is called, each of an EntryPoint's associated queries (if it has any) will load their query data and query AST. Once both the query AST and the data are available, the data will be written to the store. This differs from the behavior of `prepareEntryPoint_DEPRECATED`, which would only write the data from an associated query to the store when that query was rendered with `usePreloadedQuery`.
-* The EntryPoint reference's associated query references will be retained by the Relay store, preventing it the data from being garbage collected. Once you call `.dispose()` on the EntryPoint reference, the data from the associated queries is liable to be garbage collected.
+* The EntryPoint reference's associated query references will be retained by the Relay store, preventing the data from being garbage collected. Once you call `.dispose()` on the EntryPoint reference, the data from the associated queries is liable to be garbage collected.
 * The `loadEntryPoint` callback may throw an error if it is called during React's render phase.
 
 

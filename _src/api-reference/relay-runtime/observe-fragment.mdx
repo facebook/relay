@@ -2,7 +2,7 @@
 id: observe-fragment
 title: observeFragment
 slug: api-reference/observe-fragment
-description: Read the value of a fragment and observe it's state and value over time
+description: Read the value of a fragment and observe its state and value over time
 keywords:
   - observable
   - fragment
@@ -85,7 +85,7 @@ function MyComponent({ key }) {
 ### Return Value
 
 * An [`Observable`](../../glossary/glossary.mdx#observable) which returns a discriminated union modeling the three possible states in which a fragment's data might be:
-  * `{state: 'ok', value: T}` - When data is avalaible the state is `'ok'`. `T` is the data defined in the fragment.
+  * `{state: 'ok', value: T}` - When data is available the state is `'ok'`. `T` is the data defined in the fragment.
   * `{state: 'error': error: Error}` - When the fragment is in an error state either due to network level errors, [`@throwOnFieldError`](../../guides/throw-on-field-error-directive.mdx) or [`@required(action: THROW)`](../../guides/required-directive.mdx) field errors.
   * `{state: 'loading'}` - When the parent request, or current `@defer` payload is still in flight, or a [`@live` Relay Resolver](../../guides/relay-resolvers/live-fields.mdx) being read is in a suspended state.
 

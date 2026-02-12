@@ -82,7 +82,7 @@ Both field resolvers and strong model resolvers, which map an ID to a model, may
 
 The return type of a Live Resolver is known as a `LiveState`. It is conceptually similar to an observable or a signal, if you are familiar with those concepts. Unlike an observable, when a `LiveState` notifies its subscriber of an update, it does not include the new value. Instead, the subscriber (Relay) is expected to call `read()` to get the new value.
 
-While over-notification (subscription notifications when the read value has not actually changed) is supported, for performance reasons, it is recommended that the provider of the LiveState value confirms that the value has indeed change before notifying Relay of the change.
+While over-notification (subscription notifications when the read value has not actually changed) is supported, for performance reasons, it is recommended that the provider of the LiveState value confirms that the value has indeed changed before notifying Relay of the change.
 
 The type of a LiveState is defined as follows:
 

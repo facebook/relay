@@ -95,7 +95,7 @@ into `require(NAME_OF_GENERATED_ARTIFACT)` calls. See [Babel Plugin](../getting-
 
 ## Client Schema Extension
 
-[The GraphQL spec](https://spec.graphql.org/June2018/#sec-Schema-Extension) allow you to define new types, new fields on types, new directives, etc. locally.
+[The GraphQL spec](https://spec.graphql.org/June2018/#sec-Schema-Extension) allows you to define new types, new fields on types, new directives, etc. locally.
 
 Relay supports adding types and fields in client schema extension files. Developers use this feature to add fields that contain purely local state that is associated with items on the graph. For example, an `is_selected` field on a `User`.
 
@@ -388,7 +388,7 @@ In the compiler, the `@include`/`@skip` directives are treated specially, and pr
 
 A directive that applies to fragments which enables developers to pass masked data to functions that are executed outside of the React render phase.
 
-Normally, data is read out using `useFragment`. However, this function can only be called during the render phase. If store data is needed in a outside of the render phase, a developer has several options:
+Normally, data is read out using `useFragment`. However, this function can only be called during the render phase. If store data is needed outside of the render phase, a developer has several options:
 
 * read that data during the render phase, and pass it to the function/have the function close over that data. (See also [#relay])
 * pass a reference to an `@inline` fragment, which can then be accessed (outside of the render phase) using the `readInlineData` function.
@@ -399,7 +399,7 @@ This directive causes them to be read out when the parent fragment is read out, 
 
 An *Interface* is an abstract type that includes a certain set of fields that a type must include to implement the interface.
 
-You can spread an fragment on an interface onto a concrete type (for example `query MyQuery { viewer { account_user { ...on Actor { can_viewer_message } } }`) or a fragment on a concrete type onto an interface (for example `query MyQuery { node(id: 4) { ... on User { name } } }`). You are no longer allowed to spread a fragment on an interface onto an interface.
+You can spread a fragment on an interface onto a concrete type (for example `query MyQuery { viewer { account_user { ...on Actor { can_viewer_message } } }`) or a fragment on a concrete type onto an interface (for example `query MyQuery { node(id: 4) { ... on User { name } } }`). You are no longer allowed to spread a fragment on an interface onto an interface.
 
 See also abstract type refinement.
 
@@ -413,7 +413,7 @@ See the [section in the guide](https://relay.dev/docs/guided-tour/reusing-cached
 
 ## JSResource
 
-A lightweight API for specifying a that a React component should be loaded on demand, instead of being bundled with the first require (as would be the case if you imported or required it directly.)
+A lightweight API for specifying that a React component should be loaded on demand, instead of being bundled with the first require (as would be the case if you imported or required it directly.)
 
 This API is safe to use in entrypoint files.
 
@@ -1000,14 +1000,14 @@ There are four tree traversals that are core to understanding the internal behav
 
 * Using the normalization AST:
   * When Relay normalizes the payload it receives from the GraphQL server in the Response Normalizer;
-  * When Relay reads determines whether there is enough data for to fulfill an operation, in the Data Checker; and
+  * When Relay determines whether there is enough data for to fulfill an operation, in the Data Checker; and
   * When Relay determines what data is no longer accessible during garbage collection, in the [Reference Marker](#reference-marker).
 * Using the reader AST:
   * When Relay reads data for rendering, in the Reader.
 
 ## Type
 
-The GraphQL type of a field is a description of a field on a schema, in terms of what subfields it has, or what it's representation is (String, number, etc.).
+The GraphQL type of a field is a description of a field on a schema, in terms of what subfields it has, or what its representation is (String, number, etc.).
 
 See also [interface](#interface-graphql), [abstract type](#abstract-type) and [the GraphQL docs](https://graphql.org/learn/schema/#type-language) for more info.
 
@@ -1015,7 +1015,7 @@ See also [interface](#interface-graphql), [abstract type](#abstract-type) and [t
 
 The inclusion of a fragment of particular type in a location only known to potentially implement that type. This allows us to select fields if and only if they are defined on that particular object, and return null otherwise.
 
-For example, `node(id: 4) { ... on User { name } }`. In this case, we do now know ahead of time whether `node(id: 4)` is a User. If it is, this fragment will include the user name.
+For example, `node(id: 4) { ... on User { name } }`. In this case, we do not know ahead of time whether `node(id: 4)` is a User. If it is, this fragment will include the user name.
 
 See also [abstract type refinement](#abstract-type-refinement).
 

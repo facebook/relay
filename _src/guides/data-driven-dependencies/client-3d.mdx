@@ -246,7 +246,7 @@ component Client3DRelayRenderer() {
 
 ## Limitations
 
-While Client 3D can offer many benefits such as a more intuitive developer experience, enhanced maintanability, and faster performance, it also has some limitations that Server 3D does not.
+While Client 3D can offer many benefits such as a more intuitive developer experience, enhanced maintainability, and faster performance, it also has some limitations that Server 3D does not.
 
 One key difference is the number of round trips required to fetch data. Server 3D requires at most two round trips: one to the server for data and one to the CDN for JavaScript. In contrast, Client 3D evaluates resolver code as part of rendering the component, which means that the client needs to render the component to discover what JavaScript code is needed. This can lead to additional round trips, especially when dealing with nested Client 3D usage.
 

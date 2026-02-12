@@ -13,14 +13,14 @@ keywords:
 import {FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import DocsRating from '@site/src/core/DocsRating';
 
-There are a number of reasons that a field read by Relay can be null and some of them are obscure or unintuitive. When debugging an unexpectedly null value, it can be helpful to understand both the common cases and edge cases that can cause a field to be read as null. This document enumerates the cases that can lead to null or missing values with tips for figuring determining which case you are in.
+There are a number of reasons that a field read by Relay can be null and some of them are obscure or unintuitive. When debugging an unexpectedly null value, it can be helpful to understand both the common cases and edge cases that can cause a field to be read as null. This document enumerates the cases that can lead to null or missing values with tips for determining which case you are in.
 
 ## Server Returned Null
 
 The simplest reason a field might be null is that the server explicitly returned null. This can happen in two cases:
 
 1. The server’s field resolver returned an explicit null
-2. The field resolver throws. In this case GraphQL will return null for that field. *This is true even if the server resolver’s return type is non-nullable.* The one exceptions is fields annotated as non-null. In that case server should *never* return null. If an exception is encountered the entire parent object will be nulled out.
+2. The field resolver throws. In this case GraphQL will return null for that field. *This is true even if the server resolver’s return type is non-nullable.* The one exception is fields annotated as non-null. In that case server should *never* return null. If an exception is encountered the entire parent object will be nulled out.
 
 <FbInternalOnly>
 

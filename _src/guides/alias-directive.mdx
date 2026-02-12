@@ -12,10 +12,10 @@ keywords:
 The `@alias` directive allows you to expose a spread fragment — either a named fragment spread or an inline fragment — as a named field within your selection. This allows Relay to provide additional type safety in the case where your fragment’s type may not match the parent selection.
 
 :::info
-This document describes why the `@alias` directive was introduced, and how it can be used to improve type safety in your Relay applications. **To learn about it's API, see the [API Reference](../api-reference/graphql/graphql-directives.mdx#alias).**
+This document describes why the `@alias` directive was introduced, and how it can be used to improve type safety in your Relay applications. **To learn about its API, see the [API Reference](../api-reference/graphql/graphql-directives.mdx#alias).**
 :::
 
-Let’s look at an examples where `@alias` can be useful:
+Let's look at an example where `@alias` can be useful:
 
 ## Abstract Types
 
@@ -51,7 +51,7 @@ Can you spot the problem? We don’t actually know that the node we are passing 
 TypeError: Cannot read properties of undefined (reading 'length')
 ```
 
-Not only do we not get a type letting us know that about this potential issue, but even at runtime, there is no way way to check if node implements Viewer because Viewer is an abstract type!
+Not only do we not get a type letting us know that about this potential issue, but even at runtime, there is no way to check if node implements Viewer because Viewer is an abstract type!
 
 ## Aliased Fragments
 

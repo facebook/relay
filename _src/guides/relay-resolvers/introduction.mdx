@@ -13,7 +13,7 @@ By modeling derived and client state in the graph, Relay can present a unified d
 - Efficient reactive recomputation of resolvers
 - Efficient UI updates when data changes
 
-You can think of resolvers as additional schema types and fields which are defined in your client code and are stitched into your server’s schema. Just like you define resolver methods/functions which model your fields on the server, Relay Resolves are defined using resolver functions.
+You can think of resolvers as additional schema types and fields which are defined in your client code and are stitched into your server's schema. Just like you define resolver methods/functions which model your fields on the server, Relay Resolvers are defined using resolver functions.
 
 ## Use Cases for Relay Resolvers
 
@@ -21,7 +21,7 @@ Relay Resolvers are useful for modeling a number of different kinds of data. Her
 
 * **User-Created Data** - You can model complex form state, or other data that should outlive a specific component tree
 * **Client-Side Database** - Persistent data stores like IndexDB, localStorage, or SQLite
-* **Third-Party APIs** - Data that is fetched from a third-party API directly by the client, for example search results from an third-party search provider
+* **Third-Party APIs** - Data that is fetched from a third-party API directly by the client, for example search results from a third-party search provider
 * **Encrypted Data** - End-to-end encrypted data that is opaque on the server and thus cannot be modeled in the server schema
 * **Legacy Data Stores** - During the adoption of Relay and GraphQL, data from pre-existing data layers, like Redux, can be exposed in the graph to ensure migrated and un-migrated portions of your app always remain in sync
 

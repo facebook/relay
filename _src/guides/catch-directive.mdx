@@ -97,7 +97,7 @@ field as non-nullable in its generated Flow/TypeScript types.
 Payload [field
 errors](https://spec.graphql.org/October2021/#sec-Errors.Field-errors) are
 errors that occur as the result of a server-side exception while executing a
-given field's resolver. In this case, the GraphQL specifies that the sever must
+given field's resolver. In this case, the GraphQL specifies that the server must
 provide a null value where a value should be, and a separate errors object.
 
 When you `@catch` on a field, Relay takes those errors and provides them to you

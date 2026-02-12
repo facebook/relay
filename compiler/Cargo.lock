@@ -102,9 +102,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.95"
+version = "1.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34ac096ce696dc2fcabef30516bb13c0a68a11d30131d3df6f04711467681b04"
+checksum = "5f0e0fee31ef5ed1ba1316088939cea399010ed7731dba877ed44aeb407a75ea"
 
 [[package]]
 name = "arbitrary"
@@ -817,6 +817,24 @@ dependencies = [
  "strum",
  "thiserror 2.0.18",
  "tokio",
+]
+
+[[package]]
+name = "graphql-ir-diff"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "common",
+ "glob",
+ "graphql-cli",
+ "graphql-ir",
+ "graphql-syntax",
+ "graphql-text-printer",
+ "indoc",
+ "intern",
+ "itertools",
+ "pretty_assertions",
+ "schema",
 ]
 
 [[package]]
@@ -1668,6 +1686,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "pretty_assertions"
+version = "1.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ae130e2f271fbc2ac3a40fb1d07180839cdbbe443c7a27e1e3c13c5cac0116d"
+dependencies = [
+ "diff",
+ "yansi",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.93"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1825,6 +1853,7 @@ version = "20.1.1"
 dependencies = [
  "clap",
  "common",
+ "graphql-ir-diff",
  "intern",
  "log",
  "relay-codemod",

@@ -1,0 +1,1 @@
+module.exports = {language: 'typescript', schema: 'schema.graphql'};

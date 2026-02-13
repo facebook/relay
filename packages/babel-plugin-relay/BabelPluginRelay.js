@@ -13,22 +13,9 @@
 
 const compileGraphQLTag = require('./compileGraphQLTag');
 const getValidGraphQLTag = require('./getValidGraphQLTag');
-const cosmiconfig = require('cosmiconfig');
+const {loadConfig} = require('relay-config');
 
-const configExplorer = cosmiconfig('relay', {
-  searchPlaces: ['relay.config.js', 'relay.config.json', 'package.json'],
-  loaders: {
-    '.json': cosmiconfig.loadJson,
-    '.js': cosmiconfig.loadJs,
-    noExt: cosmiconfig.loadYaml,
-  },
-});
-
-let RelayConfig;
-const result = configExplorer.searchSync();
-if (result) {
-  RelayConfig = result.config;
-}
+const RelayConfig = loadConfig();
 
 export type RelayPluginOptions = {
   // The command to run to compile Relay files, used for error messages.

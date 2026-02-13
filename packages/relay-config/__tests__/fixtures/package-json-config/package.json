@@ -1,0 +1,8 @@
+{
+    "name": "my-app",
+    "version": "1.0.0",
+    "relay": {
+        "language": "typescript",
+        "schema": "schema.graphql"
+    }
+}

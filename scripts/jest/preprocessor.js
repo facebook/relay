@@ -16,6 +16,15 @@ const createCacheKeyFunction =
   require('@jest/create-cache-key-function').default;
 const path = require('path');
 
+// babel-plugin-relay requires relay-config, which is a sibling in dist.
+process.env.NODE_PATH = [
+  process.env.NODE_PATH,
+  path.resolve(__dirname, '..', '..', 'dist'),
+]
+  .filter(Boolean)
+  .join(path.delimiter);
+require('module')._initPaths();
+
 const babelOptions = getBabelOptions({
   env: 'test',
   autoImport: false,

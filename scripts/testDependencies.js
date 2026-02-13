@@ -83,6 +83,7 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
     'relay-compiler',
     'relay-runtime',
     'react-relay',
+    'relay-config',
   ]);
   for (const dependencyName in packageJson.dependencies) {
     // packages in this repo, won't be in the top level package.json.

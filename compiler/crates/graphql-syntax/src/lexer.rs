@@ -541,9 +541,24 @@ mod tests {
     }
 
     #[test]
-    fn test_block_string_with_emoji() {
-        // Emoji like 🚀 (U+1F680) are above U+FFFF (supplementary planes).
-        // The lexer must handle the full Unicode range, not just the BMP.
+    fn test_block_string_contains_single_quote() {
+        let input = r##""""contains " quote""""##;
+        let mut lexer = TokenKind::lexer(input);
+        assert_eq!(lexer.next(), Some(Ok(TokenKind::BlockStringLiteral)));
+        assert_eq!(lexer.slice(), input);
+    }
+
+    #[test]
+    fn test_block_string_multiline_with_cr() {
+        let input = "\"\"\"multi\rline\r\nnormalized\"\"\"";
+        let mut lexer = TokenKind::lexer(input);
+        assert_eq!(lexer.next(), Some(Ok(TokenKind::BlockStringLiteral)));
+        assert_eq!(lexer.slice(), input);
+    }
+
+    #[test]
+    fn test_block_string_emoji_in_docstring() {
+        // The original crash: emoji (U+1F680) in a block string docstring
         let input = r##""""Optional emoji associated with the view (e.g. "🚀").""""##;
         let mut lexer = TokenKind::lexer(input);
         assert_eq!(lexer.next(), Some(Ok(TokenKind::BlockStringLiteral)));
@@ -551,30 +566,89 @@ mod tests {
     }
 
     #[test]
-    fn test_block_string_with_various_supplementary_plane_chars() {
-        // Various characters above U+FFFF
-        // 🚀 U+1F680, 😀 U+1F600, 🎉 U+1F389, 𐍈 U+10348 (Gothic letter hwair)
-        let input = "\"\"\"🚀😀🎉𐍈\"\"\"";
-        let mut lexer = TokenKind::lexer(input);
-        assert_eq!(lexer.next(), Some(Ok(TokenKind::BlockStringLiteral)));
-        assert_eq!(lexer.slice(), input);
+    fn test_block_string_supplementary_plane_chars() {
+        // Characters above U+FFFF (supplementary planes) must be accepted.
+        // Tests the BMP boundary, first supplementary char, emoji, non-emoji,
+        // and the maximum Unicode code point.
+        for input in [
+            "\"\"\"\u{FFFF}\"\"\"",   // U+FFFF: last BMP char
+            "\"\"\"\u{10000}\"\"\"",  // U+10000: first supplementary char
+            "\"\"\"🚀😀🎉🍺\"\"\"",   // emoji
+            "\"\"\"𐍈 𝄞\"\"\"",        // non-emoji supplementary (Gothic, Musical)
+            "\"\"\"\u{10FFFF}\"\"\"", // U+10FFFF: max Unicode code point
+        ] {
+            let mut lexer = TokenKind::lexer(input);
+            assert_eq!(
+                lexer.next(),
+                Some(Ok(TokenKind::BlockStringLiteral)),
+                "Failed to lex block string: {input}"
+            );
+            assert_eq!(
+                lexer.slice(),
+                input,
+                "Wrong slice for block string: {input}"
+            );
+        }
     }
 
     #[test]
-    fn test_block_string_with_emoji_in_multiline() {
-        let input = "\"\"\"\n  Description with emoji 🚀\n  And another 😀\n\"\"\"";
-        let mut lexer = TokenKind::lexer(input);
-        assert_eq!(lexer.next(), Some(Ok(TokenKind::BlockStringLiteral)));
-        assert_eq!(lexer.slice(), input);
+    fn test_string_empty() {
+        assert_token("\"\"", Ok(TokenKind::StringLiteral), 2);
     }
 
     #[test]
-    fn test_string_with_supplementary_plane_chars() {
-        // Regular strings should also handle characters above U+FFFF
-        let input = "\"hello 🚀 world\"";
+    fn test_string_escaped_characters() {
+        let input = r#""escaped \n\r\b\t\f""#;
         let mut lexer = TokenKind::lexer(input);
         assert_eq!(lexer.next(), Some(Ok(TokenKind::StringLiteral)));
         assert_eq!(lexer.slice(), input);
+    }
+
+    #[test]
+    fn test_string_unicode_escapes() {
+        let input = r#""unicode \u1234\u5678\u90AB\uCDEF""#;
+        let mut lexer = TokenKind::lexer(input);
+        assert_eq!(lexer.next(), Some(Ok(TokenKind::StringLiteral)));
+        assert_eq!(lexer.slice(), input);
+    }
+
+    #[test]
+    fn test_string_supplementary_plane_chars() {
+        // Characters above U+FFFF must be accepted in regular strings too.
+        for input in [
+            "\"\u{FFFF}\"",       // U+FFFF: last BMP char
+            "\"\u{10000}\"",      // U+10000: first supplementary char
+            "\"hello 🚀 world\"", // emoji
+            "\"\u{10FFFF}\"",     // U+10FFFF: max Unicode code point
+        ] {
+            let mut lexer = TokenKind::lexer(input);
+            assert_eq!(
+                lexer.next(),
+                Some(Ok(TokenKind::StringLiteral)),
+                "Failed to lex string: {input}"
+            );
+            assert_eq!(lexer.slice(), input, "Wrong slice for string: {input}");
+        }
+    }
+
+    #[test]
+    fn test_string_unterminated_empty() {
+        let mut lexer = TokenKind::lexer("\"");
+        assert_eq!(lexer.next(), Some(Err(())));
+        assert_eq!(
+            lexer.extras.error_token,
+            Some(TokenKind::ErrorUnterminatedString)
+        );
+    }
+
+    #[test]
+    fn test_string_unterminated_carriage_return() {
+        let mut lexer = TokenKind::lexer("\"multi\rline\"");
+        assert_eq!(lexer.next(), Some(Err(())));
+        assert_eq!(
+            lexer.extras.error_token,
+            Some(TokenKind::ErrorUnterminatedString)
+        );
     }
 
     #[test]

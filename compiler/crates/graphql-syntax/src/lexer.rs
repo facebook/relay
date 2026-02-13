@@ -133,7 +133,7 @@ pub enum StringToken {
     #[regex(r#"\n|\r|\r\n"#)]
     LineTerminator,
 
-    #[regex(r#"[\u0009\u0020\u0021\u0023-\u005B\u005D-\uFFFF]+"#)]
+    #[regex(r#"[\u0009\u0020\u0021\u0023-\u005B\u005D-\u{10FFFF}]+"#)]
     StringCharacters,
 }
 
@@ -189,7 +189,7 @@ pub enum BlockStringToken {
     #[token("\"\"\"")]
     TripleQuote,
 
-    #[regex(r#"[\u0009\u000A\u000D\u0020-\uFFFF]"#)]
+    #[regex(r#"[\u0009\u000A\u000D\u0020-\u{10FFFF}]"#)]
     Other,
 }
 
@@ -538,6 +538,43 @@ mod tests {
         );
         // Unterminated string just consumes the starting quotes
         assert_eq!(lexer.slice(), r#"""""#);
+    }
+
+    #[test]
+    fn test_block_string_with_emoji() {
+        // Emoji like 🚀 (U+1F680) are above U+FFFF (supplementary planes).
+        // The lexer must handle the full Unicode range, not just the BMP.
+        let input = r##""""Optional emoji associated with the view (e.g. "🚀").""""##;
+        let mut lexer = TokenKind::lexer(input);
+        assert_eq!(lexer.next(), Some(Ok(TokenKind::BlockStringLiteral)));
+        assert_eq!(lexer.slice(), input);
+    }
+
+    #[test]
+    fn test_block_string_with_various_supplementary_plane_chars() {
+        // Various characters above U+FFFF
+        // 🚀 U+1F680, 😀 U+1F600, 🎉 U+1F389, 𐍈 U+10348 (Gothic letter hwair)
+        let input = "\"\"\"🚀😀🎉𐍈\"\"\"";
+        let mut lexer = TokenKind::lexer(input);
+        assert_eq!(lexer.next(), Some(Ok(TokenKind::BlockStringLiteral)));
+        assert_eq!(lexer.slice(), input);
+    }
+
+    #[test]
+    fn test_block_string_with_emoji_in_multiline() {
+        let input = "\"\"\"\n  Description with emoji 🚀\n  And another 😀\n\"\"\"";
+        let mut lexer = TokenKind::lexer(input);
+        assert_eq!(lexer.next(), Some(Ok(TokenKind::BlockStringLiteral)));
+        assert_eq!(lexer.slice(), input);
+    }
+
+    #[test]
+    fn test_string_with_supplementary_plane_chars() {
+        // Regular strings should also handle characters above U+FFFF
+        let input = "\"hello 🚀 world\"";
+        let mut lexer = TokenKind::lexer(input);
+        assert_eq!(lexer.next(), Some(Ok(TokenKind::StringLiteral)));
+        assert_eq!(lexer.slice(), input);
     }
 
     #[test]

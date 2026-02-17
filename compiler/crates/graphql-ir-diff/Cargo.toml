@@ -13,7 +13,7 @@ name = "graphql_ir_diff_test"
 path = "tests/ir_diff_test.rs"
 
 [dependencies]
-anyhow = "1.0.98"
+anyhow = "1.0.100"
 common = { path = "../common" }
 glob = "0.3.2"
 graphql-cli = { path = "../graphql-cli" }

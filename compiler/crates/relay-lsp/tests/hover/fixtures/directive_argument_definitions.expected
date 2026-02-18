@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on User @argumentDe|finitions(size: {type: "Int", defaultValue: 32}) {
+  profilePicture(size: [$size]) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+
+`@argumentDefinitions` is a directive used to specify arguments taken by a fragment.
+
+---
+@see: https://relay.dev/docs/api-reference/graphql-and-directives/#argumentdefinitions

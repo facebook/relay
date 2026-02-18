@@ -5,6 +5,25 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! # Hover Tooltip Format
+//!
+//! Hover tooltips display information in this order:
+//!
+//! 1. Description: Human-readable description of the element (if available)
+//!
+//! 2. SDL Definition: GraphQL SDL syntax showing the element's signature
+//!    (e.g., `name(arg: String!): ID!` for fields, `type User { ... }` for types)
+//!
+//! 3. Type Link: Clickable link to the referenced type in the schema explorer,
+//!    with the type's description if available. Always shown for fields (even
+//!    without a type description). Omitted for built-in scalars
+//!    (`String`, `Int`, `Float`, `Boolean`, `ID`).
+//!
+//! 4. Documentation Links: Links to relevant documentation (e.g., Relay Resolver,
+//!    Client Schema Extension).
+//!
+//! 5. Source Links: Links to source code locations (e.g., Hack source).
+
 use common::DirectiveName;
 use common::NamedItem;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
@@ -875,17 +894,10 @@ fn get_scalar_or_linked_field_hover_content(
     }
 
     if is_resolver {
-        let msg = "**Relay Resolver**: This field is backed by a Relay Resolver, and is therefore only avaliable in Relay code. [Learn More](https://relay.dev/docs/guides/relay-resolvers/introduction/).";
+        let msg = "**Relay Resolver**: [Learn More](https://relay.dev/docs/guides/relay-resolvers/introduction/)";
         hover_contents.push(MarkedString::String(msg.to_string()))
     } else if field.is_extension {
-        let msg = match content_consumer_type {
-            ContentConsumerType::Relay => {
-                "**Client Schema Extension**: This field was declared as a Relay Client Schema Extension, and is therefore only avalaible in Relay code. [Learn More](https://relay.dev/docs/guided-tour/updating-data/client-only-data/#client-only-data-client-schema-extensions)."
-            }
-            ContentConsumerType::GraphQL => {
-                "**Client Schema Extension**: This field was declared as a GraphQL client schema extension explicitly among [these](https://fburl.com/code/9qg1gghd) files etc."
-            }
-        };
+        let msg = "**Client Schema Extension**: [Learn More](https://relay.dev/docs/guided-tour/updating-data/client-only-data/#client-only-data-client-schema-extensions)";
         hover_contents.push(MarkedString::String(msg.to_string()))
     }
 

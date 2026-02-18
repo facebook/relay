@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+query MyQuery @throwOnFiel|dError {
+  me {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+(Relay only)
+
+A directive added to queries and fragments which causes the Relay client to throw
+if reading a field that has an error. Relay will also honor the @semanticNonNull
+directive on fields read from that query or fragment. Emitted types for such
+fields will be non-null. Requires the `experimental_emit_semantic_nullability_types`
+typegen configuration to be enabled.
+
+[Read More](https://relay.dev/docs/api-reference/graphql-and-directives/)
+--
+```graphql
+directive @throwOnFieldError on QUERY | FRAGMENT_DEFINITION
+```

@@ -1,0 +1,10 @@
+==================================== INPUT ====================================
+query MyQuery($size: Int = 32|) {
+  me {
+    profilePicture(size: [$size]) {
+      uri
+    }
+  }
+}
+==================================== OUTPUT ===================================
+`$size`: **[Int](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Int%22],%22schemaName%22:%22Some%20Schema%20Name%22})** with default value `32`

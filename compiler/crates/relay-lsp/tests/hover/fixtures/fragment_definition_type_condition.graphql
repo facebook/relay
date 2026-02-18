@@ -1,0 +1,9 @@
+query MyQuery {
+  me {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on Us|er {
+  name
+}

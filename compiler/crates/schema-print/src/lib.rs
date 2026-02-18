@@ -12,6 +12,7 @@
 mod print_schema;
 mod printer;
 mod shard_printer;
+mod truncated_printer;
 
 use std::hash::DefaultHasher;
 use std::hash::Hash;
@@ -20,6 +21,7 @@ use std::hash::Hasher;
 pub use print_schema::*;
 pub use printer::*;
 pub use shard_printer::*;
+pub use truncated_printer::*;
 
 pub fn calculate_hash<T: Hash>(t: &T) -> u64 {
     let mut s = DefaultHasher::new();

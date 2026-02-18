@@ -12,6 +12,7 @@ use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use schema::ArgumentValue;
+use schema::BUILTIN_SCALAR_NAMES;
 use schema::DirectiveValue;
 use schema::TypeReference;
 
@@ -253,14 +254,7 @@ impl PrintableExtendDefinition for SetScalar {}
 /// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
 fn remove_built_in_scalars(schema_set: &SchemaSet) -> SchemaSet {
     let mut without_builtins_set = schema_set.clone();
-    let builtin_scalar_names = [
-        "Int".intern(),
-        "Float".intern(),
-        "String".intern(),
-        "Boolean".intern(),
-        "ID".intern(),
-    ];
-    for builtin_name in builtin_scalar_names {
+    for builtin_name in BUILTIN_SCALAR_NAMES.iter().map(|s| s.intern()) {
         if let Some(SetType::Scalar(builtin_type)) = without_builtins_set.types.get(&builtin_name)
             && builtin_type.directives.is_empty()
         {

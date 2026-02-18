@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+query MyQuery($id: ID!) {
+  node(id: $i|d) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+Argument `id: $id`
+--
+Field: **node**
+--
+Type: **[Node](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Query%22,%22Node%22],%22schemaName%22:%22Some%20Schema%20Name%22})**
+--
+This field accepts these arguments
+--
+id: **[ID](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Node%22,%22ID%22],%22schemaName%22:%22Some%20Schema%20Name%22})**

@@ -63,6 +63,15 @@ pub use crate::schema::SDLSchema;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
 
+/// The names of GraphQL's built-in scalar types.
+/// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
+pub const BUILTIN_SCALAR_NAMES: &[&str] = &["Int", "Float", "String", "Boolean", "ID"];
+
+/// Returns true if the given type name is a built-in GraphQL scalar type.
+pub fn is_builtin_scalar_name(name: &str) -> bool {
+    BUILTIN_SCALAR_NAMES.contains(&name)
+}
+
 pub use flatbuffer::serialize_as_flatbuffer;
 
 pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {

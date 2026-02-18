@@ -1,0 +1,5 @@
+query MyQuery {
+  node(i|d: "123") {
+    id
+  }
+}

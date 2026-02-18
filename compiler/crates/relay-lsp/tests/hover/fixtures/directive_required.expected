@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me {
+    name @requ|ired(action: THROW)
+  }
+}
+==================================== OUTPUT ===================================
+(Relay Only)
+
+`@required` is a directive you can add to fields in your Relay queries to
+declare how null values should be handled at runtime. You can think of it as
+saying "if this field is ever null, its parent field is invalid and should be
+null".
+
+[Read More](https://relay.dev/docs/guides/required-directive/)
+--
+```graphql
+directive @required(action: RequiredFieldAction! @static) on FIELD
+```

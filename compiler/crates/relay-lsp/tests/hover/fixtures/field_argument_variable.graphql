@@ -1,0 +1,5 @@
+query MyQuery($id: ID!) {
+  node(id: $i|d) {
+    id
+  }
+}

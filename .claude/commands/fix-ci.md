@@ -40,6 +40,7 @@ You are a specialized skill for checking GitHub CI status and fixing failing tes
    - Commit with descriptive message about what was fixed
    - Push the branch: `git push -u origin HEAD`
    - Create PR using `gh pr create` with:
+     - Label: "Fix CI Skill"
      - Title: "Fix CI failures - [Brief description]"
      - Body: Detailed explanation of:
        - Which jobs were failing
@@ -93,7 +94,7 @@ git checkout -b fix-ci-failures-20260106
 git add .
 git commit -m "Fix failing jest tests in MockPayloadGenerator"
 git push -u origin HEAD
-gh pr create --title "Fix CI: MockPayloadGenerator test failures" --body "..."
+gh pr create --label "Fix CI Skill" --title "Fix CI: MockPayloadGenerator test failures" --body "..."
 ```
 
 ## Start Here

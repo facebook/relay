@@ -69,6 +69,9 @@
         "enable_exec_time_resolvers_directive": true,
         "allow_output_type_resolvers": {
           "kind": "enabled"
+        },
+        "allow_legacy_relay_resolver_tag": {
+          "kind": "enabled"
         }
       },
       "language": "flow",

@@ -1,7 +1,7 @@
 //- UserFoo.js
 // Test that @returnFragment docblock tag is parsed on a resolver.
 /**
- * @RelayResolver User.foo: RelayResolverValue
+ * @relayField User.foo: RelayResolverValue
  * @returnFragment UserFooExternalFragment
  */
 

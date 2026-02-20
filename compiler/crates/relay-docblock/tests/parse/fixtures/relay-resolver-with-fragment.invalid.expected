@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_relay_resolver_tag
 
 graphql`
   fragment myRootFragment on User {
@@ -21,8 +22,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Fragment `missingFragment` not found. Did you mean `myRootFragment`?
 
-  /path/to/test/fixture/relay-resolver-with-fragment.invalid.js:18:18
-   17 │  * @RelayResolver User.my_field: RelayResolverValue
-   18 │  * @rootFragment missingFragment
+  /path/to/test/fixture/relay-resolver-with-fragment.invalid.js:19:18
+   18 │  * @RelayResolver User.my_field: RelayResolverValue
+   19 │  * @rootFragment missingFragment
       │                  ^^^^^^^^^^^^^^^
-   19 │
+   20 │

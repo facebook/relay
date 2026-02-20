@@ -1,7 +1,7 @@
 //- User_foo.js
 // Test that @returnFragment requires fragment names to start with the module name.
 /**
- * @RelayResolver User.foo: RelayResolverValue
+ * @relayField User.foo: RelayResolverValue
  * @returnFragment WrongPrefix_fragment
  */
 

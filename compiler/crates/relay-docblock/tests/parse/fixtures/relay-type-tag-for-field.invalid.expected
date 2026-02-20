@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @relayType User.name: String
+ */
+==================================== ERROR ====================================
+✖︎ Unexpected `@relayType` for a field definition. Expected `@relayField`.
+
+  /path/to/test/fixture/relay-type-tag-for-field.invalid.js:11:5
+   10 │ *
+   11 │  * @relayType User.name: String
+      │     ^^^^^^^^^
+   12 │

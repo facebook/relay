@@ -7,27 +7,27 @@ graphql`query QueryComponentQuery {
 
 //- QueryResolvers.js
 /**
- * @RelayResolver Query.person: IPerson
+ * @relayField Query.person: IPerson
  */
 
 //- UserTypeResolvers.js
 /**
- * @RelayResolver User implements IPerson
+ * @relayType User implements IPerson
  * @weak
  */
 
  /**
-  * @RelayResolver User.name: String
+  * @relayField User.name: String
   */
 
 //- AdminTypeResolvers.js
 /**
- * @RelayResolver Admin implements IPerson
+ * @relayType Admin implements IPerson
  * @weak
  */
 
  /**
-  * @RelayResolver Admin.name: String
+  * @relayField Admin.name: String
   */
 
 //- relay.config.json

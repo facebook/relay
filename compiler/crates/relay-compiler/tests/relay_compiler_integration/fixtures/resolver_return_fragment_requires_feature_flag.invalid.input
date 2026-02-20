@@ -1,7 +1,7 @@
 //- User_foo.js
 // Test that @returnFragment requires the enable_shadow_resolvers feature flag.
 /**
- * @RelayResolver User.foo: RelayResolverValue
+ * @relayField User.foo: RelayResolverValue
  * @returnFragment SomeExternalFragment
  */
 

@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver ClientUser
+ */
+==================================== ERROR ====================================
+✖︎ Unexpected `@RelayResolver` for a type definition. Expected `@relayType`. The legacy `@RelayResolver` tag can be enabled with the `allow_legacy_relay_resolver_tag` feature flag.
+
+  /path/to/test/fixture/relay-resolver-type-new-tag-required.invalid.js:11:5
+   10 │ *
+   11 │  * @RelayResolver ClientUser
+      │     ^^^^^^^^^^^^^
+   12 │

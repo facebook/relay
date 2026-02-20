@@ -9,19 +9,19 @@ graphql`query PersonComponentQuery {
 
 //- Admin.js
 /**
- * @RelayResolver Admin implements Worker
+ * @relayType Admin implements Worker
  */
 export function
 
 /**
- * @RelayResolver Admin.admin: Admin
+ * @relayField Admin.admin: Admin
  */
 export function admin() {
   return "123";
 }
 
 /**
- * @RelayResolver Query.boss: Admin
+ * @relayField Query.boss: Admin
  */
 export function boss() {
   return "123";

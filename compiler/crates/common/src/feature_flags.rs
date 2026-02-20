@@ -198,6 +198,11 @@ pub struct FeatureFlags {
     /// This enables gradual rollout of the new casting syntax across files.
     #[serde(default)]
     pub new_flow_casting_syntax: FeatureFlag,
+
+    /// When enabled for a given name, allows `@RelayResolver` as a legacy
+    /// alias for `@relayType` / `@relayField`.
+    #[serde(default)]
+    pub allow_legacy_relay_resolver_tag: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -232,6 +237,7 @@ impl Default for FeatureFlags {
             disallow_required_action_throw_on_semantically_nullable_fields: Default::default(),
             enable_shadow_resolvers: Default::default(),
             new_flow_casting_syntax: Default::default(),
+            allow_legacy_relay_resolver_tag: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

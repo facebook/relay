@@ -10,19 +10,19 @@ graphql`query PersonComponentQuery {
 
 //- Admin.js
 /**
- * @RelayResolver Admin implements Worker
+ * @relayType Admin implements Worker
  */
 export function
 
 /**
- * @RelayResolver Admin.admin: Admin
+ * @relayField Admin.admin: Admin
  */
 export function admin() {
   return "123";
 }
 
 /**
- * @RelayResolver Query.boss: Admin
+ * @relayField Query.boss: Admin
  */
 export function boss() {
   return "123";
@@ -415,6 +415,6 @@ Project: default
   Type: Mapping
   - Source: ExecutableDefinition: PersonComponentQuery
     Path: __generated__/PersonComponentQuery.graphql.js
-  - Source: ResolverHash: ResolverSourceHash("7f73cd5d979639fd8ce1982f17b159d7")
+  - Source: ResolverHash: ResolverSourceHash("a4674bea9ec46ef4e618f94434a99a7a")
     Path: __generated__/Admin____relay_model_instance.graphql.js
     Path: __generated__/Admin__id.graphql.js

@@ -1,7 +1,7 @@
 //- UserResolver.js
 // Test that @returnFragment rejects fragment names that conflict with existing fragments.
 /**
- * @RelayResolver User.foo: RelayResolverValue
+ * @relayField User.foo: RelayResolverValue
  * @returnFragment UserResolverConflicting
  */
 

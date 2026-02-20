@@ -1,13 +1,13 @@
 //- UserTypeResolvers.js
 /**
- * @RelayResolver User
+ * @relayType User
  */
 // Impl omitted for test
 
 type FlowVersionOfStatusEnum = "AMDIN" | "USER";
 
 /**
- * @RelayResolver User.status: Status
+ * @relayField User.status: Status
  */
 export function status(user: User): FlowVersionOfStatusEnum {
   return "ADMIN";

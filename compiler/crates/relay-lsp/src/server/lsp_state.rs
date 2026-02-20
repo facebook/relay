@@ -326,6 +326,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         allow_resolver_non_nullable_return_type: &project_config
                             .feature_flags
                             .allow_resolver_non_nullable_return_type,
+                        allow_legacy_relay_resolver_tag: &project_config
+                            .feature_flags
+                            .allow_legacy_relay_resolver_tag,
                     },
                 )
             });

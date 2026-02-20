@@ -1,6 +1,6 @@
 //- foo.js
 /**
- * @RelayResolver Mutation.foo_mutation: Boolean
+ * @relayField Mutation.foo_mutation: Boolean
  */
 
 //- bar.js

@@ -10,12 +10,12 @@ graphql`query fooQuery @throwOnFieldError {
 }`
 
 /**
- * @RelayResolver ClientUser
+ * @relayType ClientUser
  * A strong type
  */
 
  /**
-  * @RelayResolver Query.clientUser: ClientUser
+  * @relayField Query.clientUser: ClientUser
   * Resolver that returns ClientUser
   */
 
@@ -307,6 +307,6 @@ Project: default
   Type: Mapping
   - Source: ExecutableDefinition: fooQuery
     Path: __generated__/fooQuery.graphql.js
-  - Source: ResolverHash: ResolverSourceHash("30ed0978ed1639d9a7c5e81ed79e7320")
+  - Source: ResolverHash: ResolverSourceHash("d1f4e78b49b5dcfc098cf5b6257880ed")
     Path: __generated__/ClientUser____relay_model_instance.graphql.js
     Path: __generated__/ClientUser__id.graphql.js

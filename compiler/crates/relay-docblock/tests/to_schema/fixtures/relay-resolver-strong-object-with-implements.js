@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:allow_legacy_relay_resolver_tag
+
 /**
  * @RelayResolver ClientUser implements IFoo
  */

@@ -11,28 +11,28 @@ graphql`query PersonComponentQuery {
 
 //- UserTypeResolvers.js
 /**
- * @RelayResolver User implements IPerson & IActor
+ * @relayType User implements IPerson & IActor
  */
 
 /**
- * @RelayResolver User.name: String
+ * @relayField User.name: String
  */
 
 /**
- * @RelayResolver User.description: String
+ * @relayField User.description: String
  */
 
 //- AdminTypeResolvers.js
 /**
- * @RelayResolver Admin implements IPerson & IActor
+ * @relayType Admin implements IPerson & IActor
  */
 
 /**
- * @RelayResolver Admin.name: String
+ * @relayField Admin.name: String
  */
 
 /**
- * @RelayResolver Admin.description: String
+ * @relayField Admin.description: String
  */
 
 //- relay.config.json
@@ -622,9 +622,9 @@ Project: default
   Type: Mapping
   - Source: ExecutableDefinition: PersonComponentQuery
     Path: __generated__/PersonComponentQuery.graphql.js
-  - Source: ResolverHash: ResolverSourceHash("9dd9e9fdd793726f021efa8f2602c3a0")
-    Path: __generated__/User____relay_model_instance.graphql.js
-    Path: __generated__/User__id.graphql.js
-  - Source: ResolverHash: ResolverSourceHash("bb1ffe3e10eda807d79c3d58e800ca86")
+  - Source: ResolverHash: ResolverSourceHash("11fd4c9eb2431033af3bb01733378d09")
     Path: __generated__/Admin____relay_model_instance.graphql.js
     Path: __generated__/Admin__id.graphql.js
+  - Source: ResolverHash: ResolverSourceHash("9cfb980db7b9916f1bfae6cd19cf9f54")
+    Path: __generated__/User____relay_model_instance.graphql.js
+    Path: __generated__/User__id.graphql.js

@@ -96,11 +96,31 @@ impl Iterator for CharReader<'_> {
     }
 }
 
+/// Check if a string contains any resolver docblock tag (`@RelayResolver`, `@relayType`, or `@relayField`).
+fn contains_resolver_tag(text: &str) -> bool {
+    let bytes = text.as_bytes();
+    let len = bytes.len();
+    let mut i = 0;
+    while i < len {
+        if bytes[i] == b'@' {
+            let remaining = &text[i + 1..];
+            if remaining.starts_with("RelayResolver")
+                || remaining.starts_with("relayType")
+                || remaining.starts_with("relayField")
+            {
+                return true;
+            }
+        }
+        i += 1;
+    }
+    false
+}
+
 /// Extract graphql`text` literals and @RelayResolver comments from JS-like code.
 // This should work for Flow or TypeScript alike.
 pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
     let mut res = Vec::new();
-    if !input.contains("graphql") && !input.contains("@RelayResolver") {
+    if !input.contains("graphql") && !contains_resolver_tag(input) {
         return res;
     }
     let mut it = CharReader::new(input);
@@ -208,7 +228,7 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
                             if prev_c == '*' && c == '/' {
                                 let end = i;
                                 let text = &input[start + 2..end - 1];
-                                if text.contains("@RelayResolver") {
+                                if contains_resolver_tag(text) {
                                     res.push(JavaScriptSourceFeature::Docblock(
                                         DocblockSource::new(text, line_index, column_index),
                                     ));

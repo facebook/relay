@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_relay_resolver_tag
 
 /**
  * @RelayResolver User.favorite_page: Page
@@ -31,44 +32,44 @@
 ==================================== ERROR ====================================
 ✖︎ Unexpected docblock field `@edgeTo`
 
-  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:14:5
-   13 │  * @onType User
-   14 │  * @edgeTo User
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:15:5
+   14 │  * @onType User
+   15 │  * @edgeTo User
       │     ^^^^^^
-   15 │  * @onInterface User
+   16 │  * @onInterface User
 
 
 ✖︎ Unexpected docblock field `@fieldName`
 
-  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:17:5
-   16 │  * @outputType User
-   17 │  * @fieldName my_field
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:18:5
+   17 │  * @outputType User
+   18 │  * @fieldName my_field
       │     ^^^^^^^^^
-   18 │  * @weak
+   19 │  * @weak
 
 
 ✖︎ Unexpected docblock field `@onInterface`
 
-  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:15:5
-   14 │  * @edgeTo User
-   15 │  * @onInterface User
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:16:5
+   15 │  * @edgeTo User
+   16 │  * @onInterface User
       │     ^^^^^^^^^^^
-   16 │  * @outputType User
+   17 │  * @outputType User
 
 
 ✖︎ Unexpected docblock field `@onType`
 
-  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:13:5
-   12 │  * @rootFragment myRootFragment
-   13 │  * @onType User
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:14:5
+   13 │  * @rootFragment myRootFragment
+   14 │  * @onType User
       │     ^^^^^^
-   14 │  * @edgeTo User
+   15 │  * @edgeTo User
 
 
 ✖︎ Unexpected docblock field `@outputType`
 
-  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:16:5
-   15 │  * @onInterface User
-   16 │  * @outputType User
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:17:5
+   16 │  * @onInterface User
+   17 │  * @outputType User
       │     ^^^^^^^^^^
-   17 │  * @fieldName my_field
+   18 │  * @fieldName my_field

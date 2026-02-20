@@ -84,6 +84,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                 } else {
                     &FeatureFlag::Disabled
                 },
+                allow_legacy_relay_resolver_tag: if fixture
+                    .content
+                    .contains("// relay:allow_legacy_relay_resolver_tag")
+                {
+                    &FeatureFlag::Enabled
+                } else {
+                    &FeatureFlag::Disabled
+                },
             },
         )?
         .unwrap();

@@ -1,16 +1,16 @@
 //- UserTypeResolvers.js
 /**
- * @RelayResolver User implements IPerson
+ * @relayType User implements IPerson
  */
 
 //- AdminTypeResolvers.js
 /**
- * @RelayResolver Admin implements IPerson
+ * @relayType Admin implements IPerson
  */
 
 //- IPersonResolvers.js
 /**
- * @RelayResolver IPerson.name: String
+ * @relayField IPerson.name: String
  * @rootFragment IPersonResolversFragment
  */
 

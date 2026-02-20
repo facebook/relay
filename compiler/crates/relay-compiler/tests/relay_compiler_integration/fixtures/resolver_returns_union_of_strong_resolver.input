@@ -12,25 +12,25 @@ graphql`query PersonComponentQuery {
 
 //- QueryResolvers.js
 /**
- * @RelayResolver Query.person: Person
+ * @relayField Query.person: Person
  */
 
 //- UserTypeResolvers.js
 /**
- * @RelayResolver User
+ * @relayType User
  */
 
 /**
- * @RelayResolver User.name: String
+ * @relayField User.name: String
  */
 
 //- AdminTypeResolvers.js
 /**
- * @RelayResolver Admin
+ * @relayType Admin
  */
 
 /**
- * @RelayResolver Admin.name: String
+ * @relayField Admin.name: String
  */
 
 //- relay.config.json

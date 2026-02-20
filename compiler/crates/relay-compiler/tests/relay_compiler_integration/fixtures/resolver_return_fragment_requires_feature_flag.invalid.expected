@@ -2,7 +2,7 @@
 //- User_foo.js
 // Test that @returnFragment requires the enable_shadow_resolvers feature flag.
 /**
- * @RelayResolver User.foo: RelayResolverValue
+ * @relayField User.foo: RelayResolverValue
  * @returnFragment SomeExternalFragment
  */
 
@@ -25,7 +25,7 @@ type User { name: String }
 ✖︎ The @returnFragment docblock tag requires the 'enable_shadow_resolvers' feature flag to be enabled.
 
   User_foo.js:4:20
-    3 │  * @RelayResolver User.foo: RelayResolverValue
+    3 │  * @relayField User.foo: RelayResolverValue
     4 │  * @returnFragment SomeExternalFragment
       │                    ^^^^^^^^^^^^^^^^^^^^
     5 │

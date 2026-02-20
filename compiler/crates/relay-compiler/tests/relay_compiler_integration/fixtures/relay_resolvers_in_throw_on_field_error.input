@@ -9,12 +9,12 @@ graphql`query fooQuery @throwOnFieldError {
 }`
 
 /**
- * @RelayResolver ClientUser
+ * @relayType ClientUser
  * A strong type
  */
 
  /**
-  * @RelayResolver Query.clientUser: ClientUser
+  * @relayField Query.clientUser: ClientUser
   * Resolver that returns ClientUser
   */
 

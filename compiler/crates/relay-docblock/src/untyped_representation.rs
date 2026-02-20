@@ -20,7 +20,9 @@ use graphql_ir::reexport::StringKey;
 use crate::DEPRECATED_FIELD;
 use crate::EMPTY_STRING;
 use crate::LIVE_FIELD;
+use crate::RELAY_FIELD_FIELD;
 use crate::RELAY_RESOLVER_FIELD;
+use crate::RELAY_TYPE_FIELD;
 use crate::RETURN_FRAGMENT_FIELD;
 use crate::ROOT_FRAGMENT_FIELD;
 use crate::SEMANTIC_NON_NULL_FIELD;
@@ -42,6 +44,8 @@ use crate::ir::IrField;
 )]
 pub enum AllowedFieldName {
     RelayResolverField,
+    RelayTypeField,
+    RelayFieldField,
     RootFragmentField,
     ReturnFragmentField,
     DeprecatedField,
@@ -54,6 +58,8 @@ impl Display for AllowedFieldName {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             AllowedFieldName::RelayResolverField => write!(f, "{}", *RELAY_RESOLVER_FIELD),
+            AllowedFieldName::RelayTypeField => write!(f, "{}", *RELAY_TYPE_FIELD),
+            AllowedFieldName::RelayFieldField => write!(f, "{}", *RELAY_FIELD_FIELD),
             AllowedFieldName::RootFragmentField => write!(f, "{}", *ROOT_FRAGMENT_FIELD),
             AllowedFieldName::ReturnFragmentField => write!(f, "{}", *RETURN_FRAGMENT_FIELD),
             AllowedFieldName::DeprecatedField => write!(f, "{}", *DEPRECATED_FIELD),
@@ -70,6 +76,8 @@ impl TryFrom<WithLocation<StringKey>> for AllowedFieldName {
     fn try_from(value: WithLocation<StringKey>) -> Result<Self, Self::Error> {
         match value.item {
             value if value == *RELAY_RESOLVER_FIELD => Ok(AllowedFieldName::RelayResolverField),
+            value if value == *RELAY_TYPE_FIELD => Ok(AllowedFieldName::RelayTypeField),
+            value if value == *RELAY_FIELD_FIELD => Ok(AllowedFieldName::RelayFieldField),
             value if value == *ROOT_FRAGMENT_FIELD => Ok(AllowedFieldName::RootFragmentField),
             value if value == *RETURN_FRAGMENT_FIELD => Ok(AllowedFieldName::ReturnFragmentField),
             value if value == *DEPRECATED_FIELD => Ok(AllowedFieldName::DeprecatedField),

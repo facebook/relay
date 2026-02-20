@@ -1,7 +1,7 @@
 //- User_foo.js
 // Test that @returnFragment rejects invalid GraphQL identifiers.
 /**
- * @RelayResolver User.foo: RelayResolverValue
+ * @relayField User.foo: RelayResolverValue
  * @returnFragment 123InvalidName
  */
 

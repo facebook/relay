@@ -1,6 +1,6 @@
 //- User_foo.js
 /**
- * @RelayResolver User.foo: RelayResolverValue
+ * @relayField User.foo: RelayResolverValue
  * @rootFragment UserFooFragment
  */
 graphql`fragment UserFooFragment on User {
@@ -9,7 +9,7 @@ graphql`fragment UserFooFragment on User {
 
 //- User_bar.js
 /**
- * @RelayResolver User.bar: RelayResolverValue
+ * @relayField User.bar: RelayResolverValue
  */
 
 //- relay.config.json

@@ -5,12 +5,12 @@ graphql`fragment fooFragment on MyInterface @throwOnFieldError {
 }`
 
 /**
- * @RelayResolver ClientUser implements MyInterface
+ * @relayType ClientUser implements MyInterface
  * A strong type
  */
 
  /**
-  * @RelayResolver ClientUser.name: String
+  * @relayField ClientUser.name: String
   * Resolver that returns name
   */
 

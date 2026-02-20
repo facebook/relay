@@ -1,6 +1,6 @@
 //- foo.ts
 /**
- * @RelayResolver User.foo: RelayResolverValue
+ * @relayField User.foo: RelayResolverValue
  */
 
 //- bar.ts

@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @relayType ClientUser
+ * @weak
+ */
+==================================== OUTPUT ===================================
+Type(
+    WeakObjectType(
+        WeakObjectIr {
+            type_name: Identifier {
+                span: 16:26,
+                token: Token {
+                    span: 16:26,
+                    kind: Identifier,
+                },
+                value: "ClientUser",
+            },
+            rhs_location: /path/to/test/fixture/relay-type-tag-weak-object.js:16:26,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            location: /path/to/test/fixture/relay-type-tag-weak-object.js:0:36,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "1be73a4f750acf48c3f9a39d0480528b",
+            ),
+            type_confirmed: false,
+        },
+    ),
+)

@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver User.name: String
+ */
+==================================== ERROR ====================================
+✖︎ Unexpected `@RelayResolver` for a field definition. Expected `@relayField`. The legacy `@RelayResolver` tag can be enabled with the `allow_legacy_relay_resolver_tag` feature flag.
+
+  /path/to/test/fixture/relay-resolver-field-new-tag-required.invalid.js:11:5
+   10 │ *
+   11 │  * @RelayResolver User.name: String
+      │     ^^^^^^^^^^^^^
+   12 │

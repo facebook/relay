@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:allow_legacy_relay_resolver_tag
 // relay:enable_interface_output_type
 
 /**

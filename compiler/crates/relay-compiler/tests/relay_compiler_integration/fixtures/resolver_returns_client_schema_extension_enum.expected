@@ -1,14 +1,14 @@
 ==================================== INPUT ====================================
 //- UserTypeResolvers.js
 /**
- * @RelayResolver User
+ * @relayType User
  */
 // Impl omitted for test
 
 type FlowVersionOfStatusEnum = "AMDIN" | "USER";
 
 /**
- * @RelayResolver User.status: Status
+ * @relayField User.status: Status
  */
 export function status(user: User): FlowVersionOfStatusEnum {
   return "ADMIN";
@@ -242,6 +242,6 @@ Project: default
   Type: Mapping
   - Source: ExecutableDefinition: SomeComponentFragment
     Path: __generated__/SomeComponentFragment.graphql.js
-  - Source: ResolverHash: ResolverSourceHash("b72c773d8bc8eb1f4925b56ac0379166")
+  - Source: ResolverHash: ResolverSourceHash("8700d85edfa7aa852166b861ce5d2023")
     Path: __generated__/User____relay_model_instance.graphql.js
     Path: __generated__/User__id.graphql.js

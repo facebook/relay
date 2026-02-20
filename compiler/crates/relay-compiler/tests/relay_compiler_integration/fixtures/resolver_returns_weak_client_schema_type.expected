@@ -8,7 +8,7 @@ graphql`query PersonComponentQuery {
 
 //- Resolvers.js
 /**
- * @RelayResolver Query.some_resolver_field: SomeType
+ * @relayField Query.some_resolver_field: SomeType
  */
 
 //- relay.config.json
@@ -32,8 +32,8 @@ type SomeType {
 ==================================== OUTPUT ===================================
 ✖︎ Relay Resolvers that return weak types defined in client schema extensions are not supported. Prefer defining the return type using a `@weak` Relay Resolver type: https://relay.dev/docs/next/guides/relay-resolvers/defining-types/#defining-a-weak-type
 
-  Resolvers.js:2:25
+  Resolvers.js:2:22
     1 │ *
-    2 │  * @RelayResolver Query.some_resolver_field: SomeType
-      │                         ^^^^^^^^^^^^^^^^^^^
+    2 │  * @relayField Query.some_resolver_field: SomeType
+      │                      ^^^^^^^^^^^^^^^^^^^
     3 │

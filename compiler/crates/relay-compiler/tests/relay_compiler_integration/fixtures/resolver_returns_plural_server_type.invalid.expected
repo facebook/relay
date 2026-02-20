@@ -8,7 +8,7 @@ graphql`query PersonComponentQuery {
 
 //- QueryResolvers.js
 /**
- * @RelayResolver Query.plural_server: [User]
+ * @relayField Query.plural_server: [User]
  */
 
 //- relay.config.json
@@ -35,8 +35,8 @@ type User implements Node {
 ==================================== OUTPUT ===================================
 ✖︎ Unexpected Relay Resolver returning plual edge to type defined on the server. Relay Resolvers do not curretly support returning plural edges to server types. As a work around, consider defining a plural edge to a client type which has a singular edge to the server type.
 
-  QueryResolvers.js:2:25
+  QueryResolvers.js:2:22
     1 │ *
-    2 │  * @RelayResolver Query.plural_server: [User]
-      │                         ^^^^^^^^^^^^^
+    2 │  * @relayField Query.plural_server: [User]
+      │                      ^^^^^^^^^^^^^
     3 │

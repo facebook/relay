@@ -33,6 +33,12 @@ lazy_static! {
     /// The name of the docblock tag that Relay looks for to determine if a field is a resolver.
     /// @RelayResolver
     pub static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();
+    /// The name of the docblock tag for defining a Relay Resolver type.
+    /// @relayType
+    pub static ref RELAY_TYPE_FIELD: StringKey = "relayType".intern();
+    /// The name of the docblock tag for defining a Relay Resolver field.
+    /// @relayField
+    pub static ref RELAY_FIELD_FIELD: StringKey = "relayField".intern();
     /// Resolvers let you define "model types" which are backed by a JS model value. These types in the schema
     /// are annotated with a directive using this name to signal to the rest of Relay that they are backed by
     /// a Relay Resolver model.

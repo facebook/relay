@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_relay_resolver_tag
 
 /**
  * @RelayResolver User.favorite_page: Page
@@ -20,10 +21,10 @@ graphql`
   }
 `
 ==================================== ERROR ====================================
-✖︎ The `@RelayResolver` field `@live` does not accept data. Remove everything after `@live`.
+✖︎ The resolver field `@live` does not accept data. Remove everything after `@live`.
 
-  /path/to/test/fixture/relay-resolver-live-with-text.invalid.js:13:5
-   12 │  * @rootFragment myRootFragment
-   13 │  * @live in the moment
+  /path/to/test/fixture/relay-resolver-live-with-text.invalid.js:14:5
+   13 │  * @rootFragment myRootFragment
+   14 │  * @live in the moment
       │     ^^^^
-   14 │
+   15 │

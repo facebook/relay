@@ -13,28 +13,28 @@ graphql`query UserQueryComponentQuery {
 
 //- UserTypeResolvers.js
 /**
- * @RelayResolver User implements IPerson
+ * @relayType User implements IPerson
  * @weak
  */
  export type User {};
 
 /**
- * @RelayResolver User.name: String
+ * @relayField User.name: String
  */
 
 /**
- * @RelayResolver Query.user: User
+ * @relayField Query.user: User
  */
 
 //- AdminTypeResolvers.js
 /**
- * @RelayResolver Admin implements IPerson
+ * @relayType Admin implements IPerson
  * @weak
  */
  export type Admin {};
 
 /**
- * @RelayResolver Admin.name: String
+ * @relayField Admin.name: String
  */
 
 //- relay.config.json

@@ -4,13 +4,27 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<639f53034a0e94db66314c261c67ac0e>>
+ * @generated SignedSource<<10491b62e84d0c18eb2bae50effc594f>>
  */
 
 mod parse;
 
 use parse::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn relay_field_tag_for_type_invalid() {
+    let input = include_str!("parse/fixtures/relay-field-tag-for-type.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-field-tag-for-type.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-field-tag-for-type.invalid.js", "parse/fixtures/relay-field-tag-for-type.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_field_tag_terse() {
+    let input = include_str!("parse/fixtures/relay-field-tag-terse.js");
+    let expected = include_str!("parse/fixtures/relay-field-tag-terse.expected");
+    test_fixture(transform_fixture, file!(), "relay-field-tag-terse.js", "parse/fixtures/relay-field-tag-terse.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn relay_resolver() {
@@ -31,6 +45,13 @@ async fn relay_resolver_deprecated_no_description() {
     let input = include_str!("parse/fixtures/relay-resolver-deprecated-no-description.js");
     let expected = include_str!("parse/fixtures/relay-resolver-deprecated-no-description.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-deprecated-no-description.js", "parse/fixtures/relay-resolver-deprecated-no-description.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_field_new_tag_required_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-field-new-tag-required.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-field-new-tag-required.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-field-new-tag-required.invalid.js", "parse/fixtures/relay-resolver-field-new-tag-required.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -87,6 +108,13 @@ async fn relay_resolver_terse_invalid_type_name() {
     let input = include_str!("parse/fixtures/relay-resolver-terse-invalid-type-name.js");
     let expected = include_str!("parse/fixtures/relay-resolver-terse-invalid-type-name.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-terse-invalid-type-name.js", "parse/fixtures/relay-resolver-terse-invalid-type-name.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_type_new_tag_required_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-type-new-tag-required.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-type-new-tag-required.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-type-new-tag-required.invalid.js", "parse/fixtures/relay-resolver-type-new-tag-required.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -164,6 +192,27 @@ async fn relay_resolver_with_fragment_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-with-fragment.invalid.js", "parse/fixtures/relay-resolver-with-fragment.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_type_tag_for_field_invalid() {
+    let input = include_str!("parse/fixtures/relay-type-tag-for-field.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-type-tag-for-field.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-type-tag-for-field.invalid.js", "parse/fixtures/relay-type-tag-for-field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_type_tag_strong_object() {
+    let input = include_str!("parse/fixtures/relay-type-tag-strong-object.js");
+    let expected = include_str!("parse/fixtures/relay-type-tag-strong-object.expected");
+    test_fixture(transform_fixture, file!(), "relay-type-tag-strong-object.js", "parse/fixtures/relay-type-tag-strong-object.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_type_tag_weak_object() {
+    let input = include_str!("parse/fixtures/relay-type-tag-weak-object.js");
+    let expected = include_str!("parse/fixtures/relay-type-tag-weak-object.expected");
+    test_fixture(transform_fixture, file!(), "relay-type-tag-weak-object.js", "parse/fixtures/relay-type-tag-weak-object.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -6,12 +6,12 @@ graphql`fragment fooFragment on MyInterface @throwOnFieldError {
 }`
 
 /**
- * @RelayResolver ClientUser implements MyInterface
+ * @relayType ClientUser implements MyInterface
  * A strong type
  */
 
  /**
-  * @RelayResolver ClientUser.name: String
+  * @relayField ClientUser.name: String
   * Resolver that returns name
   */
 
@@ -233,6 +233,6 @@ Project: default
   Type: Mapping
   - Source: ExecutableDefinition: fooFragment
     Path: __generated__/fooFragment.graphql.js
-  - Source: ResolverHash: ResolverSourceHash("42dad5aeb9fb8a9a2369b309f041410f")
+  - Source: ResolverHash: ResolverSourceHash("31acb87d2b54134222109a33c365ff03")
     Path: __generated__/ClientUser____relay_model_instance.graphql.js
     Path: __generated__/ClientUser__id.graphql.js

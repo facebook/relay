@@ -5,23 +5,23 @@ graphql`fragment PersonComponentFragment on IPerson {
 
 //- UserTypeResolvers.js
 /**
- * @RelayResolver User implements IPerson
+ * @relayType User implements IPerson
  */
 // Implementation omitted for test
 
 /**
- * @RelayResolver User.someComplexObject: SomeComplexObject
+ * @relayField User.someComplexObject: SomeComplexObject
  */
 // Implementation omitted for test
 
 //- AdminTypeResolvers.js
 /**
- * @RelayResolver Admin implements IPerson
+ * @relayType Admin implements IPerson
  */
 // Implementation omitted for test
 
 /**
- * @RelayResolver Admin.someComplexObject: SomeComplexObject
+ * @relayField Admin.someComplexObject: SomeComplexObject
  */
 // Implementation omitted for test
 

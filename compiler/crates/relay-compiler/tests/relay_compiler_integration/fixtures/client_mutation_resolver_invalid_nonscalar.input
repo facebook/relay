@@ -1,14 +1,14 @@
 //- foo.js
 /**
- * @RelayResolver Mutation.foo_mutation: Person
+ * @relayField Mutation.foo_mutation: Person
  */
 
 /**
- * @RelayResolver Mutation.baz_mutation: [Person]
+ * @relayField Mutation.baz_mutation: [Person]
  */
 
 /**
- * @RelayResolver Mutation.quux_mutation: [Person!]
+ * @relayField Mutation.quux_mutation: [Person!]
  */
 
 //- bar.js

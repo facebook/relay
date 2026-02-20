@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_relay_resolver_tag
 
 /**
  * @RelayResolver User.greeting(salutation): RelayResolverValue
@@ -22,8 +23,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Expected a colon (':')
 
-  /path/to/test/fixture/relay-resolver-with-args-syntax-error.invalid.js:11:43
-   10 │ *
-   11 │  * @RelayResolver User.greeting(salutation): RelayResolverValue
+  /path/to/test/fixture/relay-resolver-with-args-syntax-error.invalid.js:12:43
+   11 │ *
+   12 │  * @RelayResolver User.greeting(salutation): RelayResolverValue
       │                                           ^
-   12 │  * @rootFragment myRootFragment
+   13 │  * @rootFragment myRootFragment

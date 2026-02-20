@@ -57,6 +57,14 @@ use crate::ir::WeakObjectIr;
 use crate::untyped_representation::AllowedFieldName;
 use crate::untyped_representation::UntypedDocblockRepresentation;
 
+/// Tracks which docblock tag was used by the author.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum UsedTag {
+    RelayResolver,
+    RelayType,
+    RelayField,
+}
+
 pub(crate) fn parse_docblock_ir(
     project_name: &ProjectName,
     untyped_representation: UntypedDocblockRepresentation,
@@ -66,40 +74,69 @@ pub(crate) fn parse_docblock_ir(
     // "this field is missing".
     docblock_location: Location,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
-    // Categorization:
-    // - If there is no @RelayResolver field, return Ok(None)
-    // - If there is an unpopulated @RelayResolver field, parse a RelayResolverIr
-    // - If there is a populated @RelayResolver field and its value contains a '.'
-    //   (dot character), parse a TerseRelayResolver
-    // - If there is a populated @RelayResolver field and a populated @weak field,
-    //   emit an error.
-    // - If there is a populated @RelayResolver field and an unpopulated @weak field,
-    //   parse a WeakResolverIr
-    // - Otherwise, if there is a populated @RelayResolver field and no @weak field,
-    //   parse a StrongResolverIr
-    //
-    // Categorization is infallible (except as detailed above); we assume that the user
-    // got that part right and surface errors accordingly, even though it might be better
-    // (for example) if a user includes multiple strong-only fields *and* a @weak field to
-    // suggest the the user removes the @weak field. But we don't do that.
-
     let UntypedDocblockRepresentation {
         description,
         mut fields,
         source_hash,
     } = untyped_representation;
 
-    let resolver_field = match fields.remove(&AllowedFieldName::RelayResolverField) {
-        Some(resolver_field) => resolver_field,
-        None => return Ok(None),
-    };
+    // Extract all three possible resolver tags
+    let relay_resolver_field = fields.remove(&AllowedFieldName::RelayResolverField);
+    let relay_type_field = fields.remove(&AllowedFieldName::RelayTypeField);
+    let relay_field_field = fields.remove(&AllowedFieldName::RelayFieldField);
+
+    // Determine which single tag was used (error if multiple)
+    let (used_tag, resolver_field) =
+        match (relay_resolver_field, relay_type_field, relay_field_field) {
+            (None, None, None) => return Ok(None),
+            (Some(field), None, None) => (UsedTag::RelayResolver, field),
+            (None, Some(field), None) => (UsedTag::RelayType, field),
+            (None, None, Some(field)) => (UsedTag::RelayField, field),
+            // Multiple tags present - error
+            (a, b, c) => {
+                // Find the location of the first present tag for the error
+                let first_location = [&a, &b, &c]
+                    .iter()
+                    .filter_map(|f| f.as_ref())
+                    .map(|f| f.key_location())
+                    .next()
+                    .unwrap();
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::MultipleResolverTags,
+                    first_location,
+                )]);
+            }
+        };
+
+    // All three tags use the same inference logic: the dot in the value
+    // determines whether this is a type or field definition.
+    // Tag-specific errors (wrong tag for the inferred kind) are checked
+    // after parsing in check_resolver_tag_validity.
     let parsed_docblock_ir = match resolver_field {
-        IrField::UnpopulatedIrField(unpopulated_ir_field) => {
-            return Err(vec![Diagnostic::error(
-                IrParsingErrorMessages::LegacyVerboseSyntaxDeprecated,
-                unpopulated_ir_field.key_location,
-            )]);
-        }
+        IrField::UnpopulatedIrField(unpopulated_ir_field) => match used_tag {
+            UsedTag::RelayResolver => {
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::LegacyVerboseSyntaxDeprecated,
+                    unpopulated_ir_field.key_location,
+                )]);
+            }
+            UsedTag::RelayType => {
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::FieldWithMissingData {
+                        field_name: AllowedFieldName::RelayTypeField,
+                    },
+                    unpopulated_ir_field.key_location,
+                )]);
+            }
+            UsedTag::RelayField => {
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::FieldWithMissingData {
+                        field_name: AllowedFieldName::RelayFieldField,
+                    },
+                    unpopulated_ir_field.key_location,
+                )]);
+            }
+        },
         IrField::PopulatedIrField(populated_ir_field) => {
             if populated_ir_field.value.item.lookup().contains('.') {
                 DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(
@@ -122,7 +159,7 @@ pub(crate) fn parse_docblock_ir(
                         parse_weak_object_ir(
                             &mut fields,
                             description,
-                            None, // This might be necessary for field hack source links
+                            None,
                             docblock_location,
                             populated_ir_field,
                             weak_field,
@@ -151,7 +188,74 @@ pub(crate) fn parse_docblock_ir(
         parsed_docblock_ir.get_variant_name(),
     )?;
 
+    // After parsing, check feature flag and tag correctness
+    check_resolver_tag_validity(
+        used_tag,
+        &parsed_docblock_ir,
+        parse_options,
+        resolver_field.key_location(),
+    )?;
+
     Ok(Some(parsed_docblock_ir))
+}
+
+/// After successfully parsing the docblock IR, validate that the tag used
+/// is consistent with the feature flag and the kind of definition parsed.
+fn check_resolver_tag_validity(
+    used_tag: UsedTag,
+    parsed_ir: &DocblockIr,
+    parse_options: &ParseOptions<'_>,
+    tag_location: Location,
+) -> DiagnosticsResult<()> {
+    let is_type = matches!(parsed_ir, DocblockIr::Type(_));
+
+    // Extract the name to check against the feature flag
+    let name = match parsed_ir {
+        DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(ir)) => ir.type_name.value,
+        DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(ir)) => ir.type_name.value,
+        DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(ir)) => ir.field.name.value,
+    };
+
+    let legacy_tag_allowed = parse_options
+        .allow_legacy_relay_resolver_tag
+        .is_enabled_for(name);
+
+    match used_tag {
+        UsedTag::RelayResolver => {
+            if !legacy_tag_allowed {
+                // Legacy tag not allowed - suggest the correct new tag
+                if is_type {
+                    return Err(vec![Diagnostic::error_with_data(
+                        ErrorMessagesWithData::UseRelayTypeTag,
+                        tag_location,
+                    )]);
+                } else {
+                    return Err(vec![Diagnostic::error_with_data(
+                        ErrorMessagesWithData::UseRelayFieldTag,
+                        tag_location,
+                    )]);
+                }
+            }
+        }
+        UsedTag::RelayType => {
+            if !is_type {
+                return Err(vec![Diagnostic::error_with_data(
+                    ErrorMessagesWithData::RelayTypeTagUsedForField,
+                    tag_location,
+                )]);
+            }
+        }
+        UsedTag::RelayField => {
+            if is_type {
+                return Err(vec![Diagnostic::error_with_data(
+                    ErrorMessagesWithData::RelayFieldTagUsedForType,
+                    tag_location,
+                )]);
+            }
+        }
+    }
+
+    Ok(())
 }
 
 fn parse_strong_object_ir(
@@ -199,7 +303,7 @@ fn parse_weak_object_ir(
     source_hash: ResolverSourceHash,
     parse_options: &ParseOptions<'_>,
 ) -> DiagnosticsResult<WeakObjectIr> {
-    // Validate that the right hand side of the @RelayResolver field is a valid identifier
+    // Validate that the right hand side of the resolver tag is a valid identifier
     let (identifier, implements_interfaces) = if parse_options
         .enable_interface_output_type
         .is_fully_enabled()
@@ -242,7 +346,7 @@ fn parse_terse_relay_resolver_ir(
         get_optional_populated_field_named(fields, AllowedFieldName::ReturnFragmentField)?;
     let type_str: WithLocation<StringKey> = relay_resolver_field.value;
 
-    // Validate that the right hand side of the @RelayResolver field is a valid identifier
+    // Validate that the right hand side of the resolver tag is a valid identifier
     let type_name = extract_identifier(relay_resolver_field)?;
 
     let (start, end) = type_name.span.as_usize();

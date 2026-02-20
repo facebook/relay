@@ -1,6 +1,6 @@
 //- User_foo.js
 /**
- * @RelayResolver User.foo: String @semanticNonNull
+ * @relayField User.foo: String @semanticNonNull
  * @rootFragment UserFooFragment
  */
 graphql`fragment UserFooFragment on User @throwOnFieldError {
@@ -12,20 +12,20 @@ graphql`fragment UserFooFragment on User @throwOnFieldError {
 
 //- User_bar.js
 /**
- * @RelayResolver User.bar: CustomScalarType @semanticNonNull
+ * @relayField User.bar: CustomScalarType @semanticNonNull
  */
 
  /**
- * @RelayResolver User.bar_live: CustomScalarType @semanticNonNull
+ * @relayField User.bar_live: CustomScalarType @semanticNonNull
  * @live
  */
 
 /**
- * @RelayResolver User.bar_plural: [CustomScalarType] @semanticNonNull(levels: [0, 1])
+ * @relayField User.bar_plural: [CustomScalarType] @semanticNonNull(levels: [0, 1])
  */
 
  /**
- * @RelayResolver User.bar_live_plural: [CustomScalarType] @semanticNonNull(levels: [0, 1])
+ * @relayField User.bar_live_plural: [CustomScalarType] @semanticNonNull(levels: [0, 1])
  * @live
  */
 

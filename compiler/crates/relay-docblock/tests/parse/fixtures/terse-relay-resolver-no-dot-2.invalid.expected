@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_relay_resolver_tag
 
 /**
  * @RelayResolver User&favorite_page: Page
@@ -25,8 +26,8 @@
 ==================================== ERROR ====================================
 ✖︎ Expected a end of file
 
-  /path/to/test/fixture/terse-relay-resolver-no-dot-2.invalid.js:11:23
-   10 │ *
-   11 │  * @RelayResolver User&favorite_page: Page
+  /path/to/test/fixture/terse-relay-resolver-no-dot-2.invalid.js:12:23
+   11 │ *
+   12 │  * @RelayResolver User&favorite_page: Page
       │                       ^
-   12 │  * @rootFragment myRootFragment
+   13 │  * @rootFragment myRootFragment

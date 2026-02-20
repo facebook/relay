@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 //- User_foo.js
 /**
- * @RelayResolver User.foo: String
+ * @relayField User.foo: String
  * @rootFragment UserFooFragment
  */
 graphql`fragment UserFooFragment on User {
@@ -10,7 +10,7 @@ graphql`fragment UserFooFragment on User {
 
 //- User_bar.js
 /**
- * @RelayResolver User.bar: String
+ * @relayField User.bar: String
  * @rootFragment UserBarFragment
  */
 graphql`fragment UserBarFragment on User @relay(mask: false) {

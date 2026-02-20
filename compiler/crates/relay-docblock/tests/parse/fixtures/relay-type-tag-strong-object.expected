@@ -1,0 +1,43 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @relayType ClientUser
+ */
+==================================== OUTPUT ===================================
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 16:26,
+                token: Token {
+                    span: 16:26,
+                    kind: Identifier,
+                },
+                value: "ClientUser",
+            },
+            rhs_location: /path/to/test/fixture/relay-type-tag-strong-object.js:16:26,
+            root_fragment: WithLocation {
+                location: <generated>:0:0,
+                item: FragmentDefinitionName(
+                    "ClientUser__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: /path/to/test/fixture/relay-type-tag-strong-object.js:0:27,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "9fa9556e24f4d6e5a403cc75197d73be",
+            ),
+            type_confirmed: false,
+        },
+    ),
+)

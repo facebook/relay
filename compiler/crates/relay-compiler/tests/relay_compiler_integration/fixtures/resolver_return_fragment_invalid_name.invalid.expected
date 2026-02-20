@@ -2,7 +2,7 @@
 //- User_foo.js
 // Test that @returnFragment rejects invalid GraphQL identifiers.
 /**
- * @RelayResolver User.foo: RelayResolverValue
+ * @relayField User.foo: RelayResolverValue
  * @returnFragment 123InvalidName
  */
 
@@ -28,7 +28,7 @@ type User { name: String }
 ✖︎ '123InvalidName' is not a valid fragment name. Fragment names must match /[_A-Za-z][_0-9A-Za-z]*/.
 
   User_foo.js:4:20
-    3 │  * @RelayResolver User.foo: RelayResolverValue
+    3 │  * @relayField User.foo: RelayResolverValue
     4 │  * @returnFragment 123InvalidName
       │                    ^^^^^^^^^^^^^^
     5 │

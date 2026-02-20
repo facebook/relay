@@ -6,16 +6,16 @@ graphql`fragment PersonComponentFragment on IPerson {
 
 //- UserTypeResolvers.js
 /**
- * @RelayResolver User implements IPerson
+ * @relayType User implements IPerson
  */
 
  /**
-  * @RelayResolver User.name: String
+  * @relayField User.name: String
   */
 
 //- AdminTypeResolvers.js
 /**
- * @RelayResolver Admin implements IPerson
+ * @relayType Admin implements IPerson
  */
 
 # Admin should implement name, but does not!
@@ -47,10 +47,10 @@ interface IPerson {
 ==================================== OUTPUT ===================================
 ✖︎ Interface field 'IPerson.name' expected but type 'Admin' does not provide it.
 
-  AdminTypeResolvers.js:2:19
+  AdminTypeResolvers.js:2:15
     1 │ *
-    2 │  * @RelayResolver Admin implements IPerson
-      │                   ^^^^^
+    2 │  * @relayType Admin implements IPerson
+      │               ^^^^^
     3 │  
 
   ℹ︎ The interface field is defined here:

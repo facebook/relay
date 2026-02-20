@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_relay_resolver_tag
 
 /**
  * @RelayResolver User#favorite_page: Page
@@ -23,18 +24,18 @@
  }
 `
 ==================================== ERROR ====================================
-✖︎ The compiler attempted to parse this `@RelayResolver` block as a strong object type declaration, but there were unexpected fields: @rootFragment.
+✖︎ The compiler attempted to parse this resolver block as a strong object type declaration, but there were unexpected fields: @rootFragment.
 
-  /path/to/test/fixture/terse-relay-resolver-no-dot.invalid.js:11:5
-   10 │ *
-   11 │  * @RelayResolver User#favorite_page: Page
+  /path/to/test/fixture/terse-relay-resolver-no-dot.invalid.js:12:5
+   11 │ *
+   12 │  * @RelayResolver User#favorite_page: Page
       │     ^^^^^^^^^^^^^
-   12 │  * @rootFragment myRootFragment
+   13 │  * @rootFragment myRootFragment
 
   ℹ︎ Unexpected field
 
-  /path/to/test/fixture/terse-relay-resolver-no-dot.invalid.js:12:5
-   11 │  * @RelayResolver User#favorite_page: Page
-   12 │  * @rootFragment myRootFragment
+  /path/to/test/fixture/terse-relay-resolver-no-dot.invalid.js:13:5
+   12 │  * @RelayResolver User#favorite_page: Page
+   13 │  * @rootFragment myRootFragment
       │     ^^^^^^^^^^^^
-   13 │  *
+   14 │  *

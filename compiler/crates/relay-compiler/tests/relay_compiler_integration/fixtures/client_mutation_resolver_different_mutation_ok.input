@@ -1,10 +1,10 @@
 //- foo.js
 /**
- * @RelayResolver Mutation.foo_mutation: Person
+ * @relayField Mutation.foo_mutation: Person
  */
 
 /**
- * @RelayResolver NotCalledMutation.baz_mutation: Boolean
+ * @relayField NotCalledMutation.baz_mutation: Boolean
  */
 
 //- bar.js

@@ -7,7 +7,7 @@ graphql`query PersonComponentQuery {
 
 //- QueryResolvers.js
 /**
- * @RelayResolver Query.plural_server: [User]
+ * @relayField Query.plural_server: [User]
  */
 
 //- relay.config.json

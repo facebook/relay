@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 //- User_foo.js
 /**
- * @RelayResolver User.foo: String @semanticNonNull
+ * @relayField User.foo: String @semanticNonNull
  * @rootFragment UserFooFragment
  */
 graphql`fragment UserFooFragment on User @throwOnFieldError {
@@ -10,7 +10,7 @@ graphql`fragment UserFooFragment on User @throwOnFieldError {
 
 //- User_bar.js
 /**
- * @RelayResolver User.bar: [String] @semanticNonNull(levels: [0,1])
+ * @relayField User.bar: [String] @semanticNonNull(levels: [0,1])
  * @live
  */
 

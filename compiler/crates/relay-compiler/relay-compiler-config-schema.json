@@ -559,6 +559,13 @@
             "kind": "disabled"
           }
         },
+        "allow_legacy_relay_resolver_tag": {
+          "description": "When enabled for a given name, allows `@RelayResolver` as a legacy\nalias for `@relayType` / `@relayField`.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "allow_output_type_resolvers": {
           "description": "@outputType resolvers are a discontinued experimental feature. This flag\nallows users to allowlist old uses of this feature while they work to\nremove them. Weak types (types without an `id` field) returned by a Relay\nResolver should be limited to types defined using `@RelayResolver` with `@weak`.\n\nIf using the \"limited\" feature flag variant, users can allowlist a\nspecific list of field names.\n\nhttps://relay.dev/docs/next/guides/relay-resolvers/defining-types/#defining-a-weak-type",
           "$ref": "#/$defs/FeatureFlag",
@@ -894,6 +901,9 @@
           "$ref": "#/$defs/FeatureFlags",
           "default": {
             "actor_change_support": {
+              "kind": "disabled"
+            },
+            "allow_legacy_relay_resolver_tag": {
               "kind": "disabled"
             },
             "allow_output_type_resolvers": {

@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_relay_resolver_tag
 
 /**
  * @RelayResolver User.hello(world: String = "World"): RelayResolverValue
@@ -14,8 +15,8 @@
 ==================================== ERROR ====================================
 ✖︎ Defining arguments with default values for resolver fields is not supported, yet.
 
-  /path/to/test/fixture/relay-resolver-with-args-default-value.invalid.js:11:46
-   10 │ *
-   11 │  * @RelayResolver User.hello(world: String = "World"): RelayResolverValue
+  /path/to/test/fixture/relay-resolver-with-args-default-value.invalid.js:12:46
+   11 │ *
+   12 │  * @RelayResolver User.hello(world: String = "World"): RelayResolverValue
       │                                              ^^^^^^^
-   12 │
+   13 │

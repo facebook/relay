@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 //- foo.js
 /**
- * @RelayResolver Mutation.foo_mutation: Boolean
+ * @relayField Mutation.foo_mutation: Boolean
  */
 
 //- bar.js
@@ -26,8 +26,8 @@ type Mutation
 ==================================== OUTPUT ===================================
 ✖︎ Resolvers on the mutation type Mutation are disallowed without the enable_relay_resolver_mutations feature flag
 
-  foo.js:2:28
+  foo.js:2:25
     1 │ *
-    2 │  * @RelayResolver Mutation.foo_mutation: Boolean
-      │                            ^^^^^^^^^^^^
+    2 │  * @relayField Mutation.foo_mutation: Boolean
+      │                         ^^^^^^^^^^^^
     3 │

@@ -12,6 +12,8 @@ use intern::string_key::StringKey;
 use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
+use crate::RELAY_FIELD_FIELD;
+use crate::RELAY_TYPE_FIELD;
 use crate::untyped_representation::AllowedFieldName;
 
 #[derive(
@@ -34,7 +36,7 @@ pub enum UntypedRepresentationErrorMessages {
     DuplicateField { field_name: AllowedFieldName },
 
     #[error(
-        "Unexpected free text. Free text in a `@RelayResolver` docblock is treated as the field's human-readable description. Only one description is permitted."
+        "Unexpected free text. Free text in a resolver docblock is treated as the field's human-readable description. Only one description is permitted."
     )]
     MultipleDescriptions,
 }
@@ -65,11 +67,11 @@ pub enum IrParsingErrorMessages {
     },
 
     #[error(
-        "The `@RelayResolver` field `@{field_name}` does not accept data. Remove everything after `@{field_name}`."
+        "The resolver field `@{field_name}` does not accept data. Remove everything after `@{field_name}`."
     )]
     FieldWithUnexpectedData { field_name: AllowedFieldName },
 
-    #[error("The `@RelayResolver` field `@{field_name}` requires data.")]
+    #[error("The resolver field `@{field_name}` requires data.")]
     FieldWithMissingData { field_name: AllowedFieldName },
 
     #[error(
@@ -78,7 +80,7 @@ pub enum IrParsingErrorMessages {
     FieldWithNonNullType,
 
     #[error(
-        "The compiler attempted to parse this `@RelayResolver` block as a {resolver_type}, but there were unexpected fields: {field_string}."
+        "The compiler attempted to parse this resolver block as a {resolver_type}, but there were unexpected fields: {field_string}."
     )]
     LeftoverFields {
         resolver_type: &'static str,
@@ -97,14 +99,19 @@ pub enum IrParsingErrorMessages {
     },
 
     #[error(
-        "Unexpected character \"{found}\". Expected `@RelayResolver` field to either be a GraphQL typename, or a field definition of the form `ParentType.field_name: ReturnType`."
+        "Unexpected character \"{found}\". Expected resolver field to either be a GraphQL typename, or a field definition of the form `ParentType.field_name: ReturnType`."
     )]
     UnexpectedNonDot { found: char },
 
     #[error(
-        "Legacy verbose resolver syntax (@onType, @onInterface, @fieldName) is deprecated. Use the terse syntax instead: @RelayResolver ParentType.fieldName: ReturnType"
+        "Legacy verbose resolver syntax (@onType, @onInterface, @fieldName) is deprecated. Use the terse syntax instead: @relayField ParentType.fieldName: ReturnType"
     )]
     LegacyVerboseSyntaxDeprecated,
+
+    #[error(
+        "Unexpected multiple resolver tags. Expected exactly one of `@RelayResolver`, `@relayType`, or `@relayField`."
+    )]
+    MultipleResolverTags,
 }
 
 #[derive(
@@ -182,6 +189,22 @@ pub enum ErrorMessagesWithData {
         type_name: StringKey,
         suggestions: Vec<StringKey>,
     },
+
+    #[error(
+        "Unexpected `@RelayResolver` for a type definition. Expected `@relayType`. The legacy `@RelayResolver` tag can be enabled with the `allow_legacy_relay_resolver_tag` feature flag."
+    )]
+    UseRelayTypeTag,
+
+    #[error(
+        "Unexpected `@RelayResolver` for a field definition. Expected `@relayField`. The legacy `@RelayResolver` tag can be enabled with the `allow_legacy_relay_resolver_tag` feature flag."
+    )]
+    UseRelayFieldTag,
+
+    #[error("Unexpected `@relayType` for a field definition. Expected `@relayField`.")]
+    RelayTypeTagUsedForField,
+
+    #[error("Unexpected `@relayField` for a type definition. Expected `@relayType`.")]
+    RelayFieldTagUsedForType,
 }
 
 impl WithDiagnosticData for ErrorMessagesWithData {
@@ -192,6 +215,10 @@ impl WithDiagnosticData for ErrorMessagesWithData {
                 .iter()
                 .map(|suggestion| into_box(*suggestion))
                 .collect::<_>(),
+            ErrorMessagesWithData::UseRelayTypeTag => vec![into_box(*RELAY_TYPE_FIELD)],
+            ErrorMessagesWithData::UseRelayFieldTag => vec![into_box(*RELAY_FIELD_FIELD)],
+            ErrorMessagesWithData::RelayTypeTagUsedForField => vec![into_box(*RELAY_FIELD_FIELD)],
+            ErrorMessagesWithData::RelayFieldTagUsedForType => vec![into_box(*RELAY_TYPE_FIELD)],
         }
     }
 }

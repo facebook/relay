@@ -22,7 +22,9 @@ pub use docblock_ir::validate_fragment_arguments;
 use docblock_shared::DEPRECATED_FIELD;
 use docblock_shared::EMPTY_STRING;
 use docblock_shared::LIVE_FIELD;
+use docblock_shared::RELAY_FIELD_FIELD;
 use docblock_shared::RELAY_RESOLVER_FIELD;
+use docblock_shared::RELAY_TYPE_FIELD;
 use docblock_shared::RETURN_FRAGMENT_FIELD;
 use docblock_shared::ROOT_FRAGMENT_FIELD;
 use docblock_shared::SEMANTIC_NON_NULL_FIELD;
@@ -40,6 +42,7 @@ pub use validate_resolver_schema::validate_resolver_schema;
 pub struct ParseOptions<'a> {
     pub enable_interface_output_type: &'a FeatureFlag,
     pub allow_resolver_non_nullable_return_type: &'a FeatureFlag,
+    pub allow_legacy_relay_resolver_tag: &'a FeatureFlag,
 }
 
 pub fn parse_docblock_ast(
@@ -60,6 +63,10 @@ pub fn parse_docblock_ast(
 
 /// Check if this docblock has Resolver Model (type) definition
 pub fn resolver_maybe_defining_type(ast: &DocblockAST) -> bool {
+    // @relayType is always a type definition
+    if ast.find_field(*RELAY_TYPE_FIELD).is_some() {
+        return true;
+    }
     ast.find_field(*RELAY_RESOLVER_FIELD).is_some_and(|field| {
         if let Some(value) = field.field_value {
             // If @RelayResolver value contains a `.`

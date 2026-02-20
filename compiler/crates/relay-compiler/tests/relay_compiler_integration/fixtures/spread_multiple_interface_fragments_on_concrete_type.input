@@ -16,22 +16,22 @@ graphql`fragment SpreadInterfaceFragmentOnConcreteTypeComponentFragment on User 
 
 //- UserTypeResolvers.js
 /**
- * @RelayResolver User implements IPerson & IActor
+ * @relayType User implements IPerson & IActor
  */
 
 //- AdminTypeResolvers.js
 /**
- * @RelayResolver Admin implements IPerson & IActor
+ * @relayType Admin implements IPerson & IActor
  */
 
 //- IPersonResolvers.js
 /**
- * @RelayResolver IPerson.name: String
+ * @relayField IPerson.name: String
  */
 
 //- IActorResolvers.js
 /**
- * @RelayResolver IActor.description: String
+ * @relayField IActor.description: String
  */
 
 //- relay.config.json

@@ -1,0 +1,53 @@
+==================================== INPUT ====================================
+# Interface accessed only via inline fragments on concrete types.
+# The interface should still have all its fields in the sub-schema.
+
+//- src/NodeQuery.js
+graphql`
+  query NodeQuery {
+    node {
+      ... on User {
+        name
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  node: Node
+}
+
+interface Node {
+  id: ID!
+  createdAt: String
+}
+
+type User implements Node {
+  id: ID!
+  createdAt: String
+  name: String
+}
+==================================== OUTPUT ===================================
+type Query {
+  node: Node
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}
+
+interface Node {
+  id: ID!
+}

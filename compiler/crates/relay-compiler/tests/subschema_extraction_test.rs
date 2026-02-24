@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6ebe426cb1c1ab9d8105c252e78e883c>>
+ * @generated SignedSource<<c24a4d536283c943d1f25fe169858745>>
  */
 
 mod subschema_extraction;
@@ -17,6 +17,34 @@ async fn inlined_nested_input() {
     let input = include_str!("subschema_extraction/fixtures/inlined_nested_input.input");
     let expected = include_str!("subschema_extraction/fixtures/inlined_nested_input.expected");
     test_fixture(transform_fixture, file!(), "inlined_nested_input.input", "subschema_extraction/fixtures/inlined_nested_input.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn interface_empty_without_id() {
+    let input = include_str!("subschema_extraction/fixtures/interface_empty_without_id.input");
+    let expected = include_str!("subschema_extraction/fixtures/interface_empty_without_id.expected");
+    test_fixture(transform_fixture, file!(), "interface_empty_without_id.input", "subschema_extraction/fixtures/interface_empty_without_id.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn interface_nested() {
+    let input = include_str!("subschema_extraction/fixtures/interface_nested.input");
+    let expected = include_str!("subschema_extraction/fixtures/interface_nested.expected");
+    test_fixture(transform_fixture, file!(), "interface_nested.input", "subschema_extraction/fixtures/interface_nested.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn interface_on_object_field() {
+    let input = include_str!("subschema_extraction/fixtures/interface_on_object_field.input");
+    let expected = include_str!("subschema_extraction/fixtures/interface_on_object_field.expected");
+    test_fixture(transform_fixture, file!(), "interface_on_object_field.input", "subschema_extraction/fixtures/interface_on_object_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn interface_only_inline_fragments() {
+    let input = include_str!("subschema_extraction/fixtures/interface_only_inline_fragments.input");
+    let expected = include_str!("subschema_extraction/fixtures/interface_only_inline_fragments.expected");
+    test_fixture(transform_fixture, file!(), "interface_only_inline_fragments.input", "subschema_extraction/fixtures/interface_only_inline_fragments.expected", input, expected).await;
 }
 
 #[tokio::test]

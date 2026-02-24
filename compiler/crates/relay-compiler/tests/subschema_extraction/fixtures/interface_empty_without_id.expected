@@ -1,0 +1,51 @@
+==================================== INPUT ====================================
+# Interface without an id field, accessed only via inline fragments.
+# Without the fix, the interface ends up with zero fields in the
+# sub-schema, which is invalid per the GraphQL spec.
+
+//- src/SearchQuery.js
+graphql`
+  query SearchQuery {
+    search {
+      ... on Article {
+        body
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  search: Searchable
+}
+
+interface Searchable {
+  title: String
+  score: Float
+}
+
+type Article implements Searchable {
+  title: String
+  score: Float
+  body: String
+}
+==================================== OUTPUT ===================================
+type Article implements Searchable {
+  body: String
+}
+
+type Query {
+  search: Searchable
+}
+
+interface Searchable

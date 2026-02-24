@@ -1,0 +1,46 @@
+# Interface that extends another interface, both accessed only via concrete type.
+# Both interfaces should have their fields in the sub-schema.
+
+//- src/EventQuery.js
+graphql`
+  query EventQuery {
+    event {
+      ... on Concert {
+        venue
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  event: Event
+}
+
+interface Event {
+  id: ID!
+  name: String
+}
+
+interface LiveEvent implements Event {
+  id: ID!
+  name: String
+  location: String
+}
+
+type Concert implements LiveEvent & Event {
+  id: ID!
+  name: String
+  location: String
+  venue: String
+}

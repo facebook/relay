@@ -1,0 +1,51 @@
+# Interface returned by a field on an object (not directly on Query).
+# The interface should still have all its fields in the sub-schema.
+
+//- src/FeedQuery.js
+graphql`
+  query FeedQuery {
+    feed {
+      items {
+        ... on Photo {
+          url
+        }
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  feed: Feed
+}
+
+type Feed {
+  items: [FeedItem]
+}
+
+interface FeedItem {
+  id: ID!
+  title: String
+}
+
+type Photo implements FeedItem {
+  id: ID!
+  title: String
+  url: String
+}
+
+type Video implements FeedItem {
+  id: ID!
+  title: String
+  duration: Int
+}

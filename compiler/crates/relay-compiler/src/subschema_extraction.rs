@@ -188,6 +188,7 @@ pub fn extract_subschema(programs: &Programs) -> Result<String, SubschemaError> 
             include_directive_definitions: true,
             include_implicit_output_enum_values: true,
             include_implicit_input_fields_and_enum_values: true,
+            backfill_empty_interfaces: true,
         },
     );
 

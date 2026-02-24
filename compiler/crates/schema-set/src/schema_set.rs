@@ -160,6 +160,7 @@ impl SchemaSet {
         if let Some(type_definitions_doc) = type_definitions_doc {
             used_schema_collector.add_used_type_definitions(type_definitions_doc);
         }
+        used_schema_collector.backfill_empty_interfaces();
 
         used_schema
     }
@@ -181,6 +182,7 @@ impl SchemaSet {
         let mut used_schema_collector =
             UsedSchemaIRCollector::new(self, program, used_schema_options);
         used_schema_collector.visit_program(&program.into());
+        used_schema_collector.backfill_empty_interfaces();
     }
 
     pub fn printed_base_and_client_schema(&self) -> (String, String) {

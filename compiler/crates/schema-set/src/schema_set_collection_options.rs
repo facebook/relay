@@ -36,6 +36,12 @@ pub struct UsedSchemaCollectionOptions {
     /// Do we need implicitly used enum values?
     pub include_implicit_output_enum_values: bool,
     pub include_implicit_input_fields_and_enum_values: bool,
+
+    /// If an interface ends up with zero explicitly-used fields, backfill all
+    /// of its fields from the full schema. This prevents emitting empty
+    /// interface declarations (invalid per the GraphQL spec) when an interface
+    /// is only reached indirectly via inline fragments on implementing types.
+    pub backfill_empty_interfaces: bool,
 }
 
 impl UsedSchemaCollectionOptions {
@@ -49,6 +55,7 @@ impl UsedSchemaCollectionOptions {
             include_directive_definitions: false,
             include_implicit_output_enum_values: false,
             include_implicit_input_fields_and_enum_values: false,
+            backfill_empty_interfaces: true,
         }
     }
 
@@ -60,6 +67,7 @@ impl UsedSchemaCollectionOptions {
             include_directive_definitions: false,
             include_implicit_output_enum_values: false,
             include_implicit_input_fields_and_enum_values: true,
+            backfill_empty_interfaces: true,
         }
     }
 }

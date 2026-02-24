@@ -42,10 +42,15 @@ type Article implements Searchable {
 ==================================== OUTPUT ===================================
 type Article implements Searchable {
   body: String
+  score: Float
+  title: String
 }
 
 type Query {
   search: Searchable
 }
 
-interface Searchable
+interface Searchable {
+  score: Float
+  title: String
+}

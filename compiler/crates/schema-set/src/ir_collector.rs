@@ -28,6 +28,7 @@ use schema::Schema;
 use schema::Type;
 
 use crate::schema_set::SchemaSet;
+use crate::schema_set::SetType;
 use crate::schema_set_collection_options::UsedSchemaCollectionOptions;
 
 pub struct UsedSchemaIRCollector<'a> {
@@ -121,6 +122,35 @@ impl<'a> UsedSchemaIRCollector<'a> {
 
         self.used_schema
             .merge_sdl_document(&type_definitions_doc, true);
+    }
+
+    /// For each interface in the used schema that has zero fields, look up
+    /// all of its fields in the full schema and touch them. This ensures
+    /// every interface in the output has at least one field (required by the
+    /// GraphQL spec). Only runs when `backfill_empty_interfaces` is enabled.
+    pub fn backfill_empty_interfaces(&mut self) {
+        if !self.options.backfill_empty_interfaces {
+            return;
+        }
+        let empty_interface_names: Vec<StringKey> = self
+            .used_schema
+            .types
+            .iter()
+            .filter_map(|(name, set_type)| match set_type {
+                SetType::Interface(iface) if iface.fields.is_empty() => Some(*name),
+                _ => None,
+            })
+            .collect();
+
+        for name in empty_interface_names {
+            if let Some(Type::Interface(id)) = self.schema.get_type(name) {
+                let field_ids = self.schema.interface(id).fields.clone();
+                for field_id in &field_ids {
+                    self.used_schema
+                        .touch_field(self.schema, field_id, &self.options);
+                }
+            }
+        }
     }
 
     // Visitors that need extra information passed from above

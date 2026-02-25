@@ -402,13 +402,15 @@ class RelayResponseNormalizer {
         isDeferred,
       );
     }
-    if (isDeferred === false) {
-      // If defer is disabled there will be no additional response chunk:
-      // normalize the data already present.
-      this._traverseSelections(defer, record, data);
-    } else {
-      // Otherwise data *for this selection* should not be present: enqueue
-      // metadata to process the subsequent response chunk.
+    // Always normalize inline data. Per the GraphQL DeferStream RFC, @defer
+    // is a hint — servers MAY choose not to defer, returning data inline in
+    // the initial payload. When the server did defer (data absent), traversal
+    // encounters undefined fields and skips them (no writes). When the real
+    // incremental chunk arrives, _processDeferResponse overwrites normally.
+    // See: https://github.com/facebook/relay/issues/3904
+    this._traverseSelections(defer, record, data);
+    if (isDeferred !== false) {
+      // Enqueue metadata to process the subsequent response chunk (if any).
       this._incrementalPlaceholders.push({
         actorIdentifier: this._actorIdentifier,
         data,

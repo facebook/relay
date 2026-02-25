@@ -1,12 +1,11 @@
 query UpdatableQuery @updatable {
   me {
     actor {
+      __typename
       ... on User {
-        __typename
         ...Assignable_user @alias
       }
       ... on Page {
-        __typename
         ...Assignable_page @alias
       }
     }

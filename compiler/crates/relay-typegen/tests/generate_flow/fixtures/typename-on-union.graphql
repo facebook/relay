@@ -20,12 +20,11 @@ fragment TypenameOutside on Actor {
 }
 
 fragment TypenameOutsideWithAbstractType on Node {
-  __typename
   ... on User {
     firstName
     address {
-      street # only here
       city # common
+      street # only here
     }
   }
   ... on Actor {
@@ -76,5 +75,26 @@ fragment TypenameAliases on Actor {
   }
   ... on Page {
     username
+  }
+}
+
+fragment TypenameWithNestedCommonSelections on Actor {
+  __typename
+  name
+  emailAddresses
+  address {
+    city # common
+  }
+  ... on User {
+    firstName
+    address {
+      street # only here
+    }
+  }
+  ... on Page {
+    username
+    address {
+      country # only here
+    }
   }
 }

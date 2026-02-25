@@ -41,11 +41,7 @@ export type User__pop_star_game$normalization$variables = Record<PropertyKey, ne
 export type User__pop_star_game$normalization$data = {
   readonly client_interface: {
     readonly __typename: "ClientType";
-    readonly name: string | null | undefined;
-  } | {
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    readonly __typename: "%other";
+    readonly name?: string | null | undefined;
   } | null | undefined;
 };
 export type User__pop_star_game$normalization = {
@@ -56,11 +52,7 @@ export type User__pop_star_game$normalization = {
 export type User__pop_star_name$normalization$variables = Record<PropertyKey, never>;
 export type User__pop_star_name$normalization$data = {
   readonly __typename: "ClientType";
-  readonly name: string | null | undefined;
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other";
+  readonly name?: string | null | undefined;
 };
 export type User__pop_star_name$normalization = {
   response: User__pop_star_name$normalization$data;

@@ -1,4 +1,5 @@
 fragment Foo on Node {
+  __typename
   ... on User {
     __typename
   }

@@ -21,12 +21,11 @@ fragment TypenameOutside on Actor {
 }
 
 fragment TypenameOutsideWithAbstractType on Node {
-  __typename
   ... on User {
     firstName
     address {
-      street # only here
       city # common
+      street # only here
     }
   }
   ... on Actor {
@@ -79,6 +78,27 @@ fragment TypenameAliases on Actor {
     username
   }
 }
+
+fragment TypenameWithNestedCommonSelections on Actor {
+  __typename
+  name
+  emailAddresses
+  address {
+    city # common
+  }
+  ... on User {
+    firstName
+    address {
+      street # only here
+    }
+  }
+  ... on Page {
+    username
+    address {
+      country # only here
+    }
+  }
+}
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type TypenameAlias$data = {
@@ -127,17 +147,9 @@ export type TypenameAliases$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameInside$data = {
-  readonly __typename: "Page";
-  readonly username: string | null | undefined;
-  readonly " $fragmentType": "TypenameInside";
-} | {
   readonly __typename: "User";
-  readonly firstName: string | null | undefined;
-  readonly " $fragmentType": "TypenameInside";
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other";
+  readonly firstName?: string | null | undefined;
+  readonly username?: string | null | undefined;
   readonly " $fragmentType": "TypenameInside";
 };
 export type TypenameInside$key = {
@@ -167,7 +179,6 @@ export type TypenameOutside$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameOutsideWithAbstractType$data = {
-  readonly __typename: string;
   readonly address?: {
     readonly city: string | null | undefined;
     readonly country: string | null | undefined;
@@ -184,15 +195,62 @@ export type TypenameOutsideWithAbstractType$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameWithCommonSelections$data = {
-  readonly __typename: string;
-  readonly firstName?: string | null | undefined;
+  readonly __typename: "Page";
   readonly name: string | null | undefined;
-  readonly username?: string | null | undefined;
+  readonly username: string | null | undefined;
+  readonly " $fragmentType": "TypenameWithCommonSelections";
+} | {
+  readonly __typename: "User";
+  readonly firstName: string | null | undefined;
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "TypenameWithCommonSelections";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly name: string | null | undefined;
   readonly " $fragmentType": "TypenameWithCommonSelections";
 };
 export type TypenameWithCommonSelections$key = {
   readonly " $data"?: TypenameWithCommonSelections$data;
   readonly " $fragmentSpreads": FragmentRefs<"TypenameWithCommonSelections">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameWithNestedCommonSelections$data = {
+  readonly __typename: "Page";
+  readonly address: {
+    readonly city: string | null | undefined;
+    readonly country: string | null | undefined;
+  } | null | undefined;
+  readonly emailAddresses: ReadonlyArray<string | null | undefined> | null | undefined;
+  readonly name: string | null | undefined;
+  readonly username: string | null | undefined;
+  readonly " $fragmentType": "TypenameWithNestedCommonSelections";
+} | {
+  readonly __typename: "User";
+  readonly address: {
+    readonly city: string | null | undefined;
+    readonly street: string | null | undefined;
+  } | null | undefined;
+  readonly emailAddresses: ReadonlyArray<string | null | undefined> | null | undefined;
+  readonly firstName: string | null | undefined;
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "TypenameWithNestedCommonSelections";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly address: {
+    readonly city: string | null | undefined;
+  } | null | undefined;
+  readonly emailAddresses: ReadonlyArray<string | null | undefined> | null | undefined;
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "TypenameWithNestedCommonSelections";
+};
+export type TypenameWithNestedCommonSelections$key = {
+  readonly " $data"?: TypenameWithNestedCommonSelections$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameWithNestedCommonSelections">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";

@@ -21,12 +21,11 @@ fragment TypenameOutside on Actor {
 }
 
 fragment TypenameOutsideWithAbstractType on Node {
-  __typename
   ... on User {
     firstName
     address {
-      street # only here
       city # common
+      street # only here
     }
   }
   ... on Actor {
@@ -77,6 +76,27 @@ fragment TypenameAliases on Actor {
   }
   ... on Page {
     username
+  }
+}
+
+fragment TypenameWithNestedCommonSelections on Actor {
+  __typename
+  name
+  emailAddresses
+  address {
+    city # common
+  }
+  ... on User {
+    firstName
+    address {
+      street # only here
+    }
+  }
+  ... on Page {
+    username
+    address {
+      country # only here
+    }
   }
 }
 ==================================== OUTPUT ===================================
@@ -132,17 +152,9 @@ export type TypenameAliases$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameInside$fragmentType: FragmentType;
 export type TypenameInside$data = {|
-  +__typename: "Page",
-  +username: ?string,
-  +$fragmentType: TypenameInside$fragmentType,
-|} | {|
   +__typename: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameInside$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
+  +firstName?: ?string,
+  +username?: ?string,
   +$fragmentType: TypenameInside$fragmentType,
 |};
 export type TypenameInside$key = {
@@ -176,7 +188,6 @@ export type TypenameOutside$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutsideWithAbstractType$fragmentType: FragmentType;
 export type TypenameOutsideWithAbstractType$data = {|
-  +__typename: string,
   +address?: ?{|
     +city: ?string,
     +country: ?string,
@@ -195,15 +206,64 @@ export type TypenameOutsideWithAbstractType$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithCommonSelections$fragmentType: FragmentType;
 export type TypenameWithCommonSelections$data = {|
-  +__typename: string,
-  +firstName?: ?string,
+  +__typename: "Page",
   +name: ?string,
-  +username?: ?string,
+  +username: ?string,
+  +$fragmentType: TypenameWithCommonSelections$fragmentType,
+|} | {|
+  +__typename: "User",
+  +firstName: ?string,
+  +name: ?string,
+  +$fragmentType: TypenameWithCommonSelections$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +name: ?string,
   +$fragmentType: TypenameWithCommonSelections$fragmentType,
 |};
 export type TypenameWithCommonSelections$key = {
   +$data?: TypenameWithCommonSelections$data,
   +$fragmentSpreads: TypenameWithCommonSelections$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameWithNestedCommonSelections$fragmentType: FragmentType;
+export type TypenameWithNestedCommonSelections$data = {|
+  +__typename: "Page",
+  +address: ?{|
+    +city: ?string,
+    +country: ?string,
+  |},
+  +emailAddresses: ?ReadonlyArray<?string>,
+  +name: ?string,
+  +username: ?string,
+  +$fragmentType: TypenameWithNestedCommonSelections$fragmentType,
+|} | {|
+  +__typename: "User",
+  +address: ?{|
+    +city: ?string,
+    +street: ?string,
+  |},
+  +emailAddresses: ?ReadonlyArray<?string>,
+  +firstName: ?string,
+  +name: ?string,
+  +$fragmentType: TypenameWithNestedCommonSelections$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +address: ?{|
+    +city: ?string,
+  |},
+  +emailAddresses: ?ReadonlyArray<?string>,
+  +name: ?string,
+  +$fragmentType: TypenameWithNestedCommonSelections$fragmentType,
+|};
+export type TypenameWithNestedCommonSelections$key = {
+  +$data?: TypenameWithNestedCommonSelections$data,
+  +$fragmentSpreads: TypenameWithNestedCommonSelections$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------

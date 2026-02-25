@@ -1,8 +1,8 @@
 ==================================== INPUT ====================================
 query UpdatableQuery @updatable {
   node(id: 4) {
+    __typename
     ... on User {
-      __typename
       parents {
         ...Assignable_user
       }

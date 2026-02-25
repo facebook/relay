@@ -1,5 +1,6 @@
 ==================================== INPUT ====================================
 fragment Foo on Node {
+  __typename
   ... on User {
     __typename
   }
@@ -13,24 +14,20 @@ fragment Foo on Node {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type Foo$data = {
+  readonly __typename: "Comment";
+  readonly alias: "Comment";
+  readonly " $fragmentType": "Foo";
+} | {
+  readonly __typename: "Feedback";
+  readonly foo: "Feedback";
+  readonly " $fragmentType": "Foo";
+} | {
   readonly __typename: "User";
   readonly " $fragmentType": "Foo";
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   readonly __typename: "%other";
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly alias: "%other";
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly foo: "%other";
-  readonly " $fragmentType": "Foo";
-} | {
-  readonly alias: "Comment";
-  readonly " $fragmentType": "Foo";
-} | {
-  readonly foo: "Feedback";
   readonly " $fragmentType": "Foo";
 };
 export type Foo$key = {

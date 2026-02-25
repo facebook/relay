@@ -176,7 +176,7 @@ impl<'a> UpdatableDirective<'a> {
             })
         {
             errors.push(Diagnostic::error(
-                ValidationMessage::UpdatableOnlyInlineFragments {
+                ValidationMessage::UpdatableTypenameWithInlineFragments {
                     outer_type_plural: self.executable_definition_info.unwrap().type_plural,
                 },
                 parent_field.definition.location,

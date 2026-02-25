@@ -69,7 +69,7 @@ pub enum ValidationMessage {
     #[error(
         "Within updatable {outer_type_plural}, if a linked field contains an inline fragment spread, it must contain __typename."
     )]
-    UpdatableOnlyInlineFragments { outer_type_plural: &'static str },
+    UpdatableTypenameWithInlineFragments { outer_type_plural: &'static str },
 
     #[error(
         "Within updatable {outer_type_plural}, inline fragments are only allowed on interfaces or unions, not on concrete types. In updatable queries, each inline fragment must have a type conditions, so no inline fragment would make sense here."

@@ -67,7 +67,7 @@ pub enum ValidationMessage {
     UpdatableNoConditions { outer_type_plural: &'static str },
 
     #[error(
-        "Within updatable {outer_type_plural}, if a linked field contains an inline fragment spread, it must contain only inline fragment spreads."
+        "Within updatable {outer_type_plural}, if a linked field contains an inline fragment spread, it must contain __typename."
     )]
     UpdatableOnlyInlineFragments { outer_type_plural: &'static str },
 
@@ -98,14 +98,6 @@ pub enum ValidationMessage {
     UpdatablePreviouslyEncounteredTypeCondition {
         outer_type_plural: &'static str,
         type_condition: StringKey,
-        parent_field_alias_or_name: StringKey,
-    },
-
-    #[error(
-        "Within updatable {outer_type_plural}, each inline fragment spread must contain an unaliased typename field. However, within {parent_field_alias_or_name}, there are inline fragments without typename fields."
-    )]
-    UpdatableInlineFragmentsMustHaveTypenameFields {
-        outer_type_plural: &'static str,
         parent_field_alias_or_name: StringKey,
     },
 

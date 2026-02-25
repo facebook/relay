@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f8d1a944cd7bd9d37d021fe9ff7302be>>
+ * @generated SignedSource<<a4fec2fa5b05339fe6233db4f5f5c74c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -123,7 +123,10 @@ v3 = {
   "args": null,
   "kind": "FragmentSpread",
   "name": "readUpdatableQueryTest_user"
-};
+},
+v4 = [
+  (v2/*: any*/)
+];
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -224,12 +227,10 @@ return {
         "name": "node",
         "plural": false,
         "selections": [
+          (v0/*: any*/),
           {
             "kind": "InlineFragment",
-            "selections": [
-              (v0/*: any*/),
-              (v2/*: any*/)
-            ],
+            "selections": (v4/*: any*/),
             "type": "User",
             "abstractKey": null
           }
@@ -250,10 +251,10 @@ return {
         "name": "node",
         "plural": false,
         "selections": [
+          (v0/*: any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v0/*: any*/),
               (v2/*: any*/),
               {
                 "alias": null,
@@ -272,9 +273,7 @@ return {
                     "kind": "LinkedField",
                     "name": "parents",
                     "plural": true,
-                    "selections": [
-                      (v2/*: any*/)
-                    ],
+                    "selections": (v4/*: any*/),
                     "storageKey": null
                   }
                 ],
@@ -319,7 +318,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ad00b2de468d8a8877260a0cb5a0db06";
+  (node/*: any*/).hash = "e9f6e1896c8192e0294cf6275f7c7382";
 }
 
 module.exports = ((node/*: any*/)/*: UpdatableQuery<

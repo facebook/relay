@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b5a527b8460b00ff4b0becf21e3b2768>>
+ * @generated SignedSource<<3346f393de32a18549ca55c856e7d899>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,11 +20,16 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery$variables = {||};
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +emailAddresses?: ?ReadonlyArray<?string>,
+  +node: ?({|
+    +__typename: "User",
+    +emailAddresses: ?ReadonlyArray<?string>,
     +id: string,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+    +id: string,
+  |}),
 |};
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery = {|
   response: RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery$data,

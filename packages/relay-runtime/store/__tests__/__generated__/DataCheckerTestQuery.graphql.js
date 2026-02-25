@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<50d3b5c1bf523e9c69152020902fed36>>
+ * @generated SignedSource<<3fd8bb6e07b3d5160db50f65dba1ad7f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,13 +23,16 @@ export type DataCheckerTestQuery$variables = {|
   size?: ?ReadonlyArray<?number>,
 |};
 export type DataCheckerTestQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +actors?: ?ReadonlyArray<?{|
+  +node: ?({|
+    +__typename: "Page",
+    +actors: ?ReadonlyArray<?{|
       +name: ?string,
     |}>,
-    +firstName?: ?string,
-    +friends?: ?{|
+    +id: string,
+  |} | {|
+    +__typename: "User",
+    +firstName: ?string,
+    +friends: ?{|
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
@@ -39,10 +42,15 @@ export type DataCheckerTestQuery$data = {|
       |}>,
     |},
     +id: string,
-    +profilePicture?: ?{|
+    +profilePicture: ?{|
       +uri: ?string,
     |},
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+    +id: string,
+  |}),
 |};
 export type DataCheckerTestQuery = {|
   response: DataCheckerTestQuery$data,

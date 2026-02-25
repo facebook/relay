@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bea3b8c8e3f7eb82dbb7a99c759542d1>>
+ * @generated SignedSource<<e852e0739f7930769ef89644fb302755>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,11 +22,16 @@ export type RelayModernStoreFieldGranularNotificationsTestNodesQuery$variables =
   ids: ReadonlyArray<string>,
 |};
 export type RelayModernStoreFieldGranularNotificationsTestNodesQuery$data = {|
-  +nodes: ?ReadonlyArray<?{|
-    +__typename: string,
+  +nodes: ?ReadonlyArray<?({|
+    +__typename: "User",
     +id: string,
-    +name?: ?string,
-  |}>,
+    +name: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+    +id: string,
+  |})>,
 |};
 export type RelayModernStoreFieldGranularNotificationsTestNodesQuery = {|
   response: RelayModernStoreFieldGranularNotificationsTestNodesQuery$data,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d42ad82db9e1d2e7b56509ffc22d3bf4>>
+ * @generated SignedSource<<65a2f483afaff253b581ab4dfbd09fbd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,20 +28,31 @@ export type RelayModernEnvironmentLookupTestQuery$data = {|
     +__id: string,
     +id: string,
   |},
-  +node: ?{|
-    +__typename: string,
+  +node: ?({|
+    +__typename: "Comment",
     +__id: string,
-    +commentBody?: ?{|
-      +__typename: string,
+    +commentBody: ?({|
+      +__typename: "PlainCommentBody",
       +__id: string,
-      +text?: ?{|
+      +text: ?{|
         +__typename: "Text",
         +__id: string,
         +text: ?string,
       |},
-    |},
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+      +__id: string,
+    |}),
     +id: string,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+    +__id: string,
+    +id: string,
+  |}),
 |};
 export type RelayModernEnvironmentLookupTestQuery = {|
   response: RelayModernEnvironmentLookupTestQuery$data,

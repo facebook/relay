@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<75670c2b708357597cd9c62e422bd971>>
+ * @generated SignedSource<<4cdac01312a2f2d8d641e7481619929d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,9 +22,9 @@ export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$variabl
   id: string,
 |};
 export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +friends?: ?{|
+  +node: ?({|
+    +__typename: "User",
+    +friends: ?{|
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
@@ -34,7 +34,12 @@ export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data = 
       |}>,
     |},
     +id: string,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+    +id: string,
+  |}),
 |};
 export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery = {|
   response: RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data,

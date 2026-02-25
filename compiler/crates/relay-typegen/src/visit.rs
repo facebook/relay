@@ -1588,12 +1588,11 @@ fn get_discriminated_union_ast(
     let mut typename_aliases = IndexSet::new();
     let base_selection_map = selections_to_map(hashmap_into_values(base_fields.clone()), false);
     for (concrete_type, concrete_type_selections) in by_concrete_type {
-        
-        //let mut selection_map = selections_to_map(hashmap_into_values(base_fields.clone()), false);
         let mut selection_map = base_selection_map.clone();
         merge_selection_maps(
             &mut selection_map,
-            selections_to_map(concrete_type_selections.into_iter(), false), false
+            selections_to_map(concrete_type_selections.into_iter(), false),
+            false,
         );
         types.push(
             group_refs(hashmap_into_values(selection_map))
@@ -1619,37 +1618,34 @@ fn get_discriminated_union_ast(
         );
     }
 
-    let (typename_selections, other_selections): (Vec<_>, Vec<_>) = group_refs(base_selection_map.values().cloned())
-        .partition(|selection| selection.is_typename());
+    let (typename_selections, other_selections): (Vec<_>, Vec<_>) =
+        group_refs(base_selection_map.values().cloned())
+            .partition(|selection| selection.is_typename());
 
     let mut base_props = Vec::with_capacity(typename_selections.len() + other_selections.len());
 
-    base_props.extend(
-        typename_selections.into_iter().map(|selection| {
-            Prop::KeyValuePair(KeyValuePairProp {
-                key: selection.get_field_name_or_alias().unwrap(),
-                read_only: true,
-                optional: false,
-                value: AST::OtherTypename,
-            })
-        }),
-    );
+    base_props.extend(typename_selections.into_iter().map(|selection| {
+        Prop::KeyValuePair(KeyValuePairProp {
+            key: selection.get_field_name_or_alias().unwrap(),
+            read_only: true,
+            optional: false,
+            value: AST::OtherTypename,
+        })
+    }));
 
-    base_props.extend(
-        other_selections.into_iter().map(|selection| {
-            make_prop(
-                typegen_context,
-                selection,
-                mask_status,
-                None,
-                encountered_enums,
-                encountered_fragments,
-                custom_scalars,
-                runtime_imports,
-                custom_error_import,
-            )
-        }),
-    );
+    base_props.extend(other_selections.into_iter().map(|selection| {
+        make_prop(
+            typegen_context,
+            selection,
+            mask_status,
+            None,
+            encountered_enums,
+            encountered_fragments,
+            custom_scalars,
+            runtime_imports,
+            custom_error_import,
+        )
+    }));
 
     types.push(base_props);
 
@@ -1696,10 +1692,10 @@ fn should_emit_discriminated_union(
     by_concrete_type: &IndexMap<Type, Vec<TypeSelection>>,
     base_fields: &IndexMap<StringKey, TypeSelection>,
 ) -> bool {
-    if by_concrete_type.is_empty() || !concrete_type.is_abstract_type()  || base_fields.is_empty(){
+    if by_concrete_type.is_empty() || !concrete_type.is_abstract_type() || base_fields.is_empty() {
         return false;
     }
-    return base_fields.values().any(TypeSelection::is_typename)
+    return base_fields.values().any(TypeSelection::is_typename);
 }
 
 pub(crate) fn raw_response_selections_to_babel(
@@ -2772,7 +2768,6 @@ pub(crate) fn get_operation_type_export(
 
     Ok(ExactObject::new(operation_types))
 }
-
 
 fn create_edge_to_return_type_ast(
     inner_type: &Type,

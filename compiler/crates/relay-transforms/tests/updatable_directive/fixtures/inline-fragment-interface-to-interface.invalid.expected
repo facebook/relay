@@ -8,7 +8,7 @@ query TestQuery @updatable {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+✖︎ Within updatable operations, each inline fragment spread must have a type condition narrowing the type to a unique concrete type. `FeedUnit` is not a concrete type.
 
   inline-fragment-interface-to-interface.invalid.graphql:3:3
     2 │ query TestQuery @updatable {
@@ -17,7 +17,7 @@ query TestQuery @updatable {
     4 │     ... on FeedUnit {
 
 
-✖︎ Within updatable operations, each inline fragment spread must have a type condition narrowing the type to a unique concrete type. `FeedUnit` is not a concrete type.
+✖︎ Within updatable operations, if a linked field contains an inline fragment spread, it must contain __typename.
 
   inline-fragment-interface-to-interface.invalid.graphql:3:3
     2 │ query TestQuery @updatable {

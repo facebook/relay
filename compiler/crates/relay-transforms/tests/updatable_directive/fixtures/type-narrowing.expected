@@ -1,12 +1,11 @@
 ==================================== INPUT ====================================
 query TypeNarrowingQuery @updatable {
   node(id: 4) {
+    __typename
     ... on Page {
-      __typename
       name
     }
     ... on Comment {
-      __typename
       firstName
     }
   }

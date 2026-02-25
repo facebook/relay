@@ -23,25 +23,7 @@ query TestQuery @updatable {
     4 │     ... on Page {
 
 
-✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
-
-  inline-fragment-redundant.invalid.graphql:3:3
-    2 │ query TestQuery @updatable {
-    3 │   node(id: 4) {
-      │   ^^^^
-    4 │     ... on Page {
-
-
-✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
-
-  inline-fragment-redundant.invalid.graphql:3:3
-    2 │ query TestQuery @updatable {
-    3 │   node(id: 4) {
-      │   ^^^^
-    4 │     ... on Page {
-
-
-✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+✖︎ Within updatable operations, if a linked field contains an inline fragment spread, it must contain __typename.
 
   inline-fragment-redundant.invalid.graphql:3:3
     2 │ query TestQuery @updatable {

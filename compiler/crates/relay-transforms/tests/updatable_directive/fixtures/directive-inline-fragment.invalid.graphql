@@ -1,6 +1,7 @@
 # expected-to-throw
 query TestQuery @updatable {
   node(id: 4) {
+    __typename
     ... on Page @defer {
       __typename
     }

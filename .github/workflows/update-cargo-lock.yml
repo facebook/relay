@@ -32,4 +32,5 @@ jobs:
         with:
           token: ${{ secrets.RELAY_BOT_GITHUB_PAT }}
           title: "Update Cargo.lock"
+          branch: update-cargo-lock
           delete-branch: true

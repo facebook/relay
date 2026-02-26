@@ -24,7 +24,7 @@ Derived resolver fields model data that is derived from other data in the graph.
 import {readFragment} from "relay-runtime";
 
 /**
- * @RelayResolver User.fullName: String
+ * @relayField User.fullName: String
  * @rootFragment UserFullNameFragment
  */
 export function fullName(key: UserFullNameFragment$key): string {
@@ -52,7 +52,7 @@ Relay expects that when the data is available, the `LiveStateValue` will notify 
 import {suspenseSentinel} from 'relay-runtime';
 
 /**
- * @RelayResolver Query.myIp: String
+ * @relayField Query.myIp: String
  * @live
  */
 export function myIp(): LiveState<string> {

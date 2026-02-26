@@ -34,7 +34,7 @@ To mark a resolver as live, add the `@live` docblock tag to the resolver definit
 import type { LiveState } from 'relay-runtime';
 
 /**
- * @RelayResolver Query.counter: Int
+ * @relayField Query.counter: Int
  * @live
  */
 export function counter(): LiveState<number> {
@@ -58,7 +58,7 @@ live is determined by the usage of `LiveState` in the Flow return type
 import type { LiveState } from 'relay-runtime';
 
 /**
- * @RelayResolver
+ * @relayType
  */
 export function counter(): LiveState<number> {
   return {
@@ -130,7 +130,7 @@ A Live Resolver that uses this helper might look like this:
 
 ```tsx
 /**
- * @RelayResolver Query.counter: Int
+ * @relayField Query.counter: Int
  * @live
  */
 export function counter(): LiveState<number> {

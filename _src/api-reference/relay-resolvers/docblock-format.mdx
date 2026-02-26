@@ -8,17 +8,17 @@ import {FbInternalOnly, fbContent} from 'docusaurus-plugin-internaldocs-fb/inter
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Relay Resolvers allow you to define additional types and fields in your GraphQL schema that are backed by client-side data. To achieve this, the Relay compiler looks for special `@RelayResolver` docblocks in your code. These docblocks define the types and fields in your schema and also tell Relay where to find the resolver functions that implement them.
+Relay Resolvers allow you to define additional types and fields in your GraphQL schema that are backed by client-side data. To achieve this, the Relay compiler looks for special `@relayType` and `@relayField` docblocks in your code. These docblocks define the types and fields in your schema and also tell Relay where to find the resolver functions that implement them.
 
 For an overview of Relay Resolvers and how to think about them, see the [Relay Resolvers](../../guides/relay-resolvers/introduction.mdx) guide. This page documents the different docblock tags that the Relay compiler looks for, and how to use them.
 
 :::note The Relay compiler only looks at docblocks which include the
-`@RelayResolver` tag. Any other docblocks will be ignored.
+`@relayType` or `@relayField` tag. Any other docblocks will be ignored.
 :::
 
-## `@RelayResolver TypeName`
+## `@relayType TypeName`
 
-The `@RelayResolver` tag followed by a single name defines a new GraphQL type in your schema. By default it is expected to be followed by an exported function whose name matches the type name. The function should accept an ID as its sole argument and return the JavaScript model/object which is the backing data for the type. See [`@weak`](#weak) for an alternative way to define the backing data for a type.
+The `@relayType` tag followed by a single name defines a new GraphQL type in your schema. By default it is expected to be followed by an exported function whose name matches the type name. The function should accept an ID as its sole argument and return the JavaScript model/object which is the backing data for the type. See [`@weak`](#weak) for an alternative way to define the backing data for a type.
 
 <Tabs
   groupId="resolver"
@@ -36,7 +36,7 @@ The `@RelayResolver` tag followed by a single name defines a new GraphQL type in
 
   ```tsx
   /**
-   * @RelayResolver User
+   * @relayType User
    */
   export function User(id): UserModel {
     return UserModel.getById(id);
@@ -47,7 +47,7 @@ The `@RelayResolver` tag followed by a single name defines a new GraphQL type in
 
   ```tsx
   /**
-   * @RelayResolver
+   * @relayType
    */
   export function User(id): UserModel {
     return UserModel.getById(id);
@@ -60,9 +60,9 @@ The `@RelayResolver` tag followed by a single name defines a new GraphQL type in
 
 See the [Defining Types](../../guides/relay-resolvers/defining-types.mdx) guide for more information.
 
-## `@RelayResolver TypeName.fieldName: FieldTypeName`
+## `@relayField TypeName.fieldName: FieldTypeName`
 
-If the typename in a `@RelayResolver` tag is followed by a dot and then a field definition, it defines a new field on the type. The portion following the `.` is expected to follow GraphQL's
+If the typename in a `@relayField` tag is followed by a dot and then a field definition, it defines a new field on the type. The portion following the `.` is expected to follow GraphQL's
 [schema definition language](https://spec.graphql.org/June2018/#FieldDefinition).
 
 Field definitions are expected to be followed by an exported function whose name matches the field name. The function should accept the model/object returned by the type resolver as its sole argument and return the value of the field.
@@ -83,7 +83,7 @@ Field definitions are expected to be followed by an exported function whose name
 
   ```tsx
   /**
-   * @RelayResolver User.name: String
+   * @relayField User.name: String
    */
   export function name(user: UserModel): string {
     return user.name;
@@ -94,7 +94,7 @@ Field definitions are expected to be followed by an exported function whose name
 
   ```tsx
   /**
-   * @RelayResolver
+   * @relayType
    */
   export function name(user: UserModel): string {
     return user.name;
@@ -130,7 +130,7 @@ definition, and follow it with the name of a fragment that defines the data that
   import {readFragment} from 'relay-runtime';
 
   /**
-   * @RelayResolver User.fullName: String
+   * @relayField User.fullName: String
    * @rootFragment UserFullNameFragment
    */
   export function fullName(key: UserFullNameFragment$key): string {
@@ -153,7 +153,7 @@ definition, and follow it with the name of a fragment that defines the data that
   import {readFragment} from 'relay-runtime';
 
   /**
-   * @RelayResolver
+   * @relayType
    */
   export function fullName(key: UserFullNameFragment$key): string {
     const user = readFragment(
@@ -197,7 +197,7 @@ When modeling client state that can change over time, a resolver function which 
   import type {LiveState} from 'relay-runtime';
 
   /**
-  * @RelayResolver Query.counter: Int
+  * @relayField Query.counter: Int
   * @live
   */
   export function counter(): LiveState<number> {
@@ -216,7 +216,7 @@ When modeling client state that can change over time, a resolver function which 
   import type {LiveState} from 'relay-runtime';
 
   /**
-  * @RelayResolver
+  * @relayType
   */
   export function counter(): LiveState<number> {
     return {
@@ -236,7 +236,7 @@ more information.
 
 ## `@weak`
 
-By default, Relay Resolvers expect the backing data for a type to be returned by a resolver function. However, in some cases objects of a given type may not have identifiers. In this case, you can use the `@RelayResolver TypeName` syntax described above followed by the tag `@weak` to define a "weak" type.
+By default, Relay Resolvers expect the backing data for a type to be returned by a resolver function. However, in some cases objects of a given type may not have identifiers. In this case, you can use the `@relayType TypeName` syntax described above followed by the tag `@weak` to define a "weak" type.
 
 Weak type declarations are expected to be followed by an exported type
 definition whose name matches the type name.
@@ -257,7 +257,7 @@ definition whose name matches the type name.
 
   ```tsx
   /**
-  * @RelayResolver ProfilePicture
+  * @relayType ProfilePicture
   * @weak
   */
   export type ProfilePicture = {
@@ -271,7 +271,7 @@ definition whose name matches the type name.
 
   ```tsx
   /**
-  * @RelayResolver
+  * @relayType
   */
   export type ProfilePicture = {
     url: string;
@@ -292,7 +292,7 @@ receive special treatment in the editor if you are using the
 
 ```tsx
 /**
- * @RelayResolver User.name: String
+ * @relayField User.name: String
  * @deprecated Use `fullName` instead.
  */
 export function name(user: UserModel): string {
@@ -308,7 +308,7 @@ Any free text in the docblock (text not following a tag) will be used as the des
 
 ```tsx
 /**
- * @RelayResolver User.name: String
+ * @relayField User.name: String
  *
  * What's in a name? That which we call a rose by any other name would smell
  * just as sweet.

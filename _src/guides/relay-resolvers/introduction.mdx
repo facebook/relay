@@ -27,13 +27,13 @@ Relay Resolvers are useful for modeling a number of different kinds of data. Her
 
 ## Defining a Resolver
 
-Resolvers are defined using exported functions that are annotated with a special [`@RelayResolver` docblock](../../api-reference/relay-resolvers/docblock-format.mdx). These docblocks are visible to the Relay compiler, and allow the compiler to build up your client schema and automatically import your function in Relay’s generated artifacts. Resolver functions may be defined in any file in your Relay project, though you may wish to define some convention for where they live within your codebase.
+Resolvers are defined using exported functions that are annotated with a special [`@relayType` or `@relayField` docblock](../../api-reference/relay-resolvers/docblock-format.mdx). These docblocks are visible to the Relay compiler, and allow the compiler to build up your client schema and automatically import your function in Relay's generated artifacts. Resolver functions may be defined in any file in your Relay project, though you may wish to define some convention for where they live within your codebase.
 
 The simplest resolver augments an existing type and does not have any inputs:
 
 ```tsx
 /**
- * @RelayResolver Query.greeting: String
+ * @relayField Query.greeting: String
  */
 export function greeting(): string {
   return "Hello World";

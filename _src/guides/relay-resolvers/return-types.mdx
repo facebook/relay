@@ -18,7 +18,7 @@ The simplest type for a resolver to return is a built-in GraphQL scalar value. S
 
 ```tsx
 /**
- * @RelayResolver Post.isValid: Boolean
+ * @relayField Post.isValid: Boolean
  */
 export function isValid(post: PostModel): boolean {
   return post.content !== "" && post.author != null;
@@ -31,7 +31,7 @@ Resolvers may also return a list of values. To do so, define your resolver as re
 
 ```tsx
 /**
- * @RelayResolver User.favoriteColors: [String]
+ * @relayField User.favoriteColors: [String]
  */
 export function favoriteColors(user: UserModel): string[] {
   return user.favoriteColors;
@@ -47,7 +47,7 @@ Resolvers can also model edges to other GraphQL types in your Resolver schema. I
 ```tsx
 import {DataID} from 'relay-runtime';
 /**
- * @RelayResolver Post.author: User
+ * @relayField Post.author: User
  */
 export function author(post: PostModel): { id: DataID } {
   return { id: post.authorId };
@@ -58,7 +58,7 @@ If the type was defined as `@weak`, the resolver function must return an object 
 
 ```tsx
 /**
- * @RelayResolver User.profilePicture: ProfilePicture
+ * @relayField User.profilePicture: ProfilePicture
  */
 export function profilePicture(user: UserModel): ProfilePicture {
   return {
@@ -82,7 +82,7 @@ At compile-time Relay derives a GraphQL query for each selections on this field 
 ```tsx
 import {DataID} from 'relay-runtime';
 /**
- * @RelayResolver Post.author: User
+ * @relayField Post.author: User
  */
 export function author(post: PostModel): DataID {
   return post.authorId;
@@ -118,7 +118,7 @@ import {DataID} from 'relay-runtime';
 
 type AnimalTypenames = "Cat" | "Dog";
 /**
- * @RelayResolver User.pet: Animal
+ * @relayField User.pet: Animal
  */
 export function pet(user: User): {id: DataID, __typename: AnimalTypenames } {
   return {id: "5", __typename: "Dog" }
@@ -149,7 +149,7 @@ Consumers of this field will see a TypeScript/Flow type that is derived from you
 
 ```tsx
 /**
- * @RelayResolver Post.publishDate: RelayResolverValue
+ * @relayField Post.publishDate: RelayResolverValue
  */
 export function metadata(post: PostModel): Date {
   return post.publishDate;

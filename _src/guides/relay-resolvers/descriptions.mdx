@@ -19,7 +19,7 @@ GraphQL descriptions are expected to be written in markdown. Relay Resolvers wil
 
 ```tsx
 /**
- * @RelayResolver Author
+ * @relayType Author
  *
  * An author in our **amazing** CMS. Authors can
  * write posts but not necessarily change their permissions.
@@ -33,7 +33,7 @@ export function Author(id: DataID): AuthorModel {
 
 ```tsx
 /**
- * @RelayResolver Author.fullName: String
+ * @relayField Author.fullName: String
  *
  * The author's first and last name. Does not include
  * any [honorifics](https://en.wikipedia.org/wiki/Honorific).

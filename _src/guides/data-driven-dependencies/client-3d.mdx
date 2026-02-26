@@ -60,7 +60,7 @@ export type Client3DModel = {
 };
 
 /**
- * @RelayResolver Client3DBar implements IClient3D
+ * @relayType Client3DBar implements IClient3D
  */
 function Client3DBar(id: DataID): ?Client3DModel {
   if (id === INVALID_ID) {
@@ -72,7 +72,7 @@ function Client3DBar(id: DataID): ?Client3DModel {
 }
 
 /**
- * @RelayResolver Client3DBar.data: Client3DData
+ * @relayField Client3DBar.data: Client3DData
  */
 function data(client3DModel: Client3DModel): Client3DData {
   return {
@@ -87,7 +87,7 @@ function data(client3DModel: Client3DModel): Client3DData {
 
 ```ts
 /**
- * @RelayResolver Client3DFoo implements IClient3D
+ * @relayType Client3DFoo implements IClient3D
  */
 function Client3DFoo(id: DataID): ?Client3DModel {
   if (id === INVALID_ID) {
@@ -99,7 +99,7 @@ function Client3DFoo(id: DataID): ?Client3DModel {
 }
 
 /**
- * @RelayResolver Client3DFoo.data: Client3DData
+ * @relayField Client3DFoo.data: Client3DData
  */
 function data(client3DModel: Client3DModel): Client3DData {
   return {
@@ -114,7 +114,7 @@ function data(client3DModel: Client3DModel): Client3DData {
 
 ```ts
 /**
- * @RelayResolver Client3DHelloWorld implements IClient3D
+ * @relayType Client3DHelloWorld implements IClient3D
  */
 function Client3DHelloWorld(id: DataID): ?Client3DModel {
   if (id === INVALID_ID) {
@@ -126,7 +126,7 @@ function Client3DHelloWorld(id: DataID): ?Client3DModel {
 }
 
 /**
- * @RelayResolver Client3DHelloWorld.data: Client3DData
+ * @relayField Client3DHelloWorld.data: Client3DData
  */
 function data(client3DModel: Client3DModel): Client3DData {
   return {

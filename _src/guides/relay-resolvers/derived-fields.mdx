@@ -42,7 +42,7 @@ The root fragment is defined using the `@rootFragment` docblock tag followed by 
 import {readFragment} from 'relay-runtime';
 
 /**
- * @RelayResolver User.fullName: String
+ * @relayField User.fullName: String
  * @rootFragment UserFullNameFragment
  */
 export function fullName(key: UserFullNameFragment$key): string {
@@ -64,7 +64,7 @@ export function fullName(key: UserFullNameFragment$key): string {
 import {readFragment} from 'relay-runtime';
 
 /**
- * @RelayResolver
+ * @relayType
  */
 export function fullName(key: UserFullNameFragment$key): string {
   const user = readFragment(graphql`
@@ -91,7 +91,7 @@ One powerful feature of derived resolvers is that they can read other Relay Reso
 
 ```tsx
 /**
- * @RelayResolver CheckoutItem.isValid: Boolean
+ * @relayField CheckoutItem.isValid: Boolean
  * @rootFragment CheckoutItemFragment
  */
 export function isValid(key): boolean {
@@ -107,7 +107,7 @@ export function isValid(key): boolean {
 }
 
 /**
- * @RelayResolver ShoppingCart.canCheckout: Boolean
+ * @relayField ShoppingCart.canCheckout: Boolean
  * @rootFragment ShoppingCartFragment
  */
 export function canCheckout(key): boolean {

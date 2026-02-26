@@ -11,7 +11,7 @@ If your resolver needs access to argument data at runtime, you can simply define
 
 ```tsx
 /**
- * @RelayResolver User.greet(salutation: String!): String
+ * @relayField User.greet(salutation: String!): String
  */
 export function greet(user: UserModel, args: { salutation: string }): string {
   return `${args.salutation}, ${user.name}!`;
@@ -36,7 +36,7 @@ If you are defining a [derived resolver](./derived-fields.mdx) and one of the fi
 
 ```tsx
 /**
- * @RelayResolver User.fancyGreeting: String
+ * @relayField User.fancyGreeting: String
  * @rootFragment UserFancyGreetingFragment
  */
 export function fancyGreeting(key: UserFancyGreetingFragment$key): string {

@@ -894,13 +894,14 @@ impl CompilerState {
 fn process_intermediate_schema_change(
     file_source_changes: &FileSourceResult,
     files: Vec<File>,
+    vfs: &dyn crate::vfs::Vfs,
 ) -> Result<(FnvHashMap<PathBuf, String>, Vec<PathBuf>)> {
     let mut removed_sources = vec![];
     let mut added_sources = FnvHashMap::default();
     for file in files {
         let file_name = file.name.clone();
         if file.exists {
-            added_sources.insert(file_name, read_file_to_string(file_source_changes, &file)?);
+            added_sources.insert(file_name, read_file_to_string(file_source_changes, &file, vfs)?);
         } else {
             removed_sources.push(file_name);
         }
@@ -937,7 +938,7 @@ fn process_categorized_sources(
             }
             FileGroup::Schema { project_set } => {
                 let (added, removed) =
-                    process_intermediate_schema_change(file_source_changes, files)?;
+                    process_intermediate_schema_change(file_source_changes, files, &*config.vfs)?;
                 Ok(FileSourceIntermediateResult::Schema(
                     project_set,
                     added,
@@ -946,7 +947,7 @@ fn process_categorized_sources(
             }
             FileGroup::Extension { project_set } => {
                 let (added, removed) =
-                    process_intermediate_schema_change(file_source_changes, files)?;
+                    process_intermediate_schema_change(file_source_changes, files, &*config.vfs)?;
                 Ok(FileSourceIntermediateResult::Extension(
                     project_set,
                     added,

@@ -14,7 +14,6 @@ use common::PerfLogEvent;
 use common::PerfLogger;
 use log::debug;
 use relay_typegen::TypegenLanguage;
-use walkdir::WalkDir;
 
 use super::File;
 use crate::FileSourceResult;
@@ -81,15 +80,26 @@ impl WalkDirFileSource {
             .get_all_roots()
             .iter()
             .map(|source| self.config.root_dir.join(source))
-            .flat_map(WalkDir::new)
-            .filter_map(|entry| {
-                let dir_entry = entry.ok()?;
-                let relative_path = dir_entry
-                    .path()
-                    .strip_prefix(self.config.root_dir.clone())
-                    .ok()?
-                    .to_path_buf();
-
+            .flat_map(|abs_root| {
+                let root_dir = self.config.root_dir.clone();
+                match self.config.vfs.read_dir_recursive(&abs_root) {
+                    Ok(relative_paths) => relative_paths
+                        .into_iter()
+                        .filter_map(move |rel_to_abs_root| {
+                            // rel_to_abs_root is relative to abs_root;
+                            // we need relative to root_dir
+                            let abs_path = abs_root.join(&rel_to_abs_root);
+                            abs_path
+                                .strip_prefix(&root_dir)
+                                .ok()
+                                .map(|p| p.to_path_buf())
+                        })
+                        .collect::<Vec<_>>()
+                        .into_iter(),
+                    Err(_) => Vec::new().into_iter(),
+                }
+            })
+            .filter_map(|relative_path| {
                 self.should_include_file(&relative_path).then_some(File {
                     name: relative_path,
                     exists: true,

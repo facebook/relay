@@ -48,6 +48,7 @@ pub use self::extract_graphql::LocatedDocblockSource;
 pub use self::extract_graphql::LocatedGraphQLSource;
 pub use self::extract_graphql::LocatedJavascriptSourceFeatures;
 pub use self::extract_graphql::SourceReader;
+pub use self::extract_graphql::VfsSourceReader;
 pub use self::extract_graphql::extract_javascript_features_from_file;
 pub use self::extract_graphql::source_for_location;
 use self::walk_dir_file_source::WalkDirFileSource;

@@ -10,15 +10,17 @@ use std::path::PathBuf;
 use glob::Pattern;
 
 use crate::errors::ConfigValidationError;
+use crate::vfs::Vfs;
 
-pub struct PathValidator {
+pub struct PathValidator<'a> {
     root_dir: PathBuf,
     excludes: Vec<Pattern>,
     errors: Vec<ConfigValidationError>,
+    vfs: &'a dyn Vfs,
 }
 
-impl PathValidator {
-    pub fn new(root_dir: PathBuf, excludes: &[String]) -> Self {
+impl<'a> PathValidator<'a> {
+    pub fn new(root_dir: PathBuf, excludes: &[String], vfs: &'a dyn Vfs) -> Self {
         Self {
             root_dir,
             excludes: excludes
@@ -26,6 +28,7 @@ impl PathValidator {
                 .filter_map(|exclude| Pattern::new(exclude).ok())
                 .collect(),
             errors: Vec::new(),
+            vfs,
         }
     }
 
@@ -115,7 +118,7 @@ impl PathValidator {
 
     pub fn assert_exists(&mut self, path: &PathBuf, file_type: &str) -> bool {
         let abs_path = self.root_dir.join(path);
-        if !abs_path.exists() {
+        if !self.vfs.exists(&abs_path) {
             self.errors.push(ConfigValidationError::FileNotExistent {
                 file_type: file_type.to_string(),
                 path: abs_path,
@@ -128,7 +131,7 @@ impl PathValidator {
 
     pub fn assert_is_dir(&mut self, path: &PathBuf, file_type: &str) {
         let abs_path = self.root_dir.join(path);
-        if !abs_path.is_dir() {
+        if !self.vfs.is_dir(&abs_path) {
             self.errors.push(ConfigValidationError::FileNotDirectory {
                 file_type: file_type.to_string(),
                 path: abs_path,
@@ -138,7 +141,7 @@ impl PathValidator {
 
     pub fn assert_is_file(&mut self, path: &PathBuf, file_type: &str) {
         let abs_path = self.root_dir.join(path);
-        if !abs_path.is_file() {
+        if !self.vfs.is_file(&abs_path) {
             self.errors.push(ConfigValidationError::FileNotFile {
                 file_type: file_type.to_string(),
                 path: abs_path,

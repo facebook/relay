@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::fs;
 use std::path::Path;
+use std::sync::Arc;
 
 use common::SourceLocationKey;
 use docblock_syntax::DocblockSource;
@@ -21,6 +21,7 @@ use super::FileSourceResult;
 use super::read_file_to_string;
 use crate::errors::Result;
 use crate::file_source::Config;
+use crate::vfs::Vfs;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LocatedGraphQLSource {
@@ -51,7 +52,18 @@ pub struct FsSourceReader;
 
 impl SourceReader for FsSourceReader {
     fn read_file_to_string(&self, path: &Path) -> std::io::Result<String> {
-        fs::read_to_string(path)
+        std::fs::read_to_string(path)
+    }
+}
+
+/// VFS-backed implementation of SourceReader.
+pub struct VfsSourceReader {
+    pub vfs: Arc<dyn Vfs>,
+}
+
+impl SourceReader for VfsSourceReader {
+    fn read_file_to_string(&self, path: &Path) -> std::io::Result<String> {
+        self.vfs.read_to_string(path)
     }
 }
 
@@ -62,7 +74,7 @@ pub fn extract_javascript_features_from_file(
     file: &File,
     config: &Config,
 ) -> Result<LocatedJavascriptSourceFeatures> {
-    let contents = read_file_to_string(file_source_result, file)?;
+    let contents = read_file_to_string(file_source_result, file, &*config.vfs)?;
     let features = extract_graphql::extract(&contents);
     let mut graphql_sources = Vec::new();
     let mut docblock_sources = Vec::new();

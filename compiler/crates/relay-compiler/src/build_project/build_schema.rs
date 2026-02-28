@@ -49,7 +49,7 @@ pub fn build_schema(
     )
 }
 
-fn load_flatbuffer_schema(project_config: &ProjectConfig) -> Option<SDLSchema> {
+fn load_flatbuffer_schema(project_config: &ProjectConfig, vfs: &dyn crate::vfs::Vfs) -> Option<SDLSchema> {
     let fb_path = match &project_config.schema_location {
         SchemaLocation::Directory(dir) => {
             let mut fb_path = dir.clone();
@@ -60,10 +60,10 @@ fn load_flatbuffer_schema(project_config: &ProjectConfig) -> Option<SDLSchema> {
         }
         SchemaLocation::File(file) => file.with_extension("flatbuffer"),
     };
-    if !fb_path.exists() {
+    if !vfs.exists(&fb_path) {
         return None;
     }
-    match std::fs::read(&fb_path) {
+    match vfs.read(&fb_path) {
         Ok(bytes) => {
             log::info!(
                 "Loading FlatBuffer schema from {:?} ({} bytes)",
@@ -90,7 +90,7 @@ fn build_schema_impl(
     config: &Config,
     graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
-    if let Some(schema) = load_flatbuffer_schema(project_config) {
+    if let Some(schema) = load_flatbuffer_schema(project_config, &*config.vfs) {
         return Ok(Arc::new(schema));
     }
 

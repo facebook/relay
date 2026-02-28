@@ -225,6 +225,11 @@ pub enum ConfigValidationError {
     #[error("The `artifactDirectory` does not exist at `{path}`.")]
     ArtifactDirectoryNotExistent { path: PathBuf },
 
+    #[error(
+        "The file `{path}` for the local query persisting does not exist. Please, make sure the file path is correct."
+    )]
+    PersistFileNotExistent { path: PathBuf },
+
     #[error("Unable to find common path for directories in the config file.")]
     CommonPathNotFound,
 
@@ -309,6 +314,17 @@ pub fn print_compiler_error(root_dir: &Path, error: Error) -> String {
     error_printer.into_string()
 }
 
+/// Utility for printing compiler errors with source context using a custom source reader.
+pub fn print_compiler_error_with_source_reader(
+    root_dir: &Path,
+    error: Error,
+    source_reader: Box<dyn SourceReader + Send + Sync>,
+) -> String {
+    let mut error_printer = CompilerErrorPrinter::new_with_source_reader(root_dir, source_reader);
+    error_printer.print_error(error);
+    error_printer.into_string()
+}
+
 /// Struct for printing compiler errors with source context.
 ///
 /// This is primarily intended for use in tests to format error output
@@ -326,6 +342,18 @@ impl<'a> CompilerErrorPrinter<'a> {
             chunks: vec![],
             root_dir,
             source_reader: Box::new(FsSourceReader {}),
+        }
+    }
+
+    /// Create a new error printer with a custom source reader.
+    pub fn new_with_source_reader(
+        root_dir: &'a Path,
+        source_reader: Box<dyn SourceReader + Send + Sync>,
+    ) -> Self {
+        Self {
+            chunks: vec![],
+            root_dir,
+            source_reader,
         }
     }
 

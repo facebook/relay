@@ -6,12 +6,10 @@
  */
 
 use std::fmt::Write as _;
-use std::fs::File;
-use std::fs::create_dir_all;
 use std::io;
-use std::io::prelude::*;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::sync::Mutex;
 
 use dashmap::DashSet;
@@ -23,6 +21,7 @@ use sha1::Sha1;
 use crate::build_project::source_control::SourceControl;
 use crate::errors::BuildProjectError;
 use crate::errors::Error;
+use crate::vfs::Vfs;
 
 type BuildProjectResult = Result<(), BuildProjectError>;
 
@@ -38,36 +37,36 @@ pub trait ArtifactWriter {
     fn finalize(&self) -> crate::errors::Result<()>;
 }
 
-#[derive(Default)]
 pub struct ArtifactFileWriter {
     added: Mutex<Vec<PathBuf>>,
     removed: Mutex<Vec<PathBuf>>,
     source_control: Option<Box<dyn SourceControl + Send + Sync>>,
     root_dir: PathBuf,
+    vfs: Arc<dyn Vfs>,
 }
 
 impl ArtifactFileWriter {
     pub fn new(
         source_control: Option<Box<dyn SourceControl + Send + Sync>>,
         root_dir: PathBuf,
+        vfs: Arc<dyn Vfs>,
     ) -> Self {
         Self {
             added: Default::default(),
             removed: Default::default(),
             source_control,
             root_dir,
+            vfs,
         }
     }
 
     fn write_file(&self, path: &PathBuf, content: &[u8]) -> io::Result<()> {
         let mut should_add = false;
-        if !path.exists() {
+        if !self.vfs.exists(path) {
             should_add = true;
-            ensure_file_directory_exists(path)?;
         }
 
-        let mut file = File::create(path)?;
-        file.write_all(content)?;
+        self.vfs.write(path, content)?;
         if should_add {
             self.added.lock().unwrap().push(path.clone());
         }
@@ -88,7 +87,7 @@ impl ArtifactWriter for ArtifactFileWriter {
         if let Some(file_hash) = hash {
             hash_is_different(file_hash, content).map_err(op)
         } else {
-            content_is_different(path, content).map_err(op)
+            content_is_different(path, content, &*self.vfs).map_err(op)
         }
     }
 
@@ -101,7 +100,7 @@ impl ArtifactWriter for ArtifactFileWriter {
     }
 
     fn remove(&self, path: PathBuf) -> BuildProjectResult {
-        match std::fs::remove_file(&path) {
+        match self.vfs.remove_file(&path) {
             Ok(_) => {
                 self.removed.lock().unwrap().push(path);
             }
@@ -123,19 +122,9 @@ impl ArtifactWriter for ArtifactFileWriter {
     }
 }
 
-fn ensure_file_directory_exists(file_path: &Path) -> io::Result<()> {
-    if let Some(file_directory) = file_path.parent()
-        && !file_directory.exists()
-    {
-        create_dir_all(file_directory)?;
-    }
-
-    Ok(())
-}
-
-fn content_is_different(path: &Path, content: &[u8]) -> io::Result<bool> {
-    if path.exists() {
-        let existing_content = std::fs::read(path)?;
+fn content_is_different(path: &Path, content: &[u8], vfs: &dyn Vfs) -> io::Result<bool> {
+    if vfs.exists(path) {
+        let existing_content = vfs.read(path)?;
         Ok(existing_content != content)
     } else {
         Ok(true)
@@ -170,11 +159,22 @@ impl ArtifactWriter for NoopArtifactWriter {
     }
 }
 
-#[derive(Default)]
 pub struct ArtifactValidationWriter {
     added: DashSet<PathBuf>,
     updated: DashSet<PathBuf>,
     removed: DashSet<PathBuf>,
+    vfs: Arc<dyn Vfs>,
+}
+
+impl ArtifactValidationWriter {
+    pub fn new(vfs: Arc<dyn Vfs>) -> Self {
+        Self {
+            added: Default::default(),
+            updated: Default::default(),
+            removed: Default::default(),
+            vfs,
+        }
+    }
 }
 
 impl ArtifactWriter for ArtifactValidationWriter {
@@ -191,12 +191,12 @@ impl ArtifactWriter for ArtifactValidationWriter {
         if let Some(file_hash) = hash {
             hash_is_different(file_hash, content).map_err(op)
         } else {
-            content_is_different(path, content).map_err(op)
+            content_is_different(path, content, &*self.vfs).map_err(op)
         }
     }
 
     fn write(&self, path: PathBuf, _: Vec<u8>) -> BuildProjectResult {
-        if path.exists() {
+        if self.vfs.exists(&path) {
             self.updated.insert(path);
         } else {
             self.added.insert(path);
@@ -205,7 +205,7 @@ impl ArtifactWriter for ArtifactValidationWriter {
     }
 
     fn remove(&self, path: PathBuf) -> BuildProjectResult {
-        if path.exists() {
+        if self.vfs.exists(&path) {
             self.removed.insert(path);
         }
         Ok(())

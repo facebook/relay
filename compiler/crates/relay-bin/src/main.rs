@@ -400,18 +400,20 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     set_project_flag(&mut config, &command.projects)?;
 
     if command.validate {
-        config.artifact_writer = Box::<ArtifactValidationWriter>::default();
+        config.artifact_writer = Box::new(ArtifactValidationWriter::new(config.vfs.clone()));
     }
 
-    config.create_operation_persister = Some(Box::new(|project_config| {
+    let vfs = config.vfs.clone();
+    config.create_operation_persister = Some(Box::new(move |project_config| {
+        let vfs = vfs.clone();
         project_config.persist.as_ref().map(
-            |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
+            move |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
                 match persist_config {
                     PersistConfig::Remote(remote_config) => {
                         Box::new(RemotePersister::new(remote_config.clone()))
                     }
                     PersistConfig::Local(local_config) => {
-                        Box::new(LocalPersister::new(local_config.clone()))
+                        Box::new(LocalPersister::new(local_config.clone(), vfs.clone()))
                     }
                 }
             },

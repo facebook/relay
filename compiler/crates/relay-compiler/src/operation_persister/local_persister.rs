@@ -6,9 +6,7 @@
  */
 
 use std::collections::BTreeMap;
-use std::fs::File;
-use std::io::BufWriter;
-use std::io::Write;
+use std::sync::Arc;
 
 use async_trait::async_trait;
 use dashmap::DashMap;
@@ -22,6 +20,7 @@ use sha2::Sha256;
 
 use crate::OperationPersister;
 use crate::config::ArtifactForPersister;
+use crate::vfs::Vfs;
 
 /// A local persister that stores GraphQL documents in a file on disk.
 ///
@@ -31,11 +30,13 @@ pub struct LocalPersister {
     config: LocalPersistConfig,
     /// A map of query IDs to query texts.
     query_map: DashMap<String, String>,
+    /// The VFS used for reading/writing files.
+    vfs: Arc<dyn Vfs>,
 }
 
 impl LocalPersister {
-    pub fn new(config: LocalPersistConfig) -> Self {
-        let query_map: DashMap<String, String> = match std::fs::read_to_string(&config.file) {
+    pub fn new(config: LocalPersistConfig, vfs: Arc<dyn Vfs>) -> Self {
+        let query_map: DashMap<String, String> = match vfs.read_to_string(&config.file) {
             Ok(content) => serde_json::from_str(&content).unwrap_or_default(),
             Err(_e) => {
                 panic!(
@@ -45,7 +46,11 @@ impl LocalPersister {
             }
         };
 
-        Self { config, query_map }
+        Self {
+            config,
+            query_map,
+            vfs,
+        }
     }
 
     fn hash_operation(&self, operation_text: String) -> String {
@@ -91,10 +96,10 @@ impl OperationPersister for LocalPersister {
             .map(|x| (x.key().clone(), x.value().clone()))
             .collect();
 
-        let mut writer = BufWriter::new(File::create(&self.config.file)?);
-        serde_json::to_writer_pretty(&mut writer, &ordered)?;
-        writer.write_all(b"\n")?;
-        writer.flush()?;
+        let mut content = Vec::new();
+        serde_json::to_writer_pretty(&mut content, &ordered)?;
+        content.push(b'\n');
+        self.vfs.write(&self.config.file, &content)?;
         Ok(())
     }
 }

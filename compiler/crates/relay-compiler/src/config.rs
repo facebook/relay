@@ -20,7 +20,6 @@ use common::DirectiveName;
 use common::FeatureFlags;
 use common::Rollout;
 use common::ScalarName;
-use dunce::canonicalize;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
 use globset::Glob;
@@ -82,6 +81,8 @@ use crate::source_control_for_root;
 use crate::status_reporter::BuildStatus;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
+use crate::vfs::OsVfs;
+use crate::vfs::Vfs;
 
 pub type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -210,6 +211,9 @@ pub struct Config {
 
     /// Names of directives that will be automatically copied from the parent fragment to refetchable queries
     pub transferrable_refetchable_query_directives: Vec<DirectiveName>,
+
+    /// Virtual file system used for all file I/O in the compilation pipeline.
+    pub vfs: Arc<dyn Vfs>,
 }
 
 pub enum FileSourceKind {
@@ -256,10 +260,11 @@ fn normalize_path_from_config(
     current_dir: PathBuf,
     common_path: PathBuf,
     path_from_config: PathBuf,
+    vfs: &dyn crate::vfs::Vfs,
 ) -> PathBuf {
     let mut src = current_dir.join(path_from_config.clone());
 
-    src = canonicalize(src.clone())
+    src = vfs.canonicalize(&src)
         .unwrap_or_else(|err| panic!("Unable to canonicalize file {:?}. Error: {:?}", &src, err));
 
     src.strip_prefix(common_path.clone())
@@ -364,11 +369,35 @@ impl Config {
         Self::from_struct(path, config_file, false)
     }
 
+    /// Loads a config file with a custom VFS for use in tests.
+    /// Validates filesystem paths against the VFS.
+    pub fn from_string_for_test_with_vfs(
+        config_string: &str,
+        vfs: Arc<dyn Vfs>,
+    ) -> Result<Self> {
+        let path = PathBuf::from("/virtual/root/relay.config.json");
+        let config_file: ConfigFile =
+            serde_json::from_str(config_string).map_err(|err| Error::ConfigError {
+                details: format!("Failed to parse config file `{}`: {}", path.display(), err,),
+            })?;
+        Self::from_struct_with_vfs(path, config_file, true, vfs)
+    }
+
     /// `validate_fs` disables all filesystem checks for existence of files
     fn from_struct(
         config_path: PathBuf,
         config_file: ConfigFile,
         validate_fs: bool,
+    ) -> Result<Self> {
+        Self::from_struct_with_vfs(config_path, config_file, validate_fs, Arc::new(OsVfs))
+    }
+
+    /// `validate_fs` disables all filesystem checks for existence of files
+    fn from_struct_with_vfs(
+        config_path: PathBuf,
+        config_file: ConfigFile,
+        validate_fs: bool,
+        vfs: Arc<dyn Vfs>,
     ) -> Result<Self> {
         let mut hash = Sha1::new();
         serde_json::to_writer(&mut hash, &config_file).unwrap();
@@ -381,14 +410,14 @@ impl Config {
         let config_file = match config_file {
             ConfigFile::MultiProject(config) => *config,
             ConfigFile::SingleProject(config) => {
-                config.create_multi_project_config(&config_path)?
+                config.create_multi_project_config(&config_path, &*vfs)?
             }
         };
 
         let config_file_dir = config_path.parent().unwrap();
 
         let root_dir = if let Some(config_root) = config_file.root {
-            canonicalize(config_file_dir.join(config_root)).unwrap()
+            vfs.canonicalize(&config_file_dir.join(config_root)).unwrap()
         } else {
             config_file_dir.to_owned()
         };
@@ -492,7 +521,13 @@ impl Config {
                     schema_name: config_file_project.schema_name,
                     schema_config: config_file_project.schema_config,
                     typegen_config: config_file_project.typegen_config,
-                    persist: config_file_project.persist,
+                    persist: config_file_project.persist.map(|persist| match persist {
+                        relay_config::PersistConfig::Local(mut local) => {
+                            local.file = root_dir.join(&local.file);
+                            relay_config::PersistConfig::Local(local)
+                        }
+                        other => other,
+                    }),
                     variable_names_comment: config_file_project.variable_names_comment,
                     test_path_regex,
                     feature_flags: Arc::new(
@@ -521,6 +556,7 @@ impl Config {
                     _ => source_control_for_root(&root_dir),
                 },
                 root_dir.clone(),
+                Arc::clone(&vfs),
             )),
             status_reporter: Box::new(ConsoleStatusReporter::new(
                 root_dir.clone(),
@@ -558,6 +594,7 @@ impl Config {
             custom_extract_relay_resolvers: None,
             should_extract_full_source: None,
             transferrable_refetchable_query_directives: vec![],
+            vfs,
         };
 
         let mut validation_errors = Vec::new();
@@ -626,7 +663,7 @@ impl Config {
 
     /// Validates that all paths actually exist on disk.
     pub fn validate_paths(&self, errors: &mut Vec<ConfigValidationError>) {
-        if !self.root_dir.is_dir() {
+        if !self.vfs.is_dir(&self.root_dir) {
             errors.push(ConfigValidationError::RootNotDirectory {
                 root_dir: self.root_dir.clone(),
             });
@@ -645,7 +682,7 @@ impl Config {
             }
         }
 
-        let mut validator = PathValidator::new(self.root_dir.clone(), &self.excludes);
+        let mut validator = PathValidator::new(self.root_dir.clone(), &self.excludes, &*self.vfs);
 
         // each source should point to an existing directory
         for source_dir in self.sources.keys() {
@@ -665,6 +702,15 @@ impl Config {
             // Validate schema extensions
             for extension_path in &project.schema_extensions {
                 validator.assert_exists(extension_path, "schema extension file or directory");
+            }
+
+            // Validate persist config file
+            if let Some(relay_config::PersistConfig::Local(local_config)) = &project.persist {
+                if !self.vfs.is_file(&local_config.file) {
+                    errors.push(ConfigValidationError::PersistFileNotExistent {
+                        path: local_config.file.clone(),
+                    });
+                }
             }
         }
 
@@ -1048,24 +1094,25 @@ impl SingleProjectConfigFile {
     fn get_common_root(
         &self,
         root_dir: PathBuf,
+        vfs: &dyn crate::vfs::Vfs,
     ) -> std::result::Result<PathBuf, ConfigValidationError> {
         let mut paths = vec![];
         if let Some(artifact_directory_path) = self.artifact_directory.clone() {
             paths.push(
-                canonicalize(root_dir.join(artifact_directory_path.clone())).map_err(|_| {
+                vfs.canonicalize(&root_dir.join(artifact_directory_path.clone())).map_err(|_| {
                     ConfigValidationError::ArtifactDirectoryNotExistent {
                         path: artifact_directory_path,
                     }
                 })?,
             );
         }
-        paths.push(canonicalize(root_dir.join(self.src.clone())).map_err(|_| {
+        paths.push(vfs.canonicalize(&root_dir.join(self.src.clone())).map_err(|_| {
             ConfigValidationError::SourceNotExistent {
                 source_dir: self.src.clone(),
             }
         })?);
         paths.push(
-            canonicalize(root_dir.join(self.schema.clone())).map_err(|_| {
+            vfs.canonicalize(&root_dir.join(self.schema.clone())).map_err(|_| {
                 ConfigValidationError::SchemaFileNotExistent {
                     project_name: self.project_name,
                     schema_file: self.schema.clone(),
@@ -1074,7 +1121,7 @@ impl SingleProjectConfigFile {
         );
         for extension_path in self.schema_extensions.iter() {
             paths.push(
-                canonicalize(root_dir.join(extension_path.clone())).map_err(|_| {
+                vfs.canonicalize(&root_dir.join(extension_path.clone())).map_err(|_| {
                     ConfigValidationError::ExtensionPathNotExistent {
                         project_name: self.project_name,
                         extension_path: extension_path.clone(),
@@ -1086,9 +1133,9 @@ impl SingleProjectConfigFile {
             .ok_or(ConfigValidationError::CommonPathNotFound)
     }
 
-    fn create_multi_project_config(self, config_path: &Path) -> Result<MultiProjectConfigFile> {
-        let current_dir = std::env::current_dir().unwrap();
-        let common_root_dir = self.get_common_root(current_dir.clone()).map_err(|err| {
+    fn create_multi_project_config(self, config_path: &Path, vfs: &dyn crate::vfs::Vfs) -> Result<MultiProjectConfigFile> {
+        let current_dir = config_path.parent().unwrap_or(config_path).to_path_buf();
+        let common_root_dir = self.get_common_root(current_dir.clone(), vfs).map_err(|err| {
             Error::ConfigFileValidation {
                 config_path: config_path.to_path_buf(),
                 validation_errors: vec![err],
@@ -1097,12 +1144,13 @@ impl SingleProjectConfigFile {
 
         let project_config = ConfigFileProject {
             output: self.artifact_directory.map(|dir| {
-                normalize_path_from_config(current_dir.clone(), common_root_dir.clone(), dir)
+                normalize_path_from_config(current_dir.clone(), common_root_dir.clone(), dir, vfs)
             }),
             schema: Some(normalize_path_from_config(
                 current_dir.clone(),
                 common_root_dir.clone(),
                 self.schema,
+                vfs,
             )),
             schema_config: self.schema_config,
             schema_extensions: self
@@ -1113,6 +1161,7 @@ impl SingleProjectConfigFile {
                         current_dir.clone(),
                         common_root_dir.clone(),
                         path.clone(),
+                        vfs,
                     )
                 })
                 .collect(),
@@ -1130,7 +1179,7 @@ impl SingleProjectConfigFile {
         projects.insert(self.project_name, project_config);
 
         let mut sources = FnvIndexMap::default();
-        let src = normalize_path_from_config(current_dir, common_root_dir.clone(), self.src);
+        let src = normalize_path_from_config(current_dir, common_root_dir.clone(), self.src, vfs);
 
         sources.insert(src, ProjectSet::of(self.project_name));
 

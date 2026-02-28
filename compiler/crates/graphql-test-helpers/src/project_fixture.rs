@@ -55,6 +55,14 @@ pub struct ProjectFixture {
 }
 
 impl ProjectFixture {
+    /// Construct a ProjectFixture directly from a files map.
+    pub fn from_files(files: FnvHashMap<PathBuf, String>) -> Self {
+        Self {
+            files,
+            file_changes: Default::default(),
+        }
+    }
+
     /// Parse a fixture file. Useful for parsing an existing fixture test.
     pub fn deserialize(input: &str) -> Self {
         let mut files: FnvHashMap<PathBuf, String> = Default::default();
@@ -263,6 +271,31 @@ impl ProjectFixture {
 
         // Detect deleted files (skip paths outside the directory since
         // read_from_dir can't observe them)
+        for path in self.files.keys() {
+            if !path.starts_with("..") && !current.files.contains_key(path) {
+                file_changes.insert(path.clone(), FileChange::Delete);
+            }
+        }
+
+        Self {
+            files: self.files.clone(),
+            file_changes,
+        }
+    }
+
+    /// Create a new ProjectFixture with file_changes derived from comparing
+    /// against another ProjectFixture (in-memory analog of `with_changes_from_dir`).
+    pub fn with_changes_from_fixture(&self, current: &ProjectFixture) -> Self {
+        let mut file_changes: FnvHashMap<PathBuf, FileChange> = Default::default();
+
+        // Detect new or modified files
+        for (path, content) in &current.files {
+            if self.files.get(path) != Some(content) {
+                file_changes.insert(path.clone(), FileChange::Change(content.clone()));
+            }
+        }
+
+        // Detect deleted files
         for path in self.files.keys() {
             if !path.starts_with("..") && !current.files.contains_key(path) {
                 file_changes.insert(path.clone(), FileChange::Delete);

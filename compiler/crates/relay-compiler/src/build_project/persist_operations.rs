@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -27,6 +26,7 @@ use crate::config::ArtifactForPersister;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
+use crate::vfs::Vfs;
 
 lazy_static! {
     static ref RELAY_HASH_REGEX: Regex = Regex::new(r#"@relayHash (\w{32})\n"#).unwrap();
@@ -78,7 +78,7 @@ pub async fn persist_operations(
                     let extracted_persist_id = if config.repersist_operations {
                         None
                     } else {
-                        extract_persist_id(&artifact_path, &text_hash)
+                        extract_persist_id(&artifact_path, &text_hash, &*config.vfs)
                     };
                     if let Some(id) = extracted_persist_id {
                         *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
@@ -130,8 +130,8 @@ pub async fn persist_operations(
     Ok(())
 }
 
-fn extract_persist_id(path: &PathBuf, text_hash: &str) -> Option<String> {
-    let content = fs::read_to_string(path).ok()?;
+fn extract_persist_id(path: &PathBuf, text_hash: &str, vfs: &dyn Vfs) -> Option<String> {
+    let content = vfs.read_to_string(path).ok()?;
 
     // Looks like a merge conflict, let's not trust this file.
     if content.contains("<<<<") || content.contains(">>>>") {

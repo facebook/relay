@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+subscription OnMessageAdded {
+  messageAdded {
+    id
+    content
+    author {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+subscription OnMessageAdded {
+  messageAdded {
+    id
+    content
+    author {
+      name
+    }
+  }
+}

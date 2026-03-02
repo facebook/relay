@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+mutation CreateUser($input: CreateUserInput!) {
+  createUser(input: $input) {
+    user {
+      id
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+mutation CreateUser($input: CreateUserInput!) {
+  createUser(input: $input) {
+    user {
+      id
+      name
+    }
+  }
+}

@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+query UserQuery {
+  myUser: user(id: "123") {
+    fullName: name
+    primaryEmail: email
+  }
+}
+==================================== OUTPUT ===================================
+query UserQuery {
+  myUser: user(id: "123") {
+    fullName: name
+    primaryEmail: email
+  }
+}

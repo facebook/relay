@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+fragment UserFields on User {
+  id
+  name
+  email
+  profilePicture {
+    url
+  }
+}
+==================================== OUTPUT ===================================
+fragment UserFields on User {
+  id
+  name
+  email
+  profilePicture {
+    url
+  }
+}

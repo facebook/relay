@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+query TestQuery {
+  field(
+    stringArg: "hello"
+    intArg: 42
+    floatArg: 3.14
+    boolArg: true
+    nullArg: null
+    enumArg: ACTIVE
+    listArg: [1, 2, 3]
+    objectArg: {key: "value", nested: {inner: true}}
+  ) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery {
+  field(
+    stringArg: "hello"
+    intArg: 42
+    floatArg: 3.14
+    boolArg: true
+    nullArg: null
+    enumArg: ACTIVE
+    listArg: [1, 2, 3]
+    objectArg: {key: "value", nested: {inner: true}}
+  ) {
+    id
+  }
+}

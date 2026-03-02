@@ -50,6 +50,13 @@ pub fn prettier_print_schema_document(document: &SchemaDocument) -> String {
     printer.output
 }
 
+/// Prints a TypeSystemDefinition in prettier-graphql compatible format.
+pub fn prettier_print_type_system_definition(definition: &TypeSystemDefinition) -> String {
+    let mut printer = PrettierSchemaPrinter::new();
+    printer.print_type_system_definition(definition);
+    printer.output
+}
+
 struct PrettierSchemaPrinter {
     output: String,
 }

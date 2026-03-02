@@ -1,0 +1,14 @@
+query NestedQuery {
+  user {
+    friends {
+      posts {
+        comments {
+          author {
+            name
+          }
+          content
+        }
+      }
+    }
+  }
+}

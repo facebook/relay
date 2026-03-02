@@ -1,0 +1,12 @@
+query SearchQuery {
+  search {
+    ... on User {
+      name
+      email
+    }
+    ... on Post {
+      title
+      content
+    }
+  }
+}

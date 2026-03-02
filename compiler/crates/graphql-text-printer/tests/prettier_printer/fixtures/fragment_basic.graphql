@@ -1,0 +1,8 @@
+fragment UserFields on User {
+  id
+  name
+  email
+  profilePicture {
+    url
+  }
+}

@@ -9,10 +9,12 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+mod prettier_schema_printer;
 mod print_ast_to_text;
 mod print_full_operation;
 mod print_to_text;
 
+pub use prettier_schema_printer::prettier_print_schema_document;
 pub use print_ast_to_text::print_executable_definition_ast;
 pub use print_ast_to_text::print_fragment_ast;
 pub use print_ast_to_text::print_operation_ast;

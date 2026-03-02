@@ -20,6 +20,12 @@ pub enum PersistError {
         source: hyper::Error,
     },
 
+    #[error("HTTP client error: {source}")]
+    HyperClientError {
+        #[from]
+        source: hyper_util::client::legacy::Error,
+    },
+
     #[error("Persisting failed: {message}")]
     ErrorResponse { message: String },
 

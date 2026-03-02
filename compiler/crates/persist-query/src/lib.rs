@@ -13,12 +13,15 @@ mod errors;
 
 use std::fmt;
 
+use bytes::Bytes;
 pub use errors::PersistError;
-use hyper::Body;
-use hyper::Client;
-use hyper::Method;
-use hyper::Request;
+use http::Method;
+use http::Request;
+use http_body_util::BodyExt as _;
+use http_body_util::Full;
 use hyper_tls::HttpsConnector;
+use hyper_util::client::legacy::Client;
+use hyper_util::rt::TokioExecutor;
 use serde::Deserialize;
 use url::form_urlencoded;
 
@@ -62,16 +65,15 @@ pub async fn persist(
     for (k, v) in extra_headers {
         builder = builder.header(k, v);
     }
-    let req =
-        builder
-            .body(Body::from(request_body))
-            .map_err(|err| PersistError::NetworkCreateError {
-                error: Box::new(err),
-            })?;
+    let req = builder
+        .body(Full::new(Bytes::from(request_body)))
+        .map_err(|err| PersistError::NetworkCreateError {
+            error: Box::new(err),
+        })?;
     let https = HttpsConnector::new();
-    let client = Client::builder().build(https);
+    let client = Client::builder(TokioExecutor::new()).build(https);
     let res = client.request(req).await?;
-    let bytes = hyper::body::to_bytes(res.into_body()).await?;
+    let bytes = res.into_body().collect().await?.to_bytes();
     let result: Response =
         serde_json::from_slice(&bytes).map_err(|err| PersistError::DetailedResponseParseError {
             source: err,

@@ -39,16 +39,17 @@ pub fn get_project_asts(
     graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
     project_config: &ProjectConfig,
 ) -> Result<ProjectAstData, BuildProjectError> {
+    let empty: &[ExecutableDefinition] = &[];
     let project_asts = graphql_asts
         .get(&project_config.name)
         .map(|asts| asts.get_all_executable_definitions())
-        .unwrap_or_default();
+        .unwrap_or(empty);
     let (base_project_asts, base_definition_names) = match project_config.base {
         Some(base_project_name) => {
             let base_project_asts = graphql_asts
                 .get(&base_project_name)
                 .map(|asts| asts.get_all_executable_definitions())
-                .unwrap_or_default();
+                .unwrap_or(empty);
             let base_definition_names = base_project_asts
                 .iter()
                 // TODO(T64459085): Figure out what to do about unnamed (anonymous) operations
@@ -61,9 +62,9 @@ pub fn get_project_asts(
                 .collect::<ExecutableDefinitionNameSet>();
             (base_project_asts, base_definition_names)
         }
-        None => (Vec::new(), Default::default()),
+        None => (empty, Default::default()),
     };
-    find_duplicates(&project_asts, &base_project_asts).map_err(|errors| {
+    find_duplicates(project_asts, base_project_asts).map_err(|errors| {
         BuildProjectError::ValidationErrors {
             errors,
             project_name: project_config.name,
@@ -71,7 +72,7 @@ pub fn get_project_asts(
     })?;
 
     let mut base_resolver_fragment_asts =
-        find_base_resolver_fragment_asts(schema, &base_definition_names, &base_project_asts);
+        find_base_resolver_fragment_asts(schema, &base_definition_names, base_project_asts);
 
     let ReachableAst {
         mut definitions,

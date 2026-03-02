@@ -35,12 +35,16 @@ use crate::utils::get_parser_features;
 
 /// A collection of GraphQL abstract syntax trees (ASTs) for a set of files.
 ///
-/// This struct contains a map of file paths to their corresponding GraphQL ASTs,
-/// as well as sets of pending and removed definition names.
+/// Stores definitions both per-file (for per-file lookup) and in a pre-flattened
+/// Vec (for efficient access to all definitions). `get_all_executable_definitions`
+/// returns a borrowed slice instead of cloning ~222K definitions each time.
 #[derive(Debug)]
 pub struct GraphQLAsts {
     /// A map of file paths to their corresponding GraphQL ASTs.
     asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>>,
+    /// Pre-flattened Vec of all definitions across all files. Avoids expensive
+    /// per-call cloning in `get_all_executable_definitions`.
+    all_definitions: Vec<ExecutableDefinition>,
     /// Names of fragments and operations that are updated or created.
     pub pending_definition_names: ExecutableDefinitionNameSet,
     /// Names of fragments and operations that are deleted.
@@ -55,8 +59,8 @@ impl GraphQLAsts {
         self.asts.get(file_path)
     }
 
-    pub fn get_all_executable_definitions(&self) -> Vec<ExecutableDefinition> {
-        self.asts.values().flatten().cloned().collect()
+    pub fn get_all_executable_definitions(&self) -> &[ExecutableDefinition] {
+        &self.all_definitions
     }
 
     pub fn from_graphql_sources_map(
@@ -198,8 +202,13 @@ impl GraphQLAsts {
         }
 
         if syntax_errors.is_empty() {
+            // Pre-flatten all definitions to avoid cloning on every call to
+            // get_all_executable_definitions(). This trades memory for avoiding
+            // ~222K deep clones per build on the intern project.
+            let all_definitions = asts.values().flatten().cloned().collect();
             Ok(Self {
                 asts,
+                all_definitions,
                 pending_definition_names,
                 removed_definition_names,
             })

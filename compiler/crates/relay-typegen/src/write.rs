@@ -1005,7 +1005,7 @@ fn write_abstract_validator_function(
     match language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
             let cast_op = if use_new_flow_casting_syntax {
-                " as "
+                ":: as "
             } else {
                 ": "
             };

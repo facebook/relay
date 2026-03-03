@@ -22,7 +22,7 @@ query conflictingSelectionsWithDeferQuery {
   ...conflictingSelectionsWithDefer2_fragment @defer
 }
 ==================================== ERROR ====================================
-✖︎ Expected all fields on the same parent with the name or alias `node` to have the same argument values after applying fragment arguments. This field has the applied argument values: (id: 4)
+✖︎ Expected all fields on the same parent with the name or alias `node` to have the same argument values after applying fragment arguments. This field has the applied argument values: (id: 4). If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: node(...)`.
 
   conflicting-selections-with-defer.invalid.graphql:4:3
     3 │ fragment conflictingSelectionsWithDefer1_fragment on Query {

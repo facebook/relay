@@ -9,7 +9,7 @@ query selectionSetConflictDifferentArgumentsWithListQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected all fields on the same parent with the name or alias `nodes` to have the same argument values after applying fragment arguments. This field has the applied argument values: (ids: ["1", "2", "3"])
+✖︎ Expected all fields on the same parent with the name or alias `nodes` to have the same argument values after applying fragment arguments. This field has the applied argument values: (ids: ["1", "2", "3"]). If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: nodes(...)`.
 
   selection_set_conflict_different_arguments_with_list.graphql:3:3
     2 │ query selectionSetConflictDifferentArgumentsWithListQuery {

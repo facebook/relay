@@ -22,7 +22,7 @@ fragment conflictingSelectionsWithActorChange3_fragment on Query {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected all fields on the same parent with the name or alias `username` to have the same argument values after applying fragment arguments. This field has the applied argument values: (name: "Alice")
+✖︎ Expected all fields on the same parent with the name or alias `username` to have the same argument values after applying fragment arguments. This field has the applied argument values: (name: "Alice"). If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: username(...)`.
 
   conflicting-selections-with-actor-change.invalid.graphql:13:3
    12 │ fragment conflictingSelectionsWithActorChange2_fragment on Query {

@@ -11,7 +11,7 @@ query selectionSetConflictMissingArgumentQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected all fields on the same parent with the name or alias `profile_picture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (scale: 1.5, media_type: "image/jpeg")
+✖︎ Expected all fields on the same parent with the name or alias `profile_picture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (scale: 1.5, media_type: "image/jpeg"). If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: profile_picture(...)`.
 
   selection_set_conflict_missing_argument.graphql:4:5
     3 │   me {

@@ -152,6 +152,9 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
                                 continue 'code;
                             }
                         }
+                    } else {
+                        // EOF reached without finding a backtick
+                        continue 'code;
                     }
                 }
                 let start = i;

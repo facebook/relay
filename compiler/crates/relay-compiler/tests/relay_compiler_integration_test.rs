@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7afb51e0fa901e3bfae2f4df45a4d022>>
+ * @generated SignedSource<<de4d2cb51732e8d59dea7363b863fc33>>
  */
 
 mod relay_compiler_integration;
 
 use relay_compiler_integration::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn bare_graphql_token_does_not_loop() {
+    let input = include_str!("relay_compiler_integration/fixtures/bare_graphql_token_does_not_loop.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/bare_graphql_token_does_not_loop.expected");
+    test_fixture(transform_fixture, file!(), "bare_graphql_token_does_not_loop.input", "relay_compiler_integration/fixtures/bare_graphql_token_does_not_loop.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn client_extension_interface_backed_by_resolvers_in_throw_on_field_error() {

@@ -58,6 +58,7 @@ use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
 use indexmap::IndexSet;
 use log::debug;
+use log::error;
 use log::info;
 use log::warn;
 use petgraph::unionfind::UnionFind;
@@ -595,6 +596,19 @@ pub async fn commit_project(
         return Err(BuildProjectFailure::Cancelled);
     }
 
+    // Start hash map prefetch as a background task. The closure extracts
+    // artifact paths synchronously, then the spawned future does the async
+    // Eden Thrift RPC (~5-10s). This overlaps the network I/O with
+    // persist_operations and generate_extra_artifacts below.
+    let hash_map_handle = if !artifacts.is_empty() {
+        config
+            .get_artifacts_file_hash_map
+            .as_ref()
+            .map(|get_fn| tokio::spawn(get_fn(&artifacts)))
+    } else {
+        None
+    };
+
     if let Some(operation_persister) = config
         .create_operation_persister
         .as_ref()
@@ -649,19 +663,21 @@ pub async fn commit_project(
         }
     };
 
-    let artifacts_file_hash_map = if artifacts.is_empty() {
-        None
-    } else {
-        match &config.get_artifacts_file_hash_map {
-            Some(get_fn) => {
-                let get_artifacts_file_hash_map_timer =
-                    log_event.start("get_artifacts_file_hash_map_time");
-                let res = get_fn(&artifacts).await;
-                log_event.stop(get_artifacts_file_hash_map_timer);
-                res
-            }
-            _ => None,
+    // Await the prefetched hash map. The timer measures only the remaining
+    // wait time — if the Eden RPC completed during persist/generate above,
+    // this resolves immediately (~0ms).
+    let artifacts_file_hash_map = match hash_map_handle {
+        Some(handle) => {
+            let get_artifacts_file_hash_map_timer =
+                log_event.start("get_artifacts_file_hash_map_time");
+            let res = handle.await.unwrap_or_else(|e| {
+                error!("hash map prefetch failed: {e}");
+                None
+            });
+            log_event.stop(get_artifacts_file_hash_map_timer);
+            res
         }
+        None => None,
     };
 
     // Write the generated artifacts to disk. This step is separate from

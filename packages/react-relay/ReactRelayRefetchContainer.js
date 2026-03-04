@@ -146,7 +146,7 @@ function createContainerWithFragments<
       prevState: ContainerState,
     ): Partial<ContainerState> | null {
       // Any props change could impact the query, so we mirror props in state.
-      // This is an unusual pattern, but necessary for this container usecase.
+      // This is an unusual pattern, but necessary for this container use case.
       const {prevProps} = prevState;
       const relayContext = assertRelayContext(nextProps.__relayContext);
       const rootIsQueryRenderer = nextProps.__rootIsQueryRenderer ?? false;
@@ -350,7 +350,7 @@ function createContainerWithFragments<
         typeof observerOrCallback === 'function'
           ? {
               error: observerOrCallback,
-              // callback is not exectued on complete or unsubscribe
+              // callback is not executed on complete or unsubscribe
               // for backward compatibility
               next: observerOrCallback,
             }
@@ -429,7 +429,7 @@ function createContainerWithFragments<
         })
         .finally(() => {
           // Finalizing a refetch should only clear this._refetchSubscription
-          // if the finizing subscription is the most recent call.
+          // if the finalizing subscription is the most recent call.
           if (this._refetchSubscription === refetchSubscription) {
             this._refetchSubscription = null;
           }

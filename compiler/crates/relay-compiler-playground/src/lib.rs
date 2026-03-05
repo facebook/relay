@@ -347,7 +347,7 @@ fn get_programs(
     let base_fragment_names = Arc::new(Default::default());
 
     apply_transforms(
-        &project_config,
+        project_config,
         Arc::new(program),
         base_fragment_names,
         Arc::new(NoopPerfLogger),

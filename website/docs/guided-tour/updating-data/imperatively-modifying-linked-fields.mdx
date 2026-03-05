@@ -49,7 +49,7 @@ graphql`
 
 The fragment must be spread at both the source (i.e. on the viewer's new best friend), and at the destination (within the viewer's `best_friend` field in the updatable query).
 
-Lets define a component with a fragment where we spread `AssignableBestFriendButton_assignable_user`. This user will be the viewer's new best friend.
+Lets define a component with a fragment where we spread `AssignBestFriendButton_assignable_user`. This user will be the viewer's new best friend.
 
 ```js
 // AssignBestFriendButton.react.js
@@ -64,7 +64,7 @@ export default function AssignBestFriendButton({
     fragment AssignBestFriendButton_someType on SomeType {
       user {
         name
-        ...AssignableBestFriendButton_assignable_user
+        ...AssignBestFriendButton_assignable_user
       }
     }
   `, someTypeRef);
@@ -100,7 +100,7 @@ const onClick = () => {
             @updatable {
               viewer {
                 best_friend {
-                  ...AssignableBestFriendButton_assignable_user
+                  ...AssignBestFriendButton_assignable_user
                 }
               }
             }
@@ -146,7 +146,7 @@ export default function AssignBestFriendButton({
     fragment AssignBestFriendButton_someType on SomeType {
       user {
         name
-        ...AssignableBestFriendButton_assignable_user
+        ...AssignBestFriendButton_assignable_user
       }
     }
   `, someTypeRef);
@@ -162,7 +162,7 @@ export default function AssignBestFriendButton({
               @updatable {
                 viewer {
                   best_friend {
-                    ...AssignableBestFriendButton_assignable_user
+                    ...AssignBestFriendButton_assignable_user
                   }
                 }
               }
@@ -248,7 +248,7 @@ export default function AssignBestFriendButton({
     fragment AssignBestFriendButton_someType on SomeType {
       user {
         name
-        ...AssignableBestFriendButton_assignable_user
+        ...AssignBestFriendButton_assignable_user
       }
     }
   `, someTypeRef);
@@ -259,7 +259,7 @@ export default function AssignBestFriendButton({
         # since viewer.best_friends appears in the right hand side of the assignment
         # (i.e. updatableData.viewer.best_friends = viewer.best_friends.concat(...)),
         # the best_friends field must contain the correct assignable fragment spread
-        ...AssignableBestFriendButton_assignable_user
+        ...AssignBestFriendButton_assignable_user
       }
     }
   `, viewerRef);
@@ -275,7 +275,7 @@ export default function AssignBestFriendButton({
               @updatable {
                 viewer {
                   best_friends {
-                    ...AssignableBestFriendButton_assignable_user
+                    ...AssignBestFriendButton_assignable_user
                   }
                 }
               }
@@ -309,7 +309,7 @@ const data = useFragment(graphql`
     node(id: "4") {
       ... on User {
         __typename
-        ...AssignableBestFriendButton_assignable_user
+        ...AssignBestFriendButton_assignable_user
       }
     }
   }
@@ -326,7 +326,7 @@ const onClick = () => {
             @updatable {
               viewer {
                 best_friend {
-                  ...AssignableBestFriendButton_assignable_user
+                  ...AssignBestFriendButton_assignable_user
                 }
               }
             }

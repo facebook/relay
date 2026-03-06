@@ -13,6 +13,7 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Validator;
 use schema::Schema;
@@ -28,6 +29,7 @@ pub fn validate_updatable_fragment_spread(program: &Program) -> DiagnosticsResul
     UpdatableFragmentSpread {
         program,
         path: vec![],
+        containing_type: None,
     }
     .validate_program(program)
 }
@@ -55,6 +57,7 @@ struct LinkedFieldPathItem {
 struct UpdatableFragmentSpread<'a> {
     program: &'a Program,
     path: Vec<PathItem>,
+    containing_type: Option<Type>,
 }
 
 impl UpdatableFragmentSpread<'_> {
@@ -175,10 +178,36 @@ impl UpdatableFragmentSpread<'_> {
         }
 
         if !encountered_linked_field {
-            errors.push(Diagnostic::error(
-                ValidationMessage::UpdatableFragmentTopLevel,
-                fragment_spread.fragment.location,
-            ));
+            if encountered_inline_fragment {
+                // An inline fragment at the top level (no linked field) doesn't have a
+                // linked field to validate for discriminated union creation.
+                errors.push(Diagnostic::error(
+                    ValidationMessage::UpdatableFragmentTopLevelInlineFragment,
+                    fragment_spread.fragment.location,
+                ));
+            } else if let Some(containing_type) = self.containing_type {
+                // The fragment definition's type must be a superset or equal to the
+                // containing operation/fragment type. Same logic as the linked field
+                // supertype check, but using the containing type.
+                if !self.program.schema.is_type_subtype_of(
+                    &TypeReference::Named(containing_type),
+                    &TypeReference::Named(fragment_definition.type_condition),
+                ) {
+                    errors.push(Diagnostic::error(
+                        ValidationMessage::UpdatableFragmentSpreadSubtypeOrEqualContainingType {
+                            updatable_fragment_type: self
+                                .program
+                                .schema
+                                .get_type_name(fragment_definition.type_condition),
+                            containing_type: self
+                                .program
+                                .schema
+                                .get_type_name(containing_type),
+                        },
+                        fragment_spread.fragment.location,
+                    ));
+                }
+            }
         }
 
         if !errors.is_empty() {
@@ -193,6 +222,26 @@ impl Validator for UpdatableFragmentSpread<'_> {
     const NAME: &'static str = "UpdatableFragmentSpread";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
+
+    fn validate_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> DiagnosticsResult<()> {
+        self.containing_type = Some(operation.type_);
+        let result = self.default_validate_operation(operation);
+        self.containing_type = None;
+        result
+    }
+
+    fn validate_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> DiagnosticsResult<()> {
+        self.containing_type = Some(fragment.type_condition);
+        let result = self.default_validate_fragment(fragment);
+        self.containing_type = None;
+        result
+    }
 
     fn validate_linked_field(&mut self, linked_field: &LinkedField) -> DiagnosticsResult<()> {
         let mut errors = vec![];

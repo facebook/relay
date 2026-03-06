@@ -120,8 +120,16 @@ pub enum ValidationMessage {
     #[error("Directives are not allowed on spreads of updatable fragments.")]
     UpdatableFragmentSpreadNoDirectives,
 
-    #[error("Updatable fragments cannot be spread at the top level.")]
-    UpdatableFragmentTopLevel,
+    #[error(
+        "This updatable fragment has type `{updatable_fragment_type}`, and is spread at the top level of a definition with type `{containing_type}`. However, if a record has the type `{containing_type}`, it does not necessarily have the type `{updatable_fragment_type}`."
+    )]
+    UpdatableFragmentSpreadSubtypeOrEqualContainingType {
+        updatable_fragment_type: StringKey,
+        containing_type: StringKey,
+    },
+
+    #[error("Updatable fragments cannot be spread inside an inline fragment at the top level without an enclosing linked field.")]
+    UpdatableFragmentTopLevelInlineFragment,
 
     #[error("Updatable fragments cannot be contained in @skip or @if.")]
     UpdatableFragmentSpreadNoCondition,

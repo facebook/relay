@@ -1,0 +1,10 @@
+==================================== INPUT ====================================
+fragment Foo on Viewer {
+  ...Updatable_viewer
+}
+
+fragment Updatable_viewer on Viewer @updatable {
+  __typename
+}
+==================================== OUTPUT ===================================
+OK

@@ -228,10 +228,7 @@ impl UpdatableFragmentSpread<'_> {
                                 .program
                                 .schema
                                 .get_type_name(fragment_definition.type_condition),
-                            containing_type: self
-                                .program
-                                .schema
-                                .get_type_name(containing_type),
+                            containing_type: self.program.schema.get_type_name(containing_type),
                         },
                         fragment_spread.fragment.location,
                     ));
@@ -252,20 +249,14 @@ impl Validator for UpdatableFragmentSpread<'_> {
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
 
-    fn validate_operation(
-        &mut self,
-        operation: &OperationDefinition,
-    ) -> DiagnosticsResult<()> {
+    fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
         self.containing_type = Some(operation.type_);
         let result = self.default_validate_operation(operation);
         self.containing_type = None;
         result
     }
 
-    fn validate_fragment(
-        &mut self,
-        fragment: &FragmentDefinition,
-    ) -> DiagnosticsResult<()> {
+    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
         self.containing_type = Some(fragment.type_condition);
         let result = self.default_validate_fragment(fragment);
         self.containing_type = None;

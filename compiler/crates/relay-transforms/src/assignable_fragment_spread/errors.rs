@@ -128,13 +128,17 @@ pub enum ValidationMessage {
         containing_type: StringKey,
     },
 
-    #[error("Updatable fragments cannot be spread inside an inline fragment at the top level without an enclosing linked field. Try adding `@alias` to the inline fragment.")]
+    #[error(
+        "Updatable fragments cannot be spread inside an inline fragment at the top level without an enclosing linked field. Try adding `@alias` to the inline fragment."
+    )]
     UpdatableFragmentTopLevelInlineFragment,
 
     #[error("Updatable fragments cannot be contained in @skip or @if.")]
     UpdatableFragmentSpreadNoCondition,
 
-    #[error("Updatable fragments can only be nested within at most a single inline fragment. Try adding `@alias` to the inline fragments.")]
+    #[error(
+        "Updatable fragments can only be nested within at most a single inline fragment. Try adding `@alias` to the inline fragments."
+    )]
     UpdatableFragmentSpreadContainingInlineFragmentSingleNesting,
 
     #[error(

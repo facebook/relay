@@ -838,13 +838,12 @@ impl RelayResolverExtractor {
         };
 
         let arguments = if node.params.len() > 1 {
-            let param = &node.params[0];
             let arg_param = &node.params[1];
             let args = if let Pattern::Identifier(identifier) = arg_param {
                 let type_annotation = identifier.type_annotation.as_ref().ok_or_else(|| {
                     Diagnostic::error(
                         SchemaGenerationError::MissingParamType,
-                        self.to_location(param),
+                        self.to_location(arg_param),
                     )
                 })?;
                 if let TypeAnnotationEnum::FlowTypeAnnotation(type_) =

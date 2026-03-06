@@ -62,7 +62,7 @@ type Cat @__RelayResolverModel {
 
 ✖︎ Expected Relay Resolver function param to include type annotation
 
-  module.js:22:22
+  module.js:22:40
    21 │  */
    22 │ export function name(cat: CatFlowType, args): string {}
-      │                      ^^^^^^^^^^^^^^^^
+      │                                        ^^^^

@@ -121,7 +121,7 @@ pub enum ValidationMessage {
     UpdatableFragmentSpreadNoDirectives,
 
     #[error(
-        "This updatable fragment has type `{updatable_fragment_type}`, and is spread at the top level of a definition with type `{containing_type}`. However, if a record has the type `{containing_type}`, it does not necessarily have the type `{updatable_fragment_type}`. You can use an inline fragment with `@alias` to narrow the type, e.g. `... on {updatable_fragment_type} @alias`."
+        "This updatable fragment has type `{updatable_fragment_type}`, and is spread at the top level of a definition with type `{containing_type}`. However, if a record has the type `{containing_type}`, it does not necessarily have the type `{updatable_fragment_type}`. Try adding `@alias` to the fragment spread."
     )]
     UpdatableFragmentSpreadSubtypeOrEqualContainingType {
         updatable_fragment_type: StringKey,

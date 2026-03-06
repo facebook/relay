@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1632ffde361db1d17401699e8557ec7b>>
+ * @generated SignedSource<<fac6b298799134a0f6ab38ee8622e93d>>
  */
 
 mod updatable_fragment_spread;
@@ -34,6 +34,13 @@ async fn updatable_fragment_spread_abstract_in_same_abstract() {
 }
 
 #[tokio::test]
+async fn updatable_fragment_spread_aliased_in_linked_field() {
+    let input = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_aliased_in_linked_field.graphql");
+    let expected = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_aliased_in_linked_field.expected");
+    test_fixture(transform_fixture, file!(), "updatable_fragment_spread_aliased_in_linked_field.graphql", "updatable_fragment_spread/fixtures/updatable_fragment_spread_aliased_in_linked_field.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn updatable_fragment_spread_aliased_inline_fragment_in_linked_field() {
     let input = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_aliased_inline_fragment_in_linked_field.graphql");
     let expected = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_aliased_inline_fragment_in_linked_field.expected");
@@ -52,6 +59,13 @@ async fn updatable_fragment_spread_aliased_inline_fragment_wrong_type_invalid() 
     let input = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_aliased_inline_fragment_wrong_type.invalid.graphql");
     let expected = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_aliased_inline_fragment_wrong_type.invalid.expected");
     test_fixture(transform_fixture, file!(), "updatable_fragment_spread_aliased_inline_fragment_wrong_type.invalid.graphql", "updatable_fragment_spread/fixtures/updatable_fragment_spread_aliased_inline_fragment_wrong_type.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_fragment_spread_aliased_top_level() {
+    let input = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_aliased_top_level.graphql");
+    let expected = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_aliased_top_level.expected");
+    test_fixture(transform_fixture, file!(), "updatable_fragment_spread_aliased_top_level.graphql", "updatable_fragment_spread/fixtures/updatable_fragment_spread_aliased_top_level.expected", input, expected).await;
 }
 
 #[tokio::test]

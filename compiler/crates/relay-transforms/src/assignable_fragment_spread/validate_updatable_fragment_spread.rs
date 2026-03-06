@@ -96,7 +96,10 @@ impl UpdatableFragmentSpread<'_> {
         let invalid_directive = fragment_spread
             .directives
             .iter()
-            .find(|directive| directive.name.item != *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME);
+            .find(|directive| {
+                directive.name.item != *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME
+                    && directive.name.item != *FRAGMENT_ALIAS_DIRECTIVE_NAME
+            });
 
         if let Some(directive) = invalid_directive {
             errors.push(Diagnostic::error(
@@ -104,6 +107,11 @@ impl UpdatableFragmentSpread<'_> {
                 directive.location,
             ));
         }
+
+        let has_alias = fragment_spread
+            .directives
+            .named(*FRAGMENT_ALIAS_DIRECTIVE_NAME)
+            .is_some();
 
         let mut encountered_inline_fragment = false;
         let mut encountered_linked_field = false;
@@ -164,7 +172,10 @@ impl UpdatableFragmentSpread<'_> {
                         // does not match, we wouldn't get here - earlier validations would catch that the fragment
                         // can never occur on that type. Note also that  inline fragments are enforced to refine to a
                         // concrete type. Therefore, this check isn't necessary for inline fragments.
-                        if !self.program.schema.is_type_subtype_of(
+                        //
+                        // If the spread has @alias, the result is nullable and handles the type
+                        // mismatch at runtime, so we skip this check.
+                        if !has_alias && !self.program.schema.is_type_subtype_of(
                             &TypeReference::Named(linked_field_path_item.type_reference.inner()),
                             &TypeReference::Named(fragment_definition.type_condition),
                         ) {
@@ -218,7 +229,10 @@ impl UpdatableFragmentSpread<'_> {
                 // The fragment definition's type must be a superset or equal to the
                 // containing operation/fragment type. Same logic as the linked field
                 // supertype check, but using the containing type.
-                if !self.program.schema.is_type_subtype_of(
+                //
+                // If the spread has @alias, the result is nullable and handles the type
+                // mismatch at runtime, so we skip this check.
+                if !has_alias && !self.program.schema.is_type_subtype_of(
                     &TypeReference::Named(containing_type),
                     &TypeReference::Named(fragment_definition.type_condition),
                 ) {

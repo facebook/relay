@@ -8,7 +8,7 @@ fragment Updatable_user on User @updatable {
   __typename
 }
 ==================================== ERROR ====================================
-✖︎ This updatable fragment has type `User`, and is spread at the top level of a definition with type `Node`. However, if a record has the type `Node`, it does not necessarily have the type `User`. Try adding `@alias` to the fragment spread.
+✖︎ The type of this updatable fragment is `User`, but the enclosing selection has type `Node`. A `Node` is not guaranteed to be a `User`. Try adding `@alias` to the fragment spread.
 
   updatable_fragment_spread_top_level_wrong_type.invalid.graphql:3:6
     2 │ fragment Foo on Node {

@@ -10,7 +10,7 @@ fragment Updatable_comment on Comment @updatable {
   __id
 }
 ==================================== ERROR ====================================
-✖︎ This updatable fragment has type `Comment`, and is found within a linked field with type `Node`. However, if a record has the type `Node`, it does not necessarily have the type `Comment`.
+✖︎ The type of this updatable fragment is `Comment`, but the enclosing selection has type `Node`. A `Node` is not guaranteed to be a `Comment`. Try adding `@alias` to the fragment spread.
 
   updatable_fragment_spread_concrete_in_matching_abstract.invalid.graphql:4:8
     3 │   node {

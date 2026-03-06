@@ -12,7 +12,7 @@ fragment Updatable_user on User @updatable {
   __typename
 }
 ==================================== ERROR ====================================
-✖︎ This updatable fragment has type `User`, and is found within an `@alias`'d inline fragment with type condition `Node`. However, if a record has the type `Node`, it does not necessarily have the type `User`.
+✖︎ The type of this updatable fragment is `User`, but the enclosing selection has type `Node`. A `Node` is not guaranteed to be a `User`. Try adding `@alias` to the fragment spread.
 
   updatable_fragment_spread_aliased_inline_fragment_wrong_type.invalid.graphql:5:10
     4 │     ... on Node @alias {

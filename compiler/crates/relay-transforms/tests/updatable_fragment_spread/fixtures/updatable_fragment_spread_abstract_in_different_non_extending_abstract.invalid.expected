@@ -10,7 +10,7 @@ fragment Updatable_actor on Actor @updatable {
   __id
 }
 ==================================== ERROR ====================================
-✖︎ This updatable fragment has type `Actor`, and is found within a linked field with type `Node`. However, if a record has the type `Node`, it does not necessarily have the type `Actor`.
+✖︎ The type of this updatable fragment is `Actor`, but the enclosing selection has type `Node`. A `Node` is not guaranteed to be a `Actor`. Try adding `@alias` to the fragment spread.
 
   updatable_fragment_spread_abstract_in_different_non_extending_abstract.invalid.graphql:4:8
     3 │   node {

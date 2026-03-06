@@ -136,12 +136,12 @@ impl UpdatableFragmentSpread<'_> {
                         &TypeReference::Named(fragment_definition.type_condition),
                     ) {
                         errors.push(Diagnostic::error(
-                            ValidationMessage::UpdatableFragmentSpreadSubtypeOrEqualAliasedInlineFragment {
+                            ValidationMessage::UpdatableFragmentSpreadTypeMismatch {
                                 updatable_fragment_type: self
                                     .program
                                     .schema
                                     .get_type_name(fragment_definition.type_condition),
-                                aliased_inline_fragment_type: self
+                                enclosing_type: self
                                     .program
                                     .schema
                                     .get_type_name(*type_condition),
@@ -180,19 +180,15 @@ impl UpdatableFragmentSpread<'_> {
                             &TypeReference::Named(fragment_definition.type_condition),
                         ) {
                             errors.push(Diagnostic::error(
-                                ValidationMessage::UpdatableFragmentSpreadSubtypeOrEqualLinkedField {
+                                ValidationMessage::UpdatableFragmentSpreadTypeMismatch {
                                     updatable_fragment_type: self
                                         .program
                                         .schema
                                         .get_type_name(fragment_definition.type_condition),
-                                    linked_field_inner_type: self
+                                    enclosing_type: self
                                         .program
                                         .schema
                                         .get_type_name(linked_field_path_item.type_reference.inner()),
-                                    linked_field_type: self
-                                        .program
-                                        .schema
-                                        .get_type_string(&linked_field_path_item.type_reference),
                                 },
                                 fragment_spread.fragment.location,
                             ));
@@ -237,12 +233,12 @@ impl UpdatableFragmentSpread<'_> {
                     &TypeReference::Named(fragment_definition.type_condition),
                 ) {
                     errors.push(Diagnostic::error(
-                        ValidationMessage::UpdatableFragmentSpreadSubtypeOrEqualContainingType {
+                        ValidationMessage::UpdatableFragmentSpreadTypeMismatch {
                             updatable_fragment_type: self
                                 .program
                                 .schema
                                 .get_type_name(fragment_definition.type_condition),
-                            containing_type: self.program.schema.get_type_name(containing_type),
+                            enclosing_type: self.program.schema.get_type_name(containing_type),
                         },
                         fragment_spread.fragment.location,
                     ));

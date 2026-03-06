@@ -124,10 +124,7 @@ impl Validator for DisallowReadtimeFeaturesInMutations<'_> {
             // No need to traverse into non-mutation operations
             return Ok(());
         }
-        if let Some(directive) = operation
-            .directives
-            .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
-        {
+        if let Some(directive) = operation.directives.named(*THROW_ON_FIELD_ERROR_DIRECTIVE) {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::ThrowOnFieldErrorInMutation,
                 directive.name.location,

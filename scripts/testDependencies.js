@@ -70,7 +70,8 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
 
   // `babel-plugin-relay` requires its devDependencies to be declared because it is
   // integrated into two workspaces at Facebook.
-  // `relay-e2e-test` has its own isolated deps (react@19, graphql@16).
+  // `relay-e2e-test` uses react@19 and graphql@16 (for @defer/@stream) to
+  // match real-world usage, unlike the root repo's experimental versions.
   if (
     packageJson.name !== 'babel-plugin-relay' &&
     packageJson.name !== 'relay-e2e-test'
@@ -88,7 +89,7 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
     'relay-runtime',
     'react-relay',
   ]);
-  // relay-e2e-test intentionally uses isolated dependency versions
+  // relay-e2e-test uses react@19 and graphql@16 to match real-world usage
   if (packageJson.name !== 'relay-e2e-test') {
     for (const dependencyName in packageJson.dependencies) {
       // packages in this repo, won't be in the top level package.json.

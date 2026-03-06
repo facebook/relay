@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d124eae14c9ad5e3113351e51a857e50>>
+ * @generated SignedSource<<bd8a4ea6aa4cf4d9a796ff5624d8bc5e>>
  */
 
 mod docblock;
@@ -94,6 +94,13 @@ async fn live() {
     let input = include_str!("docblock/fixtures/live.input");
     let expected = include_str!("docblock/fixtures/live.expected");
     test_fixture(transform_fixture, file!(), "live.input", "docblock/fixtures/live.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn missing_args_param_type_error() {
+    let input = include_str!("docblock/fixtures/missing-args-param-type-error.input");
+    let expected = include_str!("docblock/fixtures/missing-args-param-type-error.expected");
+    test_fixture(transform_fixture, file!(), "missing-args-param-type-error.input", "docblock/fixtures/missing-args-param-type-error.expected", input, expected).await;
 }
 
 #[tokio::test]

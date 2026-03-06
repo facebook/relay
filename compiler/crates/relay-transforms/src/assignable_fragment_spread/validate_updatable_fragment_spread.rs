@@ -64,7 +64,6 @@ impl UpdatableFragmentSpread<'_> {
     /// Validate many conditions for spreads of updatable fragments:
     /// * the fragment spread contains no directives
     /// * there is no @if or @skip between the linked field and the fragment spread
-    /// * the fragment spread is not at the top level
     /// * the fragment's type is a superset or equal to the outer type
     ///   * this ensures that if we read this fragment with readUpdatableFragment,
     ///     the result is guaranteed to be valid, i.e. the concrete type is guaranteed

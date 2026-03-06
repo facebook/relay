@@ -1,0 +1,53 @@
+// expected-to-throw
+
+# Incremental extension change in a base project.
+#
+# The base project declares schemaExtensions. The derived project inherits
+# those extensions via "base" but does NOT list the same schemaExtensions
+# in its own config. When the base project's extension file changes, the
+# derived project's schema cache must be invalidated so the derived project
+# sees the new extension types/fields.
+
+//- base_src/base.js
+graphql`
+  query baseQuery {
+    me { name, greeting }
+  }
+`;
+
+//- derived_src/derived.js
+graphql`
+  query derivedQuery {
+    me { name, greeting }
+  }
+`;
+
+//- relay.config.json
+{
+  "sources": {
+    "base_src": "base_project",
+    "derived_src": "derived_project"
+  },
+  "projects": {
+    "base_project": {
+      "schema": "schema.graphql",
+      "schemaExtensions": ["extensions"],
+      "language": "typescript"
+    },
+    "derived_project": {
+      "schema": "schema.graphql",
+      "base": "base_project",
+      "language": "typescript"
+    }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+
+//- extensions/extensions.graphql
+extend type User { greeting: String }
+
+//-++ extensions/extensions.graphql
+extend type User { greeting: Int }

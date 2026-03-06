@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Query {
+  node(id: "4") {
+    ... on Node @alias {
+      ...Updatable_user
+    }
+  }
+}
+
+fragment Updatable_user on User @updatable {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ This updatable fragment has type `User`, and is found within an `@alias`'d inline fragment with type condition `Node`. However, if a record has the type `Node`, it does not necessarily have the type `User`.
+
+  updatable_fragment_spread_aliased_inline_fragment_wrong_type.invalid.graphql:5:10
+    4 │     ... on Node @alias {
+    5 │       ...Updatable_user
+      │          ^^^^^^^^^^^^^^
+    6 │     }

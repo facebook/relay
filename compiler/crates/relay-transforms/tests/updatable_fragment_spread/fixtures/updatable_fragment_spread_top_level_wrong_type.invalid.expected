@@ -8,7 +8,7 @@ fragment Updatable_user on User @updatable {
   __typename
 }
 ==================================== ERROR ====================================
-✖︎ This updatable fragment has type `User`, and is spread at the top level of a definition with type `Node`. However, if a record has the type `Node`, it does not necessarily have the type `User`.
+✖︎ This updatable fragment has type `User`, and is spread at the top level of a definition with type `Node`. However, if a record has the type `Node`, it does not necessarily have the type `User`. You can use an inline fragment with `@alias` to narrow the type, e.g. `... on User @alias`.
 
   updatable_fragment_spread_top_level_wrong_type.invalid.graphql:3:6
     2 │ fragment Foo on Node {

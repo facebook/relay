@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+fragment Foo on Node {
+  ... on User @alias {
+    ...Updatable_user
+  }
+}
+
+fragment Updatable_user on User @updatable {
+  __typename
+}
+==================================== OUTPUT ===================================
+OK

@@ -121,21 +121,29 @@ pub enum ValidationMessage {
     UpdatableFragmentSpreadNoDirectives,
 
     #[error(
-        "This updatable fragment has type `{updatable_fragment_type}`, and is spread at the top level of a definition with type `{containing_type}`. However, if a record has the type `{containing_type}`, it does not necessarily have the type `{updatable_fragment_type}`."
+        "This updatable fragment has type `{updatable_fragment_type}`, and is spread at the top level of a definition with type `{containing_type}`. However, if a record has the type `{containing_type}`, it does not necessarily have the type `{updatable_fragment_type}`. You can use an inline fragment with `@alias` to narrow the type, e.g. `... on {updatable_fragment_type} @alias`."
     )]
     UpdatableFragmentSpreadSubtypeOrEqualContainingType {
         updatable_fragment_type: StringKey,
         containing_type: StringKey,
     },
 
-    #[error("Updatable fragments cannot be spread inside an inline fragment at the top level without an enclosing linked field.")]
+    #[error("Updatable fragments cannot be spread inside an inline fragment at the top level without an enclosing linked field. Try adding `@alias` to the inline fragment.")]
     UpdatableFragmentTopLevelInlineFragment,
 
     #[error("Updatable fragments cannot be contained in @skip or @if.")]
     UpdatableFragmentSpreadNoCondition,
 
-    #[error("Updatable fragments can only be nested within at most a single inline fragment.")]
+    #[error("Updatable fragments can only be nested within at most a single inline fragment. Try adding `@alias` to the inline fragments.")]
     UpdatableFragmentSpreadContainingInlineFragmentSingleNesting,
+
+    #[error(
+        "This updatable fragment has type `{updatable_fragment_type}`, and is found within an `@alias`'d inline fragment with type condition `{aliased_inline_fragment_type}`. However, if a record has the type `{aliased_inline_fragment_type}`, it does not necessarily have the type `{updatable_fragment_type}`."
+    )]
+    UpdatableFragmentSpreadSubtypeOrEqualAliasedInlineFragment {
+        updatable_fragment_type: StringKey,
+        aliased_inline_fragment_type: StringKey,
+    },
 
     #[error(
         "This updatable fragment has type `{updatable_fragment_type}`, and is found within a linked field with type `{linked_field_type}`. However, if a record has the type `{linked_field_inner_type}`, it does not necessarily have the type `{updatable_fragment_type}`."

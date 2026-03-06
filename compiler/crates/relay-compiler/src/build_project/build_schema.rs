@@ -37,6 +37,9 @@ pub fn build_schema(
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
     if let Some(schema) = compiler_state.schema_cache.get(&project_config.name)
         && !compiler_state.project_has_pending_schema_changes(project_config.name)
+        && !project_config
+            .base
+            .is_some_and(|base| compiler_state.project_has_pending_schema_changes(base))
     {
         return Ok(schema.clone());
     }

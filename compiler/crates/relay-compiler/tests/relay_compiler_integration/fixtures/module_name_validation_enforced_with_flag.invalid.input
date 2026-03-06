@@ -1,0 +1,18 @@
+//- foo.js
+graphql`
+  fragment notMatchingModuleName on User {
+     name
+  }`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "featureFlags": {
+       "enforce_module_name_prefix_for_non_haste": true
+   }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

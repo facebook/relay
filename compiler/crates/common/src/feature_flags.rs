@@ -203,6 +203,12 @@ pub struct FeatureFlags {
     /// alias for `@relayType` / `@relayField`.
     #[serde(default)]
     pub allow_legacy_relay_resolver_tag: FeatureFlag,
+
+    /// Enforce that GraphQL operation and fragment names start with the file
+    /// name. Haste projects have this enforcement automatically; this flag
+    /// is only needed for non-Haste projects that want the same validation.
+    #[serde(default)]
+    pub enforce_module_name_prefix_for_non_haste: bool,
 }
 
 impl Default for FeatureFlags {
@@ -238,6 +244,7 @@ impl Default for FeatureFlags {
             enable_shadow_resolvers: Default::default(),
             new_flow_casting_syntax: Default::default(),
             allow_legacy_relay_resolver_tag: Default::default(),
+            enforce_module_name_prefix_for_non_haste: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

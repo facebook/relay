@@ -12,6 +12,7 @@ use common::WithDiagnostics;
 use common::escalate_and_check;
 use errors::try_all;
 use graphql_ir::Program;
+use relay_config::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_transforms::ValidateVariablesOptions;
 use relay_transforms::disallow_circular_no_inline_fragments;
@@ -76,7 +77,13 @@ pub fn validate(
         validate_connections(program, &project_config.schema_config.connection_interface),
         validate_relay_directives(program),
         validate_global_variable_names(program),
-        validate_module_names(program),
+        if matches!(project_config.js_module_format, JsModuleFormat::Haste)
+            || project_config.feature_flags.enforce_module_name_prefix_for_non_haste
+        {
+            validate_module_names(program)
+        } else {
+            Ok(())
+        },
         validate_client_schema_extensions_use_catch(program),
         validate_no_inline_fragments_with_raw_response_type(program),
         disallow_typename_on_root(program),

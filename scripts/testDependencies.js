@@ -70,7 +70,11 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
 
   // `babel-plugin-relay` requires its devDependencies to be declared because it is
   // integrated into two workspaces at Facebook.
-  if (packageJson.name !== 'babel-plugin-relay') {
+  // `relay-e2e-test` has its own isolated deps (react@19, graphql@16).
+  if (
+    packageJson.name !== 'babel-plugin-relay' &&
+    packageJson.name !== 'relay-e2e-test'
+  ) {
     expectEqual(
       errors,
       packageJson.devDependencies,
@@ -84,18 +88,21 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
     'relay-runtime',
     'react-relay',
   ]);
-  for (const dependencyName in packageJson.dependencies) {
-    // packages in this repo, won't be in the top level package.json.
-    if (requiredRepoPackages.has(dependencyName)) {
-      continue;
+  // relay-e2e-test intentionally uses isolated dependency versions
+  if (packageJson.name !== 'relay-e2e-test') {
+    for (const dependencyName in packageJson.dependencies) {
+      // packages in this repo, won't be in the top level package.json.
+      if (requiredRepoPackages.has(dependencyName)) {
+        continue;
+      }
+      expectEqual(
+        errors,
+        getDependency(topLevelPackageJson, dependencyName),
+        getDependency(packageJson, dependencyName),
+        `${packageName} should have same ${dependencyName} version ` +
+          'as the top level package.json.',
+      );
     }
-    expectEqual(
-      errors,
-      getDependency(topLevelPackageJson, dependencyName),
-      getDependency(packageJson, dependencyName),
-      `${packageName} should have same ${dependencyName} version ` +
-        'as the top level package.json.',
-    );
   }
 
   return errors;

@@ -146,7 +146,7 @@ pub trait Transformer<'a> {
         variable_definitions: &[VariableDefinition],
     ) -> TransformedValue<Vec<VariableDefinition>> {
         transform_list(variable_definitions, |variable_definition| {
-            self.default_transform_variable_definition(variable_definition)
+            self.transform_variable_definition(variable_definition)
         })
     }
 
@@ -725,9 +725,8 @@ mod tests {
         let mut transformer = CountingTransformer { call_count: 0 };
         transformer.default_transform_variable_definitions(&var_defs);
 
-        // NOTE this is WRONG! The count should be 2
         assert_eq!(
-            transformer.call_count, 0,
+            transformer.call_count, 2,
             "default_transform_variable_definitions should dispatch through \
              transform_variable_definition for each variable definition"
         );

@@ -60,10 +60,10 @@ type ReturnType<TVariables, TData, TKey> = {
 };
 
 hook useBlockingPaginationFragment<
-  TFragmentType: FragmentType,
-  TVariables: Variables,
+  TFragmentType extends FragmentType,
+  TVariables extends Variables,
   TData,
-  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{+$fragmentSpreads: TFragmentType, ...},
 >(
   fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   parentFragmentRef: TKey,
@@ -161,7 +161,7 @@ hook useBlockingPaginationFragment<
   };
 }
 
-hook useLoadMore<TVariables: Variables>(args: {
+hook useLoadMore<TVariables extends Variables>(args: {
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
   ...$Exact<Omit<UseLoadMoreFunctionArgs, 'observer' | 'onReset'>>,

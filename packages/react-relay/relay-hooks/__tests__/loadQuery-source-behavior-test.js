@@ -161,7 +161,7 @@ beforeEach(() => {
     PreloadableQueryRegistry.clear();
   };
 
-  callLoadQuery = <TOperation: OperationType>(
+  callLoadQuery = <TOperation extends OperationType>(
     queryAstOrRequest:
       | Query<TOperation['variables'], TOperation['response']>
       | PreloadableConcreteRequest<TOperation>,

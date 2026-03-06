@@ -30,7 +30,7 @@ type Props<TChildren> = Readonly<{
   ) => IActorEnvironment,
 }>;
 
-component RelayEnvironmentProvider<TChildren: React.Node>(
+component RelayEnvironmentProvider<TChildren extends React.Node>(
   ...props: Props<TChildren>
 ) renders TChildren {
   const {children, environment, getEnvironmentForActor} = props;

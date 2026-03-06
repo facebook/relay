@@ -24,10 +24,10 @@ const warning = require('warning');
 
 component EntryPointContainer<
   // $FlowFixMe[unsupported-variance-annotation]
-  TRuntimeProps: {...},
-  TRenders: React.Node,
+  TRuntimeProps extends {...},
+  TRenders extends React.Node,
   // $FlowFixMe[unsupported-variance-annotation]
-  TEntryPointComponent: EntryPointComponent<
+  TEntryPointComponent extends EntryPointComponent<
     // $FlowExpectedError[unclear-type] s[unclear-type] Use any to accept all kinds of EntryPointComponent
     any,
     // $FlowExpectedError[unclear-type] s[unclear-type] Use any to accept all kinds of EntryPointComponent

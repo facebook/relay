@@ -30,8 +30,8 @@ import {
 } from './utils';
 
 type ExpectedReturnType<
-  TRefetchVariables: Variables,
-  TLoadMoreVariables: Variables,
+  TRefetchVariables extends Variables,
+  TLoadMoreVariables extends Variables,
   TFragmentData,
 > = {
   data: TFragmentData,

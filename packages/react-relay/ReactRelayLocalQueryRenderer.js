@@ -45,7 +45,7 @@ const queryRendererContext: ReactRelayQueryRendererContextType = {
   rootIsQueryRenderer: true,
 };
 
-hook useDeepCompare<T: {...}>(value: T): T {
+hook useDeepCompare<T extends {...}>(value: T): T {
   const latestValue = React.useRef(value);
   // $FlowFixMe[react-rule-unsafe-ref]
   if (!areEqual(latestValue.current, value)) {

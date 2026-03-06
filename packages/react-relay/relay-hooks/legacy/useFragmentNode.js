@@ -20,13 +20,13 @@ const {useEffect, useState} = require('react');
 const {RelayFeatureFlags, getFragmentIdentifier} = require('relay-runtime');
 const warning = require('warning');
 
-type ReturnType<TFragmentData: unknown> = {
+type ReturnType<TFragmentData extends unknown> = {
   data: TFragmentData,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
 };
 
-hook useFragmentNode<TFragmentData: unknown>(
+hook useFragmentNode<TFragmentData extends unknown>(
   fragmentNode: ReaderFragment,
   fragmentRef: unknown,
   componentDisplayName: string,

@@ -129,7 +129,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "Updatable fragments cannot be spread inside an inline fragment at the top level without an enclosing linked field. Try adding `@alias` to the inline fragment."
+        "Updatable fragments cannot be spread inside an inline fragment at the top level without an enclosing linked field. Try adding `@alias` to the fragment spread."
     )]
     UpdatableFragmentTopLevelInlineFragment,
 

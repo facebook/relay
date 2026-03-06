@@ -10,7 +10,7 @@ fragment Updatable_user on User @updatable {
   __typename
 }
 ==================================== ERROR ====================================
-✖︎ Updatable fragments cannot be spread inside an inline fragment at the top level without an enclosing linked field. Try adding `@alias` to the inline fragment.
+✖︎ Updatable fragments cannot be spread inside an inline fragment at the top level without an enclosing linked field. Try adding `@alias` to the fragment spread.
 
   updatable_fragment_spread_top_level_in_inline_fragment.invalid.graphql:4:8
     3 │   ... on User {

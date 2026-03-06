@@ -227,7 +227,7 @@ class RelayModernEnvironment implements IEnvironment {
     });
   }
 
-  applyMutation<TMutation: MutationParameters>(
+  applyMutation<TMutation extends MutationParameters>(
     optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable {
     const subscription = this._execute({
@@ -368,7 +368,7 @@ class RelayModernEnvironment implements IEnvironment {
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
-  executeSubscription<TMutation: MutationParameters>({
+  executeSubscription<TMutation extends MutationParameters>({
     operation,
     updater,
   }: {
@@ -400,7 +400,7 @@ class RelayModernEnvironment implements IEnvironment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation<TMutation: MutationParameters>({
+  executeMutation<TMutation extends MutationParameters>({
     operation,
     optimisticResponse,
     optimisticUpdater,
@@ -462,7 +462,7 @@ class RelayModernEnvironment implements IEnvironment {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
   }
 
-  _execute<TMutation: MutationParameters>({
+  _execute<TMutation extends MutationParameters>({
     createSource,
     isClientPayload,
     operation,

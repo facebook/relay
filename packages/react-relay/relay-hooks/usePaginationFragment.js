@@ -32,7 +32,10 @@ const {
   getPaginationMetadata,
 } = require('relay-runtime');
 
-type RefetchVariables<TVariables, TKey: ?{+$fragmentSpreads: unknown, ...}> =
+type RefetchVariables<
+  TVariables,
+  TKey extends ?{+$fragmentSpreads: unknown, ...},
+> =
   // NOTE: This type ensures that the type of the returned variables is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
@@ -70,20 +73,20 @@ export type ReturnType<TVariables, TData, TKey> = {
 // a separate hooks implementation in ./HooksImplementation -- it can
 // be removed after we stop doing that.
 export type UsePaginationFragmentType = <
-  TFragmentType: FragmentType,
-  TVariables: Variables,
+  TFragmentType extends FragmentType,
+  TVariables extends Variables,
   TData,
-  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{+$fragmentSpreads: TFragmentType, ...},
 >(
   fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   parentFragmentRef: TKey,
 ) => ReturnType<TVariables, TData, TKey>;
 
 hook usePaginationFragment<
-  TFragmentType: FragmentType,
-  TVariables: Variables,
+  TFragmentType extends FragmentType,
+  TVariables extends Variables,
   TData,
-  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{+$fragmentSpreads: TFragmentType, ...},
 >(
   fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   parentFragmentRef: TKey,
@@ -168,7 +171,7 @@ hook usePaginationFragment<
   };
 }
 
-hook useLoadMore<TVariables: Variables>(
+hook useLoadMore<TVariables extends Variables>(
   args: Omit<UseLoadMoreFunctionArgs, 'observer' | 'onReset'>,
 ): [LoadMoreFn<TVariables>, boolean, boolean, () => void] {
   const environment = useRelayEnvironment();

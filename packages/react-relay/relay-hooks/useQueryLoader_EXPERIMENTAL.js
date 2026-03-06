@@ -40,10 +40,10 @@ const initialNullQueryReferenceState: NullQueryReference = {
 };
 
 function requestIsLiveQuery<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
-  TQuery: OperationType = {
+  TRawResponse extends ?{...} = void,
+  TQuery extends OperationType = {
     response: TData,
     variables: TVariables,
     rawResponse?: NonNullable<TRawResponse>,
@@ -63,9 +63,9 @@ function requestIsLiveQuery<
 const CLEANUP_TIMEOUT = 1000 * 60 * 5; // 5 minutes;
 
 hook useQueryLoader_EXPERIMENTAL<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
+  TRawResponse extends ?{...} = void,
 >(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference?: ?PreloadedQuery<{

@@ -17,7 +17,7 @@
  * For convenience, and for consistency with the behavior of `Object.freeze`,
  * returns the now-frozen original object.
  */
-function deepFreeze<T: {...}>(object: T): T {
+function deepFreeze<T extends {...}>(object: T): T {
   if (!shouldBeFrozen(object)) {
     return object;
   }

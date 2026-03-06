@@ -35,7 +35,7 @@ const {
 
 disallowWarnings();
 
-function testGeneratedData<TVariables: Variables, TData, TRawResponse>(
+function testGeneratedData<TVariables extends Variables, TData, TRawResponse>(
   query: Query<TVariables, TData, TRawResponse>,
   mockResolvers: ?MockResolvers,
   options: ?{mockClientData?: boolean, generateDeferredPayload?: boolean},

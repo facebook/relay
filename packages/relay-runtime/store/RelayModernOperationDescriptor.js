@@ -39,7 +39,7 @@ const invariant = require('invariant');
  * are filtered to exclude variables that do not match defined arguments on the
  * operation, and default values are populated for null values.
  */
-function createOperationDescriptor<TQuery: OperationType>(
+function createOperationDescriptor<TQuery extends OperationType>(
   request: ConcreteRequest,
   variables: VariablesOf<TQuery>,
   cacheConfig?: ?CacheConfig,

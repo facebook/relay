@@ -46,7 +46,7 @@ const {
 const warning = require('warning');
 
 export type RefetchFn<
-  TQuery: OperationType,
+  TQuery extends OperationType,
   TOptions = Options,
 > = RefetchFnExact<TQuery, TOptions>;
 
@@ -56,16 +56,16 @@ export type RefetchFn<
 //  - Or, expects /a subset/ of the query variables if the provided key type is
 //    /non-null/.
 export type RefetchFnDynamic<
-  TQuery: OperationType,
-  TKey: ?{+$data?: unknown, ...},
+  TQuery extends OperationType,
+  TKey extends ?{+$data?: unknown, ...},
   TOptions = Options,
 > = [TKey] extends [{+$data?: unknown, ...}]
   ? RefetchFnInexact<TQuery, TOptions>
   : RefetchFnExact<TQuery, TOptions>;
 
 export type ReturnType<
-  TQuery: OperationType,
-  TKey: ?{+$data?: unknown, ...},
+  TQuery extends OperationType,
+  TKey extends ?{+$data?: unknown, ...},
   TOptions = Options,
 > = {
   fragmentData: unknown,
@@ -89,12 +89,12 @@ type RefetchFnBase<TVars, TOptions> = (
   options?: TOptions,
 ) => Disposable;
 
-type RefetchFnExact<TQuery: OperationType, TOptions = Options> = RefetchFnBase<
-  VariablesOf<TQuery>,
-  TOptions,
->;
+type RefetchFnExact<
+  TQuery extends OperationType,
+  TOptions = Options,
+> = RefetchFnBase<VariablesOf<TQuery>, TOptions>;
 type RefetchFnInexact<
-  TQuery: OperationType,
+  TQuery extends OperationType,
   TOptions = Options,
 > = RefetchFnBase<Readonly<Partial<VariablesOf<TQuery>>>, TOptions>;
 
@@ -161,8 +161,8 @@ function reducer(state: RefetchState, action: Action): RefetchState {
 }
 
 hook useRefetchableFragmentInternal<
-  TQuery: OperationType,
-  TKey: ?{+$data?: unknown, ...},
+  TQuery extends OperationType,
+  TKey extends ?{+$data?: unknown, ...},
 >(
   fragmentNode: ReaderFragment,
   parentFragmentRef: unknown,
@@ -355,7 +355,7 @@ hook useRefetchableFragmentInternal<
   };
 }
 
-hook useRefetchFunction<TQuery: OperationType>(
+hook useRefetchFunction<TQuery extends OperationType>(
   componentDisplayName: string,
   dispatch: (
     | {

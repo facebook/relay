@@ -30,7 +30,7 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const {useCallback, useEffect, useRef, useState} = require('react');
 const {RelayFeatureFlags, getRequest} = require('relay-runtime');
 
-export type LoaderFn<TQuery: OperationType> = (
+export type LoaderFn<TQuery extends OperationType> = (
   variables: TQuery['variables'],
   options?: UseQueryLoaderLoadQueryOptions,
 ) => void;
@@ -51,10 +51,10 @@ const initialNullQueryReferenceState: NullQueryReference = {
 };
 
 function requestIsLiveQuery<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
-  TQuery: OperationType = {
+  TRawResponse extends ?{...} = void,
+  TQuery extends OperationType = {
     response: TData,
     variables: TVariables,
     rawResponse?: NonNullable<TRawResponse>,
@@ -72,9 +72,9 @@ function requestIsLiveQuery<
 }
 
 export type UseQueryLoaderHookReturnType<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
+  TRawResponse extends ?{...} = void,
 > = [
   ?PreloadedQuery<{
     response: TData,
@@ -86,17 +86,17 @@ export type UseQueryLoaderHookReturnType<
 ];
 
 declare function useQueryLoader<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
+  TRawResponse extends ?{...} = void,
 >(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
 ): UseQueryLoaderHookReturnType<TVariables, TData>;
 
 declare function useQueryLoader<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
+  TRawResponse extends ?{...} = void,
 >(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference: ?PreloadedQuery<{
@@ -106,12 +106,16 @@ declare function useQueryLoader<
   }>,
 ): UseQueryLoaderHookReturnType<TVariables, TData>;
 
-declare function useQueryLoader<TQuery: OperationType>(
+declare function useQueryLoader<TQuery extends OperationType>(
   preloadableRequest: PreloadableConcreteRequest<TQuery>,
   initialQueryReference?: ?PreloadedQuery<TQuery>,
 ): UseQueryLoaderHookReturnType<TQuery['variables'], TQuery['response']>;
 
-hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
+hook useQueryLoader<
+  TVariables extends Variables,
+  TData,
+  TRawResponse extends ?{...} = void,
+>(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference?: ?PreloadedQuery<{
     response: TData,
@@ -133,9 +137,9 @@ hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
 }
 
 hook useQueryLoader_CURRENT<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
+  TRawResponse extends ?{...} = void,
 >(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference?: ?PreloadedQuery<{

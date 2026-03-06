@@ -964,7 +964,7 @@ test.each([0, 1, 5])(
   },
 );
 
-type TestProps<T: OperationType> = {
+type TestProps<T extends OperationType> = {
   query: ConcreteRequest,
   variables: VariablesOf<T>,
   payloads: Array<GraphQLResponse>,
@@ -998,7 +998,7 @@ type TestProps<T: OperationType> = {
 // 7. Lookup the query
 //
 // Note that #7 is expected to fail for resolvers that have fragment dependencies.
-async function testResolverGC<T: OperationType>({
+async function testResolverGC<T extends OperationType>({
   query,
   payloads,
   variables,

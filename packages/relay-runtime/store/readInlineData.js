@@ -27,11 +27,11 @@ type HasSpread<TFragmentType> = {
 /**
  * Reads an @inline data fragment that was spread into the parent fragment.
  */
-declare function readInlineData<TFragmentType: FragmentType, TData>(
+declare function readInlineData<TFragmentType extends FragmentType, TData>(
   fragment: InlineFragment<TFragmentType, TData>,
   key: HasSpread<TFragmentType>,
 ): TData;
-declare function readInlineData<TFragmentType: FragmentType, TData>(
+declare function readInlineData<TFragmentType extends FragmentType, TData>(
   fragment: InlineFragment<TFragmentType, TData>,
   key: ?HasSpread<TFragmentType>,
 ): ?TData;

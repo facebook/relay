@@ -23,7 +23,7 @@ const invariant = require('invariant');
 /**
  * Returns original component class wrapped by e.g. createFragmentContainer
  */
-function unwrapContainer<Props: {...}>(
+function unwrapContainer<Props extends {...}>(
   ComponentClass: component(
     ...$RelayProps<Props, RelayProp | RelayPaginationProp | RelayRefetchProp>
   ),

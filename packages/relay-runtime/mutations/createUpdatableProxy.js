@@ -27,7 +27,7 @@ const {getArgumentValues} = require('../store/RelayStoreUtils');
 
 const nonUpdatableKeys = ['id', '__id', '__typename', 'js'];
 
-function createUpdatableProxy<TData: {...}>(
+function createUpdatableProxy<TData extends {...}>(
   updatableProxyRootRecord: RecordProxy,
   variables: Variables,
   selections: ReadonlyArray<ReaderSelection>,

@@ -38,7 +38,7 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
-export type LoadMoreFn<TVariables: Variables> = (
+export type LoadMoreFn<TVariables extends Variables> = (
   count: number,
   options?: {
     onComplete?: (Error | null) => void,
@@ -60,7 +60,7 @@ export type UseLoadMoreFunctionArgs = {
   onReset: () => void,
 };
 
-hook useLoadMoreFunction_EXPERIMENTAL<TVariables: Variables>(
+hook useLoadMoreFunction_EXPERIMENTAL<TVariables extends Variables>(
   args: UseLoadMoreFunctionArgs,
 ): [
   // Function to load more data

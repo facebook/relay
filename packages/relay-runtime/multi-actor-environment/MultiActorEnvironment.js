@@ -270,7 +270,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     });
   }
 
-  applyMutation<TMutation: MutationParameters>(
+  applyMutation<TMutation extends MutationParameters>(
     actorEnvironment: IActorEnvironment,
     optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable {
@@ -344,7 +344,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     });
   }
 
-  executeSubscription<TMutation: MutationParameters>(
+  executeSubscription<TMutation extends MutationParameters>(
     actorEnvironment: IActorEnvironment,
     {
       operation,
@@ -371,7 +371,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     });
   }
 
-  executeMutation<TMutation: MutationParameters>(
+  executeMutation<TMutation extends MutationParameters>(
     actorEnvironment: IActorEnvironment,
     {
       operation,
@@ -435,7 +435,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     return this._isServer;
   }
 
-  _execute<TMutation: MutationParameters>(
+  _execute<TMutation extends MutationParameters>(
     actorEnvironment: IActorEnvironment,
     {
       createSource,

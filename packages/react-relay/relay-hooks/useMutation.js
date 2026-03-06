@@ -30,7 +30,7 @@ const {commitMutation: defaultCommitMutation} = require('relay-runtime');
 
 const {useState, useEffect, useRef, useCallback} = React;
 
-export type UseMutationConfig<TMutation: MutationParameters> = {
+export type UseMutationConfig<TMutation extends MutationParameters> = {
   configs?: Array<DeclarativeMutationConfig>,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
@@ -63,7 +63,7 @@ type UseMutationConfigInternal<TVariables, TData, TRawResponse> = {
   variables: TVariables,
 };
 
-hook useMutation<TVariables: Variables, TData, TRawResponse = {...}>(
+hook useMutation<TVariables extends Variables, TData, TRawResponse = {...}>(
   mutation: Mutation<TVariables, TData, TRawResponse>,
   commitMutationFn?: (
     environment: IEnvironment,

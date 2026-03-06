@@ -16,7 +16,7 @@
  * keys sorted such that equivalent values would have identical JSON.stringify
  * results.
  */
-function stableCopy<T: unknown>(value: T): T {
+function stableCopy<T extends unknown>(value: T): T {
   if (!value || typeof value !== 'object') {
     return value;
   }

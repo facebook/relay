@@ -118,7 +118,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     return this._defaultRenderPolicy;
   }
 
-  applyMutation<TMutation: MutationParameters>(
+  applyMutation<TMutation extends MutationParameters>(
     optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable {
     return this.multiActorEnvironment.applyMutation(this, optimisticConfig);
@@ -202,14 +202,14 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     return this.multiActorEnvironment.execute(this, config);
   }
 
-  executeSubscription<TMutation: MutationParameters>(config: {
+  executeSubscription<TMutation extends MutationParameters>(config: {
     operation: OperationDescriptor,
     updater?: ?SelectorStoreUpdater<TMutation['response']>,
   }): RelayObservable<GraphQLResponse> {
     return this.multiActorEnvironment.executeSubscription(this, config);
   }
 
-  executeMutation<TMutation: MutationParameters>(
+  executeMutation<TMutation extends MutationParameters>(
     options: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse> {
     return this.multiActorEnvironment.executeMutation(this, options);

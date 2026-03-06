@@ -31,7 +31,10 @@ type ResolverFn = ($FlowFixMe, ?$FlowFixMe, ResolverContext) => unknown;
  * This will not call the `resolverFn` if the fragment data for it is null/undefined.
  * The the compiler generates calls to this function, ensuring the correct set of arguments.
  */
-function resolverDataInjector<TFragmentType: FragmentType, TData: ?{...}>(
+function resolverDataInjector<
+  TFragmentType extends FragmentType,
+  TData extends ?{...},
+>(
   fragment: Fragment<TFragmentType, TData>,
   // Resolvers have their own type assertions, we don't want to confuse users
   // with a type error in their generated code at this point.

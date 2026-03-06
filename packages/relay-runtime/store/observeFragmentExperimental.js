@@ -63,7 +63,7 @@ export type HasSpread<TFragmentType> = {
  * you might choose to @defer a fragment that you only need to access inside an
  * event handler and then await its value inside the handler if/when it is triggered.
  */
-async function waitForFragmentData<TFragmentType: FragmentType, TData>(
+async function waitForFragmentData<TFragmentType extends FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef:
@@ -96,7 +96,7 @@ async function waitForFragmentData<TFragmentType: FragmentType, TData>(
   }
 }
 
-declare function observeFragment<TFragmentType: FragmentType, TData>(
+declare function observeFragment<TFragmentType extends FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef:
@@ -116,7 +116,7 @@ declare function observeFragment<TFragmentType: FragmentType, TData>(
  *  a field error due to @required(action: THROW) or @throwOnFieldError
  * - 'loading': The fragment is still in flight and is still expected to resolver.
  */
-function observeFragment<TFragmentType: FragmentType, TData>(
+function observeFragment<TFragmentType extends FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef: unknown,
@@ -167,7 +167,7 @@ function fragmentSelectorUsesExecTimeResolver(
   return false;
 }
 
-function observeSingularSelector<TFragmentType: FragmentType, TData>(
+function observeSingularSelector<TFragmentType extends FragmentType, TData>(
   environment: IEnvironment,
   fragmentNode: Fragment<TFragmentType, TData>,
   fragmentSelector: SingularReaderSelector,
@@ -200,8 +200,8 @@ function observeSingularSelector<TFragmentType: FragmentType, TData>(
 }
 
 function observePluralSelector<
-  TFragmentType: FragmentType,
-  TData: Array<unknown>,
+  TFragmentType extends FragmentType,
+  TData extends Array<unknown>,
 >(
   environment: IEnvironment,
   fragmentNode: Fragment<TFragmentType, TData>,
@@ -242,7 +242,7 @@ function observePluralSelector<
   });
 }
 
-function snapshotToFragmentState<TFragmentType: FragmentType, TData>(
+function snapshotToFragmentState<TFragmentType extends FragmentType, TData>(
   environment: IEnvironment,
   fragmentNode: Fragment<TFragmentType, TData>,
   owner: RequestDescriptor,

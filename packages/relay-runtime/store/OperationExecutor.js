@@ -71,7 +71,7 @@ const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type ExecuteConfig<TMutation: MutationParameters> = {
+export type ExecuteConfig<TMutation extends MutationParameters> = {
   +actorIdentifier: ActorIdentifier,
   +getDataID: GetDataID,
   +getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue,
@@ -113,7 +113,7 @@ type IncrementalGraphQLResponse = {
   response: GraphQLResponseWithData,
 };
 
-function execute<TMutation: MutationParameters>(
+function execute<TMutation extends MutationParameters>(
   config: ExecuteConfig<TMutation>,
 ): Executor<TMutation> {
   return new Executor(config);
@@ -124,7 +124,7 @@ function execute<TMutation: MutationParameters>(
  * including optimistic payloads, standard payloads, resolution of match
  * dependencies, etc.
  */
-class Executor<TMutation: MutationParameters> {
+class Executor<TMutation extends MutationParameters> {
   _actorIdentifier: ActorIdentifier;
   _getDataID: GetDataID;
   _treatMissingFieldsAsNull: boolean;

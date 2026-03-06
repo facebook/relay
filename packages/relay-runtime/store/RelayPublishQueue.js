@@ -40,11 +40,11 @@ const RelayRecordSource = require('./RelayRecordSource');
 const invariant = require('invariant');
 const warning = require('warning');
 
-type PendingCommit<TMutation: MutationParameters> =
+type PendingCommit<TMutation extends MutationParameters> =
   | PendingRelayPayload<TMutation>
   | PendingRecordSource
   | PendingUpdater;
-type PendingRelayPayload<TMutation: MutationParameters> = {
+type PendingRelayPayload<TMutation extends MutationParameters> = {
   +kind: 'payload',
   +operation: OperationDescriptor,
   +payload: RelayResponsePayload,
@@ -135,7 +135,7 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Schedule applying an optimistic updates on the next `run()`.
    */
-  applyUpdate<TMutation: MutationParameters>(
+  applyUpdate<TMutation extends MutationParameters>(
     updater: OptimisticUpdate<TMutation>,
   ): void {
     invariant(
@@ -150,7 +150,7 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Schedule reverting an optimistic updates on the next `run()`.
    */
-  revertUpdate<TMutation: MutationParameters>(
+  revertUpdate<TMutation extends MutationParameters>(
     updater: OptimisticUpdate<TMutation>,
   ): void {
     if (this._pendingOptimisticUpdates.has(updater)) {
@@ -174,7 +174,7 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Schedule applying a payload to the store on the next `run()`.
    */
-  commitPayload<TMutation: MutationParameters>(
+  commitPayload<TMutation extends MutationParameters>(
     operation: OperationDescriptor,
     payload: RelayResponsePayload,
     updater?: ?SelectorStoreUpdater<TMutation['response']>,
@@ -286,7 +286,7 @@ class RelayPublishQueue implements PublishQueue {
    * _publishSourceFromPayload will return a boolean indicating if the
    * publish caused the store to be globally invalidated.
    */
-  _publishSourceFromPayload<TMutation: MutationParameters>(
+  _publishSourceFromPayload<TMutation extends MutationParameters>(
     pendingPayload: PendingRelayPayload<TMutation>,
   ): boolean {
     const {payload, operation, updater} = pendingPayload;

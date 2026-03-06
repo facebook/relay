@@ -86,6 +86,7 @@ table Argument {
     name: string;
     type_: TypeReference;
     value: ConstValue;
+    directives: [DirectiveValue];
 }
 
 enum DirectiveLocation : byte {

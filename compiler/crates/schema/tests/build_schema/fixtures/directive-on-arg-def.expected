@@ -454,7 +454,14 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
-                directives: [],
+                directives: [
+                    DirectiveValue {
+                        name: DirectiveName(
+                            "static",
+                        ),
+                        arguments: [],
+                    },
+                ],
             },
         ],
         locations: [

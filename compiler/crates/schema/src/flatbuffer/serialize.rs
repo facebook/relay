@@ -420,6 +420,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         &mut self,
         value: &Argument,
     ) -> WIPOffset<schema_flatbuffer::Argument<'fb>> {
+        let directives = &self.serialize_directive_values(&value.directives);
         let args = schema_flatbuffer::ArgumentArgs {
             name: Some(self.bldr.create_string(value.name.item.0.lookup())),
             value: value
@@ -427,6 +428,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
                 .as_ref()
                 .map(|default_value| self.serialize_const_value(default_value)),
             type_: Some(self.serialize_type_reference(&value.type_)),
+            directives: Some(self.bldr.create_vector(directives)),
         };
         schema_flatbuffer::Argument::create(&mut self.bldr, &args)
     }

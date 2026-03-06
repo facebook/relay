@@ -1890,6 +1890,7 @@ impl<'a> Argument<'a> {
     pub const VT_NAME: flatbuffers::VOffsetT = 4;
     pub const VT_TYPE_: flatbuffers::VOffsetT = 6;
     pub const VT_VALUE: flatbuffers::VOffsetT = 8;
+    pub const VT_DIRECTIVES: flatbuffers::VOffsetT = 10;
 
     #[inline]
     pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
@@ -1901,6 +1902,9 @@ impl<'a> Argument<'a> {
         args: &'args ArgumentArgs<'args>,
     ) -> flatbuffers::WIPOffset<Argument<'bldr>> {
         let mut builder = ArgumentBuilder::new(_fbb);
+        if let Some(x) = args.directives {
+            builder.add_directives(x);
+        }
         if let Some(x) = args.value {
             builder.add_value(x);
         }
@@ -1943,6 +1947,21 @@ impl<'a> Argument<'a> {
                 .get::<flatbuffers::ForwardsUOffset<ConstValue>>(Argument::VT_VALUE, None)
         }
     }
+    #[inline]
+    pub fn directives(
+        &self,
+    ) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
+        // Safety:
+        // Created from valid Table for this object
+        // which contains a valid value in this slot
+        unsafe {
+            self._tab
+                .get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(
+                    Argument::VT_DIRECTIVES,
+                    None,
+                )
+        }
+    }
 }
 
 impl flatbuffers::Verifiable for Argument<'_> {
@@ -1972,6 +1991,11 @@ pub struct ArgumentArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a str>>,
     pub type_: Option<flatbuffers::WIPOffset<TypeReference<'a>>>,
     pub value: Option<flatbuffers::WIPOffset<ConstValue<'a>>>,
+    pub directives: Option<
+        flatbuffers::WIPOffset<
+            flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>,
+        >,
+    >,
 }
 impl<'a> Default for ArgumentArgs<'a> {
     #[inline]
@@ -1980,6 +2004,7 @@ impl<'a> Default for ArgumentArgs<'a> {
             name: None,
             type_: None,
             value: None,
+            directives: None,
         }
     }
 }
@@ -2003,6 +2028,16 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ArgumentBuilder<'a, 'b, A> {
     pub fn add_value(&mut self, value: flatbuffers::WIPOffset<ConstValue<'b>>) {
         self.fbb_
             .push_slot_always::<flatbuffers::WIPOffset<ConstValue>>(Argument::VT_VALUE, value);
+    }
+    #[inline]
+    pub fn add_directives(
+        &mut self,
+        directives: flatbuffers::WIPOffset<
+            flatbuffers::Vector<'b, flatbuffers::ForwardsUOffset<DirectiveValue<'b>>>,
+        >,
+    ) {
+        self.fbb_
+            .push_slot_always::<flatbuffers::WIPOffset<_>>(Argument::VT_DIRECTIVES, directives);
     }
     #[inline]
     pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> ArgumentBuilder<'a, 'b, A> {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<de4d2cb51732e8d59dea7363b863fc33>>
+ * @generated SignedSource<<1fc99f4cdf4d85421c57ff33ef7dbaea>>
  */
 
 mod relay_compiler_integration;
@@ -234,6 +234,20 @@ async fn live_resolver_implements_interface_field() {
     let input = include_str!("relay_compiler_integration/fixtures/live_resolver_implements_interface_field.input");
     let expected = include_str!("relay_compiler_integration/fixtures/live_resolver_implements_interface_field.expected");
     test_fixture(transform_fixture, file!(), "live_resolver_implements_interface_field.input", "relay_compiler_integration/fixtures/live_resolver_implements_interface_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn module_name_validation_enforced_with_flag_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/module_name_validation_enforced_with_flag.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/module_name_validation_enforced_with_flag.invalid.expected");
+    test_fixture(transform_fixture, file!(), "module_name_validation_enforced_with_flag.invalid.input", "relay_compiler_integration/fixtures/module_name_validation_enforced_with_flag.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn module_name_validation_skipped_for_non_haste() {
+    let input = include_str!("relay_compiler_integration/fixtures/module_name_validation_skipped_for_non_haste.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/module_name_validation_skipped_for_non_haste.expected");
+    test_fixture(transform_fixture, file!(), "module_name_validation_skipped_for_non_haste.input", "relay_compiler_integration/fixtures/module_name_validation_skipped_for_non_haste.expected", input, expected).await;
 }
 
 #[tokio::test]

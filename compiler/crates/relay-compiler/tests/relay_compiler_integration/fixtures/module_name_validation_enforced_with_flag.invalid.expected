@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+//- foo.js
+graphql`
+  fragment notMatchingModuleName on User {
+     name
+  }`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "featureFlags": {
+       "enforce_module_name_prefix_for_non_haste": true
+   }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+==================================== OUTPUT ===================================
+✖︎ Fragments in graphql tags must start with the module name ('foo'). Got 'notMatchingModuleName' instead.
+
+  foo.js:2:12
+    1 │ 
+    2 │   fragment notMatchingModuleName on User {
+      │            ^^^^^^^^^^^^^^^^^^^^^
+    3 │      name

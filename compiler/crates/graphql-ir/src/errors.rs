@@ -563,6 +563,11 @@ pub enum ValidationMessage {
     )]
     ResolverInMutation,
 
+    #[error(
+        "Unexpected `@throwOnFieldError` directive on a mutation. Mutations do not support `@throwOnFieldError`. Consider using `@catch(to: RESULT)` instead."
+    )]
+    ThrowOnFieldErrorInMutation,
+
     #[error("Expected the `as` argument of the @alias directive to be a static string.")]
     FragmentAliasDirectiveDynamicNameArg,
 

@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+mutation MyMutation @throwOnFieldError {
+  setName(name: "Alice") {
+    name
+  }
+}
+
+# %extensions%
+==================================== ERROR ====================================
+✖︎ Unexpected `@throwOnFieldError` directive on a mutation. Mutations do not support `@throwOnFieldError`. Consider using `@catch(to: RESULT)` instead.
+
+  mutation_with_throw_on_field_error.invalid.graphql:2:21
+    1 │ # expected-to-throw
+    2 │ mutation MyMutation @throwOnFieldError {
+      │                     ^^^^^^^^^^^^^^^^^^
+    3 │   setName(name: "Alice") {

@@ -13,3 +13,6 @@ src/flow/
 packages/relay-flight-experimental/
 # The VSCode Extension gets linted with a separate setup
 vscode-extension
+# E2E fixture templates are TypeScript (processed by Grats)
+packages/relay-e2e-test/*.ts
+packages/relay-e2e-test/*.d.ts

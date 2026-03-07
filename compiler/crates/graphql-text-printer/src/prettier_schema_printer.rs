@@ -554,6 +554,7 @@ mod tests {
     use graphql_syntax::parse_schema_document;
 
     use super::*;
+    use crate::test_utils::assert_prettier_output;
 
     fn print(source: &str) -> String {
         let document = parse_schema_document(source, SourceLocationKey::generated())
@@ -774,7 +775,14 @@ mod tests {
             }
             "#,
         );
-        assert!(result.contains("{key: \"value\"}"));
+        assert_prettier_output!(
+            result,
+            [
+                "type User @policy(vars: {key: \"value\"}) {",
+                "  id: ID!",
+                "}",
+            ]
+        );
     }
 
     #[test]
@@ -786,6 +794,13 @@ mod tests {
             }
             "#,
         );
-        assert!(result.contains("[\"admin\", \"user\"]"));
+        assert_prettier_output!(
+            result,
+            [
+                "type User @roles(allowed: [\"admin\", \"user\"]) {",
+                "  id: ID!",
+                "}",
+            ]
+        );
     }
 }

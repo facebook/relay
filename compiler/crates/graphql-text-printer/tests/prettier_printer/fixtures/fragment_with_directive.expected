@@ -7,9 +7,8 @@ fragment UserFields on User @argumentDefinitions(size: {type: "Int", defaultValu
   }
 }
 ==================================== OUTPUT ===================================
-fragment UserFields on User @argumentDefinitions(
-  size: {type: "Int", defaultValue: 32}
-) {
+fragment UserFields on User
+@argumentDefinitions(size: {type: "Int", defaultValue: 32}) {
   id
   name
   profilePicture(size: $size) {

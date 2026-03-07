@@ -50,6 +50,7 @@ mod tests {
     use graphql_syntax::parse_document;
 
     use super::*;
+    use crate::test_utils::assert_prettier_output;
 
     fn print(source: &str) -> String {
         let document =
@@ -100,8 +101,21 @@ mod tests {
             }
             "#,
         );
-        assert!(result.contains("type User"));
-        assert!(result.contains("query UserQuery"));
+        assert_prettier_output!(
+            result,
+            [
+                "type User {",
+                "  id: ID!",
+                "  name: String",
+                "}",
+                "",
+                "query UserQuery {",
+                "  user {",
+                "    id",
+                "  }",
+                "}",
+            ]
+        );
     }
 
     #[test]
@@ -117,7 +131,17 @@ mod tests {
             }
             "#,
         );
-        assert!(result.contains("type User"));
-        assert!(result.contains("fragment UserFields on User"));
+        assert_prettier_output!(
+            result,
+            [
+                "type User {",
+                "  id: ID!",
+                "}",
+                "",
+                "fragment UserFields on User {",
+                "  id",
+                "}",
+            ]
+        );
     }
 }

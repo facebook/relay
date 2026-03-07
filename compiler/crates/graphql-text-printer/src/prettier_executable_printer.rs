@@ -134,11 +134,50 @@ impl PrettierExecutablePrinter {
         self.output
             .push_str(&fragment.type_condition.type_.value.to_string());
 
-        self.print_directives(&fragment.directives);
+        // For fragments, directives with wrapping arguments should be on a new line
+        self.print_fragment_directives(&fragment.directives);
 
         self.output.push(' ');
         self.print_selection_set(&fragment.selections.items);
         self.output.push('\n');
+    }
+
+    /// Print directives for a fragment definition.
+    ///
+    /// When a directive has arguments that would wrap to multiple lines,
+    /// prettier puts the directive on a new line (at column 0, not indented).
+    fn print_fragment_directives(&mut self, directives: &[Directive]) {
+        for directive in directives {
+            // Check if this directive would need to wrap its arguments
+            let directive_str = self.format_directive_single_line(directive);
+            let would_wrap = self.current_line_length() + 1 + directive_str.len() > LINE_WIDTH;
+
+            if would_wrap {
+                // Put directive on new line when it would wrap
+                self.output.push('\n');
+                self.print_directive(directive);
+            } else {
+                // Keep on same line
+                self.output.push(' ');
+                self.print_directive(directive);
+            }
+        }
+    }
+
+    /// Format a directive as a single line string (for length calculation).
+    fn format_directive_single_line(&self, directive: &Directive) -> String {
+        let mut result = format!("@{}", directive.name.value);
+        if let Some(ref arguments) = directive.arguments {
+            let args: Vec<String> = arguments
+                .items
+                .iter()
+                .map(|arg| format!("{}: {}", arg.name.value, self.format_value(&arg.value)))
+                .collect();
+            result.push('(');
+            result.push_str(&args.join(", "));
+            result.push(')');
+        }
+        result
     }
 
     fn print_variable_definitions(
@@ -513,6 +552,7 @@ mod tests {
     use graphql_syntax::parse_executable;
 
     use super::*;
+    use crate::test_utils::assert_prettier_output;
 
     fn print(source: &str) -> String {
         let document =
@@ -775,7 +815,16 @@ mod tests {
             }
             "#,
         );
-        assert!(result.starts_with("fragment UserFields on User @argumentDefinitions"));
+        assert_prettier_output!(
+            result,
+            [
+                "fragment UserFields on User",
+                "@argumentDefinitions(showEmail: {type: \"Boolean!\", defaultValue: false}) {",
+                "  id",
+                "  name",
+                "}",
+            ]
+        );
     }
 
     #[test]
@@ -794,8 +843,21 @@ mod tests {
             }
             "#,
         );
-        assert!(result.contains("query UserQuery"));
-        assert!(result.contains("fragment UserFields on User"));
+        assert_prettier_output!(
+            result,
+            [
+                "query UserQuery {",
+                "  user {",
+                "    ...UserFields",
+                "  }",
+                "}",
+                "",
+                "fragment UserFields on User {",
+                "  id",
+                "  name",
+                "}",
+            ]
+        );
     }
 
     #[test]
@@ -816,12 +878,22 @@ mod tests {
             }
             "#,
         );
-        assert!(result.contains("stringArg: \"hello\""));
-        assert!(result.contains("intArg: 42"));
-        assert!(result.contains("boolArg: true"));
-        assert!(result.contains("nullArg: null"));
-        assert!(result.contains("enumArg: ACTIVE"));
-        assert!(result.contains("listArg: [1, 2, 3]"));
-        assert!(result.contains("objectArg: {key: \"value\"}"));
+        assert_prettier_output!(
+            result,
+            [
+                "query TestQuery {",
+                "  field(",
+                "    stringArg: \"hello\"",
+                "    intArg: 42",
+                "    floatArg: 3.14",
+                "    boolArg: true",
+                "    nullArg: null",
+                "    enumArg: ACTIVE",
+                "    listArg: [1, 2, 3]",
+                "    objectArg: {key: \"value\"}",
+                "  )",
+                "}",
+            ]
+        );
     }
 }

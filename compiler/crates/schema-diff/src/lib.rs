@@ -484,13 +484,25 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
                         }
                     }
                     None => {
-                        changes.push(DefinitionChange::ObjectRemoved(name.value));
+                        changes.push(DefinitionChange::ObjectRemoved {
+                            name: name.value,
+                            interfaces: previous_interfaces
+                                .iter()
+                                .map(|ident| ident.value)
+                                .collect(),
+                        });
                     }
                     Some(def) => {
                         if !add_definition(&mut changes, def) {
                             return SchemaChange::GenericChange;
                         }
-                        changes.push(DefinitionChange::ObjectRemoved(name.value));
+                        changes.push(DefinitionChange::ObjectRemoved {
+                            name: name.value,
+                            interfaces: previous_interfaces
+                                .iter()
+                                .map(|ident| ident.value)
+                                .collect(),
+                        });
                     }
                 }
             }

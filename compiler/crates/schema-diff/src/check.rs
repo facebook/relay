@@ -186,11 +186,30 @@ impl SchemaChange {
                                 .insert(IncrementalBuildSchemaChange::InputObject(name));
                         }
 
+                        // Object removals need an incremental rebuild
+                        // because queries spreading on the removed
+                        // object's interfaces may need updated inline
+                        // spreads. The interface names come from the
+                        // previous schema since the object no longer
+                        // exists in the current schema.
+                        DefinitionChange::ObjectRemoved { name, interfaces } => {
+                            needs_incremental_build
+                                .insert(IncrementalBuildSchemaChange::Object(name));
+                            for iface_name in &interfaces {
+                                if *iface_name == NODE_INTERFACE_KEY.0 {
+                                    continue;
+                                }
+                                needs_incremental_build
+                                    .insert(IncrementalBuildSchemaChange::Interface(*iface_name));
+                            }
+                        }
+
                         // unsafe changes
                         DefinitionChange::ScalarRemoved(_)
                         | DefinitionChange::InputObjectRemoved(_)
-                        | DefinitionChange::InterfaceRemoved(_)
-                        | DefinitionChange::ObjectRemoved(_) => return SchemaChangeSafety::Unsafe,
+                        | DefinitionChange::InterfaceRemoved(_) => {
+                            return SchemaChangeSafety::Unsafe;
+                        }
                     }
                 }
                 if needs_incremental_build.is_empty() {

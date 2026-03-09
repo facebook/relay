@@ -499,7 +499,10 @@ fn test_add_remove_object() {
         ),
         SchemaChange::DefinitionChanges(vec![
             DefinitionChange::ObjectAdded("Add".intern()),
-            DefinitionChange::ObjectRemoved("Remove".intern()),
+            DefinitionChange::ObjectRemoved {
+                name: "Remove".intern(),
+                interfaces: vec![],
+            },
         ])
     );
 }
@@ -646,7 +649,10 @@ fn test_change_type_input_object() {
         ),
         SchemaChange::DefinitionChanges(vec![
             DefinitionChange::InputObjectAdded("User".intern()),
-            DefinitionChange::ObjectRemoved("User".intern()),
+            DefinitionChange::ObjectRemoved {
+                name: "User".intern(),
+                interfaces: vec![],
+            },
         ])
     );
 }
@@ -1580,6 +1586,105 @@ fn test_input_object_change_field_type_is_safe_with_incremental_build() {
     )
 }
 
+// Removing a plain object type (no interfaces) requires an incremental
+// rebuild so queries referencing the type are recompiled.
+#[test]
+fn test_object_removed_is_safe_with_incremental_build() {
+    assert_eq!(
+        get_safety(
+            r"
+            type A {
+                key: String
+            }
+            #",
+            r"
+            type A {
+                key: String
+            }
+            type B {
+                value: Int
+            }
+            #"
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("B".intern()),
+        ]))
+    )
+}
+
+// Removing an object that implements a non-Node interface requires an
+// incremental rebuild of both the object and the interface.
+#[test]
+fn test_object_removed_with_interface_is_safe_with_incremental_build() {
+    assert_eq!(
+        get_safety(
+            r"
+            type A {
+                key: String
+            }
+            interface Actor {
+                name: String
+            }
+            #",
+            r"
+            type A {
+                key: String
+            }
+            type B implements Actor {
+                name: String
+            }
+            interface Actor {
+                name: String
+            }
+            #"
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("B".intern()),
+            IncrementalBuildSchemaChange::Interface("Actor".intern()),
+        ]))
+    )
+}
+
+// Removing an object that implements Node & Actor skips Node in the
+// incremental set because generate_id_field handles Node uniformly.
+#[test]
+fn test_object_removed_with_node_and_actor_interface() {
+    assert_eq!(
+        get_safety(
+            r"
+            type A {
+                key: String
+            }
+            interface Node {
+                id: ID
+            }
+            interface Actor {
+                name: String
+            }
+            #",
+            r"
+            type A {
+                key: String
+            }
+            type B implements Node & Actor {
+                id: ID
+                name: String
+            }
+            interface Node {
+                id: ID
+            }
+            interface Actor {
+                name: String
+            }
+            #"
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("B".intern()),
+            IncrementalBuildSchemaChange::Interface("Actor".intern()),
+        ]))
+    )
+}
+
 fn sort_change(change: &mut SchemaChange) {
     if let SchemaChange::DefinitionChanges(changes) = change {
         changes.sort();
@@ -1610,6 +1715,9 @@ fn sort_change(change: &mut SchemaChange) {
                     changed.sort_by_key(|item| item.name);
                     interfaces_added.sort();
                     interfaces_removed.sort();
+                }
+                DefinitionChange::ObjectRemoved { interfaces, .. } => {
+                    interfaces.sort();
                 }
                 _ => {}
             }

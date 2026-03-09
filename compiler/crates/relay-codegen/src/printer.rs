@@ -106,7 +106,12 @@ pub fn print_request_params(
         operation.name.map(|x| x.0),
         project_config,
     );
-    let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
+    let printer = JSONPrinter::new(
+        &builder,
+        project_config,
+        top_level_statements,
+        Some(operation.name.item.0),
+    );
     printer.print(request_parameters_ast_key, false)
 }
 
@@ -168,6 +173,7 @@ impl<'p> Printer<'p> {
             &self.builder,
             self.project_config,
             &mut top_level_statements,
+            Some(operation.name.item.0),
         );
         Some(printer.print(
             provided_variables,
@@ -198,6 +204,7 @@ impl<'p> Printer<'p> {
             &self.builder,
             self.project_config,
             &mut top_level_statements,
+            Some(fragment_definition.name.item.0),
         );
         printer.print(key, self.should_dedupe(fragment_definition.name.item.0))
     }
@@ -227,7 +234,12 @@ impl<'p> Printer<'p> {
             fragment.name.map(|x| x.0),
             self.project_config,
         );
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            Some(operation.name.item.0),
+        );
         printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
@@ -247,7 +259,12 @@ impl<'p> Printer<'p> {
             self.project_config,
         );
         let key = build_preloadable_request(&mut self.builder, request_parameters);
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            Some(operation.name.item.0),
+        );
         printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
@@ -264,7 +281,12 @@ impl<'p> Printer<'p> {
             operation.name.map(|x| x.0),
             self.project_config,
         );
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            Some(operation.name.item.0),
+        );
         printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
@@ -281,7 +303,12 @@ impl<'p> Printer<'p> {
             fragment.name.map(|x| x.0),
             self.project_config,
         );
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            Some(fragment.name.item.0),
+        );
         printer.print(key, self.should_dedupe(fragment.name.item.0))
     }
 
@@ -300,7 +327,12 @@ impl<'p> Printer<'p> {
             operation.name.map(|x| x.0),
             self.project_config,
         );
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            Some(operation.name.item.0),
+        );
         printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
@@ -310,7 +342,12 @@ impl<'p> Printer<'p> {
         top_level_statements: &mut TopLevelStatements,
     ) -> String {
         let key = build_resolvers_schema(&mut self.builder, schema, self.project_config);
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            None,
+        );
         printer.print(key, self.dedupe)
     }
 
@@ -343,6 +380,7 @@ impl<'b> JSONPrinter<'b> {
         builder: &'b AstBuilder,
         project_config: &ProjectConfig,
         top_level_statements: &'b mut TopLevelStatements,
+        name: Option<StringKey>,
     ) -> Self {
         Self {
             variable_definitions: Default::default(),
@@ -356,10 +394,16 @@ impl<'b> JSONPrinter<'b> {
                 .feature_flags
                 .skip_printing_nulls
                 .is_fully_enabled(),
-            use_new_flow_casting_syntax: project_config
-                .feature_flags
-                .new_flow_casting_syntax
-                .is_fully_enabled(),
+            use_new_flow_casting_syntax: match name {
+                Some(name) => project_config
+                    .feature_flags
+                    .new_flow_casting_syntax
+                    .is_enabled_for(name),
+                None => project_config
+                    .feature_flags
+                    .new_flow_casting_syntax
+                    .is_fully_enabled(),
+            },
         }
     }
 

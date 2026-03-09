@@ -144,7 +144,7 @@ pub fn generate_preloadable_query_parameters(
         project_config
             .feature_flags
             .new_flow_casting_syntax
-            .is_fully_enabled(),
+            .is_enabled_for(normalization_operation.name.item.0),
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Section --
@@ -259,7 +259,7 @@ pub fn generate_updatable_query(
         project_config
             .feature_flags
             .new_flow_casting_syntax
-            .is_fully_enabled(),
+            .is_enabled_for(typegen_operation.name.item.0),
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Query Node Hash Section --
@@ -274,7 +274,7 @@ pub fn generate_updatable_query(
         project_config
             .feature_flags
             .new_flow_casting_syntax
-            .is_fully_enabled(),
+            .is_enabled_for(typegen_operation.name.item.0),
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Query Node Section --
@@ -445,15 +445,16 @@ pub fn generate_operation(
 
     // -- Begin Query Node Hash Section --
     let mut section = GenericSection::default();
+    let use_new_flow_casting_syntax = project_config
+        .feature_flags
+        .new_flow_casting_syntax
+        .is_enabled_for(normalization_operation.name.item.0);
     write_source_hash(
         config,
         &project_config.typegen_config.language,
         &mut section,
         &source_hash,
-        project_config
-            .feature_flags
-            .new_flow_casting_syntax
-            .is_fully_enabled(),
+        use_new_flow_casting_syntax,
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Query Node Hash Section --
@@ -463,11 +464,7 @@ pub fn generate_operation(
     if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
         match project_config.typegen_config.language {
             TypegenLanguage::Flow => {
-                let cast = if project_config
-                    .feature_flags
-                    .new_flow_casting_syntax
-                    .is_fully_enabled()
-                {
+                let cast = if use_new_flow_casting_syntax {
                     "/*:: as any*/"
                 } else {
                     "/*: any*/"
@@ -517,10 +514,7 @@ pub fn generate_operation(
         &mut section,
         "node",
         generated_types.exported_type,
-        project_config
-            .feature_flags
-            .new_flow_casting_syntax
-            .is_fully_enabled(),
+        use_new_flow_casting_syntax,
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Section --
@@ -620,16 +614,17 @@ pub fn generate_split_operation(
 
     // -- Begin Operation Node Hash Section --
     let mut section = GenericSection::default();
+    let use_new_flow_casting_syntax = project_config
+        .feature_flags
+        .new_flow_casting_syntax
+        .is_enabled_for(normalization_operation.name.item.0);
     if let Some(source_hash) = source_hash {
         write_source_hash(
             config,
             &project_config.typegen_config.language,
             &mut section,
             source_hash,
-            project_config
-                .feature_flags
-                .new_flow_casting_syntax
-                .is_fully_enabled(),
+            use_new_flow_casting_syntax,
         )?;
     }
     content_sections.push(ContentSection::Generic(section));
@@ -642,10 +637,7 @@ pub fn generate_split_operation(
         &mut section,
         "node",
         None,
-        project_config
-            .feature_flags
-            .new_flow_casting_syntax
-            .is_fully_enabled(),
+        use_new_flow_casting_syntax,
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Section --
@@ -797,6 +789,10 @@ fn generate_read_only_fragment(
     // -- End Fragment Node Section --
 
     // -- Begin Fragment Node Hash Section --
+    let use_new_flow_casting_syntax = project_config
+        .feature_flags
+        .new_flow_casting_syntax
+        .is_enabled_for(reader_fragment.name.item.0);
     if let Some(source_hash) = source_hash {
         let mut section = GenericSection::default();
         write_source_hash(
@@ -804,10 +800,7 @@ fn generate_read_only_fragment(
             &project_config.typegen_config.language,
             &mut section,
             source_hash,
-            project_config
-                .feature_flags
-                .new_flow_casting_syntax
-                .is_fully_enabled(),
+            use_new_flow_casting_syntax,
         )?;
         content_sections.push(ContentSection::Generic(section));
     }
@@ -820,10 +813,7 @@ fn generate_read_only_fragment(
         &mut section,
         "node",
         generated_types.exported_type,
-        project_config
-            .feature_flags
-            .new_flow_casting_syntax
-            .is_fully_enabled(),
+        use_new_flow_casting_syntax,
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Fragment Node Export Section --
@@ -897,6 +887,10 @@ fn generate_assignable_fragment(
     // -- End Fragment Node Section --
 
     // -- Begin Fragment Node Hash Section --
+    let use_new_flow_casting_syntax = project_config
+        .feature_flags
+        .new_flow_casting_syntax
+        .is_enabled_for(typegen_fragment.name.item.0);
     if let Some(source_hash) = source_hash {
         let mut section = GenericSection::default();
         write_source_hash(
@@ -904,10 +898,7 @@ fn generate_assignable_fragment(
             &project_config.typegen_config.language,
             &mut section,
             source_hash,
-            project_config
-                .feature_flags
-                .new_flow_casting_syntax
-                .is_fully_enabled(),
+            use_new_flow_casting_syntax,
         )?;
         content_sections.push(ContentSection::Generic(section));
     }
@@ -920,10 +911,7 @@ fn generate_assignable_fragment(
         &mut section,
         "node",
         None,
-        project_config
-            .feature_flags
-            .new_flow_casting_syntax
-            .is_fully_enabled(),
+        use_new_flow_casting_syntax,
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Fragment Node Export Section --

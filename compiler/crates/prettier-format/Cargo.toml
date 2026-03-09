@@ -13,7 +13,7 @@ name = "prettier_format"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.101"
+anyhow = "1.0.102"
 clap = { version = "4.5.42", features = ["derive", "env", "string", "unicode", "wrap_help"] }
 common = { path = "../common" }
 extract-graphql = { path = "../extract-graphql" }

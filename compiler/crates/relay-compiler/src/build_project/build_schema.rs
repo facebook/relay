@@ -7,7 +7,9 @@
 
 use std::sync::Arc;
 
+use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::Location;
 use common::PerfLogEvent;
 use fnv::FnvHashMap;
 use relay_config::ProjectName;
@@ -52,40 +54,6 @@ pub fn build_schema(
     )
 }
 
-fn load_flatbuffer_schema(project_config: &ProjectConfig) -> Option<SDLSchema> {
-    let fb_path = match &project_config.schema_location {
-        SchemaLocation::Directory(dir) => {
-            let mut fb_path = dir.clone();
-            let dir_name = fb_path.file_name()?.to_str()?.to_string();
-            fb_path.pop();
-            fb_path.push(format!("{}.flatbuffer", dir_name));
-            fb_path
-        }
-        SchemaLocation::File(file) => file.with_extension("flatbuffer"),
-    };
-    if !fb_path.exists() {
-        return None;
-    }
-    match std::fs::read(&fb_path) {
-        Ok(bytes) => {
-            log::info!(
-                "Loading FlatBuffer schema from {:?} ({} bytes)",
-                fb_path,
-                bytes.len()
-            );
-            Some(build_schema_with_flat_buffer_unchecked(bytes))
-        }
-        Err(e) => {
-            log::warn!(
-                "Failed to read FlatBuffer schema {:?}: {}, falling back to SDL",
-                fb_path,
-                e,
-            );
-            None
-        }
-    }
-}
-
 fn build_schema_impl(
     compiler_state: &CompilerState,
     project_config: &ProjectConfig,
@@ -93,8 +61,10 @@ fn build_schema_impl(
     config: &Config,
     graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
-    if let Some(schema) = load_flatbuffer_schema(project_config) {
-        return Ok(Arc::new(schema));
+    if let SchemaLocation::FlatbufferFile(fb_path) = &project_config.schema_location {
+        let contents = std::fs::read(config.root_dir.join(fb_path))
+            .map_err(|e| vec![Diagnostic::error(e.to_string(), Location::generated())])?;
+        return Ok(Arc::new(build_schema_with_flat_buffer_unchecked(contents)));
     }
 
     let schema_sources = get_schema_sources(compiler_state, project_config);

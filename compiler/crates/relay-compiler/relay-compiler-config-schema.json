@@ -250,6 +250,12 @@
             "type": "string"
           }
         },
+        "schemaFlatbuffer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "schemaName": {
           "description": "Schema name, if differs from project name.\nIf schema name is unset, the project name will be used as schema name.",
           "anyOf": [

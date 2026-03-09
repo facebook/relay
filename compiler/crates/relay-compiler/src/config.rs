@@ -401,23 +401,27 @@ impl Config {
         let projects = projects
             .into_iter()
             .map(|(project_name, config_file_project)| {
-                let schema_location =
-                    match (config_file_project.schema, config_file_project.schema_dir) {
-                        (Some(schema_file), None) => Ok(SchemaLocation::File(
-                            normalize_relative_path(&root_dir, &schema_file),
-                        )),
-                        (None, Some(schema_dir)) => Ok(SchemaLocation::Directory(
-                            normalize_relative_path(&root_dir, &schema_dir),
-                        )),
-                        _ => Err(Error::ConfigFileValidation {
-                            config_path: config_path.clone(),
-                            validation_errors: vec![
-                                ConfigValidationError::ProjectNeedsSchemaXorSchemaDir {
-                                    project_name,
-                                },
-                            ],
-                        }),
-                    }?;
+                let schema_location = match (
+                    config_file_project.schema,
+                    config_file_project.schema_dir,
+                    config_file_project.schema_flatbuffer,
+                ) {
+                    (Some(schema_file), None, None) => Ok(SchemaLocation::File(
+                        normalize_relative_path(&root_dir, &schema_file),
+                    )),
+                    (None, Some(schema_dir), None) => Ok(SchemaLocation::Directory(
+                        normalize_relative_path(&root_dir, &schema_dir),
+                    )),
+                    (None, None, Some(schema_flatbuffer)) => Ok(SchemaLocation::FlatbufferFile(
+                        normalize_relative_path(&root_dir, &schema_flatbuffer),
+                    )),
+                    _ => Err(Error::ConfigFileValidation {
+                        config_path: config_path.clone(),
+                        validation_errors: vec![
+                            ConfigValidationError::ProjectNeedsSchemaXorSchemaDir { project_name },
+                        ],
+                    }),
+                }?;
 
                 let shard_strip_regex = config_file_project
                     .shard_strip_regex
@@ -654,7 +658,7 @@ impl Config {
 
         for (_, project) in &self.projects {
             match &project.schema_location {
-                SchemaLocation::File(schema_file) => {
+                SchemaLocation::FlatbufferFile(schema_file) | SchemaLocation::File(schema_file) => {
                     validator.assert_is_included_schema_file(schema_file);
                 }
                 SchemaLocation::Directory(schema_dir) => {
@@ -734,6 +738,7 @@ impl Config {
             .filter_map(|project_config| match &project_config.schema_location {
                 SchemaLocation::File(schema_file) => Some(schema_file.clone()),
                 SchemaLocation::Directory(_) => None,
+                SchemaLocation::FlatbufferFile(schema_file) => Some(schema_file.clone()),
             })
             .collect()
     }
@@ -745,6 +750,7 @@ impl Config {
             .filter_map(|project_config| match &project_config.schema_location {
                 SchemaLocation::File(_) => None,
                 SchemaLocation::Directory(schema_dir) => Some(schema_dir.clone()),
+                SchemaLocation::FlatbufferFile(_) => None,
             })
             .collect()
     }
@@ -1241,6 +1247,7 @@ pub struct ConfigFileProject {
     /// Exactly 1 of these options needs to be defined.
     schema: Option<PathBuf>,
     schema_dir: Option<PathBuf>,
+    schema_flatbuffer: Option<PathBuf>,
 
     /// Schema name, if differs from project name.
     /// If schema name is unset, the project name will be used as schema name.

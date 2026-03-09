@@ -179,29 +179,20 @@ impl FileCategorizer {
         }
 
         let mut schema_file_mapping: HashMap<PathBuf, ProjectSet> = Default::default();
-        for (&project_name, project_config) in &config.projects {
-            if let SchemaLocation::File(schema_file) = &project_config.schema_location {
-                match schema_file_mapping.entry(schema_file.clone()) {
-                    Entry::Vacant(entry) => {
-                        entry.insert(ProjectSet::of(project_name));
-                    }
-                    Entry::Occupied(mut entry) => {
-                        entry.get_mut().insert(project_name);
-                    }
-                }
-            }
-        }
-
         let mut schema_dir_mapping_map: HashMap<PathBuf, ProjectSet> = Default::default();
         for (&project_name, project_config) in &config.projects {
-            if let SchemaLocation::Directory(directory) = &project_config.schema_location {
-                match schema_dir_mapping_map.entry(directory.clone()) {
-                    Entry::Vacant(entry) => {
-                        entry.insert(ProjectSet::of(project_name));
-                    }
-                    Entry::Occupied(mut entry) => {
-                        entry.get_mut().insert(project_name);
-                    }
+            match &project_config.schema_location {
+                SchemaLocation::FlatbufferFile(schema_file) | SchemaLocation::File(schema_file) => {
+                    schema_file_mapping
+                        .entry(schema_file.clone())
+                        .and_modify(|project_set| project_set.insert(project_name))
+                        .or_insert_with(|| ProjectSet::of(project_name));
+                }
+                SchemaLocation::Directory(directory) => {
+                    schema_dir_mapping_map
+                        .entry(directory.clone())
+                        .and_modify(|project_set| project_set.insert(project_name))
+                        .or_insert_with(|| ProjectSet::of(project_name));
                 }
             }
         }

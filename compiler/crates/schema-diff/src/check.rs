@@ -204,9 +204,22 @@ impl SchemaChange {
                             }
                         }
 
+                        // Input object removals need an incremental
+                        // rebuild so queries referencing the removed
+                        // type are recompiled. In practice this is a
+                        // no-op: the type no longer exists in the new
+                        // schema, so the dependency analyzer won't
+                        // find any references. Co-occurring ObjectChanged
+                        // entries (e.g. for Mutation) handle the actual
+                        // output changes, and build_ir_in_relay_mode
+                        // validates all definitions regardless.
+                        DefinitionChange::InputObjectRemoved(name) => {
+                            needs_incremental_build
+                                .insert(IncrementalBuildSchemaChange::InputObject(name));
+                        }
+
                         // unsafe changes
                         DefinitionChange::ScalarRemoved(_)
-                        | DefinitionChange::InputObjectRemoved(_)
                         | DefinitionChange::InterfaceRemoved(_) => {
                             return SchemaChangeSafety::Unsafe;
                         }

@@ -1685,6 +1685,27 @@ fn test_object_removed_with_node_and_actor_interface() {
     )
 }
 
+// Removing an input object requires an incremental rebuild.
+#[test]
+fn test_input_object_removed_is_safe_with_incremental_build() {
+    assert_eq!(
+        get_safety(
+            r"
+            type Query { me: User }
+            type User { name: String }
+            #",
+            r"
+            type Query { me: User }
+            type User { name: String }
+            input MyInput { key: String }
+            #"
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::InputObject("MyInput".intern())
+        ]))
+    )
+}
+
 fn sort_change(change: &mut SchemaChange) {
     if let SchemaChange::DefinitionChanges(changes) = change {
         changes.sort();

@@ -208,7 +208,7 @@ fn parse_argument_name<'a>(
                 consume_argument_close(lexer, best_effort)?;
                 Ok(Some(argument_name))
             }
-            Some(Ok(_)) if best_effort => Ok(None),
+            Some(Ok(bad_token)) if best_effort => Ok(None),
             Some(Ok(bad_token)) => Err(format!("Expected Argument Name, got: '{}'", bad_token)),
             Some(Err(_)) if best_effort => Ok(None),
             Some(Err(_)) => Err(format!("Lexer error on: '{}'", lexer.slice())),

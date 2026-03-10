@@ -62,6 +62,14 @@ fn build_schema_impl(
     graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
     if let SchemaLocation::FlatbufferFile(fb_path) = &project_config.schema_location {
+        if let Some(fb_sources) = compiler_state.flatbuffer_schemas.get(&project_config.name)
+            && let Some(bytes) = fb_sources.get_current_bytes()
+        {
+            return Ok(Arc::new(build_schema_with_flat_buffer_unchecked(
+                bytes.clone(),
+            )));
+        }
+        // Fallback: read from disk if not in state
         let contents = std::fs::read(config.root_dir.join(fb_path))
             .map_err(|e| vec![Diagnostic::error(e.to_string(), Location::generated())])?;
         return Ok(Arc::new(build_schema_with_flat_buffer_unchecked(contents)));
@@ -125,11 +133,14 @@ fn get_schema_sources<'a>(
     compiler_state: &'a CompilerState,
     project_config: &'a ProjectConfig,
 ) -> Vec<(&'a str, common::SourceLocationKey)> {
-    compiler_state.schemas[&project_config.name]
-        .get_sources_with_location()
-        .into_iter()
-        .map(|(schema, location_key)| (schema.as_str(), location_key))
-        .collect()
+    match compiler_state.schemas.get(&project_config.name) {
+        Some(sources) => sources
+            .get_sources_with_location()
+            .into_iter()
+            .map(|(schema, location_key)| (schema.as_str(), location_key))
+            .collect(),
+        None => vec![],
+    }
 }
 
 fn get_extension_sources<'a>(

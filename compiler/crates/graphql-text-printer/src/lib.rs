@@ -9,6 +9,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+mod prettier_common;
 mod prettier_document_printer;
 mod prettier_executable_printer;
 mod prettier_schema_printer;

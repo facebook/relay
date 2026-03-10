@@ -11,7 +11,6 @@
 //! for operations (queries, mutations, subscriptions) and fragments.
 
 use graphql_syntax::Argument;
-use graphql_syntax::ConstantValue;
 use graphql_syntax::Directive;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::ExecutableDocument;
@@ -22,12 +21,13 @@ use graphql_syntax::LinkedField;
 use graphql_syntax::OperationDefinition;
 use graphql_syntax::ScalarField;
 use graphql_syntax::Selection;
-use graphql_syntax::TypeAnnotation;
 use graphql_syntax::Value;
 use graphql_syntax::VariableDefinition;
 
-const LINE_WIDTH: usize = 80;
-const INDENT: &str = "  ";
+use crate::prettier_common::INDENT;
+use crate::prettier_common::LINE_WIDTH;
+use crate::prettier_common::format_constant_value;
+use crate::prettier_common::format_type_annotation;
 
 /// Prints an ExecutableDocument in prettier-graphql compatible format.
 ///
@@ -250,12 +250,12 @@ impl PrettierExecutablePrinter {
         let mut result = format!(
             "${}: {}",
             var_def.name.name,
-            self.format_type_annotation(&var_def.type_)
+            format_type_annotation(&var_def.type_)
         );
 
         if let Some(ref default) = var_def.default_value {
             result.push_str(" = ");
-            result.push_str(&self.format_constant_value(&default.value));
+            result.push_str(&format_constant_value(&default.value));
         }
 
         if !var_def.directives.is_empty() {
@@ -270,11 +270,12 @@ impl PrettierExecutablePrinter {
         self.output.push('$');
         self.output.push_str(&var_def.name.name.to_string());
         self.output.push_str(": ");
-        self.print_type_annotation(&var_def.type_);
+        self.output
+            .push_str(&format_type_annotation(&var_def.type_));
 
         if let Some(ref default) = var_def.default_value {
             self.output.push_str(" = ");
-            self.print_constant_value(&default.value);
+            self.output.push_str(&format_constant_value(&default.value));
         }
 
         self.print_directives(&var_def.directives);
@@ -464,7 +465,7 @@ impl PrettierExecutablePrinter {
 
     fn format_value(&self, value: &Value) -> String {
         match value {
-            Value::Constant(cv) => self.format_constant_value(cv),
+            Value::Constant(cv) => format_constant_value(cv),
             Value::Variable(v) => format!("${}", v.name),
             Value::List(list) => {
                 let items: Vec<String> = list.items.iter().map(|v| self.format_value(v)).collect();
@@ -477,57 +478,6 @@ impl PrettierExecutablePrinter {
                     .map(|arg| format!("{}: {}", arg.name.value, self.format_value(&arg.value)))
                     .collect();
                 format!("{{{}}}", fields.join(", "))
-            }
-        }
-    }
-
-    fn print_constant_value(&mut self, value: &ConstantValue) {
-        self.output.push_str(&self.format_constant_value(value));
-    }
-
-    fn format_constant_value(&self, value: &ConstantValue) -> String {
-        match value {
-            ConstantValue::Int(i) => i.value.to_string(),
-            ConstantValue::Float(f) => f.source_value.to_string(),
-            ConstantValue::String(s) => format!("\"{}\"", s.value),
-            ConstantValue::Boolean(b) => if b.value { "true" } else { "false" }.to_string(),
-            ConstantValue::Null(_) => "null".to_string(),
-            ConstantValue::Enum(e) => e.value.to_string(),
-            ConstantValue::List(list) => {
-                let items: Vec<String> = list
-                    .items
-                    .iter()
-                    .map(|item| self.format_constant_value(item))
-                    .collect();
-                format!("[{}]", items.join(", "))
-            }
-            ConstantValue::Object(obj) => {
-                let fields: Vec<String> = obj
-                    .items
-                    .iter()
-                    .map(|arg| {
-                        format!(
-                            "{}: {}",
-                            arg.name.value,
-                            self.format_constant_value(&arg.value)
-                        )
-                    })
-                    .collect();
-                format!("{{{}}}", fields.join(", "))
-            }
-        }
-    }
-
-    fn print_type_annotation(&mut self, type_: &TypeAnnotation) {
-        self.output.push_str(&self.format_type_annotation(type_));
-    }
-
-    fn format_type_annotation(&self, type_: &TypeAnnotation) -> String {
-        match type_ {
-            TypeAnnotation::Named(named) => named.name.value.to_string(),
-            TypeAnnotation::List(list) => format!("[{}]", self.format_type_annotation(&list.type_)),
-            TypeAnnotation::NonNull(non_null) => {
-                format!("{}!", self.format_type_annotation(&non_null.type_))
             }
         }
     }

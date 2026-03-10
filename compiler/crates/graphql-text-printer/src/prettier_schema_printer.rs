@@ -11,7 +11,6 @@
 //! ensuring that generated SDL files don't trigger PRETTIERGRAPHQL lint errors.
 
 use graphql_syntax::ConstantDirective;
-use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveDefinition;
 use graphql_syntax::DirectiveLocation;
 use graphql_syntax::EnumTypeDefinition;
@@ -31,14 +30,17 @@ use graphql_syntax::ScalarTypeExtension;
 use graphql_syntax::SchemaDefinition;
 use graphql_syntax::SchemaDocument;
 use graphql_syntax::SchemaExtension;
-use graphql_syntax::TypeAnnotation;
 use graphql_syntax::TypeSystemDefinition;
 use graphql_syntax::UnionTypeDefinition;
 use graphql_syntax::UnionTypeExtension;
 use intern::string_key::StringKey;
 
-const LINE_WIDTH: usize = 80;
-const INDENT: &str = "  ";
+use crate::prettier_common::INDENT;
+use crate::prettier_common::LINE_WIDTH;
+use crate::prettier_common::format_constant_directive;
+use crate::prettier_common::format_constant_directives;
+use crate::prettier_common::format_constant_value;
+use crate::prettier_common::format_type_annotation;
 
 /// Prints a SchemaDocument in prettier-graphql compatible format.
 ///
@@ -213,7 +215,7 @@ impl PrettierSchemaPrinter {
             self.print_arguments_definition(&arguments.items, &field.name.value.to_string());
         }
         self.output.push_str(": ");
-        self.print_type_annotation(&field.type_);
+        self.output.push_str(&format_type_annotation(&field.type_));
         self.print_directives(&field.directives);
     }
 
@@ -252,15 +254,15 @@ impl PrettierSchemaPrinter {
         let mut result = format!(
             "{}: {}",
             input.name.value,
-            self.format_type_annotation(&input.type_)
+            format_type_annotation(&input.type_)
         );
         if let Some(ref default_value) = input.default_value {
             result.push_str(" = ");
-            result.push_str(&self.format_constant_value(&default_value.value));
+            result.push_str(&format_constant_value(&default_value.value));
         }
         if !input.directives.is_empty() {
             result.push(' ');
-            result.push_str(&self.format_directives(&input.directives));
+            result.push_str(&format_constant_directives(&input.directives));
         }
         result
     }
@@ -268,10 +270,11 @@ impl PrettierSchemaPrinter {
     fn print_input_value_definition(&mut self, input: &InputValueDefinition) {
         self.output.push_str(&input.name.value.to_string());
         self.output.push_str(": ");
-        self.print_type_annotation(&input.type_);
+        self.output.push_str(&format_type_annotation(&input.type_));
         if let Some(ref default_value) = input.default_value {
             self.output.push_str(" = ");
-            self.print_constant_value(&default_value.value);
+            self.output
+                .push_str(&format_constant_value(&default_value.value));
         }
         self.print_directives(&input.directives);
     }
@@ -449,102 +452,7 @@ impl PrettierSchemaPrinter {
     }
 
     fn print_directive(&mut self, directive: &ConstantDirective) {
-        self.output.push('@');
-        self.output.push_str(&directive.name.value.to_string());
-        if let Some(ref arguments) = directive.arguments {
-            self.output.push('(');
-            let args: Vec<String> = arguments
-                .items
-                .iter()
-                .map(|arg| {
-                    format!(
-                        "{}: {}",
-                        arg.name.value,
-                        self.format_constant_value(&arg.value)
-                    )
-                })
-                .collect();
-            self.output.push_str(&args.join(", "));
-            self.output.push(')');
-        }
-    }
-
-    fn format_directives(&self, directives: &[ConstantDirective]) -> String {
-        directives
-            .iter()
-            .map(|d| {
-                let mut result = format!("@{}", d.name.value);
-                if let Some(ref arguments) = d.arguments {
-                    let args: Vec<String> = arguments
-                        .items
-                        .iter()
-                        .map(|arg| {
-                            format!(
-                                "{}: {}",
-                                arg.name.value,
-                                self.format_constant_value(&arg.value)
-                            )
-                        })
-                        .collect();
-                    result.push('(');
-                    result.push_str(&args.join(", "));
-                    result.push(')');
-                }
-                result
-            })
-            .collect::<Vec<_>>()
-            .join(" ")
-    }
-
-    fn print_type_annotation(&mut self, type_: &TypeAnnotation) {
-        self.output.push_str(&self.format_type_annotation(type_));
-    }
-
-    fn format_type_annotation(&self, type_: &TypeAnnotation) -> String {
-        match type_ {
-            TypeAnnotation::Named(named) => named.name.value.to_string(),
-            TypeAnnotation::List(list) => format!("[{}]", self.format_type_annotation(&list.type_)),
-            TypeAnnotation::NonNull(non_null) => {
-                format!("{}!", self.format_type_annotation(&non_null.type_))
-            }
-        }
-    }
-
-    fn print_constant_value(&mut self, value: &ConstantValue) {
-        self.output.push_str(&self.format_constant_value(value));
-    }
-
-    fn format_constant_value(&self, value: &ConstantValue) -> String {
-        match value {
-            ConstantValue::Int(i) => i.value.to_string(),
-            ConstantValue::Float(f) => f.source_value.to_string(),
-            ConstantValue::String(s) => format!("\"{}\"", s.value),
-            ConstantValue::Boolean(b) => if b.value { "true" } else { "false" }.to_string(),
-            ConstantValue::Null(_) => "null".to_string(),
-            ConstantValue::Enum(e) => e.value.to_string(),
-            ConstantValue::List(list) => {
-                let items: Vec<String> = list
-                    .items
-                    .iter()
-                    .map(|item| self.format_constant_value(item))
-                    .collect();
-                format!("[{}]", items.join(", "))
-            }
-            ConstantValue::Object(obj) => {
-                let fields: Vec<String> = obj
-                    .items
-                    .iter()
-                    .map(|arg| {
-                        format!(
-                            "{}: {}",
-                            arg.name.value,
-                            self.format_constant_value(&arg.value)
-                        )
-                    })
-                    .collect();
-                format!("{{{}}}", fields.join(", "))
-            }
-        }
+        self.output.push_str(&format_constant_directive(directive));
     }
 }
 

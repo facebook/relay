@@ -25,6 +25,14 @@ fn get_safety(current: &str, previous: &str) -> SchemaChangeSafety {
     change.get_safety(&schema, &Default::default())
 }
 
+fn diff_from_schemas(current: &str, previous: &str) -> SchemaChange {
+    let current_schema = build_schema(current).unwrap();
+    let previous_schema = build_schema(previous).unwrap();
+    let mut change = detect_changes_from_schemas(&current_schema, &previous_schema);
+    sort_change(&mut change);
+    change
+}
+
 #[test]
 fn test_same_text() {
     assert_eq!(
@@ -1704,6 +1712,572 @@ fn test_input_object_removed_is_safe_with_incremental_build() {
             IncrementalBuildSchemaChange::InputObject("MyInput".intern())
         ]))
     )
+}
+
+// Tests verifying that detect_changes_from_schemas produces the same results
+// as detect_changes for all type-definition-level changes.
+
+#[test]
+fn test_schema_diff_same_text() {
+    let current = r"
+        enum A {
+            OK
+            NOT_OK
+            MAYBE
+        }
+    ";
+    assert_eq!(diff(current, current), diff_from_schemas(current, current));
+    assert_eq!(diff_from_schemas(current, current), SchemaChange::None);
+}
+
+#[test]
+fn test_schema_diff_add_enum_value() {
+    let current = r"
+        enum A {
+            OK
+            NOT_OK
+            MAYBE
+        }
+    ";
+    let previous = r"
+        enum A {
+            OK
+            NOT_OK
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_sort_enum_value() {
+    let current = r"
+        enum A {
+            OK
+            NOT_OK
+            MAYBE
+        }
+    ";
+    let previous = r"
+        enum A {
+            OK
+            MAYBE
+            NOT_OK
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_remove_enum_value() {
+    let current = r"
+        enum A {
+            OK
+            NOT_OK
+        }
+    ";
+    let previous = r"
+        enum A {
+            OK
+            NOT_OK
+            MAYBE
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_add_remove_enum_value() {
+    let current = r"
+        enum A {
+            OK
+            NOT_OK
+            ZUCK
+            NOT_ZUCK
+        }
+    ";
+    let previous = r"
+        enum A {
+            OK
+            MARK
+            NOT_MARK
+            NOT_OK
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_add_remove_enum_type() {
+    let current = r"
+        enum A {
+            OK
+            NOT_OK
+        }
+        enum B {
+            OK
+        }
+    ";
+    let previous = r"
+        enum A {
+            OK
+            NOT_OK
+        }
+        enum C {
+            OK
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_add_remove_union_value() {
+    let current = r"
+        type A { key: String }
+        type B { key: String }
+        type C { key: String }
+        type D { key: String }
+        union AB = A | B | D
+    ";
+    let previous = r"
+        type A { key: String }
+        type B { key: String }
+        type C { key: String }
+        type D { key: String }
+        union AB = A | C
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_add_remove_union_type() {
+    let current = r"
+        type A { key: String }
+        type B { key: String }
+        type C { key: String }
+        type D { key: String }
+        union union1 = A | B | D
+        union union2 = A | B | D
+    ";
+    let previous = r"
+        type A { key: String }
+        type B { key: String }
+        type C { key: String }
+        type D { key: String }
+        union union3 = A | B | D
+        union union4 = A | B | D
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_add_remove_scalar_type() {
+    let current = r"
+        scalar A
+        scalar B
+    ";
+    let previous = r"
+        scalar A
+        scalar C
+        scalar D
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_add_remove_input_object() {
+    let current = r"
+        input Add {
+            value: Float
+        }
+    ";
+    let previous = r"
+        input Remove {
+            name: String
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_add_remove_input_object_fields() {
+    let current = r"
+        input Input {
+            add: String
+            value: Float
+        }
+    ";
+    let previous = r"
+        input Input {
+            value: Float
+            remove: Int
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_change_input_object_fields() {
+    let current = r"
+        input Input {
+            value: Float
+            key: String
+        }
+    ";
+    let previous = r"
+        input Input {
+            value: Float
+            key: Int
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_add_remove_interface() {
+    let current = r"
+        interface Add {
+            value: Float
+            key: String
+        }
+    ";
+    let previous = r"
+        interface Remove {
+            value: Float
+            key: Int
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_add_remove_interface_fields() {
+    let current = r"
+        interface I {
+            value: Float
+            key: String
+        }
+    ";
+    let previous = r"
+        interface I {
+            value: Float
+            key: Int
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_add_remove_object() {
+    let current = r"
+        type Add {
+            value: Float
+        }
+    ";
+    let previous = r"
+        type Remove {
+            name: String
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_change_object_interfaces() {
+    let current = r"
+        interface Node { id: ID }
+        interface Actor { name: String }
+        type User implements Node {
+            id: ID
+            value: Float
+        }
+    ";
+    let previous = r"
+        interface Node { id: ID }
+        interface Actor { name: String }
+        type User implements Actor {
+            id: ID
+            value: Float
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_change_object_fields() {
+    let current = r"
+        interface Actor { name: String }
+        type User implements Actor {
+            id: ID
+            value: Float
+        }
+    ";
+    let previous = r"
+        interface Actor { name: String }
+        type User implements Actor {
+            id: ID!
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_change_object_field_arguments() {
+    let current = r"
+        interface Actor { name: String }
+        type User implements Actor {
+            key(a: ID): String
+            name: String
+            user(a: ID): String
+        }
+    ";
+    let previous = r"
+        interface Actor { name: String }
+        type User implements Actor {
+            key: String
+            name(a: ID!): String
+            user(a: ID!): String
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_change_type_kind() {
+    // input object <-> object
+    let current = r"
+        input User {
+            value: Float
+        }
+    ";
+    let previous = r"
+        type User {
+            name: String
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_change_type_object_interface() {
+    let current = r"
+        type User {
+            value: Float
+        }
+    ";
+    let previous = r"
+        interface User {
+            name: String
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_change_type_enum_scalar() {
+    let current = r"
+        scalar A
+    ";
+    let previous = r"
+        enum A {
+            OK
+            NOT_OK
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_change_type_enum_union() {
+    let current = r"
+        type A { id: ID }
+        enum B { OK NOT_OK }
+        union C = A
+    ";
+    let previous = r"
+        type A { id: ID }
+        enum C { OK NOT_OK }
+        union B = A
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+// Test that comment-only changes produce None from schema diff
+// (structurally identical schemas).
+#[test]
+fn test_schema_diff_comment_only_change() {
+    let current = r"
+        enum A {
+            OK
+            NOT_OK
+        }
+    ";
+    let previous = r"
+        # comment
+        enum A {
+            OK
+            NOT_OK
+        }
+    ";
+    // Text-based diff sees different text but no definition changes → GenericChange
+    assert_eq!(diff(current, previous), SchemaChange::GenericChange);
+    // Schema-based diff sees identical schemas → None
+    assert_eq!(diff_from_schemas(current, previous), SchemaChange::None);
+}
+
+// Test that extensions produce field-level changes in schema diff
+// (since build_schema merges extensions into base types).
+#[test]
+fn test_schema_diff_extension_merged() {
+    let current = r"
+        type A {
+            key: String
+        }
+        extend type A {
+            name: String
+        }
+    ";
+    let previous = r"
+        type A {
+            key: String
+        }
+    ";
+    // Text-based diff skips extensions → GenericChange
+    assert_eq!(diff(current, previous), SchemaChange::GenericChange);
+    // Schema-based diff sees the merged field difference
+    let schema_result = diff_from_schemas(current, previous);
+    match &schema_result {
+        SchemaChange::DefinitionChanges(changes) => {
+            assert!(changes.iter().any(|c| matches!(c,
+                DefinitionChange::ObjectChanged { name, .. } if *name == "A".intern()
+            )));
+        }
+        other => panic!("Expected DefinitionChanges, got {other:?}"),
+    }
+}
+
+// Test with list and non-null type modifiers.
+#[test]
+fn test_schema_diff_complex_type_modifiers() {
+    let current = r"
+        type User {
+            friends: [String!]!
+            name: String
+        }
+    ";
+    let previous = r"
+        type User {
+            friends: [String]
+            name: String
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+// Test with multiple types changing simultaneously.
+#[test]
+fn test_schema_diff_multiple_changes() {
+    let current = r"
+        type A { key: String }
+        enum B { X Y Z }
+        input C { value: Int }
+        union D = A
+        scalar E
+    ";
+    let previous = r"
+        type A { key: Int }
+        enum B { X Y }
+        input C { value: String }
+        scalar E
+        interface F { id: ID }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+// Test that identical schemas produce None.
+#[test]
+fn test_schema_diff_identical_complex_schema() {
+    let schema = r"
+        interface Node { id: ID! }
+        type User implements Node {
+            id: ID!
+            name: String
+            friends: [User]
+        }
+        enum Status { ACTIVE INACTIVE }
+        union SearchResult = User
+        input CreateUserInput { name: String! }
+        scalar DateTime
+    ";
+    assert_eq!(diff_from_schemas(schema, schema), SchemaChange::None);
 }
 
 fn sort_change(change: &mut SchemaChange) {

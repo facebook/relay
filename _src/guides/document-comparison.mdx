@@ -36,22 +36,6 @@ Options:
   -h, --help                           Print help
 ```
 
-You can also run the comparison pragramatically via Rust API, e.g. in the context of an eval grader, where you can report a numerical score and adjust the output as needed to better integrate with your eval setup.
-```rust
-use graphql_ir_diff::compare;
-use anyhow::Result;
-
-impl Grader for ComparisonGrader {
-  fn grade(schema_paths: Vec<String>, expected: String, actual: String) -> Result<Output> {
-      graphql_ir_diff::compare(schema_paths, &expected, &actual).map(|(score, message)| {
-        ... // process score/message as needed
-      }).map_err(|err| {
-        ... // process error as needed
-      })
-  }
-}
-```
-
 ## Output
 
 Detailed information about missing selection(s) from the right document, including line number and path.

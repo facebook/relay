@@ -14,6 +14,7 @@ use common::PerfLogEvent;
 use fnv::FnvHashMap;
 use relay_config::ProjectName;
 use relay_config::SchemaLocation;
+use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::validate_resolver_schema;
 use schema::SDLSchema;
 use schema::SchemaDocuments;
@@ -62,17 +63,72 @@ fn build_schema_impl(
     graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
     if let SchemaLocation::FlatbufferFile(fb_path) = &project_config.schema_location {
-        if let Some(fb_sources) = compiler_state.flatbuffer_schemas.get(&project_config.name)
+        // Load flatbuffer (has base schema + SDL extensions, but NOT docblock IRs)
+        let mut schema = if let Some(fb_sources) =
+            compiler_state.flatbuffer_schemas.get(&project_config.name)
             && let Some(bytes) = fb_sources.get_current_bytes()
         {
-            return Ok(Arc::new(build_schema_with_flat_buffer_unchecked(
-                bytes.clone(),
-            )));
-        }
-        // Fallback: read from disk if not in state
-        let contents = std::fs::read(config.root_dir.join(fb_path))
-            .map_err(|e| vec![Diagnostic::error(e.to_string(), Location::generated())])?;
-        return Ok(Arc::new(build_schema_with_flat_buffer_unchecked(contents)));
+            build_schema_with_flat_buffer_unchecked(bytes.clone())
+        } else {
+            let contents = std::fs::read(config.root_dir.join(fb_path))
+                .map_err(|e| vec![Diagnostic::error(e.to_string(), Location::generated())])?;
+            build_schema_with_flat_buffer_unchecked(contents)
+        };
+
+        // Extract docblock IRs
+        let resolver_schema_data = log_event.time("collect_resolver_schema_time", || {
+            extract_docblock_ir(config, compiler_state, project_config, graphql_asts_map)
+        })?;
+
+        // Apply type IRs as mutations (since they can't be baked into the flatbuffer).
+        //
+        // Unlike the non-FB path (InMemorySchema::build), which does a two-pass
+        // batch build (collect all type names, then resolve all field references),
+        // here we apply each resolver type definition one-by-one. This works because
+        // resolver types typically only reference existing base-schema types that are
+        // already present in the flatbuffer. If cross-resolver-type references become
+        // necessary, this will need to be converted to a two-pass approach.
+        log_event.time(
+            "build_resolver_types_schema_time",
+            || -> DiagnosticsResult<()> {
+                let type_docs = build_resolver_types_schema_documents(
+                    &resolver_schema_data.type_irs,
+                    config,
+                    project_config,
+                );
+                for doc in type_docs {
+                    let location = doc.location;
+                    for def in doc.definitions {
+                        extend_schema_with_resolver_type_system_definition(
+                            def,
+                            &mut schema,
+                            location,
+                        )?;
+                    }
+                }
+                Ok(())
+            },
+        )?;
+
+        // Apply field IRs
+        log_event.time("extend_schema_with_resolver_fields_time", || {
+            extend_schema_with_field_ir(
+                resolver_schema_data.field_irs,
+                &mut schema,
+                config,
+                project_config,
+            )
+        })?;
+
+        // Validate
+        log_event.time("validate_resolver_schema_time", || {
+            validate_resolver_schema(&schema, &project_config.feature_flags)
+        })?;
+        log_event.time("validate_composite_schema_time", || {
+            maybe_validate_schema(project_config, &schema)
+        })?;
+
+        return Ok(Arc::new(schema));
     }
 
     let schema_sources = get_schema_sources(compiler_state, project_config);

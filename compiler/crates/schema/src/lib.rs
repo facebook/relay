@@ -158,11 +158,11 @@ pub fn parse_schema_with_extensions<
 }
 
 pub fn build_schema_with_flat_buffer(bytes: Vec<u8>) -> SDLSchema {
-    SDLSchema::FlatBuffer(SchemaWrapper::from_vec(bytes))
+    SDLSchema::FlatBuffer(Box::new(SchemaWrapper::from_vec(bytes)))
 }
 
 pub fn build_schema_with_flat_buffer_unchecked(bytes: Vec<u8>) -> SDLSchema {
-    SDLSchema::FlatBuffer(SchemaWrapper::from_vec_unchecked(bytes))
+    SDLSchema::FlatBuffer(Box::new(SchemaWrapper::from_vec_unchecked(bytes)))
 }
 
 pub fn build_schema_from_flat_buffer(bytes: &[u8]) -> DiagnosticsResult<FlatBufferSchema<'_>> {

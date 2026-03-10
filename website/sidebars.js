@@ -139,6 +139,7 @@ const Guides = {
     'guides/type-emission',
   ],
   Codemods: ['guides/codemods'],
+  'Document Comparison': ['guides/document-comparison'],
   // TODO(T84797602) release incremental data delivery externally
   // 'guides/incremental-data-delivery',
   // TODO release these in OSS

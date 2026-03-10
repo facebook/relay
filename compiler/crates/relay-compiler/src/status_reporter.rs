@@ -12,8 +12,10 @@
 //! * `JSONStatusReporter`: Reports the status to a JSON file using the `serde_json` crate.
 //! * `BuildStatus`: Wraps a base reporter (decorator pattern), delegating reporting while
 //!   also tracking build state for daemon/client synchronization.
+use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -79,9 +81,16 @@ pub struct BuildStatus {
     base_reporter: Box<dyn StatusReporter + Send + Sync>,
     root_dir: PathBuf,
     is_multi_project: bool,
+    /// Optional path to a log file that should be size-limited.
+    /// When set, the file is truncated after each build if it exceeds
+    /// [`Self::MAX_LOG_BYTES`].
+    log_path: Option<PathBuf>,
 }
 
 impl BuildStatus {
+    /// Maximum log file size in bytes before truncation (~1MB).
+    const MAX_LOG_BYTES: u64 = 1_000_000;
+
     /// Create a new `BuildStatus` that wraps the given base reporter.
     ///
     /// The `root_dir` and `is_multi_project` parameters are used to format
@@ -99,7 +108,15 @@ impl BuildStatus {
             base_reporter,
             root_dir,
             is_multi_project,
+            log_path: None,
         }
+    }
+
+    /// Set a log file path to be size-limited. After each build the file is
+    /// checked and truncated to keep only the most recent half of its lines
+    /// if it exceeds [`Self::MAX_LOG_BYTES`].
+    pub fn set_log_path(&mut self, path: PathBuf) {
+        self.log_path = Some(path);
     }
 
     /// Called when pending changes were determined to not require a build.
@@ -141,6 +158,37 @@ impl BuildStatus {
     fn build_completed(&self) {
         self.is_building.store(false, SeqCst);
         self.build_complete_notify.notify_waiters();
+
+        if let Some(ref log_path) = self.log_path {
+            Self::truncate_log_if_needed(log_path);
+        }
+    }
+
+    /// If the log file exceeds [`Self::MAX_LOG_BYTES`], rewrite it keeping
+    /// only the most recent half of its lines.
+    fn truncate_log_if_needed(log_path: &Path) {
+        let size = match fs::metadata(log_path) {
+            Ok(m) => m.len(),
+            Err(_) => return,
+        };
+
+        if size <= Self::MAX_LOG_BYTES {
+            return;
+        }
+
+        let content = match fs::read_to_string(log_path) {
+            Ok(c) => c,
+            Err(_) => return,
+        };
+
+        let lines: Vec<&str> = content.lines().collect();
+        let keep_from = lines.len() / 2;
+
+        if let Ok(mut file) = fs::File::create(log_path) {
+            for line in &lines[keep_from..] {
+                let _ = writeln!(file, "{}", line);
+            }
+        }
     }
 }
 

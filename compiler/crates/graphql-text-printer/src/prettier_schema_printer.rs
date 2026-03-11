@@ -11,6 +11,7 @@
 //! ensuring that generated SDL files don't trigger PRETTIERGRAPHQL lint errors.
 
 use graphql_syntax::ConstantDirective;
+use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveDefinition;
 use graphql_syntax::DirectiveLocation;
 use graphql_syntax::EnumTypeDefinition;
@@ -37,6 +38,7 @@ use intern::string_key::StringKey;
 
 use crate::prettier_common::INDENT;
 use crate::prettier_common::LINE_WIDTH;
+use crate::prettier_common::format_constant_argument;
 use crate::prettier_common::format_constant_directive;
 use crate::prettier_common::format_constant_directives;
 use crate::prettier_common::format_constant_value;
@@ -147,7 +149,9 @@ impl PrettierSchemaPrinter {
         self.output.push_str("type ");
         self.output.push_str(&def.name.value.to_string());
         self.print_implements_interfaces(&def.interfaces);
-        self.print_directives(&def.directives);
+        let prefix_len = self.current_line_len();
+        let suffix_len = if def.fields.is_some() { 2 } else { 0 };
+        self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
         if let Some(ref fields) = def.fields {
             self.print_field_definitions(&fields.items);
         }
@@ -158,7 +162,9 @@ impl PrettierSchemaPrinter {
         self.output.push_str("extend type ");
         self.output.push_str(&ext.name.value.to_string());
         self.print_implements_interfaces(&ext.interfaces);
-        self.print_directives(&ext.directives);
+        let prefix_len = self.current_line_len();
+        let suffix_len = if ext.fields.is_some() { 2 } else { 0 };
+        self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
         if let Some(ref fields) = ext.fields {
             self.print_field_definitions(&fields.items);
         }
@@ -169,7 +175,9 @@ impl PrettierSchemaPrinter {
         self.output.push_str("interface ");
         self.output.push_str(&def.name.value.to_string());
         self.print_implements_interfaces(&def.interfaces);
-        self.print_directives(&def.directives);
+        let prefix_len = self.current_line_len();
+        let suffix_len = if def.fields.is_some() { 2 } else { 0 };
+        self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
         if let Some(ref fields) = def.fields {
             self.print_field_definitions(&fields.items);
         }
@@ -180,7 +188,9 @@ impl PrettierSchemaPrinter {
         self.output.push_str("extend interface ");
         self.output.push_str(&ext.name.value.to_string());
         self.print_implements_interfaces(&ext.interfaces);
-        self.print_directives(&ext.directives);
+        let prefix_len = self.current_line_len();
+        let suffix_len = if ext.fields.is_some() { 2 } else { 0 };
+        self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
         if let Some(ref fields) = ext.fields {
             self.print_field_definitions(&fields.items);
         }
@@ -210,16 +220,29 @@ impl PrettierSchemaPrinter {
     }
 
     fn print_field_definition(&mut self, field: &FieldDefinition) {
+        let type_str = format_type_annotation(&field.type_);
+        let suffix_len = ": ".len() + type_str.len();
+
         self.output.push_str(&field.name.value.to_string());
         if let Some(ref arguments) = field.arguments {
-            self.print_arguments_definition(&arguments.items, &field.name.value.to_string());
+            self.print_arguments_definition(
+                &arguments.items,
+                &field.name.value.to_string(),
+                suffix_len,
+            );
         }
         self.output.push_str(": ");
-        self.output.push_str(&format_type_annotation(&field.type_));
-        self.print_directives(&field.directives);
+        self.output.push_str(&type_str);
+        let current_line_len = self.current_line_len();
+        self.print_directives_with_breaking(&field.directives, current_line_len, 0, "    ");
     }
 
-    fn print_arguments_definition(&mut self, arguments: &[InputValueDefinition], context: &str) {
+    fn print_arguments_definition(
+        &mut self,
+        arguments: &[InputValueDefinition],
+        context: &str,
+        suffix_len: usize,
+    ) {
         if arguments.is_empty() {
             return;
         }
@@ -227,7 +250,7 @@ impl PrettierSchemaPrinter {
         let single_line = self.format_arguments_single_line(arguments);
         let prefix_len = INDENT.len() + context.len();
 
-        if prefix_len + single_line.len() <= LINE_WIDTH {
+        if prefix_len + single_line.len() + suffix_len < LINE_WIDTH {
             self.output.push_str(&single_line);
         } else {
             self.output.push_str("(\n");
@@ -276,13 +299,15 @@ impl PrettierSchemaPrinter {
             self.output
                 .push_str(&format_constant_value(&default_value.value));
         }
-        self.print_directives(&input.directives);
+        let current_line_len = self.current_line_len();
+        self.print_directives_with_breaking(&input.directives, current_line_len, 0, "    ");
     }
 
     fn print_union_type_definition(&mut self, def: &UnionTypeDefinition) {
         self.output.push_str("union ");
         self.output.push_str(&def.name.value.to_string());
-        self.print_directives(&def.directives);
+        let prefix_len = self.current_line_len();
+        self.print_directives_with_breaking(&def.directives, prefix_len, 0, INDENT);
         self.print_union_members(&def.members, &def.name.value);
         self.output.push('\n');
     }
@@ -290,7 +315,8 @@ impl PrettierSchemaPrinter {
     fn print_union_type_extension(&mut self, ext: &UnionTypeExtension) {
         self.output.push_str("extend union ");
         self.output.push_str(&ext.name.value.to_string());
-        self.print_directives(&ext.directives);
+        let prefix_len = self.current_line_len();
+        self.print_directives_with_breaking(&ext.directives, prefix_len, 0, INDENT);
         self.print_union_members(&ext.members, &ext.name.value);
         self.output.push('\n');
     }
@@ -322,7 +348,9 @@ impl PrettierSchemaPrinter {
     fn print_enum_type_definition(&mut self, def: &EnumTypeDefinition) {
         self.output.push_str("enum ");
         self.output.push_str(&def.name.value.to_string());
-        self.print_directives(&def.directives);
+        let prefix_len = self.current_line_len();
+        let suffix_len = if def.values.is_some() { 2 } else { 0 };
+        self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
         if let Some(ref values) = def.values {
             self.print_enum_values(&values.items);
         }
@@ -332,7 +360,9 @@ impl PrettierSchemaPrinter {
     fn print_enum_type_extension(&mut self, ext: &EnumTypeExtension) {
         self.output.push_str("extend enum ");
         self.output.push_str(&ext.name.value.to_string());
-        self.print_directives(&ext.directives);
+        let prefix_len = self.current_line_len();
+        let suffix_len = if ext.values.is_some() { 2 } else { 0 };
+        self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
         if let Some(ref values) = ext.values {
             self.print_enum_values(&values.items);
         }
@@ -347,7 +377,8 @@ impl PrettierSchemaPrinter {
         for value in values {
             self.output.push_str(INDENT);
             self.output.push_str(&value.name.value.to_string());
-            self.print_directives(&value.directives);
+            let current_line_len = self.current_line_len();
+            self.print_directives_with_breaking(&value.directives, current_line_len, 0, "    ");
             self.output.push('\n');
         }
         self.output.push('}');
@@ -356,7 +387,9 @@ impl PrettierSchemaPrinter {
     fn print_input_object_type_definition(&mut self, def: &InputObjectTypeDefinition) {
         self.output.push_str("input ");
         self.output.push_str(&def.name.value.to_string());
-        self.print_directives(&def.directives);
+        let prefix_len = self.current_line_len();
+        let suffix_len = if def.fields.is_some() { 2 } else { 0 };
+        self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
         if let Some(ref fields) = def.fields {
             self.print_input_fields(&fields.items);
         }
@@ -366,7 +399,9 @@ impl PrettierSchemaPrinter {
     fn print_input_object_type_extension(&mut self, ext: &InputObjectTypeExtension) {
         self.output.push_str("extend input ");
         self.output.push_str(&ext.name.value.to_string());
-        self.print_directives(&ext.directives);
+        let prefix_len = self.current_line_len();
+        let suffix_len = if ext.fields.is_some() { 2 } else { 0 };
+        self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
         if let Some(ref fields) = ext.fields {
             self.print_input_fields(&fields.items);
         }
@@ -389,14 +424,16 @@ impl PrettierSchemaPrinter {
     fn print_scalar_type_definition(&mut self, def: &ScalarTypeDefinition) {
         self.output.push_str("scalar ");
         self.output.push_str(&def.name.value.to_string());
-        self.print_directives(&def.directives);
+        let prefix_len = self.current_line_len();
+        self.print_directives_with_breaking(&def.directives, prefix_len, 0, INDENT);
         self.output.push('\n');
     }
 
     fn print_scalar_type_extension(&mut self, ext: &ScalarTypeExtension) {
         self.output.push_str("extend scalar ");
         self.output.push_str(&ext.name.value.to_string());
-        self.print_directives(&ext.directives);
+        let prefix_len = self.current_line_len();
+        self.print_directives_with_breaking(&ext.directives, prefix_len, 0, INDENT);
         self.output.push('\n');
     }
 
@@ -442,6 +479,82 @@ impl PrettierSchemaPrinter {
             .map(|l| l.to_string())
             .collect::<Vec<_>>()
             .join(" | ")
+    }
+
+    fn current_line_len(&self) -> usize {
+        self.output
+            .rfind('\n')
+            .map_or(self.output.len(), |pos| self.output.len() - pos - 1)
+    }
+
+    fn print_directives_with_breaking(
+        &mut self,
+        directives: &[ConstantDirective],
+        prefix_len: usize,
+        suffix_len: usize,
+        break_indent: &str,
+    ) {
+        if directives.is_empty() {
+            return;
+        }
+
+        let inline = format!(" {}", format_constant_directives(directives));
+        if prefix_len + inline.len() + suffix_len <= LINE_WIDTH {
+            self.output.push_str(&inline);
+        } else {
+            for directive in directives {
+                let directive_str = format_constant_directive(directive);
+                if break_indent.len() + directive_str.len() < LINE_WIDTH {
+                    self.output.push('\n');
+                    self.output.push_str(break_indent);
+                    self.output.push_str(&directive_str);
+                } else {
+                    self.output.push('\n');
+                    self.print_expanded_directive(directive, break_indent);
+                }
+            }
+        }
+    }
+
+    fn print_expanded_directive(&mut self, directive: &ConstantDirective, base_indent: &str) {
+        let arg_indent = format!("{}{}", base_indent, INDENT);
+        let value_indent = format!("{}{}", arg_indent, INDENT);
+
+        self.output.push_str(base_indent);
+        self.output.push_str(&format!("@{}", directive.name.value));
+
+        if let Some(ref arguments) = directive.arguments {
+            self.output.push_str("(\n");
+            for arg in &arguments.items {
+                let arg_str = format_constant_argument(arg);
+                if arg_indent.len() + arg_str.len() < LINE_WIDTH {
+                    self.output.push_str(&arg_indent);
+                    self.output.push_str(&arg_str);
+                    self.output.push('\n');
+                } else {
+                    match &arg.value {
+                        ConstantValue::List(list) => {
+                            self.output.push_str(&arg_indent);
+                            self.output.push_str(&format!("{}: [\n", arg.name.value));
+                            for item in &list.items {
+                                self.output.push_str(&value_indent);
+                                self.output.push_str(&format_constant_value(item));
+                                self.output.push('\n');
+                            }
+                            self.output.push_str(&arg_indent);
+                            self.output.push_str("]\n");
+                        }
+                        _ => {
+                            self.output.push_str(&arg_indent);
+                            self.output.push_str(&arg_str);
+                            self.output.push('\n');
+                        }
+                    }
+                }
+            }
+            self.output.push_str(base_indent);
+            self.output.push(')');
+        }
     }
 
     fn print_directives(&mut self, directives: &[ConstantDirective]) {
@@ -707,6 +820,242 @@ mod tests {
             [
                 "type User @roles(allowed: [\"admin\", \"user\"]) {",
                 "  id: ID!",
+                "}",
+            ]
+        );
+    }
+
+    #[test]
+    fn test_type_directive_line_breaking() {
+        let result = print(
+            r#"
+            enum AbraExperienceProductSurface @multiverse_source(name: "genai") @relay_flow_enum {
+                ABRA_WEB
+                AI_PROFILE_BOT
+            }
+            "#,
+        );
+        assert_prettier_output!(
+            result,
+            [
+                "enum AbraExperienceProductSurface",
+                "  @multiverse_source(name: \"genai\")",
+                "  @relay_flow_enum {",
+                "  ABRA_WEB",
+                "  AI_PROFILE_BOT",
+                "}",
+            ]
+        );
+    }
+
+    #[test]
+    fn test_type_directive_stays_inline_when_short() {
+        let result = print(
+            r#"
+            enum ShortEnum @relay_flow_enum {
+                A
+                B
+            }
+            "#,
+        );
+        assert_prettier_output!(
+            result,
+            ["enum ShortEnum @relay_flow_enum {", "  A", "  B", "}",]
+        );
+    }
+
+    #[test]
+    fn test_type_directive_arg_expansion() {
+        let result = print(
+            r#"
+            enum XFBSpatialAudioFormat @source(name: "SpatialAudioFormat", schema: "facebook", schemas: ["facebook"]) {
+                ambiX_4
+            }
+            "#,
+        );
+        assert_prettier_output!(
+            result,
+            [
+                "enum XFBSpatialAudioFormat",
+                "  @source(",
+                "    name: \"SpatialAudioFormat\"",
+                "    schema: \"facebook\"",
+                "    schemas: [\"facebook\"]",
+                "  ) {",
+                "  ambiX_4",
+                "}",
+            ]
+        );
+    }
+
+    #[test]
+    fn test_input_directive_line_breaking() {
+        let result = print(
+            r#"
+            input BloksRootComponentQueryDebugParams @multiverse_source(name: "gql_common") {
+                should_collect_debug_metadata: Boolean
+            }
+            "#,
+        );
+        assert_prettier_output!(
+            result,
+            [
+                "input BloksRootComponentQueryDebugParams",
+                "  @multiverse_source(name: \"gql_common\") {",
+                "  should_collect_debug_metadata: Boolean",
+                "}",
+            ]
+        );
+    }
+
+    #[test]
+    fn test_type_with_implements_directive_line_breaking() {
+        let result = print(
+            r#"
+            type User implements Node @key(fields: "id") @multiverse_source(name: "instagram") {
+                id: ID!
+            }
+            "#,
+        );
+        assert_prettier_output!(
+            result,
+            [
+                "type User implements Node",
+                "  @key(fields: \"id\")",
+                "  @multiverse_source(name: \"instagram\") {",
+                "  id: ID!",
+                "}",
+            ]
+        );
+    }
+
+    #[test]
+    fn test_field_directive_line_breaking() {
+        let result = print(
+            r#"
+            interface Entity {
+                url(site: SiteEnum): Url @cdn_url @data_annotations(semantic_type_facets: ["3172:Canonical_ID_UID"])
+            }
+            "#,
+        );
+        assert_prettier_output!(
+            result,
+            [
+                "interface Entity {",
+                "  url(site: SiteEnum): Url",
+                "    @cdn_url",
+                "    @data_annotations(semantic_type_facets: [\"3172:Canonical_ID_UID\"])",
+                "}",
+            ]
+        );
+    }
+
+    #[test]
+    fn test_field_directive_argument_expansion() {
+        let result = print(
+            r#"
+            type CommerceAddress {
+                zip: String @data_annotations(semantic_type_facets: ["15271:Canonical_Location_PostalCode_Z9DigitZipCode"])
+            }
+            "#,
+        );
+        assert_prettier_output!(
+            result,
+            [
+                "type CommerceAddress {",
+                "  zip: String",
+                "    @data_annotations(",
+                "      semantic_type_facets: [",
+                "        \"15271:Canonical_Location_PostalCode_Z9DigitZipCode\"",
+                "      ]",
+                "    )",
+                "}",
+            ]
+        );
+    }
+
+    #[test]
+    fn test_field_arg_expansion_with_return_type() {
+        let result = print(
+            r#"
+            type Mutation {
+                screen_time_sync(data: ScreenTimeSyncMutationInput!): ScreenTimeSyncMutationOutput @semanticNonNull
+            }
+            "#,
+        );
+        assert_prettier_output!(
+            result,
+            [
+                "type Mutation {",
+                "  screen_time_sync(",
+                "    data: ScreenTimeSyncMutationInput!",
+                "  ): ScreenTimeSyncMutationOutput @semanticNonNull",
+                "}",
+            ]
+        );
+    }
+
+    #[test]
+    fn test_field_arg_expansion_no_directives() {
+        let result = print(
+            r#"
+            type Mutation {
+                slide_update_basketball_game_team(basketball_game_team: NBATeamName): THNBAGameTeamInfo
+            }
+            "#,
+        );
+        assert_prettier_output!(
+            result,
+            [
+                "type Mutation {",
+                "  slide_update_basketball_game_team(",
+                "    basketball_game_team: NBATeamName",
+                "  ): THNBAGameTeamInfo",
+                "}",
+            ]
+        );
+    }
+
+    #[test]
+    fn test_field_arg_expansion_with_long_directive() {
+        let result = print(
+            r#"
+            type Query {
+                xfb_fetch_dogfooding_assistant_session(id: ID!): XFBDogfoodingAssistantSession @source(name: "xfb_fetch_dogfooding_assistant_session", schema: "facebook", schemas: ["facebook"])
+            }
+            "#,
+        );
+        assert_prettier_output!(
+            result,
+            [
+                "type Query {",
+                "  xfb_fetch_dogfooding_assistant_session(",
+                "    id: ID!",
+                "  ): XFBDogfoodingAssistantSession",
+                "    @source(",
+                "      name: \"xfb_fetch_dogfooding_assistant_session\"",
+                "      schema: \"facebook\"",
+                "      schemas: [\"facebook\"]",
+                "    )",
+                "}",
+            ]
+        );
+    }
+
+    #[test]
+    fn test_field_arg_stays_inline_with_short_directive() {
+        let result = print(
+            r#"
+            type User {
+                name(locale: String): String @deprecated
+            }
+            "#,
+        );
+        assert_prettier_output!(
+            result,
+            [
+                "type User {",
+                "  name(locale: String): String @deprecated",
                 "}",
             ]
         );

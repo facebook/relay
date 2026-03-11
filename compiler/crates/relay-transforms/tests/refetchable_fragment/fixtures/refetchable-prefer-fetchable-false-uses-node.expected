@@ -17,7 +17,7 @@ query RefetchableFragmentQuery(
 #     ),
 # )
  {
-  fetch__FetchableType(fetch_id: $id) {
+  node(id: $id) {
     ...RefetchableFragment
   }
 }
@@ -28,11 +28,11 @@ fragment RefetchableFragment on FetchableType @refetchable(queryName: "Refetchab
 #         "RefetchableFragmentQuery",
 #     ),
 #     path: [
-#         "fetch__FetchableType",
+#         "node",
 #     ],
 #     identifier_info: Some(
 #         RefetchableIdentifierInfo {
-#             identifier_field: "fetch_id",
+#             identifier_field: "id",
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
@@ -40,4 +40,5 @@ fragment RefetchableFragment on FetchableType @refetchable(queryName: "Refetchab
 # }
  {
   fetch_id
+  id
 }

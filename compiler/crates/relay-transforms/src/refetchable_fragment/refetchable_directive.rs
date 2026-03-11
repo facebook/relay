@@ -125,7 +125,20 @@ impl RefetchableDirective {
                     )])
                 }?
             } else if argument.name.item == *PREFER_FETCHABLE_ARG {
-                prefer_fetchable = true
+                if let Value::Constant(ConstantValue::Boolean(val)) = argument.value.item {
+                    prefer_fetchable = val;
+                } else {
+                    return Err(vec![Diagnostic::error(
+                        ValidationMessage::ExpectPreferFetchableToBeConstantBoolean {
+                            prefer_fetchable_value: print_value(
+                                schema,
+                                &argument.value.item,
+                                PrinterOptions::default(),
+                            ),
+                        },
+                        argument.name.location,
+                    )]);
+                }
             } else {
                 // should be validated by general directive validations
                 panic!(

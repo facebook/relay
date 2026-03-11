@@ -11,7 +11,10 @@
 
 'use strict';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Sink} from '../../network/RelayObservable';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
 import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
@@ -184,12 +187,17 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           RelayObservable.create(sink => {}),
         );
-        // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
-        subscribeFn = jest.fn((_query, _variables, _cacheConfig) =>
-          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
-          RelayObservable.create(sink => {
-            dataSource = sink;
-          }),
+        subscribeFn = jest.fn(
+          (
+            _query: RequestParameters,
+            _variables: Variables,
+            _cacheConfig: CacheConfig,
+          ) =>
+            RelayObservable.create<GraphQLResponse>(
+              (sink: Sink<GraphQLResponse>) => {
+                dataSource = sink;
+              },
+            ),
         );
         operationLoader = {
           get: jest.fn(),

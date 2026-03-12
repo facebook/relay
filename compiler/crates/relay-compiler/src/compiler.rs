@@ -150,7 +150,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             let initial_watch_compile_timer = setup_event.start("initial_watch_compile");
             self.config.status_reporter.build_starts();
 
-            if let Some(build_status) = &self.config.build_status {
+            if let Some(build_status) = &self.config.daemon_build_status {
                 build_status.changes_pending();
             }
 
@@ -269,13 +269,13 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             // Signal that changes have been detected and processing may occur.
             // This must happen before any checks/debouncing so that clients
             // calling wait_for_idle() are blocked during the entire period.
-            if let Some(build_status) = &self.config.build_status {
+            if let Some(build_status) = &self.config.daemon_build_status {
                 build_status.changes_pending();
             }
 
             if compiler_state.source_control_update_status.is_started() {
                 // Clear pending changes since we're skipping this notification
-                if let Some(build_status) = &self.config.build_status {
+                if let Some(build_status) = &self.config.daemon_build_status {
                     build_status.no_pending_changes();
                 }
                 continue;
@@ -293,6 +293,8 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             if compiler_state.has_pending_file_source_changes() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
+                incremental_build_event
+                    .bool("is_daemon_build", self.config.daemon_build_status.is_some());
                 let incremental_build_time =
                     incremental_build_event.start("incremental_build_time");
 
@@ -333,7 +335,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 } else {
                     debug!("No new changes detected.");
                     // Clear the pending changes flag since there were no actual changes
-                    if let Some(build_status) = &self.config.build_status {
+                    if let Some(build_status) = &self.config.daemon_build_status {
                         build_status.no_pending_changes();
                     }
                     incremental_build_event.stop(incremental_build_time);

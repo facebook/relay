@@ -176,7 +176,7 @@ pub struct Config {
     /// Optional build status for coordinating between daemon and clients.
     /// When set, the compiler will notify this status object of file changes
     /// and build completion, allowing the client to wait for builds.
-    pub build_status: Option<Arc<BuildStatus>>,
+    pub daemon_build_status: Option<Arc<BuildStatus>>,
 
     /// We may generate some content in the artifacts that's stripped in production if __DEV__ variable is set
     /// This config option is here to define the name of that special variable
@@ -530,7 +530,7 @@ impl Config {
                 root_dir.clone(),
                 is_multi_project,
             )),
-            build_status: None,
+            daemon_build_status: None,
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,

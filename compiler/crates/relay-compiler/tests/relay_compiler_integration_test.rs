@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<af9c430f20dae8c685879628dc3e0c1b>>
+ * @generated SignedSource<<ee7d203f9b88e6d6fa34230271de3f69>>
  */
 
 mod relay_compiler_integration;
@@ -150,6 +150,13 @@ async fn default_excludes_node_modules() {
     let input = include_str!("relay_compiler_integration/fixtures/default_excludes_node_modules.input");
     let expected = include_str!("relay_compiler_integration/fixtures/default_excludes_node_modules.expected");
     test_fixture(transform_fixture, file!(), "default_excludes_node_modules.input", "relay_compiler_integration/fixtures/default_excludes_node_modules.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn delete_match_removes_normalization() {
+    let input = include_str!("relay_compiler_integration/fixtures/delete_match_removes_normalization.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/delete_match_removes_normalization.expected");
+    test_fixture(transform_fixture, file!(), "delete_match_removes_normalization.input", "relay_compiler_integration/fixtures/delete_match_removes_normalization.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -31,10 +31,10 @@ use graphql_syntax::ScalarTypeExtension;
 use graphql_syntax::SchemaDefinition;
 use graphql_syntax::SchemaDocument;
 use graphql_syntax::SchemaExtension;
+use graphql_syntax::StringNode;
 use graphql_syntax::TypeSystemDefinition;
 use graphql_syntax::UnionTypeDefinition;
 use graphql_syntax::UnionTypeExtension;
-use intern::string_key::StringKey;
 
 use crate::prettier_common::INDENT;
 use crate::prettier_common::LINE_WIDTH;
@@ -116,15 +116,24 @@ impl PrettierSchemaPrinter {
     }
 
     fn print_schema_definition(&mut self, def: &SchemaDefinition) {
+        self.print_description(&def.description, "");
         self.output.push_str("schema");
-        self.print_directives(&def.directives);
+        let prefix_len = self.current_line_len();
+        let suffix_len = if def.operation_types.items.is_empty() {
+            0
+        } else {
+            2
+        }; // " {"
+        self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
         self.print_operation_type_fields(&def.operation_types.items);
         self.output.push('\n');
     }
 
     fn print_schema_extension(&mut self, ext: &SchemaExtension) {
         self.output.push_str("extend schema");
-        self.print_directives(&ext.directives);
+        let prefix_len = self.current_line_len();
+        let suffix_len = if ext.operation_types.is_some() { 2 } else { 0 }; // " {"
+        self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
         if let Some(ref operation_types) = ext.operation_types {
             self.print_operation_type_fields(&operation_types.items);
         }
@@ -146,6 +155,7 @@ impl PrettierSchemaPrinter {
     }
 
     fn print_object_type_definition(&mut self, def: &ObjectTypeDefinition) {
+        self.print_description(&def.description, "");
         self.output.push_str("type ");
         self.output.push_str(&def.name.value.to_string());
         self.print_implements_interfaces(&def.interfaces);
@@ -172,6 +182,7 @@ impl PrettierSchemaPrinter {
     }
 
     fn print_interface_type_definition(&mut self, def: &InterfaceTypeDefinition) {
+        self.print_description(&def.description, "");
         self.output.push_str("interface ");
         self.output.push_str(&def.name.value.to_string());
         self.print_implements_interfaces(&def.interfaces);
@@ -212,6 +223,7 @@ impl PrettierSchemaPrinter {
         }
         self.output.push_str(" {\n");
         for field in fields {
+            self.print_description(&field.description, INDENT);
             self.output.push_str(INDENT);
             self.print_field_definition(field);
             self.output.push('\n');
@@ -222,6 +234,7 @@ impl PrettierSchemaPrinter {
     fn print_field_definition(&mut self, field: &FieldDefinition) {
         let type_str = format_type_annotation(&field.type_);
         let suffix_len = ": ".len() + type_str.len();
+        let has_directives = !field.directives.is_empty();
 
         self.output.push_str(&field.name.value.to_string());
         if let Some(ref arguments) = field.arguments {
@@ -229,6 +242,7 @@ impl PrettierSchemaPrinter {
                 &arguments.items,
                 &field.name.value.to_string(),
                 suffix_len,
+                has_directives,
             );
         }
         self.output.push_str(": ");
@@ -242,6 +256,7 @@ impl PrettierSchemaPrinter {
         arguments: &[InputValueDefinition],
         context: &str,
         suffix_len: usize,
+        has_following_directives: bool,
     ) {
         if arguments.is_empty() {
             return;
@@ -250,14 +265,23 @@ impl PrettierSchemaPrinter {
         let single_line = self.format_arguments_single_line(arguments);
         let prefix_len = INDENT.len() + context.len();
 
-        if prefix_len + single_line.len() + suffix_len < LINE_WIDTH {
+        let has_descriptions = arguments.iter().any(|a| a.description.is_some());
+        // Use <= when no directives follow (fits exactly at 80), < when directives follow (needs room)
+        let fits = if has_following_directives {
+            prefix_len + single_line.len() + suffix_len < LINE_WIDTH
+        } else {
+            prefix_len + single_line.len() + suffix_len <= LINE_WIDTH
+        };
+        if !has_descriptions && fits {
             self.output.push_str(&single_line);
         } else {
             self.output.push_str("(\n");
             for arg in arguments {
+                let double_indent = format!("{}{}", INDENT, INDENT);
+                self.print_description(&arg.description, &double_indent);
                 self.output.push_str(INDENT);
                 self.output.push_str(INDENT);
-                self.print_input_value_definition(arg);
+                self.print_input_value_definition(arg, "      ");
                 self.output.push('\n');
             }
             self.output.push_str(INDENT);
@@ -290,25 +314,55 @@ impl PrettierSchemaPrinter {
         result
     }
 
-    fn print_input_value_definition(&mut self, input: &InputValueDefinition) {
+    fn print_input_value_definition(
+        &mut self,
+        input: &InputValueDefinition,
+        directive_break_indent: &str,
+    ) {
         self.output.push_str(&input.name.value.to_string());
         self.output.push_str(": ");
         self.output.push_str(&format_type_annotation(&input.type_));
         if let Some(ref default_value) = input.default_value {
             self.output.push_str(" = ");
-            self.output
-                .push_str(&format_constant_value(&default_value.value));
+            // Check if this is an empty list and the line is already long
+            let current_line_len = self.current_line_len();
+            match &default_value.value {
+                ConstantValue::List(list) if list.items.is_empty() => {
+                    // Empty list: check if we need to expand it
+                    // Adding "[]" (2 chars) would make current_line_len + 2
+                    if current_line_len + 2 > LINE_WIDTH {
+                        // Line too long, expand empty array with blank line inside
+                        self.output.push_str("[\n\n");
+                        self.output.push_str(INDENT);
+                        self.output.push(']');
+                    } else {
+                        self.output.push_str("[]");
+                    }
+                }
+                _ => {
+                    self.output
+                        .push_str(&format_constant_value(&default_value.value));
+                }
+            }
         }
         let current_line_len = self.current_line_len();
-        self.print_directives_with_breaking(&input.directives, current_line_len, 0, "    ");
+        self.print_directives_with_breaking(
+            &input.directives,
+            current_line_len,
+            0,
+            directive_break_indent,
+        );
     }
 
     fn print_union_type_definition(&mut self, def: &UnionTypeDefinition) {
+        self.print_description(&def.description, "");
         self.output.push_str("union ");
         self.output.push_str(&def.name.value.to_string());
         let prefix_len = self.current_line_len();
-        self.print_directives_with_breaking(&def.directives, prefix_len, 0, INDENT);
-        self.print_union_members(&def.members, &def.name.value);
+        let suffix_len = if def.members.is_empty() { 0 } else { 2 };
+        let directives_broken =
+            self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
+        self.print_union_members(&def.members, directives_broken);
         self.output.push('\n');
     }
 
@@ -316,21 +370,27 @@ impl PrettierSchemaPrinter {
         self.output.push_str("extend union ");
         self.output.push_str(&ext.name.value.to_string());
         let prefix_len = self.current_line_len();
-        self.print_directives_with_breaking(&ext.directives, prefix_len, 0, INDENT);
-        self.print_union_members(&ext.members, &ext.name.value);
+        let suffix_len = if ext.members.is_empty() { 0 } else { 2 };
+        let directives_broken =
+            self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
+        self.print_union_members(&ext.members, directives_broken);
         self.output.push('\n');
     }
 
-    fn print_union_members(&mut self, members: &[graphql_syntax::Identifier], name: &StringKey) {
+    fn print_union_members(
+        &mut self,
+        members: &[graphql_syntax::Identifier],
+        force_expanded: bool,
+    ) {
         if members.is_empty() {
             return;
         }
 
         let member_names: Vec<String> = members.iter().map(|m| m.value.to_string()).collect();
         let single_line = format!(" = {}", member_names.join(" | "));
-        let prefix = format!("union {}", name);
+        let current_line_len = self.current_line_len();
 
-        if prefix.len() + single_line.len() <= LINE_WIDTH {
+        if !force_expanded && current_line_len + single_line.len() <= LINE_WIDTH {
             self.output.push_str(&single_line);
         } else {
             self.output.push_str(" =\n");
@@ -346,6 +406,7 @@ impl PrettierSchemaPrinter {
     }
 
     fn print_enum_type_definition(&mut self, def: &EnumTypeDefinition) {
+        self.print_description(&def.description, "");
         self.output.push_str("enum ");
         self.output.push_str(&def.name.value.to_string());
         let prefix_len = self.current_line_len();
@@ -375,6 +436,7 @@ impl PrettierSchemaPrinter {
         }
         self.output.push_str(" {\n");
         for value in values {
+            self.print_description(&value.description, INDENT);
             self.output.push_str(INDENT);
             self.output.push_str(&value.name.value.to_string());
             let current_line_len = self.current_line_len();
@@ -385,6 +447,7 @@ impl PrettierSchemaPrinter {
     }
 
     fn print_input_object_type_definition(&mut self, def: &InputObjectTypeDefinition) {
+        self.print_description(&def.description, "");
         self.output.push_str("input ");
         self.output.push_str(&def.name.value.to_string());
         let prefix_len = self.current_line_len();
@@ -414,14 +477,16 @@ impl PrettierSchemaPrinter {
         }
         self.output.push_str(" {\n");
         for field in fields {
+            self.print_description(&field.description, INDENT);
             self.output.push_str(INDENT);
-            self.print_input_value_definition(field);
+            self.print_input_value_definition(field, "    ");
             self.output.push('\n');
         }
         self.output.push('}');
     }
 
     fn print_scalar_type_definition(&mut self, def: &ScalarTypeDefinition) {
+        self.print_description(&def.description, "");
         self.output.push_str("scalar ");
         self.output.push_str(&def.name.value.to_string());
         let prefix_len = self.current_line_len();
@@ -438,6 +503,7 @@ impl PrettierSchemaPrinter {
     }
 
     fn print_directive_definition(&mut self, def: &DirectiveDefinition) {
+        self.print_description(&def.description, "");
         self.output.push_str("directive @");
         self.output.push_str(&def.name.value.to_string());
 
@@ -449,7 +515,9 @@ impl PrettierSchemaPrinter {
         let args_inline = args.map_or(String::new(), |a| self.format_arguments_single_line(a));
         let suffix = format!("{} on {}", repeatable_str, locations_str);
 
-        if prefix.len() + args_inline.len() + suffix.len() <= LINE_WIDTH {
+        let has_arg_descriptions =
+            args.is_some_and(|a| a.iter().any(|arg| arg.description.is_some()));
+        if !has_arg_descriptions && prefix.len() + args_inline.len() + suffix.len() <= LINE_WIDTH {
             if let Some(arguments) = args.filter(|a| !a.is_empty()) {
                 self.output
                     .push_str(&self.format_arguments_single_line(arguments));
@@ -459,8 +527,9 @@ impl PrettierSchemaPrinter {
             if let Some(arguments) = args.filter(|a| !a.is_empty()) {
                 self.output.push_str("(\n");
                 for arg in arguments {
+                    self.print_description(&arg.description, INDENT);
                     self.output.push_str(INDENT);
-                    self.print_input_value_definition(arg);
+                    self.print_input_value_definition(arg, "    ");
                     self.output.push('\n');
                 }
                 self.output.push(')');
@@ -481,6 +550,31 @@ impl PrettierSchemaPrinter {
             .join(" | ")
     }
 
+    fn print_description(&mut self, description: &Option<StringNode>, indent: &str) {
+        if let Some(desc) = description {
+            let value = desc.value.to_string();
+            if value.contains('\n') {
+                self.output.push_str(indent);
+                self.output.push_str("\"\"\"\n");
+                for line in value.lines() {
+                    self.output.push_str(indent);
+                    self.output.push_str(line);
+                    self.output.push('\n');
+                }
+                self.output.push_str(indent);
+                self.output.push_str("\"\"\"\n");
+            } else {
+                self.output.push_str(indent);
+                self.output.push_str("\"\"\"\n");
+                self.output.push_str(indent);
+                self.output.push_str(&value);
+                self.output.push('\n');
+                self.output.push_str(indent);
+                self.output.push_str("\"\"\"\n");
+            }
+        }
+    }
+
     fn current_line_len(&self) -> usize {
         self.output
             .rfind('\n')
@@ -493,18 +587,22 @@ impl PrettierSchemaPrinter {
         prefix_len: usize,
         suffix_len: usize,
         break_indent: &str,
-    ) {
+    ) -> bool {
         if directives.is_empty() {
-            return;
+            return false;
         }
 
         let inline = format!(" {}", format_constant_directives(directives));
         if prefix_len + inline.len() + suffix_len <= LINE_WIDTH {
             self.output.push_str(&inline);
+            false
         } else {
-            for directive in directives {
+            let last_idx = directives.len() - 1;
+            for (idx, directive) in directives.iter().enumerate() {
                 let directive_str = format_constant_directive(directive);
-                if break_indent.len() + directive_str.len() < LINE_WIDTH {
+                let is_last = idx == last_idx;
+                let effective_suffix = if is_last { suffix_len } else { 0 };
+                if break_indent.len() + directive_str.len() + effective_suffix <= LINE_WIDTH {
                     self.output.push('\n');
                     self.output.push_str(break_indent);
                     self.output.push_str(&directive_str);
@@ -513,6 +611,7 @@ impl PrettierSchemaPrinter {
                     self.print_expanded_directive(directive, break_indent);
                 }
             }
+            true
         }
     }
 
@@ -527,7 +626,7 @@ impl PrettierSchemaPrinter {
             self.output.push_str("(\n");
             for arg in &arguments.items {
                 let arg_str = format_constant_argument(arg);
-                if arg_indent.len() + arg_str.len() < LINE_WIDTH {
+                if arg_indent.len() + arg_str.len() <= LINE_WIDTH {
                     self.output.push_str(&arg_indent);
                     self.output.push_str(&arg_str);
                     self.output.push('\n');
@@ -555,17 +654,6 @@ impl PrettierSchemaPrinter {
             self.output.push_str(base_indent);
             self.output.push(')');
         }
-    }
-
-    fn print_directives(&mut self, directives: &[ConstantDirective]) {
-        for directive in directives {
-            self.output.push(' ');
-            self.print_directive(directive);
-        }
-    }
-
-    fn print_directive(&mut self, directive: &ConstantDirective) {
-        self.output.push_str(&format_constant_directive(directive));
     }
 }
 

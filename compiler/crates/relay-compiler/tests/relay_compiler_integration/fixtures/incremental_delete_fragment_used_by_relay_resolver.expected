@@ -1,0 +1,59 @@
+==================================== INPUT ====================================
+//- remaining.js
+// Test: when a fragment that is an implicit resolver dependency of a surviving
+// definition is deleted, the dependency analyzer creates a placeholder node
+// (ir: None) in the dependency graph. Without the fix, add_descendants panics
+// when it encounters the ir: None node. With the fix, deleted placeholder nodes
+// are gracefully skipped.
+graphql`
+  query remainingQuery {
+    node(id: "1") {
+      ... on User {
+        resolver_field
+      }
+    }
+  }
+`;
+
+//- parent.js
+graphql`
+  fragment parent_Fragment on User {
+    name
+  }
+`;
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "./schema.graphql",
+  "schemaExtensions": ["./schema-extensions"]
+}
+
+//- schema.graphql
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}
+
+type Query {
+  node(id: ID): Node
+}
+
+//- schema-extensions/resolvers.graphql
+extend type User {
+  resolver_field: String @relay_resolver(fragment_name: "parent_Fragment", import_path: "ParentResolver")
+}
+
+//-xx parent.js
+==================================== OUTPUT ===================================
+✖︎ The Relay Resolver backing this field is defined with an invalid `fragment_name`. Could not find a fragment named 'parent_Fragment'.
+
+  schema-extensions/resolvers.graphql:2:3
+    1 │ extend type User {
+    2 │   resolver_field: String @relay_resolver(fragment_name: "parent_Fragment", import_path: "ParentResolver")
+      │   ^^^^^^^^^^^^^^
+    3 │ }

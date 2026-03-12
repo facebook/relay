@@ -21,6 +21,7 @@ use schema::SDLSchema;
 use schema::Schema;
 
 use crate::GraphQLAsts;
+use crate::artifact_map::ArtifactSourceKey;
 use crate::errors::BuildProjectError;
 
 pub struct ProjectAsts {
@@ -104,6 +105,17 @@ fn find_changed_names(
         .get(&project_config.name)
         .map(|asts| asts.pending_definition_names.clone())
         .unwrap_or_default();
+
+    // Also include removed definition names so that the incremental build
+    // can find and recompile definitions that were affected by the deletion.
+    if let Some(asts) = graphql_asts.get(&project_config.name) {
+        for removed in &asts.removed_definition_names {
+            if let ArtifactSourceKey::ExecutableDefinition(name) = removed {
+                changed_names.insert(*name);
+            }
+        }
+    }
+
     if let Some(base_project_name) = project_config.base {
         changed_names.extend(
             graphql_asts
@@ -111,6 +123,13 @@ fn find_changed_names(
                 .map(|asts| asts.pending_definition_names.clone())
                 .unwrap_or_default(),
         );
+        if let Some(asts) = graphql_asts.get(&base_project_name) {
+            for removed in &asts.removed_definition_names {
+                if let ArtifactSourceKey::ExecutableDefinition(name) = removed {
+                    changed_names.insert(*name);
+                }
+            }
+        }
     }
     changed_names
 }

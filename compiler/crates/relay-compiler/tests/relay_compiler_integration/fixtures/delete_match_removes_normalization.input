@@ -1,6 +1,3 @@
-// expected-to-throw
-
-
 //- parent.js
 // Incremental compilation bug: when a fragment spread with a @match directive
 // is removed from a fragment, the compiler should delete the associated

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<708e29f86e0dd17944c1f5367368da39>>
+ * @generated SignedSource<<7e68928b7106a5a253c5636d67e42b1c>>
  */
 
 mod print_ast;
@@ -80,6 +80,13 @@ async fn basic_var_defs_with_directives() {
     let input = include_str!("print_ast/fixtures/basic_var_defs_with_directives.graphql");
     let expected = include_str!("print_ast/fixtures/basic_var_defs_with_directives.expected");
     test_fixture(transform_fixture, file!(), "basic_var_defs_with_directives.graphql", "print_ast/fixtures/basic_var_defs_with_directives.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn block_string_in_directive_arg() {
+    let input = include_str!("print_ast/fixtures/block_string_in_directive_arg.graphql");
+    let expected = include_str!("print_ast/fixtures/block_string_in_directive_arg.expected");
+    test_fixture(transform_fixture, file!(), "block_string_in_directive_arg.graphql", "print_ast/fixtures/block_string_in_directive_arg.expected", input, expected).await;
 }
 
 #[tokio::test]

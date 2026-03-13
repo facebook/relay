@@ -12,6 +12,7 @@ use common::Span;
 use intern::string_key::StringKey;
 
 use super::primitive::*;
+use crate::lexer::TokenKind;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ConstantValue {
@@ -83,7 +84,13 @@ impl fmt::Display for ConstantValue {
         match self {
             ConstantValue::Int(value) => f.write_fmt(format_args!("{value}")),
             ConstantValue::Float(value) => f.write_fmt(format_args!("{value}",)),
-            ConstantValue::String(value) => f.write_fmt(format_args!("\"{value}\"")),
+            ConstantValue::String(value) => {
+                if value.token.kind == TokenKind::BlockStringLiteral {
+                    f.write_fmt(format_args!("\"\"\"{value}\"\"\""))
+                } else {
+                    f.write_fmt(format_args!("\"{value}\""))
+                }
+            }
             ConstantValue::Boolean(value) => f.write_fmt(format_args!("{value}")),
             ConstantValue::Null(_) => f.write_str("null"),
             ConstantValue::Enum(value) => f.write_fmt(format_args!("{value}")),

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<35c11cabe30ae7e8c5b420ec6ff045ba>>
+ * @generated SignedSource<<ecd8eb6892f4e4f149adb77cb2b3ef0a>>
  */
 
 mod relay_compiler_integration;
@@ -17,6 +17,13 @@ async fn bare_graphql_token_does_not_loop() {
     let input = include_str!("relay_compiler_integration/fixtures/bare_graphql_token_does_not_loop.input");
     let expected = include_str!("relay_compiler_integration/fixtures/bare_graphql_token_does_not_loop.expected");
     test_fixture(transform_fixture, file!(), "bare_graphql_token_does_not_loop.input", "relay_compiler_integration/fixtures/bare_graphql_token_does_not_loop.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn block_string_hash_consistency() {
+    let input = include_str!("relay_compiler_integration/fixtures/block_string_hash_consistency.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/block_string_hash_consistency.expected");
+    test_fixture(transform_fixture, file!(), "block_string_hash_consistency.input", "relay_compiler_integration/fixtures/block_string_hash_consistency.expected", input, expected).await;
 }
 
 #[tokio::test]

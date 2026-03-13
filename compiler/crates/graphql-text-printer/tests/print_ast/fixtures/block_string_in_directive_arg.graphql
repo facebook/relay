@@ -1,0 +1,4 @@
+# Block strings in directive arguments should be preserved in printed output.
+fragment MyFragment on Node @refetchable(directives: ["""@fb_permission(tools: ["ADS_INTEGRATION_PORTAL"])"""]) {
+  id
+}

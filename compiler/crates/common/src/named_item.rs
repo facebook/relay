@@ -118,7 +118,8 @@ impl_lookup!(ArgumentName);
     Ord,
     PartialOrd,
     Hash,
-    serde::Serialize
+    serde::Serialize,
+    serde::Deserialize
 )]
 pub struct ObjectName(pub StringKey);
 
@@ -130,7 +131,18 @@ impl fmt::Display for ObjectName {
 
 impl_lookup!(ObjectName);
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct InputObjectName(pub StringKey);
 
 impl fmt::Display for InputObjectName {
@@ -141,7 +153,18 @@ impl fmt::Display for InputObjectName {
 
 impl_lookup!(InputObjectName);
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct EnumName(pub StringKey);
 
 impl fmt::Display for EnumName {
@@ -160,7 +183,8 @@ impl_lookup!(EnumName);
     Ord,
     PartialOrd,
     Hash,
-    serde::Serialize
+    serde::Serialize,
+    serde::Deserialize
 )]
 pub struct InterfaceName(pub StringKey);
 

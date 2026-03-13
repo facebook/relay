@@ -41,7 +41,7 @@ fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
     Err(vec![Diagnostic::error(error, Location::generated())])
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct InMemorySchema {
     query_type: Option<ObjectID>,
     mutation_type: Option<ObjectID>,
@@ -657,6 +657,63 @@ impl InMemorySchema {
         }
         self.fields[id] = field;
         Ok(())
+    }
+
+    /// Construct an InMemorySchema from pre-built vectors and maps.
+    /// Used to convert a FlatBuffer-backed schema into Vec-based storage
+    /// for O(1) indexed access instead of DashMap lookups.
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_raw_parts(
+        query_type: Option<ObjectID>,
+        mutation_type: Option<ObjectID>,
+        subscription_type: Option<ObjectID>,
+        type_map: TypeMap,
+        directives: HashMap<DirectiveName, Directive>,
+        enums: Vec<Enum>,
+        fields: Vec<Field>,
+        input_objects: Vec<InputObject>,
+        interfaces: Vec<Interface>,
+        objects: Vec<Object>,
+        scalars: Vec<Scalar>,
+        unions: Vec<Union>,
+    ) -> Self {
+        let string_type = type_map
+            .get(&"String".intern())
+            .and_then(|t| t.get_scalar_id());
+        let id_type = type_map.get(&"ID".intern()).and_then(|t| t.get_scalar_id());
+        let unchecked_argument_type_sentinel = type_map
+            .get(&"Boolean".intern())
+            .map(|t| TypeReference::Named(*t));
+
+        let mut schema = InMemorySchema {
+            query_type,
+            mutation_type,
+            subscription_type,
+            type_map,
+            clientid_field: FieldID(0),
+            strongid_field: FieldID(0),
+            typename_field: FieldID(0),
+            fetch_token_field: FieldID(0),
+            is_fulfilled_field: FieldID(0),
+            clientid_field_name: "__id".intern(),
+            strongid_field_name: "strong_id__".intern(),
+            typename_field_name: "__typename".intern(),
+            fetch_token_field_name: "__token".intern(),
+            is_fulfilled_field_name: "is_fulfilled__".intern(),
+            string_type,
+            id_type,
+            unchecked_argument_type_sentinel,
+            directives,
+            enums,
+            fields,
+            input_objects,
+            interfaces,
+            objects,
+            scalars,
+            unions,
+        };
+        schema.load_defaults();
+        schema
     }
 
     /// Creates an uninitialized, invalid schema which can then be added to using the add_*

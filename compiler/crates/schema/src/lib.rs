@@ -11,6 +11,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+pub mod compact;
 pub mod definitions;
 mod errors;
 mod field_descriptions;

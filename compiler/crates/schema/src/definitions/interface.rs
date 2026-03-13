@@ -17,7 +17,15 @@ use crate::InterfaceID;
 use crate::ObjectID;
 use crate::Schema;
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Interface {
     pub name: WithLocation<InterfaceName>,
     pub is_extension: bool,

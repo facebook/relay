@@ -15,13 +15,33 @@ use intern::string_key::StringKey;
 
 use crate::lexer::TokenKind;
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Token {
     pub span: Span,
     pub kind: TokenKind,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Identifier {
     pub span: Span,
     pub token: Token,
@@ -52,7 +72,17 @@ impl Identifier {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct List<T> {
     pub span: Span,
     pub start: Token,

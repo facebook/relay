@@ -46,7 +46,17 @@ pub(crate) type TypeMap = HashMap<StringKey, Type>;
 
 macro_rules! type_id {
     ($name:ident, $type:ident) => {
-        #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
+        #[derive(
+            Copy,
+            Clone,
+            Eq,
+            PartialEq,
+            Ord,
+            PartialOrd,
+            Hash,
+            serde::Serialize,
+            serde::Deserialize
+        )]
         pub struct $name(pub $type);
         impl $name {
             pub(crate) fn as_usize(&self) -> usize {
@@ -76,7 +86,17 @@ type_id!(ScalarID, u32);
 type_id!(UnionID, u32);
 type_id!(FieldID, u32);
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
+#[derive(
+    Copy,
+    Clone,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub enum Type {
     Enum(EnumID),
     InputObject(InputObjectID),
@@ -202,7 +222,17 @@ impl Type {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub enum TypeReference<T> {
     Named(T),
     NonNull(Box<TypeReference<T>>),
@@ -364,7 +394,7 @@ impl<T> TypeReference<T> {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Directive {
     pub name: WithLocation<DirectiveName>,
     pub arguments: ArgumentDefinitions,
@@ -382,7 +412,7 @@ impl Named for Directive {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Scalar {
     pub name: WithLocation<ScalarName>,
     pub is_extension: bool,
@@ -391,7 +421,15 @@ pub struct Scalar {
     pub hack_source: Option<StringKey>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Object {
     pub name: WithLocation<ObjectName>,
     pub is_extension: bool,
@@ -411,7 +449,15 @@ impl Object {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct InputObject {
     pub name: WithLocation<InputObjectName>,
     pub fields: ArgumentDefinitions,
@@ -420,7 +466,15 @@ pub struct InputObject {
     pub hack_source: Option<StringKey>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Enum {
     pub name: WithLocation<EnumName>,
     pub is_extension: bool,
@@ -430,7 +484,15 @@ pub struct Enum {
     pub hack_source: Option<StringKey>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Union {
     pub name: WithLocation<UnionName>,
     pub is_extension: bool,
@@ -440,7 +502,15 @@ pub struct Union {
     pub hack_source: Option<StringKey>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Field {
     pub name: WithLocation<StringKey>,
     pub is_extension: bool,
@@ -503,7 +573,17 @@ impl Field {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Argument {
     pub name: WithLocation<ArgumentName>,
     pub type_: TypeReference<Type>,
@@ -532,7 +612,17 @@ impl Named for Argument {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    Ord,
+    PartialOrd,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct ArgumentValue {
     pub name: ArgumentName,
     pub value: ConstantValue,
@@ -574,20 +664,47 @@ impl ArgumentValue {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    Ord,
+    PartialOrd,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct DirectiveValue {
     pub name: DirectiveName,
     pub arguments: Vec<ArgumentValue>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct EnumValue {
     pub value: StringKey,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
 }
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct ArgumentDefinitions(pub(crate) Vec<Argument>);
 
 impl ArgumentDefinitions {

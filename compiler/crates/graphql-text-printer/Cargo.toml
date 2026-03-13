@@ -26,6 +26,7 @@ fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
+pretty = "0.12.5"
 schema = { path = "../schema" }
 
 [dev-dependencies]

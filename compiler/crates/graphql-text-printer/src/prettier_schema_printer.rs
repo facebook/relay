@@ -9,6 +9,8 @@
 //!
 //! This module provides formatting that matches prettier-graphql output,
 //! ensuring that generated SDL files don't trigger PRETTIERGRAPHQL lint errors.
+//!
+//! Uses the `pretty` crate for declarative document-based formatting.
 
 use graphql_syntax::ConstantDirective;
 use graphql_syntax::ConstantValue;
@@ -18,6 +20,7 @@ use graphql_syntax::EnumTypeDefinition;
 use graphql_syntax::EnumTypeExtension;
 use graphql_syntax::EnumValueDefinition;
 use graphql_syntax::FieldDefinition;
+use graphql_syntax::Identifier;
 use graphql_syntax::InputObjectTypeDefinition;
 use graphql_syntax::InputObjectTypeExtension;
 use graphql_syntax::InputValueDefinition;
@@ -35,628 +38,950 @@ use graphql_syntax::StringNode;
 use graphql_syntax::TypeSystemDefinition;
 use graphql_syntax::UnionTypeDefinition;
 use graphql_syntax::UnionTypeExtension;
+use pretty::RcDoc;
 
-use crate::prettier_common::DOUBLE_INDENT;
-use crate::prettier_common::INDENT;
-use crate::prettier_common::LINE_WIDTH;
-use crate::prettier_common::TRIPLE_INDENT;
-use crate::prettier_common::current_line_length;
-use crate::prettier_common::fits_on_line;
-use crate::prettier_common::format_constant_argument;
-use crate::prettier_common::format_constant_directive;
-use crate::prettier_common::format_constant_directives;
-use crate::prettier_common::format_constant_value;
-use crate::prettier_common::format_type_annotation;
+use crate::prettier_doc_builders::INDENT_WIDTH;
+use crate::prettier_doc_builders::LINE_WIDTH;
+use crate::prettier_doc_builders::constant_argument_doc;
+use crate::prettier_doc_builders::constant_directive_doc;
+use crate::prettier_doc_builders::constant_directives_doc;
+use crate::prettier_doc_builders::constant_value_doc;
+use crate::prettier_doc_builders::render_doc;
+use crate::prettier_doc_builders::type_annotation_doc;
 
 /// Prints a SchemaDocument in prettier-graphql compatible format.
 ///
 /// This function produces SDL output that matches prettier-graphql formatting,
 /// avoiding PRETTIERGRAPHQL lint errors in generated files.
 pub fn prettier_print_schema_document(document: &SchemaDocument) -> String {
-    let mut printer = PrettierSchemaPrinter::new();
-    printer.print_document(document);
-    printer.output
+    let docs: Vec<RcDoc<'static, ()>> = document
+        .definitions
+        .iter()
+        .map(type_system_definition_doc)
+        .collect();
+
+    if docs.is_empty() {
+        return String::new();
+    }
+
+    let doc = RcDoc::intersperse(docs, RcDoc::hardline());
+    render_doc(doc, LINE_WIDTH)
 }
 
 /// Prints a TypeSystemDefinition in prettier-graphql compatible format.
 pub fn prettier_print_type_system_definition(definition: &TypeSystemDefinition) -> String {
-    let mut printer = PrettierSchemaPrinter::new();
-    printer.print_type_system_definition(definition);
-    printer.output
+    let doc = type_system_definition_doc(definition);
+    render_doc(doc, LINE_WIDTH)
 }
 
-struct PrettierSchemaPrinter {
-    output: String,
+fn type_system_definition_doc(definition: &TypeSystemDefinition) -> RcDoc<'static, ()> {
+    match definition {
+        TypeSystemDefinition::SchemaDefinition(def) => schema_definition_doc(def),
+        TypeSystemDefinition::SchemaExtension(ext) => schema_extension_doc(ext),
+        TypeSystemDefinition::ObjectTypeDefinition(def) => object_type_definition_doc(def),
+        TypeSystemDefinition::ObjectTypeExtension(ext) => object_type_extension_doc(ext),
+        TypeSystemDefinition::InterfaceTypeDefinition(def) => interface_type_definition_doc(def),
+        TypeSystemDefinition::InterfaceTypeExtension(ext) => interface_type_extension_doc(ext),
+        TypeSystemDefinition::UnionTypeDefinition(def) => union_type_definition_doc(def),
+        TypeSystemDefinition::UnionTypeExtension(ext) => union_type_extension_doc(ext),
+        TypeSystemDefinition::EnumTypeDefinition(def) => enum_type_definition_doc(def),
+        TypeSystemDefinition::EnumTypeExtension(ext) => enum_type_extension_doc(ext),
+        TypeSystemDefinition::InputObjectTypeDefinition(def) => {
+            input_object_type_definition_doc(def)
+        }
+        TypeSystemDefinition::InputObjectTypeExtension(ext) => input_object_type_extension_doc(ext),
+        TypeSystemDefinition::ScalarTypeDefinition(def) => scalar_type_definition_doc(def),
+        TypeSystemDefinition::ScalarTypeExtension(ext) => scalar_type_extension_doc(ext),
+        TypeSystemDefinition::DirectiveDefinition(def) => directive_definition_doc(def),
+    }
 }
 
-impl PrettierSchemaPrinter {
-    fn new() -> Self {
-        Self {
-            output: String::new(),
-        }
+// =============================================================================
+// Schema Definition/Extension
+// =============================================================================
+
+fn schema_definition_doc(def: &SchemaDefinition) -> RcDoc<'static, ()> {
+    let mut doc = description_doc(&def.description, "");
+    doc = doc.append(RcDoc::text("schema"));
+
+    let has_fields = !def.operation_types.items.is_empty();
+    doc = doc.append(directives_with_suffix_doc(
+        &def.directives,
+        "schema".len(),
+        if has_fields { 2 } else { 0 },
+        INDENT_WIDTH,
+    ));
+
+    if has_fields {
+        doc = doc.append(operation_type_fields_doc(&def.operation_types.items));
     }
 
-    fn print_document(&mut self, document: &SchemaDocument) {
-        let mut first = true;
-        for definition in &document.definitions {
-            if !first {
-                self.output.push('\n');
-            }
-            first = false;
-            self.print_type_system_definition(definition);
-        }
+    doc.append(RcDoc::hardline())
+}
+
+fn schema_extension_doc(ext: &SchemaExtension) -> RcDoc<'static, ()> {
+    let mut doc = RcDoc::text("extend schema");
+
+    let has_fields = ext.operation_types.is_some();
+    doc = doc.append(directives_with_suffix_doc(
+        &ext.directives,
+        "extend schema".len(),
+        if has_fields { 2 } else { 0 },
+        INDENT_WIDTH,
+    ));
+
+    if let Some(ref operation_types) = ext.operation_types {
+        doc = doc.append(operation_type_fields_doc(&operation_types.items));
     }
 
-    fn print_type_system_definition(&mut self, definition: &TypeSystemDefinition) {
-        match definition {
-            TypeSystemDefinition::SchemaDefinition(def) => self.print_schema_definition(def),
-            TypeSystemDefinition::SchemaExtension(ext) => self.print_schema_extension(ext),
-            TypeSystemDefinition::ObjectTypeDefinition(def) => {
-                self.print_object_type_definition(def)
-            }
-            TypeSystemDefinition::ObjectTypeExtension(ext) => self.print_object_type_extension(ext),
-            TypeSystemDefinition::InterfaceTypeDefinition(def) => {
-                self.print_interface_type_definition(def)
-            }
-            TypeSystemDefinition::InterfaceTypeExtension(ext) => {
-                self.print_interface_type_extension(ext)
-            }
-            TypeSystemDefinition::UnionTypeDefinition(def) => self.print_union_type_definition(def),
-            TypeSystemDefinition::UnionTypeExtension(ext) => self.print_union_type_extension(ext),
-            TypeSystemDefinition::EnumTypeDefinition(def) => self.print_enum_type_definition(def),
-            TypeSystemDefinition::EnumTypeExtension(ext) => self.print_enum_type_extension(ext),
-            TypeSystemDefinition::InputObjectTypeDefinition(def) => {
-                self.print_input_object_type_definition(def)
-            }
-            TypeSystemDefinition::InputObjectTypeExtension(ext) => {
-                self.print_input_object_type_extension(ext)
-            }
-            TypeSystemDefinition::ScalarTypeDefinition(def) => {
-                self.print_scalar_type_definition(def)
-            }
-            TypeSystemDefinition::ScalarTypeExtension(ext) => self.print_scalar_type_extension(ext),
-            TypeSystemDefinition::DirectiveDefinition(def) => self.print_directive_definition(def),
-        }
+    doc.append(RcDoc::hardline())
+}
+
+fn operation_type_fields_doc(fields: &[OperationTypeDefinition]) -> RcDoc<'static, ()> {
+    if fields.is_empty() {
+        return RcDoc::nil();
     }
 
-    fn print_schema_definition(&mut self, def: &SchemaDefinition) {
-        self.print_description(&def.description, "");
-        self.output.push_str("schema");
-        let prefix_len = self.current_line_len();
-        let suffix_len = if def.operation_types.items.is_empty() {
-            0
-        } else {
-            2
-        }; // " {"
-        self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
-        self.print_operation_type_fields(&def.operation_types.items);
-        self.output.push('\n');
+    let field_docs: Vec<RcDoc<'static, ()>> = fields
+        .iter()
+        .map(|field| {
+            RcDoc::text("  ")
+                .append(RcDoc::text(field.operation.to_string()))
+                .append(RcDoc::text(": "))
+                .append(RcDoc::text(field.type_.to_string()))
+        })
+        .collect();
+
+    RcDoc::text(" {")
+        .append(RcDoc::hardline())
+        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(RcDoc::hardline())
+        .append(RcDoc::text("}"))
+}
+
+// =============================================================================
+// Object Type Definition/Extension
+// =============================================================================
+
+fn object_type_definition_doc(def: &ObjectTypeDefinition) -> RcDoc<'static, ()> {
+    let mut doc = description_doc(&def.description, "");
+    doc = doc.append(RcDoc::text("type "));
+    doc = doc.append(RcDoc::text(def.name.value.to_string()));
+    doc = doc.append(implements_interfaces_doc(&def.interfaces));
+
+    let prefix_len = compute_type_prefix_len("type ", &def.name.value, &def.interfaces);
+    let has_fields = def.fields.is_some();
+
+    doc = doc.append(directives_with_suffix_doc(
+        &def.directives,
+        prefix_len,
+        if has_fields { 2 } else { 0 },
+        INDENT_WIDTH,
+    ));
+
+    if let Some(ref fields) = def.fields {
+        doc = doc.append(field_definitions_doc(&fields.items));
     }
 
-    fn print_schema_extension(&mut self, ext: &SchemaExtension) {
-        self.output.push_str("extend schema");
-        let prefix_len = self.current_line_len();
-        let suffix_len = if ext.operation_types.is_some() { 2 } else { 0 }; // " {"
-        self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
-        if let Some(ref operation_types) = ext.operation_types {
-            self.print_operation_type_fields(&operation_types.items);
-        }
-        self.output.push('\n');
+    doc.append(RcDoc::hardline())
+}
+
+fn object_type_extension_doc(ext: &ObjectTypeExtension) -> RcDoc<'static, ()> {
+    let mut doc = RcDoc::text("extend type ");
+    doc = doc.append(RcDoc::text(ext.name.value.to_string()));
+    doc = doc.append(implements_interfaces_doc(&ext.interfaces));
+
+    let prefix_len = compute_type_prefix_len("extend type ", &ext.name.value, &ext.interfaces);
+    let has_fields = ext.fields.is_some();
+
+    doc = doc.append(directives_with_suffix_doc(
+        &ext.directives,
+        prefix_len,
+        if has_fields { 2 } else { 0 },
+        INDENT_WIDTH,
+    ));
+
+    if let Some(ref fields) = ext.fields {
+        doc = doc.append(field_definitions_doc(&fields.items));
     }
 
-    fn print_operation_type_fields(&mut self, fields: &[OperationTypeDefinition]) {
-        if fields.is_empty() {
-            return;
-        }
-        self.output.push_str(" {\n");
-        for field in fields {
-            self.output.push_str(INDENT);
-            self.output
-                .push_str(&format!("{}: {}", field.operation, field.type_));
-            self.output.push('\n');
-        }
-        self.output.push('}');
+    doc.append(RcDoc::hardline())
+}
+
+// =============================================================================
+// Interface Type Definition/Extension
+// =============================================================================
+
+fn interface_type_definition_doc(def: &InterfaceTypeDefinition) -> RcDoc<'static, ()> {
+    let mut doc = description_doc(&def.description, "");
+    doc = doc.append(RcDoc::text("interface "));
+    doc = doc.append(RcDoc::text(def.name.value.to_string()));
+    doc = doc.append(implements_interfaces_doc(&def.interfaces));
+
+    let prefix_len = compute_type_prefix_len("interface ", &def.name.value, &def.interfaces);
+    let has_fields = def.fields.is_some();
+
+    doc = doc.append(directives_with_suffix_doc(
+        &def.directives,
+        prefix_len,
+        if has_fields { 2 } else { 0 },
+        INDENT_WIDTH,
+    ));
+
+    if let Some(ref fields) = def.fields {
+        doc = doc.append(field_definitions_doc(&fields.items));
     }
 
-    fn print_object_type_definition(&mut self, def: &ObjectTypeDefinition) {
-        self.print_description(&def.description, "");
-        self.output.push_str("type ");
-        self.output.push_str(&def.name.value.to_string());
-        self.print_implements_interfaces(&def.interfaces);
-        let prefix_len = self.current_line_len();
-        let suffix_len = if def.fields.is_some() { 2 } else { 0 };
-        self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
-        if let Some(ref fields) = def.fields {
-            self.print_field_definitions(&fields.items);
-        }
-        self.output.push('\n');
+    doc.append(RcDoc::hardline())
+}
+
+fn interface_type_extension_doc(ext: &InterfaceTypeExtension) -> RcDoc<'static, ()> {
+    let mut doc = RcDoc::text("extend interface ");
+    doc = doc.append(RcDoc::text(ext.name.value.to_string()));
+    doc = doc.append(implements_interfaces_doc(&ext.interfaces));
+
+    let prefix_len = compute_type_prefix_len("extend interface ", &ext.name.value, &ext.interfaces);
+    let has_fields = ext.fields.is_some();
+
+    doc = doc.append(directives_with_suffix_doc(
+        &ext.directives,
+        prefix_len,
+        if has_fields { 2 } else { 0 },
+        INDENT_WIDTH,
+    ));
+
+    if let Some(ref fields) = ext.fields {
+        doc = doc.append(field_definitions_doc(&fields.items));
     }
 
-    fn print_object_type_extension(&mut self, ext: &ObjectTypeExtension) {
-        self.output.push_str("extend type ");
-        self.output.push_str(&ext.name.value.to_string());
-        self.print_implements_interfaces(&ext.interfaces);
-        let prefix_len = self.current_line_len();
-        let suffix_len = if ext.fields.is_some() { 2 } else { 0 };
-        self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
-        if let Some(ref fields) = ext.fields {
-            self.print_field_definitions(&fields.items);
-        }
-        self.output.push('\n');
+    doc.append(RcDoc::hardline())
+}
+
+fn implements_interfaces_doc(interfaces: &[Identifier]) -> RcDoc<'static, ()> {
+    if interfaces.is_empty() {
+        return RcDoc::nil();
     }
 
-    fn print_interface_type_definition(&mut self, def: &InterfaceTypeDefinition) {
-        self.print_description(&def.description, "");
-        self.output.push_str("interface ");
-        self.output.push_str(&def.name.value.to_string());
-        self.print_implements_interfaces(&def.interfaces);
-        let prefix_len = self.current_line_len();
-        let suffix_len = if def.fields.is_some() { 2 } else { 0 };
-        self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
-        if let Some(ref fields) = def.fields {
-            self.print_field_definitions(&fields.items);
-        }
-        self.output.push('\n');
-    }
+    let interface_names: Vec<String> = interfaces.iter().map(|i| i.value.to_string()).collect();
+    RcDoc::text(" implements ").append(RcDoc::text(interface_names.join(" & ")))
+}
 
-    fn print_interface_type_extension(&mut self, ext: &InterfaceTypeExtension) {
-        self.output.push_str("extend interface ");
-        self.output.push_str(&ext.name.value.to_string());
-        self.print_implements_interfaces(&ext.interfaces);
-        let prefix_len = self.current_line_len();
-        let suffix_len = if ext.fields.is_some() { 2 } else { 0 };
-        self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
-        if let Some(ref fields) = ext.fields {
-            self.print_field_definitions(&fields.items);
-        }
-        self.output.push('\n');
-    }
-
-    fn print_implements_interfaces(&mut self, interfaces: &[graphql_syntax::Identifier]) {
-        if interfaces.is_empty() {
-            return;
-        }
-        self.output.push_str(" implements ");
+fn compute_type_prefix_len(
+    keyword: &str,
+    name: &intern::string_key::StringKey,
+    interfaces: &[Identifier],
+) -> usize {
+    let mut len = keyword.len() + name.to_string().len();
+    if !interfaces.is_empty() {
+        len += " implements ".len();
         let interface_names: Vec<String> = interfaces.iter().map(|i| i.value.to_string()).collect();
-        self.output.push_str(&interface_names.join(" & "));
+        len += interface_names.join(" & ").len();
+    }
+    len
+}
+
+// =============================================================================
+// Union Type Definition/Extension
+// =============================================================================
+
+fn union_type_definition_doc(def: &UnionTypeDefinition) -> RcDoc<'static, ()> {
+    let mut doc = description_doc(&def.description, "");
+    doc = doc.append(RcDoc::text("union "));
+    doc = doc.append(RcDoc::text(def.name.value.to_string()));
+
+    let prefix_len = "union ".len() + def.name.value.to_string().len();
+    let has_members = !def.members.is_empty();
+
+    // For unions, we need to track if directives broke to force member expansion
+    let (directive_doc, directives_inline) =
+        directives_with_breaking_info(&def.directives, prefix_len, if has_members { 2 } else { 0 });
+
+    doc = doc.append(directive_doc);
+
+    if has_members {
+        doc = doc.append(union_members_doc(
+            &def.members,
+            prefix_len,
+            !directives_inline,
+        ));
     }
 
-    fn print_field_definitions(&mut self, fields: &[FieldDefinition]) {
-        if fields.is_empty() {
-            return;
-        }
-        self.output.push_str(" {\n");
-        for field in fields {
-            self.print_description(&field.description, INDENT);
-            self.output.push_str(INDENT);
-            self.print_field_definition(field);
-            self.output.push('\n');
-        }
-        self.output.push('}');
+    doc.append(RcDoc::hardline())
+}
+
+fn union_type_extension_doc(ext: &UnionTypeExtension) -> RcDoc<'static, ()> {
+    let mut doc = RcDoc::text("extend union ");
+    doc = doc.append(RcDoc::text(ext.name.value.to_string()));
+
+    let prefix_len = "extend union ".len() + ext.name.value.to_string().len();
+    let has_members = !ext.members.is_empty();
+
+    let (directive_doc, directives_inline) =
+        directives_with_breaking_info(&ext.directives, prefix_len, if has_members { 2 } else { 0 });
+
+    doc = doc.append(directive_doc);
+
+    if has_members {
+        doc = doc.append(union_members_doc(
+            &ext.members,
+            prefix_len,
+            !directives_inline,
+        ));
     }
 
-    fn print_field_definition(&mut self, field: &FieldDefinition) {
-        let type_str = format_type_annotation(&field.type_);
-        let suffix_len = ": ".len() + type_str.len();
-        let has_directives = !field.directives.is_empty();
+    doc.append(RcDoc::hardline())
+}
 
-        self.output.push_str(&field.name.value.to_string());
-        if let Some(ref arguments) = field.arguments {
-            self.print_arguments_definition(
-                &arguments.items,
-                &field.name.value.to_string(),
-                suffix_len,
-                has_directives,
-            );
-        }
-        self.output.push_str(": ");
-        self.output.push_str(&type_str);
-        let current_line_len = self.current_line_len();
-        self.print_directives_with_breaking(&field.directives, current_line_len, 0, DOUBLE_INDENT);
+fn union_members_doc(
+    members: &[Identifier],
+    prefix_len: usize,
+    force_expanded: bool,
+) -> RcDoc<'static, ()> {
+    if members.is_empty() {
+        return RcDoc::nil();
     }
 
-    fn print_arguments_definition(
-        &mut self,
-        arguments: &[InputValueDefinition],
-        context: &str,
-        suffix_len: usize,
-        has_following_directives: bool,
-    ) {
-        if arguments.is_empty() {
-            return;
-        }
+    let member_names: Vec<String> = members.iter().map(|m| m.value.to_string()).collect();
+    let single_line = format!(" = {}", member_names.join(" | "));
 
-        let single_line = self.format_arguments_single_line(arguments);
-        let prefix_len = INDENT.len() + context.len();
+    // Calculate total line length including prefix (e.g., "union Name")
+    let total_line_len = prefix_len + single_line.len();
 
-        let has_descriptions = arguments.iter().any(|a| a.description.is_some());
-        let total_len = prefix_len + single_line.len() + suffix_len;
-        if !has_descriptions && fits_on_line(total_len, has_following_directives) {
-            self.output.push_str(&single_line);
-        } else {
-            self.output.push_str("(\n");
-            for arg in arguments {
-                let double_indent = format!("{}{}", INDENT, INDENT);
-                self.print_description(&arg.description, &double_indent);
-                self.output.push_str(INDENT);
-                self.output.push_str(INDENT);
-                self.print_input_value_definition(arg, TRIPLE_INDENT);
-                self.output.push('\n');
-            }
-            self.output.push_str(INDENT);
-            self.output.push(')');
-        }
-    }
-
-    fn format_arguments_single_line(&self, arguments: &[InputValueDefinition]) -> String {
-        let args: Vec<String> = arguments
+    // If directives broke or inline is too long, expand
+    if force_expanded || total_line_len > LINE_WIDTH {
+        let member_docs: Vec<RcDoc<'static, ()>> = member_names
             .iter()
-            .map(|a| self.format_input_value(a))
+            .map(|m| RcDoc::text("  | ").append(RcDoc::text(m.clone())))
             .collect();
-        format!("({})", args.join(", "))
+
+        RcDoc::text(" =")
+            .append(RcDoc::hardline())
+            .append(RcDoc::intersperse(member_docs, RcDoc::hardline()))
+    } else {
+        RcDoc::text(single_line)
+    }
+}
+
+// =============================================================================
+// Enum Type Definition/Extension
+// =============================================================================
+
+fn enum_type_definition_doc(def: &EnumTypeDefinition) -> RcDoc<'static, ()> {
+    let mut doc = description_doc(&def.description, "");
+    doc = doc.append(RcDoc::text("enum "));
+    doc = doc.append(RcDoc::text(def.name.value.to_string()));
+
+    let prefix_len = "enum ".len() + def.name.value.to_string().len();
+    let has_values = def.values.is_some();
+
+    doc = doc.append(directives_with_suffix_doc(
+        &def.directives,
+        prefix_len,
+        if has_values { 2 } else { 0 },
+        INDENT_WIDTH,
+    ));
+
+    if let Some(ref values) = def.values {
+        doc = doc.append(enum_values_doc(&values.items));
     }
 
-    fn format_input_value(&self, input: &InputValueDefinition) -> String {
-        let mut result = format!(
-            "{}: {}",
-            input.name.value,
-            format_type_annotation(&input.type_)
-        );
-        if let Some(ref default_value) = input.default_value {
-            result.push_str(" = ");
-            result.push_str(&format_constant_value(&default_value.value));
-        }
-        if !input.directives.is_empty() {
-            result.push(' ');
-            result.push_str(&format_constant_directives(&input.directives));
-        }
-        result
+    doc.append(RcDoc::hardline())
+}
+
+fn enum_type_extension_doc(ext: &EnumTypeExtension) -> RcDoc<'static, ()> {
+    let mut doc = RcDoc::text("extend enum ");
+    doc = doc.append(RcDoc::text(ext.name.value.to_string()));
+
+    let prefix_len = "extend enum ".len() + ext.name.value.to_string().len();
+    let has_values = ext.values.is_some();
+
+    doc = doc.append(directives_with_suffix_doc(
+        &ext.directives,
+        prefix_len,
+        if has_values { 2 } else { 0 },
+        INDENT_WIDTH,
+    ));
+
+    if let Some(ref values) = ext.values {
+        doc = doc.append(enum_values_doc(&values.items));
     }
 
-    fn print_input_value_definition(
-        &mut self,
-        input: &InputValueDefinition,
-        directive_break_indent: &str,
-    ) {
-        self.output.push_str(&input.name.value.to_string());
-        self.output.push_str(": ");
-        self.output.push_str(&format_type_annotation(&input.type_));
-        if let Some(ref default_value) = input.default_value {
-            self.output.push_str(" = ");
-            // Check if this is an empty list and the line is already long
-            let current_line_len = self.current_line_len();
-            match &default_value.value {
-                ConstantValue::List(list) if list.items.is_empty() => {
-                    // Empty list: check if we need to expand it
-                    // Adding "[]" (2 chars) would make current_line_len + 2
-                    if current_line_len + 2 > LINE_WIDTH {
-                        // Line too long, expand empty array with blank line inside
-                        self.output.push_str("[\n\n");
-                        self.output.push_str(INDENT);
-                        self.output.push(']');
-                    } else {
-                        self.output.push_str("[]");
-                    }
-                }
-                _ => {
-                    self.output
-                        .push_str(&format_constant_value(&default_value.value));
+    doc.append(RcDoc::hardline())
+}
+
+fn enum_values_doc(values: &[EnumValueDefinition]) -> RcDoc<'static, ()> {
+    if values.is_empty() {
+        return RcDoc::nil();
+    }
+
+    let value_docs: Vec<RcDoc<'static, ()>> = values.iter().map(enum_value_doc).collect();
+
+    RcDoc::text(" {")
+        .append(RcDoc::hardline())
+        .append(RcDoc::intersperse(value_docs, RcDoc::hardline()))
+        .append(RcDoc::hardline())
+        .append(RcDoc::text("}"))
+}
+
+fn enum_value_doc(value: &EnumValueDefinition) -> RcDoc<'static, ()> {
+    let mut doc = description_doc(&value.description, "  ");
+    doc = doc.append(RcDoc::text("  "));
+    doc = doc.append(RcDoc::text(value.name.value.to_string()));
+
+    let prefix_len = 2 + value.name.value.to_string().len();
+    doc = doc.append(directives_with_suffix_doc(
+        &value.directives,
+        prefix_len,
+        0,
+        INDENT_WIDTH * 2,
+    ));
+
+    doc
+}
+
+// =============================================================================
+// Input Object Type Definition/Extension
+// =============================================================================
+
+fn input_object_type_definition_doc(def: &InputObjectTypeDefinition) -> RcDoc<'static, ()> {
+    let mut doc = description_doc(&def.description, "");
+    doc = doc.append(RcDoc::text("input "));
+    doc = doc.append(RcDoc::text(def.name.value.to_string()));
+
+    let prefix_len = "input ".len() + def.name.value.to_string().len();
+    let has_fields = def.fields.is_some();
+
+    doc = doc.append(directives_with_suffix_doc(
+        &def.directives,
+        prefix_len,
+        if has_fields { 2 } else { 0 },
+        INDENT_WIDTH,
+    ));
+
+    if let Some(ref fields) = def.fields {
+        doc = doc.append(input_fields_doc(&fields.items));
+    }
+
+    doc.append(RcDoc::hardline())
+}
+
+fn input_object_type_extension_doc(ext: &InputObjectTypeExtension) -> RcDoc<'static, ()> {
+    let mut doc = RcDoc::text("extend input ");
+    doc = doc.append(RcDoc::text(ext.name.value.to_string()));
+
+    let prefix_len = "extend input ".len() + ext.name.value.to_string().len();
+    let has_fields = ext.fields.is_some();
+
+    doc = doc.append(directives_with_suffix_doc(
+        &ext.directives,
+        prefix_len,
+        if has_fields { 2 } else { 0 },
+        INDENT_WIDTH,
+    ));
+
+    if let Some(ref fields) = ext.fields {
+        doc = doc.append(input_fields_doc(&fields.items));
+    }
+
+    doc.append(RcDoc::hardline())
+}
+
+fn input_fields_doc(fields: &[InputValueDefinition]) -> RcDoc<'static, ()> {
+    if fields.is_empty() {
+        return RcDoc::nil();
+    }
+
+    let field_docs: Vec<RcDoc<'static, ()>> = fields
+        .iter()
+        .map(|f| input_field_doc(f, INDENT_WIDTH * 2))
+        .collect();
+
+    RcDoc::text(" {")
+        .append(RcDoc::hardline())
+        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(RcDoc::hardline())
+        .append(RcDoc::text("}"))
+}
+
+fn input_field_doc(input: &InputValueDefinition, directive_indent: isize) -> RcDoc<'static, ()> {
+    let mut doc = description_doc(&input.description, "  ");
+    doc = doc.append(RcDoc::text("  "));
+    // Base indent for input fields is 2 spaces
+    doc = doc.append(input_value_definition_doc(input, 2, directive_indent));
+    doc
+}
+
+// =============================================================================
+// Scalar Type Definition/Extension
+// =============================================================================
+
+fn scalar_type_definition_doc(def: &ScalarTypeDefinition) -> RcDoc<'static, ()> {
+    let mut doc = description_doc(&def.description, "");
+    doc = doc.append(RcDoc::text("scalar "));
+    doc = doc.append(RcDoc::text(def.name.value.to_string()));
+
+    let prefix_len = "scalar ".len() + def.name.value.to_string().len();
+    doc = doc.append(directives_with_suffix_doc(
+        &def.directives,
+        prefix_len,
+        0,
+        INDENT_WIDTH,
+    ));
+
+    doc.append(RcDoc::hardline())
+}
+
+fn scalar_type_extension_doc(ext: &ScalarTypeExtension) -> RcDoc<'static, ()> {
+    let mut doc = RcDoc::text("extend scalar ");
+    doc = doc.append(RcDoc::text(ext.name.value.to_string()));
+
+    let prefix_len = "extend scalar ".len() + ext.name.value.to_string().len();
+    doc = doc.append(directives_with_suffix_doc(
+        &ext.directives,
+        prefix_len,
+        0,
+        INDENT_WIDTH,
+    ));
+
+    doc.append(RcDoc::hardline())
+}
+
+// =============================================================================
+// Directive Definition
+// =============================================================================
+
+fn directive_definition_doc(def: &DirectiveDefinition) -> RcDoc<'static, ()> {
+    let mut doc = description_doc(&def.description, "");
+    doc = doc.append(RcDoc::text("directive @"));
+    doc = doc.append(RcDoc::text(def.name.value.to_string()));
+
+    let args = def.arguments.as_ref().map(|a| &a.items[..]);
+    let locations_str = format_locations_inline(&def.locations);
+    let repeatable_str = if def.repeatable { " repeatable" } else { "" };
+
+    let prefix = format!("directive @{}", def.name.value);
+    let args_inline = args.map_or(String::new(), format_arguments_single_line);
+    let suffix = format!("{} on {}", repeatable_str, locations_str);
+
+    let has_arg_descriptions = args.is_some_and(|a| a.iter().any(|arg| arg.description.is_some()));
+
+    if !has_arg_descriptions && prefix.len() + args_inline.len() + suffix.len() <= LINE_WIDTH {
+        // Everything fits on one line
+        if let Some(arguments) = args.filter(|a| !a.is_empty()) {
+            doc = doc.append(RcDoc::text(format_arguments_single_line(arguments)));
+        }
+        doc = doc.append(RcDoc::text(suffix));
+    } else {
+        // Expanded form
+        if let Some(arguments) = args.filter(|a| !a.is_empty()) {
+            let arg_docs: Vec<RcDoc<'static, ()>> = arguments
+                .iter()
+                .map(|arg| {
+                    let mut arg_doc = description_doc(&arg.description, "  ");
+                    // Base indent for directive definition args is 2 spaces
+                    arg_doc = arg_doc.append(RcDoc::text("  ").append(input_value_definition_doc(
+                        arg,
+                        2,
+                        INDENT_WIDTH * 2,
+                    )));
+                    arg_doc
+                })
+                .collect();
+
+            doc = doc
+                .append(RcDoc::text("("))
+                .append(RcDoc::hardline())
+                .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+                .append(RcDoc::hardline())
+                .append(RcDoc::text(")"));
+        }
+        doc = doc
+            .append(RcDoc::text(repeatable_str))
+            .append(RcDoc::text(" on "))
+            .append(RcDoc::text(locations_str));
+    }
+
+    doc.append(RcDoc::hardline())
+}
+
+fn format_locations_inline(locations: &[DirectiveLocation]) -> String {
+    locations
+        .iter()
+        .map(|l| l.to_string())
+        .collect::<Vec<_>>()
+        .join(" | ")
+}
+
+// =============================================================================
+// Field Definitions
+// =============================================================================
+
+fn field_definitions_doc(fields: &[FieldDefinition]) -> RcDoc<'static, ()> {
+    if fields.is_empty() {
+        return RcDoc::nil();
+    }
+
+    let field_docs: Vec<RcDoc<'static, ()>> = fields.iter().map(field_definition_doc).collect();
+
+    RcDoc::text(" {")
+        .append(RcDoc::hardline())
+        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(RcDoc::hardline())
+        .append(RcDoc::text("}"))
+}
+
+fn field_definition_doc(field: &FieldDefinition) -> RcDoc<'static, ()> {
+    let mut doc = description_doc(&field.description, "  ");
+    doc = doc.append(RcDoc::text("  "));
+    doc = doc.append(RcDoc::text(field.name.value.to_string()));
+
+    let type_str = render_doc(type_annotation_doc(&field.type_), LINE_WIDTH);
+    let suffix_len = ": ".len() + type_str.len();
+    let has_directives = !field.directives.is_empty();
+
+    if let Some(ref arguments) = field.arguments {
+        doc = doc.append(arguments_definition_doc(
+            &arguments.items,
+            &field.name.value.to_string(),
+            suffix_len,
+            has_directives,
+        ));
+    }
+
+    doc = doc.append(RcDoc::text(": ")).append(RcDoc::text(type_str));
+
+    // Add directives with breaking
+    if !field.directives.is_empty() {
+        let current_line_estimate = 2 + field.name.value.to_string().len() + suffix_len;
+        doc = doc.append(directives_with_suffix_doc(
+            &field.directives,
+            current_line_estimate,
+            0,
+            INDENT_WIDTH * 2,
+        ));
+    }
+
+    doc
+}
+
+fn arguments_definition_doc(
+    arguments: &[InputValueDefinition],
+    context: &str,
+    suffix_len: usize,
+    has_following_directives: bool,
+) -> RcDoc<'static, ()> {
+    if arguments.is_empty() {
+        return RcDoc::nil();
+    }
+
+    let single_line = format_arguments_single_line(arguments);
+    let prefix_len = 2 + context.len(); // 2 for indent
+
+    let has_descriptions = arguments.iter().any(|a| a.description.is_some());
+    let total_len = prefix_len + single_line.len() + suffix_len;
+
+    let fits = if has_following_directives {
+        total_len < LINE_WIDTH
+    } else {
+        total_len <= LINE_WIDTH
+    };
+
+    if !has_descriptions && fits {
+        RcDoc::text(single_line)
+    } else {
+        // Expanded form
+        let arg_docs: Vec<RcDoc<'static, ()>> = arguments
+            .iter()
+            .map(|arg| {
+                let mut arg_doc = description_doc(&arg.description, "    ");
+                // Base indent for field args is 4 spaces, directive break adds 2 more = 6 total
+                arg_doc = arg_doc.append(RcDoc::text("    ").append(input_value_definition_doc(
+                    arg,
+                    4,
+                    INDENT_WIDTH * 3,
+                )));
+                arg_doc
+            })
+            .collect();
+
+        RcDoc::text("(")
+            .append(RcDoc::hardline())
+            .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+            .append(RcDoc::hardline())
+            .append(RcDoc::text("  )"))
+    }
+}
+
+fn format_arguments_single_line(arguments: &[InputValueDefinition]) -> String {
+    let args: Vec<String> = arguments.iter().map(format_input_value).collect();
+    format!("({})", args.join(", "))
+}
+
+fn format_input_value(input: &InputValueDefinition) -> String {
+    let type_str = render_doc(type_annotation_doc(&input.type_), LINE_WIDTH);
+    let mut result = format!("{}: {}", input.name.value, type_str);
+
+    if let Some(ref default_value) = input.default_value {
+        result.push_str(" = ");
+        result.push_str(&render_doc(
+            constant_value_doc(&default_value.value),
+            LINE_WIDTH,
+        ));
+    }
+
+    if !input.directives.is_empty() {
+        result.push(' ');
+        result.push_str(&render_doc(
+            constant_directives_doc(&input.directives),
+            LINE_WIDTH,
+        ));
+    }
+
+    result
+}
+
+fn input_value_definition_doc(
+    input: &InputValueDefinition,
+    base_indent: usize,
+    directive_break_indent: isize,
+) -> RcDoc<'static, ()> {
+    let mut doc = RcDoc::text(input.name.value.to_string());
+    doc = doc.append(RcDoc::text(": "));
+    let type_str = render_doc(type_annotation_doc(&input.type_), LINE_WIDTH);
+    doc = doc.append(RcDoc::text(type_str.clone()));
+
+    // Calculate the full line position: base_indent + name + ": " + type
+    let current_pos = base_indent + input.name.value.to_string().len() + 2 + type_str.len();
+
+    if let Some(ref default_value) = input.default_value {
+        doc = doc.append(RcDoc::text(" = "));
+
+        // Check if this is an empty list - special handling
+        match &default_value.value {
+            ConstantValue::List(list) if list.items.is_empty() => {
+                // Check if the line with " = []" would exceed LINE_WIDTH
+                // current_pos + " = ".len() + "[]".len() = current_pos + 5
+                if current_pos + 5 > LINE_WIDTH {
+                    // Expand empty list to [\n\n] with proper indent
+                    let indent_str = " ".repeat(base_indent);
+                    doc = doc
+                        .append(RcDoc::text("["))
+                        .append(RcDoc::hardline())
+                        .append(RcDoc::hardline())
+                        .append(RcDoc::text(indent_str))
+                        .append(RcDoc::text("]"));
+                } else {
+                    doc = doc.append(RcDoc::text("[]"));
                 }
             }
+            _ => {
+                doc = doc.append(constant_value_doc(&default_value.value));
+            }
         }
-        let current_line_len = self.current_line_len();
-        self.print_directives_with_breaking(
+    }
+
+    if !input.directives.is_empty() {
+        doc = doc.append(directives_with_suffix_doc(
             &input.directives,
-            current_line_len,
+            current_pos,
             0,
             directive_break_indent,
-        );
+        ));
     }
 
-    fn print_union_type_definition(&mut self, def: &UnionTypeDefinition) {
-        self.print_description(&def.description, "");
-        self.output.push_str("union ");
-        self.output.push_str(&def.name.value.to_string());
-        let prefix_len = self.current_line_len();
-        let suffix_len = if def.members.is_empty() { 0 } else { 2 };
-        let directives_broken =
-            self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
-        self.print_union_members(&def.members, directives_broken);
-        self.output.push('\n');
-    }
+    doc
+}
 
-    fn print_union_type_extension(&mut self, ext: &UnionTypeExtension) {
-        self.output.push_str("extend union ");
-        self.output.push_str(&ext.name.value.to_string());
-        let prefix_len = self.current_line_len();
-        let suffix_len = if ext.members.is_empty() { 0 } else { 2 };
-        let directives_broken =
-            self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
-        self.print_union_members(&ext.members, directives_broken);
-        self.output.push('\n');
-    }
+// =============================================================================
+// Description
+// =============================================================================
 
-    fn print_union_members(
-        &mut self,
-        members: &[graphql_syntax::Identifier],
-        force_expanded: bool,
-    ) {
-        if members.is_empty() {
-            return;
-        }
-
-        let member_names: Vec<String> = members.iter().map(|m| m.value.to_string()).collect();
-        let single_line = format!(" = {}", member_names.join(" | "));
-        let current_line_len = self.current_line_len();
-
-        if !force_expanded && current_line_len + single_line.len() <= LINE_WIDTH {
-            self.output.push_str(&single_line);
-        } else {
-            self.output.push_str(" =\n");
-            for member in &member_names {
-                self.output.push_str(INDENT);
-                self.output.push_str("| ");
-                self.output.push_str(member);
-                self.output.push('\n');
-            }
-            let len = self.output.len();
-            self.output.truncate(len - 1);
-        }
-    }
-
-    fn print_enum_type_definition(&mut self, def: &EnumTypeDefinition) {
-        self.print_description(&def.description, "");
-        self.output.push_str("enum ");
-        self.output.push_str(&def.name.value.to_string());
-        let prefix_len = self.current_line_len();
-        let suffix_len = if def.values.is_some() { 2 } else { 0 };
-        self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
-        if let Some(ref values) = def.values {
-            self.print_enum_values(&values.items);
-        }
-        self.output.push('\n');
-    }
-
-    fn print_enum_type_extension(&mut self, ext: &EnumTypeExtension) {
-        self.output.push_str("extend enum ");
-        self.output.push_str(&ext.name.value.to_string());
-        let prefix_len = self.current_line_len();
-        let suffix_len = if ext.values.is_some() { 2 } else { 0 };
-        self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
-        if let Some(ref values) = ext.values {
-            self.print_enum_values(&values.items);
-        }
-        self.output.push('\n');
-    }
-
-    fn print_enum_values(&mut self, values: &[EnumValueDefinition]) {
-        if values.is_empty() {
-            return;
-        }
-        self.output.push_str(" {\n");
-        for value in values {
-            self.print_description(&value.description, INDENT);
-            self.output.push_str(INDENT);
-            self.output.push_str(&value.name.value.to_string());
-            let current_line_len = self.current_line_len();
-            self.print_directives_with_breaking(
-                &value.directives,
-                current_line_len,
-                0,
-                DOUBLE_INDENT,
-            );
-            self.output.push('\n');
-        }
-        self.output.push('}');
-    }
-
-    fn print_input_object_type_definition(&mut self, def: &InputObjectTypeDefinition) {
-        self.print_description(&def.description, "");
-        self.output.push_str("input ");
-        self.output.push_str(&def.name.value.to_string());
-        let prefix_len = self.current_line_len();
-        let suffix_len = if def.fields.is_some() { 2 } else { 0 };
-        self.print_directives_with_breaking(&def.directives, prefix_len, suffix_len, INDENT);
-        if let Some(ref fields) = def.fields {
-            self.print_input_fields(&fields.items);
-        }
-        self.output.push('\n');
-    }
-
-    fn print_input_object_type_extension(&mut self, ext: &InputObjectTypeExtension) {
-        self.output.push_str("extend input ");
-        self.output.push_str(&ext.name.value.to_string());
-        let prefix_len = self.current_line_len();
-        let suffix_len = if ext.fields.is_some() { 2 } else { 0 };
-        self.print_directives_with_breaking(&ext.directives, prefix_len, suffix_len, INDENT);
-        if let Some(ref fields) = ext.fields {
-            self.print_input_fields(&fields.items);
-        }
-        self.output.push('\n');
-    }
-
-    fn print_input_fields(&mut self, fields: &[InputValueDefinition]) {
-        if fields.is_empty() {
-            return;
-        }
-        self.output.push_str(" {\n");
-        for field in fields {
-            self.print_description(&field.description, INDENT);
-            self.output.push_str(INDENT);
-            self.print_input_value_definition(field, DOUBLE_INDENT);
-            self.output.push('\n');
-        }
-        self.output.push('}');
-    }
-
-    fn print_scalar_type_definition(&mut self, def: &ScalarTypeDefinition) {
-        self.print_description(&def.description, "");
-        self.output.push_str("scalar ");
-        self.output.push_str(&def.name.value.to_string());
-        let prefix_len = self.current_line_len();
-        self.print_directives_with_breaking(&def.directives, prefix_len, 0, INDENT);
-        self.output.push('\n');
-    }
-
-    fn print_scalar_type_extension(&mut self, ext: &ScalarTypeExtension) {
-        self.output.push_str("extend scalar ");
-        self.output.push_str(&ext.name.value.to_string());
-        let prefix_len = self.current_line_len();
-        self.print_directives_with_breaking(&ext.directives, prefix_len, 0, INDENT);
-        self.output.push('\n');
-    }
-
-    fn print_directive_definition(&mut self, def: &DirectiveDefinition) {
-        self.print_description(&def.description, "");
-        self.output.push_str("directive @");
-        self.output.push_str(&def.name.value.to_string());
-
-        let args = def.arguments.as_ref().map(|a| &a.items[..]);
-        let locations_str = self.format_locations_inline(&def.locations);
-        let repeatable_str = if def.repeatable { " repeatable" } else { "" };
-
-        let prefix = format!("directive @{}", def.name.value);
-        let args_inline = args.map_or(String::new(), |a| self.format_arguments_single_line(a));
-        let suffix = format!("{} on {}", repeatable_str, locations_str);
-
-        let has_arg_descriptions =
-            args.is_some_and(|a| a.iter().any(|arg| arg.description.is_some()));
-        if !has_arg_descriptions && prefix.len() + args_inline.len() + suffix.len() <= LINE_WIDTH {
-            if let Some(arguments) = args.filter(|a| !a.is_empty()) {
-                self.output
-                    .push_str(&self.format_arguments_single_line(arguments));
-            }
-            self.output.push_str(&suffix);
-        } else {
-            if let Some(arguments) = args.filter(|a| !a.is_empty()) {
-                self.output.push_str("(\n");
-                for arg in arguments {
-                    self.print_description(&arg.description, INDENT);
-                    self.output.push_str(INDENT);
-                    self.print_input_value_definition(arg, DOUBLE_INDENT);
-                    self.output.push('\n');
-                }
-                self.output.push(')');
-            }
-            self.output.push_str(repeatable_str);
-            self.output.push_str(" on ");
-            self.output.push_str(&locations_str);
-        }
-
-        self.output.push('\n');
-    }
-
-    fn format_locations_inline(&self, locations: &[DirectiveLocation]) -> String {
-        locations
-            .iter()
-            .map(|l| l.to_string())
-            .collect::<Vec<_>>()
-            .join(" | ")
-    }
-
-    fn print_description(&mut self, description: &Option<StringNode>, indent: &str) {
-        if let Some(desc) = description {
+fn description_doc(description: &Option<StringNode>, indent: &str) -> RcDoc<'static, ()> {
+    match description {
+        Some(desc) => {
             let value = desc.value.to_string();
+            let indent_doc = RcDoc::text(indent.to_string());
+
             if value.contains('\n') {
-                self.output.push_str(indent);
-                self.output.push_str("\"\"\"\n");
+                // Multi-line block string
+                let mut doc = indent_doc.clone().append(RcDoc::text("\"\"\"\n"));
                 for line in value.lines() {
-                    self.output.push_str(indent);
-                    self.output.push_str(line);
-                    self.output.push('\n');
+                    doc = doc
+                        .append(RcDoc::text(indent.to_string()))
+                        .append(RcDoc::text(line.to_string()))
+                        .append(RcDoc::text("\n"));
                 }
-                self.output.push_str(indent);
-                self.output.push_str("\"\"\"\n");
+                doc = doc
+                    .append(RcDoc::text(indent.to_string()))
+                    .append(RcDoc::text("\"\"\"\n"));
+                doc
             } else {
-                self.output.push_str(indent);
-                self.output.push_str("\"\"\"\n");
-                self.output.push_str(indent);
-                self.output.push_str(&value);
-                self.output.push('\n');
-                self.output.push_str(indent);
-                self.output.push_str("\"\"\"\n");
+                // Single-line block string (but formatted as block)
+                indent_doc
+                    .clone()
+                    .append(RcDoc::text("\"\"\"\n"))
+                    .append(RcDoc::text(indent.to_string()))
+                    .append(RcDoc::text(value))
+                    .append(RcDoc::text("\n"))
+                    .append(RcDoc::text(indent.to_string()))
+                    .append(RcDoc::text("\"\"\"\n"))
             }
         }
+        None => RcDoc::nil(),
+    }
+}
+
+// =============================================================================
+// Directives with Breaking
+// =============================================================================
+
+/// Returns a document for directives, handling line-width breaking.
+/// This simulates the old `print_directives_with_breaking` behavior.
+fn directives_with_suffix_doc(
+    directives: &[ConstantDirective],
+    prefix_len: usize,
+    suffix_len: usize,
+    break_indent: isize,
+) -> RcDoc<'static, ()> {
+    if directives.is_empty() {
+        return RcDoc::nil();
     }
 
-    fn current_line_len(&self) -> usize {
-        current_line_length(&self.output)
-    }
+    let inline = format!(
+        " {}",
+        render_doc(constant_directives_doc(directives), LINE_WIDTH)
+    );
 
-    fn print_directives_with_breaking(
-        &mut self,
-        directives: &[ConstantDirective],
-        prefix_len: usize,
-        suffix_len: usize,
-        break_indent: &str,
-    ) -> bool {
-        if directives.is_empty() {
-            return false;
-        }
+    if prefix_len + inline.len() + suffix_len <= LINE_WIDTH {
+        // Fits inline
+        RcDoc::text(inline)
+    } else {
+        // Need to break directives
+        let break_indent_str = " ".repeat(break_indent as usize);
+        let mut docs: Vec<RcDoc<'static, ()>> = Vec::new();
 
-        let inline = format!(" {}", format_constant_directives(directives));
-        if prefix_len + inline.len() + suffix_len <= LINE_WIDTH {
-            self.output.push_str(&inline);
-            false
-        } else {
-            let last_idx = directives.len() - 1;
-            for (idx, directive) in directives.iter().enumerate() {
-                let directive_str = format_constant_directive(directive);
-                let is_last = idx == last_idx;
-                let effective_suffix = if is_last { suffix_len } else { 0 };
-                if break_indent.len() + directive_str.len() + effective_suffix <= LINE_WIDTH {
-                    self.output.push('\n');
-                    self.output.push_str(break_indent);
-                    self.output.push_str(&directive_str);
-                } else {
-                    self.output.push('\n');
-                    self.print_expanded_directive(directive, break_indent);
-                }
+        for (idx, directive) in directives.iter().enumerate() {
+            let directive_str = render_doc(constant_directive_doc(directive), LINE_WIDTH);
+            let is_last = idx == directives.len() - 1;
+            let effective_suffix = if is_last { suffix_len } else { 0 };
+
+            if break_indent_str.len() + directive_str.len() + effective_suffix <= LINE_WIDTH {
+                // Directive fits on its own line
+                docs.push(
+                    RcDoc::hardline()
+                        .append(RcDoc::text(break_indent_str.clone()))
+                        .append(RcDoc::text(directive_str)),
+                );
+            } else {
+                // Need to expand the directive
+                docs.push(
+                    RcDoc::hardline().append(expanded_directive_doc(directive, &break_indent_str)),
+                );
             }
-            true
         }
+
+        RcDoc::concat(docs)
+    }
+}
+
+/// Returns (doc, is_inline) - used by union to track if directives broke
+fn directives_with_breaking_info(
+    directives: &[ConstantDirective],
+    prefix_len: usize,
+    suffix_len: usize,
+) -> (RcDoc<'static, ()>, bool) {
+    if directives.is_empty() {
+        return (RcDoc::nil(), true);
     }
 
-    fn print_expanded_directive(&mut self, directive: &ConstantDirective, base_indent: &str) {
-        let arg_indent = format!("{}{}", base_indent, INDENT);
-        let value_indent = format!("{}{}", arg_indent, INDENT);
+    let inline = format!(
+        " {}",
+        render_doc(constant_directives_doc(directives), LINE_WIDTH)
+    );
 
-        self.output.push_str(base_indent);
-        self.output.push_str(&format!("@{}", directive.name.value));
+    if prefix_len + inline.len() + suffix_len <= LINE_WIDTH {
+        (RcDoc::text(inline), true)
+    } else {
+        let break_indent_str = "  ";
+        let mut docs: Vec<RcDoc<'static, ()>> = Vec::new();
 
-        if let Some(ref arguments) = directive.arguments {
-            self.output.push_str("(\n");
-            for arg in &arguments.items {
-                let arg_str = format_constant_argument(arg);
-                if arg_indent.len() + arg_str.len() <= LINE_WIDTH {
-                    self.output.push_str(&arg_indent);
-                    self.output.push_str(&arg_str);
-                    self.output.push('\n');
-                } else {
-                    match &arg.value {
-                        ConstantValue::List(list) => {
-                            self.output.push_str(&arg_indent);
-                            self.output.push_str(&format!("{}: [\n", arg.name.value));
-                            for item in &list.items {
-                                self.output.push_str(&value_indent);
-                                self.output.push_str(&format_constant_value(item));
-                                self.output.push('\n');
-                            }
-                            self.output.push_str(&arg_indent);
-                            self.output.push_str("]\n");
+        for (idx, directive) in directives.iter().enumerate() {
+            let directive_str = render_doc(constant_directive_doc(directive), LINE_WIDTH);
+            let is_last = idx == directives.len() - 1;
+            let effective_suffix = if is_last { suffix_len } else { 0 };
+
+            if break_indent_str.len() + directive_str.len() + effective_suffix <= LINE_WIDTH {
+                docs.push(
+                    RcDoc::hardline()
+                        .append(RcDoc::text(break_indent_str))
+                        .append(RcDoc::text(directive_str)),
+                );
+            } else {
+                docs.push(
+                    RcDoc::hardline().append(expanded_directive_doc(directive, break_indent_str)),
+                );
+            }
+        }
+
+        (RcDoc::concat(docs), false)
+    }
+}
+
+fn expanded_directive_doc(directive: &ConstantDirective, base_indent: &str) -> RcDoc<'static, ()> {
+    let arg_indent = format!("{}  ", base_indent);
+    let value_indent = format!("{}    ", base_indent);
+
+    let mut doc = RcDoc::text(base_indent.to_string())
+        .append(RcDoc::text(format!("@{}", directive.name.value)));
+
+    if let Some(ref arguments) = directive.arguments {
+        doc = doc.append(RcDoc::text("(")).append(RcDoc::hardline());
+
+        for arg in &arguments.items {
+            let arg_str = render_doc(constant_argument_doc(arg), LINE_WIDTH);
+
+            if arg_indent.len() + arg_str.len() <= LINE_WIDTH {
+                doc = doc
+                    .append(RcDoc::text(arg_indent.clone()))
+                    .append(RcDoc::text(arg_str))
+                    .append(RcDoc::hardline());
+            } else {
+                // Need to expand the argument value (especially for lists)
+                match &arg.value {
+                    ConstantValue::List(list) => {
+                        doc = doc
+                            .append(RcDoc::text(arg_indent.clone()))
+                            .append(RcDoc::text(format!("{}: [", arg.name.value)))
+                            .append(RcDoc::hardline());
+
+                        for item in &list.items {
+                            doc = doc
+                                .append(RcDoc::text(value_indent.clone()))
+                                .append(constant_value_doc(item))
+                                .append(RcDoc::hardline());
                         }
-                        _ => {
-                            self.output.push_str(&arg_indent);
-                            self.output.push_str(&arg_str);
-                            self.output.push('\n');
-                        }
+
+                        doc = doc
+                            .append(RcDoc::text(arg_indent.clone()))
+                            .append(RcDoc::text("]"))
+                            .append(RcDoc::hardline());
+                    }
+                    _ => {
+                        doc = doc
+                            .append(RcDoc::text(arg_indent.clone()))
+                            .append(RcDoc::text(arg_str))
+                            .append(RcDoc::hardline());
                     }
                 }
             }
-            self.output.push_str(base_indent);
-            self.output.push(')');
         }
+
+        doc = doc
+            .append(RcDoc::text(base_indent.to_string()))
+            .append(RcDoc::text(")"));
     }
+
+    doc
 }
 
 #[cfg(test)]

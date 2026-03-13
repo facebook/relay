@@ -10,6 +10,7 @@
 #![deny(clippy::all)]
 
 mod prettier_common;
+mod prettier_doc_builders;
 mod prettier_document_printer;
 mod prettier_executable_printer;
 mod prettier_schema_printer;

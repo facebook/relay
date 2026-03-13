@@ -7,50 +7,16 @@
 
 //! Common formatting utilities shared across prettier printers.
 //!
-//! This module contains shared constants and formatting functions used by
-//! both the schema printer and executable printer to avoid code duplication.
+//! This module contains shared formatting functions used by
+//! the schema printer and executable printer to avoid code duplication.
+//!
+//! Note: Both printers now use the `pretty` crate for document-based
+//! formatting. This module contains string formatting utilities for
+//! constant values and type annotations.
 
 use graphql_syntax::ConstantArgument;
-use graphql_syntax::ConstantDirective;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::TypeAnnotation;
-
-/// Line width used for prettier-graphql formatting decisions.
-pub const LINE_WIDTH: usize = 80;
-
-/// Indentation string (2 spaces, matching prettier-graphql).
-pub const INDENT: &str = "  ";
-
-/// Double indentation (4 spaces) for nested content.
-pub const DOUBLE_INDENT: &str = "    ";
-
-/// Triple indentation (6 spaces) for deeply nested content.
-pub const TRIPLE_INDENT: &str = "      ";
-
-/// Check if content fits within the line width.
-///
-/// When `needs_trailing_content` is true, uses strict comparison (`<`)
-/// to leave room for trailing content like directives. Otherwise uses
-/// `<=` to allow content that exactly fits.
-#[inline]
-pub fn fits_on_line(total_len: usize, needs_trailing_content: bool) -> bool {
-    if needs_trailing_content {
-        total_len < LINE_WIDTH
-    } else {
-        total_len <= LINE_WIDTH
-    }
-}
-
-/// Calculate the length of the current line from the output buffer.
-///
-/// Returns the number of characters since the last newline, or the
-/// total length if there is no newline.
-#[inline]
-pub fn current_line_length(output: &str) -> usize {
-    output
-        .rfind('\n')
-        .map_or(output.len(), |pos| output.len() - pos - 1)
-}
 
 /// Formats a `ConstantValue` as a string.
 ///
@@ -91,31 +57,4 @@ pub fn format_type_annotation(type_: &TypeAnnotation) -> String {
             format!("{}!", format_type_annotation(&non_null.type_))
         }
     }
-}
-
-/// Formats a slice of `ConstantDirective` as a space-separated string.
-///
-/// Each directive is formatted as `@name` or `@name(arg1: value1, arg2: value2)`.
-pub fn format_constant_directives(directives: &[ConstantDirective]) -> String {
-    directives
-        .iter()
-        .map(format_constant_directive)
-        .collect::<Vec<_>>()
-        .join(" ")
-}
-
-/// Formats a single `ConstantDirective` as a string.
-pub fn format_constant_directive(directive: &ConstantDirective) -> String {
-    let mut result = format!("@{}", directive.name.value);
-    if let Some(ref arguments) = directive.arguments {
-        let args: Vec<String> = arguments
-            .items
-            .iter()
-            .map(format_constant_argument)
-            .collect();
-        result.push('(');
-        result.push_str(&args.join(", "));
-        result.push(')');
-    }
-    result
 }

@@ -9,6 +9,8 @@
 //!
 //! This module provides formatting that matches prettier-graphql output
 //! for operations (queries, mutations, subscriptions) and fragments.
+//!
+//! Uses the `pretty` crate for declarative document-based formatting.
 
 use graphql_syntax::Argument;
 use graphql_syntax::Directive;
@@ -23,450 +25,373 @@ use graphql_syntax::ScalarField;
 use graphql_syntax::Selection;
 use graphql_syntax::Value;
 use graphql_syntax::VariableDefinition;
+use pretty::RcDoc;
 
-use crate::prettier_common::INDENT;
-use crate::prettier_common::LINE_WIDTH;
-use crate::prettier_common::current_line_length;
 use crate::prettier_common::format_constant_value;
 use crate::prettier_common::format_type_annotation;
+use crate::prettier_doc_builders::INDENT_WIDTH;
+use crate::prettier_doc_builders::LINE_WIDTH;
+use crate::prettier_doc_builders::render_doc;
 
 /// Prints an ExecutableDocument in prettier-graphql compatible format.
 ///
 /// This function produces output that matches prettier-graphql formatting
 /// for executable definitions (operations and fragments).
 pub fn prettier_print_executable_document(document: &ExecutableDocument) -> String {
-    let mut printer = PrettierExecutablePrinter::new();
-    printer.print_document(document);
-    printer.output
+    let docs: Vec<RcDoc<'static, ()>> = document
+        .definitions
+        .iter()
+        .map(executable_definition_doc)
+        .collect();
+
+    if docs.is_empty() {
+        return String::new();
+    }
+
+    let doc = RcDoc::intersperse(docs, RcDoc::hardline());
+    render_doc(doc, LINE_WIDTH)
 }
 
 /// Prints an OperationDefinition in prettier-graphql compatible format.
 pub fn prettier_print_operation(operation: &OperationDefinition) -> String {
-    let mut printer = PrettierExecutablePrinter::new();
-    printer.print_operation(operation);
-    printer.output
+    let doc = operation_doc(operation);
+    render_doc(doc, LINE_WIDTH)
 }
 
 /// Prints a FragmentDefinition in prettier-graphql compatible format.
 pub fn prettier_print_fragment(fragment: &FragmentDefinition) -> String {
-    let mut printer = PrettierExecutablePrinter::new();
-    printer.print_fragment(fragment);
-    printer.output
+    let doc = fragment_doc(fragment);
+    render_doc(doc, LINE_WIDTH)
 }
 
 /// Prints an ExecutableDefinition in prettier-graphql compatible format.
 pub fn prettier_print_executable_definition(definition: &ExecutableDefinition) -> String {
-    let mut printer = PrettierExecutablePrinter::new();
-    printer.print_executable_definition(definition);
-    printer.output
+    let doc = executable_definition_doc(definition);
+    render_doc(doc, LINE_WIDTH)
 }
 
-struct PrettierExecutablePrinter {
-    output: String,
-    indent_level: usize,
+fn executable_definition_doc(definition: &ExecutableDefinition) -> RcDoc<'static, ()> {
+    match definition {
+        ExecutableDefinition::Operation(op) => operation_doc(op),
+        ExecutableDefinition::Fragment(frag) => fragment_doc(frag),
+    }
 }
 
-impl PrettierExecutablePrinter {
-    fn new() -> Self {
-        Self {
-            output: String::new(),
-            indent_level: 0,
+fn operation_doc(operation: &OperationDefinition) -> RcDoc<'static, ()> {
+    let is_anonymous_query = operation.operation.is_none()
+        && operation.name.is_none()
+        && operation.variable_definitions.is_none()
+        && operation.directives.is_empty();
+
+    if is_anonymous_query {
+        return selection_set_doc(&operation.selections.items).append(RcDoc::hardline());
+    }
+
+    let kind = operation.operation_kind().to_string();
+    let mut prefix_len = kind.len();
+
+    let mut doc = RcDoc::text(kind);
+
+    if let Some(ref name) = operation.name {
+        let name_str = name.value.to_string();
+        prefix_len += 1 + name_str.len();
+        doc = doc.append(RcDoc::text(" ")).append(RcDoc::text(name_str));
+    }
+
+    if let Some(ref var_defs) = operation.variable_definitions {
+        doc = doc.append(variable_definitions_doc(&var_defs.items, prefix_len));
+    }
+
+    doc = doc.append(directives_inline_doc(&operation.directives));
+
+    doc.append(RcDoc::text(" "))
+        .append(selection_set_doc(&operation.selections.items))
+        .append(RcDoc::hardline())
+}
+
+fn fragment_doc(fragment: &FragmentDefinition) -> RcDoc<'static, ()> {
+    let name = fragment.name.value.to_string();
+    let prefix_len = "fragment ".len() + name.len();
+
+    let mut doc = RcDoc::text("fragment ").append(RcDoc::text(name));
+
+    if let Some(ref var_defs) = fragment.variable_definitions {
+        doc = doc.append(variable_definitions_doc(&var_defs.items, prefix_len));
+    }
+
+    doc = doc
+        .append(RcDoc::text(" on "))
+        .append(RcDoc::text(fragment.type_condition.type_.value.to_string()));
+
+    doc = doc.append(directives_for_fragment_doc(&fragment.directives));
+
+    doc.append(RcDoc::text(" "))
+        .append(selection_set_doc(&fragment.selections.items))
+        .append(RcDoc::hardline())
+}
+
+/// Build a document for variable definitions.
+/// Computes whether everything fits on one line and formats accordingly.
+fn variable_definitions_doc(
+    var_defs: &[VariableDefinition],
+    prefix_len: usize,
+) -> RcDoc<'static, ()> {
+    if var_defs.is_empty() {
+        return RcDoc::nil();
+    }
+
+    let formatted: Vec<String> = var_defs.iter().map(format_variable_definition).collect();
+    let single_line = format!("({})", formatted.join(", "));
+
+    if prefix_len + single_line.len() <= LINE_WIDTH {
+        RcDoc::text(single_line)
+    } else {
+        let var_docs: Vec<RcDoc<'static, ()>> = formatted.into_iter().map(RcDoc::text).collect();
+
+        RcDoc::text("(")
+            .append(
+                RcDoc::hardline()
+                    .append(RcDoc::intersperse(var_docs, RcDoc::hardline()))
+                    .nest(INDENT_WIDTH),
+            )
+            .append(RcDoc::hardline())
+            .append(RcDoc::text(")"))
+    }
+}
+
+fn format_variable_definition(var_def: &VariableDefinition) -> String {
+    let mut result = format!(
+        "${}: {}",
+        var_def.name.name,
+        format_type_annotation(&var_def.type_)
+    );
+
+    if let Some(ref default) = var_def.default_value {
+        result.push_str(&format!(" = {}", format_constant_value(&default.value)));
+    }
+
+    if !var_def.directives.is_empty() {
+        result.push(' ');
+        result.push_str(&format_directives_inline(&var_def.directives));
+    }
+
+    result
+}
+
+/// Build a document for selection set (always expanded).
+fn selection_set_doc(selections: &[Selection]) -> RcDoc<'static, ()> {
+    if selections.is_empty() {
+        return RcDoc::nil();
+    }
+
+    let selection_docs: Vec<RcDoc<'static, ()>> = selections.iter().map(selection_doc).collect();
+
+    RcDoc::text("{")
+        .append(
+            RcDoc::hardline()
+                .append(RcDoc::intersperse(selection_docs, RcDoc::hardline()))
+                .nest(INDENT_WIDTH),
+        )
+        .append(RcDoc::hardline())
+        .append(RcDoc::text("}"))
+}
+
+fn selection_doc(selection: &Selection) -> RcDoc<'static, ()> {
+    match selection {
+        Selection::ScalarField(field) => scalar_field_doc(field),
+        Selection::LinkedField(field) => linked_field_doc(field),
+        Selection::FragmentSpread(spread) => fragment_spread_doc(spread),
+        Selection::InlineFragment(inline) => inline_fragment_doc(inline),
+    }
+}
+
+fn scalar_field_doc(field: &ScalarField) -> RcDoc<'static, ()> {
+    let mut prefix = String::new();
+    if let Some(ref alias) = field.alias {
+        prefix.push_str(&format!("{}: ", alias.alias.value));
+    }
+    prefix.push_str(&field.name.value.to_string());
+
+    let mut doc = RcDoc::text(prefix.clone());
+
+    if let Some(ref args) = field.arguments {
+        doc = doc.append(arguments_doc(&args.items, prefix.len()));
+    }
+
+    doc.append(directives_inline_doc(&field.directives))
+}
+
+fn linked_field_doc(field: &LinkedField) -> RcDoc<'static, ()> {
+    let mut prefix = String::new();
+    if let Some(ref alias) = field.alias {
+        prefix.push_str(&format!("{}: ", alias.alias.value));
+    }
+    prefix.push_str(&field.name.value.to_string());
+
+    let mut doc = RcDoc::text(prefix.clone());
+
+    if let Some(ref args) = field.arguments {
+        doc = doc.append(arguments_doc(&args.items, prefix.len()));
+    }
+
+    doc = doc.append(directives_inline_doc(&field.directives));
+
+    doc.append(RcDoc::text(" "))
+        .append(selection_set_doc(&field.selections.items))
+}
+
+fn fragment_spread_doc(spread: &FragmentSpread) -> RcDoc<'static, ()> {
+    let prefix = format!("...{}", spread.name.value);
+    let prefix_len = prefix.len();
+    let mut doc = RcDoc::text(prefix);
+
+    if let Some(ref args) = spread.arguments {
+        doc = doc.append(arguments_doc(&args.items, prefix_len));
+    }
+
+    doc.append(directives_inline_doc(&spread.directives))
+}
+
+fn inline_fragment_doc(inline: &InlineFragment) -> RcDoc<'static, ()> {
+    let mut prefix = "...".to_string();
+    if let Some(ref type_condition) = inline.type_condition {
+        prefix.push_str(&format!(" on {}", type_condition.type_.value));
+    }
+
+    let mut doc = RcDoc::text(prefix);
+    doc = doc.append(directives_inline_doc(&inline.directives));
+
+    doc.append(RcDoc::text(" "))
+        .append(selection_set_doc(&inline.selections.items))
+}
+
+/// Build a document for arguments.
+/// Computes whether everything fits on one line and formats accordingly.
+fn arguments_doc(arguments: &[Argument], context_len: usize) -> RcDoc<'static, ()> {
+    if arguments.is_empty() {
+        return RcDoc::nil();
+    }
+
+    let formatted: Vec<String> = arguments.iter().map(format_argument).collect();
+    let single_line = format!("({})", formatted.join(", "));
+
+    if context_len + single_line.len() <= LINE_WIDTH {
+        RcDoc::text(single_line)
+    } else {
+        let arg_docs: Vec<RcDoc<'static, ()>> = formatted.into_iter().map(RcDoc::text).collect();
+
+        RcDoc::text("(")
+            .append(
+                RcDoc::hardline()
+                    .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+                    .nest(INDENT_WIDTH),
+            )
+            .append(RcDoc::hardline())
+            .append(RcDoc::text(")"))
+    }
+}
+
+fn format_argument(arg: &Argument) -> String {
+    format!("{}: {}", arg.name.value, format_value(&arg.value))
+}
+
+/// Inline directives (space-separated, stays on same line).
+fn directives_inline_doc(directives: &[Directive]) -> RcDoc<'static, ()> {
+    if directives.is_empty() {
+        return RcDoc::nil();
+    }
+
+    RcDoc::text(format!(" {}", format_directives_inline(directives)))
+}
+
+fn format_directives_inline(directives: &[Directive]) -> String {
+    directives
+        .iter()
+        .map(format_directive)
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// For fragment definitions, directives that would overflow go to a new line.
+/// When directive arguments are too long, expand them across multiple lines.
+fn directives_for_fragment_doc(directives: &[Directive]) -> RcDoc<'static, ()> {
+    if directives.is_empty() {
+        return RcDoc::nil();
+    }
+
+    let mut docs: Vec<RcDoc<'static, ()>> = Vec::new();
+
+    for directive in directives {
+        let simple_str = format_directive(directive);
+
+        if simple_str.len() <= LINE_WIDTH {
+            docs.push(RcDoc::text(simple_str));
+        } else {
+            docs.push(format_directive_expanded(directive));
         }
     }
 
-    fn print_document(&mut self, document: &ExecutableDocument) {
-        let mut first = true;
-        for definition in &document.definitions {
-            if !first {
-                self.output.push('\n');
-            }
-            first = false;
-            self.print_executable_definition(definition);
-        }
-    }
+    RcDoc::line()
+        .append(RcDoc::intersperse(docs, RcDoc::line()))
+        .group()
+}
 
-    fn print_executable_definition(&mut self, definition: &ExecutableDefinition) {
-        match definition {
-            ExecutableDefinition::Operation(op) => self.print_operation(op),
-            ExecutableDefinition::Fragment(frag) => self.print_fragment(frag),
-        }
-    }
+/// Format a directive with its arguments expanded across multiple lines.
+fn format_directive_expanded(directive: &Directive) -> RcDoc<'static, ()> {
+    let name_doc = RcDoc::text(format!("@{}", directive.name.value));
 
-    fn print_operation(&mut self, operation: &OperationDefinition) {
-        let is_anonymous_query = operation.operation.is_none()
-            && operation.name.is_none()
-            && operation.variable_definitions.is_none()
-            && operation.directives.is_empty();
-
-        if is_anonymous_query {
-            self.print_selection_set(&operation.selections.items);
-            self.output.push('\n');
-            return;
-        }
-
-        let kind = operation.operation_kind();
-        self.output.push_str(&kind.to_string());
-
-        if let Some(ref name) = operation.name {
-            self.output.push(' ');
-            self.output.push_str(&name.value.to_string());
-        }
-
-        if let Some(ref var_defs) = operation.variable_definitions {
-            let prefix_len = self.get_operation_prefix_length(operation);
-            self.print_variable_definitions_impl(&var_defs.items, prefix_len);
-        }
-
-        self.print_directives(&operation.directives);
-
-        self.output.push(' ');
-        self.print_selection_set(&operation.selections.items);
-        self.output.push('\n');
-    }
-
-    fn print_fragment(&mut self, fragment: &FragmentDefinition) {
-        self.output.push_str("fragment ");
-        self.output.push_str(&fragment.name.value.to_string());
-
-        if let Some(ref var_defs) = fragment.variable_definitions {
-            let prefix_len = "fragment ".len() + fragment.name.value.to_string().len();
-            self.print_variable_definitions_impl(&var_defs.items, prefix_len);
-        }
-
-        self.output.push_str(" on ");
-        self.output
-            .push_str(&fragment.type_condition.type_.value.to_string());
-
-        // For fragments, directives with wrapping arguments should be on a new line
-        self.print_fragment_directives(&fragment.directives);
-
-        self.output.push(' ');
-        self.print_selection_set(&fragment.selections.items);
-        self.output.push('\n');
-    }
-
-    /// Print directives for a fragment definition.
-    ///
-    /// When a directive has arguments that would wrap to multiple lines,
-    /// prettier puts the directive on a new line (at column 0, not indented).
-    fn print_fragment_directives(&mut self, directives: &[Directive]) {
-        for directive in directives {
-            // Check if this directive would need to wrap its arguments
-            let directive_str = self.format_directive_single_line(directive);
-            let would_wrap = self.current_line_length() + 1 + directive_str.len() > LINE_WIDTH;
-
-            if would_wrap {
-                // Put directive on new line when it would wrap
-                self.output.push('\n');
-                self.print_directive(directive);
-            } else {
-                // Keep on same line
-                self.output.push(' ');
-                self.print_directive(directive);
-            }
-        }
-    }
-
-    /// Format a directive as a single line string (for length calculation).
-    fn format_directive_single_line(&self, directive: &Directive) -> String {
-        let mut result = format!("@{}", directive.name.value);
-        if let Some(ref arguments) = directive.arguments {
-            let args: Vec<String> = arguments
+    if let Some(ref arguments) = directive.arguments {
+        if arguments.items.is_empty() {
+            name_doc
+        } else {
+            let arg_docs: Vec<RcDoc<'static, ()>> = arguments
                 .items
                 .iter()
-                .map(|arg| format!("{}: {}", arg.name.value, self.format_value(&arg.value)))
+                .map(|arg| RcDoc::text(format_argument(arg)))
                 .collect();
-            result.push('(');
-            result.push_str(&args.join(", "));
-            result.push(')');
+
+            name_doc
+                .append(RcDoc::text("("))
+                .append(
+                    RcDoc::hardline()
+                        .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+                        .nest(INDENT_WIDTH),
+                )
+                .append(RcDoc::hardline())
+                .append(RcDoc::text(")"))
         }
-        result
+    } else {
+        name_doc
     }
+}
 
-    /// Print variable definitions with the given prefix length for line-width calculation.
-    fn print_variable_definitions_impl(
-        &mut self,
-        var_defs: &[VariableDefinition],
-        prefix_len: usize,
-    ) {
-        if var_defs.is_empty() {
-            return;
-        }
-
-        let single_line = self.format_variable_definitions_single_line(var_defs);
-        if prefix_len + single_line.len() <= LINE_WIDTH {
-            self.output.push_str(&single_line);
-        } else {
-            self.output.push_str("(\n");
-            for var_def in var_defs {
-                self.output.push_str(INDENT);
-                self.print_variable_definition(var_def);
-                self.output.push('\n');
-            }
-            self.output.push(')');
-        }
+fn format_directive(directive: &Directive) -> String {
+    let mut result = format!("@{}", directive.name.value);
+    if let Some(ref arguments) = directive.arguments
+        && !arguments.items.is_empty()
+    {
+        let args: Vec<String> = arguments.items.iter().map(format_argument).collect();
+        result.push_str(&format!("({})", args.join(", ")));
     }
+    result
+}
 
-    fn get_operation_prefix_length(&self, operation: &OperationDefinition) -> usize {
-        let mut len = operation.operation_kind().to_string().len();
-        if let Some(ref name) = operation.name {
-            len += 1 + name.value.to_string().len();
+fn format_value(value: &Value) -> String {
+    match value {
+        Value::Constant(cv) => format_constant_value(cv),
+        Value::Variable(v) => format!("${}", v.name),
+        Value::List(list) => {
+            let items: Vec<String> = list.items.iter().map(format_value).collect();
+            format!("[{}]", items.join(", "))
         }
-        len
-    }
-
-    fn format_variable_definitions_single_line(&self, var_defs: &[VariableDefinition]) -> String {
-        let defs: Vec<String> = var_defs
-            .iter()
-            .map(|v| self.format_variable_definition(v))
-            .collect();
-        format!("({})", defs.join(", "))
-    }
-
-    fn format_variable_definition(&self, var_def: &VariableDefinition) -> String {
-        let mut result = format!(
-            "${}: {}",
-            var_def.name.name,
-            format_type_annotation(&var_def.type_)
-        );
-
-        if let Some(ref default) = var_def.default_value {
-            result.push_str(" = ");
-            result.push_str(&format_constant_value(&default.value));
+        Value::Object(obj) => {
+            let fields: Vec<String> = obj
+                .items
+                .iter()
+                .map(|arg| format!("{}: {}", arg.name.value, format_value(&arg.value)))
+                .collect();
+            format!("{{{}}}", fields.join(", "))
         }
-
-        if !var_def.directives.is_empty() {
-            result.push(' ');
-            result.push_str(&self.format_directives(&var_def.directives));
-        }
-
-        result
-    }
-
-    fn print_variable_definition(&mut self, var_def: &VariableDefinition) {
-        self.output.push('$');
-        self.output.push_str(&var_def.name.name.to_string());
-        self.output.push_str(": ");
-        self.output
-            .push_str(&format_type_annotation(&var_def.type_));
-
-        if let Some(ref default) = var_def.default_value {
-            self.output.push_str(" = ");
-            self.output.push_str(&format_constant_value(&default.value));
-        }
-
-        self.print_directives(&var_def.directives);
-    }
-
-    fn print_selection_set(&mut self, selections: &[Selection]) {
-        if selections.is_empty() {
-            return;
-        }
-
-        self.output.push_str("{\n");
-        self.indent_level += 1;
-
-        for selection in selections {
-            self.print_indent();
-            self.print_selection(selection);
-            self.output.push('\n');
-        }
-
-        self.indent_level -= 1;
-        self.print_indent();
-        self.output.push('}');
-    }
-
-    fn print_selection(&mut self, selection: &Selection) {
-        match selection {
-            Selection::ScalarField(field) => self.print_scalar_field(field),
-            Selection::LinkedField(field) => self.print_linked_field(field),
-            Selection::FragmentSpread(spread) => self.print_fragment_spread(spread),
-            Selection::InlineFragment(inline) => self.print_inline_fragment(inline),
-        }
-    }
-
-    fn print_scalar_field(&mut self, field: &ScalarField) {
-        if let Some(ref alias) = field.alias {
-            self.output.push_str(&alias.alias.value.to_string());
-            self.output.push_str(": ");
-        }
-
-        self.output.push_str(&field.name.value.to_string());
-
-        if let Some(ref args) = field.arguments {
-            self.print_arguments(&args.items, &field.name.value.to_string());
-        }
-
-        self.print_directives(&field.directives);
-    }
-
-    fn print_linked_field(&mut self, field: &LinkedField) {
-        if let Some(ref alias) = field.alias {
-            self.output.push_str(&alias.alias.value.to_string());
-            self.output.push_str(": ");
-        }
-
-        self.output.push_str(&field.name.value.to_string());
-
-        if let Some(ref args) = field.arguments {
-            self.print_arguments(&args.items, &field.name.value.to_string());
-        }
-
-        self.print_directives(&field.directives);
-
-        self.output.push(' ');
-        self.print_selection_set(&field.selections.items);
-    }
-
-    fn print_fragment_spread(&mut self, spread: &FragmentSpread) {
-        self.output.push_str("...");
-        self.output.push_str(&spread.name.value.to_string());
-
-        if let Some(ref args) = spread.arguments {
-            self.print_arguments(&args.items, &spread.name.value.to_string());
-        }
-
-        self.print_directives(&spread.directives);
-    }
-
-    fn print_inline_fragment(&mut self, inline: &InlineFragment) {
-        self.output.push_str("...");
-
-        if let Some(ref type_condition) = inline.type_condition {
-            self.output.push_str(" on ");
-            self.output
-                .push_str(&type_condition.type_.value.to_string());
-        }
-
-        self.print_directives(&inline.directives);
-
-        self.output.push(' ');
-        self.print_selection_set(&inline.selections.items);
-    }
-
-    fn print_arguments(&mut self, arguments: &[Argument], context: &str) {
-        if arguments.is_empty() {
-            return;
-        }
-
-        let single_line = self.format_arguments_single_line(arguments);
-        let current_line_len = self.current_line_length() + context.len();
-
-        if current_line_len + single_line.len() <= LINE_WIDTH {
-            self.output.push_str(&single_line);
-        } else {
-            self.output.push_str("(\n");
-            self.indent_level += 1;
-
-            for arg in arguments {
-                self.print_indent();
-                self.output.push_str(&arg.name.value.to_string());
-                self.output.push_str(": ");
-                self.print_value(&arg.value);
-                self.output.push('\n');
-            }
-
-            self.indent_level -= 1;
-            self.print_indent();
-            self.output.push(')');
-        }
-    }
-
-    fn format_arguments_single_line(&self, arguments: &[Argument]) -> String {
-        let args: Vec<String> = arguments
-            .iter()
-            .map(|arg| format!("{}: {}", arg.name.value, self.format_value(&arg.value)))
-            .collect();
-        format!("({})", args.join(", "))
-    }
-
-    fn print_directives(&mut self, directives: &[Directive]) {
-        for directive in directives {
-            self.output.push(' ');
-            self.print_directive(directive);
-        }
-    }
-
-    fn print_directive(&mut self, directive: &Directive) {
-        self.output.push('@');
-        self.output.push_str(&directive.name.value.to_string());
-
-        if let Some(ref arguments) = directive.arguments {
-            let single_line = self.format_arguments_single_line(&arguments.items);
-            if self.current_line_length() + single_line.len() <= LINE_WIDTH {
-                self.output.push_str(&single_line);
-            } else {
-                self.output.push_str("(\n");
-                self.indent_level += 1;
-
-                for arg in &arguments.items {
-                    self.print_indent();
-                    self.output.push_str(&arg.name.value.to_string());
-                    self.output.push_str(": ");
-                    self.print_value(&arg.value);
-                    self.output.push('\n');
-                }
-
-                self.indent_level -= 1;
-                self.print_indent();
-                self.output.push(')');
-            }
-        }
-    }
-
-    fn format_directives(&self, directives: &[Directive]) -> String {
-        directives
-            .iter()
-            .map(|d| {
-                let mut result = format!("@{}", d.name.value);
-                if let Some(ref arguments) = d.arguments {
-                    let args: Vec<String> = arguments
-                        .items
-                        .iter()
-                        .map(|arg| format!("{}: {}", arg.name.value, self.format_value(&arg.value)))
-                        .collect();
-                    result.push('(');
-                    result.push_str(&args.join(", "));
-                    result.push(')');
-                }
-                result
-            })
-            .collect::<Vec<_>>()
-            .join(" ")
-    }
-
-    fn print_value(&mut self, value: &Value) {
-        self.output.push_str(&self.format_value(value));
-    }
-
-    fn format_value(&self, value: &Value) -> String {
-        match value {
-            Value::Constant(cv) => format_constant_value(cv),
-            Value::Variable(v) => format!("${}", v.name),
-            Value::List(list) => {
-                let items: Vec<String> = list.items.iter().map(|v| self.format_value(v)).collect();
-                format!("[{}]", items.join(", "))
-            }
-            Value::Object(obj) => {
-                let fields: Vec<String> = obj
-                    .items
-                    .iter()
-                    .map(|arg| format!("{}: {}", arg.name.value, self.format_value(&arg.value)))
-                    .collect();
-                format!("{{{}}}", fields.join(", "))
-            }
-        }
-    }
-
-    fn print_indent(&mut self) {
-        for _ in 0..self.indent_level {
-            self.output.push_str(INDENT);
-        }
-    }
-
-    fn current_line_length(&self) -> usize {
-        current_line_length(&self.output)
     }
 }
 

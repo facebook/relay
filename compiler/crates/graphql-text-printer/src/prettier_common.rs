@@ -21,6 +21,37 @@ pub const LINE_WIDTH: usize = 80;
 /// Indentation string (2 spaces, matching prettier-graphql).
 pub const INDENT: &str = "  ";
 
+/// Double indentation (4 spaces) for nested content.
+pub const DOUBLE_INDENT: &str = "    ";
+
+/// Triple indentation (6 spaces) for deeply nested content.
+pub const TRIPLE_INDENT: &str = "      ";
+
+/// Check if content fits within the line width.
+///
+/// When `needs_trailing_content` is true, uses strict comparison (`<`)
+/// to leave room for trailing content like directives. Otherwise uses
+/// `<=` to allow content that exactly fits.
+#[inline]
+pub fn fits_on_line(total_len: usize, needs_trailing_content: bool) -> bool {
+    if needs_trailing_content {
+        total_len < LINE_WIDTH
+    } else {
+        total_len <= LINE_WIDTH
+    }
+}
+
+/// Calculate the length of the current line from the output buffer.
+///
+/// Returns the number of characters since the last newline, or the
+/// total length if there is no newline.
+#[inline]
+pub fn current_line_length(output: &str) -> usize {
+    output
+        .rfind('\n')
+        .map_or(output.len(), |pos| output.len() - pos - 1)
+}
+
 /// Formats a `ConstantValue` as a string.
 ///
 /// This handles all constant value types: Int, Float, String, Boolean,

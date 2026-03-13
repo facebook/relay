@@ -26,6 +26,7 @@ use graphql_syntax::VariableDefinition;
 
 use crate::prettier_common::INDENT;
 use crate::prettier_common::LINE_WIDTH;
+use crate::prettier_common::current_line_length;
 use crate::prettier_common::format_constant_value;
 use crate::prettier_common::format_type_annotation;
 
@@ -112,7 +113,8 @@ impl PrettierExecutablePrinter {
         }
 
         if let Some(ref var_defs) = operation.variable_definitions {
-            self.print_variable_definitions(&var_defs.items, operation);
+            let prefix_len = self.get_operation_prefix_length(operation);
+            self.print_variable_definitions_impl(&var_defs.items, prefix_len);
         }
 
         self.print_directives(&operation.directives);
@@ -127,7 +129,8 @@ impl PrettierExecutablePrinter {
         self.output.push_str(&fragment.name.value.to_string());
 
         if let Some(ref var_defs) = fragment.variable_definitions {
-            self.print_fragment_variable_definitions(&var_defs.items, fragment);
+            let prefix_len = "fragment ".len() + fragment.name.value.to_string().len();
+            self.print_variable_definitions_impl(&var_defs.items, prefix_len);
         }
 
         self.output.push_str(" on ");
@@ -180,43 +183,17 @@ impl PrettierExecutablePrinter {
         result
     }
 
-    fn print_variable_definitions(
+    /// Print variable definitions with the given prefix length for line-width calculation.
+    fn print_variable_definitions_impl(
         &mut self,
         var_defs: &[VariableDefinition],
-        operation: &OperationDefinition,
+        prefix_len: usize,
     ) {
         if var_defs.is_empty() {
             return;
         }
 
         let single_line = self.format_variable_definitions_single_line(var_defs);
-        let operation_prefix = self.get_operation_prefix_length(operation);
-
-        if operation_prefix + single_line.len() <= LINE_WIDTH {
-            self.output.push_str(&single_line);
-        } else {
-            self.output.push_str("(\n");
-            for var_def in var_defs {
-                self.output.push_str(INDENT);
-                self.print_variable_definition(var_def);
-                self.output.push('\n');
-            }
-            self.output.push(')');
-        }
-    }
-
-    fn print_fragment_variable_definitions(
-        &mut self,
-        var_defs: &[VariableDefinition],
-        fragment: &FragmentDefinition,
-    ) {
-        if var_defs.is_empty() {
-            return;
-        }
-
-        let single_line = self.format_variable_definitions_single_line(var_defs);
-        let prefix_len = "fragment ".len() + fragment.name.value.to_string().len();
-
         if prefix_len + single_line.len() <= LINE_WIDTH {
             self.output.push_str(&single_line);
         } else {
@@ -489,10 +466,7 @@ impl PrettierExecutablePrinter {
     }
 
     fn current_line_length(&self) -> usize {
-        self.output
-            .rfind('\n')
-            .map(|pos| self.output.len() - pos - 1)
-            .unwrap_or(self.output.len())
+        current_line_length(&self.output)
     }
 }
 

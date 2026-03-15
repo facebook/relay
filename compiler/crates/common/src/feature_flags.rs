@@ -199,6 +199,12 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub new_flow_casting_syntax: FeatureFlag,
 
+    /// Use `(expr as Type)` instead of `(expr: Type)` for Flow type assertions
+    /// in `requireCond` patterns. This enables gradual rollout of the new
+    /// casting syntax for requireCond-generated artifacts.
+    #[serde(default)]
+    pub new_flow_casting_syntax_require_cond: FeatureFlag,
+
     /// When enabled for a given name, allows `@RelayResolver` as a legacy
     /// alias for `@relayType` / `@relayField`.
     #[serde(default)]
@@ -243,6 +249,7 @@ impl Default for FeatureFlags {
             disallow_required_action_throw_on_semantically_nullable_fields: Default::default(),
             enable_shadow_resolvers: Default::default(),
             new_flow_casting_syntax: Default::default(),
+            new_flow_casting_syntax_require_cond: Default::default(),
             allow_legacy_relay_resolver_tag: Default::default(),
             enforce_module_name_prefix_for_non_haste: Default::default(),
 

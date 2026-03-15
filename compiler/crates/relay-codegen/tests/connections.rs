@@ -32,6 +32,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         js_module_format: JsModuleFormat::Haste,
         feature_flags: Arc::new(FeatureFlags {
             new_flow_casting_syntax: FeatureFlag::Enabled,
+            new_flow_casting_syntax_require_cond: FeatureFlag::Enabled,
             ..Default::default()
         }),
         ..Default::default()

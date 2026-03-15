@@ -707,6 +707,13 @@
             "kind": "disabled"
           }
         },
+        "new_flow_casting_syntax_require_cond": {
+          "description": "Use `(expr as Type)` instead of `(expr: Type)` for Flow type assertions\nin `requireCond` patterns. This enables gradual rollout of the new\ncasting syntax for requireCond-generated artifacts.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "no_inline": {
           "description": "For now, this also disallows fragments with variable definitions\nThis also makes @module to opt in using @no_inline internally\nNOTE that the presence of a fragment in this list only controls whether a fragment is *allowed* to\nuse @no_inline: whether the fragment is inlined or not depends on whether it actually uses that\ndirective.",
           "$ref": "#/$defs/FeatureFlag",
@@ -963,6 +970,9 @@
               "kind": "disabled"
             },
             "new_flow_casting_syntax": {
+              "kind": "disabled"
+            },
+            "new_flow_casting_syntax_require_cond": {
               "kind": "disabled"
             },
             "no_inline": {

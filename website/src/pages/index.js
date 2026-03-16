@@ -45,25 +45,10 @@ function UseFragmentLink() {
   );
 }
 
-function HomeBanner() {
-  return (
-    <div className="homeBanner">
-      Support Ukraine 🇺🇦{' '}
-      <Link to="https://opensource.facebook.com/support-ukraine">
-        Help Provide Humanitarian Aid to Ukraine
-      </Link>
-      .
-    </div>
-  );
-}
-
 const HomeSplash = () => {
   const {siteConfig} = useDocusaurusContext();
   return (
     <div>
-      <div>
-        <HomeBanner />
-      </div>
       <div className="homeContainer">
         <div className="homeSplashFade">
           <div className="logo">

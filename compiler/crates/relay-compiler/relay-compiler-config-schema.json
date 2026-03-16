@@ -207,6 +207,12 @@
             "null"
           ]
         },
+        "schemaCompact": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "schemaConfig": {
           "description": "Extra configuration for the GraphQL schema itself.",
           "$ref": "#/$defs/SchemaConfig",
@@ -249,12 +255,6 @@
           "items": {
             "type": "string"
           }
-        },
-        "schemaFlatbuffer": {
-          "type": [
-            "string",
-            "null"
-          ]
         },
         "schemaName": {
           "description": "Schema name, if differs from project name.\nIf schema name is unset, the project name will be used as schema name.",

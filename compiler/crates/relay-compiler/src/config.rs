@@ -404,7 +404,7 @@ impl Config {
                 let schema_location = match (
                     config_file_project.schema,
                     config_file_project.schema_dir,
-                    config_file_project.schema_flatbuffer,
+                    config_file_project.schema_compact,
                 ) {
                     (Some(schema_file), None, None) => Ok(SchemaLocation::File(
                         normalize_relative_path(&root_dir, &schema_file),
@@ -412,8 +412,8 @@ impl Config {
                     (None, Some(schema_dir), None) => Ok(SchemaLocation::Directory(
                         normalize_relative_path(&root_dir, &schema_dir),
                     )),
-                    (None, None, Some(schema_flatbuffer)) => Ok(SchemaLocation::FlatbufferFile(
-                        normalize_relative_path(&root_dir, &schema_flatbuffer),
+                    (None, None, Some(schema_compact)) => Ok(SchemaLocation::CompactFile(
+                        normalize_relative_path(&root_dir, &schema_compact),
                     )),
                     _ => Err(Error::ConfigFileValidation {
                         config_path: config_path.clone(),
@@ -658,7 +658,7 @@ impl Config {
 
         for (_, project) in &self.projects {
             match &project.schema_location {
-                SchemaLocation::FlatbufferFile(schema_file) | SchemaLocation::File(schema_file) => {
+                SchemaLocation::CompactFile(schema_file) | SchemaLocation::File(schema_file) => {
                     validator.assert_is_included_schema_file(schema_file);
                 }
                 SchemaLocation::Directory(schema_dir) => {
@@ -736,9 +736,10 @@ impl Config {
         self.projects
             .values()
             .filter_map(|project_config| match &project_config.schema_location {
-                SchemaLocation::File(schema_file) => Some(schema_file.clone()),
+                SchemaLocation::File(schema_file) | SchemaLocation::CompactFile(schema_file) => {
+                    Some(schema_file.clone())
+                }
                 SchemaLocation::Directory(_) => None,
-                SchemaLocation::FlatbufferFile(schema_file) => Some(schema_file.clone()),
             })
             .collect()
     }
@@ -748,9 +749,8 @@ impl Config {
         self.projects
             .values()
             .filter_map(|project_config| match &project_config.schema_location {
-                SchemaLocation::File(_) => None,
+                SchemaLocation::File(_) | SchemaLocation::CompactFile(_) => None,
                 SchemaLocation::Directory(schema_dir) => Some(schema_dir.clone()),
-                SchemaLocation::FlatbufferFile(_) => None,
             })
             .collect()
     }
@@ -1247,7 +1247,7 @@ pub struct ConfigFileProject {
     /// Exactly 1 of these options needs to be defined.
     schema: Option<PathBuf>,
     schema_dir: Option<PathBuf>,
-    schema_flatbuffer: Option<PathBuf>,
+    schema_compact: Option<PathBuf>,
 
     /// Schema name, if differs from project name.
     /// If schema name is unset, the project name will be used as schema name.

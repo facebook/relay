@@ -18,7 +18,6 @@ use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::validate_resolver_schema;
 use schema::SDLSchema;
 use schema::SchemaDocuments;
-use schema::build_schema_with_flat_buffer_unchecked;
 use schema::parse_schema_with_extensions;
 use schema_validate_lib::SchemaValidationOptions;
 use schema_validate_lib::validate;
@@ -62,32 +61,30 @@ fn build_schema_impl(
     config: &Config,
     graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
-    if let SchemaLocation::FlatbufferFile(fb_path) = &project_config.schema_location {
-        // Load flatbuffer (has base schema + SDL extensions, but NOT docblock IRs)
-        let mut schema = if let Some(fb_sources) =
-            compiler_state.flatbuffer_schemas.get(&project_config.name)
-            && let Some(bytes) = fb_sources.get_current_bytes()
+    if let SchemaLocation::CompactFile(compact_path) = &project_config.schema_location {
+        // Load compact schema (has base schema + SDL extensions, but NOT docblock IRs).
+        // Compact format deserializes directly into InMemorySchema with parallel decoding.
+        let owned_bytes;
+        let compact_bytes: &[u8] = if let Some(compact_sources) =
+            compiler_state.compact_schemas.get(&project_config.name)
+            && let Some(bytes) = compact_sources.get_current_bytes()
         {
-            build_schema_with_flat_buffer_unchecked(bytes.clone())
+            bytes
         } else {
-            let contents = std::fs::read(config.root_dir.join(fb_path))
+            owned_bytes = std::fs::read(config.root_dir.join(compact_path))
                 .map_err(|e| vec![Diagnostic::error(e.to_string(), Location::generated())])?;
-            build_schema_with_flat_buffer_unchecked(contents)
+            &owned_bytes
         };
+        let mut schema = log_event.time("deserialize_compact_schema_time", || {
+            SDLSchema::InMemory(schema::compact::deserialize_parallel(compact_bytes))
+        });
 
         // Extract docblock IRs
         let resolver_schema_data = log_event.time("collect_resolver_schema_time", || {
             extract_docblock_ir(config, compiler_state, project_config, graphql_asts_map)
         })?;
 
-        // Apply type IRs as mutations (since they can't be baked into the flatbuffer).
-        //
-        // Unlike the non-FB path (InMemorySchema::build), which does a two-pass
-        // batch build (collect all type names, then resolve all field references),
-        // here we apply each resolver type definition one-by-one. This works because
-        // resolver types typically only reference existing base-schema types that are
-        // already present in the flatbuffer. If cross-resolver-type references become
-        // necessary, this will need to be converted to a two-pass approach.
+        // Apply type IRs as mutations
         log_event.time(
             "build_resolver_types_schema_time",
             || -> DiagnosticsResult<()> {

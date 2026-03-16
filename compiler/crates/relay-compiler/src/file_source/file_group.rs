@@ -23,7 +23,7 @@ pub enum FileGroup {
     Source {
         project_set: ProjectSet,
     },
-    FlatbufferSchema {
+    CompactSchema {
         project_set: ProjectSet,
     },
     /// Files, that are located in the generated directory, but not created

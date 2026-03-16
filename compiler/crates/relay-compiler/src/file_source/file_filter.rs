@@ -75,7 +75,7 @@ fn get_extra_roots(config: &Config, enabled_projects: &FnvHashSet<ProjectName>) 
             roots.push(output_dir);
         }
         match &project_config.schema_location {
-            SchemaLocation::FlatbufferFile(path)
+            SchemaLocation::CompactFile(path)
             | SchemaLocation::File(path)
             | SchemaLocation::Directory(path) => roots.push(path),
         }

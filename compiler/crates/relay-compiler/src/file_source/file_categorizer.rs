@@ -81,7 +81,7 @@ pub fn categorize_files(
                             FileGroup::Source { project_set }
                             | FileGroup::Schema { project_set }
                             | FileGroup::Extension { project_set }
-                            | FileGroup::FlatbufferSchema { project_set } => !project_set
+                            | FileGroup::CompactSchema { project_set } => !project_set
                                 .iter()
                                 .any(|name| relevant_projects.contains(name)),
                             FileGroup::Ignore => false,
@@ -144,7 +144,7 @@ pub struct FileCategorizer {
     generated_sources: Vec<PathBuf>,
     source_mapping: PathMapping<ProjectSet>,
     schema_file_mapping: HashMap<PathBuf, ProjectSet>,
-    flatbuffer_schema_file_mapping: HashMap<PathBuf, ProjectSet>,
+    compact_schema_file_mapping: HashMap<PathBuf, ProjectSet>,
     schema_dir_mapping: PathMapping<ProjectSet>,
 }
 
@@ -181,12 +181,12 @@ impl FileCategorizer {
         }
 
         let mut schema_file_mapping: HashMap<PathBuf, ProjectSet> = Default::default();
-        let mut flatbuffer_schema_file_mapping: HashMap<PathBuf, ProjectSet> = Default::default();
+        let mut compact_schema_file_mapping: HashMap<PathBuf, ProjectSet> = Default::default();
         let mut schema_dir_mapping_map: HashMap<PathBuf, ProjectSet> = Default::default();
         for (&project_name, project_config) in &config.projects {
             match &project_config.schema_location {
-                SchemaLocation::FlatbufferFile(schema_file) => {
-                    flatbuffer_schema_file_mapping
+                SchemaLocation::CompactFile(schema_file) => {
+                    compact_schema_file_mapping
                         .entry(schema_file.clone())
                         .and_modify(|project_set| project_set.insert(project_name))
                         .or_insert_with(|| ProjectSet::of(project_name));
@@ -235,7 +235,7 @@ impl FileCategorizer {
             generated_dir_mapping: PathMapping::new(generated_dir_mapping),
             generated_sources,
             schema_file_mapping,
-            flatbuffer_schema_file_mapping,
+            compact_schema_file_mapping,
             schema_dir_mapping: PathMapping::new(schema_dir_mapping),
             source_mapping: PathMapping::new(source_mapping),
         }
@@ -247,9 +247,9 @@ impl FileCategorizer {
     pub fn categorize(&self, path: &Path, config: &Config) -> Result<FileGroup, Cow<'static, str>> {
         let extension = path.extension();
 
-        // Check if this is a flatbuffer schema file (matched by exact path, not extension)
-        if let Some(project_set) = self.flatbuffer_schema_file_mapping.get(path) {
-            return Ok(FileGroup::FlatbufferSchema {
+        // Check if this is a compact schema file (matched by exact path, not extension)
+        if let Some(project_set) = self.compact_schema_file_mapping.get(path) {
+            return Ok(FileGroup::CompactSchema {
                 project_set: project_set.clone(),
             });
         }
@@ -475,7 +475,7 @@ mod tests {
                             "language": "flow"
                         },
                         "flatbuffer_project": {
-                            "schemaFlatbuffer": "schema/fb_schema.bin",
+                            "schemaCompact": "schema/fb_schema.bin",
                             "language": "flow"
                         }
                     }
@@ -595,7 +595,7 @@ mod tests {
             categorizer
                 .categorize(&PathBuf::from("schema/fb_schema.bin"), &config)
                 .unwrap(),
-            FileGroup::FlatbufferSchema {
+            FileGroup::CompactSchema {
                 project_set: ProjectSet::of("flatbuffer_project".intern().into()),
             },
         );

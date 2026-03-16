@@ -671,7 +671,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
                 Ok(())
             }
-            FileGroup::FlatbufferSchema { project_set: _ } => {
+            FileGroup::CompactSchema { project_set: _ } => {
                 self.initialize_lsp_state_resources(project_name);
                 Ok(())
             }
@@ -703,7 +703,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
                 Ok(())
             }
-            FileGroup::FlatbufferSchema { project_set: _ } => Ok(()),
+            FileGroup::CompactSchema { project_set: _ } => Ok(()),
             FileGroup::Source { project_set: _ } => {
                 let mut embedded_sources = extract_graphql::extract(text);
                 if text.contains("relay:enable-new-relay-resolver") {

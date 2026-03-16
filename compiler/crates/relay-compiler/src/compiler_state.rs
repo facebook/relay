@@ -39,7 +39,6 @@ use rayon::prelude::*;
 use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use schema::SDLSchema;
-use schema::build_schema_with_flat_buffer_unchecked;
 use schema_diff::check::SchemaChangeSafety;
 use schema_diff::definitions::SchemaChange;
 use schema_diff::detect_changes;
@@ -267,7 +266,7 @@ pub type GraphQLSources = IncrementalSources<Vec<LocatedGraphQLSource>>;
 pub type SchemaSources = IncrementalSources<String>;
 pub type DocblockSources = IncrementalSources<Vec<LocatedDocblockSource>>;
 pub type FullSources = IncrementalSources<String>;
-pub type FlatbufferSchemaSources = IncrementalSources<Vec<u8>>;
+pub type CompactSchemaSources = IncrementalSources<Vec<u8>>;
 
 impl Source for String {
     fn is_empty(&self) -> bool {
@@ -301,19 +300,20 @@ impl SchemaSources {
     }
 }
 
-impl FlatbufferSchemaSources {
-    /// Get the current flatbuffer bytes (pending merged over processed).
-    /// Returns None if there are no sources. For flatbuffer schemas,
+impl CompactSchemaSources {
+    /// Get the current compact bytes (pending merged over processed).
+    /// Returns None if there are no sources. For compact schemas,
     /// there should be exactly one entry (single file).
     pub fn get_current_bytes(&self) -> Option<&Vec<u8>> {
         self.get_all_non_empty().first().map(|(_, v)| *v)
     }
 
-    /// Get the previous (processed) flatbuffer bytes.
+    /// Get the previous (processed) compact bytes.
     pub fn get_old_bytes(&self) -> Option<&Vec<u8>> {
         self.processed.values().find(|v| !v.is_empty())
     }
 }
+
 #[derive(Serialize, Deserialize, Debug)]
 pub enum ArtifactMapKind {
     /// A simple set of paths of generated files. This kind is used when the
@@ -347,7 +347,7 @@ pub struct CompilerState {
     #[serde(skip)]
     pub source_control_update_status: Arc<SourceControlUpdateStatus>,
     #[serde(default)]
-    pub flatbuffer_schemas: FnvHashMap<ProjectName, FlatbufferSchemaSources>,
+    pub compact_schemas: FnvHashMap<ProjectName, CompactSchemaSources>,
 }
 
 /// Stringify a path such that it's stable across operating systems.
@@ -427,7 +427,7 @@ enum FileSourceIntermediateResult {
         FullSourceSet,
     ),
     Schema(ProjectSet, FnvHashMap<PathBuf, String>, Vec<PathBuf>),
-    FlatbufferSchema(ProjectSet, FnvHashMap<PathBuf, Vec<u8>>, Vec<PathBuf>),
+    CompactSchema(ProjectSet, FnvHashMap<PathBuf, Vec<u8>>, Vec<PathBuf>),
     Extension(ProjectSet, FnvHashMap<PathBuf, String>, Vec<PathBuf>),
     Generated(ProjectName, FnvHashSet<PathBuf>),
     Ignore,
@@ -481,9 +481,9 @@ impl CompilerState {
                         entry.merge_pending_sources(&added);
                     }
                 }
-                FileSourceIntermediateResult::FlatbufferSchema(project_set, added, removed) => {
+                FileSourceIntermediateResult::CompactSchema(project_set, added, removed) => {
                     for project_name in project_set {
-                        let entry = result.flatbuffer_schemas.entry(project_name).or_default();
+                        let entry = result.compact_schemas.entry(project_name).or_default();
                         for source in &removed {
                             entry.pending.insert(source.clone(), Vec::new());
                         }
@@ -525,7 +525,7 @@ impl CompilerState {
             .get(&project_name)
             .is_some_and(|sources| !sources.pending.is_empty())
             || self
-                .flatbuffer_schemas
+                .compact_schemas
                 .get(&project_name)
                 .is_some_and(|sources| !sources.pending.is_empty())
             || self.has_pending_non_schema_changes(project_name)
@@ -538,15 +538,12 @@ impl CompilerState {
             (None, None) => true,
             _ => false,
         };
-        let fb_match = match (
-            self.flatbuffer_schemas.get(&a),
-            self.flatbuffer_schemas.get(&b),
-        ) {
+        let compact_match = match (self.compact_schemas.get(&a), self.compact_schemas.get(&b)) {
             (Some(a), Some(b)) => a.pending == b.pending,
             (None, None) => true,
             _ => false,
         };
-        sdl_match && fb_match
+        sdl_match && compact_match
     }
 
     /// Whether a project has pending extension, docblock, or full_source changes.
@@ -573,7 +570,7 @@ impl CompilerState {
                 .values()
                 .any(|sources| !sources.processed.is_empty())
             || self
-                .flatbuffer_schemas
+                .compact_schemas
                 .values()
                 .any(|sources| !sources.processed.is_empty())
             || self
@@ -650,15 +647,17 @@ impl CompilerState {
             log_event.string("has_breaking_schema_change", "full_source".to_owned());
             return SchemaChangeSafety::Unsafe;
         }
-        if let Some(fb_sources) = self.flatbuffer_schemas.get(&project_name)
-            && !fb_sources.pending.is_empty()
+        if let Some(compact_sources) = self.compact_schemas.get(&project_name)
+            && !compact_sources.pending.is_empty()
         {
-            let current_bytes = fb_sources.get_current_bytes();
-            let old_bytes = fb_sources.get_old_bytes();
+            let current_bytes = compact_sources.get_current_bytes();
+            let old_bytes = compact_sources.get_old_bytes();
             match (current_bytes, old_bytes) {
                 (Some(curr), Some(old)) => {
-                    let current_schema = build_schema_with_flat_buffer_unchecked(curr.clone());
-                    let previous_schema = build_schema_with_flat_buffer_unchecked(old.clone());
+                    let current_schema =
+                        SDLSchema::InMemory(schema::compact::deserialize_parallel(curr));
+                    let previous_schema =
+                        SDLSchema::InMemory(schema::compact::deserialize_parallel(old));
                     let schema_change =
                         detect_changes_from_schemas(&current_schema, &previous_schema);
                     let schema_change_string = schema_change.to_string();
@@ -673,7 +672,7 @@ impl CompilerState {
                             log_event.string("schema_change", schema_change_string);
                             log_event.string(
                                 "has_breaking_schema_change",
-                                "flatbuffer_schema_change".to_owned(),
+                                "compact_schema_change".to_owned(),
                             );
                         }
                         SchemaChangeSafety::SafeWithIncrementalBuild(_)
@@ -682,7 +681,7 @@ impl CompilerState {
                     return schema_change_safety;
                 }
                 _ => {
-                    log_event.string("has_breaking_schema_change", "flatbuffer_schema".to_owned());
+                    log_event.string("has_breaking_schema_change", "compact_schema".to_owned());
                     return SchemaChangeSafety::Unsafe;
                 }
             }
@@ -775,10 +774,10 @@ impl CompilerState {
                             entry.merge_pending_sources(&added);
                         }
                     }
-                    FileSourceIntermediateResult::FlatbufferSchema(project_set, added, removed) => {
+                    FileSourceIntermediateResult::CompactSchema(project_set, added, removed) => {
                         has_changed = true;
                         for project_name in project_set {
-                            let entry = self.flatbuffer_schemas.entry(project_name).or_default();
+                            let entry = self.compact_schemas.entry(project_name).or_default();
                             for source in &removed {
                                 entry.pending.insert(source.clone(), Vec::new());
                             }
@@ -816,7 +815,7 @@ impl CompilerState {
         for sources in self.schemas.values_mut() {
             sources.commit_pending_sources();
         }
-        for sources in self.flatbuffer_schemas.values_mut() {
+        for sources in self.compact_schemas.values_mut() {
             sources.commit_pending_sources();
         }
         for sources in self.extensions.values_mut() {
@@ -1011,7 +1010,7 @@ fn process_intermediate_schema_change(
     Ok((added_sources, removed_sources))
 }
 
-fn process_intermediate_flatbuffer_schema_change(
+fn process_intermediate_compact_schema_change(
     file_source_changes: &FileSourceResult,
     files: Vec<File>,
 ) -> Result<(IncrementalSourceSet<Vec<u8>>, Vec<PathBuf>)> {
@@ -1069,10 +1068,10 @@ fn process_categorized_sources(
                     removed,
                 ))
             }
-            FileGroup::FlatbufferSchema { project_set } => {
+            FileGroup::CompactSchema { project_set } => {
                 let (added, removed) =
-                    process_intermediate_flatbuffer_schema_change(file_source_changes, files)?;
-                Ok(FileSourceIntermediateResult::FlatbufferSchema(
+                    process_intermediate_compact_schema_change(file_source_changes, files)?;
+                Ok(FileSourceIntermediateResult::CompactSchema(
                     project_set,
                     added,
                     removed,
@@ -1257,11 +1256,11 @@ mod tests {
         assert_eq!(incremental_source.pending.get(&a), None);
     }
 
-    // --- FlatbufferSchemaSources::get_current_bytes tests ---
+    // --- CompactSchemaSources::get_current_bytes tests ---
 
     #[test]
     fn get_current_bytes_with_only_pending() {
-        let mut sources: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
         sources
             .pending
             .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
@@ -1270,7 +1269,7 @@ mod tests {
 
     #[test]
     fn get_current_bytes_with_only_processed() {
-        let mut sources: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
         sources
             .processed
             .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
@@ -1279,7 +1278,7 @@ mod tests {
 
     #[test]
     fn get_current_bytes_pending_overrides_processed() {
-        let mut sources: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
         let path = PathBuf::from("schema.bin");
         sources.processed.insert(path.clone(), vec![1, 2, 3]);
         sources.pending.insert(path, vec![4, 5, 6]);
@@ -1288,7 +1287,7 @@ mod tests {
 
     #[test]
     fn get_current_bytes_empty_sources() {
-        let sources: FlatbufferSchemaSources = IncrementalSources::default();
+        let sources: CompactSchemaSources = IncrementalSources::default();
         assert_eq!(sources.get_current_bytes(), None);
     }
 
@@ -1296,18 +1295,18 @@ mod tests {
     fn get_current_bytes_skips_empty_pending() {
         // An empty pending vec is treated as a deletion; get_current_bytes
         // filters out empty entries via get_all_non_empty.
-        let mut sources: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
         sources
             .pending
             .insert(PathBuf::from("schema.bin"), Vec::new());
         assert_eq!(sources.get_current_bytes(), None);
     }
 
-    // --- FlatbufferSchemaSources::get_old_bytes tests ---
+    // --- CompactSchemaSources::get_old_bytes tests ---
 
     #[test]
     fn get_old_bytes_returns_processed() {
-        let mut sources: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
         sources
             .processed
             .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
@@ -1317,7 +1316,7 @@ mod tests {
     #[test]
     fn get_old_bytes_ignores_pending() {
         // get_old_bytes only looks at processed, not pending.
-        let mut sources: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
         sources
             .pending
             .insert(PathBuf::from("schema.bin"), vec![4, 5, 6]);
@@ -1326,7 +1325,7 @@ mod tests {
 
     #[test]
     fn get_old_bytes_skips_empty_processed() {
-        let mut sources: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
         sources
             .processed
             .insert(PathBuf::from("schema.bin"), Vec::new());
@@ -1335,7 +1334,7 @@ mod tests {
 
     #[test]
     fn get_old_bytes_empty_sources() {
-        let sources: FlatbufferSchemaSources = IncrementalSources::default();
+        let sources: CompactSchemaSources = IncrementalSources::default();
         assert_eq!(sources.get_old_bytes(), None);
     }
 
@@ -1399,15 +1398,15 @@ mod tests {
         let a = project("project_a");
         let b = project("project_b");
 
-        let mut fb_a: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut fb_a: CompactSchemaSources = IncrementalSources::default();
         fb_a.pending
             .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
-        let mut fb_b: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut fb_b: CompactSchemaSources = IncrementalSources::default();
         fb_b.pending
             .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
 
-        state.flatbuffer_schemas.insert(a, fb_a);
-        state.flatbuffer_schemas.insert(b, fb_b);
+        state.compact_schemas.insert(a, fb_a);
+        state.compact_schemas.insert(b, fb_b);
 
         assert!(state.projects_share_pending_schemas(a, b));
     }
@@ -1418,15 +1417,15 @@ mod tests {
         let a = project("project_a");
         let b = project("project_b");
 
-        let mut fb_a: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut fb_a: CompactSchemaSources = IncrementalSources::default();
         fb_a.pending
             .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
-        let mut fb_b: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut fb_b: CompactSchemaSources = IncrementalSources::default();
         fb_b.pending
             .insert(PathBuf::from("schema.bin"), vec![4, 5, 6]);
 
-        state.flatbuffer_schemas.insert(a, fb_a);
-        state.flatbuffer_schemas.insert(b, fb_b);
+        state.compact_schemas.insert(a, fb_a);
+        state.compact_schemas.insert(b, fb_b);
 
         assert!(!state.projects_share_pending_schemas(a, b));
     }
@@ -1447,10 +1446,10 @@ mod tests {
         );
         state.schemas.insert(a, schemas_a);
 
-        let mut fb_b: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut fb_b: CompactSchemaSources = IncrementalSources::default();
         fb_b.pending
             .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
-        state.flatbuffer_schemas.insert(b, fb_b);
+        state.compact_schemas.insert(b, fb_b);
 
         assert!(!state.projects_share_pending_schemas(a, b));
     }
@@ -1462,10 +1461,10 @@ mod tests {
         let mut state = CompilerState::default();
         let proj = project("my_project");
 
-        let mut fb: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut fb: CompactSchemaSources = IncrementalSources::default();
         fb.pending
             .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
-        state.flatbuffer_schemas.insert(proj, fb);
+        state.compact_schemas.insert(proj, fb);
 
         assert!(state.project_has_pending_schema_changes(proj));
     }
@@ -1476,10 +1475,10 @@ mod tests {
         let mut state = CompilerState::default();
         let proj = project("my_project");
 
-        let mut fb: FlatbufferSchemaSources = IncrementalSources::default();
+        let mut fb: CompactSchemaSources = IncrementalSources::default();
         fb.processed
             .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
-        state.flatbuffer_schemas.insert(proj, fb);
+        state.compact_schemas.insert(proj, fb);
 
         assert!(!state.project_has_pending_schema_changes(proj));
     }

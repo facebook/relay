@@ -29,7 +29,7 @@ query TestQuery {
                     alias: None,
                     definition: WithLocation {
                         location: field-arguments.graphql:20:24,
-                        item: FieldID(14),
+                        item: FieldID(15),
                     },
                     arguments: [
                         Argument {
@@ -55,7 +55,7 @@ query TestQuery {
                             alias: None,
                             definition: WithLocation {
                                 location: field-arguments.graphql:44:49,
-                                item: FieldID(30),
+                                item: FieldID(31),
                             },
                             arguments: [],
                             directives: [],
@@ -66,7 +66,7 @@ query TestQuery {
                     alias: None,
                     definition: WithLocation {
                         location: field-arguments.graphql:56:64,
-                        item: FieldID(12),
+                        item: FieldID(13),
                     },
                     arguments: [
                         Argument {
@@ -92,7 +92,7 @@ query TestQuery {
                             alias: None,
                             definition: WithLocation {
                                 location: field-arguments.graphql:89:107,
-                                item: FieldID(516),
+                                item: FieldID(519),
                             },
                             arguments: [],
                             directives: [],
@@ -103,7 +103,7 @@ query TestQuery {
                     alias: None,
                     definition: WithLocation {
                         location: field-arguments.graphql:114:132,
-                        item: FieldID(0),
+                        item: FieldID(1),
                     },
                     arguments: [
                         Argument {
@@ -144,7 +144,7 @@ query TestQuery {
                             alias: None,
                             definition: WithLocation {
                                 location: field-arguments.graphql:164:169,
-                                item: FieldID(56),
+                                item: FieldID(57),
                             },
                             arguments: [],
                             directives: [],

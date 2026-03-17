@@ -41,7 +41,7 @@ query TestQuery @exec_time_resolvers {
      {
       ...ClientRecommendationResolverFragment @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_id: FieldID(527),
+      #     field_id: FieldID(530),
       #     import_path: "ClientRecommendationResolver",
       #     import_name: None,
       #     field_alias: None,

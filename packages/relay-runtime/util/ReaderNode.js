@@ -299,6 +299,7 @@ export type ReaderClientEdgeToClientObject = {
   +modelResolvers: {
     [string]: ReaderRelayResolver | ReaderRelayLiveResolver,
   } | null,
+  +serverObjectOperations?: {[string]: ConcreteRequest} | null,
   +linkedField: ReaderLinkedField,
   +backingField:
     | ReaderRelayResolver

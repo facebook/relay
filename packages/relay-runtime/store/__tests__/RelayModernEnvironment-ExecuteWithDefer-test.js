@@ -10,7 +10,11 @@
  */
 
 'use strict';
-import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {
+  GraphQLResponse,
+  PayloadExtensions,
+} from '../../network/RelayNetworkTypes';
+import type {Sink} from '../../network/RelayObservable';
 import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
@@ -108,8 +112,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           _variables: Variables,
           _cacheConfig: CacheConfig,
         ) => {
-          // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
-          return RelayObservable.create(sink => {
+          return RelayObservable.create((sink: Sink<GraphQLResponse>) => {
             dataSource = sink;
           });
         };
@@ -225,7 +228,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         next.mockClear();
         callback.mockClear();
 
-        const extensionsPayload = {data: null, extensions: {foo: 'foo'}};
+        const extensionsPayload = {
+          data: null,
+          extensions: {foo: 'foo'} as PayloadExtensions,
+        };
         dataSource.next(extensionsPayload);
         expect(callback).toBeCalledTimes(0);
         expect(next).toBeCalledTimes(1);
@@ -281,7 +287,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               extra_data: 'Zuck',
             },
           },
-          extensions: {is_normalized: true},
+          extensions: {is_normalized: true} as PayloadExtensions,
         };
         dataSource.next(extensionsPayload);
         expect(callback).toBeCalledTimes(0);
@@ -500,7 +506,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             extensions: {
               is_normalized: true,
               is_final: true,
-            },
+            } as PayloadExtensions,
           };
           dataSource.next(extensionsPayload);
           expect(callback).toBeCalledTimes(1);
@@ -544,7 +550,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             extensions: {
               is_normalized: true,
               is_final: true,
-            },
+            } as PayloadExtensions,
           };
 
           dataSource.next(extensionsPayload);
@@ -648,7 +654,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             extensions: {
               is_normalized: true,
               is_final: true,
-            },
+            } as PayloadExtensions,
           };
 
           dataSource.next(extensionsPayload);
@@ -706,7 +712,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               is_normalized: true,
               is_final: true,
               is_client_only: true,
-            },
+            } as PayloadExtensions,
           };
 
           dataSource.next(extensionsPayload);
@@ -735,7 +741,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               is_normalized: true,
               is_final: true,
               is_client_only: true,
-            },
+            } as PayloadExtensions,
           };
 
           dataSource.next(extensionsPayload);
@@ -1155,7 +1161,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
           extensions: {
             is_final: true,
-          },
+          } as PayloadExtensions,
         };
         expectToWarn(
           'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferTestUserQuery` contains @defer/@stream ' +
@@ -1231,7 +1237,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
           extensions: {
             is_final: true,
-          },
+          } as PayloadExtensions,
         };
 
         expectToWarnMany(

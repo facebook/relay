@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c17bcbddcaa56246edf93a42d0560052>>
+ * @generated SignedSource<<542a45e77afbbfddc0f65df9936c2d84>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -105,7 +105,7 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ed71550bc8df05ff931522aecef1143a",
+    "cacheID": "b6e95f5644821fd013fd0e47d14d2000",
     "id": null,
     "metadata": {
       "live": {
@@ -114,13 +114,13 @@ return {
     },
     "name": "useQueryLoaderLiveQueryTestQuery",
     "operationKind": "query",
-    "text": "query useQueryLoaderLiveQueryTestQuery(\n  $id: ID!\n) @live_query(polling_interval: 10000) {\n  node(id: $id) {\n    __typename\n    id\n  }\n}\n"
+    "text": "query useQueryLoaderLiveQueryTestQuery(\n  $id: ID!\n) @client_polling(interval: 10000) {\n  node(id: $id) {\n    __typename\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "db84fb335c4f305e0de63d1246959f74";
+  (node/*: any*/).hash = "9405db015f9f799670fa950c59126e04";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

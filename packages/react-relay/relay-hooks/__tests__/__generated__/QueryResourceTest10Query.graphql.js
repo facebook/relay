@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a0198d6c7584366d159ba93c7f3343a9>>
+ * @generated SignedSource<<6e72391ae7f2158303bf7e6826bd562a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -129,7 +129,7 @@ return {
     ]
   },
   "params": {
-    "cacheID": "10d320882105a1e63c81594970d204b9",
+    "cacheID": "3efb76839ccbd9e8343e85015bf033c8",
     "id": null,
     "metadata": {
       "live": {
@@ -138,13 +138,13 @@ return {
     },
     "name": "QueryResourceTest10Query",
     "operationKind": "query",
-    "text": "query QueryResourceTest10Query(\n  $id: ID!\n) @live_query(polling_interval: 10000) {\n  node(id: $id) {\n    __typename\n    ... on User {\n      id\n      name\n    }\n    id\n  }\n}\n"
+    "text": "query QueryResourceTest10Query(\n  $id: ID!\n) @client_polling(interval: 10000) {\n  node(id: $id) {\n    __typename\n    ... on User {\n      id\n      name\n    }\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b6e7de763bbf313af519ad7d1fd3d18c";
+  (node/*: any*/).hash = "328dc46b1450a768302544f587610c18";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

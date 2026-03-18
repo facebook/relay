@@ -25,7 +25,7 @@ injectPromisePolyfill__DEPRECATED();
 
 const query = graphql`
   query useQueryLoaderLiveQueryTestQuery($id: ID!)
-  @live_query(polling_interval: 10000) {
+  @client_polling(interval: 10000) {
     node(id: $id) {
       id
     }

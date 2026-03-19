@@ -13,12 +13,12 @@
 import type {
   GraphQLResponse,
   PayloadExtensions,
-} from '../../network/RelayNetworkTypes';
-import type {Sink} from '../../network/RelayObservable';
-import type {Snapshot} from '../RelayStoreTypes';
+} from 'relay-runtime/network/RelayNetworkTypes';
+import type {Sink} from 'relay-runtime/network/RelayObservable';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
+  Snapshot,
   TaskPriority,
 } from 'relay-runtime/store/RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
@@ -30,17 +30,19 @@ import type {
 const {
   MultiActorEnvironment,
   getActorIdentifier,
-} = require('../../multi-actor-environment');
-const RelayNetwork = require('../../network/RelayNetwork');
-const RelayObservable = require('../../network/RelayObservable');
-const {graphql} = require('../../query/GraphQLTag');
-const RelayModernEnvironment = require('../RelayModernEnvironment');
+} = require('relay-runtime/multi-actor-environment');
+const RelayNetwork = require('relay-runtime/network/RelayNetwork');
+const RelayObservable = require('relay-runtime/network/RelayObservable');
+const {graphql} = require('relay-runtime/query/GraphQLTag');
+const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
-} = require('../RelayModernOperationDescriptor');
-const {createReaderSelector} = require('../RelayModernSelector');
-const RelayModernStore = require('../RelayModernStore');
-const RelayRecordSource = require('../RelayRecordSource');
+} = require('relay-runtime/store/RelayModernOperationDescriptor');
+const {
+  createReaderSelector,
+} = require('relay-runtime/store/RelayModernSelector');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
+const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowWarnings,
   expectToWarn,
@@ -112,9 +114,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           _variables: Variables,
           _cacheConfig: CacheConfig,
         ) => {
-          return RelayObservable.create((sink: Sink<GraphQLResponse>) => {
-            dataSource = sink;
-          });
+          return RelayObservable.create<GraphQLResponse>(
+            (sink: Sink<GraphQLResponse>) => {
+              dataSource = sink;
+            },
+          );
         };
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
@@ -228,7 +232,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         next.mockClear();
         callback.mockClear();
 
-        const extensionsPayload = {
+        const extensionsPayload: GraphQLResponse = {
           data: null,
           extensions: {foo: 'foo'} as PayloadExtensions,
         };
@@ -279,7 +283,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         next.mockClear();
         callback.mockClear();
 
-        const extensionsPayload = {
+        const extensionsPayload: GraphQLResponse = {
           data: {
             '1': {
               __id: '1',
@@ -493,7 +497,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // Finishes the exec time query
           callback.mockClear();
           next.mockClear();
-          const extensionsPayload = {
+          const extensionsPayload: GraphQLResponse = {
             data: {
               '1': {
                 __id: '1',
@@ -536,7 +540,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             .execute({operation: resolverOperation})
             .subscribe(callbacks);
 
-          const extensionsPayload = {
+          const extensionsPayload: GraphQLResponse = {
             data: {
               '1': {
                 id: '1',
@@ -649,7 +653,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           callback.mockClear();
 
           // Empty exec time response but complete the exec time query
-          const extensionsPayload = {
+          const extensionsPayload: GraphQLResponse = {
             data: null,
             extensions: {
               is_normalized: true,
@@ -697,7 +701,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             .execute({operation: resolverOperation})
             .subscribe(callbacks);
 
-          const extensionsPayload = {
+          const extensionsPayload: GraphQLResponse = {
             data: {
               '1': {
                 id: '1',
@@ -735,7 +739,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             .execute({operation: resolverOperation})
             .subscribe(callbacks);
 
-          const extensionsPayload = {
+          const extensionsPayload: GraphQLResponse = {
             data: null,
             extensions: {
               is_normalized: true,
@@ -1151,7 +1155,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(initialSnapshot, callback);
 
         environment.execute({operation}).subscribe(callbacks);
-        const payload = {
+        const payload: GraphQLResponse = {
           data: {
             node: {
               id: '1',
@@ -1226,7 +1230,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(initialSnapshot, callback);
 
         environment.execute({operation}).subscribe(callbacks);
-        const payload = {
+        const payload: GraphQLResponse = {
           data: {
             node: {
               id: '1',

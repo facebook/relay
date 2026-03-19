@@ -67,7 +67,7 @@ const BUILTINS: &str = include_str!("./builtins.graphql");
 pub use flatbuffer::serialize_as_flatbuffer;
 
 pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
-    build_schema_with_extensions::<_, &str>(&[(sdl, SourceLocationKey::generated())], &[])
+    build_schema_with_extensions_parallel::<_, &str>(&[(sdl, SourceLocationKey::generated())], &[])
 }
 
 pub struct SchemaDocuments {
@@ -75,7 +75,7 @@ pub struct SchemaDocuments {
     pub extensions: Vec<SchemaDocument>,
 }
 
-pub fn build_schema_with_extensions<
+pub fn build_schema_with_extensions_parallel<
     T: AsRef<str> + std::marker::Sync,
     U: AsRef<str> + std::marker::Sync,
 >(
@@ -83,11 +83,11 @@ pub fn build_schema_with_extensions<
     extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {
     let SchemaDocuments { server, extensions } =
-        parse_schema_with_extensions(server_sdls, extension_sdls)?;
+        parse_schema_with_extensions_parallel(server_sdls, extension_sdls)?;
     SDLSchema::build(&server, &extensions)
 }
 
-pub fn parse_schema_with_extensions<
+pub fn parse_schema_with_extensions_parallel<
     T: AsRef<str> + std::marker::Sync,
     U: AsRef<str> + std::marker::Sync,
 >(

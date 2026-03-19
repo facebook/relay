@@ -20,7 +20,7 @@ use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
 use relay_codegen::print_provided_variables;
 use relay_config::ProjectConfig;
-use relay_schema::build_schema_with_extensions;
+use relay_schema::build_schema_with_extensions_parallel;
 use relay_transforms::Programs;
 use relay_transforms::apply_transforms;
 use relay_typegen::FragmentLocations;
@@ -93,7 +93,7 @@ pub fn parse_to_ir_impl(schema_text: &str, document_text: &str) -> PlaygroundRes
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
     let schema = Arc::new(
-        build_schema_with_extensions(
+        build_schema_with_extensions_parallel(
             &[(schema_text, SourceLocationKey::generated())],
             &Vec::<(&str, SourceLocationKey)>::new(),
         )
@@ -129,7 +129,7 @@ pub fn parse_to_reader_ast_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(
+        build_schema_with_extensions_parallel(
             &[(schema_text, SourceLocationKey::Generated)],
             &Vec::<(&str, SourceLocationKey)>::new(),
         )
@@ -176,7 +176,7 @@ pub fn parse_to_normalization_ast_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(
+        build_schema_with_extensions_parallel(
             &[(schema_text, SourceLocationKey::Generated)],
             &Vec::<(&str, SourceLocationKey)>::new(),
         )
@@ -222,7 +222,7 @@ pub fn parse_to_types_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(
+        build_schema_with_extensions_parallel(
             &[(schema_text, SourceLocationKey::Generated)],
             &Vec::<(&str, SourceLocationKey)>::new(),
         )
@@ -279,7 +279,7 @@ fn transform_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(
+        build_schema_with_extensions_parallel(
             &[(schema_text, SourceLocationKey::Generated)],
             &Vec::<(&str, SourceLocationKey)>::new(),
         )

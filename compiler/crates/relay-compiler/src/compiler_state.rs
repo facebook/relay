@@ -612,7 +612,7 @@ impl CompilerState {
             .map(|(schema, location_key)| (schema.as_str(), location_key))
             .collect::<Vec<_>>();
 
-        relay_schema::build_schema_with_extensions(
+        relay_schema::build_schema_with_extensions_parallel(
             &current_sources_with_location,
             &Vec::<(&str, SourceLocationKey)>::new(),
         )

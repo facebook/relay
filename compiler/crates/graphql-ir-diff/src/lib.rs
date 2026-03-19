@@ -837,7 +837,7 @@ pub fn load_schema(schema_paths: Vec<String>) -> Result<Arc<SDLSchema>> {
         })
         .collect();
 
-    // Convert to (content, SourceLocationKey) tuples for build_schema_with_extensions
+    // Convert to (content, SourceLocationKey) tuples for build_schema_with_extensions_parallel
     let schema_sdls: Vec<(String, SourceLocationKey)> = schema_files
         .into_iter()
         .map(|(content, file_path)| {
@@ -846,7 +846,7 @@ pub fn load_schema(schema_paths: Vec<String>) -> Result<Arc<SDLSchema>> {
         })
         .collect();
 
-    let schema = schema::build_schema_with_extensions::<_, &str>(
+    let schema = schema::build_schema_with_extensions_parallel::<_, &str>(
         &schema_sdls
             .iter()
             .map(|(content, key)| (content.as_str(), *key))

@@ -18,7 +18,7 @@ use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::validate_resolver_schema;
 use schema::SDLSchema;
 use schema::SchemaDocuments;
-use schema::parse_schema_with_extensions;
+use schema::parse_schema_with_extensions_parallel;
 use schema_validate_lib::SchemaValidationOptions;
 use schema_validate_lib::validate;
 
@@ -136,7 +136,7 @@ fn build_schema_impl(
         server: server_asts,
         extensions: mut extension_asts,
     } = log_event.time("parse_schema_time", || {
-        parse_schema_with_extensions(&schema_sources, &extensions)
+        parse_schema_with_extensions_parallel(&schema_sources, &extensions)
     })?;
 
     // Collect Relay Resolver schema IR

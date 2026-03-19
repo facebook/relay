@@ -62,14 +62,19 @@ impl<T: for<'de> Deserialize<'de> + 'static> Loader<T> for JsonLoader {
 pub struct JsLoader;
 impl<T: for<'de> Deserialize<'de> + 'static> Loader<T> for JsLoader {
     fn load(&self, path: &Path) -> Result<Option<T>, ErrorCode> {
-        // Windows requires absolute paths to be valid file:// URLs
+        // Convert Windows paths to valid ECMAScript module specifiers
         #[cfg(target_os = "windows")]
-        let path = format!("file://{}", path.to_string_lossy());
+        let path = (if path.is_absolute() {
+            format!("file://{}", path.to_string_lossy())
+        } else {
+            path.to_string_lossy().into_owned()
+        })
+        .replace('\\', "/");
 
         let output = Command::new("node")
             .arg("--input-type=module")
             .arg("-e")
-            .arg(r#"import { sep } from "path";process.stdout.write(JSON.stringify((await import(process.argv[1].split(sep).join("/"))).default))"#)
+            .arg(r#"process.stdout.write(JSON.stringify((await import(process.argv[1])).default))"#)
             .arg(path)
             .output()
             .expect("failed to execute process. Make sure you have Node installed.");

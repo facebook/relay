@@ -257,6 +257,11 @@ impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
 
+    fn visit_operation(&mut self, operation: &OperationDefinition) {
+        self.add_type_changes(operation.type_);
+        self.default_visit_operation(operation);
+    }
+
     fn visit_linked_field(&mut self, field: &LinkedField) {
         let id = field.definition.item;
         let type_ = self.schema.field(id).type_.inner();

@@ -40,6 +40,7 @@ query TestQuery @exec_time_resolvers {
     #     ),
     #     unique_id: 0,
     #     model_resolvers: [],
+    #     server_object_operations: [],
     # }
      {
       ...BestFriendResolverFragment_name @__RelayResolverMetadata

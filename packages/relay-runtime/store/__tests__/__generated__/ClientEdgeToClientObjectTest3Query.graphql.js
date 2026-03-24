@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2305e9de2c013f48bf2d4b2e3d222bce>>
+ * @generated SignedSource<<3519556b77012cd0c895d8f82f6a8c29>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -99,6 +99,7 @@ return {
             "kind": "ClientEdgeToClientObject",
             "concreteType": "AstrologicalSign",
             "modelResolvers": null,
+            "serverObjectOperations": null,
             "backingField": {
               "alias": null,
               "args": null,

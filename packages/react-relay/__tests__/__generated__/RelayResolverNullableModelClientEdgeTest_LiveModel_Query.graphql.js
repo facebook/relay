@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4d0c48c1712a5e0c8a0662becaea11ac>>
+ * @generated SignedSource<<6594fed6733445f1579e460d4dced33d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -98,6 +98,7 @@ return {
             "path": "edge_to_live_object_does_not_exist.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -120,6 +121,7 @@ return {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "TodoDescription",
               "modelResolvers": null,
+              "serverObjectOperations": null,
               "backingField": {
                 "alias": null,
                 "args": null,

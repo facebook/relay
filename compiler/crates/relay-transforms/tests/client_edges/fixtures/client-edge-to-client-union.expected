@@ -90,6 +90,7 @@ fragment FeedbackFragmentType on User {
   #             },
   #         },
   #     ],
+  #     server_object_operations: [],
   # }
    {
     __id @__RelayResolverMetadata

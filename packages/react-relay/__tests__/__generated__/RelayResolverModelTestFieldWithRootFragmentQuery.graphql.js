@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<258b0f877f9d5363b434e257efc9bd4b>>
+ * @generated SignedSource<<23f138535127cd047800f2f869b40135>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -103,6 +103,7 @@ return {
             "path": "todo_model.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": (v1/*: any*/),

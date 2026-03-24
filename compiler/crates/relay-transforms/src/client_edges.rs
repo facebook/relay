@@ -89,9 +89,16 @@ pub enum ClientEdgeMetadataDirective {
         type_name: Option<ObjectName>,
         unique_id: u32,
         model_resolvers: Vec<ClientEdgeModelResolver>,
+        server_object_operations: Vec<ClientEdgeServerObjectOperation>,
     },
 }
 associated_data_impl!(ClientEdgeMetadataDirective);
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ClientEdgeServerObjectOperation {
+    pub type_name: ObjectName,
+    pub query_name: OperationDefinitionName,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ClientEdgeModelResolver {
@@ -469,6 +476,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 Some(ClientEdgeMetadataDirective::ClientObject {
                     type_name: Some(type_name),
                     model_resolvers,
+                    server_object_operations: vec![],
                     unique_id: self.get_key(),
                 })
             }
@@ -499,6 +507,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         Some(ClientEdgeMetadataDirective::ClientObject {
             type_name: None,
             model_resolvers,
+            server_object_operations: vec![],
             unique_id: self.get_key(),
         })
     }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<62c5f010d33fc347393ac7b3fc0723db>>
+ * @generated SignedSource<<26a082aef7d86258f057b324d7905064>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -116,6 +116,7 @@ return {
             "path": "animal.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": (v1/*: any*/),

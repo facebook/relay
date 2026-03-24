@@ -69,6 +69,7 @@ fragment Foo_user on User {
   #             },
   #         },
   #     ],
+  #     server_object_operations: [],
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata

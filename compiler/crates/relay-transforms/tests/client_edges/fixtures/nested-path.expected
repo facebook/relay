@@ -39,6 +39,7 @@ fragment Foo_user on ClientUser {
   #     ),
   #     unique_id: 1,
   #     model_resolvers: [],
+  #     server_object_operations: [],
   # }
    {
     ...BestFriendFragment @__RelayResolverMetadata
@@ -67,6 +68,7 @@ fragment Foo_user on ClientUser {
       #     ),
       #     unique_id: 0,
       #     model_resolvers: [],
+      #     server_object_operations: [],
       # }
        {
         ...BestFriendFragment @__RelayResolverMetadata

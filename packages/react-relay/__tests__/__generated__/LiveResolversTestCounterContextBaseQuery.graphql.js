@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<037817371343c160146009e57a039cfd>>
+ * @generated SignedSource<<132ac1b6b9d7e2eac64f74d4eb5508cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -62,6 +62,7 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "BaseCounter",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,

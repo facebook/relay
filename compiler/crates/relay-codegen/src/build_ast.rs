@@ -2105,6 +2105,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                              kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
                              concrete_type: concrete_type,
                              client_edge_model_resolvers: client_edge_model_resolvers,
+                             server_object_operations: Primitive::Null,
                              client_edge_backing_field_key: backing_field,
                              client_edge_selections_key: selections_item,
                          }))

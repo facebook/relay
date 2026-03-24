@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0b4e5d9f1b6038fac312f7b010fff792>>
+ * @generated SignedSource<<f72cd74515c47ebf738d6df20f17698d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -80,6 +80,7 @@ return {
             "path": "fish.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,

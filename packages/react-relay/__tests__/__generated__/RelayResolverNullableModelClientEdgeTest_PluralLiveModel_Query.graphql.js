@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2980c486d501a9de3a33327859f038bc>>
+ * @generated SignedSource<<5a5774e2a8391e70105ead7de5918dc4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -86,6 +86,7 @@ return {
             "path": "edge_to_plural_live_objects_some_exist.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,

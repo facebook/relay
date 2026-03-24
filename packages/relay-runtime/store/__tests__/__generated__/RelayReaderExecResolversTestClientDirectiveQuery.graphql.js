@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e961375f64e7aa4d3fa8171b9584a08d>>
+ * @generated SignedSource<<7873b69ca56545a4d9f18b9e2b6a1e50>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -159,6 +159,7 @@ return {
             "path": "RelayReaderExecResolversTest_user_one.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -203,6 +204,7 @@ return {
                   "path": "RelayReaderExecResolversTest_user_one.best_friend.__relay_model_instance"
                 }
               },
+              "serverObjectOperations": null,
               "backingField": {
                 "alias": null,
                 "args": null,
@@ -247,6 +249,7 @@ return {
                   "path": "RelayReaderExecResolversTest_user_one.friends.__relay_model_instance"
                 }
               },
+              "serverObjectOperations": null,
               "backingField": {
                 "alias": null,
                 "args": null,

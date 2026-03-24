@@ -111,6 +111,7 @@ extend type User {
       "kind": "ClientEdgeToClientObject",
       "concreteType": "ClientUser",
       "modelResolvers": null,
+      "serverObjectOperations": null,
       "backingField": {
         "alias": "poppy",
         "args": null,

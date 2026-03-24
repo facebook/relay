@@ -1500,7 +1500,7 @@ class RelayReader {
     aliasedInlineFragment: ReaderAliasedInlineFragmentSpread,
     record: Record,
     data: SelectorData,
-  ) {
+  ): ?unknown {
     const prevErrors = this._fieldErrors;
     this._fieldErrors = null;
     let fieldValue = this._readInlineFragment(
@@ -1514,6 +1514,7 @@ class RelayReader {
       fieldValue = null;
     }
     data[aliasedInlineFragment.name] = fieldValue;
+    return fieldValue;
   }
 
   // Has three possible return values:

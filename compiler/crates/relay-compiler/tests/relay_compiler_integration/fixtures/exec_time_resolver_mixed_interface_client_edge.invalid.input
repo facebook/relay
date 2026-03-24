@@ -1,0 +1,59 @@
+//- PersonComponent.js
+graphql`query PersonComponentQuery @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
+  vehicle @waterfall {
+    id
+  }
+}`
+
+//- VehicleResolver.js
+/**
+ * @relayField Query.vehicle: IVehicle
+ */
+export function vehicle() {}
+
+//- CarResolver.js
+/**
+ * @relayType Car implements IVehicle
+ */
+export function Car() {}
+
+//- CarWheelsResolver.js
+/**
+ * @relayField Car.wheels: Int
+ */
+export function wheels() {}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query {
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type Bicycle implements Node {
+  id: ID!
+  wheels: Int
+}
+
+//- schema-extensions/extension.graphql
+interface IVehicle {
+  id: ID!
+}
+
+extend type Bicycle implements IVehicle

@@ -1,0 +1,42 @@
+==================================== INPUT ====================================
+#expected-to-throw
+# relay-resolver-enable-interface-output-type
+
+# Test: mixed interface client edges (interfaces with both server and client
+# type implementors) are not supported in exec-time resolvers because server
+# types need a waterfall refetch that exec-time resolvers cannot perform.
+
+query TestQuery @exec_time_resolvers {
+  best_friend @waterfall {
+    id
+  }
+}
+
+fragment BestFriendResolverFragment_name on Query {
+  __typename
+}
+
+# %extensions%
+
+interface ClientOnlyInterface implements Node {
+  id: ID!
+}
+
+type BestFriend implements ClientOnlyInterface @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "BestFriendResolver" fragment_name: "BestFriend__id", generated_fragment: true, inject_fragment_data: "id", import_name: "BestFriend")
+}
+
+extend type Bicycle implements ClientOnlyInterface
+
+extend type Query {
+  best_friend: ClientOnlyInterface @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+==================================== ERROR ====================================
+✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
+
+  client-edge-to-mixed-interface-with-exec-time-resolvers.invalid.graphql:9:15
+    8 │ query TestQuery @exec_time_resolvers {
+    9 │   best_friend @waterfall {
+      │               ^^^^^^^^^^
+   10 │     id

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ecd8eb6892f4e4f149adb77cb2b3ef0a>>
+ * @generated SignedSource<<cda80f9b2d4f989d7a50a08fb75cb28b>>
  */
 
 mod relay_compiler_integration;
@@ -188,6 +188,13 @@ async fn exec_resolvers_directive_with_root_fragment() {
 }
 
 #[tokio::test]
+async fn exec_time_resolver_mixed_interface_client_edge_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_mixed_interface_client_edge.invalid.input", "relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn extra_in_single_file_config() {
     let input = include_str!("relay_compiler_integration/fixtures/extra_in_single_file_config.input");
     let expected = include_str!("relay_compiler_integration/fixtures/extra_in_single_file_config.expected");
@@ -276,6 +283,20 @@ async fn live_resolver_implements_interface_field() {
     let input = include_str!("relay_compiler_integration/fixtures/live_resolver_implements_interface_field.input");
     let expected = include_str!("relay_compiler_integration/fixtures/live_resolver_implements_interface_field.expected");
     test_fixture(transform_fixture, file!(), "live_resolver_implements_interface_field.input", "relay_compiler_integration/fixtures/live_resolver_implements_interface_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn mixed_interface_missing_node_interface_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/mixed_interface_missing_node_interface.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/mixed_interface_missing_node_interface.invalid.expected");
+    test_fixture(transform_fixture, file!(), "mixed_interface_missing_node_interface.invalid.input", "relay_compiler_integration/fixtures/mixed_interface_missing_node_interface.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn mixed_interface_server_type_does_not_implement_node_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/mixed_interface_server_type_does_not_implement_node.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/mixed_interface_server_type_does_not_implement_node.invalid.expected");
+    test_fixture(transform_fixture, file!(), "mixed_interface_server_type_does_not_implement_node.invalid.input", "relay_compiler_integration/fixtures/mixed_interface_server_type_does_not_implement_node.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

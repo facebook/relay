@@ -38,9 +38,9 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 20:29,
+                    span: 246:255,
                     token: Token {
-                        span: 20:29,
+                        span: 246:255,
                         kind: Identifier,
                     },
                     value: "is_hungry",
@@ -61,7 +61,7 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 20:29,
+                span: 246:255,
             },
             type_: WithLocation {
                 location: module.js:80:83,
@@ -72,7 +72,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: module.js:20:29,
+            location: module.js:246:255,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
                 "f1a7e37e40b001a84147334f622078af",

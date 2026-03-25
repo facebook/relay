@@ -82,9 +82,9 @@ Field(
             deprecated: Some(
                 PopulatedIrField(
                     PopulatedIrField {
-                        key_location: module.js:24:34,
+                        key_location: module.js:209:219,
                         value: WithLocation {
-                            location: module.js:35:61,
+                            location: module.js:220:246,
                             item: "Use `dateOfBirth` instead.",
                         },
                     },
@@ -146,7 +146,7 @@ Field(
             deprecated: Some(
                 UnpopulatedIrField(
                     UnpopulatedIrField {
-                        key_location: module.js:24:34,
+                        key_location: module.js:373:383,
                     },
                 ),
             ),

@@ -66,8 +66,8 @@ type Cat @__RelayResolverModel {
 
 ✖︎ Expected "*".
 
-  module.js:2:4
-    1 │ 
-    2 │ import type CatFlowType from 'Cat';
-      │    ^
-    3 │
+  module.js:15:3
+   14 │ /**
+   15 │   @RelayResolver
+      │   ^
+   16 │  */

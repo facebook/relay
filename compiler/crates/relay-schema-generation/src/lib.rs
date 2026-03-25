@@ -35,7 +35,7 @@ use docblock_shared::DEPRECATED_FIELD;
 use docblock_shared::ResolverSourceHash;
 use docblock_syntax::DocblockAST;
 use docblock_syntax::DocblockSection;
-use docblock_syntax::parse_docblock;
+use docblock_syntax::parse_docblock_with_offset;
 use errors::SchemaGenerationError;
 use find_resolver_imports::ImportExportVisitor;
 use find_resolver_imports::JSImportType;
@@ -265,7 +265,15 @@ impl RelayResolverExtractor {
                 .filter(|(comment, _, _, _)| comment.contains("@RelayResolver"))
                 .map(|(comment, comment_range, node, range)| {
                     // TODO: Handle unwraps
-                    let docblock = parse_docblock(comment, self.current_location)?;
+                    // Hermes strips the /* and */ delimiters from the
+                    // comment value but comment_range covers the full
+                    // delimiters, so we pass comment_range.start + 2 as
+                    // the base offset to produce file-relative spans.
+                    let docblock = parse_docblock_with_offset(
+                        comment,
+                        self.current_location,
+                        comment_range.start + 2,
+                    )?;
                     let resolver_value = docblock.find_field(intern!("RelayResolver")).unwrap();
 
                     let deprecated = get_deprecated(&docblock);

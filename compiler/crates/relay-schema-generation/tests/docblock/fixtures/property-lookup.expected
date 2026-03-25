@@ -148,9 +148,9 @@ Field(
             deprecated: Some(
                 PopulatedIrField(
                     PopulatedIrField {
-                        key_location: module.js:23:33,
+                        key_location: module.js:204:214,
                         value: WithLocation {
-                            location: module.js:34:55,
+                            location: module.js:215:236,
                             item: "Just use name instead",
                         },
                     },
@@ -284,9 +284,9 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 17:27,
+                    span: 286:296,
                     token: Token {
-                        span: 17:27,
+                        span: 286:296,
                         kind: Identifier,
                     },
                     value: "other_name",
@@ -307,7 +307,7 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 17:27,
+                span: 286:296,
             },
             type_: WithLocation {
                 location: module.js:39:42,
@@ -318,13 +318,13 @@ Field(
             deprecated: None,
             semantic_non_null: Some(
                 ConstantDirective {
-                    span: 17:27,
+                    span: 286:296,
                     at: Token {
                         span: 0:0,
                         kind: Empty,
                     },
                     name: Identifier {
-                        span: 17:27,
+                        span: 286:296,
                         token: Token {
                             span: 0:0,
                             kind: Empty,
@@ -335,7 +335,7 @@ Field(
                 },
             ),
             live: None,
-            location: module.js:17:27,
+            location: module.js:286:296,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
                 "41f6cedfb82d9eb9e7e760c5895de9fb",

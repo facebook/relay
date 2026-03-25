@@ -84,6 +84,38 @@ extend type Cat {
 
 
 Type(
+    WeakObjectType(
+        WeakObjectIr {
+            type_name: Identifier {
+                span: 165:173,
+                token: Token {
+                    span: 165:173,
+                    kind: Identifier,
+                },
+                value: "FullName",
+            },
+            rhs_location: module.js:165:173,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            location: module.js:165:173,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "3a153a8af177e8f66fa11d0bf81c1e37",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+scalar FullNameModel @__RelayCustomScalar(path: "module.js", export_name: "FullName")
+
+
+type FullName @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
+  __relay_model_instance: FullNameModel! @resolver_source_hash(value: "3a153a8af177e8f66fa11d0bf81c1e37") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
@@ -117,36 +149,4 @@ Type(
 type Cat @__RelayResolverModel {
   id: ID! @__RelayResolverModelGeneratedIDField
   __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "3a153a8af177e8f66fa11d0bf81c1e37") @unselectable(reason: "This field is intended only for Relay's internal use")
-}
-
-
-Type(
-    WeakObjectType(
-        WeakObjectIr {
-            type_name: Identifier {
-                span: 165:173,
-                token: Token {
-                    span: 165:173,
-                    kind: Identifier,
-                },
-                value: "FullName",
-            },
-            rhs_location: module.js:165:173,
-            description: None,
-            hack_source: None,
-            deprecated: None,
-            location: module.js:165:173,
-            implements_interfaces: [],
-            source_hash: ResolverSourceHash(
-                "3a153a8af177e8f66fa11d0bf81c1e37",
-            ),
-            type_confirmed: true,
-        },
-    ),
-)
-scalar FullNameModel @__RelayCustomScalar(path: "module.js", export_name: "FullName")
-
-
-type FullName @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
-  __relay_model_instance: FullNameModel! @resolver_source_hash(value: "3a153a8af177e8f66fa11d0bf81c1e37") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

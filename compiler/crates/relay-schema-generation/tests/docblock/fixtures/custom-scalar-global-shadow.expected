@@ -87,6 +87,38 @@ extend type Cat {
 
 
 Type(
+    WeakObjectType(
+        WeakObjectIr {
+            type_name: Identifier {
+                span: 39:53,
+                token: Token {
+                    span: 39:53,
+                    kind: Identifier,
+                },
+                value: "CustomGlobalID",
+            },
+            rhs_location: GlobalIDShadow.js:39:53,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            location: GlobalIDShadow.js:39:53,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "d7e18bcffccd6fe925d211512f60bc73",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+scalar CustomGlobalIDModel @__RelayCustomScalar(path: "GlobalIDShadow.js", export_name: "CustomGlobalID")
+
+
+type CustomGlobalID @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
+  __relay_model_instance: CustomGlobalIDModel! @resolver_source_hash(value: "d7e18bcffccd6fe925d211512f60bc73") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
@@ -120,36 +152,4 @@ Type(
 type Cat @__RelayResolverModel {
   id: ID! @__RelayResolverModelGeneratedIDField
   __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "1ba3d5ae9c5eaba30abf8a7c5f0ec1d2") @unselectable(reason: "This field is intended only for Relay's internal use")
-}
-
-
-Type(
-    WeakObjectType(
-        WeakObjectIr {
-            type_name: Identifier {
-                span: 39:53,
-                token: Token {
-                    span: 39:53,
-                    kind: Identifier,
-                },
-                value: "CustomGlobalID",
-            },
-            rhs_location: GlobalIDShadow.js:39:53,
-            description: None,
-            hack_source: None,
-            deprecated: None,
-            location: GlobalIDShadow.js:39:53,
-            implements_interfaces: [],
-            source_hash: ResolverSourceHash(
-                "d7e18bcffccd6fe925d211512f60bc73",
-            ),
-            type_confirmed: true,
-        },
-    ),
-)
-scalar CustomGlobalIDModel @__RelayCustomScalar(path: "GlobalIDShadow.js", export_name: "CustomGlobalID")
-
-
-type CustomGlobalID @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
-  __relay_model_instance: CustomGlobalIDModel! @resolver_source_hash(value: "d7e18bcffccd6fe925d211512f60bc73") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

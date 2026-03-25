@@ -50,6 +50,38 @@ export type WeakCat = {
 }
 ==================================== OUTPUT ===================================
 Type(
+    WeakObjectType(
+        WeakObjectIr {
+            type_name: Identifier {
+                span: 39:46,
+                token: Token {
+                    span: 39:46,
+                    kind: Identifier,
+                },
+                value: "WeakCat",
+            },
+            rhs_location: WeakCat.js:39:46,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            location: WeakCat.js:39:46,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "d87c48cc6e55a86fc69fd0d1f73d6bea",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+scalar WeakCatModel @__RelayCustomScalar(path: "WeakCat.js", export_name: "WeakCat")
+
+
+type WeakCat @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
+  __relay_model_instance: WeakCatModel! @resolver_source_hash(value: "d87c48cc6e55a86fc69fd0d1f73d6bea") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
@@ -83,38 +115,6 @@ Type(
 type Cat @__RelayResolverModel {
   id: ID! @__RelayResolverModelGeneratedIDField
   __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "1b432d1f1ef72adb427857abb24a5068") @unselectable(reason: "This field is intended only for Relay's internal use")
-}
-
-
-Type(
-    WeakObjectType(
-        WeakObjectIr {
-            type_name: Identifier {
-                span: 39:46,
-                token: Token {
-                    span: 39:46,
-                    kind: Identifier,
-                },
-                value: "WeakCat",
-            },
-            rhs_location: WeakCat.js:39:46,
-            description: None,
-            hack_source: None,
-            deprecated: None,
-            location: WeakCat.js:39:46,
-            implements_interfaces: [],
-            source_hash: ResolverSourceHash(
-                "d87c48cc6e55a86fc69fd0d1f73d6bea",
-            ),
-            type_confirmed: true,
-        },
-    ),
-)
-scalar WeakCatModel @__RelayCustomScalar(path: "WeakCat.js", export_name: "WeakCat")
-
-
-type WeakCat @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
-  __relay_model_instance: WeakCatModel! @resolver_source_hash(value: "d87c48cc6e55a86fc69fd0d1f73d6bea") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 

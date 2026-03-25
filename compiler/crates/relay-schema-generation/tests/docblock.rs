@@ -84,7 +84,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                     .clone()
                     .to_sdl_string(project_name, &schema, &Default::default())?;
 
-                Ok(format!("{:#?}\n{}", &ir, sdl))
+                Ok((sdl.clone(), format!("{:#?}\n{}", &ir, sdl)))
             })
             .collect::<Vec<Result<_, Vec<Diagnostic>>>>(),
         Err(err) => {
@@ -100,16 +100,23 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             Err(errs) => {
                 errors.extend(errs);
             }
-            Ok(o) => {
-                ok_out.push(o);
+            Ok((sort_key, o)) => {
+                ok_out.push((sort_key, o));
             }
         }
     }
 
     let err = diagnostics_to_sorted_string(&project_fixture, &errors);
 
-    ok_out.sort();
-    Ok(ok_out.join("\n\n") + "\n\n" + &err)
+    // Sort by SDL output (stable field/type names) rather than by the
+    // debug-printed IR which includes spans that change with offsets.
+    ok_out.sort_by(|(a, _), (b, _)| a.cmp(b));
+    let joined = ok_out
+        .into_iter()
+        .map(|(_, o)| o)
+        .collect::<Vec<_>>()
+        .join("\n\n");
+    Ok(joined + "\n\n" + &err)
 }
 
 fn parse_document_definitions(content: &str, path: &Path) -> Vec<ExecutableDefinition> {

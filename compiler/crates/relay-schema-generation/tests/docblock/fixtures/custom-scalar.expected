@@ -41,60 +41,6 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 223:232,
-                    token: Token {
-                        span: 223:232,
-                        kind: Identifier,
-                    },
-                    value: "serialize",
-                },
-                type_: Named(
-                    NamedTypeAnnotation {
-                        name: Identifier {
-                            span: 253:263,
-                            token: Token {
-                                span: 253:263,
-                                kind: Identifier,
-                            },
-                            value: "JSON",
-                        },
-                    },
-                ),
-                arguments: None,
-                directives: [],
-                description: None,
-                hack_source: None,
-                span: 223:232,
-            },
-            type_: WithLocation {
-                location: Cat.js:134:137,
-                item: "Cat",
-            },
-            root_fragment: None,
-            return_fragment: None,
-            deprecated: None,
-            semantic_non_null: None,
-            live: None,
-            location: Cat.js:223:232,
-            fragment_arguments: None,
-            source_hash: ResolverSourceHash(
-                "f503160e2da68b55f4ce0ddb33e965a7",
-            ),
-            type_confirmed: true,
-            property_lookup_name: None,
-        },
-    ),
-)
-extend type Cat {
-  serialize: JSON @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "serialize", import_path: "Cat.js") @resolver_source_hash(value: "f503160e2da68b55f4ce0ddb33e965a7")
-}
-
-
-Field(
-    TerseRelayResolver(
-        TerseRelayResolverIr {
-            field: FieldDefinition {
-                name: Identifier {
                     span: 324:342,
                     token: Token {
                         span: 324:342,
@@ -190,6 +136,60 @@ Field(
 )
 extend type Cat {
   deserialize_extras(extras: JSON!): String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "deserialize_extras", import_path: "Cat.js") @resolver_source_hash(value: "f503160e2da68b55f4ce0ddb33e965a7")
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 223:232,
+                    token: Token {
+                        span: 223:232,
+                        kind: Identifier,
+                    },
+                    value: "serialize",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 253:263,
+                            token: Token {
+                                span: 253:263,
+                                kind: Identifier,
+                            },
+                            value: "JSON",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 223:232,
+            },
+            type_: WithLocation {
+                location: Cat.js:134:137,
+                item: "Cat",
+            },
+            root_fragment: None,
+            return_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: Cat.js:223:232,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "f503160e2da68b55f4ce0ddb33e965a7",
+            ),
+            type_confirmed: true,
+            property_lookup_name: None,
+        },
+    ),
+)
+extend type Cat {
+  serialize: JSON @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "serialize", import_path: "Cat.js") @resolver_source_hash(value: "f503160e2da68b55f4ce0ddb33e965a7")
 }
 
 

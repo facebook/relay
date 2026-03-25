@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f604561be4637613184614fc3d942aaa>>
+ * @generated SignedSource<<e2288c5bad0d8c2ce75db0162d7f9055>>
  */
 
 mod docblock;
@@ -157,6 +157,34 @@ async fn property_lookup() {
     let input = include_str!("docblock/fixtures/property-lookup.input");
     let expected = include_str!("docblock/fixtures/property-lookup.expected");
     test_fixture(transform_fixture, file!(), "property-lookup.input", "docblock/fixtures/property-lookup.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_field_on_field() {
+    let input = include_str!("docblock/fixtures/relay-field-on-field.input");
+    let expected = include_str!("docblock/fixtures/relay-field-on-field.expected");
+    test_fixture(transform_fixture, file!(), "relay-field-on-field.input", "docblock/fixtures/relay-field-on-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_field_on_type_error() {
+    let input = include_str!("docblock/fixtures/relay-field-on-type.error.input");
+    let expected = include_str!("docblock/fixtures/relay-field-on-type.error.expected");
+    test_fixture(transform_fixture, file!(), "relay-field-on-type.error.input", "docblock/fixtures/relay-field-on-type.error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_type_on_field_error() {
+    let input = include_str!("docblock/fixtures/relay-type-on-field.error.input");
+    let expected = include_str!("docblock/fixtures/relay-type-on-field.error.expected");
+    test_fixture(transform_fixture, file!(), "relay-type-on-field.error.input", "docblock/fixtures/relay-type-on-field.error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_type_on_type() {
+    let input = include_str!("docblock/fixtures/relay-type-on-type.input");
+    let expected = include_str!("docblock/fixtures/relay-type-on-type.expected");
+    test_fixture(transform_fixture, file!(), "relay-type-on-type.input", "docblock/fixtures/relay-type-on-type.expected", input, expected).await;
 }
 
 #[tokio::test]

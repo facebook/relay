@@ -6,22 +6,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-
 //- module.js
 
-import type CatFlowType from "Cat";
-
 /**
- * @RelayResolver
+ * at-relayField is used on a type alias, which should error
+ * @relayField
  */
-export const MyResolver = string;
+export type FullName = {first: string, last: string};
 ==================================== OUTPUT ===================================
 
 
-✖︎ Relay Resolver annotation is expected to be on a named function or type alias
+✖︎ Unexpected `@relayField` for a type definition. Expected `@relayType`.
 
-  module.js:7:1
-    5 │  * @RelayResolver
-    6 │  */
-    7 │ export const MyResolver = string;
-      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  module.js:4:5
+    3 │  * at-relayField is used on a type alias, which should error
+    4 │  * @relayField
+      │     ^^^^^^^^^^
+    5 │  */

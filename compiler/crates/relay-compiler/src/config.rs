@@ -17,6 +17,7 @@ use std::vec;
 use async_trait::async_trait;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::FeatureFlag;
 use common::FeatureFlags;
 use common::Rollout;
 use common::ScalarName;
@@ -108,6 +109,7 @@ type CustomExtractRelayResolvers = Box<
             &FnvIndexMap<ScalarName, CustomType>,
             &CompilerState,
             Option<&GraphQLAsts>,
+            &FeatureFlag,
         ) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<DocblockIr>)>
         // (Types, Fields)
         + Send

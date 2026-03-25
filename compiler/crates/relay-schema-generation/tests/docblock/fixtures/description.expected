@@ -202,7 +202,7 @@ type Cat @__RelayResolverModel {
 }
 
 
-✖︎ Multiple docblock descriptions found for this @RelayResolver. Please only include one description (a comment in the docblock uninterrupted by a resolver "@<field>")
+✖︎ Multiple docblock descriptions found for this Relay Resolver. Please only include one description (a comment in the docblock uninterrupted by a resolver "@<field>")
 
   module.js:24:1
    22 │ export function name(cat: CatFlowType): ?string {}

@@ -18,7 +18,7 @@ const MyResolver = {x: number};
 ==================================== OUTPUT ===================================
 
 
-✖︎ @RelayResolver annotation is expected to be on a named export
+✖︎ Relay Resolver annotation is expected to be on a named export
 
   module.js:7:1
     5 │  * @RelayResolver

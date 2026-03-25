@@ -1,0 +1,54 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @relayType
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+==================================== OUTPUT ===================================
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 76:79,
+                token: Token {
+                    span: 76:79,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: module.js:76:79,
+            root_fragment: WithLocation {
+                location: module.js:76:79,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: module.js:76:79,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "b27d2069391ae9c3c36eadbf128e8797",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID! @__RelayResolverModelGeneratedIDField
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "b27d2069391ae9c3c36eadbf128e8797") @unselectable(reason: "This field is intended only for Relay's internal use")
+}

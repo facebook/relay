@@ -5,6 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DiagnosticDisplay;
+use common::WithDiagnosticData;
+use docblock_shared::RELAY_FIELD_FIELD;
+use docblock_shared::RELAY_TYPE_FIELD;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -38,16 +42,16 @@ pub enum SchemaGenerationError {
     ExpectedTypeAliasToBeObject,
     #[error("Expected object definition to include fields")]
     ExpectedWeakObjectToHaveFields,
-    #[error("@RelayResolver annotation is expected to be on a named export")]
+    #[error("Relay Resolver annotation is expected to be on a named export")]
     ExpectedNamedExport,
-    #[error("@RelayResolver annotation is expected to be on a named function or type alias")]
+    #[error("Relay Resolver annotation is expected to be on a named function or type alias")]
     ExpectedFunctionOrTypeAlias,
     #[error(
-        "Types used in @RelayResolver definitions should be imported using named or default imports (without using a `*`)"
+        "Types used in Relay Resolver definitions should be imported using named or default imports (without using a `*`)"
     )]
     UseNamedOrDefaultImport,
     #[error(
-        "Failed to find @RelayResolver type definition for `{entity_name}` using a {export_type} import from module `{module_name}`. Please make sure `{entity_name}` is either defined locally or imported using a named or default import and that it is a resolver type"
+        "Failed to find Relay Resolver type definition for `{entity_name}` using a {export_type} import from module `{module_name}`. Please make sure `{entity_name}` is either defined locally or imported using a named or default import and that it is a resolver type"
     )]
     ModuleNotFound {
         entity_name: StringKey,
@@ -72,7 +76,7 @@ pub enum SchemaGenerationError {
     )]
     IncorrectArgumentsDefinition,
     #[error(
-        "Multiple docblock descriptions found for this @RelayResolver. Please only include one description (a comment in the docblock uninterrupted by a resolver \"@<field>\")"
+        "Multiple docblock descriptions found for this Relay Resolver. Please only include one description (a comment in the docblock uninterrupted by a resolver \"@<field>\")"
     )]
     MultipleDocblockDescriptions,
     #[error(
@@ -106,4 +110,46 @@ pub enum SchemaGenerationError {
         "This field is a property lookup but has an import for a GraphQL fragment used in the resolver. This is not allowed."
     )]
     ExpectedResolverFunctionWithRootFragment,
+}
+
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
+pub enum SchemaGenerationErrorWithData {
+    #[error(
+        "Unexpected `@RelayResolver` for a type definition. Expected `@relayType`. The legacy `@RelayResolver` tag can be enabled with the `allow_legacy_relay_resolver_tag` feature flag."
+    )]
+    UseRelayTypeTag,
+    #[error(
+        "Unexpected `@RelayResolver` for a field definition. Expected `@relayField`. The legacy `@RelayResolver` tag can be enabled with the `allow_legacy_relay_resolver_tag` feature flag."
+    )]
+    UseRelayFieldTag,
+    #[error("Unexpected `@relayType` for a field definition. Expected `@relayField`.")]
+    RelayTypeTagUsedForField,
+    #[error("Unexpected `@relayField` for a type definition. Expected `@relayType`.")]
+    RelayFieldTagUsedForType,
+}
+
+impl WithDiagnosticData for SchemaGenerationErrorWithData {
+    fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
+        match self {
+            SchemaGenerationErrorWithData::UseRelayTypeTag => vec![Box::new(*RELAY_TYPE_FIELD)],
+            SchemaGenerationErrorWithData::UseRelayFieldTag => vec![Box::new(*RELAY_FIELD_FIELD)],
+            SchemaGenerationErrorWithData::RelayTypeTagUsedForField => {
+                vec![Box::new(*RELAY_FIELD_FIELD)]
+            }
+            SchemaGenerationErrorWithData::RelayFieldTagUsedForType => {
+                vec![Box::new(*RELAY_TYPE_FIELD)]
+            }
+        }
+    }
 }

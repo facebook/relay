@@ -1,0 +1,71 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @relayType
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * at-relayType is used on a field definition, which should error
+ * @relayType
+ */
+export function name(cat: CatFlowType): ?string {
+  return "cat";
+}
+==================================== OUTPUT ===================================
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 76:79,
+                token: Token {
+                    span: 76:79,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: module.js:76:79,
+            root_fragment: WithLocation {
+                location: module.js:76:79,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: module.js:76:79,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "e16eafb16635fa9d8d7863aebf2629bf",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID! @__RelayResolverModelGeneratedIDField
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "e16eafb16635fa9d8d7863aebf2629bf") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+✖︎ Unexpected `@relayType` for a field definition. Expected `@relayField`.
+
+  module.js:13:5
+   12 │  * at-relayType is used on a field definition, which should error
+   13 │  * @relayType
+      │     ^^^^^^^^^
+   14 │  */

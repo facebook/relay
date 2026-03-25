@@ -116,7 +116,7 @@ fn contains_resolver_tag(text: &str) -> bool {
     false
 }
 
-/// Extract graphql`text` literals and @RelayResolver comments from JS-like code.
+/// Extract graphql`text` literals and Relay Resolver docblock comments from JS-like code.
 // This should work for Flow or TypeScript alike.
 pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
     let mut res = Vec::new();

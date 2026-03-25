@@ -66,7 +66,6 @@ use crate::Union;
 use crate::UnionID;
 use crate::errors::SchemaError;
 use crate::field_descriptions::CLIENT_ID_DESCRIPTION;
-use crate::field_descriptions::TYPENAME_DESCRIPTION;
 
 #[self_referencing]
 struct OwnedFlatBufferSchema {
@@ -229,7 +228,7 @@ impl SchemaWrapper {
             type_: TypeReference::Named(result.get_type("ID".intern()).unwrap()),
             directives: Vec::new(),
             parent_type: None,
-            description: Some(*TYPENAME_DESCRIPTION),
+            description: None,
             hack_source: None,
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {

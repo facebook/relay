@@ -202,12 +202,12 @@ impl InexactObject {
 impl Ord for InexactObject {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self.typename_literal(), other.typename_literal()) {
-            (None, None) => self.cmp(other),
+            (None, None) => self.0.cmp(&other.0),
             (None, Some(_)) => Ordering::Greater,
             (Some(_), None) => Ordering::Less,
             (Some(s1), Some(s2)) => match s1.cmp(&s2) {
                 Ordering::Less => Ordering::Less,
-                Ordering::Equal => self.cmp(other),
+                Ordering::Equal => self.0.cmp(&other.0),
                 Ordering::Greater => Ordering::Greater,
             },
         }
@@ -403,8 +403,67 @@ mod tests {
     use graphql_ir::reexport::Intern;
     use intern::Lookup;
 
-    use super::StringLiteral;
+    use super::*;
     use crate::FUTURE_ENUM_VALUE;
+
+    /// Regression test: InexactObject::cmp previously called self.cmp(other)
+    /// instead of self.0.cmp(&other.0), causing infinite recursion (stack overflow)
+    /// when comparing two InexactObjects with no typename literal.
+    #[test]
+    fn inexact_object_cmp_no_typename_does_not_recurse() {
+        let obj_a = InexactObject::new(vec![Prop::KeyValuePair(KeyValuePairProp {
+            key: "a".intern(),
+            optional: false,
+            read_only: true,
+            value: AST::String,
+        })]);
+        let obj_b = InexactObject::new(vec![Prop::KeyValuePair(KeyValuePairProp {
+            key: "b".intern(),
+            optional: false,
+            read_only: true,
+            value: AST::String,
+        })]);
+        // This would stack overflow before the fix
+        assert_eq!(obj_a.cmp(&obj_b), std::cmp::Ordering::Less);
+        assert_eq!(obj_a.cmp(&obj_a), std::cmp::Ordering::Equal);
+    }
+
+    /// Regression test: InexactObject::cmp with matching typename literals also
+    /// previously caused infinite recursion.
+    #[test]
+    fn inexact_object_cmp_same_typename_does_not_recurse() {
+        let obj_a = InexactObject::new(vec![
+            Prop::KeyValuePair(KeyValuePairProp {
+                key: *KEY_TYPENAME,
+                optional: false,
+                read_only: true,
+                value: AST::StringLiteral(StringLiteral("User".intern())),
+            }),
+            Prop::KeyValuePair(KeyValuePairProp {
+                key: "a".intern(),
+                optional: false,
+                read_only: true,
+                value: AST::String,
+            }),
+        ]);
+        let obj_b = InexactObject::new(vec![
+            Prop::KeyValuePair(KeyValuePairProp {
+                key: *KEY_TYPENAME,
+                optional: false,
+                read_only: true,
+                value: AST::StringLiteral(StringLiteral("User".intern())),
+            }),
+            Prop::KeyValuePair(KeyValuePairProp {
+                key: "b".intern(),
+                optional: false,
+                read_only: true,
+                value: AST::String,
+            }),
+        ]);
+        // This would stack overflow before the fix
+        let _ = obj_a.cmp(&obj_b);
+        assert_eq!(obj_a.cmp(&obj_a), std::cmp::Ordering::Equal);
+    }
 
     #[test]
     fn ast_string_key_sort() {

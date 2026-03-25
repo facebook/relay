@@ -29,16 +29,16 @@ Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
-                span: 275:278,
+                span: 83:86,
                 token: Token {
-                    span: 275:278,
+                    span: 83:86,
                     kind: Identifier,
                 },
                 value: "Cat",
             },
-            rhs_location: Cat.js:275:278,
+            rhs_location: Cat.js:83:86,
             root_fragment: WithLocation {
-                location: Cat.js:275:278,
+                location: Cat.js:83:86,
                 item: FragmentDefinitionName(
                     "Cat__id",
                 ),
@@ -47,10 +47,10 @@ Type(
             deprecated: None,
             live: None,
             semantic_non_null: None,
-            location: Cat.js:275:278,
+            location: Cat.js:83:86,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "4325ac2bef4354788b5ccb1c5f5ffd53",
+                "356bce1fcf9b00e072c9c1e77cbb1450",
             ),
             type_confirmed: true,
         },
@@ -58,14 +58,14 @@ Type(
 )
 type Cat @__RelayResolverModel {
   id: ID! @__RelayResolverModelGeneratedIDField
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "4325ac2bef4354788b5ccb1c5f5ffd53") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "356bce1fcf9b00e072c9c1e77cbb1450") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 
 ✖︎ A nullable strong type is provided, please make the type non-nullable. The type can't be nullable in the runtime.
 
-  Cat.js:22:27
-   21 │  */
-   22 │ export function name(cat: ?CatFlowType): string {
+  Cat.js:15:27
+   14 │  */
+   15 │ export function name(cat: ?CatFlowType): string {
       │                           ^^^^^^^^^^^^
-   23 │   return "cat";
+   16 │   return "cat";

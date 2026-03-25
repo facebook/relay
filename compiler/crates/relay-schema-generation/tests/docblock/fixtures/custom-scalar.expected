@@ -41,9 +41,9 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 415:424,
+                    span: 223:232,
                     token: Token {
-                        span: 415:424,
+                        span: 223:232,
                         kind: Identifier,
                     },
                     value: "serialize",
@@ -51,9 +51,9 @@ Field(
                 type_: Named(
                     NamedTypeAnnotation {
                         name: Identifier {
-                            span: 445:455,
+                            span: 253:263,
                             token: Token {
-                                span: 445:455,
+                                span: 253:263,
                                 kind: Identifier,
                             },
                             value: "JSON",
@@ -64,10 +64,10 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 415:424,
+                span: 223:232,
             },
             type_: WithLocation {
-                location: Cat.js:326:329,
+                location: Cat.js:134:137,
                 item: "Cat",
             },
             root_fragment: None,
@@ -75,10 +75,10 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: Cat.js:415:424,
+            location: Cat.js:223:232,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "69e6ff1ceadd103da3b3b9a805681c7c",
+                "f503160e2da68b55f4ce0ddb33e965a7",
             ),
             type_confirmed: true,
             property_lookup_name: None,
@@ -86,7 +86,7 @@ Field(
     ),
 )
 extend type Cat {
-  serialize: JSON @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "serialize", import_path: "Cat.js") @resolver_source_hash(value: "69e6ff1ceadd103da3b3b9a805681c7c")
+  serialize: JSON @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "serialize", import_path: "Cat.js") @resolver_source_hash(value: "f503160e2da68b55f4ce0ddb33e965a7")
 }
 
 
@@ -95,9 +95,9 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 516:534,
+                    span: 324:342,
                     token: Token {
-                        span: 516:534,
+                        span: 324:342,
                         kind: Identifier,
                     },
                     value: "deserialize_extras",
@@ -105,9 +105,9 @@ Field(
                 type_: Named(
                     NamedTypeAnnotation {
                         name: Identifier {
-                            span: 583:589,
+                            span: 391:397,
                             token: Token {
-                                span: 583:589,
+                                span: 391:397,
                                 kind: Identifier,
                             },
                             value: "String",
@@ -116,30 +116,30 @@ Field(
                 ),
                 arguments: Some(
                     List {
-                        span: 559:579,
+                        span: 367:387,
                         start: Token {
-                            span: 559:560,
+                            span: 367:368,
                             kind: OpenBrace,
                         },
                         items: [
                             InputValueDefinition {
                                 name: Identifier {
-                                    span: 560:566,
+                                    span: 368:374,
                                     token: Token {
-                                        span: 560:566,
+                                        span: 368:374,
                                         kind: Identifier,
                                     },
                                     value: "extras",
                                 },
                                 type_: NonNull(
                                     NonNullTypeAnnotation {
-                                        span: 568:578,
+                                        span: 376:386,
                                         type_: Named(
                                             NamedTypeAnnotation {
                                                 name: Identifier {
-                                                    span: 568:578,
+                                                    span: 376:386,
                                                     token: Token {
-                                                        span: 568:578,
+                                                        span: 376:386,
                                                         kind: Identifier,
                                                     },
                                                     value: "JSON",
@@ -155,11 +155,11 @@ Field(
                                 default_value: None,
                                 directives: [],
                                 description: None,
-                                span: 560:578,
+                                span: 368:386,
                             },
                         ],
                         end: Token {
-                            span: 578:579,
+                            span: 386:387,
                             kind: CloseBrace,
                         },
                     },
@@ -167,10 +167,10 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 516:534,
+                span: 324:342,
             },
             type_: WithLocation {
-                location: Cat.js:326:329,
+                location: Cat.js:134:137,
                 item: "Cat",
             },
             root_fragment: None,
@@ -178,10 +178,10 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: Cat.js:516:534,
+            location: Cat.js:324:342,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "69e6ff1ceadd103da3b3b9a805681c7c",
+                "f503160e2da68b55f4ce0ddb33e965a7",
             ),
             type_confirmed: true,
             property_lookup_name: None,
@@ -189,7 +189,7 @@ Field(
     ),
 )
 extend type Cat {
-  deserialize_extras(extras: JSON!): String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "deserialize_extras", import_path: "Cat.js") @resolver_source_hash(value: "69e6ff1ceadd103da3b3b9a805681c7c")
+  deserialize_extras(extras: JSON!): String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "deserialize_extras", import_path: "Cat.js") @resolver_source_hash(value: "f503160e2da68b55f4ce0ddb33e965a7")
 }
 
 
@@ -197,16 +197,16 @@ Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
-                span: 326:329,
+                span: 134:137,
                 token: Token {
-                    span: 326:329,
+                    span: 134:137,
                     kind: Identifier,
                 },
                 value: "Cat",
             },
-            rhs_location: Cat.js:326:329,
+            rhs_location: Cat.js:134:137,
             root_fragment: WithLocation {
-                location: Cat.js:326:329,
+                location: Cat.js:134:137,
                 item: FragmentDefinitionName(
                     "Cat__id",
                 ),
@@ -215,10 +215,10 @@ Type(
             deprecated: None,
             live: None,
             semantic_non_null: None,
-            location: Cat.js:326:329,
+            location: Cat.js:134:137,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "69e6ff1ceadd103da3b3b9a805681c7c",
+                "f503160e2da68b55f4ce0ddb33e965a7",
             ),
             type_confirmed: true,
         },
@@ -226,5 +226,5 @@ Type(
 )
 type Cat @__RelayResolverModel {
   id: ID! @__RelayResolverModelGeneratedIDField
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "69e6ff1ceadd103da3b3b9a805681c7c") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "f503160e2da68b55f4ce0ddb33e965a7") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

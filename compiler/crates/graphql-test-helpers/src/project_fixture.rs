@@ -73,8 +73,10 @@ impl ProjectFixture {
                     } else {
                         files.insert(prev_file_name, joined);
                     }
-                    content.clear();
                 }
+                // Always clear content, even for preamble lines before the
+                // first //- separator, so they don't leak into the first file.
+                content.clear();
             };
 
         for line in input.lines() {

@@ -27,16 +27,16 @@ Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
-                span: 272:275,
+                span: 80:83,
                 token: Token {
-                    span: 272:275,
+                    span: 80:83,
                     kind: Identifier,
                 },
                 value: "Cat",
             },
-            rhs_location: module.js:272:275,
+            rhs_location: module.js:80:83,
             root_fragment: WithLocation {
-                location: module.js:272:275,
+                location: module.js:80:83,
                 item: FragmentDefinitionName(
                     "Cat__id",
                 ),
@@ -45,10 +45,10 @@ Type(
             deprecated: None,
             live: None,
             semantic_non_null: None,
-            location: module.js:272:275,
+            location: module.js:80:83,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "e1bb270ca1c147c6d5309714fb822fda",
+                "4d65b0571ec19c3ee5414b550ce5882d",
             ),
             type_confirmed: true,
         },
@@ -56,13 +56,13 @@ Type(
 )
 type Cat @__RelayResolverModel {
   id: ID! @__RelayResolverModelGeneratedIDField
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "e1bb270ca1c147c6d5309714fb822fda") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "4d65b0571ec19c3ee5414b550ce5882d") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 
 ✖︎ Expected Relay Resolver function param to include type annotation
 
-  module.js:22:40
-   21 │  */
-   22 │ export function name(cat: CatFlowType, args): string {}
+  module.js:15:40
+   14 │  */
+   15 │ export function name(cat: CatFlowType, args): string {}
       │                                        ^^^^

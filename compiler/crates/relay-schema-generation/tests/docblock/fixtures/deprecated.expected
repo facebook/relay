@@ -40,9 +40,9 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 504:507,
+                    span: 312:315,
                     token: Token {
-                        span: 504:507,
+                        span: 312:315,
                         kind: Identifier,
                     },
                     value: "age",
@@ -50,9 +50,9 @@ Field(
                 type_: Named(
                     NamedTypeAnnotation {
                         name: Identifier {
-                            span: 528:534,
+                            span: 336:342,
                             token: Token {
-                                span: 528:534,
+                                span: 336:342,
                                 kind: Identifier,
                             },
                             value: "Float",
@@ -64,17 +64,17 @@ Field(
                 description: Some(
                     StringNode {
                         token: Token {
-                            span: 375:487,
+                            span: 183:295,
                             kind: Empty,
                         },
                         value: "\nThis is the age of the cat\nin years",
                     },
                 ),
                 hack_source: None,
-                span: 504:507,
+                span: 312:315,
             },
             type_: WithLocation {
-                location: module.js:327:330,
+                location: module.js:135:138,
                 item: "Cat",
             },
             root_fragment: None,
@@ -92,10 +92,10 @@ Field(
             ),
             semantic_non_null: None,
             live: None,
-            location: module.js:504:507,
+            location: module.js:312:315,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "dcf10bac1041d7f30f36c2bd311d01b8",
+                "16c36e7166f7b4539f8c9b30b868bec0",
             ),
             type_confirmed: true,
             property_lookup_name: None,
@@ -103,7 +103,7 @@ Field(
     ),
 )
 extend type Cat {
-  age: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "age", import_path: "module.js") @resolver_source_hash(value: "dcf10bac1041d7f30f36c2bd311d01b8") @deprecated(reason: "Use `dateOfBirth` instead.")
+  age: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "age", import_path: "module.js") @resolver_source_hash(value: "16c36e7166f7b4539f8c9b30b868bec0") @deprecated(reason: "Use `dateOfBirth` instead.")
 }
 
 
@@ -112,9 +112,9 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 596:601,
+                    span: 404:409,
                     token: Token {
-                        span: 596:601,
+                        span: 404:409,
                         kind: Identifier,
                     },
                     value: "breed",
@@ -122,9 +122,9 @@ Field(
                 type_: Named(
                     NamedTypeAnnotation {
                         name: Identifier {
-                            span: 622:628,
+                            span: 430:436,
                             token: Token {
-                                span: 622:628,
+                                span: 430:436,
                                 kind: Identifier,
                             },
                             value: "String",
@@ -135,10 +135,10 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 596:601,
+                span: 404:409,
             },
             type_: WithLocation {
-                location: module.js:327:330,
+                location: module.js:135:138,
                 item: "Cat",
             },
             root_fragment: None,
@@ -152,10 +152,10 @@ Field(
             ),
             semantic_non_null: None,
             live: None,
-            location: module.js:596:601,
+            location: module.js:404:409,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "dcf10bac1041d7f30f36c2bd311d01b8",
+                "16c36e7166f7b4539f8c9b30b868bec0",
             ),
             type_confirmed: true,
             property_lookup_name: None,
@@ -163,7 +163,7 @@ Field(
     ),
 )
 extend type Cat {
-  breed: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "breed", import_path: "module.js") @resolver_source_hash(value: "dcf10bac1041d7f30f36c2bd311d01b8") @deprecated
+  breed: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "breed", import_path: "module.js") @resolver_source_hash(value: "16c36e7166f7b4539f8c9b30b868bec0") @deprecated
 }
 
 
@@ -171,33 +171,33 @@ Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
-                span: 327:330,
+                span: 135:138,
                 token: Token {
-                    span: 327:330,
+                    span: 135:138,
                     kind: Identifier,
                 },
                 value: "Cat",
             },
-            rhs_location: module.js:327:330,
+            rhs_location: module.js:135:138,
             root_fragment: WithLocation {
-                location: module.js:327:330,
+                location: module.js:135:138,
                 item: FragmentDefinitionName(
                     "Cat__id",
                 ),
             },
             description: Some(
                 WithLocation {
-                    location: module.js:230:310,
+                    location: module.js:38:118,
                     item: "\nThis is a strong object resolver.",
                 },
             ),
             deprecated: None,
             live: None,
             semantic_non_null: None,
-            location: module.js:327:330,
+            location: module.js:135:138,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "dcf10bac1041d7f30f36c2bd311d01b8",
+                "16c36e7166f7b4539f8c9b30b868bec0",
             ),
             type_confirmed: true,
         },
@@ -205,5 +205,5 @@ Type(
 )
 type Cat @__RelayResolverModel {
   id: ID! @__RelayResolverModelGeneratedIDField
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "dcf10bac1041d7f30f36c2bd311d01b8") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "16c36e7166f7b4539f8c9b30b868bec0") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

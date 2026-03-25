@@ -20,8 +20,8 @@ const MyResolver = {x: number};
 
 ✖︎ @RelayResolver annotation is expected to be on a named export
 
-  module.js:15:1
-   13 │  * @RelayResolver
-   14 │  */
-   15 │ const MyResolver = {x: number};
+  module.js:7:1
+    5 │  * @RelayResolver
+    6 │  */
+    7 │ const MyResolver = {x: number};
       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -37,9 +37,9 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 412:421,
+                    span: 220:229,
                     token: Token {
-                        span: 412:421,
+                        span: 220:229,
                         kind: Identifier,
                     },
                     value: "server_id",
@@ -60,10 +60,10 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 412:421,
+                span: 220:229,
             },
             type_: WithLocation {
-                location: Cat.js:323:326,
+                location: Cat.js:131:134,
                 item: "Cat",
             },
             root_fragment: None,
@@ -71,10 +71,10 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: Cat.js:412:421,
+            location: Cat.js:220:229,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "b34abe1ebe87f22729175fd53c228fc1",
+                "1ba3d5ae9c5eaba30abf8a7c5f0ec1d2",
             ),
             type_confirmed: true,
             property_lookup_name: None,
@@ -82,7 +82,7 @@ Field(
     ),
 )
 extend type Cat {
-  server_id: CustomGlobalID @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "server_id", import_path: "Cat.js") @resolver_source_hash(value: "b34abe1ebe87f22729175fd53c228fc1")
+  server_id: CustomGlobalID @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "server_id", import_path: "Cat.js") @resolver_source_hash(value: "1ba3d5ae9c5eaba30abf8a7c5f0ec1d2")
 }
 
 
@@ -90,16 +90,16 @@ Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
-                span: 323:326,
+                span: 131:134,
                 token: Token {
-                    span: 323:326,
+                    span: 131:134,
                     kind: Identifier,
                 },
                 value: "Cat",
             },
-            rhs_location: Cat.js:323:326,
+            rhs_location: Cat.js:131:134,
             root_fragment: WithLocation {
-                location: Cat.js:323:326,
+                location: Cat.js:131:134,
                 item: FragmentDefinitionName(
                     "Cat__id",
                 ),
@@ -108,10 +108,10 @@ Type(
             deprecated: None,
             live: None,
             semantic_non_null: None,
-            location: Cat.js:323:326,
+            location: Cat.js:131:134,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "b34abe1ebe87f22729175fd53c228fc1",
+                "1ba3d5ae9c5eaba30abf8a7c5f0ec1d2",
             ),
             type_confirmed: true,
         },
@@ -119,7 +119,7 @@ Type(
 )
 type Cat @__RelayResolverModel {
   id: ID! @__RelayResolverModelGeneratedIDField
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "b34abe1ebe87f22729175fd53c228fc1") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "1ba3d5ae9c5eaba30abf8a7c5f0ec1d2") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 

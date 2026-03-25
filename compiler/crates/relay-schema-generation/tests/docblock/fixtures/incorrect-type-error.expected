@@ -20,8 +20,8 @@ export const MyResolver = string;
 
 ✖︎ @RelayResolver annotation is expected to be on a named function or type alias
 
-  module.js:15:1
-   13 │  * @RelayResolver
-   14 │  */
-   15 │ export const MyResolver = string;
+  module.js:7:1
+    5 │  * @RelayResolver
+    6 │  */
+    7 │ export const MyResolver = string;
       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

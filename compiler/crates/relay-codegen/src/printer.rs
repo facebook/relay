@@ -647,7 +647,7 @@ impl<'b> JSONPrinter<'b> {
                 }
             },
             Primitive::PropertyAccessor(property) => {
-                write_arrow_fn(f, &["o"], &format!("o.{property}"))
+                write_arrow_fn(f, &["o/*: any*/"], &format!("o.{property}"))
             }
             Primitive::RelayResolverModel {
                 graphql_module_path,

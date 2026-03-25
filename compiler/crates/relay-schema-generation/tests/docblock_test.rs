@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bd8a4ea6aa4cf4d9a796ff5624d8bc5e>>
+ * @generated SignedSource<<f604561be4637613184614fc3d942aaa>>
  */
 
 mod docblock;
@@ -66,6 +66,13 @@ async fn description() {
     let input = include_str!("docblock/fixtures/description.input");
     let expected = include_str!("docblock/fixtures/description.expected");
     test_fixture(transform_fixture, file!(), "description.input", "docblock/fixtures/description.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn docblock_parse_error_location() {
+    let input = include_str!("docblock/fixtures/docblock-parse-error-location.input");
+    let expected = include_str!("docblock/fixtures/docblock-parse-error-location.expected");
+    test_fixture(transform_fixture, file!(), "docblock-parse-error-location.input", "docblock/fixtures/docblock-parse-error-location.expected", input, expected).await;
 }
 
 #[tokio::test]

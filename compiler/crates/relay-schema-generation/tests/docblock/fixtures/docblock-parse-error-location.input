@@ -1,0 +1,27 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+// Docblock parse error with file-relative location: the diagnostic underline
+// should point at the `@` on the correct line in the file, not at an offset
+// relative to the start of the docblock comment.
+/**
+  @RelayResolver
+ */
+export function name(cat: CatFlowType): ?string {
+  return "cat";
+}

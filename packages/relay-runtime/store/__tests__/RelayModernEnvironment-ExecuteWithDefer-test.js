@@ -113,7 +113,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           _query: RequestParameters,
           _variables: Variables,
           _cacheConfig: CacheConfig,
-        ) => {
+        ): RelayObservable<GraphQLResponse> => {
           return RelayObservable.create<GraphQLResponse>(
             (sink: Sink<GraphQLResponse>) => {
               dataSource = sink;

@@ -13,6 +13,13 @@ use schema_coordinates::SchemaCoordinate;
 use serde::Serialize;
 
 use crate::OutputNonNull;
+
+/// A source file location for a schema coordinate.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+pub struct SchemaFileLocation {
+    pub file: String,
+    pub line: u32,
+}
 use crate::OutputTypeReference;
 use crate::SchemaSet;
 use crate::SetArgument;
@@ -52,6 +59,10 @@ pub struct SubsetViolation {
     pub base: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subset: Option<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub base_locations: Vec<SchemaFileLocation>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub subset_locations: Vec<SchemaFileLocation>,
 }
 
 /// Identifies all elements in the subset schema that are not properly included
@@ -95,6 +106,8 @@ fn walk_type_violations(
                 schema_coordinate: SchemaCoordinate::Type { name: type_name }.to_string(),
                 base: None,
                 subset: None,
+                base_locations: Vec::new(),
+                subset_locations: Vec::new(),
             });
         }
         Some(base_type) => {
@@ -111,6 +124,8 @@ fn walk_type_violations(
                     schema_coordinate: SchemaCoordinate::Type { name: type_name }.to_string(),
                     base: Some(base_kind.to_string()),
                     subset: Some(subset_kind.to_string()),
+                    base_locations: Vec::new(),
+                    subset_locations: Vec::new(),
                 });
             } else {
                 walk_same_kind_violations(violations, type_name, rem_type, base_type, subset);
@@ -150,6 +165,8 @@ fn walk_same_kind_violations(
                     schema_coordinate: SchemaCoordinate::Type { name: type_name }.to_string(),
                     base: Some(iface_name.lookup().to_string()),
                     subset: None,
+                    base_locations: Vec::new(),
+                    subset_locations: Vec::new(),
                 });
             }
         }
@@ -176,6 +193,8 @@ fn walk_same_kind_violations(
                     schema_coordinate: SchemaCoordinate::Type { name: type_name }.to_string(),
                     base: Some(iface_name.lookup().to_string()),
                     subset: None,
+                    base_locations: Vec::new(),
+                    subset_locations: Vec::new(),
                 });
             }
         }
@@ -194,6 +213,8 @@ fn walk_same_kind_violations(
                         .to_string(),
                         base: Some(value_name.lookup().to_string()),
                         subset: None,
+                        base_locations: Vec::new(),
+                        subset_locations: Vec::new(),
                     });
                 }
             }
@@ -208,6 +229,8 @@ fn walk_same_kind_violations(
                     schema_coordinate: SchemaCoordinate::Type { name: type_name }.to_string(),
                     base: Some(member_name.lookup().to_string()),
                     subset: None,
+                    base_locations: Vec::new(),
+                    subset_locations: Vec::new(),
                 });
             }
         }
@@ -251,6 +274,8 @@ fn walk_field_violations(
                     .to_string(),
                     base: None,
                     subset: None,
+                    base_locations: Vec::new(),
+                    subset_locations: Vec::new(),
                 });
             }
             Some(base_field) => {
@@ -269,6 +294,8 @@ fn walk_field_violations(
                         .to_string(),
                         base: Some(base_type),
                         subset: Some(subset_type),
+                        base_locations: Vec::new(),
+                        subset_locations: Vec::new(),
                     });
                 }
 
@@ -315,6 +342,8 @@ fn walk_arg_violations(
                 .to_string(),
                 base: Some(arg_name.lookup().to_string()),
                 subset: None,
+                base_locations: Vec::new(),
+                subset_locations: Vec::new(),
             });
         } else if !in_subset && in_base {
             let is_required = rem_arg.type_.is_non_null() && rem_arg.default_value.is_none();
@@ -331,6 +360,8 @@ fn walk_arg_violations(
                     .to_string(),
                     base: None,
                     subset: Some(arg_name.lookup().to_string()),
+                    base_locations: Vec::new(),
+                    subset_locations: Vec::new(),
                 });
             } else {
                 violations.push(SubsetViolation {
@@ -345,6 +376,8 @@ fn walk_arg_violations(
                     .to_string(),
                     base: None,
                     subset: Some(arg_name.lookup().to_string()),
+                    base_locations: Vec::new(),
+                    subset_locations: Vec::new(),
                 });
             }
         } else if in_subset && in_base && rem_arg.definition.is_some() {
@@ -364,6 +397,8 @@ fn walk_arg_violations(
                 .to_string(),
                 base: Some(base_type),
                 subset: Some(subset_type),
+                base_locations: Vec::new(),
+                subset_locations: Vec::new(),
             });
         }
     }
@@ -391,6 +426,8 @@ fn walk_input_field_violations(
                 .to_string(),
                 base: None,
                 subset: None,
+                base_locations: Vec::new(),
+                subset_locations: Vec::new(),
             });
         } else if !in_subset && in_base {
             let is_required = rem_field.type_.is_non_null() && rem_field.default_value.is_none();
@@ -403,6 +440,8 @@ fn walk_input_field_violations(
                     schema_coordinate: SchemaCoordinate::Type { name: type_name }.to_string(),
                     base: None,
                     subset: Some(field_name.lookup().to_string()),
+                    base_locations: Vec::new(),
+                    subset_locations: Vec::new(),
                 });
             }
         } else if in_subset && in_base && rem_field.definition.is_some() {
@@ -423,6 +462,8 @@ fn walk_input_field_violations(
                 .to_string(),
                 base: Some(base_type),
                 subset: Some(subset_type),
+                base_locations: Vec::new(),
+                subset_locations: Vec::new(),
             });
         }
     }
@@ -447,6 +488,8 @@ fn walk_directive_def_violations(
                 .to_string(),
                 base: None,
                 subset: None,
+                base_locations: Vec::new(),
+                subset_locations: Vec::new(),
             });
         }
         Some(base_directive) => {
@@ -469,6 +512,8 @@ fn walk_directive_def_violations(
                         .to_string(),
                         base: Some(arg_name.lookup().to_string()),
                         subset: None,
+                        base_locations: Vec::new(),
+                        subset_locations: Vec::new(),
                     });
                 } else if !in_subset && in_base {
                     let is_required =
@@ -483,6 +528,8 @@ fn walk_directive_def_violations(
                                 .to_string(),
                             base: None,
                             subset: Some(arg_name.lookup().to_string()),
+                            base_locations: Vec::new(),
+                            subset_locations: Vec::new(),
                         });
                     }
                 }
@@ -500,6 +547,8 @@ fn walk_directive_def_violations(
                                 .to_string(),
                             base: Some(format!("{:?}", location)),
                             subset: None,
+                            base_locations: Vec::new(),
+                            subset_locations: Vec::new(),
                         });
                     }
                 }
@@ -532,6 +581,8 @@ fn walk_type_directive_violations(
             schema_coordinate: SchemaCoordinate::Type { name: type_name }.to_string(),
             base: None,
             subset: None,
+            base_locations: Vec::new(),
+            subset_locations: Vec::new(),
         });
     }
 }

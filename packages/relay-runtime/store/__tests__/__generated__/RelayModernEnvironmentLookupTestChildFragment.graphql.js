@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e252e3e4e61256442d086df672163667>>
+ * @generated SignedSource<<40b20dec80b0b0c895614621c8073c5f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */

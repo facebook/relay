@@ -7,6 +7,7 @@
 
 mod build_schema_document;
 mod builtin_scalars;
+pub mod find_subset_violations;
 mod from_schema;
 mod ir_collector;
 mod macros;

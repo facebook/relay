@@ -1,0 +1,40 @@
+# The two fragments RowFragment and RootFragment both select
+# nameRenderer with @match, but with different @module spreads.
+# RowFragment also spreads RootFragment, so both selections end
+# up in the same query, generating different `supported` arguments.
+# This should be an error but currently isn't because
+# transform_match processes each fragment independently.
+query TestQuery {
+  me {
+    ...RowFragment
+  }
+}
+
+fragment RowFragment on User {
+  id
+  ...RootFragment
+  nameRenderer @match {
+    ...PlainUserNameRenderer_row @module(name: "PlainRow.react")
+  }
+}
+
+fragment RootFragment on User {
+  nameRenderer @match {
+    ...PlainUserNameRenderer_root @module(name: "PlainRoot.react")
+    ...MarkdownUserNameRenderer_root @module(name: "MarkdownRoot.react")
+  }
+}
+
+fragment PlainUserNameRenderer_row on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment PlainUserNameRenderer_root on PlainUserNameRenderer {
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_root on MarkdownUserNameRenderer {
+  markdown
+}

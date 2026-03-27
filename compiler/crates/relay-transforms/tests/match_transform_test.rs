@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a95eded87d3fe1fcee753800dd8f11eb>>
+ * @generated SignedSource<<22503d017b85f6e8aa96838f17727efb>>
  */
 
 mod match_transform;
@@ -136,4 +136,11 @@ async fn relay_match_with_non_literal_key_invalid() {
     let input = include_str!("match_transform/fixtures/relay-match-with-non-literal-key.invalid.graphql");
     let expected = include_str!("match_transform/fixtures/relay-match-with-non-literal-key.invalid.expected");
     test_fixture(transform_fixture, file!(), "relay-match-with-non-literal-key.invalid.graphql", "match_transform/fixtures/relay-match-with-non-literal-key.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn same_field_with_different_match_across_fragments() {
+    let input = include_str!("match_transform/fixtures/same-field-with-different-match-across-fragments.graphql");
+    let expected = include_str!("match_transform/fixtures/same-field-with-different-match-across-fragments.expected");
+    test_fixture(transform_fixture, file!(), "same-field-with-different-match-across-fragments.graphql", "match_transform/fixtures/same-field-with-different-match-across-fragments.expected", input, expected).await;
 }

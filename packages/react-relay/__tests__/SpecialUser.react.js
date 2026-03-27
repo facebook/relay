@@ -7,7 +7,7 @@
 
 import type {RelayClient3DModuleTestFragmentSpecialUser_data$key} from 'react-relay/__tests__/__generated__/RelayClient3DModuleTestFragmentSpecialUser_data.graphql';
 
-import React from 'react';
+import * as React from 'react';
 import {
   useFragment,
 } from 'react-relay';

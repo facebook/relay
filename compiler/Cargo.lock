@@ -2310,6 +2310,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "schema-coordinates"
+version = "0.0.0"
+dependencies = [
+ "intern",
+ "logos",
+]
+
+[[package]]
 name = "schema-diff"
 version = "0.0.0"
 dependencies = [
@@ -2365,6 +2373,8 @@ dependencies = [
  "lazy_static",
  "program-with-dependencies",
  "schema",
+ "schema-coordinates",
+ "serde",
 ]
 
 [[package]]

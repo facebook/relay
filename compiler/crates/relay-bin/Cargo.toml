@@ -9,7 +9,7 @@ repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
-clap = { version = "4.5.42", features = ["derive", "env", "string", "unicode", "wrap_help"] }
+clap = { version = "4.6.0", features = ["derive", "env", "string", "unicode", "wrap_help"] }
 common = { path = "../common" }
 graphql-ir-diff = { path = "../graphql-ir-diff" }
 intern = { path = "../intern" }

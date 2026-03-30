@@ -54,18 +54,15 @@ use crate::prettier_doc_builders::type_annotation_doc;
 /// This function produces SDL output that matches prettier-graphql formatting,
 /// avoiding PRETTIERGRAPHQL lint errors in generated files.
 pub fn prettier_print_schema_document(document: &SchemaDocument) -> String {
-    let docs: Vec<RcDoc<'static, ()>> = document
+    // Render each definition independently instead of using RcDoc::intersperse,
+    // otherwise we see stack overflow on Drop
+    // for schemas with tens of thousands of definitions.
+    document
         .definitions
         .iter()
-        .map(type_system_definition_doc)
-        .collect();
-
-    if docs.is_empty() {
-        return String::new();
-    }
-
-    let doc = RcDoc::intersperse(docs, RcDoc::hardline());
-    render_doc(doc, LINE_WIDTH)
+        .map(|def| render_doc(type_system_definition_doc(def), LINE_WIDTH))
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 /// Prints a TypeSystemDefinition in prettier-graphql compatible format.

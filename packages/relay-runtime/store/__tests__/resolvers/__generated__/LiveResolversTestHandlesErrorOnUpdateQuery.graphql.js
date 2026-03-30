@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df2a34d402c96cec81050c58ab5e5073>>
+ * @generated SignedSource<<60383db664c0dbae850c7811c669b3dd>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {counter_throws_when_odd as queryCounterThrowsWhenOddResolverType} from "
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterThrowsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterThrowsWhenOddResolverType: (
+(queryCounterThrowsWhenOddResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
@@ -93,10 +93,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b0fe01bebd0ba17a2b27b256f6391a2d";
+  (node/*:: as any*/).hash = "b0fe01bebd0ba17a2b27b256f6391a2d";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTestHandlesErrorOnUpdateQuery$variables,
   LiveResolversTestHandlesErrorOnUpdateQuery$data,
 >*/);

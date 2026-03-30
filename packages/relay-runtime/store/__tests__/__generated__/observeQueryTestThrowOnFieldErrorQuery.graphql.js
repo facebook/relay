@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e2e07f3923c602f77d874160d0bfc3fd>>
+ * @generated SignedSource<<bc1bf4e0e8f323009d378a0cca06e685>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -54,7 +54,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -76,7 +76,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -101,10 +101,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4e57fcb1ba72674139f2450c6bfda49a";
+  (node/*:: as any*/).hash = "4e57fcb1ba72674139f2450c6bfda49a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeQueryTestThrowOnFieldErrorQuery$variables,
   observeQueryTestThrowOnFieldErrorQuery$data,
 >*/);

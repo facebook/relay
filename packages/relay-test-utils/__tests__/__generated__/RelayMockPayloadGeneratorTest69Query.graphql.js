@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8bd8e6c7531d54155bbbb1bc322d8661>>
+ * @generated SignedSource<<1af15ce191344218f1b2868992f75515>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -51,7 +51,7 @@ v1 = [
     "name": "me",
     "plural": false,
     "selections": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "alias": null,
         "args": null,
@@ -70,7 +70,7 @@ v1 = [
     "name": "me",
     "plural": false,
     "selections": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "alias": null,
         "args": null,
@@ -88,7 +88,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockPayloadGeneratorTest69Query",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -97,7 +97,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayMockPayloadGeneratorTest69Query",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "aa793dad7066cf4e3f72d5686a723d95",
@@ -111,10 +111,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "48d7660f11592357fff0034ab33441bc";
+  (node/*:: as any*/).hash = "48d7660f11592357fff0034ab33441bc";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest69Query$variables,
   RelayMockPayloadGeneratorTest69Query$data,
 >*/);

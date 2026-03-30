@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d17cf679208686359ac9458f9186b1ee>>
+ * @generated SignedSource<<db4fb29a4ec204f19fd57c781aeb99b8>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -117,7 +117,7 @@ v8 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -156,15 +156,15 @@ v9 = [
     "name": "first",
     "value": 1
   },
-  (v6/*: any*/),
-  (v7/*: any*/)
+  (v6/*:: as any*/),
+  (v7/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -172,28 +172,28 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
-          (v5/*: any*/),
+          (v4/*:: as any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": "friends",
                 "args": [
-                  (v6/*: any*/),
-                  (v7/*: any*/)
+                  (v6/*:: as any*/),
+                  (v7/*:: as any*/)
                 ],
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "__UserFriends_friends_bestFriends",
                 "plural": false,
-                "selections": (v8/*: any*/),
+                "selections": (v8/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -210,39 +210,39 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v2/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v2/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest3Query",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
-          (v5/*: any*/),
+          (v4/*:: as any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
                 "plural": false,
-                "selections": (v8/*: any*/),
+                "selections": (v8/*:: as any*/),
                 "storageKey": null
               },
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "filters": [
                   "orderby",
                   "isViewerFriend"
@@ -273,10 +273,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "551218ce1d354f656b656ac1af62fe4d";
+  (node/*:: as any*/).hash = "551218ce1d354f656b656ac1af62fe4d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest3Query$variables,
   RelayResponseNormalizerTest3Query$data,
 >*/);

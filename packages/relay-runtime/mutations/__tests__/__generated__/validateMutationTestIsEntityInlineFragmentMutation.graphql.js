@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<77e9b6a4511d741037a5301b139a3509>>
+ * @generated SignedSource<<f2808a59d18f9b70fb356f4a8005e26d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -78,14 +78,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTestIsEntityInlineFragmentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -99,7 +99,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -112,13 +112,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTestIsEntityInlineFragmentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -139,7 +139,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -167,10 +167,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "04d782c9d92fb6004e72f629fca93a8c";
+  (node/*:: as any*/).hash = "04d782c9d92fb6004e72f629fca93a8c";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTestIsEntityInlineFragmentMutation$variables,
   validateMutationTestIsEntityInlineFragmentMutation$data,
   validateMutationTestIsEntityInlineFragmentMutation$rawResponse,

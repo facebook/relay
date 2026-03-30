@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<99efb8091b1a2830df5033630a24e4a2>>
+ * @generated SignedSource<<963345ad4a589c468a85fd388b581222>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -77,14 +77,14 @@ v4 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -109,7 +109,7 @@ return {
                     "name": "edges",
                     "plural": true,
                     "selections": [
-                      (v2/*: any*/),
+                      (v2/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -118,7 +118,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v3/*: any*/),
+                          (v3/*:: as any*/),
                           {
                             "alias": "name",
                             "args": null,
@@ -148,13 +148,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -172,7 +172,7 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -186,7 +186,7 @@ return {
                     "name": "edges",
                     "plural": true,
                     "selections": [
-                      (v2/*: any*/),
+                      (v2/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -195,7 +195,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v3/*: any*/),
+                          (v3/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -223,7 +223,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "filters": null,
                 "handle": "bestFriends",
                 "key": "",
@@ -234,7 +234,7 @@ return {
             "type": "User",
             "abstractKey": null
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -252,10 +252,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "95bc24d97eeb913d23a0c1678854d5b3";
+  (node/*:: as any*/).hash = "95bc24d97eeb913d23a0c1678854d5b3";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables,
   RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4d34ed25ddfe0a7d963067dd2d627708>>
+ * @generated SignedSource<<493fab5e9dbf88c0d3ec6818018f689d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {edge_to_plural_models_that_throw as queryEdgeToPluralModelsThatThrowReso
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToPluralModelsThatThrowResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToPluralModelsThatThrowResolverType: (
+(queryEdgeToPluralModelsThatThrowResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?ReadonlyArray<?{|
@@ -93,7 +93,7 @@ return {
           "name": "edge_to_plural_models_that_throw",
           "plural": true,
           "selections": [
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -126,7 +126,7 @@ return {
           "name": "edge_to_plural_models_that_throw",
           "plural": true,
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -152,10 +152,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "29e63ae02c6f32c751824079e556f81b";
+  (node/*:: as any*/).hash = "29e63ae02c6f32c751824079e556f81b";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$variables,
   RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$data,
 >*/);

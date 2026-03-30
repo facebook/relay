@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<39885a0f623f31b1bb9ab3b2f3389da0>>
+ * @generated SignedSource<<6638486c65bd4adab7fc0f097505ec97>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -63,21 +63,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery",
     "selections": [
       {
         "alias": "user",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -87,13 +87,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery",
     "selections": [
       {
         "alias": "user",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -106,8 +106,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -152,10 +152,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "63c82190819d9bae1e10591c6a8c322d";
+  (node/*:: as any*/).hash = "63c82190819d9bae1e10591c6a8c322d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$variables,
   RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$data,
 >*/);

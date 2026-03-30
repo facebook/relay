@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<af71e7ade28ee1fcada9bf39dceb34b1>>
+ * @generated SignedSource<<bf74ff48252a9bc02ba30c5d2ff29434>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {SpecialUser as specialUserRelayModelInstanceResolverType} from "../Clien
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `specialUserRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(specialUserRelayModelInstanceResolverType: (
+(specialUserRelayModelInstanceResolverType as (
   id: SpecialUser__id$data['id'],
   args: void,
   context: TestResolverContextType,
@@ -64,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   SpecialUser____relay_model_instance$fragmentType,
   SpecialUser____relay_model_instance$data,
 >*/);

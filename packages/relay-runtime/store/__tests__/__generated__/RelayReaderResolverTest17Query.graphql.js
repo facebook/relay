@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9b79907c8b0bd30a91de7c6a27221437>>
+ * @generated SignedSource<<6030a0fbfb0272f55431988dace2a48c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {user_profile_picture_uri_with_scale_and_default_value as userUserProfile
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriWithScaleAndDefaultValueResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleAndDefaultValueResolverType: (
+(userUserProfilePictureUriWithScaleAndDefaultValueResolverType as (
   rootKey: UserProfilePictureWithDefaultValueResolver$key,
   args: {|
     scale: ?number,
@@ -151,10 +151,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e3d82e53a530e186384e70fb3ee90c42";
+  (node/*:: as any*/).hash = "e3d82e53a530e186384e70fb3ee90c42";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest17Query$variables,
   RelayReaderResolverTest17Query$data,
 >*/);

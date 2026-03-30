@@ -42,30 +42,30 @@ const usersFragment: useFragmentFlowtest_users$fragment = graphql`
 // Nullability of returned data type is correct
 useFragment(
   userFragment,
-  (Any: useFragmentFlowtest_user$key),
+  Any as useFragmentFlowtest_user$key,
 ) as useFragmentFlowtest_user$data;
 useFragment(
   userFragment,
-  (Any: ?useFragmentFlowtest_user$key),
+  Any as ?useFragmentFlowtest_user$key,
 ) as ?useFragmentFlowtest_user$data;
 useFragment(
   usersFragment,
-  (Any: useFragmentFlowtest_users$key),
+  Any as useFragmentFlowtest_users$key,
 ) as useFragmentFlowtest_users$data;
 useFragment(
   usersFragment,
-  (Any: ?useFragmentFlowtest_users$key),
+  Any as ?useFragmentFlowtest_users$key,
 ) as ?useFragmentFlowtest_users$data;
 
 // $FlowExpectedError[incompatible-type] : can't cast nullable to non-nullable
 useFragment(
   userFragment,
-  (Any: ?useFragmentFlowtest_user$key),
+  Any as ?useFragmentFlowtest_user$key,
 ) as useFragmentFlowtest_user$data;
 // $FlowExpectedError[incompatible-type] : can't cast nullable plural to non-nullable plural
 useFragment(
   usersFragment,
-  (Any: ?useFragmentFlowtest_users$key),
+  Any as ?useFragmentFlowtest_users$key,
 ) as useFragmentFlowtest_users$data;
 
 // $FlowExpectedError[incompatible-type] : Key should be one of the generated types

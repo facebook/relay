@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6288874a78b010f39ee59f2947d399a7>>
+ * @generated SignedSource<<6e6b318ff148f45540bb834a88cb8758>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userGreetingResolverType: (
+(userGreetingResolverType as (
   rootKey: UserGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -132,10 +132,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "66cb0d41878bc7976e92f5b0b87090c9";
+  (node/*:: as any*/).hash = "66cb0d41878bc7976e92f5b0b87090c9";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverTest1Query$variables,
   ResolverTest1Query$data,
 >*/);

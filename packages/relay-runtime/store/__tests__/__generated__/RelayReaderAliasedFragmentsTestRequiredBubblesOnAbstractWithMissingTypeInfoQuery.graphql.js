@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c2839c4fb627907497919022a9582819>>
+ * @generated SignedSource<<7b3338f8ab92ce7c83298e9400fcec97>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -57,14 +57,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -76,7 +76,7 @@ return {
               "selections": [
                 {
                   "kind": "RequiredField",
-                  "field": (v2/*: any*/),
+                  "field": (v2/*:: as any*/),
                   "action": "LOG"
                 }
               ],
@@ -95,13 +95,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -117,7 +117,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "type": "MaybeNodeInterface",
             "abstractKey": "__isMaybeNodeInterface"
@@ -146,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "43f8b10410f96ddf1bf9e9b901c8c626";
+  (node/*:: as any*/).hash = "43f8b10410f96ddf1bf9e9b901c8c626";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery$variables,
   RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery$data,
 >*/);

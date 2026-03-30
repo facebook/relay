@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<89e5624dbca4dc204c1130abeb700a69>>
+ * @generated SignedSource<<e0943a9111e27018b318f80494179450>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -88,10 +88,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5fb60f127148c85aab3f1d86296e2525";
+  (node/*:: as any*/).hash = "5fb60f127148c85aab3f1d86296e2525";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$variables,
   RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$data,
 >*/);

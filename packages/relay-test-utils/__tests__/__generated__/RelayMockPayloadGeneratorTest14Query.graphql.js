@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b2c218c706c5f5b79e75bb9f5b60e087>>
+ * @generated SignedSource<<2ae7b45adeaef00b41c2ba7fd4637502>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -63,8 +63,8 @@ v3 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -72,7 +72,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -93,15 +93,15 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayMockPayloadGeneratorTest14Query",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -144,7 +144,7 @@ return {
                 "kind": "LinkedField",
                 "name": "profile_picture",
                 "plural": false,
-                "selections": (v3/*: any*/),
+                "selections": (v3/*:: as any*/),
                 "storageKey": null
               },
               {
@@ -160,7 +160,7 @@ return {
                 "kind": "LinkedField",
                 "name": "profile_picture",
                 "plural": false,
-                "selections": (v3/*: any*/),
+                "selections": (v3/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -184,10 +184,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e964764fb520672744832fda6e6ed892";
+  (node/*:: as any*/).hash = "e964764fb520672744832fda6e6ed892";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest14Query$variables,
   RelayMockPayloadGeneratorTest14Query$data,
 >*/);

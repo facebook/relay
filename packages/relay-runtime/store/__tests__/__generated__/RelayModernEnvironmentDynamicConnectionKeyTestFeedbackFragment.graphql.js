@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<423e139c53978f947871b20c61c7fcbb>>
+ * @generated SignedSource<<0354c8ae8e95226011a5e6393b459a41>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -77,7 +77,7 @@ return {
   },
   "name": "RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": "comments",
       "args": [
@@ -113,7 +113,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -169,10 +169,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b83415f7ddaf726ca9c8853aa433bf33";
+  (node/*:: as any*/).hash = "b83415f7ddaf726ca9c8853aa433bf33";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
   RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data,
 >*/);

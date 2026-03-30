@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<73c21e9ca5a2240e0c86a661b1f1a13c>>
+ * @generated SignedSource<<a86eaf1d08e6c2c90b89fab40f73e9d5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -112,10 +112,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7a9eaa1476798159533ae048a3ff048a";
+  (node/*:: as any*/).hash = "7a9eaa1476798159533ae048a3ff048a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables,
   RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data,
 >*/);

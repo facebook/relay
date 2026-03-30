@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0b3ce028d1d769edc878fef659bb49d1>>
+ * @generated SignedSource<<c563050f57692e8264388e8f94a9a8aa>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -55,8 +55,8 @@ v2 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -64,7 +64,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -91,15 +91,15 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -181,10 +181,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "66560c7839480e9e6d2891c5dbcd2039";
+  (node/*:: as any*/).hash = "66560c7839480e9e6d2891c5dbcd2039";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery$variables,
   useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery$data,
 >*/);

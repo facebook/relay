@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f8af43dd76b0c9299dec78c67fb2fc1c>>
+ * @generated SignedSource<<7dfaa5d5e88bd331e22bfc50e5eaed1f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolverType: (
+(astrologicalSignNameResolverType as (
   rootKey: AstrologicalSignNameResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -31,7 +31,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 import {virgo_suspends_when_counter_is_odd as queryVirgoSuspendsWhenCounterIsOddResolverType} from "../QueryVirgoLiveSuspendsWhenOddResolver.js";
 // Type assertion validating that `queryVirgoSuspendsWhenCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryVirgoSuspendsWhenCounterIsOddResolverType: (
+(queryVirgoSuspendsWhenCounterIsOddResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?{|
@@ -123,7 +123,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -167,7 +167,7 @@ return {
                     "fragment": {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v1/*: any*/)
+                        (v1/*:: as any*/)
                       ],
                       "type": "AstrologicalSign",
                       "abstractKey": null
@@ -184,7 +184,7 @@ return {
               "storageKey": null,
               "isOutputType": true
             },
-            (v1/*: any*/)
+            (v1/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -197,8 +197,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/)
+          (v0/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -216,10 +216,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "dd0a273ac98c59f8fb96a349e801ad6d";
+  (node/*:: as any*/).hash = "dd0a273ac98c59f8fb96a349e801ad6d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverGCTestResolverClientEdgeToClientSuspendedQuery$variables,
   ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b8755024c7edfdf80c3221965e65f42c>>
+ * @generated SignedSource<<4461a87968b63cc656d1b477a751e3ef>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -138,9 +138,9 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v0/*:: as any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -160,8 +160,8 @@ return {
                     "name": "client_best_friend",
                     "plural": false,
                     "selections": [
-                      (v3/*: any*/),
-                      (v2/*: any*/)
+                      (v3/*:: as any*/),
+                      (v2/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -193,7 +193,7 @@ return {
             ],
             "storageKey": null
           },
-          (v3/*: any*/),
+          (v3/*:: as any*/),
           {
             "kind": "ClientExtension",
             "selections": [
@@ -226,8 +226,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v0/*: any*/),
-              (v2/*: any*/)
+              (v0/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -252,8 +252,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v0/*: any*/),
-              (v2/*: any*/),
+              (v0/*:: as any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -262,8 +262,8 @@ return {
                 "name": "parents",
                 "plural": true,
                 "selections": [
-                  (v3/*: any*/),
-                  (v2/*: any*/),
+                  (v3/*:: as any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -272,7 +272,7 @@ return {
                     "name": "parents",
                     "plural": true,
                     "selections": [
-                      (v2/*: any*/)
+                      (v2/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -300,7 +300,7 @@ return {
         "name": "node",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -318,10 +318,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ad00b2de468d8a8877260a0cb5a0db06";
+  (node/*:: as any*/).hash = "ad00b2de468d8a8877260a0cb5a0db06";
 }
 
-module.exports = ((node/*: any*/)/*: UpdatableQuery<
+module.exports = ((node/*:: as any*/)/*:: as UpdatableQuery<
   readUpdatableQueryTestUpdatableQuery$variables,
   readUpdatableQueryTestUpdatableQuery$data,
 >*/);

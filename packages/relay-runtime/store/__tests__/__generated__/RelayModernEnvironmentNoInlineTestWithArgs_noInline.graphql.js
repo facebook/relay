@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<82973a35c5fd2327ce39b7b1e4b939a3>>
+ * @generated SignedSource<<9d4b5200ed1a023f979f2150ad228074>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -76,7 +76,7 @@ return {
               "name": "fileExtension",
               "value": "PNG"
             },
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "kind": "Variable",
               "name": "size",
@@ -114,7 +114,7 @@ return {
           "name": "fileExtension",
           "variableName": "fileExtension"
         },
-        (v0/*: any*/)
+        (v0/*:: as any*/)
       ],
       "kind": "FragmentSpread",
       "name": "RelayModernEnvironmentNoInlineTest_inner"
@@ -126,10 +126,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c176d8758682964446ea51b58b3a3f76";
+  (node/*:: as any*/).hash = "c176d8758682964446ea51b58b3a3f76";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
   RelayModernEnvironmentNoInlineTestWithArgs_noInline$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b37e25dfe0d3a12d51c2ec0ecba1b952>>
+ * @generated SignedSource<<52368b4700288f71c6ee6da044b66767>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {edge_to_strong_model_does_not_exist as queryEdgeToStrongModelDoesNotExis
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToStrongModelDoesNotExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToStrongModelDoesNotExistResolverType: (
+(queryEdgeToStrongModelDoesNotExistResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?{|
@@ -32,7 +32,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {name as strongModelNameResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
 // Type assertion validating that `strongModelNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(strongModelNameResolverType: (
+(strongModelNameResolverType as (
   __relay_model_instance: StrongModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -159,7 +159,7 @@ return {
                     "fragment": {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v0/*: any*/)
+                        (v0/*:: as any*/)
                       ],
                       "type": "StrongModel",
                       "abstractKey": null
@@ -176,7 +176,7 @@ return {
               "storageKey": null,
               "isOutputType": true
             },
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -195,10 +195,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "22ad42880cde32f3213c37be50f8dadd";
+  (node/*:: as any*/).hash = "22ad42880cde32f3213c37be50f8dadd";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_StrongModel_Query$variables,
   RelayResolverNullableModelClientEdgeTest_StrongModel_Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f80f1d6ed2f84419435ff0f30f754bc4>>
+ * @generated SignedSource<<9532ea2688a7b0460d03f06a5c61c0b6>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -119,7 +119,7 @@ return {
       "throwOnFieldError": true
     },
     "name": "RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -128,7 +128,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "b4e49b016710bab100689bfb7b5fd99a",
@@ -142,10 +142,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f545f883732869b6e4527c5f09a6b5eb";
+  (node/*:: as any*/).hash = "f545f883732869b6e4527c5f09a6b5eb";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery$variables,
   RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery$data,
 >*/);

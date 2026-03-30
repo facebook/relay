@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b7edfe348edba2d02aba93d7b344a40f>>
+ * @generated SignedSource<<4f3dc18e2304d1160ced31eb7ef1d2d1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -49,10 +49,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "20f4b2292389542807da6cc6d7711e99";
+  (node/*:: as any*/).hash = "20f4b2292389542807da6cc6d7711e99";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserNamePassthroughResolver$fragmentType,
   UserNamePassthroughResolver$data,
 >*/);

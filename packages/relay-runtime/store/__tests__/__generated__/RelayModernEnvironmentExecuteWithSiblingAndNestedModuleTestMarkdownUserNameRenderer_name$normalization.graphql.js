@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9d9c4546ce5dfc66677677dab7ed2f50>>
+ * @generated SignedSource<<c2cc2650fff8ab759fe71c805794beed>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -33,7 +33,7 @@ return {
   "metadata": {},
   "name": "RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -64,7 +64,7 @@ return {
           "name": "nameRenderer",
           "plural": false,
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "kind": "InlineFragment",
               "selections": [
@@ -97,7 +97,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e1edea1a63722ab6ea297694773c329c";
+  (node/*:: as any*/).hash = "e1edea1a63722ab6ea297694773c329c";
 }
 
 module.exports = node;

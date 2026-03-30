@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f2812ca0eced7f5e034c1795e5882f80>>
+ * @generated SignedSource<<ce0febfb1896bb59a322fef44bac3717>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -49,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -76,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -133,10 +133,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5772f2b553a33bce8df54b6f1c7032ae";
+  (node/*:: as any*/).hash = "5772f2b553a33bce8df54b6f1c7032ae";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$variables,
   RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$data,
 >*/);

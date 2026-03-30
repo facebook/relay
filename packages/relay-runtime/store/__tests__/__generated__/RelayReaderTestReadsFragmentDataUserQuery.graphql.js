@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9f93a83fde87e9a7d416e25bcd2074ce>>
+ * @generated SignedSource<<53f0a20d2aec74594d168297b216b1d1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -63,7 +63,7 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderTestReadsFragmentDataUserQuery",
@@ -77,7 +77,7 @@ return {
         "plural": false,
         "selections": [
           {
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "kind": "FragmentSpread",
             "name": "RelayReaderTestReadsFragmentData"
           }
@@ -90,7 +90,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderTestReadsFragmentDataUserQuery",
     "selections": [
@@ -102,8 +102,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "alias": null,
             "args": [
@@ -141,8 +141,8 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v2/*: any*/),
-                      (v3/*: any*/)
+                      (v2/*:: as any*/),
+                      (v3/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -154,7 +154,7 @@ return {
           },
           {
             "alias": null,
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "concreteType": "Image",
             "kind": "LinkedField",
             "name": "profilePicture",
@@ -187,10 +187,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fb223466873df61d9c49e0d1eccba9e9";
+  (node/*:: as any*/).hash = "fb223466873df61d9c49e0d1eccba9e9";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestReadsFragmentDataUserQuery$variables,
   RelayReaderTestReadsFragmentDataUserQuery$data,
 >*/);

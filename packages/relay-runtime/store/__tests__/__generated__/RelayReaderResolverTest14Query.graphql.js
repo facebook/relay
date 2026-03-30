@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c7e10017b9cbeb8eaaef7874fe0e3151>>
+ * @generated SignedSource<<dbff7f19afec59e4fd9252869ac16a7d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {throw_before_read as queryThrowBeforeReadResolverType} from "../resolver
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryThrowBeforeReadResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryThrowBeforeReadResolverType: (
+(queryThrowBeforeReadResolverType as (
   rootKey: ThrowBeforeReadResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -124,10 +124,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "796e410e5226384ec64305a38fa81d1d";
+  (node/*:: as any*/).hash = "796e410e5226384ec64305a38fa81d1d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest14Query$variables,
   RelayReaderResolverTest14Query$data,
 >*/);

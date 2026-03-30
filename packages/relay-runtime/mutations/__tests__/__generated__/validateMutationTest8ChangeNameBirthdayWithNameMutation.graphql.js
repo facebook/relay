@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fb05ab6ddfd53d675a9b55faa7e15d8e>>
+ * @generated SignedSource<<59d8e4e5cd8bc5bf4a2bd1799a2dcde8>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -119,14 +119,14 @@ v4 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest8ChangeNameBirthdayWithNameMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -140,9 +140,9 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/),
-              (v4/*: any*/)
+              (v2/*:: as any*/),
+              (v3/*:: as any*/),
+              (v4/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -155,13 +155,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest8ChangeNameBirthdayWithNameMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -182,9 +182,9 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
-              (v3/*: any*/),
-              (v4/*: any*/),
+              (v2/*:: as any*/),
+              (v3/*:: as any*/),
+              (v4/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -212,10 +212,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "57015c0d678f83a028c13ab9e1e0c164";
+  (node/*:: as any*/).hash = "57015c0d678f83a028c13ab9e1e0c164";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest8ChangeNameBirthdayWithNameMutation$variables,
   validateMutationTest8ChangeNameBirthdayWithNameMutation$data,
 >*/);

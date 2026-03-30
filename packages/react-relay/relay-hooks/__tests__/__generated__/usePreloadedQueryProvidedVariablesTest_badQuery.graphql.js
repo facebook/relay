@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d3c893478473e0304be41dbc875ae05>>
+ * @generated SignedSource<<2bbb504a97e9083ce4d1bec079b64908>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -32,7 +32,7 @@ export type usePreloadedQueryProvidedVariablesTest_badQuery = {|
 |};
 ({
   "__relay_internal__pv__RelayProvider_impurerelayprovider": require('../RelayProvider_impure.relayprovider')
-}: {|
+} as {|
   +__relay_internal__pv__RelayProvider_impurerelayprovider: {|
     +get: () => number,
   |},
@@ -55,7 +55,7 @@ v1 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/)
+      (v0/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -63,7 +63,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -84,7 +84,7 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "defaultValue": null,
         "kind": "LocalArgument",
@@ -96,7 +96,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -167,10 +167,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9f08a83ca6f077bedba106cc1674156d";
+  (node/*:: as any*/).hash = "9f08a83ca6f077bedba106cc1674156d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePreloadedQueryProvidedVariablesTest_badQuery$variables,
   usePreloadedQueryProvidedVariablesTest_badQuery$data,
 >*/);

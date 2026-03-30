@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ad4388431c3eee58b2113f39d9edb25a>>
+ * @generated SignedSource<<354d3385e8a974dc7410b1b09bcf12f2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -92,14 +92,14 @@ v4 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest9ChangeNameIncludeMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -118,7 +118,7 @@ return {
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ]
               },
               {
@@ -126,7 +126,7 @@ return {
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
-                  (v3/*: any*/)
+                  (v3/*:: as any*/)
                 ]
               }
             ],
@@ -141,13 +141,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest9ChangeNameIncludeMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -173,8 +173,8 @@ return {
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
-                  (v4/*: any*/),
-                  (v2/*: any*/)
+                  (v4/*:: as any*/),
+                  (v2/*:: as any*/)
                 ]
               },
               {
@@ -182,8 +182,8 @@ return {
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
-                  (v4/*: any*/),
-                  (v3/*: any*/)
+                  (v4/*:: as any*/),
+                  (v3/*:: as any*/)
                 ]
               },
               {
@@ -213,10 +213,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ddd23cc94f573f555ba2a466ccbdacdd";
+  (node/*:: as any*/).hash = "ddd23cc94f573f555ba2a466ccbdacdd";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest9ChangeNameIncludeMutation$variables,
   validateMutationTest9ChangeNameIncludeMutation$data,
 >*/);

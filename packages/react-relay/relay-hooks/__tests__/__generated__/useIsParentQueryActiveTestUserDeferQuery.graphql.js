@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<865d78def81ec991cb28b48eb32706a2>>
+ * @generated SignedSource<<cd3fb1397cfc17d7d0e3d96dcafaa13b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -56,14 +56,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useIsParentQueryActiveTestUserDeferQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -88,13 +88,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useIsParentQueryActiveTestUserDeferQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -115,7 +115,7 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -129,7 +129,7 @@ return {
               }
             ]
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -147,10 +147,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "567eaed2bb0068576063e236f9b4560a";
+  (node/*:: as any*/).hash = "567eaed2bb0068576063e236f9b4560a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useIsParentQueryActiveTestUserDeferQuery$variables,
   useIsParentQueryActiveTestUserDeferQuery$data,
 >*/);

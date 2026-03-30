@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<818a25b313553b33bc75fd0d2700e21b>>
+ * @generated SignedSource<<5e14c7c23f9714b9fc457db048aa566d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {self as astrologicalSignSelfResolverType} from "../AstrologicalSignSelfR
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignSelfResolverType: (
+(astrologicalSignSelfResolverType as (
   rootKey: AstrologicalSignSelfResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -65,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9ad858ddaec8b65cd26583a45087ea88";
+  (node/*:: as any*/).hash = "9ad858ddaec8b65cd26583a45087ea88";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   AstrologicalSignNameResolver$fragmentType,
   AstrologicalSignNameResolver$data,
 >*/);

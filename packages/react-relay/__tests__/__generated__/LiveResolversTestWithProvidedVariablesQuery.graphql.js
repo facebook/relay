@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f643f710c358231770412e57ab4a0f41>>
+ * @generated SignedSource<<b80135050cde275d9e3e4a78e6dd1c88>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {hello_world_with_provided_variable as queryHelloWorldWithProvidedVariabl
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloWorldWithProvidedVariableResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloWorldWithProvidedVariableResolverType: (
+(queryHelloWorldWithProvidedVariableResolverType as (
   rootKey: HelloWorldResolverWithProvidedVariable$key,
   args: void,
   context: TestResolverContextType,
@@ -37,7 +37,7 @@ export type LiveResolversTestWithProvidedVariablesQuery = {|
 |};
 ({
   "__relay_internal__pv__HelloWorldProviderrelayprovider": require('../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider.relayprovider')
-}: {|
+} as {|
   +__relay_internal__pv__HelloWorldProviderrelayprovider: {|
     +get: () => string,
   |},
@@ -129,10 +129,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bcbd826ff5ff5e5c44b99ce303ce6686";
+  (node/*:: as any*/).hash = "bcbd826ff5ff5e5c44b99ce303ce6686";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTestWithProvidedVariablesQuery$variables,
   LiveResolversTestWithProvidedVariablesQuery$data,
 >*/);

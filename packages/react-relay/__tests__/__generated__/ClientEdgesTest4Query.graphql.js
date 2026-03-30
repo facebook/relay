@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8f722072e5c41c04441be165e2d9f273>>
+ * @generated SignedSource<<afd7f803b6570ddf65ad1ffdcab4ca81>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,7 +21,7 @@ import {client_object as userClientObjectResolverType} from "../../../relay-runt
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientObjectResolverType: (
+(userClientObjectResolverType as (
   args: {|
     return_null: boolean,
   |},
@@ -61,7 +61,7 @@ v1 = [
 ],
 v2 = {
   "alias": null,
-  "args": (v1/*: any*/),
+  "args": (v1/*:: as any*/),
   "concreteType": "ClientObject",
   "kind": "LinkedField",
   "name": "client_object",
@@ -79,7 +79,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -103,7 +103,7 @@ return {
               "serverObjectOperations": null,
               "backingField": {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "fragment": null,
                 "kind": "RelayResolver",
                 "name": "client_object",
@@ -116,7 +116,7 @@ return {
                   "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/User__client_object$normalization.graphql')
                 }
               },
-              "linkedField": (v2/*: any*/)
+              "linkedField": (v2/*:: as any*/)
             },
             "action": "THROW"
           }
@@ -129,7 +129,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgesTest4Query",
     "selections": [
@@ -145,13 +145,13 @@ return {
             "kind": "ClientEdgeToClientObject",
             "backingField": {
               "name": "client_object",
-              "args": (v1/*: any*/),
+              "args": (v1/*:: as any*/),
               "fragment": null,
               "kind": "RelayResolver",
               "storageKey": null,
               "isOutputType": true
             },
-            "linkedField": (v2/*: any*/)
+            "linkedField": (v2/*:: as any*/)
           },
           {
             "alias": null,
@@ -177,10 +177,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0d0d4be86097cc63c772eac5a3a43409";
+  (node/*:: as any*/).hash = "0d0d4be86097cc63c772eac5a3a43409";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgesTest4Query$variables,
   ClientEdgesTest4Query$data,
 >*/);

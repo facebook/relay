@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d6c96c140b566ae08e0938519e84206c>>
+ * @generated SignedSource<<fa60b9ac4080cfb438d491e1b1738f50>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -69,14 +69,14 @@ v2 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -84,7 +84,7 @@ return {
         "selections": [
           {
             "kind": "Defer",
-            "selections": (v2/*: any*/)
+            "selections": (v2/*:: as any*/)
           }
         ],
         "storageKey": null
@@ -95,13 +95,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -118,7 +118,7 @@ return {
             "if": null,
             "kind": "Defer",
             "label": "RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user",
-            "selections": (v2/*: any*/)
+            "selections": (v2/*:: as any*/)
           },
           {
             "alias": null,
@@ -144,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "68b0b6cd9b9dfde4d6098cd27348c45f";
+  (node/*:: as any*/).hash = "68b0b6cd9b9dfde4d6098cd27348c45f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$variables,
   RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$data,
 >*/);

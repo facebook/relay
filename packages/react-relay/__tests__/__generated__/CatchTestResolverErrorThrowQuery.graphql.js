@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<91b48dbfa766679957689dd80910cfb6>>
+ * @generated SignedSource<<f5a625b24093d4a765ba68972e2ab37c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {always_throws as userAlwaysThrowsResolverType} from "../../../relay-runt
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolverType: (
+(userAlwaysThrowsResolverType as (
   rootKey: UserAlwaysThrowsResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -139,10 +139,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a543c7857488a65b428a63d2f1e4f29f";
+  (node/*:: as any*/).hash = "a543c7857488a65b428a63d2f1e4f29f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   CatchTestResolverErrorThrowQuery$variables,
   CatchTestResolverErrorThrowQuery$data,
 >*/);

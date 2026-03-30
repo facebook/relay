@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<465c56d710bfa1748df29e8631bf0afe>>
+ * @generated SignedSource<<11fb329aef5e4ef99325ef524f983c6a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -49,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -76,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -133,10 +133,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "145cd045d842ac7fe259d9f5210a67c1";
+  (node/*:: as any*/).hash = "145cd045d842ac7fe259d9f5210a67c1";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$variables,
   ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data,
 >*/);

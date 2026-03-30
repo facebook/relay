@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86aca969deb1358fac0b23faa2ce65cc>>
+ * @generated SignedSource<<cbe2ecd930fa523c5e29df01685fd5c5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -105,20 +105,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentsCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentsCreate",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -128,19 +128,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentsCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentsCreate",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -174,10 +174,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e0642572a24c7ba9a34f890b6053eb98";
+  (node/*:: as any*/).hash = "e0642572a24c7ba9a34f890b6053eb98";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation$variables,
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation$data,
 >*/);

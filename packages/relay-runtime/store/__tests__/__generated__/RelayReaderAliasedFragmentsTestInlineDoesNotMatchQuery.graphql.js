@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9e0fce8d9d30a40cba51d24228109215>>
+ * @generated SignedSource<<b6f3a6df8267092e1bf38b5615bd0d5e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -60,14 +60,14 @@ v2 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -80,7 +80,7 @@ return {
                 {
                   "kind": "InlineDataFragmentSpread",
                   "name": "RelayReaderAliasedFragmentsTestInlineDoesNotMatch_user",
-                  "selections": (v2/*: any*/),
+                  "selections": (v2/*:: as any*/),
                   "args": null,
                   "argumentDefinitions": []
                 }
@@ -100,13 +100,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -121,7 +121,7 @@ return {
           },
           {
             "kind": "InlineFragment",
-            "selections": (v2/*: any*/),
+            "selections": (v2/*:: as any*/),
             "type": "User",
             "abstractKey": null
           },
@@ -149,10 +149,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "78df70e98da304fff465c4dd1c836848";
+  (node/*:: as any*/).hash = "78df70e98da304fff465c4dd1c836848";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$variables,
   RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$data,
 >*/);

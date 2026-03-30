@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<63f58dccbb3b70409cda553f2caa40ea>>
+ * @generated SignedSource<<7d0174a74da03ababf8d85e8ad8cc5e7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,7 +24,7 @@ import {greeting as iAnimalGreetingResolverType} from "../../../relay-runtime/st
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `iAnimalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(iAnimalGreetingResolverType: (
+(iAnimalGreetingResolverType as (
   model: Cat____relay_model_instance$data['__relay_model_instance'] | Fish____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -32,7 +32,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {animal as queryAnimalResolverType} from "../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers.js";
 // Type assertion validating that `queryAnimalResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAnimalResolverType: (
+(queryAnimalResolverType as (
   args: {|
     request: AnimalRequest,
   |},
@@ -96,11 +96,11 @@ v3 = {
   "storageKey": null
 },
 v4 = [
-  (v3/*: any*/)
+  (v3/*:: as any*/)
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -141,7 +141,7 @@ return {
         "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "animal",
@@ -150,13 +150,13 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": null,
           "kind": "LinkedField",
           "name": "animal",
           "plural": false,
           "selections": [
-            (v2/*: any*/),
+            (v2/*:: as any*/),
             {
               "kind": "InlineFragment",
               "selections": [
@@ -207,7 +207,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolverInterfaceTestAnimalGreetingQuery",
     "selections": [
@@ -215,7 +215,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "animal",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -223,7 +223,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": null,
           "kind": "LinkedField",
           "name": "animal",
@@ -236,7 +236,7 @@ return {
               "name": "__typename",
               "storageKey": null
             },
-            (v2/*: any*/),
+            (v2/*:: as any*/),
             {
               "kind": "InlineFragment",
               "selections": [
@@ -251,7 +251,7 @@ return {
                         "args": null,
                         "fragment": {
                           "kind": "InlineFragment",
-                          "selections": (v4/*: any*/),
+                          "selections": (v4/*:: as any*/),
                           "type": "Cat",
                           "abstractKey": null
                         },
@@ -285,7 +285,7 @@ return {
                         "args": null,
                         "fragment": {
                           "kind": "InlineFragment",
-                          "selections": (v4/*: any*/),
+                          "selections": (v4/*:: as any*/),
                           "type": "Fish",
                           "abstractKey": null
                         },
@@ -305,7 +305,7 @@ return {
               "type": "Fish",
               "abstractKey": null
             },
-            (v3/*: any*/)
+            (v3/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -324,10 +324,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d35e1f7778da7bfc45d34903bd3ca96c";
+  (node/*:: as any*/).hash = "d35e1f7778da7bfc45d34903bd3ca96c";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestAnimalGreetingQuery$variables,
   RelayResolverInterfaceTestAnimalGreetingQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a4fce0d5ccc0012e28d76f628707a6f9>>
+ * @generated SignedSource<<5d1c0074d68a83e9e14bc1a4bb75e1fd>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -66,7 +66,7 @@ return {
               "selections": [
                 {
                   "kind": "RequiredField",
-                  "field": (v0/*: any*/),
+                  "field": (v0/*:: as any*/),
                   "action": "LOG"
                 }
               ],
@@ -103,7 +103,7 @@ return {
             "name": "backgroundImage",
             "plural": false,
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -131,10 +131,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e1267ec21a6f7214ada08e4e764d50a5";
+  (node/*:: as any*/).hash = "e1267ec21a6f7214ada08e4e764d50a5";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest6Query$variables,
   RelayReaderRequiredFieldsTest6Query$data,
 >*/);

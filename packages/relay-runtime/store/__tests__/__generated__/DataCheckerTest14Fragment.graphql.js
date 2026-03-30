@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ce02dc0a8a0600b2c0af17ccd545c3da>>
+ * @generated SignedSource<<65880c073c7492b20b3b1e501372abb2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -110,7 +110,7 @@ v3 = {
       "name": "profile_picture",
       "plural": false,
       "selections": [
-        (v2/*: any*/)
+        (v2/*:: as any*/)
       ],
       "storageKey": "profile_picture(scale:2)"
     }
@@ -129,7 +129,7 @@ return {
   "metadata": null,
   "name": "DataCheckerTest14Fragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -140,8 +140,8 @@ return {
     {
       "kind": "ClientExtension",
       "selections": [
-        (v1/*: any*/),
-        (v3/*: any*/),
+        (v1/*:: as any*/),
+        (v3/*:: as any*/),
         {
           "alias": null,
           "args": null,
@@ -180,12 +180,12 @@ return {
                   "name": "node",
                   "plural": false,
                   "selections": [
-                    (v0/*: any*/),
-                    (v3/*: any*/),
+                    (v0/*:: as any*/),
+                    (v3/*:: as any*/),
                     {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v1/*: any*/),
+                        (v1/*:: as any*/),
                         {
                           "alias": null,
                           "args": [
@@ -200,7 +200,7 @@ return {
                           "name": "profilePicture",
                           "plural": false,
                           "selections": [
-                            (v2/*: any*/),
+                            (v2/*:: as any*/),
                             {
                               "alias": null,
                               "args": null,
@@ -240,10 +240,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "99de1670b248e2c0d7cebc896f86a2fd";
+  (node/*:: as any*/).hash = "99de1670b248e2c0d7cebc896f86a2fd";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   DataCheckerTest14Fragment$fragmentType,
   DataCheckerTest14Fragment$data,
 >*/);

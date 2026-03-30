@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<11ae9acfbc2b576612d137fcc202f499>>
+ * @generated SignedSource<<5d04363fd92a274fdafab0e2679705fa>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,7 +24,7 @@ import {another_client_edge as userAnotherClientEdgeResolverType} from "../resol
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAnotherClientEdgeResolverType: (
+(userAnotherClientEdgeResolverType as (
   rootKey: UserAnotherClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -34,7 +34,7 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -131,7 +131,7 @@ return {
                     "kind": "LinkedField",
                     "name": "another_client_edge",
                     "plural": false,
-                    "selections": (v0/*: any*/),
+                    "selections": (v0/*:: as any*/),
                     "storageKey": null
                   }
                 }
@@ -165,7 +165,7 @@ return {
             "args": null,
             "fragment": {
               "kind": "InlineFragment",
-              "selections": (v0/*: any*/),
+              "selections": (v0/*:: as any*/),
               "type": "User",
               "abstractKey": null
             },
@@ -197,10 +197,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f12dcfffcc6bbf929b4fad3a4eb5602d";
+  (node/*:: as any*/).hash = "f12dcfffcc6bbf929b4fad3a4eb5602d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderClientEdgesTest4Query$variables,
   RelayReaderClientEdgesTest4Query$data,
 >*/);

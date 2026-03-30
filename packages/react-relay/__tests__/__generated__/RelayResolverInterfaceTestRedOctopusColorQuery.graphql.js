@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9c31e3c48340db5fe46817e29e332b42>>
+ * @generated SignedSource<<f5c6560077d87467c23b28ab5dfc6450>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {red_octopus as queryRedOctopusResolverType} from "../../../relay-runtime
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryRedOctopusResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryRedOctopusResolverType: (
+(queryRedOctopusResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?RedOctopus);
@@ -133,7 +133,7 @@ return {
                       "args": null,
                       "fragment": {
                         "kind": "InlineFragment",
-                        "selections": (v0/*: any*/),
+                        "selections": (v0/*:: as any*/),
                         "type": "PurpleOctopus",
                         "abstractKey": null
                       },
@@ -153,7 +153,7 @@ return {
                       "args": null,
                       "fragment": {
                         "kind": "InlineFragment",
-                        "selections": (v0/*: any*/),
+                        "selections": (v0/*:: as any*/),
                         "type": "RedOctopus",
                         "abstractKey": null
                       },
@@ -193,10 +193,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ffbde5e537add11a8fa22b95fcd6c23c";
+  (node/*:: as any*/).hash = "ffbde5e537add11a8fa22b95fcd6c23c";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestRedOctopusColorQuery$variables,
   RelayResolverInterfaceTestRedOctopusColorQuery$data,
 >*/);

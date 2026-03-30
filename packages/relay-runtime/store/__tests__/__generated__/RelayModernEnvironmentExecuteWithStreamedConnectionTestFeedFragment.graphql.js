@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6abc726b15496995d9a8a2ae39326889>>
+ * @generated SignedSource<<1043b314cf3913945039cb2032d8cce5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -125,7 +125,7 @@ return {
                       "name": "__typename",
                       "storageKey": null
                     },
-                    (v0/*: any*/),
+                    (v0/*:: as any*/),
                     {
                       "alias": null,
                       "args": null,
@@ -134,7 +134,7 @@ return {
                       "name": "feedback",
                       "plural": false,
                       "selections": [
-                        (v0/*: any*/),
+                        (v0/*:: as any*/),
                         {
                           "alias": null,
                           "args": null,
@@ -143,7 +143,7 @@ return {
                           "name": "actors",
                           "plural": true,
                           "selections": [
-                            (v0/*: any*/),
+                            (v0/*:: as any*/),
                             {
                               "alias": "name",
                               "args": null,
@@ -205,10 +205,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "89c54479a6a4b0bcce2086df209a357f";
+  (node/*:: as any*/).hash = "89c54479a6a4b0bcce2086df209a357f";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
   RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data,
 >*/);

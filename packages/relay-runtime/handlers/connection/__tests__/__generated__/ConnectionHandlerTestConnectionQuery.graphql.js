@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c74bd90d3d0d56db824e6a7b5aeafc7b>>
+ * @generated SignedSource<<162d76316c3281ad4668af6d2b7377b9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -125,7 +125,7 @@ v8 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v7/*: any*/)
+          (v7/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -188,16 +188,16 @@ v9 = [
     "name": "first",
     "variableName": "count"
   },
-  (v6/*: any*/)
+  (v6/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -205,7 +205,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -217,13 +217,13 @@ return {
               {
                 "alias": "friends",
                 "args": [
-                  (v6/*: any*/)
+                  (v6/*:: as any*/)
                 ],
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "__ConnectionQuery_friends_connection",
                 "plural": false,
-                "selections": (v8/*: any*/),
+                "selections": (v8/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -240,18 +240,18 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v3/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v0/*: any*/),
-      (v4/*: any*/)
+      (v3/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v0/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "ConnectionHandlerTestConnectionQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -269,17 +269,17 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
                 "plural": false,
-                "selections": (v8/*: any*/),
+                "selections": (v8/*:: as any*/),
                 "storageKey": null
               },
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "filters": [
                   "orderby"
                 ],
@@ -292,7 +292,7 @@ return {
             "type": "User",
             "abstractKey": null
           },
-          (v7/*: any*/)
+          (v7/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -310,10 +310,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0dda113c23c6abae873e5b369d657031";
+  (node/*:: as any*/).hash = "0dda113c23c6abae873e5b369d657031";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ConnectionHandlerTestConnectionQuery$variables,
   ConnectionHandlerTestConnectionQuery$data,
 >*/);

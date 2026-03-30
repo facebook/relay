@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<561c2863561babe7f6531e87059ca789>>
+ * @generated SignedSource<<6179679d630cf4e74b9f00017850fb99>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -117,10 +117,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "621e19afb09991109622110ee40f5f61";
+  (node/*:: as any*/).hash = "621e19afb09991109622110ee40f5f61";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   DataCheckerTestClientAbstractQuery$variables,
   DataCheckerTestClientAbstractQuery$data,
 >*/);

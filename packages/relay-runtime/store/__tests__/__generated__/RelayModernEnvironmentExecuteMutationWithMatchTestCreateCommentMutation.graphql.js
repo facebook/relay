@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6890c45e91f8459f885b2fc919e4082c>>
+ * @generated SignedSource<<5375bf63e7eb851bc74bb0c41d427c2d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -127,14 +127,14 @@ v7 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
@@ -156,17 +156,17 @@ return {
                 "name": "actor",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
-                    "args": (v3/*: any*/),
+                    "args": (v3/*:: as any*/),
                     "concreteType": null,
                     "kind": "LinkedField",
                     "name": "nameRenderer",
                     "plural": false,
                     "selections": [
-                      (v4/*: any*/),
-                      (v5/*: any*/)
+                      (v4/*:: as any*/),
+                      (v5/*:: as any*/)
                     ],
                     "storageKey": "nameRenderer(supported:\"34hjiS\")"
                   }
@@ -185,13 +185,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
@@ -213,27 +213,27 @@ return {
                 "name": "actor",
                 "plural": false,
                 "selections": [
-                  (v6/*: any*/),
-                  (v2/*: any*/),
+                  (v6/*:: as any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
-                    "args": (v3/*: any*/),
+                    "args": (v3/*:: as any*/),
                     "concreteType": null,
                     "kind": "LinkedField",
                     "name": "nameRenderer",
                     "plural": false,
                     "selections": [
-                      (v6/*: any*/),
-                      (v4/*: any*/),
-                      (v5/*: any*/)
+                      (v6/*:: as any*/),
+                      (v4/*:: as any*/),
+                      (v5/*:: as any*/)
                     ],
                     "storageKey": "nameRenderer(supported:\"34hjiS\")"
                   },
-                  (v7/*: any*/)
+                  (v7/*:: as any*/)
                 ],
                 "storageKey": null
               },
-              (v7/*: any*/)
+              (v7/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -254,10 +254,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8a6c1e92e6379ca2bcf4b83fbdb38c58";
+  (node/*:: as any*/).hash = "8a6c1e92e6379ca2bcf4b83fbdb38c58";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables,
   RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data,
 >*/);

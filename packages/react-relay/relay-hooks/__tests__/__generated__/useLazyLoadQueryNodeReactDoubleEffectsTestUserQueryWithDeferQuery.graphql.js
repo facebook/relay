@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6e6d601366b096f27a4138284ea11818>>
+ * @generated SignedSource<<3d4c6e6e0539ed571e66a3147adbf443>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -65,21 +65,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "Defer",
             "selections": [
@@ -99,13 +99,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -118,8 +118,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "if": null,
             "kind": "Defer",
@@ -158,10 +158,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6e60686779f65e9c9b3369261f936944";
+  (node/*:: as any*/).hash = "6e60686779f65e9c9b3369261f936944";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$variables,
   useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$data,
 >*/);

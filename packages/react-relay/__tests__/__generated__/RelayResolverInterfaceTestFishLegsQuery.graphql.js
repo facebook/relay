@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<abdc21603a19d39c38421ff49fa34e06>>
+ * @generated SignedSource<<b274a584a50fd02071a4062268273f6f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {fish as queryFishResolverType} from "../../../relay-runtime/store/__test
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryFishResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryFishResolverType: (
+(queryFishResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?{|
@@ -50,7 +50,7 @@ var v0 = {
   "storageKey": null
 },
 v1 = [
-  (v0/*: any*/)
+  (v0/*:: as any*/)
 ];
 return {
   "fragment": {
@@ -165,7 +165,7 @@ return {
                             "args": null,
                             "fragment": {
                               "kind": "InlineFragment",
-                              "selections": (v1/*: any*/),
+                              "selections": (v1/*:: as any*/),
                               "type": "Cat",
                               "abstractKey": null
                             },
@@ -199,7 +199,7 @@ return {
                             "args": null,
                             "fragment": {
                               "kind": "InlineFragment",
-                              "selections": (v1/*: any*/),
+                              "selections": (v1/*:: as any*/),
                               "type": "Fish",
                               "abstractKey": null
                             },
@@ -223,7 +223,7 @@ return {
               "type": "IAnimal",
               "abstractKey": "__isIAnimal"
             },
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -249,10 +249,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "91fa8cc8364ed0222107f376f8a072f9";
+  (node/*:: as any*/).hash = "91fa8cc8364ed0222107f376f8a072f9";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestFishLegsQuery$variables,
   RelayResolverInterfaceTestFishLegsQuery$data,
 >*/);

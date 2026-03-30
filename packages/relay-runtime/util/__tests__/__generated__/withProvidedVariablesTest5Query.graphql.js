@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eca78d7771b312aa293f1c2debd7d792>>
+ * @generated SignedSource<<995378cd30a7f90c938fd15f38939ac6>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -31,7 +31,7 @@ export type withProvidedVariablesTest5Query = {|
 ({
   "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('../provideRandomNumber_invalid1.relayprovider'),
   "__relay_internal__pv__provideRandomNumber_invalid2relayprovider": require('../provideRandomNumber_invalid2.relayprovider')
-}: {|
+} as {|
   +__relay_internal__pv__provideRandomNumber_invalid1relayprovider: {|
     +get: () => number,
   |},
@@ -67,7 +67,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -104,7 +104,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -133,7 +133,7 @@ return {
                 "kind": "LinkedField",
                 "name": "profile_picture",
                 "plural": false,
-                "selections": (v1/*: any*/),
+                "selections": (v1/*:: as any*/),
                 "storageKey": null
               },
               {
@@ -149,7 +149,7 @@ return {
                 "kind": "LinkedField",
                 "name": "profile_picture",
                 "plural": false,
-                "selections": (v1/*: any*/),
+                "selections": (v1/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -184,10 +184,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fea93f1b453b7ed30e1b62dc0b32bc4e";
+  (node/*:: as any*/).hash = "fea93f1b453b7ed30e1b62dc0b32bc4e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   withProvidedVariablesTest5Query$variables,
   withProvidedVariablesTest5Query$data,
 >*/);

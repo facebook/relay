@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<765736cbc3fd4f9ec9d47e2f4d815de2>>
+ * @generated SignedSource<<312a10ed9d79a1ea61325797b08b88d3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {todo_model_null as queryTodoModelNullResolverType} from "../../../relay-
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelNullResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoModelNullResolverType: (
+(queryTodoModelNullResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?{|
@@ -96,7 +96,7 @@ return {
           "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').todo_model_null,
           "path": "todo_model_null"
         },
-        "linkedField": (v0/*: any*/)
+        "linkedField": (v0/*:: as any*/)
       }
     ],
     "type": "Query",
@@ -118,7 +118,7 @@ return {
           "storageKey": null,
           "isOutputType": false
         },
-        "linkedField": (v0/*: any*/)
+        "linkedField": (v0/*:: as any*/)
       }
     ]
   },
@@ -134,10 +134,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "206392633843e125a92d4daffb6de27d";
+  (node/*:: as any*/).hash = "206392633843e125a92d4daffb6de27d";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverModelTestTodoNullQuery$variables,
   RelayResolverModelTestTodoNullQuery$data,
 >*/);

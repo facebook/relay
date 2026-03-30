@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b9b5a33588c8144612a3bf2898ec9bf2>>
+ * @generated SignedSource<<4fdd888f2dc3d6127ee91d737ca983a9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {required_name as userRequiredNameResolverType} from "../resolvers/UserRe
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userRequiredNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userRequiredNameResolverType: (
+(userRequiredNameResolverType as (
   rootKey: UserRequiredNameResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -132,10 +132,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "87c7958b00f0a3e6132ce99279b5af8b";
+  (node/*:: as any*/).hash = "87c7958b00f0a3e6132ce99279b5af8b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTestRequiredQuery$variables,
   RelayReaderResolverTestRequiredQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<81c7ad0001a4e4f5f6e2c93b795d4b82>>
+ * @generated SignedSource<<97c44737b6ef5995d7c7093872a61b7e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -75,20 +75,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useFragmentNodeTestMissingDataQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useFragmentNodeTestMissingDataQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "063b789551d70e9aadd37ca566f782f9",
@@ -102,10 +102,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1dcf14ee1f80ff2932ca602b16172ce2";
+  (node/*:: as any*/).hash = "1dcf14ee1f80ff2932ca602b16172ce2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useFragmentNodeTestMissingDataQuery$variables,
   useFragmentNodeTestMissingDataQuery$data,
 >*/);

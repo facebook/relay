@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<92ed2ef2dc5f0a4b09965dd5c0e8be22>>
+ * @generated SignedSource<<f014bb794a4d12745dd65f9697ab5cdd>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -75,7 +75,7 @@ return {
   },
   "name": "RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": "friends",
       "args": null,
@@ -100,7 +100,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -181,10 +181,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3ad1b3b5a8159577804b378532ab767d";
+  (node/*:: as any*/).hash = "3ad1b3b5a8159577804b378532ab767d";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
   RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data,
 >*/);

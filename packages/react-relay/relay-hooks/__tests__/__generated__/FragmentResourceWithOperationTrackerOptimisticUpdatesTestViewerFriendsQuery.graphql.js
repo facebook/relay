@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ec9d45ff50581cf8b6e64bbdfeb1bb15>>
+ * @generated SignedSource<<6650689035d48ed7c8b25394ed5c12c3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -144,15 +144,15 @@ return {
                             "kind": "FragmentSpread",
                             "name": "FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment"
                           },
-                          (v0/*: any*/)
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v1/*: any*/)
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -188,10 +188,10 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -213,7 +213,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v4/*: any*/),
+                          (v4/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -221,28 +221,28 @@ return {
                             "name": "name",
                             "storageKey": null
                           },
-                          (v0/*: any*/)
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v1/*: any*/)
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": "friends(first:1)"
               },
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "Viewer_friends",
                 "kind": "LinkedHandle",
                 "name": "friends"
               },
-              (v4/*: any*/)
+              (v4/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -276,10 +276,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f9b64d236a796cfb14e99418ead325ba";
+  (node/*:: as any*/).hash = "f9b64d236a796cfb14e99418ead325ba";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$variables,
   FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$data,
 >*/);

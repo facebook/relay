@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9a1e8f5c3d70301114810363de1bf4fc>>
+ * @generated SignedSource<<6797904ea3e059ac45b08fe7e8c1334f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserPro
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType: (
+(userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType as (
   rootKey: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key,
   args: {|
     scale: ?number,
@@ -82,14 +82,14 @@ v3 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "LiveResolversTest7Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,12 +98,12 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": [],
                 "fragment": {
-                  "args": (v3/*: any*/),
+                  "args": (v3/*:: as any*/),
                   "kind": "FragmentSpread",
                   "name": "UserProfilePictureUriSuspendsWhenTheCounterIsOdd"
                 },
@@ -125,13 +125,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "LiveResolversTest7Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -147,7 +147,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "name": "user_profile_picture_uri_suspends_when_the_counter_is_odd",
                 "args": null,
@@ -160,7 +160,7 @@ return {
                       "fragment": {
                         "kind": "InlineFragment",
                         "selections": [
-                          (v2/*: any*/)
+                          (v2/*:: as any*/)
                         ],
                         "type": "User",
                         "abstractKey": null
@@ -177,7 +177,7 @@ return {
                         "selections": [
                           {
                             "alias": null,
-                            "args": (v3/*: any*/),
+                            "args": (v3/*:: as any*/),
                             "concreteType": "Image",
                             "kind": "LinkedField",
                             "name": "profile_picture",
@@ -237,10 +237,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "af618391acb67fdfcab167dd1ebe06ae";
+  (node/*:: as any*/).hash = "af618391acb67fdfcab167dd1ebe06ae";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTest7Query$variables,
   LiveResolversTest7Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<996623539c80751476c25c6ee1688221>>
+ * @generated SignedSource<<3ef25d6a7f13bb836848fc2e352e31d7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -91,14 +91,14 @@ v4 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -115,8 +115,8 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
-                  (v3/*: any*/)
+                  (v2/*:: as any*/),
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -133,19 +133,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
+          (v4/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -157,9 +157,9 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v4/*: any*/),
-                  (v2/*: any*/),
-                  (v3/*: any*/)
+                  (v4/*:: as any*/),
+                  (v2/*:: as any*/),
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -191,10 +191,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "67220472e4a3160320bb23054988237e";
+  (node/*:: as any*/).hash = "67220472e4a3160320bb23054988237e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$variables,
   RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$data,
 >*/);

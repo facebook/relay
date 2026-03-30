@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2c16b49121c5124be7319335d085bb39>>
+ * @generated SignedSource<<3832815249fe9f3222d047d162a58cb1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -69,21 +69,21 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTestModuleMatchesQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
           {
-            "fragment": (v2/*: any*/),
+            "fragment": (v2/*:: as any*/),
             "kind": "AliasedInlineFragmentSpread",
             "name": "aliased_fragment"
           }
@@ -96,13 +96,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestModuleMatchesQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -115,7 +115,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -140,10 +140,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5226926e7aa02b8b824894876a2e0365";
+  (node/*:: as any*/).hash = "5226926e7aa02b8b824894876a2e0365";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestModuleMatchesQuery$variables,
   RelayReaderAliasedFragmentsTestModuleMatchesQuery$data,
 >*/);

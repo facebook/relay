@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f903f4cf686dd61af484500382f5205b>>
+ * @generated SignedSource<<cc6e5a5b4ee31e53915791b4f07ec8f2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {field_that_spreads_inline_fragment as queryFieldThatSpreadsInlineFragmen
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryFieldThatSpreadsInlineFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryFieldThatSpreadsInlineFragmentResolverType: (
+(queryFieldThatSpreadsInlineFragmentResolverType as (
   rootKey: ResolverFragmentSpreadsTestInlineFragment$key,
   args: void,
   context: TestResolverContextType,
@@ -144,10 +144,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "86e47c6e4a231533a62152d17b3028a2";
+  (node/*:: as any*/).hash = "86e47c6e4a231533a62152d17b3028a2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverFragmentSpreadsTestQuery$variables,
   ResolverFragmentSpreadsTestQuery$data,
 >*/);

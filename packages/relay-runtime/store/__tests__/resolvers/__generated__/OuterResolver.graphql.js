@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3567f35bfc69127c7b5c460c8c72fbe8>>
+ * @generated SignedSource<<9894e7258c2d83b2242d8e918d5e4978>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {inner as queryInnerResolverType} from "../InnerResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryInnerResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryInnerResolverType: (
+(queryInnerResolverType as (
   rootKey: InnerResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -65,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "95e62e0f7574f311e930c3bad24ff822";
+  (node/*:: as any*/).hash = "95e62e0f7574f311e930c3bad24ff822";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   OuterResolver$fragmentType,
   OuterResolver$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b21882a417b2a45ae961f7b117a425a0>>
+ * @generated SignedSource<<bdce003725b921a27cb0a8361991a07d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -54,7 +54,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RedOctopus____relay_model_instance$fragmentType,
   RedOctopus____relay_model_instance$data,
 >*/);

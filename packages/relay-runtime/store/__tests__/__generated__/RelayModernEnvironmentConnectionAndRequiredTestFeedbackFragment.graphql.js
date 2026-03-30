@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d513998f88b3cc4a997ef8f5f859b2b>>
+ * @generated SignedSource<<9d3736fcdbbc64e69f554b1e610a8c72>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -73,7 +73,7 @@ return {
   },
   "name": "RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "kind": "RequiredField",
       "field": {
@@ -106,7 +106,7 @@ return {
                 "name": "node",
                 "plural": false,
                 "selections": [
-                  (v0/*: any*/),
+                  (v0/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -164,10 +164,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bccfa87744c99b7482a52d28d18716d0";
+  (node/*:: as any*/).hash = "bccfa87744c99b7482a52d28d18716d0";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
   RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data,
 >*/);

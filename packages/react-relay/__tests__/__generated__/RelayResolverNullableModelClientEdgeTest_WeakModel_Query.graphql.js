@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<819921d75d2d3089d475a8cdf8b1c581>>
+ * @generated SignedSource<<b5c143765292179893e75e2ae780431c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,14 +22,14 @@ import {edge_to_null_weak_model as queryEdgeToNullWeakModelResolverType} from ".
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToNullWeakModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToNullWeakModelResolverType: (
+(queryEdgeToNullWeakModelResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?WeakModel);
 import {first_name as weakModelFirstNameResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
 // Type assertion validating that `weakModelFirstNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(weakModelFirstNameResolverType: (
+(weakModelFirstNameResolverType as (
   __relay_model_instance: WeakModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -166,10 +166,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e3560014bc230453c5e68fddb617537e";
+  (node/*:: as any*/).hash = "e3560014bc230453c5e68fddb617537e";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables,
   RelayResolverNullableModelClientEdgeTest_WeakModel_Query$data,
 >*/);

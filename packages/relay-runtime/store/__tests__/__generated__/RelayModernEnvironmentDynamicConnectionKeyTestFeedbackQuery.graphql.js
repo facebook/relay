@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c1e31dab24ddee3b1124d08e0afbb103>>
+ * @generated SignedSource<<6e757b4bb698d38a9037e46a03f2a8e3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -80,8 +80,8 @@ v5 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -89,7 +89,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -110,28 +110,28 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
-          (v4/*: any*/),
+          (v3/*:: as any*/),
+          (v4/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
                 "name": "comments",
@@ -153,8 +153,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v4/*: any*/),
-                          (v3/*: any*/)
+                          (v4/*:: as any*/),
+                          (v3/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -198,7 +198,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "filters": [
                   "orderby"
                 ],
@@ -233,10 +233,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b57fa82fe4a28fee879d610ee77676d0";
+  (node/*:: as any*/).hash = "b57fa82fe4a28fee879d610ee77676d0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$variables,
   RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$data,
 >*/);

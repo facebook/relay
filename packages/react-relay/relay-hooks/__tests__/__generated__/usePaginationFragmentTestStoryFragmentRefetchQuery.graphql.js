@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e09e888b4e5b32396f34b674af8a244a>>
+ * @generated SignedSource<<e21f53bafd21d240b44c7361128e7c65>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -81,14 +81,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "usePaginationFragmentTestStoryFragmentRefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "fetch__NonNodeStory",
@@ -119,13 +119,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "usePaginationFragmentTestStoryFragmentRefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "fetch__NonNodeStory",
@@ -133,7 +133,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v2/*:: as any*/),
             "concreteType": "CommentsConnection",
             "kind": "LinkedField",
             "name": "comments",
@@ -155,7 +155,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v3/*: any*/),
+                      (v3/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -206,7 +206,7 @@ return {
           },
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v2/*:: as any*/),
             "filters": null,
             "handle": "connection",
             "key": "StoryFragment_comments",
@@ -220,7 +220,7 @@ return {
             "name": "fetch_id",
             "storageKey": null
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -238,10 +238,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f32695b1b41c05ed8de7a6abfa8583a0";
+  (node/*:: as any*/).hash = "f32695b1b41c05ed8de7a6abfa8583a0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
   usePaginationFragmentTestStoryFragmentRefetchQuery$data,
 >*/);

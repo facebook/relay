@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b438507779976031d73f099a9f0819cd>>
+ * @generated SignedSource<<7b7ea62621fcfd4ca61e0b91f3764572>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -54,7 +54,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   PurpleOctopus____relay_model_instance$fragmentType,
   PurpleOctopus____relay_model_instance$data,
 >*/);

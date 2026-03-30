@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c436f37a0c85c671202807c55aeadb01>>
+ * @generated SignedSource<<89b8d93541248c433e5be76f6310ba4d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -55,20 +55,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "loadQuerySourceBehaviorTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -78,13 +78,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "loadQuerySourceBehaviorTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -97,7 +97,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -115,10 +115,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c88d2ce9a02241ff654cc6feeb95ae05";
+  (node/*:: as any*/).hash = "c88d2ce9a02241ff654cc6feeb95ae05";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   loadQuerySourceBehaviorTestQuery$variables,
   loadQuerySourceBehaviorTestQuery$data,
 >*/);

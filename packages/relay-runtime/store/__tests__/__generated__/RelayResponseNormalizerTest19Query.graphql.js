@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0e4fd3c9af9637ebd926e3821dac5f80>>
+ * @generated SignedSource<<27e98e549ecbec80bb8608ccd390043b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -74,8 +74,8 @@ v3 = [
     "name": "node",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
-      (v2/*: any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
       {
         "kind": "InlineFragment",
         "selections": [
@@ -87,7 +87,7 @@ v3 = [
             "name": "actors",
             "plural": true,
             "selections": [
-              (v1/*: any*/),
+              (v1/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -95,7 +95,7 @@ v3 = [
                 "name": "name",
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -109,20 +109,20 @@ v3 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest19Query",
-    "selections": (v3/*: any*/),
+    "selections": (v3/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest19Query",
-    "selections": (v3/*: any*/)
+    "selections": (v3/*:: as any*/)
   },
   "params": {
     "cacheID": "7a82d3b2aa987f8dad4ee554d97d4974",
@@ -136,10 +136,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d5fa662de5d0ba3855a8566d08eab440";
+  (node/*:: as any*/).hash = "d5fa662de5d0ba3855a8566d08eab440";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest19Query$variables,
   RelayResponseNormalizerTest19Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b0c383803de537d41ff83edaa5afc3ee>>
+ * @generated SignedSource<<6ba8bbcaa45231af0a5c6946aee0631e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -56,14 +56,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useRefetchableFragmentNodeTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "nonNodeStory",
@@ -83,13 +83,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useRefetchableFragmentNodeTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "nonNodeStory",
@@ -117,7 +117,7 @@ return {
                 "name": "name",
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -128,7 +128,7 @@ return {
             "name": "fetch_id",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -146,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3e85459031771c5b73d57f631a2d33e5";
+  (node/*:: as any*/).hash = "3e85459031771c5b73d57f631a2d33e5";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useRefetchableFragmentNodeTest1Query$variables,
   useRefetchableFragmentNodeTest1Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3f6388eda570aa885e8f8185af3bbaeb>>
+ * @generated SignedSource<<c6f8ce11edcca04f216f5930ce11ca9e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -72,7 +72,7 @@ return {
                     "selections": [
                       {
                         "kind": "RequiredField",
-                        "field": (v0/*: any*/),
+                        "field": (v0/*:: as any*/),
                         "action": "LOG"
                       }
                     ],
@@ -116,7 +116,7 @@ return {
             "name": "backgroundImage",
             "plural": false,
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -144,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8ffc3f3576c04809264bbc5cf439e34d";
+  (node/*:: as any*/).hash = "8ffc3f3576c04809264bbc5cf439e34d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$variables,
   RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$data,
 >*/);

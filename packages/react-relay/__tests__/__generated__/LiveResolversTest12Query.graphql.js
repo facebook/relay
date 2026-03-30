@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3623d6f5e63cbf8e187b7900b0e31e5f>>
+ * @generated SignedSource<<51ab572537671847e2249e11e7cebd0c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverTyp
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterNoFragmentWithArgResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentWithArgResolverType: (
+(queryCounterNoFragmentWithArgResolverType as (
   args: {|
     prefix: string,
   |},
@@ -57,7 +57,7 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "LiveResolversTest12Query",
@@ -67,7 +67,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment_with_arg",
@@ -82,7 +82,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "LiveResolversTest12Query",
     "selections": [
@@ -91,7 +91,7 @@ return {
         "selections": [
           {
             "name": "counter_no_fragment_with_arg",
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null,
@@ -113,10 +113,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "adc337faf39c5cb202fe74905803e326";
+  (node/*:: as any*/).hash = "adc337faf39c5cb202fe74905803e326";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTest12Query$variables,
   LiveResolversTest12Query$data,
 >*/);

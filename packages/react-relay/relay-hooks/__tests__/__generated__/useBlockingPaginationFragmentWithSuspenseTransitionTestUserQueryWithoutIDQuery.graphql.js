@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d01361972695e78f8bdceb9ce10cb7e7>>
+ * @generated SignedSource<<c5b16ce97c8ba46852575519800cdb09>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -122,17 +122,17 @@ v10 = [
     "name": "last",
     "variableName": "last"
   },
-  (v6/*: any*/)
+  (v6/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -161,7 +161,7 @@ return {
                     "name": "isViewerFriendLocal",
                     "variableName": "isViewerFriend"
                   },
-                  (v6/*: any*/)
+                  (v6/*:: as any*/)
                 ],
                 "kind": "FragmentSpread",
                 "name": "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment"
@@ -179,12 +179,12 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v2/*: any*/),
-      (v1/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/),
-      (v3/*: any*/)
+      (v0/*:: as any*/),
+      (v2/*:: as any*/),
+      (v1/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/),
+      (v3/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery",
@@ -205,15 +205,15 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v7/*: any*/),
-              (v8/*: any*/),
+              (v7/*:: as any*/),
+              (v8/*:: as any*/),
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v9/*: any*/),
+                  (v9/*:: as any*/),
                   {
                     "alias": null,
-                    "args": (v10/*: any*/),
+                    "args": (v10/*:: as any*/),
                     "concreteType": "FriendsConnection",
                     "kind": "LinkedField",
                     "name": "friends",
@@ -235,8 +235,8 @@ return {
                             "name": "node",
                             "plural": false,
                             "selections": [
-                              (v8/*: any*/),
-                              (v9/*: any*/),
+                              (v8/*:: as any*/),
+                              (v9/*:: as any*/),
                               {
                                 "alias": null,
                                 "args": null,
@@ -244,7 +244,7 @@ return {
                                 "name": "username",
                                 "storageKey": null
                               },
-                              (v7/*: any*/)
+                              (v7/*:: as any*/)
                             ],
                             "storageKey": null
                           },
@@ -302,7 +302,7 @@ return {
                   },
                   {
                     "alias": null,
-                    "args": (v10/*: any*/),
+                    "args": (v10/*:: as any*/),
                     "filters": [
                       "orderby",
                       "isViewerFriend"
@@ -336,10 +336,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "82c3921e9fe483d213ac9b7581afd1de";
+  (node/*:: as any*/).hash = "82c3921e9fe483d213ac9b7581afd1de";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery$variables,
   useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery$data,
 >*/);

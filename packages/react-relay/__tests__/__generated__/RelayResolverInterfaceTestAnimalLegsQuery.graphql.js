@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<97b204018bbb18c277d602ef711525d6>>
+ * @generated SignedSource<<f3d8043717fb37c0cd8fbec827eade03>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {animal as queryAnimalResolverType} from "../../../relay-runtime/store/__
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryAnimalResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAnimalResolverType: (
+(queryAnimalResolverType as (
   args: {|
     request: AnimalRequest,
   |},
@@ -73,11 +73,11 @@ v2 = {
   "storageKey": null
 },
 v3 = [
-  (v2/*: any*/)
+  (v2/*:: as any*/)
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -118,7 +118,7 @@ return {
         "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "animal",
@@ -127,7 +127,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": null,
           "kind": "LinkedField",
           "name": "animal",
@@ -148,7 +148,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolverInterfaceTestAnimalLegsQuery",
     "selections": [
@@ -156,7 +156,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "animal",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -164,7 +164,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": null,
           "kind": "LinkedField",
           "name": "animal",
@@ -205,7 +205,7 @@ return {
                         "args": null,
                         "fragment": {
                           "kind": "InlineFragment",
-                          "selections": (v3/*: any*/),
+                          "selections": (v3/*:: as any*/),
                           "type": "Cat",
                           "abstractKey": null
                         },
@@ -239,7 +239,7 @@ return {
                         "args": null,
                         "fragment": {
                           "kind": "InlineFragment",
-                          "selections": (v3/*: any*/),
+                          "selections": (v3/*:: as any*/),
                           "type": "Fish",
                           "abstractKey": null
                         },
@@ -259,7 +259,7 @@ return {
               "type": "Fish",
               "abstractKey": null
             },
-            (v2/*: any*/)
+            (v2/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -285,10 +285,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "30ac22964e5c349d28a0d6c199793b8f";
+  (node/*:: as any*/).hash = "30ac22964e5c349d28a0d6c199793b8f";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestAnimalLegsQuery$variables,
   RelayResolverInterfaceTestAnimalLegsQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5e1fdeb18e4061d068a084cd1d2732aa>>
+ * @generated SignedSource<<153b1650c85d14bfb45c133665ed3b05>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -54,7 +54,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentConditionalSelectionsTestConditionalQuery",
@@ -70,7 +70,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentConditionalSelectionsTestConditionalQuery",
     "selections": [
@@ -102,8 +102,8 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v1/*: any*/),
-                  (v2/*: any*/)
+                  (v1/*:: as any*/),
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -125,8 +125,8 @@ return {
             "name": "me",
             "plural": false,
             "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/)
+              (v1/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -146,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "15714f8d0ab41a192fe8a7946b71437f";
+  (node/*:: as any*/).hash = "15714f8d0ab41a192fe8a7946b71437f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$variables,
   RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$data,
 >*/);

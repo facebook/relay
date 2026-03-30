@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<51f217165320ff498fd45065003ed9f3>>
+ * @generated SignedSource<<a11bff1d8308700fc0e2841c184d7095>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -120,14 +120,14 @@ v10 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentWithOperationTrackerTestMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
@@ -158,13 +158,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentWithOperationTrackerTestMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
@@ -178,7 +178,7 @@ return {
             "name": "feedback",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -205,7 +205,7 @@ return {
                 "name": "author",
                 "plural": false,
                 "selections": [
-                  (v3/*: any*/),
+                  (v3/*:: as any*/),
                   {
                     "alias": null,
                     "args": [
@@ -220,7 +220,7 @@ return {
                     "name": "nameRenderer",
                     "plural": false,
                     "selections": [
-                      (v3/*: any*/),
+                      (v3/*:: as any*/),
                       {
                         "kind": "InlineFragment",
                         "selections": [
@@ -266,7 +266,7 @@ return {
                     "name": "nameRenderer",
                     "plural": false,
                     "selections": [
-                      (v3/*: any*/),
+                      (v3/*:: as any*/),
                       {
                         "kind": "InlineFragment",
                         "selections": [
@@ -284,7 +284,7 @@ return {
                     ],
                     "storageKey": "nameRenderer(supported:\"1AwQS7\")"
                   },
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -319,34 +319,34 @@ return {
           "plural": false,
           "type": "User"
         },
-        "commentCreate.feedback.author.__typename": (v4/*: any*/),
-        "commentCreate.feedback.author.id": (v5/*: any*/),
-        "commentCreate.feedback.author.nameRenderer": (v6/*: any*/),
-        "commentCreate.feedback.author.nameRenderer.__module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment": (v7/*: any*/),
-        "commentCreate.feedback.author.nameRenderer.__module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment": (v7/*: any*/),
-        "commentCreate.feedback.author.nameRenderer.__typename": (v4/*: any*/),
-        "commentCreate.feedback.author.nameRenderer.data": (v8/*: any*/),
-        "commentCreate.feedback.author.nameRenderer.data.id": (v9/*: any*/),
-        "commentCreate.feedback.author.nameRenderer.data.markup": (v10/*: any*/),
-        "commentCreate.feedback.author.nameRenderer.data.text": (v10/*: any*/),
-        "commentCreate.feedback.author.nameRenderer.markdown": (v10/*: any*/),
-        "commentCreate.feedback.author.nameRenderer.plaintext": (v10/*: any*/),
-        "commentCreate.feedback.author.plainNameRenderer": (v6/*: any*/),
-        "commentCreate.feedback.author.plainNameRenderer.__module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer": (v7/*: any*/),
-        "commentCreate.feedback.author.plainNameRenderer.__module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer": (v7/*: any*/),
-        "commentCreate.feedback.author.plainNameRenderer.__typename": (v4/*: any*/),
-        "commentCreate.feedback.author.plainNameRenderer.data": (v8/*: any*/),
-        "commentCreate.feedback.author.plainNameRenderer.data.id": (v9/*: any*/),
-        "commentCreate.feedback.author.plainNameRenderer.data.text": (v10/*: any*/),
-        "commentCreate.feedback.author.plainNameRenderer.plaintext": (v10/*: any*/),
+        "commentCreate.feedback.author.__typename": (v4/*:: as any*/),
+        "commentCreate.feedback.author.id": (v5/*:: as any*/),
+        "commentCreate.feedback.author.nameRenderer": (v6/*:: as any*/),
+        "commentCreate.feedback.author.nameRenderer.__module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment": (v7/*:: as any*/),
+        "commentCreate.feedback.author.nameRenderer.__module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment": (v7/*:: as any*/),
+        "commentCreate.feedback.author.nameRenderer.__typename": (v4/*:: as any*/),
+        "commentCreate.feedback.author.nameRenderer.data": (v8/*:: as any*/),
+        "commentCreate.feedback.author.nameRenderer.data.id": (v9/*:: as any*/),
+        "commentCreate.feedback.author.nameRenderer.data.markup": (v10/*:: as any*/),
+        "commentCreate.feedback.author.nameRenderer.data.text": (v10/*:: as any*/),
+        "commentCreate.feedback.author.nameRenderer.markdown": (v10/*:: as any*/),
+        "commentCreate.feedback.author.nameRenderer.plaintext": (v10/*:: as any*/),
+        "commentCreate.feedback.author.plainNameRenderer": (v6/*:: as any*/),
+        "commentCreate.feedback.author.plainNameRenderer.__module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer": (v7/*:: as any*/),
+        "commentCreate.feedback.author.plainNameRenderer.__module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer": (v7/*:: as any*/),
+        "commentCreate.feedback.author.plainNameRenderer.__typename": (v4/*:: as any*/),
+        "commentCreate.feedback.author.plainNameRenderer.data": (v8/*:: as any*/),
+        "commentCreate.feedback.author.plainNameRenderer.data.id": (v9/*:: as any*/),
+        "commentCreate.feedback.author.plainNameRenderer.data.text": (v10/*:: as any*/),
+        "commentCreate.feedback.author.plainNameRenderer.plaintext": (v10/*:: as any*/),
         "commentCreate.feedback.body": {
           "enumValues": null,
           "nullable": true,
           "plural": false,
           "type": "Text"
         },
-        "commentCreate.feedback.body.text": (v10/*: any*/),
-        "commentCreate.feedback.id": (v5/*: any*/)
+        "commentCreate.feedback.body.text": (v10/*:: as any*/),
+        "commentCreate.feedback.id": (v5/*:: as any*/)
       }
     },
     "name": "RelayModernEnvironmentWithOperationTrackerTestMutation",
@@ -357,10 +357,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a992f5cbffecf3ebece24d038d91c0a2";
+  (node/*:: as any*/).hash = "a992f5cbffecf3ebece24d038d91c0a2";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentWithOperationTrackerTestMutation$variables,
   RelayModernEnvironmentWithOperationTrackerTestMutation$data,
 >*/);

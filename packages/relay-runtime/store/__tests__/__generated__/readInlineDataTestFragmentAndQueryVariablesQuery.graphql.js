@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<37c22ea8a0579853c355e48a50750f0b>>
+ * @generated SignedSource<<cb87df3a6fbb429a6f7f3ad3cdcea7f3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -68,12 +68,12 @@ v2 = {
   "kind": "LinkedField",
   "name": "profile_picture",
   "plural": false,
-  "selections": (v1/*: any*/),
+  "selections": (v1/*:: as any*/),
   "storageKey": null
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "readInlineDataTestFragmentAndQueryVariablesQuery",
@@ -103,10 +103,10 @@ return {
                 "kind": "LinkedField",
                 "name": "profile_picture",
                 "plural": false,
-                "selections": (v1/*: any*/),
+                "selections": (v1/*:: as any*/),
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": "defaultVariable",
                 "args": [
@@ -120,7 +120,7 @@ return {
                 "kind": "LinkedField",
                 "name": "profile_picture",
                 "plural": false,
-                "selections": (v1/*: any*/),
+                "selections": (v1/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -157,7 +157,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "readInlineDataTestFragmentAndQueryVariablesQuery",
     "selections": [
@@ -182,10 +182,10 @@ return {
             "kind": "LinkedField",
             "name": "profile_picture",
             "plural": false,
-            "selections": (v1/*: any*/),
+            "selections": (v1/*:: as any*/),
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": "defaultVariable",
             "args": [
@@ -199,7 +199,7 @@ return {
             "kind": "LinkedField",
             "name": "profile_picture",
             "plural": false,
-            "selections": (v1/*: any*/),
+            "selections": (v1/*:: as any*/),
             "storageKey": "profile_picture(scale:3)"
           },
           {
@@ -226,10 +226,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4ec1512a8aec4bf5ece15aef3e46dc15";
+  (node/*:: as any*/).hash = "4ec1512a8aec4bf5ece15aef3e46dc15";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   readInlineDataTestFragmentAndQueryVariablesQuery$variables,
   readInlineDataTestFragmentAndQueryVariablesQuery$data,
 >*/);

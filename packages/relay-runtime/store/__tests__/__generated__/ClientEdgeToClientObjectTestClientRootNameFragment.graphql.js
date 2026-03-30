@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<901dd87c5656d0e0b27ffd641d492cf5>>
+ * @generated SignedSource<<8d99c68e4438e8daf7c89a6a9f5558ef>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {self as clientAccountSelfResolverType} from "../ClientEdgeToClientObject
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `clientAccountSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(clientAccountSelfResolverType: (
+(clientAccountSelfResolverType as (
   rootKey: ClientEdgeToClientObjectTestClientRootFragment$key,
   args: void,
   context: TestResolverContextType,
@@ -65,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "22c8af82f4599e2fe1b29ccf8da33b51";
+  (node/*:: as any*/).hash = "22c8af82f4599e2fe1b29ccf8da33b51";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ClientEdgeToClientObjectTestClientRootNameFragment$fragmentType,
   ClientEdgeToClientObjectTestClientRootNameFragment$data,
 >*/);

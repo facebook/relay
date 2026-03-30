@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6d7324c52ca6df0f09f1c19fc09038d3>>
+ * @generated SignedSource<<e1715c6b72d2dcfd38ce88498621eb37>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -63,14 +63,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReferenceMarkerTest7Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -95,19 +95,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReferenceMarkerTest7Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "if": null,
             "kind": "Defer",
@@ -116,7 +116,7 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v3/*: any*/),
+                  (v3/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -125,7 +125,7 @@ return {
                     "name": "actors",
                     "plural": true,
                     "selections": [
-                      (v2/*: any*/),
+                      (v2/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -133,7 +133,7 @@ return {
                         "name": "name",
                         "storageKey": null
                       },
-                      (v3/*: any*/)
+                      (v3/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -143,7 +143,7 @@ return {
               }
             ]
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -161,10 +161,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "19bfe0e6b96ae4a7feb5a3270cdd2153";
+  (node/*:: as any*/).hash = "19bfe0e6b96ae4a7feb5a3270cdd2153";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReferenceMarkerTest7Query$variables,
   RelayReferenceMarkerTest7Query$data,
 >*/);

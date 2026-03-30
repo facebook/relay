@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9b720ed0f72af81399522b82ce61b423>>
+ * @generated SignedSource<<990dc94cd631254a43c11429e0783694>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {hello_world_with_context_object as queryHelloWorldWithContextObjectResol
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloWorldWithContextObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloWorldWithContextObjectResolverType: (
+(queryHelloWorldWithContextObjectResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?string>);
@@ -93,10 +93,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9d6c1c80832bc820e39b7696f247daea";
+  (node/*:: as any*/).hash = "9d6c1c80832bc820e39b7696f247daea";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTestWithContextObjectQuery$variables,
   LiveResolversTestWithContextObjectQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2cffd2a2e9c5ad867f10ebeb1533afcc>>
+ * @generated SignedSource<<972c92cd00cb6256793cb7d5381917e2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -133,18 +133,18 @@ v12 = [
     "name": "last",
     "variableName": "last"
   },
-  (v8/*: any*/)
+  (v8/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/),
-      (v6/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/),
+      (v6/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -152,7 +152,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v7/*: any*/),
+        "args": (v7/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -165,7 +165,7 @@ return {
                 "name": "isViewerFriendLocal",
                 "variableName": "isViewerFriend"
               },
-              (v8/*: any*/)
+              (v8/*:: as any*/)
             ],
             "kind": "FragmentSpread",
             "name": "usePaginationFragmentTestUserFragmentWithStreaming"
@@ -180,34 +180,34 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v3/*: any*/),
-      (v0/*: any*/),
-      (v2/*: any*/),
-      (v1/*: any*/),
-      (v5/*: any*/),
-      (v6/*: any*/),
-      (v4/*: any*/)
+      (v3/*:: as any*/),
+      (v0/*:: as any*/),
+      (v2/*:: as any*/),
+      (v1/*:: as any*/),
+      (v5/*:: as any*/),
+      (v6/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "usePaginationFragmentTestUserQueryWithStreamingQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v7/*: any*/),
+        "args": (v7/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v9/*: any*/),
-          (v10/*: any*/),
+          (v9/*:: as any*/),
+          (v10/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v11/*: any*/),
+              (v11/*:: as any*/),
               {
                 "alias": null,
-                "args": (v12/*: any*/),
+                "args": (v12/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -234,8 +234,8 @@ return {
                             "name": "node",
                             "plural": false,
                             "selections": [
-                              (v10/*: any*/),
-                              (v11/*: any*/),
+                              (v10/*:: as any*/),
+                              (v11/*:: as any*/),
                               {
                                 "alias": null,
                                 "args": null,
@@ -243,7 +243,7 @@ return {
                                 "name": "username",
                                 "storageKey": null
                               },
-                              (v9/*: any*/)
+                              (v9/*:: as any*/)
                             ],
                             "storageKey": null
                           },
@@ -310,7 +310,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v12/*: any*/),
+                "args": (v12/*:: as any*/),
                 "filters": [
                   "orderby",
                   "isViewerFriend"
@@ -341,10 +341,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a8aa8fb48a0000532335af4b5e6f7573";
+  (node/*:: as any*/).hash = "a8aa8fb48a0000532335af4b5e6f7573";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePaginationFragmentTestUserQueryWithStreamingQuery$variables,
   usePaginationFragmentTestUserQueryWithStreamingQuery$data,
 >*/);

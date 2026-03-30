@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6c91b2180f44f89fc15e7d50c4bf0c86>>
+ * @generated SignedSource<<5dd7d666595bf95fd2c3c2e1a64decd8>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -89,8 +89,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/)
+          (v0/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -112,8 +112,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
+          (v0/*:: as any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -138,10 +138,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "84c121348a77eed6c5bd156f7d6f136e";
+  (node/*:: as any*/).hash = "84c121348a77eed6c5bd156f7d6f136e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables,
   RelayModernEnvironmentCommitPayloadTest2ActorQuery$data,
 >*/);

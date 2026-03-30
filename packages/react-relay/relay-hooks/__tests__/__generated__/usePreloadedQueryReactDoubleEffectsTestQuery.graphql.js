@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<813bc0289e7ffaf199dc9efbbe14d614>>
+ * @generated SignedSource<<39862c40651950e1844141c090dcfa66>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -65,21 +65,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "usePreloadedQueryReactDoubleEffectsTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -94,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "usePreloadedQueryReactDoubleEffectsTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -113,8 +113,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -146,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5f8dbf688a5b0fad6793fda136b755ff";
+  (node/*:: as any*/).hash = "5f8dbf688a5b0fad6793fda136b755ff";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePreloadedQueryReactDoubleEffectsTestQuery$variables,
   usePreloadedQueryReactDoubleEffectsTestQuery$data,
 >*/);

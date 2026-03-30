@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4b9c34dffba0c39e8c2feaaad83b4a39>>
+ * @generated SignedSource<<8e820a76c72b80efc4090adad41e59f5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -89,10 +89,10 @@ v7 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -100,7 +100,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v4/*: any*/),
+        "args": (v4/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -121,17 +121,17 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v3/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v0/*: any*/)
+      (v3/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayMockPayloadGeneratorTest4Query",
     "selections": [
       {
         "alias": null,
-        "args": (v4/*: any*/),
+        "args": (v4/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -144,11 +144,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v5/*: any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v6/*: any*/),
+              (v6/*:: as any*/),
               {
                 "alias": "customId",
                 "args": null,
@@ -164,8 +164,8 @@ return {
                 "name": "author",
                 "plural": false,
                 "selections": [
-                  (v6/*: any*/),
-                  (v5/*: any*/)
+                  (v6/*:: as any*/),
+                  (v5/*:: as any*/)
                 ],
                 "storageKey": null
               },
@@ -221,7 +221,7 @@ return {
                 "kind": "LinkedField",
                 "name": "backgroundImage",
                 "plural": false,
-                "selections": (v7/*: any*/),
+                "selections": (v7/*:: as any*/),
                 "storageKey": null
               },
               {
@@ -245,7 +245,7 @@ return {
                     "kind": "LinkedField",
                     "name": "profile_picture",
                     "plural": false,
-                    "selections": (v7/*: any*/),
+                    "selections": (v7/*:: as any*/),
                     "storageKey": null
                   }
                 ]
@@ -349,10 +349,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "80bdf2a384f649fcfde653ff34e3a8cc";
+  (node/*:: as any*/).hash = "80bdf2a384f649fcfde653ff34e3a8cc";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest4Query$variables,
   RelayMockPayloadGeneratorTest4Query$data,
 >*/);

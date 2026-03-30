@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4686a615436f312875f94b7dc7ae923f>>
+ * @generated SignedSource<<83d89ae8f5ddca20fe9c0d65831a057f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -100,7 +100,7 @@ v3 = [
         "name": "comment",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -108,7 +108,7 @@ v3 = [
             "kind": "LinkedField",
             "name": "message",
             "plural": false,
-            "selections": (v2/*: any*/),
+            "selections": (v2/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -122,7 +122,7 @@ v3 = [
         "name": "feedback",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -137,7 +137,7 @@ v3 = [
             "kind": "LinkedField",
             "name": "body",
             "plural": false,
-            "selections": (v2/*: any*/),
+            "selections": (v2/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -167,20 +167,20 @@ v6 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentWithOperationTrackerTest1Mutation",
-    "selections": (v3/*: any*/),
+    "selections": (v3/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentWithOperationTrackerTest1Mutation",
-    "selections": (v3/*: any*/)
+    "selections": (v3/*:: as any*/)
   },
   "params": {
     "cacheID": "bc860715cdbb5c16bfec84cccf10eb67",
@@ -199,19 +199,19 @@ return {
           "plural": false,
           "type": "Comment"
         },
-        "commentCreate.comment.id": (v4/*: any*/),
-        "commentCreate.comment.message": (v5/*: any*/),
-        "commentCreate.comment.message.text": (v6/*: any*/),
+        "commentCreate.comment.id": (v4/*:: as any*/),
+        "commentCreate.comment.message": (v5/*:: as any*/),
+        "commentCreate.comment.message.text": (v6/*:: as any*/),
         "commentCreate.feedback": {
           "enumValues": null,
           "nullable": true,
           "plural": false,
           "type": "Feedback"
         },
-        "commentCreate.feedback.body": (v5/*: any*/),
-        "commentCreate.feedback.body.text": (v6/*: any*/),
-        "commentCreate.feedback.id": (v4/*: any*/),
-        "commentCreate.feedback.lastName": (v6/*: any*/)
+        "commentCreate.feedback.body": (v5/*:: as any*/),
+        "commentCreate.feedback.body.text": (v6/*:: as any*/),
+        "commentCreate.feedback.id": (v4/*:: as any*/),
+        "commentCreate.feedback.lastName": (v6/*:: as any*/)
       }
     },
     "name": "RelayModernEnvironmentWithOperationTrackerTest1Mutation",
@@ -222,10 +222,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6a10ff9c1fc045181ae2f8edcaf0e88a";
+  (node/*:: as any*/).hash = "6a10ff9c1fc045181ae2f8edcaf0e88a";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables,
   RelayModernEnvironmentWithOperationTrackerTest1Mutation$data,
 >*/);

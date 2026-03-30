@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5b0cd4bff67825cd52248a1df12f6304>>
+ * @generated SignedSource<<f249c8f8b138dfc991413458ee3251d1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -49,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery",
     "selections": [
       {
         "alias": "feedback",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -76,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery",
     "selections": [
       {
         "alias": "feedback",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -151,10 +151,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fe9ff25ab50d511448e63a6dfd620458";
+  (node/*:: as any*/).hash = "fe9ff25ab50d511448e63a6dfd620458";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$variables,
   RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$data,
 >*/);

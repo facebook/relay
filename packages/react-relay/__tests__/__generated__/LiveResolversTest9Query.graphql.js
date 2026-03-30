@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8bb56224839d13a10f654f9be899eab9>>
+ * @generated SignedSource<<43cb841750ca4ed03845f43d3c90fa28>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserPro
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType: (
+(userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType as (
   rootKey: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key,
   args: {|
     scale: ?number,
@@ -74,14 +74,14 @@ v2 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "LiveResolversTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -94,7 +94,7 @@ return {
                 "alias": "profile_picture_uri",
                 "args": [],
                 "fragment": {
-                  "args": (v2/*: any*/),
+                  "args": (v2/*:: as any*/),
                   "kind": "FragmentSpread",
                   "name": "UserProfilePictureUriSuspendsWhenTheCounterIsOdd"
                 },
@@ -116,13 +116,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "LiveResolversTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -173,7 +173,7 @@ return {
                         "selections": [
                           {
                             "alias": null,
-                            "args": (v2/*: any*/),
+                            "args": (v2/*:: as any*/),
                             "concreteType": "Image",
                             "kind": "LinkedField",
                             "name": "profile_picture",
@@ -233,10 +233,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2bbfd3b99fad5f3c6126bb39970d7e0e";
+  (node/*:: as any*/).hash = "2bbfd3b99fad5f3c6126bb39970d7e0e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTest9Query$variables,
   LiveResolversTest9Query$data,
 >*/);

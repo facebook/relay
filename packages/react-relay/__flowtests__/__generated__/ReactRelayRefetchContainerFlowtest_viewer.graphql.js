@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2421117971b031f176ecf5c59189cadf>>
+ * @generated SignedSource<<48593a8ed28fec622cbc4e20e8292494>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -154,10 +154,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cf098b4248d8ddfacfc0d356838697bb";
+  (node/*:: as any*/).hash = "cf098b4248d8ddfacfc0d356838697bb";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
   ReactRelayRefetchContainerFlowtest_viewer$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5f4c93f6f3b3f34532b0f0dd955c9798>>
+ * @generated SignedSource<<2306bdb1b951c8a5b78abe371719c586>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {StrongModel as strongModelRelayModelInstanceResolverType} from "../Relay
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `strongModelRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(strongModelRelayModelInstanceResolverType: (
+(strongModelRelayModelInstanceResolverType as (
   id: StrongModel__id$data['id'],
   args: void,
   context: TestResolverContextType,
@@ -64,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   StrongModel____relay_model_instance$fragmentType,
   StrongModel____relay_model_instance$data,
 >*/);

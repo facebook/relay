@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<db4177f09be77fd919e9fe118475dbe4>>
+ * @generated SignedSource<<f9cffc13aff5a436bb1238573fdc2e42>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -66,8 +66,8 @@ v3 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -96,8 +96,8 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "usePaginationFragmentCatchTestQuery",
@@ -112,7 +112,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v2/*:: as any*/),
             "concreteType": "FriendsConnection",
             "kind": "LinkedField",
             "name": "friends",
@@ -141,7 +141,7 @@ return {
                         "name": "__typename",
                         "storageKey": null
                       },
-                      (v3/*: any*/)
+                      (v3/*:: as any*/)
                     ],
                     "storageKey": null
                   },
@@ -185,14 +185,14 @@ return {
           },
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v2/*:: as any*/),
             "filters": null,
             "handle": "connection",
             "key": "UserFragment_friends",
             "kind": "LinkedHandle",
             "name": "friends"
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -210,10 +210,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2e8353ab0e75b9b99b52436177ebf6cb";
+  (node/*:: as any*/).hash = "2e8353ab0e75b9b99b52436177ebf6cb";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePaginationFragmentCatchTestQuery$variables,
   usePaginationFragmentCatchTestQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7bedc981b3f18eaf6f2a765063b871ea>>
+ * @generated SignedSource<<b61051ddbfd7c3c29f84451a8d39bee5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -73,13 +73,13 @@ v5 = {
   "condition": "foo",
   "kind": "Condition",
   "passingValue": true,
-  "selections": (v4/*: any*/)
+  "selections": (v4/*:: as any*/)
 };
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -87,14 +87,14 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
-          (v5/*: any*/),
+          (v3/*:: as any*/),
+          (v5/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -110,21 +110,21 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "FragmentResourceTest6Query",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
+          (v3/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -132,10 +132,10 @@ return {
             "name": "id",
             "storageKey": null
           },
-          (v5/*: any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
-            "selections": (v4/*: any*/),
+            "selections": (v4/*:: as any*/),
             "type": "User",
             "abstractKey": null
           }
@@ -156,10 +156,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b3516b8d8ace6d328f7c9b16fbbd16e7";
+  (node/*:: as any*/).hash = "b3516b8d8ace6d328f7c9b16fbbd16e7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceTest6Query$variables,
   FragmentResourceTest6Query$data,
 >*/);

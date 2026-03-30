@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a23c62e2e4881b878e4bda5abb35fe07>>
+ * @generated SignedSource<<5fafde9f4410101f1f2cd21cfcf5cd22>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -91,20 +91,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Subscription",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "c8544e6b2672010acbe98aa4c507fb30",
@@ -118,10 +118,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "682950a31d9df2be2d3759baf5d0e9fc";
+  (node/*:: as any*/).hash = "682950a31d9df2be2d3759baf5d0e9fc";
 }
 
-module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+module.exports = ((node/*:: as any*/)/*:: as GraphQLSubscription<
   RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables,
   RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data,
 >*/);

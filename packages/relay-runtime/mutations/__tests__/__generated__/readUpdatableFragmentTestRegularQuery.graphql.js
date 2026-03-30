@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d1815e9ce52378b58a40f8e68289b36c>>
+ * @generated SignedSource<<deadf4c2f416b51e3473b3b2911e0958>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -85,7 +85,7 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "readUpdatableFragmentTestRegularQuery",
@@ -108,9 +108,9 @@ return {
             "kind": "FragmentSpread",
             "name": "readUpdatableFragmentTest_2_user"
           },
-          (v1/*: any*/),
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -120,7 +120,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "readUpdatableFragmentTestRegularQuery",
     "selections": [
@@ -139,9 +139,9 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -166,10 +166,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1fcec5ea959f10501f187ab122841d2e";
+  (node/*:: as any*/).hash = "1fcec5ea959f10501f187ab122841d2e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   readUpdatableFragmentTestRegularQuery$variables,
   readUpdatableFragmentTestRegularQuery$data,
 >*/);

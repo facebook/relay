@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<083ec4e16c0cd85aeb1780f300122496>>
+ * @generated SignedSource<<a2380d765466434e138cc9956aa6154e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -64,21 +64,21 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTest8Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
           {
-            "fragment": (v2/*: any*/),
+            "fragment": (v2/*:: as any*/),
             "kind": "AliasedInlineFragmentSpread",
             "name": "aliased_fragment"
           }
@@ -91,13 +91,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTest8Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -110,7 +110,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -135,10 +135,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cfaf2dfc58d744f08c1c14c56c0d9107";
+  (node/*:: as any*/).hash = "cfaf2dfc58d744f08c1c14c56c0d9107";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTest8Query$variables,
   RelayReaderAliasedFragmentsTest8Query$data,
 >*/);

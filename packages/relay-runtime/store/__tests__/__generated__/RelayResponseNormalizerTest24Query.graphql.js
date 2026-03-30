@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0cc30bf31b61f6a099ebc5d19280df00>>
+ * @generated SignedSource<<0ca71a8064008c487030bdb43f872ade>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -71,7 +71,7 @@ v2 = [
     "name": "node",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
+      (v1/*:: as any*/),
       {
         "alias": null,
         "args": null,
@@ -119,7 +119,7 @@ v2 = [
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
+                      (v1/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -146,20 +146,20 @@ v2 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest24Query",
-    "selections": (v2/*: any*/),
+    "selections": (v2/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest24Query",
-    "selections": (v2/*: any*/)
+    "selections": (v2/*:: as any*/)
   },
   "params": {
     "cacheID": "ef9be80990c9f3c031e88954f5132b5f",
@@ -173,10 +173,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "dfddcf9b7d22fb1c3f895f915c659752";
+  (node/*:: as any*/).hash = "dfddcf9b7d22fb1c3f895f915c659752";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest24Query$variables,
   RelayResponseNormalizerTest24Query$data,
 >*/);

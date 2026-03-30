@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b5c4dbdf6ff65c9db665d28a254d647c>>
+ * @generated SignedSource<<08317989046543e11e71f9691d3aabae>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -91,7 +91,7 @@ v2 = {
               "name": "node",
               "plural": false,
               "selections": [
-                (v1/*: any*/)
+                (v1/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -114,13 +114,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": "node(id:\"feedback123\")"
       }
@@ -136,7 +136,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -149,8 +149,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v1/*: any*/)
+          (v2/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": "node(id:\"feedback123\")"
       }
@@ -168,10 +168,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "57da559c7efe4ad6791cf298e57f2192";
+  (node/*:: as any*/).hash = "57da559c7efe4ad6791cf298e57f2192";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   commitMutationTest1Query$variables,
   commitMutationTest1Query$data,
 >*/);

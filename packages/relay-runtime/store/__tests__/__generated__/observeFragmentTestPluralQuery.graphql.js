@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b1eb6cbcc021fc72d59f3db09187086d>>
+ * @generated SignedSource<<43ea22653e80043af7cbb87da1810695>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -50,7 +50,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -76,7 +76,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -127,10 +127,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c1a2f68df2ec25bc00b077d6cdecdce4";
+  (node/*:: as any*/).hash = "c1a2f68df2ec25bc00b077d6cdecdce4";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestPluralQuery$variables,
   observeFragmentTestPluralQuery$data,
 >*/);

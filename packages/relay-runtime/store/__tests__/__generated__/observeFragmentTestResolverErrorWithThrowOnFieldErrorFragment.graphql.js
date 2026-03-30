@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2047e506cb1e9c68ae3573da86ab5828>>
+ * @generated SignedSource<<103f110f6de3b344cd58df4bbba934c6>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {always_throws as userAlwaysThrowsResolverType} from "../resolvers/UserAl
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolverType: (
+(userAlwaysThrowsResolverType as (
   rootKey: UserAlwaysThrowsResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -67,10 +67,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "997b4d0f258698db7744a357c84eaaf8";
+  (node/*:: as any*/).hash = "997b4d0f258698db7744a357c84eaaf8";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   observeFragmentTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
   observeFragmentTestResolverErrorWithThrowOnFieldErrorFragment$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5be6e773753dab55378dfbb540017a50>>
+ * @generated SignedSource<<5e1d30123ba0f4b3fe3ef95e4d4c485b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -31,7 +31,7 @@ export type withProvidedVariablesTest3Query = {|
 ({
   "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider'),
   "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('../provideIncludeUserNames.relayprovider')
-}: {|
+} as {|
   +__relay_internal__pv__provideIncludeUserNamesrelayprovider: {|
     +get: () => boolean,
   |},
@@ -58,7 +58,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -95,7 +95,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -181,10 +181,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e9f1d13b64d707716ef131a7ec5c3ca0";
+  (node/*:: as any*/).hash = "e9f1d13b64d707716ef131a7ec5c3ca0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   withProvidedVariablesTest3Query$variables,
   withProvidedVariablesTest3Query$data,
 >*/);

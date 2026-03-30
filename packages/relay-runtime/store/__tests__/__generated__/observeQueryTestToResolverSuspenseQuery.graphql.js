@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7b4189893bdab3113c180f7608812759>>
+ * @generated SignedSource<<9302979a0c6e04a2725c1698e9377d25>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {counter_suspends_when_odd as userCounterSuspendsWhenOddResolverType} fro
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userCounterSuspendsWhenOddResolverType: (
+(userCounterSuspendsWhenOddResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
@@ -124,10 +124,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c12131b8b3d0e8ec0de28cd1a839c2b8";
+  (node/*:: as any*/).hash = "c12131b8b3d0e8ec0de28cd1a839c2b8";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeQueryTestToResolverSuspenseQuery$variables,
   observeQueryTestToResolverSuspenseQuery$data,
 >*/);

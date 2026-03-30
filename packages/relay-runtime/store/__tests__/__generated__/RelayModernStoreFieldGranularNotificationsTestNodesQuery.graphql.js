@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a605a611e62f7f2ec94018c2d77b58d9>>
+ * @generated SignedSource<<cedc6b9e3483f46e262212e86f63807b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -90,20 +90,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernStoreFieldGranularNotificationsTestNodesQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernStoreFieldGranularNotificationsTestNodesQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "c355d266b7d1839f998b595dfc532b33",
@@ -117,10 +117,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bb546b55fa120c643b44c131e6eb007e";
+  (node/*:: as any*/).hash = "bb546b55fa120c643b44c131e6eb007e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernStoreFieldGranularNotificationsTestNodesQuery$variables,
   RelayModernStoreFieldGranularNotificationsTestNodesQuery$data,
 >*/);

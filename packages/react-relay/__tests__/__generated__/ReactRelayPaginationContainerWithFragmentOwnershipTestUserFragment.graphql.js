@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b544b6ba1dfda7cba6132102e9044aa8>>
+ * @generated SignedSource<<93e28cbb6b34c515b455d5fc7b30452a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -83,7 +83,7 @@ return {
   },
   "name": "ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": "friends",
       "args": [
@@ -119,7 +119,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "args": [
                     {
@@ -186,10 +186,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "25074f275d8cdaa1298ea0d300df1a98";
+  (node/*:: as any*/).hash = "25074f275d8cdaa1298ea0d300df1a98";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bb3fe66980864f251d2a28ad78c7908b>>
+ * @generated SignedSource<<062328aff870af9b4d1d373d7a81be8f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -81,7 +81,7 @@ v2 = [
     "name": "node",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
+      (v1/*:: as any*/),
       {
         "alias": null,
         "args": null,
@@ -129,7 +129,7 @@ v2 = [
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
+                      (v1/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -167,7 +167,7 @@ v2 = [
                                 "name": "node",
                                 "plural": false,
                                 "selections": [
-                                  (v1/*: any*/),
+                                  (v1/*:: as any*/),
                                   {
                                     "alias": null,
                                     "args": null,
@@ -214,20 +214,20 @@ v2 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest25Query",
-    "selections": (v2/*: any*/),
+    "selections": (v2/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest25Query",
-    "selections": (v2/*: any*/)
+    "selections": (v2/*:: as any*/)
   },
   "params": {
     "cacheID": "a58df646356857c5120edd3fffd8ca1c",
@@ -241,10 +241,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "67df1c7186fe5d5d9fcc199f4e880684";
+  (node/*:: as any*/).hash = "67df1c7186fe5d5d9fcc199f4e880684";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest25Query$variables,
   RelayResponseNormalizerTest25Query$data,
 >*/);

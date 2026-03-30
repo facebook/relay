@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2f4bcf96f22cdaa03bac89e32fc36579>>
+ * @generated SignedSource<<cac449c4cb1ce70451a6f8ce09b4e5ae>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {self as todoSelfResolverType} from "../TodoSelfResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoSelfResolverType: (
+(todoSelfResolverType as (
   rootKey: TodoSelfResolverFragment$key,
   args: void,
   context: TestResolverContextType,
@@ -65,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "825ea3b21e9b9c4edf4633dae8276c4f";
+  (node/*:: as any*/).hash = "825ea3b21e9b9c4edf4633dae8276c4f";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoTextResolverFragment$fragmentType,
   TodoTextResolverFragment$data,
 >*/);

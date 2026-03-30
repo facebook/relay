@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aa5a3b6b4309ab32afc1cde8e838bbc3>>
+ * @generated SignedSource<<f0fa8cecd6ee0e0cf1d261dfe58537fd>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -112,14 +112,14 @@ v6 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -130,25 +130,25 @@ return {
             "selections": [
               {
                 "alias": "outerRendererA",
-                "args": (v2/*: any*/),
+                "args": (v2/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v3/*: any*/)
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": "nameRenderer(supported:\"2aTHRe\")"
               },
               {
                 "alias": "outerRendererB",
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v5/*: any*/)
+                  (v5/*:: as any*/)
                 ],
                 "storageKey": "nameRenderer(supported:\"1AwQS7\")"
               }
@@ -165,45 +165,45 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
+          (v6/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": "outerRendererA",
-                "args": (v2/*: any*/),
+                "args": (v2/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v6/*: any*/),
-                  (v3/*: any*/)
+                  (v6/*:: as any*/),
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": "nameRenderer(supported:\"2aTHRe\")"
               },
               {
                 "alias": "outerRendererB",
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v6/*: any*/),
-                  (v5/*: any*/)
+                  (v6/*:: as any*/),
+                  (v5/*:: as any*/)
                 ],
                 "storageKey": "nameRenderer(supported:\"1AwQS7\")"
               }
@@ -235,10 +235,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a3fcd2161f88d8217243730132ccda42";
+  (node/*:: as any*/).hash = "a3fcd2161f88d8217243730132ccda42";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$variables,
   RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data,
 >*/);

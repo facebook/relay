@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eb71f3142104ad6252fc8a36081ee8bc>>
+ * @generated SignedSource<<d4205167175c5411db03c1a939f57d76>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {client_object as userClientObjectResolverType} from "../resolvers/UserCl
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientObjectResolverType: (
+(userClientObjectResolverType as (
   args: {|
     return_null: boolean,
   |},
@@ -53,7 +53,7 @@ var v0 = [
 ],
 v1 = {
   "alias": null,
-  "args": (v0/*: any*/),
+  "args": (v0/*:: as any*/),
   "concreteType": "ClientObject",
   "kind": "LinkedField",
   "name": "client_object",
@@ -98,7 +98,7 @@ return {
                 "serverObjectOperations": null,
                 "backingField": {
                   "alias": null,
-                  "args": (v0/*: any*/),
+                  "args": (v0/*:: as any*/),
                   "fragment": null,
                   "kind": "RelayResolver",
                   "name": "client_object",
@@ -111,7 +111,7 @@ return {
                     "normalizationNode": require('./../resolvers/__generated__/User__client_object$normalization.graphql')
                   }
                 },
-                "linkedField": (v1/*: any*/)
+                "linkedField": (v1/*:: as any*/)
               },
               "action": "THROW"
             }
@@ -142,13 +142,13 @@ return {
             "kind": "ClientEdgeToClientObject",
             "backingField": {
               "name": "client_object",
-              "args": (v0/*: any*/),
+              "args": (v0/*:: as any*/),
               "fragment": null,
               "kind": "RelayResolver",
               "storageKey": "client_object(return_null:true)",
               "isOutputType": true
             },
-            "linkedField": (v1/*: any*/)
+            "linkedField": (v1/*:: as any*/)
           },
           {
             "alias": null,
@@ -174,10 +174,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "aee36dea6de9874bcda584fda87b1e8c";
+  (node/*:: as any*/).hash = "aee36dea6de9874bcda584fda87b1e8c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest29Query$variables,
   RelayReaderRequiredFieldsTest29Query$data,
 >*/);

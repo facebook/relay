@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<93496474c1fa15348c7ad05983b764cc>>
+ * @generated SignedSource<<7e5153869d7c7867f93d29fb756ae01f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {client_edge as userClientEdgeResolverType} from "../../../../relay-runti
 import type { TestResolverContextType } from "../../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -93,10 +93,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1f48d41b9528e868e1c370d6b664599b";
+  (node/*:: as any*/).hash = "1f48d41b9528e868e1c370d6b664599b";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   FragmentResourceClientEdgesTestFragment1$fragmentType,
   FragmentResourceClientEdgesTestFragment1$data,
 >*/);

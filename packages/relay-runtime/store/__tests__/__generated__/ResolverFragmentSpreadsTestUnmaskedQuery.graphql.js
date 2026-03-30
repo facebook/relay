@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<77f8b3f6ed370722229c732e31c555f5>>
+ * @generated SignedSource<<b23591c36d43feb3c129da5516b32ff7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {field_that_spreads_unmasked_fragment as queryFieldThatSpreadsUnmaskedFra
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryFieldThatSpreadsUnmaskedFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryFieldThatSpreadsUnmaskedFragmentResolverType: (
+(queryFieldThatSpreadsUnmaskedFragmentResolverType as (
   rootKey: ResolverFragmentSpreadsTestUnmaskedFragment$key,
   args: void,
   context: TestResolverContextType,
@@ -151,10 +151,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "aaf8fd0adecb2a68595ad7cb7363b237";
+  (node/*:: as any*/).hash = "aaf8fd0adecb2a68595ad7cb7363b237";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverFragmentSpreadsTestUnmaskedQuery$variables,
   ResolverFragmentSpreadsTestUnmaskedQuery$data,
 >*/);

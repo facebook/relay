@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<90a1288271270d95084f9dbfaa6ffca1>>
+ * @generated SignedSource<<5117d7c11a153dd6b49099bbb96230be>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -63,21 +63,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery",
     "selections": [
       {
         "alias": "page",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -87,13 +87,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery",
     "selections": [
       {
         "alias": "page",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -106,8 +106,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -152,10 +152,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "616bf865993fd8a6059f8c5dc641de63";
+  (node/*:: as any*/).hash = "616bf865993fd8a6059f8c5dc641de63";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery$variables,
   RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7ae4a5df7a5fbeaea6af82d2287330bb>>
+ * @generated SignedSource<<6a74ccacef0644b7606baf5d1708a873>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -60,10 +60,10 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "kind": "RequiredField",
-            "field": (v1/*: any*/),
+            "field": (v1/*:: as any*/),
             "action": "LOG"
           }
         ],
@@ -87,8 +87,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
+          (v0/*:: as any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -113,10 +113,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "72f30114def75faa8eaacbb70e93d486";
+  (node/*:: as any*/).hash = "72f30114def75faa8eaacbb70e93d486";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest2Query$variables,
   RelayReaderRequiredFieldsTest2Query$data,
 >*/);

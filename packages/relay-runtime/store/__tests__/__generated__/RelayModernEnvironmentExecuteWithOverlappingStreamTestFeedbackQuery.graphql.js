@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<93d70482463863da25158321dad4d4f3>>
+ * @generated SignedSource<<ff456bd96f8c82d7d278f4097bae553f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -66,7 +66,7 @@ v4 = {
   "storageKey": null
 },
 v5 = [
-  (v3/*: any*/),
+  (v3/*:: as any*/),
   {
     "alias": null,
     "args": null,
@@ -83,13 +83,13 @@ v5 = [
     "kind": "ScalarHandle",
     "name": "name"
   },
-  (v4/*: any*/)
+  (v4/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -97,7 +97,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -118,22 +118,22 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
-          (v4/*: any*/),
+          (v3/*:: as any*/),
+          (v4/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -149,7 +149,7 @@ return {
                     "kind": "LinkedField",
                     "name": "actors",
                     "plural": true,
-                    "selections": (v5/*: any*/),
+                    "selections": (v5/*:: as any*/),
                     "storageKey": null
                   },
                   {
@@ -180,7 +180,7 @@ return {
                         "kind": "LinkedField",
                         "name": "viewedBy",
                         "plural": true,
-                        "selections": (v5/*: any*/),
+                        "selections": (v5/*:: as any*/),
                         "storageKey": null
                       },
                       {
@@ -217,10 +217,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "06b066155ac2bffd6466e49b3836ff99";
+  (node/*:: as any*/).hash = "06b066155ac2bffd6466e49b3836ff99";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables,
   RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data,
 >*/);

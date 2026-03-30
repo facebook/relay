@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<499cbbe8da73725a9a5914f1e33a5260>>
+ * @generated SignedSource<<08500b5178f645daea18f1f83989a7fa>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -65,21 +65,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useEntryPointLoaderReactDoubleEffectsTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -94,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useEntryPointLoaderReactDoubleEffectsTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -113,8 +113,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -132,10 +132,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6b7f3606d43827b1210a7de7c6a81556";
+  (node/*:: as any*/).hash = "6b7f3606d43827b1210a7de7c6a81556";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useEntryPointLoaderReactDoubleEffectsTestUserQuery$variables,
   useEntryPointLoaderReactDoubleEffectsTestUserQuery$data,
 >*/);

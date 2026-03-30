@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8e8b4136854fb359d8e3f22a1836ed7f>>
+ * @generated SignedSource<<c59df14339d695def89dfe41c8fdf58d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userGreetingResolverType: (
+(userGreetingResolverType as (
   rootKey: UserGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -118,10 +118,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0c4d2b81e30f58d15cfe3f72d4c15452";
+  (node/*:: as any*/).hash = "0c4d2b81e30f58d15cfe3f72d4c15452";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserBestFriendShoutedGreetingResolver$fragmentType,
   UserBestFriendShoutedGreetingResolver$data,
 >*/);

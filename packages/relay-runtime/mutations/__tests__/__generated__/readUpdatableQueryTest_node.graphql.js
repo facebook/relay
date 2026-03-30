@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b501c86325dc50e81da7bbc6ba074336>>
+ * @generated SignedSource<<fc65567424d2d12b1455889dac3b9a1e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ declare export opaque type readUpdatableQueryTest_node$fragmentType: FragmentTyp
 var node/*: any*/ = {};
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1e10d6074f00480fc34548623674b3da";
+  (node/*:: as any*/).hash = "1e10d6074f00480fc34548623674b3da";
 }
 
 module.exports = node;
@@ -39,5 +39,5 @@ module.exports.validate = function validate(value/*: {
   +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
   ...
 }*/ {
-  return value.__isreadUpdatableQueryTest_node != null ? (value/*: any*/) : false;
+  return value.__isreadUpdatableQueryTest_node != null ? (value/*:: as any*/) : false;
 };

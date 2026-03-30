@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ed0c904e4a4e95ea4593b67966760e08>>
+ * @generated SignedSource<<20bfd7a796e075f5fc80d002ac0b805f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {name_passthrough as userNamePassthroughResolverType} from "../resolvers/
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userNamePassthroughResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userNamePassthroughResolverType: (
+(userNamePassthroughResolverType as (
   rootKey: UserNamePassthroughResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -136,10 +136,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "29f98fc496994fd02e276e0c65235467";
+  (node/*:: as any*/).hash = "29f98fc496994fd02e276e0c65235467";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest8Query$variables,
   RelayReaderResolverTest8Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c587ea7e5f7c505388b7508235ca306a>>
+ * @generated SignedSource<<7e4da2bee6bd06952ec21b69f119ef14>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {user_profile_picture_uri_with_scale_and_additional_argument as userUserP
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriWithScaleAndAdditionalArgumentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleAndAdditionalArgumentResolverType: (
+(userUserProfilePictureUriWithScaleAndAdditionalArgumentResolverType as (
   rootKey: UserProfilePictureWithRuntimeArgumentResolver$key,
   args: {|
     name: ?string,
@@ -73,8 +73,8 @@ v3 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -90,9 +90,9 @@ return {
         "selections": [
           {
             "alias": "profile_picture",
-            "args": (v2/*: any*/),
+            "args": (v2/*:: as any*/),
             "fragment": {
-              "args": (v3/*: any*/),
+              "args": (v3/*:: as any*/),
               "kind": "FragmentSpread",
               "name": "UserProfilePictureWithRuntimeArgumentResolver"
             },
@@ -111,8 +111,8 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayReaderResolverTest22Query",
@@ -127,13 +127,13 @@ return {
         "selections": [
           {
             "name": "user_profile_picture_uri_with_scale_and_additional_argument",
-            "args": (v2/*: any*/),
+            "args": (v2/*:: as any*/),
             "fragment": {
               "kind": "InlineFragment",
               "selections": [
                 {
                   "alias": null,
-                  "args": (v3/*: any*/),
+                  "args": (v3/*:: as any*/),
                   "concreteType": "Image",
                   "kind": "LinkedField",
                   "name": "profile_picture",
@@ -181,10 +181,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9d02165a03ceb10eb06f4ae4ad47f1b2";
+  (node/*:: as any*/).hash = "9d02165a03ceb10eb06f4ae4ad47f1b2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest22Query$variables,
   RelayReaderResolverTest22Query$data,
 >*/);

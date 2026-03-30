@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ce202fc80ad5711258c208f5138e354c>>
+ * @generated SignedSource<<7149aefd86356c1745e435275c1be97c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,7 +26,7 @@ import {text as todoTextResolverType} from "../../../relay-runtime/store/__tests
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoTextResolverType: (
+(todoTextResolverType as (
   rootKey: TodoTextResolverFragment$key,
   args: void,
   context: TestResolverContextType,
@@ -127,10 +127,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0665939c2e5e80d5cd035ded7188831a";
+  (node/*:: as any*/).hash = "0665939c2e5e80d5cd035ded7188831a";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResolversWithOutputTypeTestFragment$fragmentType,
   RelayResolversWithOutputTypeTestFragment$data,
 >*/);

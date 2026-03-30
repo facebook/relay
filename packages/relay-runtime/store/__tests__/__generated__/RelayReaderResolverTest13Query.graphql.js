@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0c997e246b4ae0637cb4b88cb0e54460>>
+ * @generated SignedSource<<63bb2cb746e91076f7a65802223901dd>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {always_throws_transitively as userAlwaysThrowsTransitivelyResolverType} 
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsTransitivelyResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsTransitivelyResolverType: (
+(userAlwaysThrowsTransitivelyResolverType as (
   rootKey: UserAlwaysThrowsTransitivelyResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -146,10 +146,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a1ee24e63b8d0d4ad72a9cdebac45fe9";
+  (node/*:: as any*/).hash = "a1ee24e63b8d0d4ad72a9cdebac45fe9";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest13Query$variables,
   RelayReaderResolverTest13Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bc13a3cb0044b9285881857f6337de02>>
+ * @generated SignedSource<<d3c9284f5582e7499fc607eb2d46cafa>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -53,7 +53,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   StrongModel__id$fragmentType,
   StrongModel__id$data,
 >*/);

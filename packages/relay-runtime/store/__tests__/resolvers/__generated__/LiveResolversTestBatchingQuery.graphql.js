@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cbf800a458a7d2631b4c4d540b33623b>>
+ * @generated SignedSource<<d18e9bb744d66bca6d21d40a31287c77>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,14 +22,14 @@ import {counter_no_fragment as queryCounterNoFragmentResolverType} from "../Live
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentResolverType: (
+(queryCounterNoFragmentResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
 import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverType} from "../LiveCounterNoFragmentWithArg.js";
 // Type assertion validating that `queryCounterNoFragmentWithArgResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentWithArgResolverType: (
+(queryCounterNoFragmentWithArgResolverType as (
   args: {|
     prefix: string,
   |},
@@ -75,7 +75,7 @@ return {
           },
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment_with_arg",
@@ -107,7 +107,7 @@ return {
           },
           {
             "name": "counter_no_fragment_with_arg",
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": "counter_no_fragment_with_arg(prefix:\"sup\")",
@@ -129,10 +129,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8610c66cde712c9fa62ec0312041a564";
+  (node/*:: as any*/).hash = "8610c66cde712c9fa62ec0312041a564";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTestBatchingQuery$variables,
   LiveResolversTestBatchingQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1f2ebb6e492d1b3b4f40c05824d06221>>
+ * @generated SignedSource<<2285a83239459a4740c8bb0c428125e0>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolv
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -93,10 +93,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e516986653910442a460b9755999c3e5";
+  (node/*:: as any*/).hash = "e516986653910442a460b9755999c3e5";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserReadsClientEdgeResolver$fragmentType,
   UserReadsClientEdgeResolver$data,
 >*/);

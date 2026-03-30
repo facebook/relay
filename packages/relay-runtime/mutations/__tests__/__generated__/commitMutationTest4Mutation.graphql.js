@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eefdba70a77f76628e1dbb8036c0e739>>
+ * @generated SignedSource<<d6c8e73fa3bed3feb88d36febad5a0c2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -132,20 +132,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "commitMutationTest4Mutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "commitMutationTest4Mutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "6daa683db3157e15cbf003e1a3b837e1",
@@ -159,10 +159,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "12278b4e3399d4ebd1cf0632c6b73890";
+  (node/*:: as any*/).hash = "12278b4e3399d4ebd1cf0632c6b73890";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   commitMutationTest4Mutation$variables,
   commitMutationTest4Mutation$data,
 >*/);

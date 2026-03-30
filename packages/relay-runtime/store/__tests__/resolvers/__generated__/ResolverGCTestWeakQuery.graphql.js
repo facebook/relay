@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9aabab94790a2afdcbc6d47b73e4f37f>>
+ * @generated SignedSource<<83e04f4ae672a1dd875a4cf929c614aa>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,14 +22,14 @@ import {some_todo_description as querySomeTodoDescriptionResolverType} from "../
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `querySomeTodoDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(querySomeTodoDescriptionResolverType: (
+(querySomeTodoDescriptionResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?TodoDescription);
 import {text as todoDescriptionTextResolverType} from "../TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoDescriptionTextResolverType: (
+(todoDescriptionTextResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -166,10 +166,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ae38e15c2c90cdf2adc8892721353400";
+  (node/*:: as any*/).hash = "ae38e15c2c90cdf2adc8892721353400";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ResolverGCTestWeakQuery$variables,
   ResolverGCTestWeakQuery$data,
 >*/);

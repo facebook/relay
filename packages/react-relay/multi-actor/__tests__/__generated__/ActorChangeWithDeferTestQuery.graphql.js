@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<991f5f72c3928a379919415feefab317>>
+ * @generated SignedSource<<8d93e7a32dcc980847d7918d5e14e8b6>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -73,9 +73,9 @@ v3 = {
   "name": "actor",
   "plural": false,
   "selections": [
-    (v1/*: any*/),
-    (v0/*: any*/),
-    (v2/*: any*/)
+    (v1/*:: as any*/),
+    (v0/*:: as any*/),
+    (v2/*:: as any*/)
   ],
   "storageKey": null
 },
@@ -130,7 +130,7 @@ return {
                         "name": "actor",
                         "plural": false,
                         "selections": [
-                          (v0/*: any*/)
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       }
@@ -200,9 +200,9 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
-                      (v3/*: any*/),
-                      (v2/*: any*/)
+                      (v1/*:: as any*/),
+                      (v3/*:: as any*/),
+                      (v2/*:: as any*/)
                     ],
                     "storageKey": null
                   },
@@ -216,16 +216,16 @@ return {
                       "name": "node",
                       "plural": false,
                       "selections": [
-                        (v1/*: any*/),
-                        (v4/*: any*/),
-                        (v2/*: any*/),
-                        (v3/*: any*/),
+                        (v1/*:: as any*/),
+                        (v4/*:: as any*/),
+                        (v2/*:: as any*/),
+                        (v3/*:: as any*/),
                         {
                           "if": null,
                           "kind": "Defer",
                           "label": "ActorChangeWithDeferTestFragment$defer$ActorChangeWithDeferTestDeferFragment",
                           "selections": [
-                            (v4/*: any*/),
+                            (v4/*:: as any*/),
                             {
                               "alias": null,
                               "args": null,
@@ -280,10 +280,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5140be47d96491c09c1d7e9dac4df2ee";
+  (node/*:: as any*/).hash = "5140be47d96491c09c1d7e9dac4df2ee";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ActorChangeWithDeferTestQuery$variables,
   ActorChangeWithDeferTestQuery$data,
 >*/);

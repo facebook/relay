@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4f81ed3f39daf0ebd85c81a91d6b2cb0>>
+ * @generated SignedSource<<0c44a5f01a1c8e5285cbcb0bb4fc881c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -63,9 +63,9 @@ v3 = {
   "storageKey": null
 },
 v4 = [
-  (v1/*: any*/),
-  (v2/*: any*/),
-  (v3/*: any*/)
+  (v1/*:: as any*/),
+  (v2/*:: as any*/),
+  (v3/*:: as any*/)
 ];
 return {
   "fragment": {
@@ -76,7 +76,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "userOrPage",
@@ -117,7 +117,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "userOrPage",
@@ -132,19 +132,19 @@ return {
           },
           {
             "kind": "InlineFragment",
-            "selections": (v4/*: any*/),
+            "selections": (v4/*:: as any*/),
             "type": "User",
             "abstractKey": null
           },
           {
             "kind": "InlineFragment",
             "selections": [
-              (v1/*: any*/),
+              (v1/*:: as any*/),
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v2/*: any*/),
-                  (v3/*: any*/)
+                  (v2/*:: as any*/),
+                  (v3/*:: as any*/)
                 ],
                 "type": "Actor",
                 "abstractKey": "__isActor"
@@ -155,7 +155,7 @@ return {
           },
           {
             "kind": "InlineFragment",
-            "selections": (v4/*: any*/),
+            "selections": (v4/*:: as any*/),
             "type": "Actor",
             "abstractKey": "__isActor"
           }
@@ -176,10 +176,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d976516696559b4da133ef37cf797609";
+  (node/*:: as any*/).hash = "d976516696559b4da133ef37cf797609";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentTypeRefinementTestParentQuery$variables,
   RelayModernEnvironmentTypeRefinementTestParentQuery$data,
 >*/);

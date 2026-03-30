@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7af7bc807d36f39c4343950644eea19f>>
+ * @generated SignedSource<<e7f9fee1983e87a1704315c3bd317f8c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -61,7 +61,7 @@ return {
               "fragment": {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "type": null,
                 "abstractKey": null
@@ -92,7 +92,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -117,10 +117,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a70c49c9b3548984afd4a79926685e1e";
+  (node/*:: as any*/).hash = "a70c49c9b3548984afd4a79926685e1e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderCatchFieldsTestCatchErrorInAliasedInlineFragmentToResultQuery$variables,
   RelayReaderCatchFieldsTestCatchErrorInAliasedInlineFragmentToResultQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e05138b7004d2f7cb90d0896c510803c>>
+ * @generated SignedSource<<ef7e45b9305eac8ce63bd627d8b6e7f9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -113,10 +113,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5a5319b06e1f6d93282fd65726091ab2";
+  (node/*:: as any*/).hash = "5a5319b06e1f6d93282fd65726091ab2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestDeferQuery$variables,
   observeFragmentTestDeferQuery$data,
 >*/);

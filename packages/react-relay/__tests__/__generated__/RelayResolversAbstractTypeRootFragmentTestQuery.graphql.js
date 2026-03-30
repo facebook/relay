@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0cdbb6a19b754ea0edef5313da18b0c1>>
+ * @generated SignedSource<<b346fce38bf354f2a7aaf4c75bf1a83e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {node_greeting as nodeNodeGreetingResolverType} from "../../../relay-runt
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `nodeNodeGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(nodeNodeGreetingResolverType: (
+(nodeNodeGreetingResolverType as (
   rootKey: NodeResolversGreeting$key,
   args: void,
   context: TestResolverContextType,
@@ -63,7 +63,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -97,7 +97,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -116,7 +116,7 @@ return {
             "fragment": {
               "kind": "InlineFragment",
               "selections": [
-                (v1/*: any*/)
+                (v1/*:: as any*/)
               ],
               "type": "Node",
               "abstractKey": "__isNode"
@@ -125,7 +125,7 @@ return {
             "storageKey": null,
             "isOutputType": true
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": "node(id:\"4\")"
       }
@@ -143,10 +143,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "38ce80d969e3fdad2e27031ddd534888";
+  (node/*:: as any*/).hash = "38ce80d969e3fdad2e27031ddd534888";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResolversAbstractTypeRootFragmentTestQuery$variables,
   RelayResolversAbstractTypeRootFragmentTestQuery$data,
 >*/);

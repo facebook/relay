@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<20db5d12b7609f18da4068a08e769103>>
+ * @generated SignedSource<<a98590121a4413e1b2a52e59f57f696e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,7 +24,7 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolverType: (
+(astrologicalSignNameResolverType as (
   rootKey: AstrologicalSignNameResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -32,7 +32,7 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAllAstrologicalSignsResolverType: (
+(queryAllAstrologicalSignsResolverType as (
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -148,7 +148,7 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -180,7 +180,7 @@ return {
                     "fragment": {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v0/*: any*/)
+                        (v0/*:: as any*/)
                       ],
                       "type": "AstrologicalSign",
                       "abstractKey": null
@@ -197,7 +197,7 @@ return {
               "storageKey": null,
               "isOutputType": true
             },
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -216,10 +216,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2251dd1ef8dfb9d0586df501107b45be";
+  (node/*:: as any*/).hash = "2251dd1ef8dfb9d0586df501107b45be";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest27Query$variables,
   RelayReaderRequiredFieldsTest27Query$data,
 >*/);

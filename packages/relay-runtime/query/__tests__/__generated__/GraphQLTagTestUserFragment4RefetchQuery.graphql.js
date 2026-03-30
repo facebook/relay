@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0a6f7fe32f463ab81694c8d00fd815fa>>
+ * @generated SignedSource<<93b58d42502e426c8905a1e7f690342d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -88,14 +88,14 @@ v4 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "GraphQLTagTestUserFragment4RefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -115,20 +115,20 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "GraphQLTagTestUserFragment4RefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -141,7 +141,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -163,8 +163,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v3/*: any*/),
-                          (v2/*: any*/)
+                          (v3/*:: as any*/),
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -208,7 +208,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "UserFragment_friends",
@@ -236,10 +236,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "10a776f9a2114f43f6ada6ebe6adc273";
+  (node/*:: as any*/).hash = "10a776f9a2114f43f6ada6ebe6adc273";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   GraphQLTagTestUserFragment4RefetchQuery$variables,
   GraphQLTagTestUserFragment4RefetchQuery$data,
 >*/);

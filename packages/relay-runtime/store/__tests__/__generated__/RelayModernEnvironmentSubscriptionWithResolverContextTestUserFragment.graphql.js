@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<43229aaacebf378c37c10ca0c439c487>>
+ * @generated SignedSource<<18b81870142380244abe982d8723d5d8>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {age as userAgeResolverType} from "../resolvers/UserAgeResolvers.js";
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAgeResolverType: (
+(userAgeResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?number);
@@ -80,10 +80,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "66a7aeaa5486c95229787503c12b1aa0";
+  (node/*:: as any*/).hash = "66a7aeaa5486c95229787503c12b1aa0";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
   RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$data,
 >*/);

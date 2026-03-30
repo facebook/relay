@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<641c7474f06d731f8f2efc0878e5bdce>>
+ * @generated SignedSource<<33d8df37b02a358a5a2a8d56cb81de16>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,7 +21,7 @@ import {hello_optional_world as queryHelloOptionalWorldResolverType} from "../He
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloOptionalWorldResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloOptionalWorldResolverType: (
+(queryHelloOptionalWorldResolverType as (
   args: {|
     world: ?string,
   |},
@@ -94,10 +94,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9f62459f73e4ec513cae290b387e5e13";
+  (node/*:: as any*/).hash = "9f62459f73e4ec513cae290b387e5e13";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ResolverTest4Query$variables,
   ResolverTest4Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<227b28426d6381426fa566ab9ee426b1>>
+ * @generated SignedSource<<bde055c9363ab0604c6854928cf2a6cd>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -70,10 +70,10 @@ return {
             "name": "screennames",
             "plural": true,
             "selections": [
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "kind": "RequiredField",
-                "field": (v1/*: any*/),
+                "field": (v1/*:: as any*/),
                 "action": "LOG"
               }
             ],
@@ -108,8 +108,8 @@ return {
             "name": "screennames",
             "plural": true,
             "selections": [
-              (v0/*: any*/),
-              (v1/*: any*/)
+              (v0/*:: as any*/),
+              (v1/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -137,10 +137,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0e92cecb5b49ee10cf1f34d6463613d6";
+  (node/*:: as any*/).hash = "0e92cecb5b49ee10cf1f34d6463613d6";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest8Query$variables,
   RelayReaderRequiredFieldsTest8Query$data,
 >*/);

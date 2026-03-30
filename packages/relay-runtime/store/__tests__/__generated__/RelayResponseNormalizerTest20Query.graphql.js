@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<912b378804401e16285973086533278a>>
+ * @generated SignedSource<<e8c880ce93f68988fa4a3bbbda0095b0>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -117,20 +117,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest20Query",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest20Query",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "60fec8ba1813a5425317d37f55da5888",
@@ -144,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "480a7c1f81ad3ba8d5b3a31fef679b42";
+  (node/*:: as any*/).hash = "480a7c1f81ad3ba8d5b3a31fef679b42";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest20Query$variables,
   RelayResponseNormalizerTest20Query$data,
 >*/);

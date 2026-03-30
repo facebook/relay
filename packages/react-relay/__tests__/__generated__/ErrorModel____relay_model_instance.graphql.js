@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<913be694ccded2badf6cbae635aa38dc>>
+ * @generated SignedSource<<9e7379014ee5b10ca9dcbc4009902287>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {ErrorModel as errorModelRelayModelInstanceResolverType} from "../RelayRe
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `errorModelRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(errorModelRelayModelInstanceResolverType: (
+(errorModelRelayModelInstanceResolverType as (
   id: ErrorModel__id$data['id'],
   args: void,
   context: TestResolverContextType,
@@ -64,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ErrorModel____relay_model_instance$fragmentType,
   ErrorModel____relay_model_instance$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ba299b003988cab5608879c3f58f4c2d>>
+ * @generated SignedSource<<c570c25fc0f26e17bfba21d31f3ebed2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {many_live_todos as queryManyLiveTodosResolverType} from "../../../relay-
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryManyLiveTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryManyLiveTodosResolverType: (
+(queryManyLiveTodosResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?ReadonlyArray<?Query__many_live_todos$normalization>>);
@@ -148,7 +148,7 @@ return {
               "backingField": {
                 "name": "text",
                 "args": null,
-                "fragment": (v0/*: any*/),
+                "fragment": (v0/*:: as any*/),
                 "kind": "RelayResolver",
                 "storageKey": null,
                 "isOutputType": true
@@ -225,7 +225,7 @@ return {
             {
               "name": "complete",
               "args": null,
-              "fragment": (v0/*: any*/),
+              "fragment": (v0/*:: as any*/),
               "kind": "RelayResolver",
               "storageKey": null,
               "isOutputType": true
@@ -248,10 +248,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f42ffca5f81738e839984490939acc31";
+  (node/*:: as any*/).hash = "f42ffca5f81738e839984490939acc31";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables,
   RelayResolversWithOutputTypeTestManyLiveTodosQuery$data,
 >*/);

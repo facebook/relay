@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<431e8475a8d0b201c9b5e8f264c553ef>>
+ * @generated SignedSource<<3fabe7c098648c5b8b9624d6f6ec9305>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {live_todo_description as queryLiveTodoDescriptionResolverType} from "../
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveTodoDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveTodoDescriptionResolverType: (
+(queryLiveTodoDescriptionResolverType as (
   args: {|
     todoID: string,
   |},
@@ -32,7 +32,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {color as todoDescriptionColorResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoDescriptionColorResolverType: (
+(todoDescriptionColorResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -40,7 +40,7 @@ import {color as todoDescriptionColorResolverType} from "../../../relay-runtime/
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoDescriptionTextResolverType: (
+(todoDescriptionTextResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -97,7 +97,7 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -111,7 +111,7 @@ return {
         "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_todo_description",
@@ -125,7 +125,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoDescription",
           "kind": "LinkedField",
           "name": "live_todo_description",
@@ -134,7 +134,7 @@ return {
             {
               "alias": null,
               "args": null,
-              "fragment": (v2/*: any*/),
+              "fragment": (v2/*:: as any*/),
               "kind": "RelayResolver",
               "name": "text",
               "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text, '__relay_model_instance', true),
@@ -143,7 +143,7 @@ return {
             {
               "alias": null,
               "args": null,
-              "fragment": (v2/*: any*/),
+              "fragment": (v2/*:: as any*/),
               "kind": "RelayResolver",
               "name": "color",
               "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoDescription').color, '__relay_model_instance', true),
@@ -159,7 +159,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolverModelTestWeakLiveFieldQuery",
     "selections": [
@@ -167,7 +167,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "live_todo_description",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -175,7 +175,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoDescription",
           "kind": "LinkedField",
           "name": "live_todo_description",
@@ -184,7 +184,7 @@ return {
             {
               "name": "text",
               "args": null,
-              "fragment": (v3/*: any*/),
+              "fragment": (v3/*:: as any*/),
               "kind": "RelayResolver",
               "storageKey": null,
               "isOutputType": true
@@ -192,7 +192,7 @@ return {
             {
               "name": "color",
               "args": null,
-              "fragment": (v3/*: any*/),
+              "fragment": (v3/*:: as any*/),
               "kind": "RelayResolver",
               "storageKey": null,
               "isOutputType": true
@@ -215,10 +215,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e3e60c655cd9eed2036fe61aa72f4402";
+  (node/*:: as any*/).hash = "e3e60c655cd9eed2036fe61aa72f4402";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverModelTestWeakLiveFieldQuery$variables,
   RelayResolverModelTestWeakLiveFieldQuery$data,
 >*/);

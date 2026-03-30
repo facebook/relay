@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d628438a66414c7a699fc4d0b1941911>>
+ * @generated SignedSource<<ae877d498ec36ab8476f66c4a8222697>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -65,14 +65,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTestIsEntitySpreadFragmentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -103,13 +103,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTestIsEntitySpreadFragmentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -171,10 +171,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "91935f764b37e5a36ce360731e9f75ed";
+  (node/*:: as any*/).hash = "91935f764b37e5a36ce360731e9f75ed";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTestIsEntitySpreadFragmentMutation$variables,
   validateMutationTestIsEntitySpreadFragmentMutation$data,
   validateMutationTestIsEntitySpreadFragmentMutation$rawResponse,

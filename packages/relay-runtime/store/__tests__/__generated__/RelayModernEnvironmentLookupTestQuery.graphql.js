@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<863816a7837fd7221f9ef05f1a6d8f0b>>
+ * @generated SignedSource<<833820fe2ce2f03a904755806cadfb40>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -91,9 +91,9 @@ v4 = [
     "name": "me",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/)
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/)
     ],
     "storageKey": null
   },
@@ -111,8 +111,8 @@ v4 = [
     "name": "node",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
-      (v2/*: any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
       {
         "kind": "InlineFragment",
         "selections": [
@@ -130,7 +130,7 @@ v4 = [
             "name": "commentBody",
             "plural": false,
             "selections": [
-              (v1/*: any*/),
+              (v1/*:: as any*/),
               {
                 "kind": "InlineFragment",
                 "selections": [
@@ -142,7 +142,7 @@ v4 = [
                     "name": "text",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
+                      (v1/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -150,16 +150,16 @@ v4 = [
                         "name": "text",
                         "storageKey": null
                       },
-                      (v3/*: any*/)
+                      (v3/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v3/*: any*/)
+                  (v3/*:: as any*/)
                 ],
                 "type": "PlainCommentBody",
                 "abstractKey": null
               },
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "storageKey": "commentBody(supported:\"2Rll6p\")"
           }
@@ -167,28 +167,28 @@ v4 = [
         "type": "Comment",
         "abstractKey": null
       },
-      (v3/*: any*/)
+      (v3/*:: as any*/)
     ],
     "storageKey": null
   },
-  (v3/*: any*/)
+  (v3/*:: as any*/)
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentLookupTestQuery",
-    "selections": (v4/*: any*/),
+    "selections": (v4/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentLookupTestQuery",
-    "selections": (v4/*: any*/)
+    "selections": (v4/*:: as any*/)
   },
   "params": {
     "cacheID": "200d36d0a47ffc528a3c4df53b03401f",
@@ -202,10 +202,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bea49102c3069567ca430f28d38ba916";
+  (node/*:: as any*/).hash = "bea49102c3069567ca430f28d38ba916";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentLookupTestQuery$variables,
   RelayModernEnvironmentLookupTestQuery$data,
 >*/);

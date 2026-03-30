@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<182f83a1c8339e614ec15b5d497a0373>>
+ * @generated SignedSource<<166aa854634da8208390141ff90b6c12>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -97,14 +97,14 @@ v7 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockPayloadGeneratorTest5Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -124,20 +124,20 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockPayloadGeneratorTest5Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -149,8 +149,8 @@ return {
                 "name": "actor",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
-                  (v3/*: any*/),
+                  (v2/*:: as any*/),
+                  (v3/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -168,10 +168,10 @@ return {
                         "name": "name",
                         "storageKey": null
                       },
-                      (v4/*: any*/),
+                      (v4/*:: as any*/),
                       {
                         "alias": null,
-                        "args": (v5/*: any*/),
+                        "args": (v5/*:: as any*/),
                         "concreteType": "FriendsConnection",
                         "kind": "LinkedField",
                         "name": "friends",
@@ -200,18 +200,18 @@ return {
                                 "name": "node",
                                 "plural": false,
                                 "selections": [
-                                  (v3/*: any*/),
+                                  (v3/*:: as any*/),
                                   {
                                     "condition": "skipUserInConnection",
                                     "kind": "Condition",
                                     "passingValue": false,
                                     "selections": [
-                                      (v4/*: any*/),
-                                      (v6/*: any*/),
-                                      (v7/*: any*/)
+                                      (v4/*:: as any*/),
+                                      (v6/*:: as any*/),
+                                      (v7/*:: as any*/)
                                     ]
                                   },
-                                  (v2/*: any*/)
+                                  (v2/*:: as any*/)
                                 ],
                                 "storageKey": null
                               }
@@ -248,15 +248,15 @@ return {
                       },
                       {
                         "alias": null,
-                        "args": (v5/*: any*/),
+                        "args": (v5/*:: as any*/),
                         "filters": null,
                         "handle": "connection",
                         "key": "FriendsConnection_friends",
                         "kind": "LinkedHandle",
                         "name": "friends"
                       },
-                      (v6/*: any*/),
-                      (v7/*: any*/)
+                      (v6/*:: as any*/),
+                      (v7/*:: as any*/)
                     ],
                     "type": "User",
                     "abstractKey": null
@@ -285,10 +285,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2654e0737422134909d621561162ec9c";
+  (node/*:: as any*/).hash = "2654e0737422134909d621561162ec9c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest5Query$variables,
   RelayMockPayloadGeneratorTest5Query$data,
 >*/);

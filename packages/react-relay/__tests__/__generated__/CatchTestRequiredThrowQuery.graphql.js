@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6050c3558edb3e436857659fa88cabbe>>
+ * @generated SignedSource<<f1c524ccaaaba1154d806ded6efff506>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -57,7 +57,7 @@ return {
           "selections": [
             {
               "kind": "RequiredField",
-              "field": (v0/*: any*/),
+              "field": (v0/*:: as any*/),
               "action": "THROW"
             }
           ],
@@ -83,7 +83,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -108,10 +108,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0cd1f80b178868fc4fb8ddb6b5aabc83";
+  (node/*:: as any*/).hash = "0cd1f80b178868fc4fb8ddb6b5aabc83";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   CatchTestRequiredThrowQuery$variables,
   CatchTestRequiredThrowQuery$data,
 >*/);

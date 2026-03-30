@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7b7ef253657d6e57955fd16c01932336>>
+ * @generated SignedSource<<e4ff35f25cb4455450e15df291fa09dc>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -100,7 +100,7 @@ v5 = {
 v6 = {
   "kind": "InlineFragment",
   "selections": [
-    (v5/*: any*/),
+    (v5/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -138,8 +138,8 @@ v6 = {
               "name": "node",
               "plural": false,
               "selections": [
-                (v2/*: any*/),
-                (v5/*: any*/)
+                (v2/*:: as any*/),
+                (v5/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -179,21 +179,21 @@ v6 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "DataCheckerTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -205,7 +205,7 @@ return {
                 "name": "actors",
                 "plural": true,
                 "selections": [
-                  (v4/*: any*/)
+                  (v4/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -213,7 +213,7 @@ return {
             "type": "Page",
             "abstractKey": null
           },
-          (v6/*: any*/)
+          (v6/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -223,20 +223,20 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "DataCheckerTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -248,9 +248,9 @@ return {
                 "name": "actors",
                 "plural": true,
                 "selections": [
-                  (v3/*: any*/),
-                  (v4/*: any*/),
-                  (v2/*: any*/)
+                  (v3/*:: as any*/),
+                  (v4/*:: as any*/),
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -258,7 +258,7 @@ return {
             "type": "Page",
             "abstractKey": null
           },
-          (v6/*: any*/)
+          (v6/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -276,10 +276,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "161a709f3f77e2725725ed8725497047";
+  (node/*:: as any*/).hash = "161a709f3f77e2725725ed8725497047";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   DataCheckerTestQuery$variables,
   DataCheckerTestQuery$data,
 >*/);

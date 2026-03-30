@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<69b67d633508f35fe196fad83cf6bd14>>
+ * @generated SignedSource<<793c207ead292e7b25907b94526ed2e3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -145,20 +145,20 @@ v14 = [
     "name": "last",
     "variableName": "last"
   },
-  (v9/*: any*/),
-  (v10/*: any*/)
+  (v9/*:: as any*/),
+  (v10/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/),
-      (v6/*: any*/),
-      (v7/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/),
+      (v6/*:: as any*/),
+      (v7/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -166,7 +166,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v8/*: any*/),
+        "args": (v8/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -179,8 +179,8 @@ return {
                 "name": "isViewerFriendLocal",
                 "variableName": "isViewerFriendLocal"
               },
-              (v9/*: any*/),
-              (v10/*: any*/)
+              (v9/*:: as any*/),
+              (v10/*:: as any*/)
             ],
             "kind": "FragmentSpread",
             "name": "usePaginationFragmentTestUserFragmentWithStreaming"
@@ -195,35 +195,35 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/),
-      (v6/*: any*/),
-      (v7/*: any*/),
-      (v3/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/),
+      (v6/*:: as any*/),
+      (v7/*:: as any*/),
+      (v3/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "usePaginationFragmentTestUserFragmentStreamingPaginationQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v8/*: any*/),
+        "args": (v8/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v11/*: any*/),
-          (v12/*: any*/),
+          (v11/*:: as any*/),
+          (v12/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v13/*: any*/),
+              (v13/*:: as any*/),
               {
                 "alias": null,
-                "args": (v14/*: any*/),
+                "args": (v14/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -250,8 +250,8 @@ return {
                             "name": "node",
                             "plural": false,
                             "selections": [
-                              (v12/*: any*/),
-                              (v13/*: any*/),
+                              (v12/*:: as any*/),
+                              (v13/*:: as any*/),
                               {
                                 "alias": null,
                                 "args": null,
@@ -259,7 +259,7 @@ return {
                                 "name": "username",
                                 "storageKey": null
                               },
-                              (v11/*: any*/)
+                              (v11/*:: as any*/)
                             ],
                             "storageKey": null
                           },
@@ -326,7 +326,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v14/*: any*/),
+                "args": (v14/*:: as any*/),
                 "filters": [
                   "orderby",
                   "isViewerFriend"
@@ -357,10 +357,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "900742a3cc02637acec82fdf889079ab";
+  (node/*:: as any*/).hash = "900742a3cc02637acec82fdf889079ab";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePaginationFragmentTestUserFragmentStreamingPaginationQuery$variables,
   usePaginationFragmentTestUserFragmentStreamingPaginationQuery$data,
 >*/);

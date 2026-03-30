@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<68c506f2ae273a396360d4537cb26166>>
+ * @generated SignedSource<<eaa5adbf4777f1cef89537287772a424>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -149,12 +149,12 @@ return {
                       "name": "node",
                       "plural": false,
                       "selections": [
-                        (v0/*: any*/),
+                        (v0/*:: as any*/),
                         {
                           "kind": "TypeDiscriminator",
                           "abstractKey": "__isFeedUnit"
                         },
-                        (v1/*: any*/),
+                        (v1/*:: as any*/),
                         {
                           "alias": null,
                           "args": null,
@@ -181,7 +181,7 @@ return {
                           "name": "feedback",
                           "plural": false,
                           "selections": [
-                            (v1/*: any*/),
+                            (v1/*:: as any*/),
                             {
                               "if": null,
                               "kind": "Stream",
@@ -195,7 +195,7 @@ return {
                                   "name": "actors",
                                   "plural": true,
                                   "selections": [
-                                    (v0/*: any*/),
+                                    (v0/*:: as any*/),
                                     {
                                       "alias": null,
                                       "args": null,
@@ -203,7 +203,7 @@ return {
                                       "name": "name",
                                       "storageKey": null
                                     },
-                                    (v1/*: any*/)
+                                    (v1/*:: as any*/)
                                   ],
                                   "storageKey": null
                                 }
@@ -246,10 +246,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d36707add9f4e27149d6e1bf38a04360";
+  (node/*:: as any*/).hash = "d36707add9f4e27149d6e1bf38a04360";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ActorChangeWithStreamTestQuery$variables,
   ActorChangeWithStreamTestQuery$data,
 >*/);

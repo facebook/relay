@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b102b924a14d896bb964b1ed115b0a00>>
+ * @generated SignedSource<<cb481cbbef9288e5b9b7a4a27e457b34>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -57,14 +57,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -76,7 +76,7 @@ return {
               "selections": [
                 {
                   "kind": "RequiredField",
-                  "field": (v2/*: any*/),
+                  "field": (v2/*:: as any*/),
                   "action": "THROW"
                 }
               ],
@@ -95,13 +95,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -117,7 +117,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "type": "MaybeNodeInterface",
             "abstractKey": "__isMaybeNodeInterface"
@@ -146,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "05aba3eafee04c7575bde3ff333ed06d";
+  (node/*:: as any*/).hash = "05aba3eafee04c7575bde3ff333ed06d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery$variables,
   RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery$data,
 >*/);

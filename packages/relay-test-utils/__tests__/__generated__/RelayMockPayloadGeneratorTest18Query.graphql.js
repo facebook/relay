@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6cbbad68caf6c44d3b1277365b6577b3>>
+ * @generated SignedSource<<dadd885d716e4434a8b54653dbb218ce>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -110,14 +110,14 @@ v9 = {
   "storageKey": null
 },
 v10 = [
-  (v9/*: any*/)
+  (v9/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -125,7 +125,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -152,27 +152,27 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayMockPayloadGeneratorTest18Query",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
-          (v5/*: any*/),
+          (v4/*:: as any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v6/*: any*/),
+              (v6/*:: as any*/),
               {
                 "alias": "myActor",
                 "args": null,
@@ -181,9 +181,9 @@ return {
                 "name": "actor",
                 "plural": false,
                 "selections": [
-                  (v4/*: any*/),
-                  (v5/*: any*/),
-                  (v6/*: any*/)
+                  (v4/*:: as any*/),
+                  (v5/*:: as any*/),
+                  (v6/*:: as any*/)
                 ],
                 "storageKey": null
               },
@@ -196,7 +196,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v7/*: any*/),
+                "args": (v7/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -218,9 +218,9 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v5/*: any*/),
-                          (v6/*: any*/),
-                          (v4/*: any*/)
+                          (v5/*:: as any*/),
+                          (v6/*:: as any*/),
+                          (v4/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -241,7 +241,7 @@ return {
                     "kind": "LinkedField",
                     "name": "pageInfo",
                     "plural": false,
-                    "selections": (v8/*: any*/),
+                    "selections": (v8/*:: as any*/),
                     "storageKey": null
                   },
                   {
@@ -251,7 +251,7 @@ return {
                     "kind": "LinkedField",
                     "name": "pageInfo",
                     "plural": false,
-                    "selections": (v8/*: any*/),
+                    "selections": (v8/*:: as any*/),
                     "storageKey": null
                   }
                 ],
@@ -259,7 +259,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v7/*: any*/),
+                "args": (v7/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "User_friends",
@@ -273,7 +273,7 @@ return {
                 "kind": "LinkedField",
                 "name": "profile_picture",
                 "plural": false,
-                "selections": (v10/*: any*/),
+                "selections": (v10/*:: as any*/),
                 "storageKey": null
               },
               {
@@ -289,7 +289,7 @@ return {
                 "kind": "LinkedField",
                 "name": "profilePicture",
                 "plural": false,
-                "selections": (v10/*: any*/),
+                "selections": (v10/*:: as any*/),
                 "storageKey": null
               },
               {
@@ -318,7 +318,7 @@ return {
                 "name": "actor",
                 "plural": false,
                 "selections": [
-                  (v4/*: any*/),
+                  (v4/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -335,7 +335,7 @@ return {
                     "kind": "ScalarHandle",
                     "name": "username"
                   },
-                  (v5/*: any*/),
+                  (v5/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -367,7 +367,7 @@ return {
                         "name": "profilePicture",
                         "plural": false,
                         "selections": [
-                          (v9/*: any*/),
+                          (v9/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -442,7 +442,7 @@ return {
                                           }
                                         ]
                                       },
-                                      (v5/*: any*/)
+                                      (v5/*:: as any*/)
                                     ],
                                     "storageKey": null
                                   }
@@ -452,7 +452,7 @@ return {
                             ],
                             "storageKey": null
                           },
-                          (v5/*: any*/)
+                          (v5/*:: as any*/)
                         ],
                         "storageKey": null
                       }
@@ -498,10 +498,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b66819c8c8d971ae83ff691449db5624";
+  (node/*:: as any*/).hash = "b66819c8c8d971ae83ff691449db5624";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest18Query$variables,
   RelayMockPayloadGeneratorTest18Query$data,
 >*/);

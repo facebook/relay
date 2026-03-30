@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<496b6c66302b3138b72f1e339c95ee97>>
+ * @generated SignedSource<<99eb67a3e082ad27466d812aa22e2d6c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -60,14 +60,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayPublishQueueTest2Mutation",
     "selections": [
       {
         "alias": "changeName",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -81,7 +81,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -94,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayPublishQueueTest2Mutation",
     "selections": [
       {
         "alias": "changeName",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -121,7 +121,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -149,10 +149,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "db89137a4953b4b3ad82707843fce73b";
+  (node/*:: as any*/).hash = "db89137a4953b4b3ad82707843fce73b";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayPublishQueueTest2Mutation$variables,
   RelayPublishQueueTest2Mutation$data,
 >*/);

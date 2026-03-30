@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0ff2b407ba7d47d8b337401b1ab81c62>>
+ * @generated SignedSource<<8f7b044dbe1a468563e290e1a7741796>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -101,9 +101,9 @@ v5 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -111,7 +111,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -123,7 +123,7 @@ return {
             "passingValue": true,
             "selections": [
               {
-                "fragment": (v4/*: any*/),
+                "fragment": (v4/*:: as any*/),
                 "kind": "AliasedInlineFragmentSpread",
                 "name": "alias_a"
               }
@@ -135,7 +135,7 @@ return {
             "passingValue": true,
             "selections": [
               {
-                "fragment": (v5/*: any*/),
+                "fragment": (v5/*:: as any*/),
                 "kind": "AliasedInlineFragmentSpread",
                 "name": "alias_b"
               }
@@ -151,16 +151,16 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v2/*: any*/),
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v2/*:: as any*/),
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestMultipleModulesQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -178,7 +178,7 @@ return {
             "kind": "Condition",
             "passingValue": true,
             "selections": [
-              (v4/*: any*/)
+              (v4/*:: as any*/)
             ]
           },
           {
@@ -186,7 +186,7 @@ return {
             "kind": "Condition",
             "passingValue": true,
             "selections": [
-              (v5/*: any*/)
+              (v5/*:: as any*/)
             ]
           },
           {
@@ -213,10 +213,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "63907b10c529badf9ae8d1ca38e8bc4d";
+  (node/*:: as any*/).hash = "63907b10c529badf9ae8d1ca38e8bc4d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestMultipleModulesQuery$variables,
   RelayReaderAliasedFragmentsTestMultipleModulesQuery$data,
 >*/);

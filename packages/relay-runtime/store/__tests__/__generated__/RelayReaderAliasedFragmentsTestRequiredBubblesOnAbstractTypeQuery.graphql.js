@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5acf22cfee77458f076517e3a83a84bd>>
+ * @generated SignedSource<<23c64c4b957868d9331ab7733cb3c90e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -57,14 +57,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -76,7 +76,7 @@ return {
               "selections": [
                 {
                   "kind": "RequiredField",
-                  "field": (v2/*: any*/),
+                  "field": (v2/*:: as any*/),
                   "action": "LOG"
                 }
               ],
@@ -95,13 +95,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -117,7 +117,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "type": "MaybeNodeInterface",
             "abstractKey": "__isMaybeNodeInterface"
@@ -146,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "aff0ceafe68ed986ef0bc31c1c56854d";
+  (node/*:: as any*/).hash = "aff0ceafe68ed986ef0bc31c1c56854d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery$variables,
   RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery$data,
 >*/);

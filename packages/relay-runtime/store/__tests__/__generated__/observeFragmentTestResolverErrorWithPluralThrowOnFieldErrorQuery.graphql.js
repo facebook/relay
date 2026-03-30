@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0aeaf4f838dc92543597323c209aaf6e>>
+ * @generated SignedSource<<43611de4e14df7b7977c6e9c1b274271>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -57,7 +57,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -83,13 +83,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
         "plural": true,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -99,7 +99,7 @@ return {
                 "fragment": {
                   "kind": "InlineFragment",
                   "selections": [
-                    (v1/*: any*/)
+                    (v1/*:: as any*/)
                   ],
                   "type": "User",
                   "abstractKey": null
@@ -136,10 +136,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "412492582875c8c7b44e67794ed55763";
+  (node/*:: as any*/).hash = "412492582875c8c7b44e67794ed55763";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$variables,
   observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$data,
 >*/);

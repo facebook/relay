@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a3a08a35073b4c6cd7970cd55acbf813>>
+ * @generated SignedSource<<6b0ff777b2fce6d0044d1776811ef56a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -40,7 +40,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentNoInlineTestNestedQuery",
@@ -62,7 +62,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentNoInlineTestNestedQuery",
     "selections": [
@@ -91,10 +91,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cecbcd722b6b7ecf0d3af5c336814547";
+  (node/*:: as any*/).hash = "cecbcd722b6b7ecf0d3af5c336814547";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentNoInlineTestNestedQuery$variables,
   RelayModernEnvironmentNoInlineTestNestedQuery$data,
 >*/);

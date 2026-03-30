@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2b0b8e5e1870756ae1fde35c3725f75f>>
+ * @generated SignedSource<<c585821bd8c091d27f9ef3ea55418d69>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -112,7 +112,7 @@ return {
                         "name": "actor",
                         "plural": false,
                         "selections": [
-                          (v0/*: any*/)
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       }
@@ -182,7 +182,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
+                      (v1/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -191,13 +191,13 @@ return {
                         "name": "actor",
                         "plural": false,
                         "selections": [
-                          (v1/*: any*/),
-                          (v0/*: any*/),
-                          (v2/*: any*/)
+                          (v1/*:: as any*/),
+                          (v0/*:: as any*/),
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v2/*: any*/)
+                      (v2/*:: as any*/)
                     ],
                     "storageKey": null
                   },
@@ -211,12 +211,12 @@ return {
                       "name": "node",
                       "plural": false,
                       "selections": [
-                        (v1/*: any*/),
+                        (v1/*:: as any*/),
                         {
                           "kind": "TypeDiscriminator",
                           "abstractKey": "__isFeedUnit"
                         },
-                        (v2/*: any*/),
+                        (v2/*:: as any*/),
                         {
                           "alias": null,
                           "args": null,
@@ -269,10 +269,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "200bd87fc1d5bddf56a7ab99f431c3ba";
+  (node/*:: as any*/).hash = "200bd87fc1d5bddf56a7ab99f431c3ba";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ActorChangeTestQuery$variables,
   ActorChangeTestQuery$data,
 >*/);

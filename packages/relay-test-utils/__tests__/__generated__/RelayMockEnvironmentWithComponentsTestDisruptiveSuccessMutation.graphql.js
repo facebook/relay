@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<88003b866e91f389933790be6d32e566>>
+ * @generated SignedSource<<0be4d52d06af567ad7524daddb8f01e5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -91,20 +91,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "e784d3cd9b2e3a60a06d2baae1fd1468",
@@ -118,10 +118,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0673467bdc3067b482da4f9b0f971cf1";
+  (node/*:: as any*/).hash = "0673467bdc3067b482da4f9b0f971cf1";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables,
   RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0885ec2c26d2bf83edfeb6455c631f88>>
+ * @generated SignedSource<<1af5a823b5e9e4217fa91d581820b97a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {counter as queryCounterResolverType} from "../../../relay-runtime/store/
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterResolverType: (
+(queryCounterResolverType as (
   rootKey: LiveCounterResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -125,10 +125,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cc35115832685e80cc5a15efb288015a";
+  (node/*:: as any*/).hash = "cc35115832685e80cc5a15efb288015a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTest1Query$variables,
   LiveResolversTest1Query$data,
 >*/);

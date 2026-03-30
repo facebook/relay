@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<790d2e00a526488d37524616974ed692>>
+ * @generated SignedSource<<2fdb55e53009cb05e46e003bfc35262a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -52,7 +52,7 @@ return {
   "metadata": null,
   "name": "RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -90,7 +90,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/)
+                (v0/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -107,10 +107,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7ad43c68a307b4ff13f854acf3baeb28";
+  (node/*:: as any*/).hash = "7ad43c68a307b4ff13f854acf3baeb28";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data,
 >*/);

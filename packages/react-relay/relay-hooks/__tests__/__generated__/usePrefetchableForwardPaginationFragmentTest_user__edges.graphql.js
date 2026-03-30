@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e6cd29b448bc0548e56acc38bc48f958>>
+ * @generated SignedSource<<0b6ada5d69735e0b2ca67836145fe824>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -87,7 +87,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
   usePrefetchableForwardPaginationFragmentTest_user__edges$data,
 >*/);

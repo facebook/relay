@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3c501c6b786ae998405f9592a00bb9a0>>
+ * @generated SignedSource<<fea40fe04c6490604d97884dcf9d19a7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,7 +24,7 @@ import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/s
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoModelResolverType: (
+(queryTodoModelResolverType as (
   args: {|
     todoID: string,
   |},
@@ -35,7 +35,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextWithPrefixResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoDescriptionTextWithPrefixResolverType: (
+(todoDescriptionTextWithPrefixResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: {|
     prefix: string,
@@ -45,7 +45,7 @@ import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../
 import {fancy_description_suspends as todoModelFancyDescriptionSuspendsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionSuspendsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelFancyDescriptionSuspendsResolverType: (
+(todoModelFancyDescriptionSuspendsResolverType as (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -98,7 +98,7 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -126,7 +126,7 @@ return {
         "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "todo_model",
@@ -135,7 +135,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoModel",
           "kind": "LinkedField",
           "name": "todo_model",
@@ -174,7 +174,7 @@ return {
                 "selections": [
                   {
                     "alias": null,
-                    "args": (v2/*: any*/),
+                    "args": (v2/*:: as any*/),
                     "fragment": {
                       "args": null,
                       "kind": "FragmentSpread",
@@ -199,7 +199,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolverModelTestSuspendedWeakClientEdgeQuery",
     "selections": [
@@ -207,7 +207,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "todo_model",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -215,7 +215,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoModel",
           "kind": "LinkedField",
           "name": "todo_model",
@@ -235,7 +235,7 @@ return {
                       "fragment": {
                         "kind": "InlineFragment",
                         "selections": [
-                          (v3/*: any*/)
+                          (v3/*:: as any*/)
                         ],
                         "type": "TodoModel",
                         "abstractKey": null
@@ -262,7 +262,7 @@ return {
                 "selections": [
                   {
                     "name": "text_with_prefix",
-                    "args": (v2/*: any*/),
+                    "args": (v2/*:: as any*/),
                     "fragment": {
                       "kind": "InlineFragment",
                       "selections": [
@@ -285,7 +285,7 @@ return {
                 "storageKey": null
               }
             },
-            (v3/*: any*/)
+            (v3/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -304,10 +304,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c111f7607023b81dcb652418f91c61df";
+  (node/*:: as any*/).hash = "c111f7607023b81dcb652418f91c61df";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverModelTestSuspendedWeakClientEdgeQuery$variables,
   RelayResolverModelTestSuspendedWeakClientEdgeQuery$data,
 >*/);

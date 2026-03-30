@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fa26ce7c868f85b2fa754223ba9153d9>>
+ * @generated SignedSource<<9b7434811026e795a0458ad1b53c2870>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -73,14 +73,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest19FeedbackLikeMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "FeedbackLikeResponsePayload",
         "kind": "LinkedField",
         "name": "feedbackLike",
@@ -94,8 +94,8 @@ return {
             "name": "feedback",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/)
+              (v2/*:: as any*/),
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -108,13 +108,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest19FeedbackLikeMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "FeedbackLikeResponsePayload",
         "kind": "LinkedField",
         "name": "feedbackLike",
@@ -128,7 +128,7 @@ return {
             "name": "feedback",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -136,7 +136,7 @@ return {
                 "name": "id",
                 "storageKey": null
               },
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -157,10 +157,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cb1650d795ec969789e398422323459a";
+  (node/*:: as any*/).hash = "cb1650d795ec969789e398422323459a";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest19FeedbackLikeMutation$variables,
   validateMutationTest19FeedbackLikeMutation$data,
 >*/);

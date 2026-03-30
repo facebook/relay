@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9124da8f52957e41a32e1b6a76532bd7>>
+ * @generated SignedSource<<61f5f8e5665a721c6991c549f31a1bba>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {same_user_client_edge as userSameUserClientEdgeResolverType} from "../Cl
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userSameUserClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userSameUserClientEdgeResolverType: (
+(userSameUserClientEdgeResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?{|
@@ -141,10 +141,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8274337dee7283631e4c2d3992c0add6";
+  (node/*:: as any*/).hash = "8274337dee7283631e4c2d3992c0add6";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgesTest5Query$variables,
   ClientEdgesTest5Query$data,
 >*/);

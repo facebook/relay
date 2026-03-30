@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3762e67e520307e3a6ca58f87a6f20ad>>
+ * @generated SignedSource<<d67ed3c2cf69c442c8c79696e8a72178>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {count_plus_one as baseCounterCountPlusOneResolverType} from "../../../re
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `baseCounterCountPlusOneResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(baseCounterCountPlusOneResolverType: (
+(baseCounterCountPlusOneResolverType as (
   __relay_model_instance: BaseCounter____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -31,7 +31,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {base_counter_context as queryBaseCounterContextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterContextResolver.js";
 // Type assertion validating that `queryBaseCounterContextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryBaseCounterContextResolverType: (
+(queryBaseCounterContextResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?BaseCounter>);
@@ -167,10 +167,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a7ba71ed7b3caaefa42c8686bc81819c";
+  (node/*:: as any*/).hash = "a7ba71ed7b3caaefa42c8686bc81819c";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTestCounterContextBaseQuery$variables,
   LiveResolversTestCounterContextBaseQuery$data,
 >*/);

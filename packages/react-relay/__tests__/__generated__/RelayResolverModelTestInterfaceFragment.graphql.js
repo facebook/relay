@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5b332f13672e1496186cf0b6fde6d294>>
+ * @generated SignedSource<<46372a3d357dac4311c221e5946bd9ed>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,7 +27,7 @@ import {some_client_type_with_interface as todoDescriptionSomeClientTypeWithInte
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoDescriptionSomeClientTypeWithInterfaceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoDescriptionSomeClientTypeWithInterfaceResolverType: (
+(todoDescriptionSomeClientTypeWithInterfaceResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -35,7 +35,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {some_interface as todoDescriptionSomeInterfaceResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionSomeInterfaceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoDescriptionSomeInterfaceResolverType: (
+(todoDescriptionSomeInterfaceResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -43,7 +43,7 @@ import {some_interface as todoDescriptionSomeInterfaceResolverType} from "../../
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelFancyDescriptionResolverType: (
+(todoModelFancyDescriptionResolverType as (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -140,7 +140,7 @@ return {
             "backingField": {
               "alias": null,
               "args": null,
-              "fragment": (v0/*: any*/),
+              "fragment": (v0/*:: as any*/),
               "kind": "RelayResolver",
               "name": "some_interface",
               "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_interface, '__relay_model_instance', true),
@@ -159,7 +159,7 @@ return {
               "kind": "LinkedField",
               "name": "some_interface",
               "plural": false,
-              "selections": (v1/*: any*/),
+              "selections": (v1/*:: as any*/),
               "storageKey": null
             }
           },
@@ -171,7 +171,7 @@ return {
             "backingField": {
               "alias": null,
               "args": null,
-              "fragment": (v0/*: any*/),
+              "fragment": (v0/*:: as any*/),
               "kind": "RelayResolver",
               "name": "some_client_type_with_interface",
               "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_client_type_with_interface, '__relay_model_instance', true),
@@ -198,7 +198,7 @@ return {
                   "kind": "LinkedField",
                   "name": "client_interface",
                   "plural": false,
-                  "selections": (v1/*: any*/),
+                  "selections": (v1/*:: as any*/),
                   "storageKey": null
                 }
               ],
@@ -216,10 +216,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ed136c08f4befa6c468235625659645a";
+  (node/*:: as any*/).hash = "ed136c08f4befa6c468235625659645a";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResolverModelTestInterfaceFragment$fragmentType,
   RelayResolverModelTestInterfaceFragment$data,
 >*/);

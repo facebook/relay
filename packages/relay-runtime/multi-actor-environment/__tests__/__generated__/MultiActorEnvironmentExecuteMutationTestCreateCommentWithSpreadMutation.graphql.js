@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9070fcd7fe34227d8641315165585850>>
+ * @generated SignedSource<<a8cfbf4a7102fbf39dba8b7ec0726825>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -61,14 +61,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
@@ -99,13 +99,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
@@ -164,10 +164,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8b1a1a620a023c1d33529555155512e7";
+  (node/*:: as any*/).hash = "8b1a1a620a023c1d33529555155512e7";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables,
   MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data,
 >*/);

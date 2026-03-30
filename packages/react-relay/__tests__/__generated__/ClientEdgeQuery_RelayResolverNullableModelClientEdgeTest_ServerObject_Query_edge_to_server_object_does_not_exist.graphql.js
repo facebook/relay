@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<903a1e8a4b2dd070589753b83044972a>>
+ * @generated SignedSource<<a1bb4c981d02cd117793b34448df41b7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -49,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientEdgeQuery_RelayResolverNullableModelClientEdgeTest_ServerObject_Query_edge_to_server_object_does_not_exist",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -76,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgeQuery_RelayResolverNullableModelClientEdgeTest_ServerObject_Query_edge_to_server_object_does_not_exist",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -133,10 +133,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3990dc068bf228226a21832b04bbd39a";
+  (node/*:: as any*/).hash = "3990dc068bf228226a21832b04bbd39a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeQuery_RelayResolverNullableModelClientEdgeTest_ServerObject_Query_edge_to_server_object_does_not_exist$variables,
   ClientEdgeQuery_RelayResolverNullableModelClientEdgeTest_ServerObject_Query_edge_to_server_object_does_not_exist$data,
 >*/);

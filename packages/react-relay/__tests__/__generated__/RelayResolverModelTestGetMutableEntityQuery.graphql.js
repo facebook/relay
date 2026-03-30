@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6e9dfea4d34098ca7f75b269b7824e05>>
+ * @generated SignedSource<<3dc62441968837b0f753f3cb9f985ad5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {mutable_entity as queryMutableEntityResolverType} from "../../../relay-r
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryMutableEntityResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryMutableEntityResolverType: (
+(queryMutableEntityResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?unknown>);
@@ -93,10 +93,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bd6186904ff5b69591c6929ee7f72aa4";
+  (node/*:: as any*/).hash = "bd6186904ff5b69591c6929ee7f72aa4";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverModelTestGetMutableEntityQuery$variables,
   RelayResolverModelTestGetMutableEntityQuery$data,
 >*/);

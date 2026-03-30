@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<05b9354d0d4f002e19ed4e7a87430574>>
+ * @generated SignedSource<<c8a71cf5758ae3b0b4639bfca220ee8d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../resolver
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAstrologicalSignResolverType: (
+(userAstrologicalSignResolverType as (
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -105,7 +105,7 @@ return {
               "selections": [
                 {
                   "kind": "CatchField",
-                  "field": (v0/*: any*/),
+                  "field": (v0/*:: as any*/),
                   "to": "NULL"
                 }
               ],
@@ -182,13 +182,13 @@ return {
               "name": "astrological_sign",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
-                (v1/*: any*/)
+                (v0/*:: as any*/),
+                (v1/*:: as any*/)
               ],
               "storageKey": null
             }
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -206,10 +206,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "10b9776fee65d766ecdf6dec167c69da";
+  (node/*:: as any*/).hash = "10b9776fee65d766ecdf6dec167c69da";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$variables,
   RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a7950115af610f6be9b53e09a2a909e9>>
+ * @generated SignedSource<<577580e16a1c038d62cf9e94535f00e9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -75,7 +75,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -115,7 +115,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -143,10 +143,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a6b9d9e49bf7ac7ae36777450d1ec30b";
+  (node/*:: as any*/).hash = "a6b9d9e49bf7ac7ae36777450d1ec30b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayTestMockerTestNestedQuery$variables,
   ReactRelayTestMockerTestNestedQuery$data,
 >*/);

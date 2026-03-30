@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1dfac072f4677efa211abe3646a9f635>>
+ * @generated SignedSource<<f2f301411238732e7583fdc01082a596>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -57,7 +57,7 @@ return {
             "selections": [
               {
                 "kind": "RequiredField",
-                "field": (v0/*: any*/),
+                "field": (v0/*:: as any*/),
                 "action": "LOG"
               }
             ],
@@ -95,7 +95,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "type": "NonNodeNoID",
             "abstractKey": null
@@ -131,10 +131,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0f4f82089cbe09323a0ea5925a8a4051";
+  (node/*:: as any*/).hash = "0f4f82089cbe09323a0ea5925a8a4051";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest12Query$variables,
   RelayReaderRequiredFieldsTest12Query$data,
 >*/);

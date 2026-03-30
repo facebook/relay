@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<25f588bc7d6f1c6d1b9d077ebd03316f>>
+ * @generated SignedSource<<23bd08dc95c7270537dc9d8968a90515>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -62,14 +62,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreateSubscribe",
@@ -100,13 +100,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreateSubscribe",
@@ -120,7 +120,7 @@ return {
             "name": "feedback",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "if": null,
                 "kind": "Stream",
@@ -157,7 +157,7 @@ return {
                         "kind": "ScalarHandle",
                         "name": "name"
                       },
-                      (v2/*: any*/)
+                      (v2/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -183,10 +183,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "70d193c49c68d1cebe7967a31c1a0bcf";
+  (node/*:: as any*/).hash = "70d193c49c68d1cebe7967a31c1a0bcf";
 }
 
-module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+module.exports = ((node/*:: as any*/)/*:: as GraphQLSubscription<
   RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables,
   RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data,
 >*/);

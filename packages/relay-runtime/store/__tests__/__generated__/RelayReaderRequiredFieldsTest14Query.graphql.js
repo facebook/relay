@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<66c3bdb9a0d67de66116d58d54512d84>>
+ * @generated SignedSource<<3d3e8e74d23fc4540559a26080fcfd20>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -48,7 +48,7 @@ v1 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderRequiredFieldsTest14Query",
@@ -68,7 +68,7 @@ return {
             "selections": [
               {
                 "kind": "RequiredField",
-                "field": (v1/*: any*/),
+                "field": (v1/*:: as any*/),
                 "action": "LOG"
               }
             ]
@@ -82,7 +82,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderRequiredFieldsTest14Query",
     "selections": [
@@ -99,7 +99,7 @@ return {
             "kind": "Condition",
             "passingValue": false,
             "selections": [
-              (v1/*: any*/)
+              (v1/*:: as any*/)
             ]
           },
           {
@@ -126,10 +126,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2c11aae5845b769b18eea9e4fbed5799";
+  (node/*:: as any*/).hash = "2c11aae5845b769b18eea9e4fbed5799";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest14Query$variables,
   RelayReaderRequiredFieldsTest14Query$data,
 >*/);

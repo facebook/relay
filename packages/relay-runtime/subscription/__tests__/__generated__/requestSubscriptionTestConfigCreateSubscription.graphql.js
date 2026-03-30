@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<13a03d779c6b24bd415376a7081fdf00>>
+ * @generated SignedSource<<f1f646d1b04d060e969d986e13e31d51>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -64,7 +64,7 @@ return {
             "name": "config",
             "plural": false,
             "selections": [
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "args": null,
                 "kind": "FragmentSpread",
@@ -102,7 +102,7 @@ return {
             "name": "config",
             "plural": false,
             "selections": [
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -130,10 +130,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6b2edf520dcf571dde1465c394f0a52e";
+  (node/*:: as any*/).hash = "6b2edf520dcf571dde1465c394f0a52e";
 }
 
-module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+module.exports = ((node/*:: as any*/)/*:: as GraphQLSubscription<
   requestSubscriptionTestConfigCreateSubscription$variables,
   requestSubscriptionTestConfigCreateSubscription$data,
 >*/);

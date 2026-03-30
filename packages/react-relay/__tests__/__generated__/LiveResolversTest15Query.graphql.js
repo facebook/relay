@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<81120b6a3952440c158e96f5d9a7644f>>
+ * @generated SignedSource<<37c67e10f1b997b7446635da98160ee3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {live_user_resolver_always_suspend as queryLiveUserResolverAlwaysSuspendR
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveUserResolverAlwaysSuspendResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveUserResolverAlwaysSuspendResolverType: (
+(queryLiveUserResolverAlwaysSuspendResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?{|
@@ -111,10 +111,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "649fcb31c6138f80ad0ebb97c80d9ae6";
+  (node/*:: as any*/).hash = "649fcb31c6138f80ad0ebb97c80d9ae6";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTest15Query$variables,
   LiveResolversTest15Query$data,
 >*/);

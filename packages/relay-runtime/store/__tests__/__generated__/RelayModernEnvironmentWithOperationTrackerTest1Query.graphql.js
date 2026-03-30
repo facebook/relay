@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6eb1f427a9fc59fd566adfe97c4cf03e>>
+ * @generated SignedSource<<399d8201682644a3dfa3ee57d0e10981>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -82,7 +82,7 @@ v4 = {
   "kind": "LinkedField",
   "name": "body",
   "plural": false,
-  "selections": (v3/*: any*/),
+  "selections": (v3/*:: as any*/),
   "storageKey": null
 },
 v5 = {
@@ -109,7 +109,7 @@ v5 = {
           "name": "node",
           "plural": false,
           "selections": [
-            (v2/*: any*/),
+            (v2/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -117,7 +117,7 @@ v5 = {
               "kind": "LinkedField",
               "name": "message",
               "plural": false,
-              "selections": (v3/*: any*/),
+              "selections": (v3/*:: as any*/),
               "storageKey": null
             }
           ],
@@ -149,14 +149,14 @@ v8 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentWithOperationTrackerTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -165,9 +165,9 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/),
-              (v4/*: any*/),
-              (v5/*: any*/)
+              (v2/*:: as any*/),
+              (v4/*:: as any*/),
+              (v5/*:: as any*/)
             ],
             "type": "Feedback",
             "abstractKey": null
@@ -181,13 +181,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentWithOperationTrackerTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -200,12 +200,12 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v4/*: any*/),
-              (v5/*: any*/)
+              (v4/*:: as any*/),
+              (v5/*:: as any*/)
             ],
             "type": "Feedback",
             "abstractKey": null
@@ -232,8 +232,8 @@ return {
           "plural": false,
           "type": "String"
         },
-        "node.body": (v6/*: any*/),
-        "node.body.text": (v7/*: any*/),
+        "node.body": (v6/*:: as any*/),
+        "node.body.text": (v7/*:: as any*/),
         "node.comments": {
           "enumValues": null,
           "nullable": true,
@@ -252,10 +252,10 @@ return {
           "plural": false,
           "type": "Comment"
         },
-        "node.comments.edges.node.id": (v8/*: any*/),
-        "node.comments.edges.node.message": (v6/*: any*/),
-        "node.comments.edges.node.message.text": (v7/*: any*/),
-        "node.id": (v8/*: any*/)
+        "node.comments.edges.node.id": (v8/*:: as any*/),
+        "node.comments.edges.node.message": (v6/*:: as any*/),
+        "node.comments.edges.node.message.text": (v7/*:: as any*/),
+        "node.id": (v8/*:: as any*/)
       }
     },
     "name": "RelayModernEnvironmentWithOperationTrackerTest1Query",
@@ -266,10 +266,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1b496533e1c1dd63b5800177b6a2c5f4";
+  (node/*:: as any*/).hash = "1b496533e1c1dd63b5800177b6a2c5f4";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentWithOperationTrackerTest1Query$variables,
   RelayModernEnvironmentWithOperationTrackerTest1Query$data,
 >*/);

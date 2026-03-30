@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3ad1ba6b2a75fd106887c3f98c9aea88>>
+ * @generated SignedSource<<f508006fe9e933b83095d26495612a70>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -65,14 +65,14 @@ return {
             "selections": [
               {
                 "kind": "RequiredField",
-                "field": (v0/*: any*/),
+                "field": (v0/*:: as any*/),
                 "action": "LOG"
               }
             ],
             "type": "Story",
             "abstractKey": null
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -104,12 +104,12 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "type": "Story",
             "abstractKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -141,10 +141,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "18341e049af32096dfb61320b3f823d8";
+  (node/*:: as any*/).hash = "18341e049af32096dfb61320b3f823d8";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest13Query$variables,
   RelayReaderRequiredFieldsTest13Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ea9eaedadac299e69d91bc02a7d25930>>
+ * @generated SignedSource<<e7f2522abee306a3087ebe0160b1db62>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {edge_to_plural_live_objects_some_exist as queryEdgeToPluralLiveObjectsSo
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToPluralLiveObjectsSomeExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToPluralLiveObjectsSomeExistResolverType: (
+(queryEdgeToPluralLiveObjectsSomeExistResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?ReadonlyArray<?{|
@@ -32,7 +32,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {description as todoModelDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelDescriptionResolverType: (
+(todoModelDescriptionResolverType as (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -103,7 +103,7 @@ return {
           "name": "edge_to_plural_live_objects_some_exist",
           "plural": true,
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -149,7 +149,7 @@ return {
           "name": "edge_to_plural_live_objects_some_exist",
           "plural": true,
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "name": "description",
               "args": null,
@@ -162,7 +162,7 @@ return {
                     "fragment": {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v0/*: any*/)
+                        (v0/*:: as any*/)
                       ],
                       "type": "TodoModel",
                       "abstractKey": null
@@ -197,10 +197,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "abbb7292c9ca7ffab83aec05b278406b";
+  (node/*:: as any*/).hash = "abbb7292c9ca7ffab83aec05b278406b";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query$variables,
   RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query$data,
 >*/);

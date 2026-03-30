@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bc8946709032bb752e3dfbc43f35c6ab>>
+ * @generated SignedSource<<41e6f888ce36516a47e358f8e306c15f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {live_counter_with_possible_missing_fragment_data as queryLiveCounterWith
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveCounterWithPossibleMissingFragmentDataResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveCounterWithPossibleMissingFragmentDataResolverType: (
+(queryLiveCounterWithPossibleMissingFragmentDataResolverType as (
   rootKey: LiveCounterWithPossibleMissingFragmentDataResolverFragment$key,
   args: void,
   context: TestResolverContextType,
@@ -113,10 +113,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e0069f7ccf8ba4baa2b3bfeaa62199fa";
+  (node/*:: as any*/).hash = "e0069f7ccf8ba4baa2b3bfeaa62199fa";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTestWithGCQuery$variables,
   LiveResolversTestWithGCQuery$data,
 >*/);

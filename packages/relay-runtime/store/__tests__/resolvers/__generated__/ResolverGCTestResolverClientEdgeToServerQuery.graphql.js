@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<797053c7e6151980b2bc59f442ca35f5>>
+ * @generated SignedSource<<90f5e3ea4737a5993d78f25d75e1f4bb>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolv
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -82,7 +82,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "kind": "ClientEdgeToServerObject",
             "operation": require('./ClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge.graphql'),
@@ -107,8 +107,8 @@ return {
               "name": "client_edge",
               "plural": false,
               "selections": [
-                (v1/*: any*/),
-                (v0/*: any*/),
+                (v1/*:: as any*/),
+                (v0/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -117,8 +117,8 @@ return {
                   "name": "nearest_neighbor",
                   "plural": false,
                   "selections": [
-                    (v1/*: any*/),
-                    (v0/*: any*/)
+                    (v1/*:: as any*/),
+                    (v0/*:: as any*/)
                   ],
                   "storageKey": null
                 }
@@ -147,14 +147,14 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "name": "client_edge",
             "args": null,
             "fragment": {
               "kind": "InlineFragment",
               "selections": [
-                (v0/*: any*/)
+                (v0/*:: as any*/)
               ],
               "type": "User",
               "abstractKey": null
@@ -163,7 +163,7 @@ return {
             "storageKey": null,
             "isOutputType": false
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -181,10 +181,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fe9d1d04537877d59f4905abc58c777f";
+  (node/*:: as any*/).hash = "fe9d1d04537877d59f4905abc58c777f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverGCTestResolverClientEdgeToServerQuery$variables,
   ResolverGCTestResolverClientEdgeToServerQuery$data,
 >*/);

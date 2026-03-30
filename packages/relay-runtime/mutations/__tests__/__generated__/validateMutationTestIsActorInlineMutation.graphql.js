@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1736a50b7e5d7edc7fabe69396e1fdf1>>
+ * @generated SignedSource<<ea6bb31209ab0b67dfdc60dd91006a85>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -135,14 +135,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTestIsActorInlineMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -156,8 +156,8 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/)
+              (v2/*:: as any*/),
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -170,13 +170,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTestIsActorInlineMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -201,8 +201,8 @@ return {
                 "kind": "TypeDiscriminator",
                 "abstractKey": "__isActor"
               },
-              (v2/*: any*/),
-              (v3/*: any*/),
+              (v2/*:: as any*/),
+              (v3/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -230,10 +230,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cee27cf207bc3ae834b956c7dd0cd0e3";
+  (node/*:: as any*/).hash = "cee27cf207bc3ae834b956c7dd0cd0e3";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTestIsActorInlineMutation$variables,
   validateMutationTestIsActorInlineMutation$data,
   validateMutationTestIsActorInlineMutation$rawResponse,

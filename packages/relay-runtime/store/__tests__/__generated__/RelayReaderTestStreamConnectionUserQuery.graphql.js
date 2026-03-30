@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d11a8b72dbf687f515eda9a468b93e9e>>
+ * @generated SignedSource<<3e5a1bb47d05648c45d185c7cfa0fb85>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -70,14 +70,14 @@ v4 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderTestStreamConnectionUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -97,25 +97,25 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderTestStreamConnectionUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -149,8 +149,8 @@ return {
                                 "name": "name",
                                 "storageKey": null
                               },
-                              (v4/*: any*/),
-                              (v2/*: any*/)
+                              (v4/*:: as any*/),
+                              (v2/*:: as any*/)
                             ],
                             "storageKey": null
                           },
@@ -203,7 +203,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "UserProfile_friends",
@@ -214,7 +214,7 @@ return {
             "type": "User",
             "abstractKey": null
           },
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -232,10 +232,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6fea4f22e3efe059099ef5cfa350fc9c";
+  (node/*:: as any*/).hash = "6fea4f22e3efe059099ef5cfa350fc9c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestStreamConnectionUserQuery$variables,
   RelayReaderTestStreamConnectionUserQuery$data,
 >*/);

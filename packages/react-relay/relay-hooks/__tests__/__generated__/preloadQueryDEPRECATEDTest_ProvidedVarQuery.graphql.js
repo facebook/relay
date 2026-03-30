@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b7d3a649481094664f6eef4b485fdc9b>>
+ * @generated SignedSource<<5ff7bc56ab5233f985df413a5f3f30b1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -33,7 +33,7 @@ export type preloadQueryDEPRECATEDTest_ProvidedVarQuery = {|
 ({
   "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider'),
   "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('../RelayProvider_returnsFalse.relayprovider')
-}: {|
+} as {|
   +__relay_internal__pv__RelayProvider_returnsFalserelayprovider: {|
     +get: () => boolean,
   |},
@@ -59,7 +59,7 @@ v1 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/)
+      (v0/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -67,7 +67,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -88,7 +88,7 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "defaultValue": null,
         "kind": "LocalArgument",
@@ -105,7 +105,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -209,10 +209,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4979a880c3f4961191919f23c6de8c42";
+  (node/*:: as any*/).hash = "4979a880c3f4961191919f23c6de8c42";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   preloadQueryDEPRECATEDTest_ProvidedVarQuery$variables,
   preloadQueryDEPRECATEDTest_ProvidedVarQuery$data,
 >*/);

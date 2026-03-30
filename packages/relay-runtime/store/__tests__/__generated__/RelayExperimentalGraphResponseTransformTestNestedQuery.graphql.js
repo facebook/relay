@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0854ec02b39ee8fd6823235b1e4e5188>>
+ * @generated SignedSource<<90587440c8b9667a2d844bb089361a4b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -70,13 +70,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": "User",
         "kind": "LinkedField",
         "name": "fetch__User",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -85,7 +85,7 @@ return {
             "name": "nearest_neighbor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -104,13 +104,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": "User",
         "kind": "LinkedField",
         "name": "fetch__User",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -119,12 +119,12 @@ return {
             "name": "nearest_neighbor",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/)
+              (v2/*:: as any*/),
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": "fetch__User(id:\"100\")"
       }
@@ -142,10 +142,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7505db301d80caeb3387591272e7def5";
+  (node/*:: as any*/).hash = "7505db301d80caeb3387591272e7def5";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseTransformTestNestedQuery$variables,
   RelayExperimentalGraphResponseTransformTestNestedQuery$data,
 >*/);

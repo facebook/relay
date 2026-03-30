@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<678f5cf6b175701ea21bf5cafd00466e>>
+ * @generated SignedSource<<276be74b354f7fd22cc7e60f101da25a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {another_client_edge as userAnotherClientEdgeResolverType} from "../resol
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAnotherClientEdgeResolverType: (
+(userAnotherClientEdgeResolverType as (
   rootKey: UserAnotherClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -113,10 +113,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f12dcfffcc6bbf929b4fad3a4eb5602d";
+  (node/*:: as any*/).hash = "f12dcfffcc6bbf929b4fad3a4eb5602d";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$fragmentType,
   RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$data,
   ClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$variables,

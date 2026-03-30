@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b4d42a7e06fbeeba5e5a28455be75a81>>
+ * @generated SignedSource<<9a8de326d3009616301bbff94a7752b8>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -63,21 +63,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentWithComponentsTestFantasticEffortQuery",
     "selections": [
       {
         "alias": "user",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -87,13 +87,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentWithComponentsTestFantasticEffortQuery",
     "selections": [
       {
         "alias": "user",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -106,8 +106,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -125,10 +125,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e2d36fb6f2a33dd6bde39f2ae9815f3a";
+  (node/*:: as any*/).hash = "e2d36fb6f2a33dd6bde39f2ae9815f3a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockEnvironmentWithComponentsTestFantasticEffortQuery$variables,
   RelayMockEnvironmentWithComponentsTestFantasticEffortQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<372af93c2565d4884a73b86443fb39f8>>
+ * @generated SignedSource<<e36803fea88dc35bfab753d0729d8d8e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -111,7 +111,7 @@ return {
                     "type": "Entity",
                     "abstractKey": "__isEntity"
                   },
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -119,7 +119,7 @@ return {
             "type": "Node",
             "abstractKey": "__isNode"
           },
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -137,10 +137,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c02a2e830cf35883efa58981faeeba66";
+  (node/*:: as any*/).hash = "c02a2e830cf35883efa58981faeeba66";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsQuery$variables,
   RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsQuery$data,
 >*/);

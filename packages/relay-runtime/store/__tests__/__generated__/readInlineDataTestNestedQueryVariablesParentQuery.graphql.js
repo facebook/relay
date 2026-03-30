@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ee8af0e3d8b9c698f7c6c67dbb05825a>>
+ * @generated SignedSource<<3c28a402482596d6af15406b0a314d37>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -42,7 +42,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "readInlineDataTestNestedQueryVariablesParentQuery",
@@ -69,7 +69,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "readInlineDataTestNestedQueryVariablesParentQuery",
     "selections": [
@@ -129,10 +129,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0895903561ebff4372478d30aaad6430";
+  (node/*:: as any*/).hash = "0895903561ebff4372478d30aaad6430";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   readInlineDataTestNestedQueryVariablesParentQuery$variables,
   readInlineDataTestNestedQueryVariablesParentQuery$data,
 >*/);

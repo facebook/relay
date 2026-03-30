@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6946935c2e808f5509830c1ba9415983>>
+ * @generated SignedSource<<ef75903c46b9e58e57579003327b5176>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -109,7 +109,7 @@ v5 = {
               "name": "node",
               "plural": false,
               "selections": [
-                (v4/*: any*/)
+                (v4/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -126,9 +126,9 @@ v5 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -136,13 +136,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v5/*: any*/)
+          (v5/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -153,16 +153,16 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/),
-      (v2/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayConcreteVariablesTest2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -175,8 +175,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v5/*: any*/),
-          (v4/*: any*/)
+          (v5/*:: as any*/),
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -194,10 +194,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cc6f1551e100af7df55186ce5b1e53bb";
+  (node/*:: as any*/).hash = "cc6f1551e100af7df55186ce5b1e53bb";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayConcreteVariablesTest2Query$variables,
   RelayConcreteVariablesTest2Query$data,
 >*/);

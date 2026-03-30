@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a302e3e368ecbec16834be2134dd5445>>
+ * @generated SignedSource<<e1c59dcd17513507a827b068469c9529>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -62,13 +62,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "Defer",
             "selections": [
@@ -94,7 +94,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -107,7 +107,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "if": null,
             "kind": "Defer",
@@ -116,8 +116,8 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v2/*: any*/),
-                  (v1/*: any*/),
+                  (v2/*:: as any*/),
+                  (v1/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -147,11 +147,11 @@ return {
                                 "kind": "Defer",
                                 "label": "RelayMockPayloadGeneratorTest61Fragment$defer$RelayMockPayloadGeneratorTest61SubFragment",
                                 "selections": [
-                                  (v1/*: any*/),
-                                  (v2/*: any*/)
+                                  (v1/*:: as any*/),
+                                  (v2/*:: as any*/)
                                 ]
                               },
-                              (v1/*: any*/)
+                              (v1/*:: as any*/)
                             ],
                             "storageKey": null
                           }
@@ -184,10 +184,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c227dfa395367e6e586d0105e47e1a7d";
+  (node/*:: as any*/).hash = "c227dfa395367e6e586d0105e47e1a7d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest61Query$variables,
   RelayMockPayloadGeneratorTest61Query$data,
 >*/);

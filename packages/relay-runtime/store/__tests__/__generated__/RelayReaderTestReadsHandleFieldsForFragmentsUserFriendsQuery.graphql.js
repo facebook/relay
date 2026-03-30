@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d62fe16b49cd6f6c69aef107297b0254>>
+ * @generated SignedSource<<f9e2c44b75767294a809ef086ea21bab>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -88,7 +88,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "concreteType": "FriendsConnection",
             "kind": "LinkedField",
             "name": "friends",
@@ -117,7 +117,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
+                      (v1/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -145,14 +145,14 @@ return {
           },
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "filters": null,
             "handle": "bestFriends",
             "key": "",
             "kind": "LinkedHandle",
             "name": "friends"
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -170,10 +170,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2ac225f5ec97e79b7c664322027462a2";
+  (node/*:: as any*/).hash = "2ac225f5ec97e79b7c664322027462a2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$variables,
   RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$data,
 >*/);

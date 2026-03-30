@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8ece619a7c47090ec6afcf1b78d9fdbb>>
+ * @generated SignedSource<<d15950ed0803e85fbdd14b1bfeb70ce7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -63,14 +63,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreateSubscribe",
@@ -84,7 +84,7 @@ return {
             "name": "comment",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "kind": "Defer",
                 "selections": [
@@ -107,13 +107,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreateSubscribe",
@@ -127,13 +127,13 @@ return {
             "name": "comment",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "if": null,
                 "kind": "Defer",
                 "label": "RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$defer$RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment",
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -165,7 +165,7 @@ return {
                         "kind": "ScalarHandle",
                         "name": "name"
                       },
-                      (v2/*: any*/)
+                      (v2/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -191,10 +191,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a073626b1c5a53d43db57b61c0e02d57";
+  (node/*:: as any*/).hash = "a073626b1c5a53d43db57b61c0e02d57";
 }
 
-module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+module.exports = ((node/*:: as any*/)/*:: as GraphQLSubscription<
   RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$variables,
   RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$data,
 >*/);

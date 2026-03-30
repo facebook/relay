@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<28079949d55a43718a7b315b02e22e4b>>
+ * @generated SignedSource<<48a87f1ad483a98685765c8bb6d15eb4>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -74,8 +74,8 @@ v4 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -89,7 +89,7 @@ return {
         "name": "viewer",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "Defer",
             "selections": [
@@ -110,8 +110,8 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery",
@@ -124,7 +124,7 @@ return {
         "name": "viewer",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "if": null,
             "kind": "Defer",
@@ -132,7 +132,7 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "concreteType": "NewsFeedConnection",
                 "kind": "LinkedField",
                 "name": "newsFeed",
@@ -166,8 +166,8 @@ return {
                             "name": "node",
                             "plural": false,
                             "selections": [
-                              (v2/*: any*/),
-                              (v4/*: any*/),
+                              (v2/*:: as any*/),
+                              (v4/*:: as any*/),
                               {
                                 "alias": null,
                                 "args": null,
@@ -176,7 +176,7 @@ return {
                                 "name": "feedback",
                                 "plural": false,
                                 "selections": [
-                                  (v4/*: any*/),
+                                  (v4/*:: as any*/),
                                   {
                                     "alias": null,
                                     "args": null,
@@ -185,8 +185,8 @@ return {
                                     "name": "actors",
                                     "plural": true,
                                     "selections": [
-                                      (v2/*: any*/),
-                                      (v4/*: any*/),
+                                      (v2/*:: as any*/),
+                                      (v4/*:: as any*/),
                                       {
                                         "alias": null,
                                         "args": null,
@@ -247,7 +247,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "RelayModernEnvironment_newsFeed",
@@ -273,10 +273,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "da3bd0b60a87ce2c3aee53776f2f43bd";
+  (node/*:: as any*/).hash = "da3bd0b60a87ce2c3aee53776f2f43bd";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$variables,
   RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data,
 >*/);

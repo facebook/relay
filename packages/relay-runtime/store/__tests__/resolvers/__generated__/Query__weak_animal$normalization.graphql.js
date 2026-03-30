@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fb5e9f2925833d978ed5d8b7c0f18894>>
+ * @generated SignedSource<<70be01bf9e813f3b4b428475299cd4aa>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -57,13 +57,13 @@ return {
       "selections": [
         {
           "kind": "InlineFragment",
-          "selections": (v0/*: any*/),
+          "selections": (v0/*:: as any*/),
           "type": "PurpleOctopus",
           "abstractKey": null
         },
         {
           "kind": "InlineFragment",
-          "selections": (v0/*: any*/),
+          "selections": (v0/*:: as any*/),
           "type": "RedOctopus",
           "abstractKey": null
         }

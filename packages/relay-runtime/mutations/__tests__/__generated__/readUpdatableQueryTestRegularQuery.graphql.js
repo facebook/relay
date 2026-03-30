@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fe25c36ed8b44e43e012e38d96375d42>>
+ * @generated SignedSource<<9e2cfa649d47f4c7ffaaf5bec636fcea>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -80,7 +80,7 @@ v2 = {
   "storageKey": null
 },
 v3 = [
-  (v2/*: any*/)
+  (v2/*:: as any*/)
 ],
 v4 = {
   "alias": null,
@@ -105,7 +105,7 @@ v6 = {
 },
 v7 = {
   "kind": "InlineFragment",
-  "selections": (v3/*: any*/),
+  "selections": (v3/*:: as any*/),
   "type": "User",
   "abstractKey": null
 },
@@ -119,7 +119,7 @@ v8 = [
 v9 = {
   "kind": "InlineFragment",
   "selections": [
-    (v2/*: any*/),
+    (v2/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -128,8 +128,8 @@ v9 = {
       "name": "parents",
       "plural": true,
       "selections": [
-        (v1/*: any*/),
-        (v2/*: any*/),
+        (v1/*:: as any*/),
+        (v2/*:: as any*/),
         {
           "alias": null,
           "args": null,
@@ -138,7 +138,7 @@ v9 = {
           "name": "parents",
           "plural": true,
           "selections": [
-            (v1/*: any*/)
+            (v1/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -183,9 +183,9 @@ return {
             "type": "Node",
             "abstractKey": "__isNode"
           },
-          (v0/*: any*/),
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v0/*:: as any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -204,10 +204,10 @@ return {
                     "kind": "LinkedField",
                     "name": "client_best_friend",
                     "plural": false,
-                    "selections": (v3/*: any*/),
+                    "selections": (v3/*:: as any*/),
                     "storageKey": null
                   },
-                  (v4/*: any*/)
+                  (v4/*:: as any*/)
                 ]
               }
             ],
@@ -218,7 +218,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -229,21 +229,21 @@ return {
             "kind": "FragmentSpread",
             "name": "readUpdatableQueryTest_user"
           },
-          (v6/*: any*/),
-          (v0/*: any*/),
-          (v7/*: any*/)
+          (v6/*:: as any*/),
+          (v0/*:: as any*/),
+          (v7/*:: as any*/)
         ],
         "storageKey": "node(id:\"4\")"
       },
       {
         "alias": "node2",
-        "args": (v8/*: any*/),
+        "args": (v8/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v9/*: any*/)
+          (v9/*:: as any*/)
         ],
         "storageKey": "node(id:\"5\")"
       }
@@ -268,13 +268,13 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v6/*: any*/)
+              (v6/*:: as any*/)
             ],
             "type": "Node",
             "abstractKey": "__isNode"
           },
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -283,7 +283,7 @@ return {
             "name": "author",
             "plural": false,
             "selections": [
-              (v1/*: any*/),
+              (v1/*:: as any*/),
               {
                 "kind": "ClientExtension",
                 "selections": [
@@ -295,12 +295,12 @@ return {
                     "name": "client_best_friend",
                     "plural": false,
                     "selections": [
-                      (v2/*: any*/),
-                      (v1/*: any*/)
+                      (v2/*:: as any*/),
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v4/*: any*/)
+                  (v4/*:: as any*/)
                 ]
               }
             ],
@@ -311,29 +311,29 @@ return {
       },
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
-          (v1/*: any*/),
-          (v7/*: any*/)
+          (v6/*:: as any*/),
+          (v1/*:: as any*/),
+          (v7/*:: as any*/)
         ],
         "storageKey": "node(id:\"4\")"
       },
       {
         "alias": "node2",
-        "args": (v8/*: any*/),
+        "args": (v8/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
-          (v9/*: any*/),
-          (v1/*: any*/)
+          (v6/*:: as any*/),
+          (v9/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": "node(id:\"5\")"
       }
@@ -351,10 +351,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "46eea2f5976dc4bcb1af1d5b7479d9b8";
+  (node/*:: as any*/).hash = "46eea2f5976dc4bcb1af1d5b7479d9b8";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   readUpdatableQueryTestRegularQuery$variables,
   readUpdatableQueryTestRegularQuery$data,
 >*/);

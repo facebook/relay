@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<64fdb534b8ad0614db4ce270dddabb93>>
+ * @generated SignedSource<<f53248a59d09b5e43300286dd55670fb>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -49,7 +49,7 @@ v1 = {
   "name": "client_union",
   "plural": false,
   "selections": [
-    (v0/*: any*/)
+    (v0/*:: as any*/)
   ],
   "storageKey": null
 };
@@ -79,7 +79,7 @@ return {
             ],
             "storageKey": null
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ]
       }
     ],
@@ -103,7 +103,7 @@ return {
             "name": "client_interface",
             "plural": false,
             "selections": [
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -114,7 +114,7 @@ return {
             ],
             "storageKey": null
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ]
       }
     ],
@@ -141,10 +141,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fda6737d4bb601d57ab80c634726d8a3";
+  (node/*:: as any*/).hash = "fda6737d4bb601d57ab80c634726d8a3";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResponseNormalizerTestClientInterfaceQuery$variables,
   RelayResponseNormalizerTestClientInterfaceQuery$data,
 >*/);

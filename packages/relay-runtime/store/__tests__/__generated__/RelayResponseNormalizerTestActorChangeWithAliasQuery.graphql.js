@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fa883a06aec8dc2a9b9ade2d6fbeaa67>>
+ * @generated SignedSource<<f0e2e1dcf4e418137295d5d06a62ff74>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -46,7 +46,7 @@ var v0 = {
   "storageKey": null
 },
 v1 = [
-  (v0/*: any*/)
+  (v0/*:: as any*/)
 ],
 v2 = {
   "alias": null,
@@ -84,7 +84,7 @@ return {
             "kind": "LinkedField",
             "name": "actor",
             "plural": false,
-            "selections": (v1/*: any*/),
+            "selections": (v1/*:: as any*/),
             "storageKey": null
           },
           {
@@ -128,9 +128,9 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v0/*: any*/),
-              (v3/*: any*/)
+              (v2/*:: as any*/),
+              (v0/*:: as any*/),
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -144,10 +144,10 @@ return {
               "name": "actor",
               "plural": false,
               "selections": [
-                (v2/*: any*/),
+                (v2/*:: as any*/),
                 {
                   "kind": "InlineFragment",
-                  "selections": (v1/*: any*/),
+                  "selections": (v1/*:: as any*/),
                   "type": "User",
                   "abstractKey": null
                 },
@@ -158,7 +158,7 @@ return {
                   "name": "actor_key",
                   "storageKey": null
                 },
-                (v3/*: any*/)
+                (v3/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -180,10 +180,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8ae75ed6d55511537f85750f1ff71def";
+  (node/*:: as any*/).hash = "8ae75ed6d55511537f85750f1ff71def";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTestActorChangeWithAliasQuery$variables,
   RelayResponseNormalizerTestActorChangeWithAliasQuery$data,
 >*/);

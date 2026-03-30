@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<809bb79ad54292b75af7682ab6b5e397>>
+ * @generated SignedSource<<c147b856484063a1fb88e6b5ddb340c5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -103,14 +103,14 @@ v5 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -121,14 +121,14 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v2/*: any*/),
+                "args": (v2/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRendererForContext",
                 "plural": false,
                 "selections": [
-                  (v3/*: any*/),
-                  (v4/*: any*/)
+                  (v3/*:: as any*/),
+                  (v4/*:: as any*/)
                 ],
                 "storageKey": "nameRendererForContext(context:\"HEADER\",supported:\"34hjiS\")"
               }
@@ -145,33 +145,33 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v5/*: any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v2/*: any*/),
+                "args": (v2/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRendererForContext",
                 "plural": false,
                 "selections": [
-                  (v5/*: any*/),
-                  (v3/*: any*/),
-                  (v4/*: any*/)
+                  (v5/*:: as any*/),
+                  (v3/*:: as any*/),
+                  (v4/*:: as any*/)
                 ],
                 "storageKey": "nameRendererForContext(context:\"HEADER\",supported:\"34hjiS\")"
               }
@@ -203,10 +203,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "af24ed1b794e762b81d50cc1c51d755f";
+  (node/*:: as any*/).hash = "af24ed1b794e762b81d50cc1c51d755f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery$variables,
   RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery$data,
 >*/);

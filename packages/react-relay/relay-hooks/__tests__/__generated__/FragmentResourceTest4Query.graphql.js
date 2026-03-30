@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6b59ac79ea1fd8747e384e4153c6ee4a>>
+ * @generated SignedSource<<fb220ac699d3b3f3e9e26f8174151cde>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -40,7 +40,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "FragmentResourceTest4Query",
@@ -56,7 +56,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "FragmentResourceTest4Query",
     "selections": [
@@ -112,10 +112,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d8eb85a11fd17ca4b97b9b170e2184db";
+  (node/*:: as any*/).hash = "d8eb85a11fd17ca4b97b9b170e2184db";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceTest4Query$variables,
   FragmentResourceTest4Query$data,
 >*/);

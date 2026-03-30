@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b50e211f552d56e4b02a34f2c07dc803>>
+ * @generated SignedSource<<fe4623934ae2597dedb0787c1e86db82>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -91,7 +91,7 @@ v3 = {
 },
 v4 = {
   "alias": null,
-  "args": (v2/*: any*/),
+  "args": (v2/*:: as any*/),
   "concreteType": "CommentsEdge",
   "kind": "LinkedField",
   "name": "commentsFrom",
@@ -112,7 +112,7 @@ v4 = {
       "name": "node",
       "plural": false,
       "selections": [
-        (v3/*: any*/)
+        (v3/*:: as any*/)
       ],
       "storageKey": null
     }
@@ -121,14 +121,14 @@ v4 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsWithArgsMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
@@ -142,7 +142,7 @@ return {
             "name": "comment",
             "plural": false,
             "selections": [
-              (v4/*: any*/)
+              (v4/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -155,13 +155,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsWithArgsMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
@@ -175,10 +175,10 @@ return {
             "name": "comment",
             "plural": false,
             "selections": [
-              (v4/*: any*/),
+              (v4/*:: as any*/),
               {
                 "alias": null,
-                "args": (v2/*: any*/),
+                "args": (v2/*:: as any*/),
                 "filters": null,
                 "handle": "appendEdge",
                 "key": "",
@@ -192,7 +192,7 @@ return {
                   }
                 ]
               },
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -213,10 +213,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7f8a8b0fb04d9fcfc4c3167b55ca7da7";
+  (node/*:: as any*/).hash = "7f8a8b0fb04d9fcfc4c3167b55ca7da7";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsWithArgsMutation$variables,
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsWithArgsMutation$data,
 >*/);

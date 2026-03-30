@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a5fd9d201f5c89b1a280611d4285a787>>
+ * @generated SignedSource<<b2eca5b43b530ed571ef5308d8be7992>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -92,7 +92,7 @@ return {
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
-        "selections": (v0/*: any*/),
+        "selections": (v0/*:: as any*/),
         "storageKey": "node(id:\"4\")"
       },
       {
@@ -110,7 +110,7 @@ return {
         "kind": "LinkedField",
         "name": "nodes",
         "plural": true,
-        "selections": (v0/*: any*/),
+        "selections": (v0/*:: as any*/),
         "storageKey": "nodes(ids:[\"4\"])"
       },
       {
@@ -140,10 +140,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "33578755c95870b57a52adef714a176e";
+  (node/*:: as any*/).hash = "33578755c95870b57a52adef714a176e";
 }
 
-module.exports = ((node/*: any*/)/*: UpdatableQuery<
+module.exports = ((node/*:: as any*/)/*:: as UpdatableQuery<
   readUpdatableQueryTestMissingFieldsUpdatableQuery$variables,
   readUpdatableQueryTestMissingFieldsUpdatableQuery$data,
 >*/);

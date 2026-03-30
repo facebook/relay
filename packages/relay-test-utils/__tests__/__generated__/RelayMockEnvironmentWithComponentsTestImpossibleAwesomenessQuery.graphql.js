@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6d1e2bd99338102d19fabca9c6a7c222>>
+ * @generated SignedSource<<88e3397d7acde4a1254faf06e4e56539>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -71,21 +71,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery",
     "selections": [
       {
         "alias": "user",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -100,13 +100,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery",
     "selections": [
       {
         "alias": "user",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -119,8 +119,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -169,10 +169,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f76438756eb9c84ef378afca68405ae2";
+  (node/*:: as any*/).hash = "f76438756eb9c84ef378afca68405ae2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery$variables,
   RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery$data,
 >*/);

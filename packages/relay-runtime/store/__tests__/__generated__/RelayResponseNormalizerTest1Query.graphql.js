@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d3fec4f10e8a4d1b8f0dcbf6caa79750>>
+ * @generated SignedSource<<0e0eb95a57d38cf1a6e5dd20e34a6930>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -88,7 +88,7 @@ v3 = [
     "name": "node",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
+      (v1/*:: as any*/),
       {
         "alias": null,
         "args": null,
@@ -99,7 +99,7 @@ v3 = [
       {
         "kind": "InlineFragment",
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": [
@@ -137,8 +137,8 @@ v3 = [
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
-                      (v2/*: any*/)
+                      (v1/*:: as any*/),
+                      (v2/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -182,20 +182,20 @@ v3 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest1Query",
-    "selections": (v3/*: any*/),
+    "selections": (v3/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest1Query",
-    "selections": (v3/*: any*/)
+    "selections": (v3/*:: as any*/)
   },
   "params": {
     "cacheID": "1185a7c383dcd03d2d6761e3f9046887",
@@ -209,10 +209,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "21cfeb680654590fc2d0d1f5e7428db3";
+  (node/*:: as any*/).hash = "21cfeb680654590fc2d0d1f5e7428db3";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest1Query$variables,
   RelayResponseNormalizerTest1Query$data,
 >*/);

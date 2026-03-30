@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fd4da1ff1390f475b557b34ca7bd15c8>>
+ * @generated SignedSource<<ece25c1bd5767ef7a318a120426c0299>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -57,7 +57,7 @@ return {
           "selections": [
             {
               "kind": "CatchField",
-              "field": (v0/*: any*/),
+              "field": (v0/*:: as any*/),
               "to": "RESULT"
             }
           ],
@@ -83,7 +83,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -108,10 +108,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "caace83ff2eba5055c065fd58e31aa3b";
+  (node/*:: as any*/).hash = "caace83ff2eba5055c065fd58e31aa3b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   CatchTest1Query$variables,
   CatchTest1Query$data,
 >*/);

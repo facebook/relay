@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9d1f6226524965684a3fc5bd70530c74>>
+ * @generated SignedSource<<f2ae2a4b6cd8287430a4ffc92b96a0d4>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -70,7 +70,7 @@ return {
             "kind": "LinkedField",
             "name": "__profilePicture_test",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -96,17 +96,17 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "concreteType": "Image",
             "kind": "LinkedField",
             "name": "profilePicture",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": "profilePicture(size:32)"
           },
           {
             "alias": null,
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "filters": null,
             "handle": "test",
             "key": "",
@@ -137,10 +137,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3f4b7b4bf9222b672e93525d69244696";
+  (node/*:: as any*/).hash = "3f4b7b4bf9222b672e93525d69244696";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   DataCheckerTest1Query$variables,
   DataCheckerTest1Query$data,
 >*/);

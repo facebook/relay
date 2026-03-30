@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<04dbe2a2f4b510ad028266a1fdf5966b>>
+ * @generated SignedSource<<c82962c49ce63e2a0cccf5b748e13150>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,7 +21,7 @@ import {hello as queryHelloResolverType} from "../resolvers/HelloWorldResolver.j
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloResolverType: (
+(queryHelloResolverType as (
   args: {|
     world: string,
   |},
@@ -57,7 +57,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "name": "hello",
@@ -81,7 +81,7 @@ return {
         "selections": [
           {
             "name": "hello",
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "kind": "RelayResolver",
             "storageKey": "hello(world:\"world\")",
             "isOutputType": true,
@@ -107,10 +107,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f4edc2aa49bc406ef5fc57d2d43b3cbe";
+  (node/*:: as any*/).hash = "f4edc2aa49bc406ef5fc57d2d43b3cbe";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayModernEnvironmentExecuteWithSourceTestResolverQuery$variables,
   RelayModernEnvironmentExecuteWithSourceTestResolverQuery$data,
 >*/);

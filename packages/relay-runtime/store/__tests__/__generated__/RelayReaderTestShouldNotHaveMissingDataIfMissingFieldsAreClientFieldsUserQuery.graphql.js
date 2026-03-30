@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5d165fba8181da59a447a9e5fef2bf84>>
+ * @generated SignedSource<<f91528d2e245d4096aade40849fe8566>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -77,7 +77,7 @@ v5 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery",
@@ -104,7 +104,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery",
     "selections": [
@@ -116,7 +116,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": [
@@ -139,7 +139,7 @@ return {
                 "name": "edges",
                 "plural": true,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -148,7 +148,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
+                      (v1/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -167,7 +167,7 @@ return {
                             "name": "client_foo",
                             "plural": false,
                             "selections": [
-                              (v3/*: any*/)
+                              (v3/*:: as any*/)
                             ],
                             "storageKey": null
                           }
@@ -200,7 +200,7 @@ return {
               {
                 "kind": "ClientExtension",
                 "selections": [
-                  (v4/*: any*/)
+                  (v4/*:: as any*/)
                 ]
               }
             ],
@@ -217,7 +217,7 @@ return {
                 "name": "nickname",
                 "storageKey": null
               },
-              (v4/*: any*/),
+              (v4/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -226,7 +226,7 @@ return {
                 "name": "client_foo",
                 "plural": false,
                 "selections": [
-                  (v3/*: any*/),
+                  (v3/*:: as any*/),
                   {
                     "alias": null,
                     "args": [
@@ -241,7 +241,7 @@ return {
                     "name": "profile_picture",
                     "plural": false,
                     "selections": [
-                      (v5/*: any*/)
+                      (v5/*:: as any*/)
                     ],
                     "storageKey": "profile_picture(scale:2)"
                   }
@@ -271,7 +271,7 @@ return {
                         "name": "client_friend_edge_field",
                         "storageKey": null
                       },
-                      (v2/*: any*/),
+                      (v2/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -280,11 +280,11 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v1/*: any*/),
+                          (v1/*:: as any*/),
                           {
                             "kind": "InlineFragment",
                             "selections": [
-                              (v4/*: any*/),
+                              (v4/*:: as any*/),
                               {
                                 "alias": null,
                                 "args": [
@@ -299,7 +299,7 @@ return {
                                 "name": "profilePicture",
                                 "plural": false,
                                 "selections": [
-                                  (v5/*: any*/),
+                                  (v5/*:: as any*/),
                                   {
                                     "alias": null,
                                     "args": null,
@@ -349,10 +349,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bd858976002087b3fee19b50cc499727";
+  (node/*:: as any*/).hash = "bd858976002087b3fee19b50cc499727";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$variables,
   RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<223bfaf683803967231848ac1da32049>>
+ * @generated SignedSource<<412ebf3c4ce8807193bb320135a8b101>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -131,13 +131,13 @@ v10 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/),
-      (v6/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/),
+      (v6/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -145,7 +145,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v7/*: any*/),
+        "args": (v7/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -166,33 +166,33 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/),
-      (v6/*: any*/),
-      (v3/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/),
+      (v6/*:: as any*/),
+      (v3/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "useBlockingPaginationFragmentTest2FragmentPaginationQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v7/*: any*/),
+        "args": (v7/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v8/*: any*/),
-          (v9/*: any*/),
+          (v8/*:: as any*/),
+          (v9/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v10/*: any*/),
+                "args": (v10/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -219,8 +219,8 @@ return {
                             "name": "node",
                             "plural": false,
                             "selections": [
-                              (v9/*: any*/),
-                              (v8/*: any*/)
+                              (v9/*:: as any*/),
+                              (v8/*:: as any*/)
                             ],
                             "storageKey": null
                           },
@@ -287,7 +287,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v10/*: any*/),
+                "args": (v10/*:: as any*/),
                 "filters": [
                   "orderby",
                   "isViewerFriend"
@@ -318,10 +318,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5f8e9317f3d4ea9a22cd368f8b8d0c4d";
+  (node/*:: as any*/).hash = "5f8e9317f3d4ea9a22cd368f8b8d0c4d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables,
   useBlockingPaginationFragmentTest2FragmentPaginationQuery$data,
 >*/);

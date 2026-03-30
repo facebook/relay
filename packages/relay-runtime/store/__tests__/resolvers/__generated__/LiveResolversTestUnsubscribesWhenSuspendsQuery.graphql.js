@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dad5eed25fddbb263b2ec017549f7c61>>
+ * @generated SignedSource<<963e66f117e88c1fe2f2ec673dcf282e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {live_external_greeting as queryLiveExternalGreetingResolverType} from ".
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveExternalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveExternalGreetingResolverType: (
+(queryLiveExternalGreetingResolverType as (
   rootKey: LiveExternalGreetingFragment$key,
   args: void,
   context: TestResolverContextType,
@@ -31,7 +31,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveUserSuspendsWhenOddResolverType: (
+(queryLiveUserSuspendsWhenOddResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?{|
@@ -122,14 +122,14 @@ return {
     "kind": "Operation",
     "name": "LiveResolversTestUnsubscribesWhenSuspendsQuery",
     "selections": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "name": "live_external_greeting",
         "args": null,
         "fragment": {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "type": "Query",
           "abstractKey": null
@@ -152,10 +152,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "06f9d01a4042d27c7e069bc35d4694c1";
+  (node/*:: as any*/).hash = "06f9d01a4042d27c7e069bc35d4694c1";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTestUnsubscribesWhenSuspendsQuery$variables,
   LiveResolversTestUnsubscribesWhenSuspendsQuery$data,
 >*/);

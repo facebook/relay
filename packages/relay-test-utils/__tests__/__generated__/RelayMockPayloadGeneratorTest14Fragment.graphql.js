@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7b4591e4b367cf9aa9aa75cf802f9ad6>>
+ * @generated SignedSource<<f4f710dd5cfe7cc61e9f31945b93f68b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -89,7 +89,7 @@ return {
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
-      "selections": (v0/*: any*/),
+      "selections": (v0/*:: as any*/),
       "storageKey": null
     },
     {
@@ -105,7 +105,7 @@ return {
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
-      "selections": (v0/*: any*/),
+      "selections": (v0/*:: as any*/),
       "storageKey": null
     }
   ],
@@ -115,10 +115,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5617c6db55c34b5c577c3132b1c6db8a";
+  (node/*:: as any*/).hash = "5617c6db55c34b5c577c3132b1c6db8a";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest14Fragment$fragmentType,
   RelayMockPayloadGeneratorTest14Fragment$data,
 >*/);

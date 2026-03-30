@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0fe834c23b41818299338974b6c5c690>>
+ * @generated SignedSource<<76cf37303ec48165f1d6f559d6162f50>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -48,7 +48,7 @@ return {
   "metadata": null,
   "name": "ActorChangeWithMutationTestFragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -57,7 +57,7 @@ return {
       "name": "actor",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
+        (v0/*:: as any*/),
         {
           "alias": null,
           "args": null,
@@ -75,10 +75,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "19cbfdfb8e8c68efa9a193744af18576";
+  (node/*:: as any*/).hash = "19cbfdfb8e8c68efa9a193744af18576";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ActorChangeWithMutationTestFragment$fragmentType,
   ActorChangeWithMutationTestFragment$data,
 >*/);

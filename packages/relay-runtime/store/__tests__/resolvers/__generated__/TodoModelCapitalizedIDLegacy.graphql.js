@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<21fc3ca2c302bb16ee5eef2275a74e4a>>
+ * @generated SignedSource<<ac765abb3ca1533f161a3a769b09ab10>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -54,10 +54,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "77e5adaeb6123b858f391b8f3442675c";
+  (node/*:: as any*/).hash = "77e5adaeb6123b858f391b8f3442675c";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoModelCapitalizedIDLegacy$fragmentType,
   TodoModelCapitalizedIDLegacy$data,
 >*/);

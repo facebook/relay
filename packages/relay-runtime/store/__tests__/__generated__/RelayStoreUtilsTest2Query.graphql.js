@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1dcae85b9b7e4c488b6ca365de64b2ad>>
+ * @generated SignedSource<<e2f35d3ed58a042ac7dbf1c3f66e393e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -70,7 +70,7 @@ return {
             "kind": "LinkedField",
             "name": "__UserQuery_profile_picture_photoHandler",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -96,17 +96,17 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "concreteType": "Image",
             "kind": "LinkedField",
             "name": "profile_picture",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": "profile_picture(scale:42)"
           },
           {
             "alias": null,
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "filters": null,
             "handle": "photoHandler",
             "key": "UserQuery_profile_picture",
@@ -137,10 +137,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a82c4f8b284288bdf23bccb1627ba8b1";
+  (node/*:: as any*/).hash = "a82c4f8b284288bdf23bccb1627ba8b1";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayStoreUtilsTest2Query$variables,
   RelayStoreUtilsTest2Query$data,
 >*/);

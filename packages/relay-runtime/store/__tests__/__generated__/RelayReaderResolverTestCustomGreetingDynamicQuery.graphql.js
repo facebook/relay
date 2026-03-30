@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1a05fa08f7db481d9c0e04d454be73d7>>
+ * @generated SignedSource<<5078bcf011c2142700840dda15f3c7f2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,7 +22,7 @@ import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/Us
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userCustomGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userCustomGreetingResolverType: (
+(userCustomGreetingResolverType as (
   rootKey: UserCustomGreetingResolver$key,
   args: {|
     salutation: string,
@@ -95,7 +95,7 @@ v5 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderResolverTestCustomGreetingDynamicQuery",
@@ -110,8 +110,8 @@ return {
         "selections": [
           {
             "alias": "dynamic_greeting",
-            "args": (v1/*: any*/),
-            "fragment": (v2/*: any*/),
+            "args": (v1/*:: as any*/),
+            "fragment": (v2/*:: as any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
             "resolverModule": require('../resolvers/UserCustomGreetingResolver').custom_greeting,
@@ -119,8 +119,8 @@ return {
           },
           {
             "alias": "greetz",
-            "args": (v3/*: any*/),
-            "fragment": (v2/*: any*/),
+            "args": (v3/*:: as any*/),
+            "fragment": (v2/*:: as any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
             "resolverModule": require('../resolvers/UserCustomGreetingResolver').custom_greeting,
@@ -128,8 +128,8 @@ return {
           },
           {
             "alias": "willkommen",
-            "args": (v4/*: any*/),
-            "fragment": (v2/*: any*/),
+            "args": (v4/*:: as any*/),
+            "fragment": (v2/*:: as any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
             "resolverModule": require('../resolvers/UserCustomGreetingResolver').custom_greeting,
@@ -144,7 +144,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderResolverTestCustomGreetingDynamicQuery",
     "selections": [
@@ -158,24 +158,24 @@ return {
         "selections": [
           {
             "name": "custom_greeting",
-            "args": (v1/*: any*/),
-            "fragment": (v5/*: any*/),
+            "args": (v1/*:: as any*/),
+            "fragment": (v5/*:: as any*/),
             "kind": "RelayResolver",
             "storageKey": null,
             "isOutputType": true
           },
           {
             "name": "custom_greeting",
-            "args": (v3/*: any*/),
-            "fragment": (v5/*: any*/),
+            "args": (v3/*:: as any*/),
+            "fragment": (v5/*:: as any*/),
             "kind": "RelayResolver",
             "storageKey": "custom_greeting(salutation:\"Greetz\")",
             "isOutputType": true
           },
           {
             "name": "custom_greeting",
-            "args": (v4/*: any*/),
-            "fragment": (v5/*: any*/),
+            "args": (v4/*:: as any*/),
+            "fragment": (v5/*:: as any*/),
             "kind": "RelayResolver",
             "storageKey": "custom_greeting(salutation:\"Willkommen\")",
             "isOutputType": true
@@ -204,10 +204,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8c67182e4793c86d528dbe4b8cf94a87";
+  (node/*:: as any*/).hash = "8c67182e4793c86d528dbe4b8cf94a87";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTestCustomGreetingDynamicQuery$variables,
   RelayReaderResolverTestCustomGreetingDynamicQuery$data,
 >*/);

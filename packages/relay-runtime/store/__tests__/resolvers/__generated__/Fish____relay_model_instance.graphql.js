@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f6086a4d55dd2e48798763cdfeee2a7a>>
+ * @generated SignedSource<<7a71437adaa15ae85fb351d5c5b225d9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {Fish as fishRelayModelInstanceResolverType} from "../FishResolvers.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `fishRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(fishRelayModelInstanceResolverType: (
+(fishRelayModelInstanceResolverType as (
   id: Fish__id$data['id'],
   args: void,
   context: TestResolverContextType,
@@ -64,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   Fish____relay_model_instance$fragmentType,
   Fish____relay_model_instance$data,
 >*/);

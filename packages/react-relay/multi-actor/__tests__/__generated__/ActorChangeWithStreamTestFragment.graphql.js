@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b13d734bddf5d2f40f5084caa1e1e39b>>
+ * @generated SignedSource<<feb5075698b23431c98c10b9ec8f52d4>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -53,7 +53,7 @@ return {
   "metadata": null,
   "name": "ActorChangeWithStreamTestFragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -80,7 +80,7 @@ return {
       "name": "feedback",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
+        (v0/*:: as any*/),
         {
           "kind": "Stream",
           "selections": [
@@ -114,10 +114,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f6caca148f49ab0721890ee040c47e77";
+  (node/*:: as any*/).hash = "f6caca148f49ab0721890ee040c47e77";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ActorChangeWithStreamTestFragment$fragmentType,
   ActorChangeWithStreamTestFragment$data,
 >*/);

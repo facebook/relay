@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<69647dabb18c3a911558a7081d6fb886>>
+ * @generated SignedSource<<38b8665168b166f35fd80e87d08c4457>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -54,7 +54,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   BaseCounter____relay_model_instance$fragmentType,
   BaseCounter____relay_model_instance$data,
 >*/);

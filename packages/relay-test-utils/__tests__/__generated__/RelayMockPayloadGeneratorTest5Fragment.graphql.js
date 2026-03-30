@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0531e259f90078f1f6f040e4fc3204dd>>
+ * @generated SignedSource<<97afe54b445087b87202d240e5d4cda2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -101,7 +101,7 @@ return {
         {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "alias": "myType",
               "args": null,
@@ -154,13 +154,13 @@ return {
                       "name": "node",
                       "plural": false,
                       "selections": [
-                        (v0/*: any*/),
+                        (v0/*:: as any*/),
                         {
                           "condition": "skipUserInConnection",
                           "kind": "Condition",
                           "passingValue": false,
                           "selections": [
-                            (v1/*: any*/)
+                            (v1/*:: as any*/)
                           ]
                         },
                         {
@@ -204,7 +204,7 @@ return {
               ],
               "storageKey": null
             },
-            (v1/*: any*/)
+            (v1/*:: as any*/)
           ],
           "type": "User",
           "abstractKey": null
@@ -219,10 +219,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f00962ad9a873757b70472af4c68956a";
+  (node/*:: as any*/).hash = "f00962ad9a873757b70472af4c68956a";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest5Fragment$fragmentType,
   RelayMockPayloadGeneratorTest5Fragment$data,
 >*/);

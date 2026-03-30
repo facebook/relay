@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<342b25b6ed985ceacd0c5ecc2da21047>>
+ * @generated SignedSource<<43a66d6edf5a622f011676f431fa3b4b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -61,7 +61,7 @@ var node/*: NormalizationSplitOperation*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7c1010ea945368e73772ffc0c72399a3";
+  (node/*:: as any*/).hash = "7c1010ea945368e73772ffc0c72399a3";
 }
 
 module.exports = node;

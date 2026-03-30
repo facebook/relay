@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cb84a98f5f3d59c646b9682bec81246a>>
+ * @generated SignedSource<<2ba1ee846e710bf6cb23f25e4f448fad>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -54,10 +54,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "90827e6d949c570b97d48215981743dd";
+  (node/*:: as any*/).hash = "90827e6d949c570b97d48215981743dd";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoTextColorResolverFragment$fragmentType,
   TodoTextColorResolverFragment$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1a320eff98d09d3820d96ce5684fa84e>>
+ * @generated SignedSource<<285c19f7732dc0aa23e0cc8498a070e1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {cat as queryCatResolverType} from "../../../relay-runtime/store/__tests_
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCatResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCatResolverType: (
+(queryCatResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?{|
@@ -50,7 +50,7 @@ var v0 = {
   "storageKey": null
 },
 v1 = [
-  (v0/*: any*/)
+  (v0/*:: as any*/)
 ];
 return {
   "fragment": {
@@ -165,7 +165,7 @@ return {
                             "args": null,
                             "fragment": {
                               "kind": "InlineFragment",
-                              "selections": (v1/*: any*/),
+                              "selections": (v1/*:: as any*/),
                               "type": "Cat",
                               "abstractKey": null
                             },
@@ -199,7 +199,7 @@ return {
                             "args": null,
                             "fragment": {
                               "kind": "InlineFragment",
-                              "selections": (v1/*: any*/),
+                              "selections": (v1/*:: as any*/),
                               "type": "Fish",
                               "abstractKey": null
                             },
@@ -223,7 +223,7 @@ return {
               "type": "IAnimal",
               "abstractKey": "__isIAnimal"
             },
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -249,10 +249,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bfa07f8bbeb86466f11b1e960da49893";
+  (node/*:: as any*/).hash = "bfa07f8bbeb86466f11b1e960da49893";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestCatLegsQuery$variables,
   RelayResolverInterfaceTestCatLegsQuery$data,
 >*/);

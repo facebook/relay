@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d601026a1dcf541ba6ac33c1815dfb7c>>
+ * @generated SignedSource<<6ce857aaa0b3fb9a115a8ee9ac806610>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -75,7 +75,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -84,8 +84,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/)
+              (v1/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -93,8 +93,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v1/*: any*/),
-              (v3/*: any*/)
+              (v1/*:: as any*/),
+              (v3/*:: as any*/)
             ],
             "type": "Page",
             "abstractKey": null
@@ -114,7 +114,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -127,11 +127,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -139,7 +139,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "type": "Page",
             "abstractKey": null
@@ -172,8 +172,8 @@ return {
           "plural": false,
           "type": "ID"
         },
-        "node.name": (v4/*: any*/),
-        "node.pageName": (v4/*: any*/)
+        "node.name": (v4/*:: as any*/),
+        "node.pageName": (v4/*:: as any*/)
       }
     },
     "name": "RelayMockPayloadGeneratorTest25Query",
@@ -184,10 +184,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2a2f3263c9309ccf610b5451867aba98";
+  (node/*:: as any*/).hash = "2a2f3263c9309ccf610b5451867aba98";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest25Query$variables,
   RelayMockPayloadGeneratorTest25Query$data,
 >*/);

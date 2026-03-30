@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f3880ab66f27e3e15ebe4d8a0066b5ff>>
+ * @generated SignedSource<<0e624c34b12b4665b7a849b04248061c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -53,13 +53,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": "User",
         "kind": "LinkedField",
         "name": "fetch__User",
         "plural": false,
         "selections": [
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": "fetch__User(id:\"100\")"
       }
@@ -75,13 +75,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": "User",
         "kind": "LinkedField",
         "name": "fetch__User",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -106,10 +106,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f63a305831029f2803bc700961066308";
+  (node/*:: as any*/).hash = "f63a305831029f2803bc700961066308";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseTransformTestNullLinkedQuery$variables,
   RelayExperimentalGraphResponseTransformTestNullLinkedQuery$data,
 >*/);

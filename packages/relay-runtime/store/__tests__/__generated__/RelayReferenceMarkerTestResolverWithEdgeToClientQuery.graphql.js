@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ce9ae8ff069b26675cbb5ea410115cb2>>
+ * @generated SignedSource<<317cdec880e1add81b6054bead3360d1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from ".
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAllAstrologicalSignsResolverType: (
+(queryAllAstrologicalSignsResolverType as (
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -58,7 +58,7 @@ v1 = {
   "name": "all_astrological_signs",
   "plural": true,
   "selections": [
-    (v0/*: any*/)
+    (v0/*:: as any*/)
   ],
   "storageKey": null
 };
@@ -89,7 +89,7 @@ return {
           "resolverModule": require('../resolvers/QueryAllAstrologicalSignsResolver').all_astrological_signs,
           "path": "all_astrological_signs"
         },
-        "linkedField": (v1/*: any*/)
+        "linkedField": (v1/*:: as any*/)
       }
     ],
     "type": "Query",
@@ -124,7 +124,7 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -136,7 +136,7 @@ return {
           "storageKey": null,
           "isOutputType": false
         },
-        "linkedField": (v1/*: any*/)
+        "linkedField": (v1/*:: as any*/)
       }
     ]
   },
@@ -152,10 +152,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2ca79d027314a1a8e7f8c700d07c8fb0";
+  (node/*:: as any*/).hash = "2ca79d027314a1a8e7f8c700d07c8fb0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReferenceMarkerTestResolverWithEdgeToClientQuery$variables,
   RelayReferenceMarkerTestResolverWithEdgeToClientQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fc1e541e8e61f454fe391040f1c03b72>>
+ * @generated SignedSource<<1c9560651db1e7a97aea91331c3d65f8>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -67,7 +67,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayPaginationContainerFlowtestQuery",
@@ -94,7 +94,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayPaginationContainerFlowtestQuery",
     "selections": [
@@ -116,7 +116,7 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -145,7 +145,7 @@ return {
                             "name": "__typename",
                             "storageKey": null
                           },
-                          (v2/*: any*/)
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -189,14 +189,14 @@ return {
               },
               {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "ReactRelayPaginationContainerFlowtest_viewer__friends",
                 "kind": "LinkedHandle",
                 "name": "friends"
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -217,10 +217,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "712afeafa1f51bfe391719629a0fcea0";
+  (node/*:: as any*/).hash = "712afeafa1f51bfe391719629a0fcea0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayPaginationContainerFlowtestQuery$variables,
   ReactRelayPaginationContainerFlowtestQuery$data,
 >*/);

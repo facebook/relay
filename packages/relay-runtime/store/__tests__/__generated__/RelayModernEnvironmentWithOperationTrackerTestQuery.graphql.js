@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c427890e140ebfcc00cf85502a23c814>>
+ * @generated SignedSource<<9f355bb6fe0384f4a258d858ef0bb2b1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -108,14 +108,14 @@ v10 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentWithOperationTrackerTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -135,20 +135,20 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentWithOperationTrackerTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -178,7 +178,7 @@ return {
                 "name": "author",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
                     "args": [
@@ -193,7 +193,7 @@ return {
                     "name": "nameRenderer",
                     "plural": false,
                     "selections": [
-                      (v2/*: any*/),
+                      (v2/*:: as any*/),
                       {
                         "kind": "InlineFragment",
                         "selections": [
@@ -239,7 +239,7 @@ return {
                     "name": "nameRenderer",
                     "plural": false,
                     "selections": [
-                      (v2/*: any*/),
+                      (v2/*:: as any*/),
                       {
                         "kind": "InlineFragment",
                         "selections": [
@@ -257,7 +257,7 @@ return {
                     ],
                     "storageKey": "nameRenderer(supported:\"1AwQS7\")"
                   },
-                  (v3/*: any*/)
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -281,41 +281,41 @@ return {
           "plural": false,
           "type": "Node"
         },
-        "node.__typename": (v4/*: any*/),
+        "node.__typename": (v4/*:: as any*/),
         "node.author": {
           "enumValues": null,
           "nullable": true,
           "plural": false,
           "type": "User"
         },
-        "node.author.__typename": (v4/*: any*/),
-        "node.author.id": (v5/*: any*/),
-        "node.author.nameRenderer": (v6/*: any*/),
-        "node.author.nameRenderer.__module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment": (v7/*: any*/),
-        "node.author.nameRenderer.__module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment": (v7/*: any*/),
-        "node.author.nameRenderer.__typename": (v4/*: any*/),
-        "node.author.nameRenderer.data": (v8/*: any*/),
-        "node.author.nameRenderer.data.id": (v9/*: any*/),
-        "node.author.nameRenderer.data.markup": (v10/*: any*/),
-        "node.author.nameRenderer.data.text": (v10/*: any*/),
-        "node.author.nameRenderer.markdown": (v10/*: any*/),
-        "node.author.nameRenderer.plaintext": (v10/*: any*/),
-        "node.author.plainNameRenderer": (v6/*: any*/),
-        "node.author.plainNameRenderer.__module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer": (v7/*: any*/),
-        "node.author.plainNameRenderer.__module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer": (v7/*: any*/),
-        "node.author.plainNameRenderer.__typename": (v4/*: any*/),
-        "node.author.plainNameRenderer.data": (v8/*: any*/),
-        "node.author.plainNameRenderer.data.id": (v9/*: any*/),
-        "node.author.plainNameRenderer.data.text": (v10/*: any*/),
-        "node.author.plainNameRenderer.plaintext": (v10/*: any*/),
+        "node.author.__typename": (v4/*:: as any*/),
+        "node.author.id": (v5/*:: as any*/),
+        "node.author.nameRenderer": (v6/*:: as any*/),
+        "node.author.nameRenderer.__module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment": (v7/*:: as any*/),
+        "node.author.nameRenderer.__module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment": (v7/*:: as any*/),
+        "node.author.nameRenderer.__typename": (v4/*:: as any*/),
+        "node.author.nameRenderer.data": (v8/*:: as any*/),
+        "node.author.nameRenderer.data.id": (v9/*:: as any*/),
+        "node.author.nameRenderer.data.markup": (v10/*:: as any*/),
+        "node.author.nameRenderer.data.text": (v10/*:: as any*/),
+        "node.author.nameRenderer.markdown": (v10/*:: as any*/),
+        "node.author.nameRenderer.plaintext": (v10/*:: as any*/),
+        "node.author.plainNameRenderer": (v6/*:: as any*/),
+        "node.author.plainNameRenderer.__module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer": (v7/*:: as any*/),
+        "node.author.plainNameRenderer.__module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer": (v7/*:: as any*/),
+        "node.author.plainNameRenderer.__typename": (v4/*:: as any*/),
+        "node.author.plainNameRenderer.data": (v8/*:: as any*/),
+        "node.author.plainNameRenderer.data.id": (v9/*:: as any*/),
+        "node.author.plainNameRenderer.data.text": (v10/*:: as any*/),
+        "node.author.plainNameRenderer.plaintext": (v10/*:: as any*/),
         "node.body": {
           "enumValues": null,
           "nullable": true,
           "plural": false,
           "type": "Text"
         },
-        "node.body.text": (v10/*: any*/),
-        "node.id": (v5/*: any*/)
+        "node.body.text": (v10/*:: as any*/),
+        "node.id": (v5/*:: as any*/)
       }
     },
     "name": "RelayModernEnvironmentWithOperationTrackerTestQuery",
@@ -326,10 +326,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f99896bd25a8f9b54139a54ecb15defe";
+  (node/*:: as any*/).hash = "f99896bd25a8f9b54139a54ecb15defe";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentWithOperationTrackerTestQuery$variables,
   RelayModernEnvironmentWithOperationTrackerTestQuery$data,
 >*/);

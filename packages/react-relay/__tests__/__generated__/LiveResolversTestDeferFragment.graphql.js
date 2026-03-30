@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<38cd0c32c66a909982d52270c65cf198>>
+ * @generated SignedSource<<727ec3e74f4fa2877d004bac043cb4f7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ import {counter_suspends_when_odd as queryCounterSuspendsWhenOddResolverType} fr
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterSuspendsWhenOddResolverType: (
+(queryCounterSuspendsWhenOddResolverType as (
   rootKey: CounterSuspendsWhenOdd$key,
   args: void,
   context: TestResolverContextType,
@@ -65,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b0021654a94dd7cd7005caf576f7ba36";
+  (node/*:: as any*/).hash = "b0021654a94dd7cd7005caf576f7ba36";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   LiveResolversTestDeferFragment$fragmentType,
   LiveResolversTestDeferFragment$data,
 >*/);

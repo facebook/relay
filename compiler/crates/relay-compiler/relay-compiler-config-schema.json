@@ -704,14 +704,14 @@
           "description": "Use `(expr as Type)` instead of `(expr: Type)` for Flow type assertions.\nThis enables gradual rollout of the new casting syntax across files.",
           "$ref": "#/$defs/FeatureFlag",
           "default": {
-            "kind": "disabled"
+            "kind": "enabled"
           }
         },
         "new_flow_casting_syntax_require_cond": {
           "description": "Use `(expr as Type)` instead of `(expr: Type)` for Flow type assertions\nin `requireCond` patterns. This enables gradual rollout of the new\ncasting syntax for requireCond-generated artifacts.",
           "$ref": "#/$defs/FeatureFlag",
           "default": {
-            "kind": "disabled"
+            "kind": "enabled"
           }
         },
         "no_inline": {
@@ -970,10 +970,10 @@
               "kind": "disabled"
             },
             "new_flow_casting_syntax": {
-              "kind": "disabled"
+              "kind": "enabled"
             },
             "new_flow_casting_syntax_require_cond": {
-              "kind": "disabled"
+              "kind": "enabled"
             },
             "no_inline": {
               "kind": "disabled"

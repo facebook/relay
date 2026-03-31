@@ -1053,6 +1053,7 @@ pub fn generate_docblock_section(
         writeln!(section, "@flow")?;
     }
     writeln!(section, "@lightSyntaxTransform")?;
+    writeln!(section, "@nogrep")?;
 
     if let Some(codegen_command) = &project_config
         .codegen_command

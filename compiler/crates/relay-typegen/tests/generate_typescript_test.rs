@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1903a7cf2db933f9227f3b83bb115fb5>>
+ * @generated SignedSource<<c51fddcbed5f235f1dd125936cab7ebd>>
  */
 
 mod generate_typescript;
@@ -136,6 +136,13 @@ async fn conditional() {
     let input = include_str!("generate_typescript/fixtures/conditional.graphql");
     let expected = include_str!("generate_typescript/fixtures/conditional.expected");
     test_fixture(transform_fixture, file!(), "conditional.graphql", "generate_typescript/fixtures/conditional.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn conditional_and_unconditional_fragments() {
+    let input = include_str!("generate_typescript/fixtures/conditional-and-unconditional-fragments.graphql");
+    let expected = include_str!("generate_typescript/fixtures/conditional-and-unconditional-fragments.expected");
+    test_fixture(transform_fixture, file!(), "conditional-and-unconditional-fragments.graphql", "generate_typescript/fixtures/conditional-and-unconditional-fragments.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -297,6 +304,13 @@ async fn query_with_stream_connection() {
     let input = include_str!("generate_typescript/fixtures/query-with-stream-connection.graphql");
     let expected = include_str!("generate_typescript/fixtures/query-with-stream-connection.expected");
     test_fixture(transform_fixture, file!(), "query-with-stream-connection.graphql", "generate_typescript/fixtures/query-with-stream-connection.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn raw_response_multiple_scalar_fields() {
+    let input = include_str!("generate_typescript/fixtures/raw-response-multiple-scalar-fields.graphql");
+    let expected = include_str!("generate_typescript/fixtures/raw-response-multiple-scalar-fields.expected");
+    test_fixture(transform_fixture, file!(), "raw-response-multiple-scalar-fields.graphql", "generate_typescript/fixtures/raw-response-multiple-scalar-fields.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -604,14 +604,12 @@ fn print_directive_value_items(directives: &[DirectiveValue]) -> String {
     if directives.is_empty() {
         String::new()
     } else {
-        format!(
-            " {}",
-            directives
-                .iter()
-                .map(print_directive_value)
-                .collect::<Vec<_>>()
-                .join(" ")
-        )
+        let mut printed_directives = directives
+            .iter()
+            .map(print_directive_value)
+            .collect::<Vec<_>>();
+        printed_directives.sort();
+        format!(" {}", printed_directives.join(" "))
     }
 }
 
@@ -619,15 +617,13 @@ fn print_directive_value(directive: &DirectiveValue) -> String {
     let printed_args = if directive.arguments.is_empty() {
         String::new()
     } else {
-        format!(
-            "({})",
-            directive
-                .arguments
-                .iter()
-                .map(print_argument_value)
-                .collect::<Vec<_>>()
-                .join(", ")
-        )
+        let mut printed_values = directive
+            .arguments
+            .iter()
+            .map(print_argument_value)
+            .collect::<Vec<_>>();
+        printed_values.sort();
+        format!("({})", printed_values.join(", "))
     };
 
     format!(

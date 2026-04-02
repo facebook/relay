@@ -6,7 +6,7 @@ fragment Foo on Query {
       ...Updatable_user
     }
     ... on Comment {
-      __typename @fb_actor_change
+      __typename @skip(if: true)
     }
   }
 }

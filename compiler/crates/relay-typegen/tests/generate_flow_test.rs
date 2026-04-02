@@ -4,27 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1362eec89123512c826effa9bf3a99ec>>
+ * @generated SignedSource<<8298469873db01e6c9336098f8c1faca>>
  */
 
 mod generate_flow;
 
 use generate_flow::transform_fixture;
 use fixture_tests::test_fixture;
-
-#[tokio::test]
-async fn actor_change() {
-    let input = include_str!("generate_flow/fixtures/actor-change.graphql");
-    let expected = include_str!("generate_flow/fixtures/actor-change.expected");
-    test_fixture(transform_fixture, file!(), "actor-change.graphql", "generate_flow/fixtures/actor-change.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn actor_change_with_query() {
-    let input = include_str!("generate_flow/fixtures/actor-change-with-query.graphql");
-    let expected = include_str!("generate_flow/fixtures/actor-change-with-query.expected");
-    test_fixture(transform_fixture, file!(), "actor-change-with-query.graphql", "generate_flow/fixtures/actor-change-with-query.expected", input, expected).await;
-}
 
 #[tokio::test]
 async fn aliased_fragment_raw_response_type() {

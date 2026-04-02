@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ad6f57edc5880bba323992bb2575b54>>
+ * @generated SignedSource<<a63153d73bff5e158caa177e9aa4c9f8>>
  */
 
 mod compile_relay_artifacts;
@@ -101,13 +101,6 @@ async fn abstract_type_refinement_no_unnecessary_type_discriminator_under_condit
     let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.expected");
     test_fixture(transform_fixture, file!(), "abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn actor_change_simple_query() {
-    let input = include_str!("compile_relay_artifacts/fixtures/actor-change-simple-query.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/actor-change-simple-query.expected");
-    test_fixture(transform_fixture, file!(), "actor-change-simple-query.graphql", "compile_relay_artifacts/fixtures/actor-change-simple-query.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -465,13 +458,6 @@ async fn complex_arguments_with_mutliple_variables() {
     let input = include_str!("compile_relay_artifacts/fixtures/complex-arguments-with-mutliple-variables.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/complex-arguments-with-mutliple-variables.expected");
     test_fixture(transform_fixture, file!(), "complex-arguments-with-mutliple-variables.graphql", "compile_relay_artifacts/fixtures/complex-arguments-with-mutliple-variables.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn conflicting_selections_with_actor_change_invalid() {
-    let input = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-actor-change.invalid.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-actor-change.invalid.expected");
-    test_fixture(transform_fixture, file!(), "conflicting-selections-with-actor-change.invalid.graphql", "compile_relay_artifacts/fixtures/conflicting-selections-with-actor-change.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -15,10 +15,6 @@ import type {ReaderLinkedField} from '../../util/ReaderNode';
 import type {Variables} from '../../util/RelayRuntimeTypes';
 import type {ReadOnlyRecordProxy, RecordSourceJSON} from '../RelayStoreTypes';
 import type {
-  DataCheckerTest10Query$data,
-  DataCheckerTest10Query$variables,
-} from './__generated__/DataCheckerTest10Query.graphql';
-import type {
   DataCheckerTest6Query$data,
   DataCheckerTest6Query$variables,
 } from './__generated__/DataCheckerTest6Query.graphql';
@@ -34,7 +30,6 @@ import type {Query as $IMPORTED_TYPE$_Query} from 'relay-runtime/util/RelayRunti
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-  getActorIdentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
 const {getRequest, graphql} = require('../../query/GraphQLTag');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
@@ -54,10 +49,6 @@ const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('check()', () => {
   let Query:
-    | $IMPORTED_TYPE$_Query<
-        DataCheckerTest10Query$variables,
-        DataCheckerTest10Query$data,
-      >
     | $IMPORTED_TYPE$_Query<
         DataCheckerTest6Query$variables,
         DataCheckerTest6Query$data,
@@ -2795,181 +2786,6 @@ describe('check()', () => {
       expect(status).toEqual({
         mostRecentlyInvalidatedAt: null,
         status: 'available',
-      });
-      expect(target.size()).toBe(0);
-    });
-  });
-
-  describe('ActorChange', () => {
-    beforeEach(() => {
-      Query = graphql`
-        query DataCheckerTest10Query {
-          viewer {
-            newsFeed {
-              edges {
-                node @fb_actor_change {
-                  ...DataCheckerTest20Fragment
-                }
-              }
-            }
-          }
-        }
-      `;
-      graphql`
-        fragment DataCheckerTest20Fragment on FeedUnit {
-          id
-          message {
-            text
-          }
-        }
-      `;
-    });
-
-    it('should be able to handle multi-actor stores', () => {
-      const data: RecordSourceJSON = {
-        '1': {
-          __id: '1',
-          __typename: 'FeedUnit',
-          id: 1,
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          viewer: {__ref: 'client:root:viewer'},
-        },
-        'client:root:viewer': {
-          __id: 'client:root:viewer',
-          __typename: 'Viewer',
-          newsFeed: {__ref: 'client:root:viewer:newsFeed'},
-        },
-        'client:root:viewer:newsFeed': {
-          __id: 'client:root:viewer:newsFeed',
-          __typename: 'NewsFeedConnection',
-          edges: {
-            __refs: ['client:root:viewer:newsFeed:edges:0'],
-          },
-        },
-        'client:root:viewer:newsFeed:edges:0': {
-          __id: 'client:root:viewer:newsFeed:edges:0',
-          __typename: 'NewsFeedEdge',
-          node: {__actorIdentifier: 'actor:1234', __ref: '1'},
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        actorId => {
-          if (actorId === getActorIdentifier('actor:1234')) {
-            const typeID = generateTypeID('FeedUnit');
-            return RelayRecordSource.create({
-              '1': {
-                __id: '1',
-                __typename: 'FeedUnit',
-                actor_key: 'actor:1234',
-                id: 1,
-                message: {__ref: '1:message'},
-              },
-              '1:message': {
-                __id: '1:message',
-                __typename: 'Text',
-                text: 'Hello, Antonio',
-              },
-              // $FlowFixMe[invalid-computed-prop]
-              [typeID]: {
-                __id: typeID,
-                __isFeedUnit: true,
-                __typename: TYPE_SCHEMA_TYPE,
-              },
-            });
-          }
-          return source;
-        },
-        actorId => {
-          if (actorId === getActorIdentifier('actor:1234')) {
-            return RelayRecordSource.create();
-          }
-          return target;
-        },
-        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
-        [],
-        null,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        mostRecentlyInvalidatedAt: null,
-        status: 'available',
-      });
-      expect(target.size()).toBe(0);
-    });
-
-    it('should report missing data in multi-actor stores', () => {
-      const data: RecordSourceJSON = {
-        '1': {
-          __id: '1',
-          __typename: 'FeedUnit',
-          id: 1,
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          viewer: {__ref: 'client:root:viewer'},
-        },
-        'client:root:viewer': {
-          __id: 'client:root:viewer',
-          __typename: 'Viewer',
-          newsFeed: {__ref: 'client:root:viewer:newsFeed'},
-        },
-        'client:root:viewer:newsFeed': {
-          __id: 'client:root:viewer:newsFeed',
-          __typename: 'NewsFeedConnection',
-          edges: {
-            __refs: ['client:root:viewer:newsFeed:edges:0'],
-          },
-        },
-        'client:root:viewer:newsFeed:edges:0': {
-          __id: 'client:root:viewer:newsFeed:edges:0',
-          __typename: 'NewsFeedEdge',
-          node: {__actorIdentifier: 'actor:1234', __ref: '1'},
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        actorId => {
-          if (actorId === getActorIdentifier('actor:1234')) {
-            return RelayRecordSource.create({
-              '1': {
-                __id: '1',
-                __typename: 'FeedUnit',
-                actor_key: 'actor:1234',
-                id: 1,
-                message: {__ref: '1:message'},
-              },
-              '1:message': {
-                __id: '1:message',
-                __typename: 'Text',
-                // text: 'Hello, Antonio', --> this field is missing now
-              },
-            });
-          }
-          return source;
-        },
-        actorId => {
-          if (actorId === getActorIdentifier('actor:1234')) {
-            return RelayRecordSource.create();
-          }
-          return target;
-        },
-        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
-        [],
-        null,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        mostRecentlyInvalidatedAt: null,
-        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });

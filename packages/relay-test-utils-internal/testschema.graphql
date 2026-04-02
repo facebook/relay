@@ -26,8 +26,6 @@ directive @fetchable(field_name: String!) on OBJECT
 
 directive @relay_client_component_server(module_id: String!) on FRAGMENT_SPREAD
 
-directive @fb_actor_change on FIELD
-
 directive @client_polling(interval: Int) on QUERY
 
 type Query {

@@ -1,0 +1,33 @@
+[
+  {
+    "message": "Unknown type 'Usr'",
+    "message_type": "common_diagnostic_json_snapshot_test::SimpleMessage",
+    "severity": "error",
+    "location": {
+      "source_location": {
+        "type": "Standalone",
+        "path": "src/schema.graphql"
+      },
+      "span": {
+        "start": 10,
+        "end": 13
+      }
+    }
+  },
+  {
+    "message": "This field is semantically non-null, consider adding @required",
+    "message_type": "common_diagnostic_json_snapshot_test::TaggedMessage",
+    "severity": "hint",
+    "location": {
+      "source_location": {
+        "type": "Embedded",
+        "path": "src/components/Profile.js",
+        "index": 1
+      },
+      "span": {
+        "start": 200,
+        "end": 250
+      }
+    }
+  }
+]

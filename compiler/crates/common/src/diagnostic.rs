@@ -282,10 +282,38 @@ impl serde::Serialize for Diagnostic {
     where
         S: serde::Serializer,
     {
-        let mut diagnostic = serializer.serialize_map(Some(2))?;
-        diagnostic.serialize_entry("message", &self.0.message)?;
+        let mut diagnostic = serializer.serialize_map(Some(4))?;
+        // Serialize message as its Display string instead of as a trait object
+        // to avoid a tag collision between typetag (on DiagnosticDisplay) and
+        // serde's internally-tagged enums (e.g. #[serde(tag = "type")] on
+        // ValidationMessageWithData). Both layers try to write a "type" key,
+        // which causes serde_json to fail.
+        diagnostic.serialize_entry("message", &self.0.message.to_string())?;
+        diagnostic.serialize_entry("message_type", &self.0.message_type_name)?;
+        diagnostic.serialize_entry("severity", &severity_to_string(self.0.severity))?;
         diagnostic.serialize_entry("location", &self.0.location)?;
         diagnostic.end()
+    }
+}
+
+fn severity_to_string(severity: DiagnosticSeverity) -> &'static str {
+    debug_assert!(
+        matches!(
+            severity,
+            DiagnosticSeverity::ERROR
+                | DiagnosticSeverity::WARNING
+                | DiagnosticSeverity::INFORMATION
+                | DiagnosticSeverity::HINT
+        ),
+        "unexpected DiagnosticSeverity value: {:?}",
+        severity
+    );
+    match severity {
+        DiagnosticSeverity::ERROR => "error",
+        DiagnosticSeverity::WARNING => "warning",
+        DiagnosticSeverity::INFORMATION => "info",
+        DiagnosticSeverity::HINT => "hint",
+        _ => "unknown",
     }
 }
 
@@ -369,5 +397,130 @@ pub fn get_diagnostics_data(diagnostic: &Diagnostic) -> Option<Value> {
         ))
     } else {
         None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Location;
+    use crate::SourceLocationKey;
+    use crate::Span;
+
+    /// A simple test message type that implements DiagnosticDisplay via the
+    /// blanket impl (Debug + Display + Send + Sync + serde::Serialize).
+    #[derive(Debug, serde::Serialize)]
+    struct TestMessage(String);
+
+    impl fmt::Display for TestMessage {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(f, "{}", self.0)
+        }
+    }
+
+    /// An enum using `#[serde(tag = "type")]` — the pattern that originally
+    /// collided with typetag's `tag = "type"` on DiagnosticDisplay, causing
+    /// a serialization panic.
+    #[derive(Debug, serde::Serialize)]
+    #[serde(tag = "type")]
+    enum TaggedEnumMessage {
+        ValidationError { detail: String },
+    }
+
+    impl fmt::Display for TaggedEnumMessage {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            match self {
+                TaggedEnumMessage::ValidationError { detail } => {
+                    write!(f, "Validation error: {detail}")
+                }
+            }
+        }
+    }
+
+    fn test_location() -> Location {
+        Location::new(
+            SourceLocationKey::standalone("test/file.graphql"),
+            Span::new(10, 25),
+        )
+    }
+
+    #[test]
+    fn serialize_all_severities() {
+        let cases: Vec<(Diagnostic, &str)> = vec![
+            (
+                Diagnostic::error(TestMessage("err msg".to_string()), test_location()),
+                "error",
+            ),
+            (
+                Diagnostic::warning(TestMessage("warn msg".to_string()), test_location(), vec![]),
+                "warning",
+            ),
+            (
+                Diagnostic::info(TestMessage("info msg".to_string()), test_location(), vec![]),
+                "info",
+            ),
+            (
+                Diagnostic::hint(TestMessage("hint msg".to_string()), test_location(), vec![]),
+                "hint",
+            ),
+        ];
+
+        for (diag, expected_severity) in &cases {
+            let json = serde_json::to_value(diag).unwrap();
+            let obj = json.as_object().unwrap();
+
+            assert_eq!(
+                obj.len(),
+                4,
+                "expected exactly 4 top-level keys for {expected_severity}"
+            );
+
+            assert_eq!(
+                json["severity"], *expected_severity,
+                "severity mismatch for {expected_severity}"
+            );
+
+            assert!(
+                json["message"].is_string(),
+                "message should be a plain string for {expected_severity}"
+            );
+
+            assert!(
+                json["message_type"]
+                    .as_str()
+                    .unwrap()
+                    .contains("TestMessage"),
+                "message_type should contain the Rust type name for {expected_severity}"
+            );
+
+            assert!(
+                json["location"].is_object(),
+                "location should be an object for {expected_severity}"
+            );
+        }
+    }
+
+    /// Regression test: a message type using `#[serde(tag = "type")]` must not
+    /// panic during Diagnostic serialization. The original bug was a collision
+    /// between typetag's `tag = "type"` on DiagnosticDisplay and serde's
+    /// `#[serde(tag = "type")]` on enums like ValidationMessageWithData.
+    #[test]
+    fn serialize_tagged_enum_message_no_collision() {
+        let diag = Diagnostic::error(
+            TaggedEnumMessage::ValidationError {
+                detail: "field 'id' is required".to_string(),
+            },
+            test_location(),
+        );
+
+        // Must not panic — the original bug caused serde_json to fail here
+        // because both typetag and serde's internal tag tried to write "type".
+        let json = serde_json::to_value(&diag).unwrap();
+
+        assert!(
+            json["message"].is_string(),
+            "message should be a plain string, not a serialized enum object"
+        );
+        assert_eq!(json["message"], "Validation error: field 'id' is required");
     }
 }

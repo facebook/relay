@@ -11,6 +11,8 @@
 
 'use strict';
 
+/* eslint relay-internal/esm-compatible-cjs: error */
+
 const EntryPointContainer = require('./relay-hooks/EntryPointContainer.react');
 const loadEntryPoint = require('./relay-hooks/loadEntryPoint');
 const {loadQuery} = require('./relay-hooks/loadQuery');
@@ -62,26 +64,37 @@ export type {
   FetchPolicy,
 } from 'relay-runtime';
 
+const {
+  ConnectionHandler,
+  applyOptimisticMutation,
+  commitLocalUpdate,
+  commitMutation,
+  graphql,
+  readInlineData,
+  requestSubscription,
+  fetchQuery,
+} = RelayRuntime;
+
 /**
  * The public interface for Relay Hooks.
  * This will eventually become the main public interface for react-relay.
  */
 module.exports = {
-  ConnectionHandler: RelayRuntime.ConnectionHandler,
+  ConnectionHandler,
 
-  applyOptimisticMutation: RelayRuntime.applyOptimisticMutation,
-  commitLocalUpdate: RelayRuntime.commitLocalUpdate,
-  commitMutation: RelayRuntime.commitMutation,
-  graphql: RelayRuntime.graphql,
-  readInlineData: RelayRuntime.readInlineData,
-  requestSubscription: RelayRuntime.requestSubscription,
+  applyOptimisticMutation,
+  commitLocalUpdate,
+  commitMutation,
+  graphql,
+  readInlineData,
+  requestSubscription,
 
   EntryPointContainer: EntryPointContainer,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
 
   ProfilerContext: ProfilerContext,
 
-  fetchQuery: RelayRuntime.fetchQuery,
+  fetchQuery,
 
   loadQuery: loadQuery,
   loadEntryPoint: loadEntryPoint,

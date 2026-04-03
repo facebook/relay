@@ -141,10 +141,6 @@ pub fn generate_preloadable_query_parameters(
         &mut section,
         "node",
         Some(node_type),
-        project_config
-            .feature_flags
-            .new_flow_casting_syntax
-            .is_enabled_for(normalization_operation.name.item.0),
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Section --
@@ -256,10 +252,6 @@ pub fn generate_updatable_query(
         &project_config.typegen_config.language,
         &mut section,
         &source_hash,
-        project_config
-            .feature_flags
-            .new_flow_casting_syntax
-            .is_enabled_for(typegen_operation.name.item.0),
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Query Node Hash Section --
@@ -271,10 +263,6 @@ pub fn generate_updatable_query(
         &mut section,
         "node",
         generated_types.exported_type,
-        project_config
-            .feature_flags
-            .new_flow_casting_syntax
-            .is_enabled_for(typegen_operation.name.item.0),
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Query Node Section --
@@ -445,16 +433,11 @@ pub fn generate_operation(
 
     // -- Begin Query Node Hash Section --
     let mut section = GenericSection::default();
-    let use_new_flow_casting_syntax = project_config
-        .feature_flags
-        .new_flow_casting_syntax
-        .is_enabled_for(normalization_operation.name.item.0);
     write_source_hash(
         config,
         &project_config.typegen_config.language,
         &mut section,
         &source_hash,
-        use_new_flow_casting_syntax,
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Query Node Hash Section --
@@ -464,11 +447,6 @@ pub fn generate_operation(
     if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
         match project_config.typegen_config.language {
             TypegenLanguage::Flow => {
-                let cast = if use_new_flow_casting_syntax {
-                    "/*:: as any*/"
-                } else {
-                    "/*: any*/"
-                };
                 if project_config.typegen_config.eager_es_modules {
                     writeln!(
                         section,
@@ -476,12 +454,12 @@ pub fn generate_operation(
                     )?;
                     writeln!(
                         section,
-                        "PreloadableQueryRegistry.set((node.params{cast}).id, node);",
+                        "PreloadableQueryRegistry.set((node.params/*:: as any*/).id, node);",
                     )?;
                 } else {
                     writeln!(
                         section,
-                        "require('relay-runtime').PreloadableQueryRegistry.set((node.params{cast}).id, node);",
+                        "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*:: as any*/).id, node);",
                     )?;
                 }
             }
@@ -514,7 +492,6 @@ pub fn generate_operation(
         &mut section,
         "node",
         generated_types.exported_type,
-        use_new_flow_casting_syntax,
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Section --
@@ -614,17 +591,12 @@ pub fn generate_split_operation(
 
     // -- Begin Operation Node Hash Section --
     let mut section = GenericSection::default();
-    let use_new_flow_casting_syntax = project_config
-        .feature_flags
-        .new_flow_casting_syntax
-        .is_enabled_for(normalization_operation.name.item.0);
     if let Some(source_hash) = source_hash {
         write_source_hash(
             config,
             &project_config.typegen_config.language,
             &mut section,
             source_hash,
-            use_new_flow_casting_syntax,
         )?;
     }
     content_sections.push(ContentSection::Generic(section));
@@ -632,13 +604,7 @@ pub fn generate_split_operation(
 
     // -- Begin Export Section --
     let mut section = GenericSection::default();
-    write_export_generated_node(
-        &project_config.typegen_config,
-        &mut section,
-        "node",
-        None,
-        use_new_flow_casting_syntax,
-    )?;
+    write_export_generated_node(&project_config.typegen_config, &mut section, "node", None)?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Section --
 
@@ -789,10 +755,6 @@ fn generate_read_only_fragment(
     // -- End Fragment Node Section --
 
     // -- Begin Fragment Node Hash Section --
-    let use_new_flow_casting_syntax = project_config
-        .feature_flags
-        .new_flow_casting_syntax
-        .is_enabled_for(reader_fragment.name.item.0);
     if let Some(source_hash) = source_hash {
         let mut section = GenericSection::default();
         write_source_hash(
@@ -800,7 +762,6 @@ fn generate_read_only_fragment(
             &project_config.typegen_config.language,
             &mut section,
             source_hash,
-            use_new_flow_casting_syntax,
         )?;
         content_sections.push(ContentSection::Generic(section));
     }
@@ -813,7 +774,6 @@ fn generate_read_only_fragment(
         &mut section,
         "node",
         generated_types.exported_type,
-        use_new_flow_casting_syntax,
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Fragment Node Export Section --
@@ -887,10 +847,6 @@ fn generate_assignable_fragment(
     // -- End Fragment Node Section --
 
     // -- Begin Fragment Node Hash Section --
-    let use_new_flow_casting_syntax = project_config
-        .feature_flags
-        .new_flow_casting_syntax
-        .is_enabled_for(typegen_fragment.name.item.0);
     if let Some(source_hash) = source_hash {
         let mut section = GenericSection::default();
         write_source_hash(
@@ -898,7 +854,6 @@ fn generate_assignable_fragment(
             &project_config.typegen_config.language,
             &mut section,
             source_hash,
-            use_new_flow_casting_syntax,
         )?;
         content_sections.push(ContentSection::Generic(section));
     }
@@ -906,13 +861,7 @@ fn generate_assignable_fragment(
 
     // -- Begin Fragment Node Export Section --
     let mut section = GenericSection::default();
-    write_export_generated_node(
-        &project_config.typegen_config,
-        &mut section,
-        "node",
-        None,
-        use_new_flow_casting_syntax,
-    )?;
+    write_export_generated_node(&project_config.typegen_config, &mut section, "node", None)?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Fragment Node Export Section --
 
@@ -1008,7 +957,6 @@ pub fn write_export_generated_node(
     section: &mut dyn Write,
     variable_node: &str,
     forced_type: Option<String>,
-    use_new_flow_casting_syntax: bool,
 ) -> FmtResult {
     let export_value = match (typegen_config.language, forced_type) {
         (TypegenLanguage::Flow, None) | (TypegenLanguage::JavaScript, _) => {
@@ -1019,11 +967,7 @@ pub fn write_export_generated_node(
             variable_node.to_string()
         }
         (TypegenLanguage::Flow, Some(forced_type)) => {
-            if use_new_flow_casting_syntax {
-                format!("(({variable_node}/*:: as any*/)/*:: as {forced_type}*/)")
-            } else {
-                format!("(({variable_node}/*: any*/)/*: {forced_type}*/)")
-            }
+            format!("(({variable_node}/*:: as any*/)/*:: as {forced_type}*/)")
         }
     };
     if typegen_config.eager_es_modules || typegen_config.language == TypegenLanguage::TypeScript {
@@ -1070,17 +1014,13 @@ fn write_source_hash(
     language: &TypegenLanguage,
     section: &mut dyn Write,
     source_hash: &str,
-    use_new_flow_casting_syntax: bool,
 ) -> FmtResult {
-    let cast = if use_new_flow_casting_syntax {
-        "/*:: as any*/"
-    } else {
-        "/*: any*/"
-    };
     if let Some(is_dev_variable_name) = &config.is_dev_variable_name {
         writeln!(section, "if ({is_dev_variable_name}) {{")?;
         match language {
-            TypegenLanguage::Flow => writeln!(section, "  (node{cast}).hash = \"{source_hash}\";")?,
+            TypegenLanguage::Flow => {
+                writeln!(section, "  (node/*:: as any*/).hash = \"{source_hash}\";")?
+            }
             TypegenLanguage::JavaScript => writeln!(section, "  node.hash = \"{source_hash}\";")?,
             TypegenLanguage::TypeScript => {
                 writeln!(section, "  (node as any).hash = \"{source_hash}\";")?
@@ -1089,7 +1029,9 @@ fn write_source_hash(
         writeln!(section, "}}")?;
     } else {
         match language {
-            TypegenLanguage::Flow => writeln!(section, "(node{cast}).hash = \"{source_hash}\";")?,
+            TypegenLanguage::Flow => {
+                writeln!(section, "(node/*:: as any*/).hash = \"{source_hash}\";")?
+            }
             TypegenLanguage::JavaScript => writeln!(section, "node.hash = \"{source_hash}\";")?,
             TypegenLanguage::TypeScript => {
                 writeln!(section, "(node as any).hash = \"{source_hash}\";")?
@@ -1200,10 +1142,6 @@ pub fn generate_resolvers_schema_module_content(
         &mut section,
         "schema_resolvers",
         None,
-        project_config
-            .feature_flags
-            .new_flow_casting_syntax
-            .is_fully_enabled(),
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Exports Section --

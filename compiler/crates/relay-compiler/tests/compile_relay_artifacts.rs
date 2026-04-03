@@ -124,8 +124,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         prefer_fetchable_in_refetch_queries: fixture
             .content
             .contains("# prefer_fetchable_in_refetch_queries"),
-        new_flow_casting_syntax: FeatureFlag::Enabled,
-        new_flow_casting_syntax_require_cond: FeatureFlag::Enabled,
         ..Default::default()
     };
 

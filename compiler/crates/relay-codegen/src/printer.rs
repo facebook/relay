@@ -372,7 +372,6 @@ pub struct JSONPrinter<'b> {
     top_level_statements: &'b mut TopLevelStatements,
     skip_printing_nulls: bool,
     relativize_js_module_paths: bool,
-    use_new_flow_casting_syntax: bool,
 }
 
 impl<'b> JSONPrinter<'b> {
@@ -380,7 +379,7 @@ impl<'b> JSONPrinter<'b> {
         builder: &'b AstBuilder,
         project_config: &ProjectConfig,
         top_level_statements: &'b mut TopLevelStatements,
-        name: Option<StringKey>,
+        _name: Option<StringKey>,
     ) -> Self {
         Self {
             variable_definitions: Default::default(),
@@ -394,16 +393,6 @@ impl<'b> JSONPrinter<'b> {
                 .feature_flags
                 .skip_printing_nulls
                 .is_fully_enabled(),
-            use_new_flow_casting_syntax: match name {
-                Some(name) => project_config
-                    .feature_flags
-                    .new_flow_casting_syntax
-                    .is_enabled_for(name),
-                None => project_config
-                    .feature_flags
-                    .new_flow_casting_syntax
-                    .is_fully_enabled(),
-            },
         }
     }
 
@@ -491,11 +480,7 @@ impl<'b> JSONPrinter<'b> {
                 self.variable_definitions.insert(key, variable);
                 v
             };
-            return if self.use_new_flow_casting_syntax {
-                write!(f, "(v{v}/*:: as any*/)").unwrap()
-            } else {
-                write!(f, "(v{v}/*: any*/)").unwrap()
-            };
+            return write!(f, "(v{v}/*:: as any*/)").unwrap();
         }
 
         let ast = self.builder.lookup(key);
@@ -530,11 +515,7 @@ impl<'b> JSONPrinter<'b> {
                         // Empty arrays can only have one inferred flow type and then conflict if
                         // used in different places, this is unsound if we would write to them but
                         // this whole module is based on the idea of a read only JSON tree.
-                        if self.use_new_flow_casting_syntax {
-                            f.push_str("([]/*:: as any*/)");
-                        } else {
-                            f.push_str("([]/*: any*/)");
-                        }
+                        f.push_str("([]/*:: as any*/)");
                     } else {
                         f.push_str("[]");
                     }

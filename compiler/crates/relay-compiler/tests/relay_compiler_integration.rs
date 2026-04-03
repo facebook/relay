@@ -10,7 +10,6 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use common::ConsoleLogger;
-use common::FeatureFlag;
 use fixture_tests::Fixture;
 use futures_util::FutureExt;
 use graphql_test_helpers::FileChange;
@@ -164,12 +163,6 @@ pub async fn transform_project_fixture(project_fixture: &ProjectFixture) -> Resu
 fn configure_test_config(mut config: Config) -> Config {
     config.file_source_config = FileSourceKind::WalkDir;
     config.has_schema_change_incremental_build = true;
-    for (_project_name, project_config) in config.projects.iter_mut() {
-        Arc::make_mut(&mut project_config.feature_flags).new_flow_casting_syntax =
-            FeatureFlag::Enabled;
-        Arc::make_mut(&mut project_config.feature_flags).new_flow_casting_syntax_require_cond =
-            FeatureFlag::Enabled;
-    }
     config.create_operation_persister = Some(Box::new(|project_config| {
         project_config.persist.as_ref().map(
             |persist_config| -> Box<dyn OperationPersister + Send + Sync> {

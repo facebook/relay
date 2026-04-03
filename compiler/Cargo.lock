@@ -286,6 +286,7 @@ name = "common"
 version = "0.0.0"
 dependencies = [
  "colored",
+ "fixture-tests",
  "indexmap",
  "intern",
  "log",

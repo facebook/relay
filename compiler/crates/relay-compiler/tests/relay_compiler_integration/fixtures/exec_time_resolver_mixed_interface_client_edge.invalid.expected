@@ -59,10 +59,10 @@ interface IVehicle {
 
 extend type Bicycle implements IVehicle
 ==================================== OUTPUT ===================================
-✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
+✖︎ Client edges to interfaces or unions with server type implementors are not supported in exec time resolvers, because the server type data requires a waterfall refetch that exec time resolvers cannot perform.
 
-  PersonComponent.js:2:11
+  PersonComponent.js:2:3
     1 │ query PersonComponentQuery @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
     2 │   vehicle @waterfall {
-      │           ^^^^^^^^^^
+      │   ^^^^^^^
     3 │     id

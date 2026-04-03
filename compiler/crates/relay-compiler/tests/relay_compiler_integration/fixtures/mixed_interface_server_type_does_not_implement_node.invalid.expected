@@ -53,10 +53,18 @@ interface IVehicle {
 
 extend type Truck implements IVehicle
 ==================================== OUTPUT ===================================
-✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
+✖︎ Relay Resolver field `vehicle` returns `IVehicle` which includes server type `Truck`. `Truck` does not implement the `Node` interface and is not `@fetchable`. Server types returned by Relay Resolvers must be refetchable via the `Node` interface or the `@fetchable` directive.
 
-  PersonComponent.js:2:11
+  PersonComponent.js:2:3
     1 │ query PersonComponentQuery {
     2 │   vehicle @waterfall {
-      │           ^^^^^^^^^^
+      │   ^^^^^^^
     3 │     id
+
+  ℹ︎ field defined here
+
+  VehicleResolver.js:2:22
+    1 │ *
+    2 │  * @relayField Query.vehicle: IVehicle
+      │                      ^^^^^^^
+    3 │

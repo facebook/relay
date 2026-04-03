@@ -321,6 +321,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         generated_query_name: OperationDefinitionName,
         field_type: Type,
         selections: Vec<Selection>,
+        unsupported_type_error: Vec<Diagnostic>,
     ) {
         let document_name = self.document_name.expect("Expect to be within a document");
         let synthetic_fragment_name = WithLocation::new(
@@ -354,9 +355,10 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         let mut transformer = RefetchableFragment::new(self.program, self.project_config, false);
 
         let refetchable_fragment = transformer
-            .transform_refetch_fragment_with_refetchable_directive(
+            .transform_refetch_fragment_with_refetchable_directive_and_custom_error(
                 &Arc::new(synthetic_refetchable_fragment),
                 &make_refetchable_directive(generated_query_name),
+                unsupported_type_error,
             );
 
         match refetchable_fragment {
@@ -424,17 +426,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         waterfall_directive: Option<&Directive>,
         resolver_directive: Option<&DirectiveValue>,
     ) -> Option<ClientEdgeMetadataDirective> {
-        // We assume edges to client objects will be resolved on the client
-        // and thus not incur a waterfall. This will change in the future
-        // for @live Resolvers that can trigger suspense.
-        if let Some(directive) = waterfall_directive {
-            self.errors.push(Diagnostic::error_with_data(
-                ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
-                directive.location,
-            ));
-        }
-
-        match edge_to_type {
+        let result = match edge_to_type {
             Type::Interface(interface_id) => {
                 let interface = self.program.schema.interface(interface_id);
                 let implementing_objects =
@@ -462,11 +454,16 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 self.get_client_object_for_abstract_type(
                     implementing_objects.iter(),
                     interface.name.item.0,
+                    field,
                 )
             }
             Type::Union(union) => {
                 let union = self.program.schema.union(union);
-                self.get_client_object_for_abstract_type(union.members.iter(), union.name.item.0)
+                self.get_client_object_for_abstract_type(
+                    union.members.iter(),
+                    union.name.item.0,
+                    field,
+                )
             }
             Type::Object(object_id) => {
                 let type_name = self.program.schema.object(object_id).name.item;
@@ -483,31 +480,151 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             _ => {
                 panic!("Expected a linked field to reference either an Object, Interface, or Union")
             }
+        };
+
+        // Validate @waterfall usage based on whether there are server type implementors.
+        if let Some(ClientEdgeMetadataDirective::ClientObject {
+            server_object_operations,
+            ..
+        }) = &result
+        {
+            if server_object_operations.is_empty() {
+                // No server type implementors: @waterfall is unexpected.
+                if let Some(directive) = waterfall_directive {
+                    self.errors.push(Diagnostic::error_with_data(
+                        ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
+                        directive.location,
+                    ));
+                }
+            } else {
+                // Has server type implementors: @waterfall is required.
+                if waterfall_directive.is_none() {
+                    self.errors.push(Diagnostic::error_with_data(
+                        ValidationMessageWithData::RelayResolversMissingWaterfall {
+                            field_name: self.program.schema.field(field.definition.item).name.item,
+                        },
+                        field.definition.location,
+                    ));
+                }
+
+                // Mixed interfaces are not supported in exec-time resolvers
+                // because server-type implementors need a waterfall refetch
+                // that exec-time resolvers cannot perform.
+                if self.has_exec_time_resolvers {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::ClientEdgeToMixedInterfaceWithExecTimeResolvers,
+                        field.definition.location,
+                    ));
+                }
+            }
         }
+
+        result
     }
 
     fn get_client_object_for_abstract_type<'a>(
         &mut self,
         members: impl Iterator<Item = &'a ObjectID>,
         abstract_type_name: StringKey,
+        field: &LinkedField,
     ) -> Option<ClientEdgeMetadataDirective> {
-        let mut model_resolvers: Vec<ClientEdgeModelResolver> = members
-            .filter_map(|object_id| {
+        let mut model_resolvers: Vec<ClientEdgeModelResolver> = Vec::new();
+        let mut server_type_object_ids: Vec<ObjectID> = Vec::new();
+
+        for object_id in members {
+            let is_server_type = !self
+                .program
+                .schema
+                .is_extension_type(Type::Object(*object_id));
+            if is_server_type {
+                server_type_object_ids.push(*object_id);
+            } else {
+                // Client type: try to get a model resolver.
                 let model_resolver = self.get_client_edge_model_resolver_for_object(*object_id);
-                model_resolver.or_else(|| {
-                    self.maybe_report_error_for_missing_model_resolver(
-                        object_id,
-                        abstract_type_name,
-                    );
-                    None
-                })
-            })
-            .collect();
+                match model_resolver {
+                    Some(resolver) => {
+                        model_resolvers.push(resolver);
+                    }
+                    None => {
+                        self.maybe_report_error_for_missing_model_resolver(
+                            object_id,
+                            abstract_type_name,
+                        );
+                    }
+                }
+            }
+        }
+
         model_resolvers.sort();
+
+        let has_server_type = !server_type_object_ids.is_empty();
+
+        // For each server type, generate a refetch query individually.
+        // The refetchable fragment system determines whether to use
+        // node(id:) or fetch__TypeName(id:) based on the type's capabilities.
+        let server_object_operations = if has_server_type {
+            let document_name = self.document_name.expect("We are within a document");
+
+            // Skip query generation for base fragments (fragments defined in
+            // other projects that this project depends on). Those fragments
+            // will have their client edge queries generated by their own
+            // project's compilation. We still need to process the selections
+            // below to collect metadata, but we don't emit a new query.
+            let should_generate_query =
+                if let ExecutableDefinitionName::FragmentDefinitionName(fragment_name) =
+                    document_name.item
+                {
+                    !self.base_fragment_names.contains(&fragment_name)
+                } else {
+                    true
+                };
+
+            let new_selections = self
+                .transform_selections(&field.selections)
+                .replace_or_else(|| field.selections.clone());
+
+            let mut ops: Vec<ClientEdgeServerObjectOperation> = Vec::new();
+            for object_id in &server_type_object_ids {
+                let object = self.program.schema.object(*object_id);
+                let query_name = self.generate_query_name(document_name.item);
+                if should_generate_query {
+                    self.generate_client_edge_query(
+                        query_name,
+                        Type::Object(*object_id),
+                        new_selections.clone(),
+                        {
+                            let schema_field =
+                                self.program.schema.field(field.definition.item);
+                            vec![Diagnostic::error(
+                                ValidationMessage::ClientEdgeMixedInterfaceServerTypeNotRefetchable {
+                                    field_name: schema_field.name.item,
+                                    abstract_type_name,
+                                    server_type_name: object.name.item,
+                                },
+                                field.definition.location,
+                            )
+                            .annotate_if_location_exists(
+                                "field defined here",
+                                schema_field.name.location,
+                            )]
+                        },
+                    );
+                }
+                ops.push(ClientEdgeServerObjectOperation {
+                    type_name: object.name.item,
+                    query_name,
+                });
+            }
+            ops.sort();
+            ops
+        } else {
+            vec![]
+        };
+
         Some(ClientEdgeMetadataDirective::ClientObject {
             type_name: None,
             model_resolvers,
-            server_object_operations: vec![],
+            server_object_operations,
             unique_id: self.get_key(),
         })
     }
@@ -599,10 +716,21 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 true
             };
         if should_generate_query {
+            let type_name = self.program.schema.get_type_name(field_type.type_.inner());
             self.generate_client_edge_query(
                 client_edge_query_name,
                 field_type.type_.inner(),
                 selections,
+                vec![
+                    Diagnostic::error(
+                        ValidationMessage::ClientEdgeServerTypeNotRefetchable {
+                            field_name: field_type.name.item,
+                            server_type_name: ObjectName(type_name),
+                        },
+                        field_location,
+                    )
+                    .annotate_if_location_exists("field defined here", field_type.name.location),
+                ],
             );
         }
 

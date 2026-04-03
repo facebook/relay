@@ -1,5 +1,4 @@
 ==================================== INPUT ====================================
-#expected-to-throw
 # relay-resolver-enable-interface-output-type
 
 # Test: client interface with mixed server + client type implementors.
@@ -32,11 +31,129 @@ extend type Bicycle implements ClientOnlyInterface
 extend type User {
   best_friend: ClientOnlyInterface @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
 }
-==================================== ERROR ====================================
-✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
 
-  client-edge-to-mixed-interface.graphql:9:15
-    8 │ fragment Foo_user on User {
-    9 │   best_friend @waterfall {
-      │               ^^^^^^^^^^
-   10 │     id
+fragment Foo_user on User {
+  ... @__ClientEdgeMetadataDirective
+  # ClientObject {
+  #     type_name: None,
+  #     unique_id: 0,
+  #     model_resolvers: [
+  #         ClientEdgeModelResolver {
+  #             model_field_id: FieldID(531),
+  #             type_name: WithLocation {
+  #                 location: <generated>:68:78,
+  #                 item: ObjectName(
+  #                     "BestFriend",
+  #                 ),
+  #             },
+  #             resolver_info: ResolverInfo {
+  #                 fragment_name: Some(
+  #                     FragmentDefinitionName(
+  #                         "BestFriend__id",
+  #                     ),
+  #                 ),
+  #                 fragment_data_injection_mode: Some(
+  #                     Field {
+  #                         name: "id",
+  #                         is_required: true,
+  #                     },
+  #                 ),
+  #                 import_path: "BestFriendResolver",
+  #                 import_name: Some(
+  #                     "BestFriend",
+  #                 ),
+  #                 live: false,
+  #                 has_output_type: false,
+  #                 type_confirmed: false,
+  #                 resolver_type: ResolverModule,
+  #                 return_fragment: None,
+  #             },
+  #         },
+  #     ],
+  #     server_object_operations: [
+  #         ClientEdgeServerObjectOperation {
+  #             type_name: ObjectName(
+  #                 "Bicycle",
+  #             ),
+  #             query_name: OperationDefinitionName(
+  #                 "ClientEdgeQuery_Foo_user_best_friend",
+  #             ),
+  #         },
+  #     ],
+  # }
+   {
+    ...BestFriendResolverFragment_name @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(532),
+    #     import_path: "BestFriendResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "best_friend",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: EdgeTo,
+    #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
+    #     return_fragment: None,
+    # }
+     @waterfall
+    best_friend @waterfall {
+      id
+    }
+  }
+}
+
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend on Bicycle @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-to-mixed-interface.graphql:271:279,
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
+#     },
+# }
+ @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: OperationDefinitionName(
+#         "ClientEdgeQuery_Foo_user_best_friend",
+#     ),
+#     path: [
+#         "node",
+#     ],
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
+#     ),
+#     is_prefetchable_pagination: false,
+# }
+ {
+  id
+}
+
+query ClientEdgeQuery_Foo_user_best_friend(
+  $id: ID!
+) @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-to-mixed-interface.graphql:271:279,
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "Foo_user",
+#             ),
+#         ),
+#     },
+# }
+ {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_Foo_user_best_friend
+  }
+}

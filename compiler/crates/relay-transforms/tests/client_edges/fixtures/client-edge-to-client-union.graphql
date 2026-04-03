@@ -1,5 +1,5 @@
 fragment FeedbackFragmentType on User {
-  feedback_as_union {
+  feedback_as_union @waterfall {
     ... on Like {
       __typename
     }

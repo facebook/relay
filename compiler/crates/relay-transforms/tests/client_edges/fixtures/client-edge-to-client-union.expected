@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 fragment FeedbackFragmentType on User {
-  feedback_as_union {
+  feedback_as_union @waterfall {
     ... on Like {
       __typename
     }
@@ -90,7 +90,16 @@ fragment FeedbackFragmentType on User {
   #             },
   #         },
   #     ],
-  #     server_object_operations: [],
+  #     server_object_operations: [
+  #         ClientEdgeServerObjectOperation {
+  #             type_name: ObjectName(
+  #                 "Comment",
+  #             ),
+  #             query_name: OperationDefinitionName(
+  #                 "ClientEdgeQuery_FeedbackFragmentType_feedback_as_union",
+  #             ),
+  #         },
+  #     ],
   # }
    {
     __id @__RelayResolverMetadata
@@ -108,11 +117,64 @@ fragment FeedbackFragmentType on User {
     #     resolver_type: ResolverModule,
     #     return_fragment: None,
     # }
-    
-    feedback_as_union {
+     @waterfall
+    feedback_as_union @waterfall {
       ... on Like {
         __typename
       }
     }
+  }
+}
+
+fragment RefetchableClientEdgeQuery_FeedbackFragmentType_feedback_as_union on Comment @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-to-client-union.graphql:9:29,
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "FeedbackFragmentType",
+#             ),
+#         ),
+#     },
+# }
+ @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: OperationDefinitionName(
+#         "ClientEdgeQuery_FeedbackFragmentType_feedback_as_union",
+#     ),
+#     path: [
+#         "node",
+#     ],
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
+#     ),
+#     is_prefetchable_pagination: false,
+# }
+ {
+  ... on Like {
+    __typename
+  }
+  id
+}
+
+query ClientEdgeQuery_FeedbackFragmentType_feedback_as_union(
+  $id: ID!
+) @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-to-client-union.graphql:9:29,
+#         item: FragmentDefinitionName(
+#             FragmentDefinitionName(
+#                 "FeedbackFragmentType",
+#             ),
+#         ),
+#     },
+# }
+ {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_FeedbackFragmentType_feedback_as_union
   }
 }

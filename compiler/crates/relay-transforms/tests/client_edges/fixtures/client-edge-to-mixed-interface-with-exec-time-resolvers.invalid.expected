@@ -33,10 +33,10 @@ extend type Query {
   best_friend: ClientOnlyInterface @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
 }
 ==================================== ERROR ====================================
-✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
+✖︎ Client edges to interfaces or unions with server type implementors are not supported in exec time resolvers, because the server type data requires a waterfall refetch that exec time resolvers cannot perform.
 
-  client-edge-to-mixed-interface-with-exec-time-resolvers.invalid.graphql:9:15
+  client-edge-to-mixed-interface-with-exec-time-resolvers.invalid.graphql:9:3
     8 │ query TestQuery @exec_time_resolvers {
     9 │   best_friend @waterfall {
-      │               ^^^^^^^^^^
+      │   ^^^^^^^^^^^
    10 │     id

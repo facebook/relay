@@ -177,6 +177,28 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "Client edges to interfaces or unions with server type implementors are not supported in exec time resolvers, because the server type data requires a waterfall refetch that exec time resolvers cannot perform."
+    )]
+    ClientEdgeToMixedInterfaceWithExecTimeResolvers,
+
+    #[error(
+        "Relay Resolver field `{field_name}` returns server type `{server_type_name}` which does not implement the `Node` interface and is not `@fetchable`. Server types returned by Relay Resolvers must be refetchable via the `Node` interface or the `@fetchable` directive."
+    )]
+    ClientEdgeServerTypeNotRefetchable {
+        field_name: StringKey,
+        server_type_name: ObjectName,
+    },
+
+    #[error(
+        "Relay Resolver field `{field_name}` returns `{abstract_type_name}` which includes server type `{server_type_name}`. `{server_type_name}` does not implement the `Node` interface and is not `@fetchable`. Server types returned by Relay Resolvers must be refetchable via the `Node` interface or the `@fetchable` directive."
+    )]
+    ClientEdgeMixedInterfaceServerTypeNotRefetchable {
+        field_name: StringKey,
+        abstract_type_name: StringKey,
+        server_type_name: ObjectName,
+    },
+
+    #[error(
         "Invalid @RelayResolver output type for field `{field_name}`. Got input object `{type_name}`."
     )]
     RelayResolverOutputTypeInvalidInputObjectType {

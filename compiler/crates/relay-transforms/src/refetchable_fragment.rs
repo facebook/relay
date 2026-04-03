@@ -162,10 +162,12 @@ impl<'program, 'pc> RefetchableFragment<'program, 'pc> {
         fragment: &Arc<FragmentDefinition>,
     ) -> DiagnosticsResult<Option<(RefetchableDirective, RefetchRoot)>> {
         let refetchable_directive = fragment.directives.named(*REFETCHABLE_NAME);
-        if refetchable_directive.is_some() && self.program.schema.query_type().is_none() {
+        if let Some(directive) = refetchable_directive
+            && self.program.schema.query_type().is_none()
+        {
             return Err(vec![Diagnostic::error(
                 "Unable to use @refetchable directive. The `Query` type is not defined on the schema.",
-                refetchable_directive.unwrap().name.location,
+                directive.name.location,
             )]);
         }
 
@@ -183,6 +185,33 @@ impl<'program, 'pc> RefetchableFragment<'program, 'pc> {
         &mut self,
         fragment: &Arc<FragmentDefinition>,
         directive: &Directive,
+    ) -> DiagnosticsResult<(RefetchableDirective, RefetchRoot)> {
+        self.transform_refetch_fragment_with_refetchable_directive_impl(fragment, directive, None)
+    }
+
+    /// Like `transform_refetch_fragment_with_refetchable_directive`, but allows
+    /// the caller to provide a custom error to use when no query generator
+    /// matches the fragment's type. This is used by client edges where the
+    /// `@refetchable` is an implementation detail and the default error message
+    /// would reference internal concepts the user never wrote.
+    pub fn transform_refetch_fragment_with_refetchable_directive_and_custom_error(
+        &mut self,
+        fragment: &Arc<FragmentDefinition>,
+        directive: &Directive,
+        unsupported_type_error: Vec<Diagnostic>,
+    ) -> DiagnosticsResult<(RefetchableDirective, RefetchRoot)> {
+        self.transform_refetch_fragment_with_refetchable_directive_impl(
+            fragment,
+            directive,
+            Some(unsupported_type_error),
+        )
+    }
+
+    fn transform_refetch_fragment_with_refetchable_directive_impl(
+        &mut self,
+        fragment: &Arc<FragmentDefinition>,
+        directive: &Directive,
+        unsupported_type_error: Option<Vec<Diagnostic>>,
     ) -> DiagnosticsResult<(RefetchableDirective, RefetchRoot)> {
         let refetchable_directive =
             RefetchableDirective::from_directive(&self.program.schema, directive)?;
@@ -207,18 +236,22 @@ impl<'program, 'pc> RefetchableFragment<'program, 'pc> {
                 return Ok((refetchable_directive, refetch_root));
             }
         }
-        let mut descriptions = String::new();
-        for generator in generators.iter() {
-            writeln!(descriptions, " - {}", generator.description).unwrap();
+        if let Some(error) = unsupported_type_error {
+            Err(error)
+        } else {
+            let mut descriptions = String::new();
+            for generator in generators.iter() {
+                writeln!(descriptions, " - {}", generator.description).unwrap();
+            }
+            descriptions.pop();
+            Err(vec![Diagnostic::error(
+                ValidationMessage::UnsupportedRefetchableFragment {
+                    fragment_name: fragment.name.item,
+                    descriptions,
+                },
+                fragment.name.location,
+            )])
         }
-        descriptions.pop();
-        Err(vec![Diagnostic::error(
-            ValidationMessage::UnsupportedRefetchableFragment {
-                fragment_name: fragment.name.item,
-                descriptions,
-            },
-            fragment.name.location,
-        )])
     }
 
     fn validate_sibling_directives(

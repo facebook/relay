@@ -2066,7 +2066,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                  }))
              }
 
-             ClientEdgeMetadataDirective::ClientObject { type_name, model_resolvers, .. } => {
+             ClientEdgeMetadataDirective::ClientObject { type_name, model_resolvers, server_object_operations, .. } => {
                  if self.project_config.feature_flags.disable_resolver_reader_ast {
                      selections_item
                  } else {
@@ -2101,11 +2101,27 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                          } else {
                              Primitive::Null
                          };
+                         let server_op = if server_object_operations.is_empty() {
+                             Primitive::Null
+                         } else {
+                             let entries: Vec<ObjectEntry> = server_object_operations
+                                 .iter()
+                                 .map(|op| ObjectEntry {
+                                     key: op.type_name.0,
+                                     value: Primitive::GraphQLModuleDependency(
+                                         GraphQLModuleDependency::Name(
+                                             ExecutableDefinitionName::OperationDefinitionName(op.query_name),
+                                         ),
+                                     ),
+                                 })
+                                 .collect();
+                             Primitive::Key(self.object(entries))
+                         };
                          Primitive::Key(self.object(object! {
                              kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
                              concrete_type: concrete_type,
                              client_edge_model_resolvers: client_edge_model_resolvers,
-                             server_object_operations: Primitive::Null,
+                             server_object_operations: server_op,
                              client_edge_backing_field_key: backing_field,
                              client_edge_selections_key: selections_item,
                          }))

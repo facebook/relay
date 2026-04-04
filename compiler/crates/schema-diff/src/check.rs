@@ -96,6 +96,20 @@ impl SchemaChange {
                                 needs_incremental_build
                                     .insert(IncrementalBuildSchemaChange::Object(name));
 
+                                // Also mark the return types of changed fields
+                                // so the finder can discover affected operations
+                                // via visit_linked_field. This is essential for
+                                // root types (Query, Mutation, Subscription)
+                                // where Object("Mutation") alone won't match
+                                // any linked field, but also improves precision
+                                // for non-root types.
+                                add_field_return_types_for_incremental_build(
+                                    schema,
+                                    &mut needs_incremental_build,
+                                    &added,
+                                    &removed,
+                                );
+
                                 let interfaces_changed: Vec<StringKey> = interfaces_added
                                     .into_iter()
                                     .chain(interfaces_removed.into_iter())
@@ -338,6 +352,48 @@ fn add_interfaces_for_incremental_build(
             .chain(object_interfaces)
             .map(|interface| IncrementalBuildSchemaChange::Interface(*interface));
         needs_incremental_build.extend(all_interfaces);
+    }
+}
+
+fn inner_type_name(type_: &Type) -> Option<StringKey> {
+    match type_ {
+        Type::Named(name) => Some(*name),
+        Type::NonNull(inner) | Type::List(inner) => inner_type_name(inner),
+    }
+}
+
+fn schema_change_for_type_name(
+    schema: &SDLSchema,
+    type_name: StringKey,
+) -> Option<IncrementalBuildSchemaChange> {
+    schema
+        .get_type(type_name)
+        .and_then(|schema_type| match schema_type {
+            schema::Type::Object(_) => Some(IncrementalBuildSchemaChange::Object(type_name)),
+            schema::Type::Interface(_) => Some(IncrementalBuildSchemaChange::Interface(type_name)),
+            schema::Type::Union(_) => Some(IncrementalBuildSchemaChange::Union(type_name)),
+            schema::Type::Enum(_) => Some(IncrementalBuildSchemaChange::Enum(type_name)),
+            schema::Type::InputObject(_) => {
+                Some(IncrementalBuildSchemaChange::InputObject(type_name))
+            }
+            schema::Type::Scalar(_) => None,
+        })
+}
+
+/// Add the return types of added/removed fields to `needs_incremental_build`.
+/// This lets the finder discover affected operations via `visit_linked_field`.
+fn add_field_return_types_for_incremental_build(
+    schema: &SDLSchema,
+    needs_incremental_build: &mut FxHashSet<IncrementalBuildSchemaChange>,
+    added: &[TypeChange],
+    removed: &[TypeChange],
+) {
+    for type_change in added.iter().chain(removed.iter()) {
+        if let Some(type_name) = inner_type_name(&type_change.type_)
+            && let Some(change) = schema_change_for_type_name(schema, type_name)
+        {
+            needs_incremental_build.insert(change);
+        }
     }
 }
 

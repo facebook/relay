@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cda80f9b2d4f989d7a50a08fb75cb28b>>
+ * @generated SignedSource<<afbe027c9b5ee64801f2b3144ddd1808>>
  */
 
 mod relay_compiler_integration;
@@ -255,6 +255,13 @@ async fn incremental_input_object_removed() {
     let input = include_str!("relay_compiler_integration/fixtures/incremental_input_object_removed.input");
     let expected = include_str!("relay_compiler_integration/fixtures/incremental_input_object_removed.expected");
     test_fixture(transform_fixture, file!(), "incremental_input_object_removed.input", "relay_compiler_integration/fixtures/incremental_input_object_removed.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_mutation_field_return_type_change() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_mutation_field_return_type_change.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_mutation_field_return_type_change.expected");
+    test_fixture(transform_fixture, file!(), "incremental_mutation_field_return_type_change.input", "relay_compiler_integration/fixtures/incremental_mutation_field_return_type_change.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -559,12 +559,6 @@
     "FeatureFlags": {
       "type": "object",
       "properties": {
-        "actor_change_support": {
-          "$ref": "#/$defs/FeatureFlag",
-          "default": {
-            "kind": "disabled"
-          }
-        },
         "allow_legacy_relay_resolver_tag": {
           "description": "When enabled for a given name, allows `@RelayResolver` as a legacy\nalias for `@relayType` / `@relayField`.",
           "$ref": "#/$defs/FeatureFlag",
@@ -904,9 +898,6 @@
           "description": "Enable and disable experimental or legacy behaviors.\nWARNING! These are not stable and may change at any time.",
           "$ref": "#/$defs/FeatureFlags",
           "default": {
-            "actor_change_support": {
-              "kind": "disabled"
-            },
             "allow_legacy_relay_resolver_tag": {
               "kind": "disabled"
             },

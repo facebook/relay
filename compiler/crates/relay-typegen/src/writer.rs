@@ -49,7 +49,6 @@ pub enum AST {
     FragmentReferenceType(StringKey),
     ReturnTypeOfFunctionWithName(StringKey),
     ReturnTypeOfMethodCall(Box<AST>, StringKey),
-    ActorChangePoint(Box<AST>),
     AssertFunctionType(FunctionTypeAssertion),
     GenericType {
         outer: StringKey,

@@ -40,10 +40,8 @@ use write::write_split_operation_type_exports_section;
 use write::write_validator_function;
 use writer::new_writer_from_config;
 
-static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
 static RELAY_RUNTIME: &str = "relay-runtime";
 static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
-static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
 static VALIDATOR_EXPORT_NAME: &str = "validate";
 static LIVE_RESOLVERS_LIVE_STATE: &str = "LiveState";
 

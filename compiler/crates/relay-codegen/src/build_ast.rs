@@ -59,7 +59,6 @@ use relay_transforms::INTERNAL_METADATA_DIRECTIVE;
 use relay_transforms::InlineDirectiveMetadata;
 use relay_transforms::ModuleMetadata;
 use relay_transforms::NoInlineFragmentSpreadMetadata;
-use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 use relay_transforms::RefetchableMetadata;
 use relay_transforms::RelayDirective;
@@ -858,12 +857,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     ModuleMetadata::find(&inline_fragment.directives)
                 {
                     self.build_module_import_selections(module_metadata, inline_fragment)
-                } else if inline_fragment
-                    .directives
-                    .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
-                    .is_some()
-                {
-                    vec![self.build_actor_change(context, inline_fragment)]
                 } else if let Some(resolver_metadata) =
                     RelayResolverMetadata::find(&inline_fragment.directives)
                 {
@@ -2766,65 +2759,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
 
         self.object(params_object)
-    }
-
-    fn build_actor_change(
-        &mut self,
-        context: &mut ContextualMetadata,
-        actor_change: &InlineFragment,
-    ) -> Primitive {
-        let linked_field = match &actor_change.selections[0] {
-            Selection::LinkedField(linked_field) => linked_field.clone(),
-            _ => panic!("Expect to have a single linked field in the actor change fragment"),
-        };
-
-        match self.variant {
-            CodegenVariant::Normalization => {
-                let linked_field_value = self.build_linked_field(context, &linked_field);
-
-                Primitive::Key(self.object(object! {
-                    kind: Primitive::String(CODEGEN_CONSTANTS.actor_change),
-                    linked_field_property: linked_field_value,
-                }))
-            }
-            CodegenVariant::Reader => {
-                let schema_field = self.schema.field(linked_field.definition.item);
-                let (name, alias) = self.build_field_name_and_alias(
-                    schema_field.name.item,
-                    linked_field.alias,
-                    &linked_field.directives,
-                );
-                let args = self.build_arguments(&linked_field.arguments);
-                let fragment_spread = linked_field
-                    .selections
-                    .iter()
-                    .find(|item| matches!(item, Selection::FragmentSpread(_)))
-                    .unwrap();
-                let fragment_spread_key =
-                    self.build_selections_from_selection(context, fragment_spread)[0].assert_key();
-
-                Primitive::Key(self.object(object! {
-                    kind: Primitive::String(CODEGEN_CONSTANTS.actor_change),
-                    :build_alias(alias, name),
-                    name: Primitive::String(name),
-                    storage_key: match args {
-                            None => Primitive::SkippableNull,
-                            Some(key) => {
-                                if is_static_storage_key_available(&linked_field.arguments) {
-                                    Primitive::StorageKey(name, key)
-                                } else {
-                                    Primitive::SkippableNull
-                                }
-                            }
-                        },
-                    args: match args {
-                            None => Primitive::SkippableNull,
-                            Some(key) => Primitive::Key(key),
-                        },
-                    fragment_spread_property: Primitive::Key(fragment_spread_key),
-                }))
-            }
-        }
     }
 }
 

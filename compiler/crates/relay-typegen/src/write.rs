@@ -35,7 +35,6 @@ use relay_transforms::RefetchableMetadata;
 use relay_transforms::RelayDirective;
 use schema::Schema;
 
-use crate::ACTOR_CHANGE_POINT;
 use crate::FUTURE_ENUM_VALUE;
 use crate::KEY_CLIENTID;
 use crate::KEY_DATA;
@@ -46,10 +45,8 @@ use crate::KEY_TYPENAME;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
 use crate::MaskStatus;
 use crate::RAW_RESPONSE_TYPE_DIRECTIVE_NAME;
-use crate::REACT_RELAY_MULTI_ACTOR;
 use crate::TypegenContext;
 use crate::VALIDATOR_EXPORT_NAME;
-use crate::typegen_state::ActorChangeStatus;
 use crate::typegen_state::EncounteredEnums;
 use crate::typegen_state::EncounteredFragment;
 use crate::typegen_state::EncounteredFragments;
@@ -97,7 +94,6 @@ pub(crate) fn write_operation_type_exports_section(
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
     let mut imported_resolvers = Default::default();
-    let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut runtime_imports = RuntimeImports::default();
     let mut custom_error_import = None;
     let mut custom_scalars = CustomScalarsImports::default();
@@ -122,7 +118,6 @@ pub(crate) fn write_operation_type_exports_section(
         &mut imported_raw_response_types,
         &mut encountered_fragments,
         &mut imported_resolvers,
-        &mut actor_change_status,
         &mut custom_scalars,
         &mut runtime_imports,
         &mut custom_error_import,
@@ -206,7 +201,6 @@ pub(crate) fn write_operation_type_exports_section(
         runtime_imports.generic_fragment_type = true;
     }
 
-    write_import_actor_change_point(actor_change_status, writer)?;
     runtime_imports.write_runtime_imports(writer)?;
     write_fragment_imports(typegen_context, None, encountered_fragments, writer)?;
     if custom_error_import.is_some() {
@@ -382,7 +376,6 @@ pub(crate) fn write_fragment_type_exports_section(
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
     let mut imported_resolvers = Default::default();
-    let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut custom_scalars = CustomScalarsImports::default();
     let mut input_object_types = Default::default();
     let mut runtime_imports = RuntimeImports {
@@ -400,7 +393,6 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut imported_raw_response_types,
         &mut encountered_fragments,
         &mut imported_resolvers,
-        &mut actor_change_status,
         &mut custom_scalars,
         &mut runtime_imports,
         &mut custom_error_import,
@@ -490,7 +482,6 @@ pub(crate) fn write_fragment_type_exports_section(
         }
     }
 
-    write_import_actor_change_point(actor_change_status, writer)?;
     let input_object_types = input_object_types
         .into_iter()
         .map(|(key, val)| (key, val.unwrap_resolved_type()));
@@ -656,17 +647,6 @@ fn write_fragment_imports(
         }
     }
     Ok(())
-}
-
-fn write_import_actor_change_point(
-    actor_change_status: ActorChangeStatus,
-    writer: &mut Box<dyn Writer>,
-) -> FmtResult {
-    if matches!(actor_change_status, ActorChangeStatus::HasActorChange) {
-        writer.write_import_type(&[ACTOR_CHANGE_POINT], REACT_RELAY_MULTI_ACTOR)
-    } else {
-        Ok(())
-    }
 }
 
 fn write_relay_resolver_imports(

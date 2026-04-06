@@ -45,12 +45,6 @@ export const FEATURE_FLAGS = [
     default: true,
   },
   {
-    key: 'actor_change_support',
-    label: 'Actor Change Support',
-    kind: 'enum',
-    default: true,
-  },
-  {
     key: 'text_artifacts',
     label: 'Text Artifacts',
     kind: 'enum',

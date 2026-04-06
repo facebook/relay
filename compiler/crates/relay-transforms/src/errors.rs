@@ -67,42 +67,6 @@ pub enum ValidationMessage {
     UnsupportedFragmentSpreadInResolverFragment,
 
     #[error(
-        "Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread."
-    )]
-    ActorChangeInvalidSelection,
-
-    #[error("Actor change directive (@as_actor) cannot be applied to scalar fields.")]
-    ActorChangeCannotUseOnScalarFields,
-
-    #[error(
-        "Actor change has limited (experimental) support and is not allowed to use on this fragment spread."
-    )]
-    ActorChangeIsExperimental,
-
-    #[error("Actor change does not support plural fields, yet.")]
-    ActorChangePluralFieldsNotSupported,
-
-    #[error(
-        "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
-    )]
-    ActorChangeExpectViewerFieldOnType {
-        directive_name: DirectiveName,
-        actor_change_field: StringKey,
-        field_name: StringKey,
-        type_name: StringKey,
-    },
-
-    #[error(
-        "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. The field '{actor_change_field}' should be defined as a scalar field in the GraphQL Schema, but is defined with the type '{actor_change_field_type}' instead."
-    )]
-    ActorChangeViewerShouldBeScalar {
-        directive_name: DirectiveName,
-        actor_change_field: StringKey,
-        field_name: StringKey,
-        actor_change_field_type: StringKey,
-    },
-
-    #[error(
         "The '{fragment_name}' is transformed to use @no_inline implicitly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
     )]
     RequiredExplicitNoInlineDirective {

@@ -64,7 +64,6 @@ impl Writer for FlowPrinter {
             AST::ReturnTypeOfMethodCall(object, method_name) => {
                 self.write_return_type_of_method_call(object, *method_name)
             }
-            AST::ActorChangePoint(selections) => self.write_actor_change_point(selections),
             AST::AssertFunctionType(FunctionTypeAssertion {
                 function_name,
                 arguments,
@@ -321,13 +320,6 @@ impl FlowPrinter {
         write!(&mut self.result, "ReturnType<")?;
         self.write(object)?;
         write!(&mut self.result, "[\"{method_name}\"]>")
-    }
-
-    fn write_actor_change_point(&mut self, selections: &AST) -> FmtResult {
-        write!(&mut self.result, "ActorChangePoint<")?;
-        self.write(selections)?;
-        write!(&mut self.result, ">")?;
-        Ok(())
     }
 
     fn write_callable(&mut self, return_type: &AST) -> FmtResult {

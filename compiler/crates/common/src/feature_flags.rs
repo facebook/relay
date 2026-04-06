@@ -49,9 +49,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_3d_branch_arg_generation: bool,
 
-    #[serde(default)]
-    pub actor_change_support: FeatureFlag,
-
     /// Enable generation of text artifacts used to generate full query strings
     /// later.
     #[serde(default)]
@@ -213,7 +210,6 @@ impl Default for FeatureFlags {
             allow_output_type_resolvers: Default::default(),
             no_inline: Default::default(),
             enable_3d_branch_arg_generation: Default::default(),
-            actor_change_support: Default::default(),
             text_artifacts: Default::default(),
             skip_printing_nulls: Default::default(),
             compact_query_text: Default::default(),

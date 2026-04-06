@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<afbe027c9b5ee64801f2b3144ddd1808>>
+ * @generated SignedSource<<6a9dca010e2006a0e5621594eec28af2>>
  */
 
 mod relay_compiler_integration;
@@ -283,6 +283,13 @@ async fn incremental_schema_change_with_base_project() {
     let input = include_str!("relay_compiler_integration/fixtures/incremental_schema_change_with_base_project.input");
     let expected = include_str!("relay_compiler_integration/fixtures/incremental_schema_change_with_base_project.expected");
     test_fixture(transform_fixture, file!(), "incremental_schema_change_with_base_project.input", "relay_compiler_integration/fixtures/incremental_schema_change_with_base_project.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_schema_field_nullability_change() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_schema_field_nullability_change.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_schema_field_nullability_change.expected");
+    test_fixture(transform_fixture, file!(), "incremental_schema_field_nullability_change.input", "relay_compiler_integration/fixtures/incremental_schema_field_nullability_change.expected", input, expected).await;
 }
 
 #[tokio::test]

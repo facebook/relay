@@ -1,0 +1,23 @@
+# Changing a root query field from non-nullable (!) to nullable should
+# update generated artifacts during incremental compilation.
+
+//- foo.js
+graphql`
+  query fooQuery {
+    me { name }
+  }
+`;
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "schema.graphql"
+}
+
+//- schema.graphql
+type Query { me: User! }
+type User { name: String }
+
+//-++ schema.graphql
+type Query { me: User }
+type User { name: String }

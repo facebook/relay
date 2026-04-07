@@ -14,17 +14,49 @@
 use common::SourceLocationKey;
 use extract_graphql::JavaScriptSourceFeature;
 use extract_graphql::extract;
-use graphql_syntax::parse_executable;
-use graphql_text_printer::prettier_print_executable_document;
+use graphql_syntax::parse_document;
+use graphql_text_printer::prettier_print_document;
 
 /// Format a GraphQL source string using prettier-compatible formatting.
 ///
 /// Parses the input as a GraphQL executable document and returns
 /// the formatted output.
-pub fn format_graphql_source(source: &str) -> anyhow::Result<String> {
-    let document = parse_executable(source, SourceLocationKey::generated())
+pub fn format_graphql_source(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> anyhow::Result<String> {
+    let document = parse_document(source, source_location)
         .map_err(|errors| anyhow::anyhow!("Parse error: {:?}", errors))?;
-    Ok(prettier_print_executable_document(&document))
+    let leading_comments = extract_leading_comments(source);
+    let formatted = prettier_print_document(&document);
+    if leading_comments.is_empty() {
+        Ok(formatted)
+    } else {
+        Ok(format!("{}\n{}", leading_comments, formatted))
+    }
+}
+
+/// Extract comment and blank lines from the beginning of a GraphQL source.
+///
+/// Returns everything up to (and including) the last line of the leading
+/// comment block. A "leading comment block" is a contiguous run of lines
+/// starting from the top of the file where every line is either a comment
+/// (starts with `#`) or blank/whitespace-only.
+fn extract_leading_comments(source: &str) -> &str {
+    let mut end = 0;
+    for line in source.lines() {
+        let trimmed = line.trim();
+        if trimmed.is_empty() || trimmed.starts_with('#') {
+            // +1 for the newline delimiter (safe even if last line has no trailing newline)
+            end += line.len() + 1;
+        } else {
+            break;
+        }
+    }
+    // Clamp to source length in case there's no trailing newline
+    let end = end.min(source.len());
+    // Trim trailing whitespace/newlines from the comment block
+    source[..end].trim_end()
 }
 
 /// Format a JavaScript file containing graphql template literals.
@@ -34,7 +66,7 @@ pub fn format_graphql_source(source: &str) -> anyhow::Result<String> {
 /// replaces the original content with the formatted version.
 ///
 /// Returns the full file with all graphql tags formatted.
-pub fn format_js_file(source: &str) -> anyhow::Result<String> {
+pub fn format_js_file(source: &str, file_path: &str) -> anyhow::Result<String> {
     let features = extract(source);
     if features.is_empty() {
         return Ok(source.to_string());
@@ -43,11 +75,12 @@ pub fn format_js_file(source: &str) -> anyhow::Result<String> {
     // Collect all GraphQL sources with their positions
     let mut replacements: Vec<(usize, usize, String)> = Vec::new();
 
-    for feature in features {
+    for (index, feature) in features.into_iter().enumerate() {
         if let JavaScriptSourceFeature::GraphQL(graphql_source) = feature {
             let text_source = graphql_source.text_source();
             let original = &text_source.text;
-            let formatted = format_graphql_source(original)?;
+            let source_location = SourceLocationKey::embedded(file_path, index);
+            let formatted = format_graphql_source(original, source_location)?;
 
             // We need to find the original position in the source
             // The text_source contains line_index and column_index but not byte offset
@@ -118,9 +151,45 @@ mod tests {
     #[test]
     fn test_format_graphql_source_simple() {
         let input = r#"query  UserQuery { user { id name } }"#;
-        let result = format_graphql_source(input).unwrap();
+        let result =
+            format_graphql_source(input, SourceLocationKey::standalone("test.graphql")).unwrap();
         assert!(result.contains("query UserQuery"));
         assert!(result.contains("user {"));
+    }
+
+    #[test]
+    fn test_format_graphql_source_preserves_leading_comments() {
+        let input = "# Copyright header\n# Another comment\n\nquery UserQuery { user { id } }\n";
+        let result =
+            format_graphql_source(input, SourceLocationKey::standalone("test.graphql")).unwrap();
+        assert!(
+            result.starts_with("# Copyright header\n# Another comment\n"),
+            "Leading comments should be preserved, got: {result}"
+        );
+        assert!(result.contains("query UserQuery"));
+    }
+
+    #[test]
+    fn test_format_graphql_source_no_leading_comments() {
+        let input = "query UserQuery { user { id } }\n";
+        let result =
+            format_graphql_source(input, SourceLocationKey::standalone("test.graphql")).unwrap();
+        assert!(!result.starts_with('#'));
+        assert!(result.contains("query UserQuery"));
+    }
+
+    #[test]
+    fn test_extract_leading_comments() {
+        assert_eq!(
+            extract_leading_comments("# comment\nquery { id }"),
+            "# comment"
+        );
+        assert_eq!(
+            extract_leading_comments("# line 1\n# line 2\n\nquery { id }"),
+            "# line 1\n# line 2"
+        );
+        assert_eq!(extract_leading_comments("query { id }"), "");
+        assert_eq!(extract_leading_comments(""), "");
     }
 
     #[test]
@@ -130,7 +199,7 @@ import {graphql} from 'react-relay';
 
 const query = graphql`query UserQuery { user { id } }`;
 "#;
-        let result = format_js_file(input).unwrap();
+        let result = format_js_file(input, "test.js").unwrap();
         assert!(result.contains("graphql`"));
         assert!(result.contains("query UserQuery"));
     }
@@ -141,7 +210,7 @@ const query = graphql`query UserQuery { user { id } }`;
 const x = 1;
 const y = 2;
 "#;
-        let result = format_js_file(input).unwrap();
+        let result = format_js_file(input, "test.js").unwrap();
         assert_eq!(result, input);
     }
 }

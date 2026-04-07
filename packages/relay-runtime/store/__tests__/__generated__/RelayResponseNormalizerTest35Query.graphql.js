@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dbf5dd94616214cfbd0b861e5f7c3e80>>
+ * @generated SignedSource<<2c442fac16365694d5004884db913ade>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -38,7 +38,6 @@ export type RelayResponseNormalizerTest35Query$data = {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +__typename: "%other",
-    +id: string,
   |}),
 |};
 export type RelayResponseNormalizerTest35Query = {|

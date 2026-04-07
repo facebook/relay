@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4cdac01312a2f2d8d641e7481619929d>>
+ * @generated SignedSource<<05dcb4d66157282a41c8e78d55aa21bf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -38,7 +38,6 @@ export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data = 
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +__typename: "%other",
-    +id: string,
   |}),
 |};
 export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery = {|

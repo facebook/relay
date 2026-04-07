@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ea687d887ad2d0b0d8e92592c64b6fdb>>
+ * @generated SignedSource<<635fe705b8ea34a50256964d7bb92456>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,6 @@ export type RelayModernStoreFieldGranularNotificationsTestNodesPluralQuery$data 
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +__typename: "%other",
-    +id: string,
   |})>,
 |};
 export type RelayModernStoreFieldGranularNotificationsTestNodesPluralQuery = {|

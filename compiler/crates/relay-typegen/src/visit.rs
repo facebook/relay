@@ -1586,9 +1586,8 @@ fn get_discriminated_union_ast(
 ) -> AST {
     let mut types: Vec<Vec<Prop>> = Vec::new();
     let mut typename_aliases = IndexSet::new();
-    let base_selection_map = selections_to_map(hashmap_into_values(base_fields.clone()), false);
     for (concrete_type, concrete_type_selections) in by_concrete_type {
-        let mut selection_map = base_selection_map.clone();
+        let mut selection_map = selections_to_map(hashmap_into_values(base_fields.clone()), false);
         merge_selection_maps(
             &mut selection_map,
             selections_to_map(concrete_type_selections.into_iter(), false),
@@ -1617,37 +1616,19 @@ fn get_discriminated_union_ast(
                 .collect(),
         );
     }
-
-    let (typename_selections, other_selections): (Vec<_>, Vec<_>) =
-        group_refs(base_selection_map.values().cloned())
-            .partition(|selection| selection.is_typename());
-
-    let mut base_props = Vec::with_capacity(typename_selections.len() + other_selections.len());
-
-    base_props.extend(typename_selections.into_iter().map(|selection| {
-        Prop::KeyValuePair(KeyValuePairProp {
-            key: selection.get_field_name_or_alias().unwrap(),
-            read_only: true,
-            optional: false,
-            value: AST::OtherTypename,
-        })
-    }));
-
-    base_props.extend(other_selections.into_iter().map(|selection| {
-        make_prop(
-            typegen_context,
-            selection,
-            mask_status,
-            None,
-            encountered_enums,
-            encountered_fragments,
-            custom_scalars,
-            runtime_imports,
-            custom_error_import,
-        )
-    }));
-
-    types.push(base_props);
+    types.push(
+        typename_aliases
+            .iter()
+            .map(|typename_alias| {
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: *typename_alias,
+                    read_only: true,
+                    optional: false,
+                    value: AST::OtherTypename,
+                })
+            })
+            .collect(),
+    );
 
     AST::Union(SortedASTList::new(
         types

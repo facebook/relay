@@ -52,15 +52,12 @@ export type RelayClientIDFieldQuery$data = {
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
       readonly __typename: "%other";
-      readonly __id: string;
     } | null | undefined;
     readonly id: string;
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other";
-    readonly __id: string;
-    readonly id: string;
   } | null | undefined;
 };
 export type RelayClientIDFieldQuery = {

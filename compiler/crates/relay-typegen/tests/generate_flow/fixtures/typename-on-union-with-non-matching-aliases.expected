@@ -30,6 +30,15 @@ export type Foo$data = {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   +__typename: "%other",
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +alias: "%other",
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +foo: "%other",
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +usertype: "%other",
   +$fragmentType: Foo$fragmentType,
 |};
 export type Foo$key = {

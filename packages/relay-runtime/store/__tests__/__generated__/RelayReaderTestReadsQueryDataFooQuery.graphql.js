@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3974d87df00e95189be365b42f60858e>>
+ * @generated SignedSource<<63c1a38eb2b4284b43bd32462d787c3d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -49,7 +49,6 @@ export type RelayReaderTestReadsQueryDataFooQuery$data = {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +__typename: "%other",
-    +id: string,
   |}),
 |};
 export type RelayReaderTestReadsQueryDataFooQuery = {|

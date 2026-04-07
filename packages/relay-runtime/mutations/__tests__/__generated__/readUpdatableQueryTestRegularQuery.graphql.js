@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<376d83123f55f01b3efb44a1c4034b2b>>
+ * @generated SignedSource<<aec28fed0668bfffdabc6ba1c4e9be89>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -44,8 +44,6 @@ export type readUpdatableQueryTestRegularQuery$data = {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +__typename: "%other",
-    +__id: string,
-    +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
   |}),
   +node2: ?{|
     +name?: ?string,

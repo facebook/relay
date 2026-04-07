@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<65a2f483afaff253b581ab4dfbd09fbd>>
+ * @generated SignedSource<<629ed9c9a568a671bd412efd80885a34>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -43,15 +43,12 @@ export type RelayModernEnvironmentLookupTestQuery$data = {|
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
       +__typename: "%other",
-      +__id: string,
     |}),
     +id: string,
   |} | {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +__typename: "%other",
-    +__id: string,
-    +id: string,
   |}),
 |};
 export type RelayModernEnvironmentLookupTestQuery = {|

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3fd8bb6e07b3d5160db50f65dba1ad7f>>
+ * @generated SignedSource<<c57aa3fbad447a575acca6402d76585f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -49,7 +49,6 @@ export type DataCheckerTestQuery$data = {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +__typename: "%other",
-    +id: string,
   |}),
 |};
 export type DataCheckerTestQuery = {|

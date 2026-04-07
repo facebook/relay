@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<34156e2e3a5c67d8a28f166d4a4a3bd0>>
+ * @generated SignedSource<<9e950413dd0b99f49cb8385fd871ee51>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,7 +32,6 @@ export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithout
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +__typename: "%other",
-    +id: string,
   |}),
 |};
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithoutThrowOnFieldErrorQuery = {|

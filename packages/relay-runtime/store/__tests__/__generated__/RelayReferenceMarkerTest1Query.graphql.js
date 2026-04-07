@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0a5bff9f190f088809810a7a2f2bd59d>>
+ * @generated SignedSource<<57f8a5f4ae0b1a24ae555bf4e9361145>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,8 +35,6 @@ export type RelayReferenceMarkerTest1Query$data = {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +__typename: "%other",
-    +id: string,
-    +$fragmentSpreads: RelayReferenceMarkerTest1Fragment$fragmentType,
   |}),
 |};
 export type RelayReferenceMarkerTest1Query = {|

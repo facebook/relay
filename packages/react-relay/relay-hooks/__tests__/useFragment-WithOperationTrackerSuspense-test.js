@@ -354,4 +354,158 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
 
     expect(rendererPlural?.container.textContent).toEqual('Alice222Bob');
   });
+
+  it('logs suspense.missing_data with isMount=true when suspending during initial mount', async () => {
+    // Commit complete data first, then use an optimistic mutation to clear
+    // the 'name' field before mounting the component. This ensures
+    // isMissingData is true with a pending operation, triggering suspension
+    // on initial mount.
+    environment.commitPayload(viewerOperation, {
+      viewer: {
+        actor: {
+          id: 'viewer-id',
+          __typename: 'User',
+          friends: {
+            pageInfo: {
+              hasNextPage: true,
+              hasPrevPage: false,
+              startCursor: 'cursor-1',
+              endCursor: 'cursor-1',
+            },
+            edges: [
+              {
+                cursor: 'cursor-1',
+                node: {
+                  id: 'user-id-1',
+                  name: 'Alice',
+                  __typename: 'User',
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    // Use optimistic mutation to remove the name field before mounting
+    await act(() => {
+      environment
+        .executeMutation({
+          operation: nodeOperation,
+          optimisticUpdater: store => {
+            const record = store.get('user-id-1');
+            record?.setValue(undefined, 'name');
+          },
+        })
+        .subscribe({});
+      jest.runAllImmediates();
+    });
+
+    // Clear logs so we only capture events from the mount
+    logger.mockClear();
+
+    const fragmentRef = {
+      __id: 'user-id-1',
+      __fragments: {
+        useFragmentWithOperationTrackerSuspenseTestFragment: {},
+      },
+      __fragmentOwner: nodeOperation.request,
+    };
+
+    const renderer = await render({userRef: fragmentRef});
+
+    // Component should be suspended due to missing data with pending operation
+    expect(renderer?.container.textContent).toBe('Singular Fallback');
+
+    const missingDataEvents = logger.mock.calls
+      .map(call => call[0])
+      .filter(event => event.name === 'suspense.missing_data');
+    expect(missingDataEvents.length).toBeGreaterThan(0);
+    // Component hasn't mounted yet, so isMount should be true
+    expect(missingDataEvents[0]).toMatchObject({
+      name: 'suspense.missing_data',
+      isMount: true,
+    });
+    expect(missingDataEvents[0].fragment.name).toBe(
+      'useFragmentWithOperationTrackerSuspenseTestFragment',
+    );
+    expect(missingDataEvents[0].fragmentOwner.node.params.name).toBe(
+      'useFragmentWithOperationTrackerSuspenseTestQuery',
+    );
+  });
+
+  it('logs suspense.missing_data with isMount=false when suspending after mount', async () => {
+    // Commit complete data so the component can mount
+    environment.commitPayload(viewerOperation, {
+      viewer: {
+        actor: {
+          id: 'viewer-id',
+          __typename: 'User',
+          friends: {
+            pageInfo: {
+              hasNextPage: true,
+              hasPrevPage: false,
+              startCursor: 'cursor-1',
+              endCursor: 'cursor-1',
+            },
+            edges: [
+              {
+                cursor: 'cursor-1',
+                node: {
+                  id: 'user-id-1',
+                  name: 'Alice',
+                  __typename: 'User',
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    const fragmentRef = {
+      __id: 'user-id-1',
+      __fragments: {
+        useFragmentWithOperationTrackerSuspenseTestFragment: {},
+      },
+      __fragmentOwner: nodeOperation.request,
+    };
+
+    const renderer = await render({userRef: fragmentRef});
+    expect(renderer?.container.textContent).toBe('Alice');
+
+    // Clear logs, then trigger suspense via optimistic update that removes data
+    logger.mockClear();
+
+    await act(() => {
+      environment
+        .executeMutation({
+          operation: nodeOperation,
+          optimisticUpdater: store => {
+            const record = store.get('user-id-1');
+            record?.setValue(undefined, 'name');
+          },
+        })
+        .subscribe({});
+      jest.runAllImmediates();
+    });
+
+    expect(renderer?.container.textContent).toBe('Singular Fallback');
+
+    const missingDataEvents = logger.mock.calls
+      .map(call => call[0])
+      .filter(event => event.name === 'suspense.missing_data');
+    expect(missingDataEvents.length).toBeGreaterThan(0);
+    // Component was already mounted, so isMount should be false
+    expect(missingDataEvents[0]).toMatchObject({
+      name: 'suspense.missing_data',
+      isMount: false,
+    });
+    expect(missingDataEvents[0].fragment.name).toBe(
+      'useFragmentWithOperationTrackerSuspenseTestFragment',
+    );
+    expect(missingDataEvents[0].fragmentOwner.node.params.name).toBe(
+      'useFragmentWithOperationTrackerSuspenseTestQuery',
+    );
+  });
 });

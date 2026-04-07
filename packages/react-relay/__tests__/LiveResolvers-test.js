@@ -1512,6 +1512,107 @@ describe('client-only fragments', () => {
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
   });
+
+  test('logs suspense.resolver with isMount=true when suspending during initial mount', () => {
+    const logger = jest.fn();
+    const environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store: new RelayModernStore(RelayRecordSource.create()),
+      log: logger,
+    });
+    environment.commitPayload(
+      createOperationDescriptor(LiveResolversTestLiveResolverSuspenseQuery, {
+        id: '1',
+      }),
+      {
+        node: {__typename: 'User', id: '1'},
+      },
+    );
+
+    // Start with counter=1 (odd) so the resolver suspends on mount
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <Environment environment={environment}>
+          <TestComponent id="1" />
+        </Environment>,
+      );
+    });
+
+    expect(renderer?.toJSON()).toEqual('Loading...');
+
+    const resolverEvents = logger.mock.calls
+      .map(call => call[0])
+      .filter(event => event.name === 'suspense.resolver');
+    expect(resolverEvents.length).toBeGreaterThan(0);
+    // Component hasn't mounted yet, so isMount should be true
+    expect(resolverEvents[0]).toMatchObject({
+      name: 'suspense.resolver',
+      isMount: true,
+    });
+    expect(resolverEvents[0].fragment.name).toBe(
+      'LiveResolversTestCounterUserFragment',
+    );
+    expect(resolverEvents[0].fragmentOwner.node.params.name).toBe(
+      'LiveResolversTestLiveResolverSuspenseQuery',
+    );
+  });
+
+  test('logs suspense.resolver with isMount=false when suspending after mount', () => {
+    const logger = jest.fn();
+    const environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store: new RelayModernStore(RelayRecordSource.create()),
+      log: logger,
+    });
+    environment.commitPayload(
+      createOperationDescriptor(LiveResolversTestLiveResolverSuspenseQuery, {
+        id: '1',
+      }),
+      {
+        node: {__typename: 'User', id: '1'},
+      },
+    );
+
+    // Start with counter=0 (even), component mounts without suspending
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <Environment environment={environment}>
+          <TestComponent id="1" />
+        </Environment>,
+      );
+    });
+    expect(renderer?.toJSON()).toEqual('0');
+
+    // Clear logs, then increment to odd to trigger suspense after mount
+    logger.mockClear();
+    TestRenderer.act(() => {
+      GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    });
+    TestRenderer.act(() => jest.runAllImmediates());
+
+    // $FlowFixMe[incompatible-use]
+    expect(renderer.toJSON()).toEqual('Loading...');
+
+    const resolverEvents = logger.mock.calls
+      .map(call => call[0])
+      .filter(event => event.name === 'suspense.resolver');
+    expect(resolverEvents.length).toBeGreaterThan(0);
+    // Component was already mounted, so isMount should be false
+    expect(resolverEvents[0]).toMatchObject({
+      name: 'suspense.resolver',
+      isMount: false,
+    });
+    expect(resolverEvents[0].fragment.name).toBe(
+      'LiveResolversTestCounterUserFragment',
+    );
+    expect(resolverEvents[0].fragmentOwner.node.params.name).toBe(
+      'LiveResolversTestLiveResolverSuspenseQuery',
+    );
+  });
 });
 
 test('Subscriptions cleaned up correctly after GC', () => {

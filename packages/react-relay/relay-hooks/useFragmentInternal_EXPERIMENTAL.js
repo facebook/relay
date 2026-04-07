@@ -520,6 +520,18 @@ hook useFragmentInternal_EXPERIMENTAL(
     }, [state, environment, fragmentNode, fragmentRef, queryOptions]);
 
     if (activeRequestPromises.length) {
+      invariant(fragmentSelector != null, 'refinement, see invariants above');
+      const fragmentOwner =
+        fragmentSelector.kind === 'PluralReaderSelector'
+          ? fragmentSelector.selectors[0].owner
+          : fragmentSelector.owner;
+      environment.__log({
+        name: 'suspense.client_edge',
+        fragment: fragmentNode,
+        fragmentOwner,
+        // $FlowFixMe[react-rule-unsafe-ref]
+        isMount: committedFragmentSelectorRef.current === false,
+      });
       const allPromises = Promise.all(activeRequestPromises);
       // $FlowExpectedError[prop-missing] Expando to annotate Promises.
       allPromises.displayName = `RelayClientEdge(${activeRequestPromises
@@ -552,6 +564,19 @@ hook useFragmentInternal_EXPERIMENTAL(
     // Suspend if a Live Resolver within this fragment is in a suspended state:
     const suspendingLiveResolvers = getSuspendingLiveResolver(state);
     if (suspendingLiveResolvers != null && suspendingLiveResolvers.length > 0) {
+      invariant(fragmentSelector != null, 'refinement, see invariants above');
+      const fragmentOwner =
+        fragmentSelector.kind === 'PluralReaderSelector'
+          ? fragmentSelector.selectors[0].owner
+          : fragmentSelector.owner;
+      environment.__log({
+        name: 'suspense.resolver',
+        fragment: fragmentNode,
+        fragmentOwner,
+        // $FlowFixMe[react-rule-unsafe-ref]
+        isMount: committedFragmentSelectorRef.current === false,
+        suspendingLiveResolvers,
+      });
       const promise = Promise.all(
         suspendingLiveResolvers.map(liveStateID => {
           // $FlowFixMe[prop-missing] This is expected to be a RelayModernStore
@@ -584,6 +609,14 @@ hook useFragmentInternal_EXPERIMENTAL(
         fragmentOwner,
       );
       if (pendingOperationsResult) {
+        environment.__log({
+          name: 'suspense.missing_data',
+          fragment: fragmentNode,
+          fragmentOwner,
+          // $FlowFixMe[react-rule-unsafe-ref]
+          isMount: committedFragmentSelectorRef.current === false,
+          pendingOperations: pendingOperationsResult.pendingOperations,
+        });
         throw pendingOperationsResult.promise;
       }
     }

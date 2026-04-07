@@ -37,7 +37,7 @@ const validateMutation = require('./validateMutation');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type MutationConfig<TMutation: MutationParameters> = Readonly<{
+export type MutationConfig<TMutation extends MutationParameters> = Readonly<{
   cacheConfig?: CacheConfig,
   configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
@@ -78,7 +78,11 @@ export type CommitMutationConfig<TVariables, TData, TRawResponse> = Readonly<{
  * Higher-level helper function to execute a mutation against a specific
  * environment.
  */
-function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
+function commitMutation<
+  TVariables extends Variables,
+  TData,
+  TRawResponse = {...},
+>(
   environment: IEnvironment,
   config: CommitMutationConfig<TVariables, TData, TRawResponse>,
 ): Disposable {

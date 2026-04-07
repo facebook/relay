@@ -24,7 +24,10 @@ const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 
-type RefetchVariables<TVariables, TKey: ?{+$fragmentSpreads: unknown, ...}> =
+type RefetchVariables<
+  TVariables,
+  TKey extends ?{+$fragmentSpreads: unknown, ...},
+> =
   // NOTE: This type ensures that the type of the returned variables is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
@@ -45,7 +48,7 @@ export type RefetchFn<TVariables, TKey, TOptions = Options> = RefetchFnBase<
 export type ReturnType<
   TVariables,
   TData,
-  TKey: ?{+$fragmentSpreads: unknown, ...},
+  TKey extends ?{+$fragmentSpreads: unknown, ...},
 > = [
   // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
@@ -57,20 +60,20 @@ export type ReturnType<
 ];
 
 export type UseRefetchableFragmentType = <
-  TFragmentType: FragmentType,
-  TVariables: Variables,
+  TFragmentType extends FragmentType,
+  TVariables extends Variables,
   TData,
-  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{+$fragmentSpreads: TFragmentType, ...},
 >(
   fragment: RefetchableFragment<TFragmentType, TData, TVariables>,
   key: TKey,
 ) => ReturnType<TVariables, TData, TKey>;
 
 hook useRefetchableFragment<
-  TFragmentType: FragmentType,
-  TVariables: Variables,
+  TFragmentType extends FragmentType,
+  TVariables extends Variables,
   TData,
-  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{+$fragmentSpreads: TFragmentType, ...},
 >(
   fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   fragmentRef: TKey,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2f77f1def57ca1e9af3c4ff1aebcebb1>>
+ * @generated SignedSource<<8c3735fd4aa9c22278afb5653b9d9491>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -64,7 +64,7 @@ return {
             "kind": "LinkedField",
             "name": "__address_test",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -95,7 +95,7 @@ return {
             "kind": "LinkedField",
             "name": "address",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": null
           },
           {
@@ -131,10 +131,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b25d254d9cced587a60803f29606c8b5";
+  (node/*:: as any*/).hash = "b25d254d9cced587a60803f29606c8b5";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   cloneRelayHandleSourceFieldTestTestQuery$variables,
   cloneRelayHandleSourceFieldTestTestQuery$data,
 >*/);

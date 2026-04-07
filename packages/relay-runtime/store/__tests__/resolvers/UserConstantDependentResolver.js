@@ -17,7 +17,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver User.constant_dependent: Int
+ * @relayField User.constant_dependent: Int
  * @rootFragment UserConstantDependentResolver
  */
 function constant_dependent(

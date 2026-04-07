@@ -33,14 +33,14 @@ fragment LinkedHandleField on User {
                     directives: [],
                 },
             ],
-            type_condition: Object(70),
+            type_condition: Object(71),
             directives: [],
             selections: [
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
                         location: linked-handle-field-with-filters.graphql:39:46,
-                        item: FieldID(460),
+                        item: FieldID(463),
                     },
                     arguments: [
                         Argument {
@@ -144,7 +144,7 @@ fragment LinkedHandleField on User {
                             alias: None,
                             definition: WithLocation {
                                 location: linked-handle-field-with-filters.graphql:158:163,
-                                item: FieldID(176),
+                                item: FieldID(179),
                             },
                             arguments: [],
                             directives: [],

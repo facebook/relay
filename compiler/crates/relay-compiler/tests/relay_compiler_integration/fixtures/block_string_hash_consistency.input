@@ -1,0 +1,29 @@
+//- src/component.js
+
+graphql`query componentQuery {
+  me {
+    name(prefix: """block_string_value""")
+  }
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "test_project"
+   },
+   "projects": {
+      "test_project": {
+         "schema": "schema.graphql",
+         "language": "javascript"
+      }
+   }
+}
+
+//- schema.graphql
+type Query {
+   me: User
+}
+
+type User {
+   name(prefix: String): String
+}

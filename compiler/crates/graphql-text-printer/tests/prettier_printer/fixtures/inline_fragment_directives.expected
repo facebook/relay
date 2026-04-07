@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+query UserQuery {
+  user {
+    ... @include(if: $showDetails) {
+      email
+      phone
+    }
+    ... @defer(label: "additionalInfo") {
+      address
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query UserQuery {
+  user {
+    ... @include(if: $showDetails) {
+      email
+      phone
+    }
+    ... @defer(label: "additionalInfo") {
+      address
+    }
+  }
+}

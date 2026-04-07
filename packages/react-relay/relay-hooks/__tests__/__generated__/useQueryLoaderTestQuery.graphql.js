@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8d82e1367375d8168bc0b5547772a4a8>>
+ * @generated SignedSource<<eb96f4af8d29e37ffc0e4d17b6e0de38>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -56,20 +56,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useQueryLoaderTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -79,13 +79,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useQueryLoaderTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,7 +98,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -116,10 +116,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "52854606dfd6e11752ea1e74d98fd991";
+  (node/*:: as any*/).hash = "52854606dfd6e11752ea1e74d98fd991";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useQueryLoaderTestQuery$variables,
   useQueryLoaderTestQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c6da0d2b3414feac05aacff9035bf12d>>
+ * @generated SignedSource<<478ac8059fd68db50cb354f2b02dea37>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {constant as userConstantResolverType} from "../UserConstantResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userConstantResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userConstantResolverType: (
+(userConstantResolverType as (
   rootKey: UserConstantResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -66,10 +66,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "24ebf834d1a139bc177fc287cdf0dfd2";
+  (node/*:: as any*/).hash = "24ebf834d1a139bc177fc287cdf0dfd2";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserConstantDependentResolver$fragmentType,
   UserConstantDependentResolver$data,
 >*/);

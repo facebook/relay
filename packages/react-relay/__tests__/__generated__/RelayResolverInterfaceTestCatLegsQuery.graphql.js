@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0293a0c9a7d6f43f6ee18d498db221ee>>
+ * @generated SignedSource<<c1b8fa6109c9628b2f1368c51fdbb0d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {cat as queryCatResolverType} from "../../../relay-runtime/store/__tests_
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCatResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCatResolverType: (
+(queryCatResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?{|
@@ -51,7 +51,7 @@ var v0 = {
   "storageKey": null
 },
 v1 = [
-  (v0/*: any*/)
+  (v0/*:: as any*/)
 ];
 return {
   "fragment": {
@@ -80,6 +80,7 @@ return {
             "path": "cat.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -165,7 +166,7 @@ return {
                             "args": null,
                             "fragment": {
                               "kind": "InlineFragment",
-                              "selections": (v1/*: any*/),
+                              "selections": (v1/*:: as any*/),
                               "type": "Cat",
                               "abstractKey": null
                             },
@@ -199,7 +200,7 @@ return {
                             "args": null,
                             "fragment": {
                               "kind": "InlineFragment",
-                              "selections": (v1/*: any*/),
+                              "selections": (v1/*:: as any*/),
                               "type": "Fish",
                               "abstractKey": null
                             },
@@ -223,7 +224,7 @@ return {
               "type": "IAnimal",
               "abstractKey": "__isIAnimal"
             },
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -249,10 +250,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bfa07f8bbeb86466f11b1e960da49893";
+  (node/*:: as any*/).hash = "bfa07f8bbeb86466f11b1e960da49893";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestCatLegsQuery$variables,
   RelayResolverInterfaceTestCatLegsQuery$data,
 >*/);

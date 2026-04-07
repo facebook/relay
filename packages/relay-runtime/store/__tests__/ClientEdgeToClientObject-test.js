@@ -273,14 +273,14 @@ type Account = {
   account_name: string,
 };
 /**
- * @RelayResolver Query.account: ClientAccount
+ * @relayField Query.account: ClientAccount
  */
 function account(): {id: string} {
   return {id: '1'};
 }
 
 /**
- * @RelayResolver ClientAccount.self: RelayResolverValue
+ * @relayField ClientAccount.self: RelayResolverValue
  * @rootFragment ClientEdgeToClientObjectTestClientRootFragment
  */
 function self(
@@ -298,7 +298,7 @@ function self(
 }
 
 /**
- * @RelayResolver ClientAccount.account_name: String
+ * @relayField ClientAccount.account_name: String
  * @rootFragment ClientEdgeToClientObjectTestClientRootNameFragment
  */
 function account_name(

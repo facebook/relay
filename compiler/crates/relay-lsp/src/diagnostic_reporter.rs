@@ -330,14 +330,14 @@ impl DiagnosticReporter {
 }
 
 /// Checks if `inner` range is within the `outer` range.
-/// First, we need to make sure that the start character of the outer range
-/// is before (or the same) character of the inner range.
-/// Then we need to make sure that end character of the outer range is after
-/// (or the same) as the end character of the inner range, or outer line
-/// is more than inner end line.
+/// A position A is before or equal to position B if A's line is less than B's,
+/// or they are on the same line and A's character is less than or equal to B's.
 fn is_sub_range(inner: Range, outer: Range) -> bool {
-    (outer.start.character <= inner.start.character && outer.start.line <= inner.start.line)
-        && (outer.end.character >= inner.end.character && outer.end.line >= inner.end.line)
+    let outer_start_before_inner_start = outer.start.line < inner.start.line
+        || (outer.start.line == inner.start.line && outer.start.character <= inner.start.character);
+    let outer_end_after_inner_end = outer.end.line > inner.end.line
+        || (outer.end.line == inner.end.line && outer.end.character >= inner.end.character);
+    outer_start_before_inner_start && outer_end_after_inner_end
 }
 
 /// Publish diagnostics to the client
@@ -422,5 +422,29 @@ mod tests {
         let cursor = Range::new(Position::new(80, 12), Position::new(80, 12));
         let diagnostic = Range::new(Position::new(92, 6), Position::new(92, 17));
         assert!(!is_sub_range(cursor, diagnostic));
+    }
+
+    #[test]
+    fn sub_range_multiline_outer_contains_inner_with_smaller_char() {
+        // inner is on a line within the outer range but at a smaller character
+        // offset than the outer's start character — this should still be contained
+        let inner = Range::new(Position::new(6, 2), Position::new(6, 2));
+        let outer = Range::new(Position::new(5, 10), Position::new(8, 5));
+        assert!(is_sub_range(inner, outer));
+    }
+
+    #[test]
+    fn sub_range_multiline_outer_contains_inner_with_larger_end_char() {
+        // inner end is on a line within the outer range but at a larger character
+        // offset than the outer's end character — this should still be contained
+        let inner = Range::new(Position::new(6, 2), Position::new(7, 20));
+        let outer = Range::new(Position::new(5, 10), Position::new(8, 5));
+        assert!(is_sub_range(inner, outer));
+    }
+
+    #[test]
+    fn sub_range_single_line_exact_match() {
+        let range = Range::new(Position::new(5, 3), Position::new(5, 10));
+        assert!(is_sub_range(range, range));
     }
 }

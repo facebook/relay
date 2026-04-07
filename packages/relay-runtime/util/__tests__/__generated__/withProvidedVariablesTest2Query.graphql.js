@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c4c2260e95cac92d1b80156ea4f002ba>>
+ * @generated SignedSource<<9014e71c956ca0a62537b6a29ab94dd5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -33,7 +33,7 @@ export type withProvidedVariablesTest2Query = {|
 |};
 ({
   "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider')
-}: {|
+} as {|
   +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
     +get: () => number,
   |},
@@ -56,7 +56,7 @@ v1 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/)
+      (v0/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -64,7 +64,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -91,7 +91,7 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "defaultValue": null,
         "kind": "LocalArgument",
@@ -103,7 +103,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -181,10 +181,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "672d458b4f030a73c4aeb0146485c476";
+  (node/*:: as any*/).hash = "672d458b4f030a73c4aeb0146485c476";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   withProvidedVariablesTest2Query$variables,
   withProvidedVariablesTest2Query$data,
 >*/);

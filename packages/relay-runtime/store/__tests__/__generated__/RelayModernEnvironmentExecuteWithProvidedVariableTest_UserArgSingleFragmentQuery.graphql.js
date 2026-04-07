@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f8c5e5591101a4e500151b5f18c913d9>>
+ * @generated SignedSource<<cc0759449b425aa11d55dd0e82b1528d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -33,7 +33,7 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleF
 |};
 ({
   "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider')
-}: {|
+} as {|
   +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
     +get: () => boolean,
   |},
@@ -56,7 +56,7 @@ v1 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/)
+      (v0/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -64,7 +64,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -85,7 +85,7 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "defaultValue": null,
         "kind": "LocalArgument",
@@ -97,7 +97,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -190,10 +190,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ceb095ac103f8ed7a4155eead5586b81";
+  (node/*:: as any*/).hash = "ceb095ac103f8ed7a4155eead5586b81";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$variables,
   RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$data,
 >*/);

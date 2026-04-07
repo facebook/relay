@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f7d205e38a04a72f7a8cc1534d13a3bd>>
+ * @generated SignedSource<<ee78d10f8e2a004b6ae42f8de7585fdb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -63,7 +63,7 @@ return {
   "metadata": null,
   "name": "RelayReferenceMarkerTest2Fragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "kind": "ClientExtension",
       "selections": [
@@ -126,7 +126,7 @@ return {
                       "name": "id",
                       "storageKey": null
                     },
-                    (v0/*: any*/)
+                    (v0/*:: as any*/)
                   ],
                   "storageKey": null
                 }
@@ -187,10 +187,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "34600dc24690307d95ea58d1ef1e180c";
+  (node/*:: as any*/).hash = "34600dc24690307d95ea58d1ef1e180c";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReferenceMarkerTest2Fragment$fragmentType,
   RelayReferenceMarkerTest2Fragment$data,
 >*/);

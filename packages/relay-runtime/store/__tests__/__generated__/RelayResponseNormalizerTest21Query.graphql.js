@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<104f4f3a51c1855bc321d7a6ed240417>>
+ * @generated SignedSource<<ea1783131c3e37aa8b77fd2ac123301f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -68,8 +68,8 @@ return {
         "name": "named",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/)
+          (v0/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -98,8 +98,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v0/*: any*/),
-          (v1/*: any*/)
+          (v0/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -117,10 +117,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "be9ff9516a4df45e046bf7af8d4b1049";
+  (node/*:: as any*/).hash = "be9ff9516a4df45e046bf7af8d4b1049";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest21Query$variables,
   RelayResponseNormalizerTest21Query$data,
 >*/);

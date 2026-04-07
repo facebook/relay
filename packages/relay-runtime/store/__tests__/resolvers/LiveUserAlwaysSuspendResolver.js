@@ -17,7 +17,7 @@ import type {LiveState} from 'relay-runtime';
 const {suspenseSentinel} = require('relay-runtime');
 
 /**
- * @RelayResolver Query.live_user_resolver_always_suspend: User
+ * @relayField Query.live_user_resolver_always_suspend: User
  * @live
  */
 function live_user_resolver_always_suspend(): LiveState<

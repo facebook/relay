@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1d0177901587791799ef7a9767c11622>>
+ * @generated SignedSource<<c2323a406c6cc9104a6450c2abb3d92e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {user_profile_picture_uri_with_scale_and_default_value as userUserProfile
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriWithScaleAndDefaultValueResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleAndDefaultValueResolverType: (
+(userUserProfilePictureUriWithScaleAndDefaultValueResolverType as (
   rootKey: UserProfilePictureWithDefaultValueResolver$key,
   args: {|
     scale: ?number,
@@ -84,12 +84,12 @@ v3 = {
   "kind": "LinkedField",
   "name": "profile_picture",
   "plural": false,
-  "selections": (v2/*: any*/),
+  "selections": (v2/*:: as any*/),
   "storageKey": null
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderResolverTest19Query",
@@ -106,7 +106,7 @@ return {
             "alias": "profile_picture2",
             "args": [],
             "fragment": {
-              "args": (v1/*: any*/),
+              "args": (v1/*:: as any*/),
               "kind": "FragmentSpread",
               "name": "UserProfilePictureWithDefaultValueResolver"
             },
@@ -115,7 +115,7 @@ return {
             "resolverModule": require('../resolvers/UserProfilePictureWithDefaultValueResolver').user_profile_picture_uri_with_scale_and_default_value,
             "path": "me.profile_picture2"
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -125,7 +125,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderResolverTest19Query",
     "selections": [
@@ -145,12 +145,12 @@ return {
               "selections": [
                 {
                   "alias": null,
-                  "args": (v1/*: any*/),
+                  "args": (v1/*:: as any*/),
                   "concreteType": "Image",
                   "kind": "LinkedField",
                   "name": "profile_picture",
                   "plural": false,
-                  "selections": (v2/*: any*/),
+                  "selections": (v2/*:: as any*/),
                   "storageKey": "profile_picture(scale:2)"
                 }
               ],
@@ -161,7 +161,7 @@ return {
             "storageKey": null,
             "isOutputType": true
           },
-          (v3/*: any*/),
+          (v3/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -186,10 +186,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "093746388fb9fdb94eaeedff006ab715";
+  (node/*:: as any*/).hash = "093746388fb9fdb94eaeedff006ab715";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest19Query$variables,
   RelayReaderResolverTest19Query$data,
 >*/);

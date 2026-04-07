@@ -1,0 +1,35 @@
+# When a mutation field's return type changes (e.g. from PayloadA to PayloadB),
+# the incremental build must regenerate the mutation artifact so the
+# concreteType in the normalization AST reflects the new return type.
+
+//- foo.js
+graphql`
+  mutation fooMutation($input: CreateInput!) {
+    createThing(input: $input) {
+      success
+      message
+    }
+  }
+`
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+type Mutation { createThing(input: CreateInput!): PayloadA }
+input CreateInput { key: String }
+type PayloadA { success: Boolean, message: String }
+type PayloadB { success: Boolean, message: String }
+
+//-++ schema.graphql
+type Query { me: User }
+type User { name: String }
+type Mutation { createThing(input: CreateInput!): PayloadB }
+input CreateInput { key: String }
+type PayloadA { success: Boolean, message: String }
+type PayloadB { success: Boolean, message: String }

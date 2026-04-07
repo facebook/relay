@@ -18,7 +18,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver TodoDescription
+ * @relayType TodoDescription
  * @weak
  */
 export opaque type TodoDescription = {
@@ -27,7 +27,7 @@ export opaque type TodoDescription = {
 };
 
 /**
- * @RelayResolver TodoDescriptionStyle
+ * @relayType TodoDescriptionStyle
  * @weak
  */
 export opaque type TodoDescriptionStyle = {
@@ -49,14 +49,14 @@ function createTodoDescription(
 }
 
 /**
- * @RelayResolver TodoDescription.text: String
+ * @relayField TodoDescription.text: String
  */
 function text(instance: TodoDescription): string {
   return instance.text;
 }
 
 /**
- * @RelayResolver TodoDescription.text_with_prefix(prefix: String!): String
+ * @relayField TodoDescription.text_with_prefix(prefix: String!): String
  */
 function text_with_prefix(
   instance: TodoDescription,
@@ -66,7 +66,7 @@ function text_with_prefix(
 }
 
 /**
- * @RelayResolver TodoDescription.color: RelayResolverValue
+ * @relayField TodoDescription.color: RelayResolverValue
  */
 function color(instance: TodoDescription): string {
   return instance.color;
@@ -79,7 +79,7 @@ const LiveColorSubscriptions = {
 };
 
 /**
- * @RelayResolver TodoDescription.live_color: RelayResolverValue
+ * @relayField TodoDescription.live_color: RelayResolverValue
  * @live
  */
 function live_color(instance: TodoDescription): LiveState<string> {
@@ -100,7 +100,7 @@ function live_color(instance: TodoDescription): LiveState<string> {
 }
 
 /**
- * @RelayResolver TodoDescription.some_interface: ClientInterface
+ * @relayField TodoDescription.some_interface: ClientInterface
  */
 function some_interface(
   instance: TodoDescription,
@@ -112,7 +112,7 @@ function some_interface(
 }
 
 /**
- * @RelayResolver TodoDescription.some_client_type_with_interface: ClientTypeWithNestedClientInterface
+ * @relayField TodoDescription.some_client_type_with_interface: ClientTypeWithNestedClientInterface
  */
 function some_client_type_with_interface(
   instance: TodoDescription,
@@ -126,7 +126,7 @@ function some_client_type_with_interface(
 }
 
 /**
- * @RelayResolver TodoDescription.text_style(margin: String): TodoDescriptionStyle
+ * @relayField TodoDescription.text_style(margin: String): TodoDescriptionStyle
  * @rootFragment TodoDescription_text_style
  */
 function text_style(
@@ -148,7 +148,7 @@ function text_style(
 }
 
 /**
- * @RelayResolver Query.some_todo_description: TodoDescription
+ * @relayField Query.some_todo_description: TodoDescription
  */
 function some_todo_description(): TodoDescription {
   return {color: 'red', text: 'some todo description'};

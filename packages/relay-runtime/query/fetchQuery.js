@@ -112,7 +112,7 @@ const invariant = require('invariant');
  * ```
  * NOTE: When using .toPromise(), the request cannot be cancelled.
  */
-function fetchQuery<TVariables: Variables, TData, TRawResponse>(
+function fetchQuery<TVariables extends Variables, TData, TRawResponse>(
   environment: IEnvironment,
   query: Query<TVariables, TData, TRawResponse>,
   variables: NoInfer<TVariables>,
@@ -179,7 +179,7 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
   }
 }
 
-function getNetworkObservable<TQuery: OperationType>(
+function getNetworkObservable<TQuery extends OperationType>(
   environment: IEnvironment,
   operation: OperationDescriptor,
 ): RelayObservable<TQuery['response']> {

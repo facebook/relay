@@ -1,0 +1,40 @@
+#
+# Object("Mutation") alone finds no affected operations because no
+# linked field returns the Mutation type. This documents why check.rs
+# must also mark the changed fields' return types.
+#
+mutation FooMutation {
+  createThing {
+    success
+    message
+  }
+}
+
+mutation BarMutation {
+  doOther {
+    result
+  }
+}
+
+query BazQuery {
+  me {
+    name
+  }
+}
+
+%extensions%
+# Object: Mutation
+
+type PayloadB {
+  success: Boolean
+  message: String
+}
+
+type OtherResult {
+  result: String
+}
+
+extend type Mutation {
+    createThing: PayloadB
+    doOther: OtherResult
+}

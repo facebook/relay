@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6a3c5d7789bf41e9c19abf0b467cbdd4>>
+ * @generated SignedSource<<572ba31cd4743b29f2733d09c398aca3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -54,7 +54,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ClientUser__id$fragmentType,
   ClientUser__id$data,
 >*/);

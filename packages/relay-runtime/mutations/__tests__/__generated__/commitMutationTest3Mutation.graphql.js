@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eb44197e4a87b7dcc55f910fec9fad54>>
+ * @generated SignedSource<<250b081c80f80151a68ac7f7974061c8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -63,7 +63,7 @@ v2 = {
   "storageKey": null
 },
 v3 = [
-  (v2/*: any*/)
+  (v2/*:: as any*/)
 ],
 v4 = {
   "alias": null,
@@ -72,19 +72,19 @@ v4 = {
   "kind": "LinkedField",
   "name": "formerFriend",
   "plural": false,
-  "selections": (v3/*: any*/),
+  "selections": (v3/*:: as any*/),
   "storageKey": null
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "commitMutationTest3Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "UnfriendResponsePayload",
         "kind": "LinkedField",
         "name": "unfriend",
@@ -97,10 +97,10 @@ return {
             "kind": "LinkedField",
             "name": "actor",
             "plural": false,
-            "selections": (v3/*: any*/),
+            "selections": (v3/*:: as any*/),
             "storageKey": null
           },
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -110,13 +110,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "commitMutationTest3Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "UnfriendResponsePayload",
         "kind": "LinkedField",
         "name": "unfriend",
@@ -137,11 +137,11 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           },
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -159,10 +159,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "dab27d75e734a4b036d32acce8a9fbf0";
+  (node/*:: as any*/).hash = "dab27d75e734a4b036d32acce8a9fbf0";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   commitMutationTest3Mutation$variables,
   commitMutationTest3Mutation$data,
 >*/);

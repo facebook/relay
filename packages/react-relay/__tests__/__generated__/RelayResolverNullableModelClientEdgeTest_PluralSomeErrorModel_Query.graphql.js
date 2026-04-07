@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<20e7aa82c290b33dd706457147d23b8f>>
+ * @generated SignedSource<<deee06c1eb0aeefad6bd7da75ff6678c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {edge_to_plural_models_some_throw as queryEdgeToPluralModelsSomeThrowReso
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToPluralModelsSomeThrowResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToPluralModelsSomeThrowResolverType: (
+(queryEdgeToPluralModelsSomeThrowResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?ReadonlyArray<?{|
@@ -87,6 +87,7 @@ return {
             "path": "edge_to_plural_models_some_throw.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -96,7 +97,7 @@ return {
           "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_plural_models_some_throw,
           "path": "edge_to_plural_models_some_throw"
         },
-        "linkedField": (v0/*: any*/)
+        "linkedField": (v0/*:: as any*/)
       }
     ],
     "type": "Query",
@@ -118,7 +119,7 @@ return {
           "storageKey": null,
           "isOutputType": false
         },
-        "linkedField": (v0/*: any*/)
+        "linkedField": (v0/*:: as any*/)
       }
     ]
   },
@@ -134,10 +135,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4e34ce26b08774bc983ff3702de61c95";
+  (node/*:: as any*/).hash = "4e34ce26b08774bc983ff3702de61c95";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query$variables,
   RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query$data,
 >*/);

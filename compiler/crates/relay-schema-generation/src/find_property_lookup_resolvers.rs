@@ -17,7 +17,7 @@ use common::Span;
 use common::WithLocation;
 use docblock_shared::ResolverSourceHash;
 use docblock_syntax::DocblockAST;
-use docblock_syntax::parse_docblock;
+use docblock_syntax::parse_docblock_with_offset;
 use fnv::FnvHashMap;
 use hermes_estree::ObjectTypePropertyKey;
 use hermes_estree::Range;
@@ -82,13 +82,14 @@ impl Visitor<'_> for PropertyVisitor<'_> {
                 }
             };
             let (comment, comment_range) = self.resolver_node_ranges.get(&ast.range).unwrap();
-            let docblock = match parse_docblock(comment, self.location) {
-                Ok(docblock) => docblock,
-                Err(err) => {
-                    self.errors.extend(err);
-                    return;
-                }
-            };
+            let docblock =
+                match parse_docblock_with_offset(comment, self.location, comment_range.start + 2) {
+                    Ok(docblock) => docblock,
+                    Err(err) => {
+                        self.errors.extend(err);
+                        return;
+                    }
+                };
             let description = match get_description(&docblock, *comment_range) {
                 Ok(description) => description,
                 Err(err) => {

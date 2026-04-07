@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<235c5114cf434e58b89746d516a0eae6>>
+ * @generated SignedSource<<c5c093b299022c67bb76f827be0e61ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {user_profile_picture_uri_with_scale_and_default_value as userUserProfile
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriWithScaleAndDefaultValueResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleAndDefaultValueResolverType: (
+(userUserProfilePictureUriWithScaleAndDefaultValueResolverType as (
   rootKey: UserProfilePictureWithDefaultValueResolver$key,
   args: {|
     scale: ?number,
@@ -69,7 +69,7 @@ return {
             "alias": "profile_picture2",
             "args": [],
             "fragment": {
-              "args": (v0/*: any*/),
+              "args": (v0/*:: as any*/),
               "kind": "FragmentSpread",
               "name": "UserProfilePictureWithDefaultValueResolver"
             },
@@ -107,7 +107,7 @@ return {
               "selections": [
                 {
                   "alias": null,
-                  "args": (v0/*: any*/),
+                  "args": (v0/*:: as any*/),
                   "concreteType": "Image",
                   "kind": "LinkedField",
                   "name": "profile_picture",
@@ -155,10 +155,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "45885a11a4ed3bfe287a950ff219df00";
+  (node/*:: as any*/).hash = "45885a11a4ed3bfe287a950ff219df00";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest18Query$variables,
   RelayReaderResolverTest18Query$data,
 >*/);

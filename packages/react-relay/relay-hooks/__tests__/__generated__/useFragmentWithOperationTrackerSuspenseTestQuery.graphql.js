@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3c807f2294b482947010f72e07e490a2>>
+ * @generated SignedSource<<a7ad6dc2996e18c38393a18ea33abba2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,20 +58,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useFragmentWithOperationTrackerSuspenseTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -86,19 +86,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useFragmentWithOperationTrackerSuspenseTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -137,10 +137,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d21e697bfd19cd686c5039c4a5d8d27f";
+  (node/*:: as any*/).hash = "d21e697bfd19cd686c5039c4a5d8d27f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useFragmentWithOperationTrackerSuspenseTestQuery$variables,
   useFragmentWithOperationTrackerSuspenseTestQuery$data,
 >*/);

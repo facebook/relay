@@ -174,6 +174,8 @@ pub enum SchemaLocation {
     File(PathBuf),
     /// A directory containing multiple schema files.
     Directory(PathBuf),
+    /// A single file containing a compact-serialized schema.
+    CompactFile(PathBuf),
 }
 
 pub struct ExtraArtifactsConfig {

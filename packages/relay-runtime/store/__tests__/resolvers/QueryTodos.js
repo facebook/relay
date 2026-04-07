@@ -20,7 +20,7 @@ const {
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 
 /**
- * @RelayResolver Query.todos(first: Int, last: Int): TodoConnection
+ * @relayField Query.todos(first: Int, last: Int): TodoConnection
  * @live
  */
 function todos(args: {first: ?number, last: ?number}): LiveState<?ReturnType> {

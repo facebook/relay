@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cfb6d95874a1013ecf0341ac318a6e37>>
+ * @generated SignedSource<<3feeead497a6b1155d3065397fcbd19d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -73,21 +73,21 @@ v4 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReferenceMarkerTest4Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -102,24 +102,24 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReferenceMarkerTest4Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v4/*: any*/),
+              (v4/*:: as any*/),
               {
                 "kind": "ClientExtension",
                 "selections": [
@@ -175,8 +175,8 @@ return {
                             "name": "node",
                             "plural": false,
                             "selections": [
-                              (v2/*: any*/),
-                              (v4/*: any*/)
+                              (v2/*:: as any*/),
+                              (v4/*:: as any*/)
                             ],
                             "storageKey": null
                           }
@@ -251,10 +251,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3a3b10327f7853be9a3e2b6bf0a76a7d";
+  (node/*:: as any*/).hash = "3a3b10327f7853be9a3e2b6bf0a76a7d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReferenceMarkerTest4Query$variables,
   RelayReferenceMarkerTest4Query$data,
 >*/);

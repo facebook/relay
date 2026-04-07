@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b142522022d2590349abef4c298af3a9>>
+ * @generated SignedSource<<7c0420f1c1e3433a7abceed7b871b168>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -97,7 +97,7 @@ return {
         "count": null,
         "cursor": null,
         "direction": "bidirectional",
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       }
     ],
     "refetch": {
@@ -110,7 +110,7 @@ return {
           "count": "last",
           "cursor": "before"
         },
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       },
       "fragmentPathInResult": [
         "node"
@@ -124,8 +124,8 @@ return {
   },
   "name": "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment",
   "selections": [
-    (v1/*: any*/),
-    (v2/*: any*/),
+    (v1/*:: as any*/),
+    (v2/*:: as any*/),
     {
       "alias": "friends",
       "args": [
@@ -161,8 +161,8 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v1/*: any*/),
-                (v2/*: any*/),
+                (v1/*:: as any*/),
+                (v2/*:: as any*/),
                 {
                   "args": null,
                   "kind": "FragmentSpread",
@@ -237,10 +237,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f40001b7b963988467bb56b398ac1e1a";
+  (node/*:: as any*/).hash = "f40001b7b963988467bb56b398ac1e1a";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
   useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data,
   useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables,

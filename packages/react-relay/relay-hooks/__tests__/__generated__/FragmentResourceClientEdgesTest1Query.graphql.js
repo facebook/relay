@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d220daeec9e97848216109556748993c>>
+ * @generated SignedSource<<1f0576071898ed4bc6aa84cb829f9174>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,20 +58,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "FragmentResourceClientEdgesTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -86,19 +86,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "FragmentResourceClientEdgesTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -151,10 +151,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "12b2f7755a7f2800f27cf07a3b735b7f";
+  (node/*:: as any*/).hash = "12b2f7755a7f2800f27cf07a3b735b7f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceClientEdgesTest1Query$variables,
   FragmentResourceClientEdgesTest1Query$data,
 >*/);

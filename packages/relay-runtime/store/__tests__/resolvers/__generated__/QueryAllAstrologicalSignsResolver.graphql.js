@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a72fdcef45f4717cdc32e15180a1def6>>
+ * @generated SignedSource<<7307fa4bc9527488018ba7ac4a8bb4ec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -63,10 +63,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6622a6153c0cf33340cb80928fe31728";
+  (node/*:: as any*/).hash = "6622a6153c0cf33340cb80928fe31728";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   QueryAllAstrologicalSignsResolver$fragmentType,
   QueryAllAstrologicalSignsResolver$data,
 >*/);

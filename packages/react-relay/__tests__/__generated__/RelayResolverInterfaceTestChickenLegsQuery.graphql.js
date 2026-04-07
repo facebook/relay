@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<85b3c0d307881b88115daa1d9131ec6d>>
+ * @generated SignedSource<<7e5cc935b97b077d2fe9f89b78df40bc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -40,7 +40,7 @@ var v0 = {
   "storageKey": null
 },
 v1 = [
-  (v0/*: any*/)
+  (v0/*:: as any*/)
 ];
 return {
   "fragment": {
@@ -122,7 +122,7 @@ return {
                               "args": null,
                               "fragment": {
                                 "kind": "InlineFragment",
-                                "selections": (v1/*: any*/),
+                                "selections": (v1/*:: as any*/),
                                 "type": "Cat",
                                 "abstractKey": null
                               },
@@ -156,7 +156,7 @@ return {
                               "args": null,
                               "fragment": {
                                 "kind": "InlineFragment",
-                                "selections": (v1/*: any*/),
+                                "selections": (v1/*:: as any*/),
                                 "type": "Fish",
                                 "abstractKey": null
                               },
@@ -180,7 +180,7 @@ return {
                 "type": "IAnimal",
                 "abstractKey": "__isIAnimal"
               },
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -207,10 +207,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "faf70b0c71846f082798a4d7ad8b760b";
+  (node/*:: as any*/).hash = "faf70b0c71846f082798a4d7ad8b760b";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestChickenLegsQuery$variables,
   RelayResolverInterfaceTestChickenLegsQuery$data,
 >*/);

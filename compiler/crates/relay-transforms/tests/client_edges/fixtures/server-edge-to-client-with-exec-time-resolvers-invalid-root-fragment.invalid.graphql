@@ -1,0 +1,24 @@
+#expected-to-throw
+# S2C @rootFragment must only select __typename and/or id in exec time resolvers
+query TestQuery @exec_time_resolvers {
+  me {
+    client_recommendation_with_name {
+      id
+    }
+  }
+}
+
+fragment ClientRecommendationWithNameResolverFragment on User {
+  __typename
+  name
+}
+
+# %extensions%
+
+type ClientOnlyType implements Node {
+  id: ID!
+}
+
+extend type User {
+  client_recommendation_with_name: ClientOnlyType @relay_resolver(fragment_name: "ClientRecommendationWithNameResolverFragment", import_path: "ClientRecommendationWithNameResolver")
+}

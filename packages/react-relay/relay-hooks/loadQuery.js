@@ -66,7 +66,7 @@ declare function loadQuery<
 ): PreloadedQueryInner<QueryType<T>, TEnvironmentProviderOptions>;
 
 function loadQuery<
-  TQuery: OperationType,
+  TQuery extends OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 >(
   environment: IEnvironment,

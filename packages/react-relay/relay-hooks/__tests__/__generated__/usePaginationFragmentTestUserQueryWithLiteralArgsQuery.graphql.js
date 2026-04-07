@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<54b7c0cb1f2a47a7d0ec1ff041181be0>>
+ * @generated SignedSource<<f0ed278b26482b0018cfe0bd9b820e39>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -124,16 +124,16 @@ v10 = [
     "name": "last",
     "variableName": "last"
   },
-  (v6/*: any*/)
+  (v6/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -141,7 +141,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -154,7 +154,7 @@ return {
                 "name": "isViewerFriendLocal",
                 "value": true
               },
-              (v6/*: any*/)
+              (v6/*:: as any*/)
             ],
             "kind": "FragmentSpread",
             "name": "usePaginationFragmentTestUserFragment"
@@ -169,32 +169,32 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v3/*: any*/),
-      (v0/*: any*/),
-      (v2/*: any*/),
-      (v1/*: any*/),
-      (v4/*: any*/)
+      (v3/*:: as any*/),
+      (v0/*:: as any*/),
+      (v2/*:: as any*/),
+      (v1/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "usePaginationFragmentTestUserQueryWithLiteralArgsQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v7/*: any*/),
-          (v8/*: any*/),
+          (v7/*:: as any*/),
+          (v8/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v9/*: any*/),
+              (v9/*:: as any*/),
               {
                 "alias": null,
-                "args": (v10/*: any*/),
+                "args": (v10/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -216,8 +216,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v8/*: any*/),
-                          (v9/*: any*/),
+                          (v8/*:: as any*/),
+                          (v9/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -225,7 +225,7 @@ return {
                             "name": "username",
                             "storageKey": null
                           },
-                          (v7/*: any*/)
+                          (v7/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -283,7 +283,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v10/*: any*/),
+                "args": (v10/*:: as any*/),
                 "filters": [
                   "orderby",
                   "isViewerFriend"
@@ -314,10 +314,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "896f2c0d23be1936f2c2371f29128ba2";
+  (node/*:: as any*/).hash = "896f2c0d23be1936f2c2371f29128ba2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePaginationFragmentTestUserQueryWithLiteralArgsQuery$variables,
   usePaginationFragmentTestUserQueryWithLiteralArgsQuery$data,
 >*/);

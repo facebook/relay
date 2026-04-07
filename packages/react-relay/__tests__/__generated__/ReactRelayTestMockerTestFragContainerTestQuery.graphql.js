@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fe63a474735ea302af6d52479d3b44b2>>
+ * @generated SignedSource<<5df6468e16cd9a151b30dbb926a61506>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -102,10 +102,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5eed738e34526a06a552a9102d84fbfe";
+  (node/*:: as any*/).hash = "5eed738e34526a06a552a9102d84fbfe";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayTestMockerTestFragContainerTestQuery$variables,
   ReactRelayTestMockerTestFragContainerTestQuery$data,
 >*/);

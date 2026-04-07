@@ -12,7 +12,7 @@
 'use strict';
 
 /**
- * @RelayResolver Query.hello(world: String!): String
+ * @relayField Query.hello(world: String!): String
  *
  * Say `Hello ${world}!`
  */

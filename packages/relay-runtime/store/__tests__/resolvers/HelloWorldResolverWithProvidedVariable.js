@@ -17,7 +17,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Query.hello_world_with_provided_variable: String
+ * @relayField Query.hello_world_with_provided_variable: String
  * @rootFragment HelloWorldResolverWithProvidedVariable
  *
  * Say `Hello ${world}!`

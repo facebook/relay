@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<77de5013d91b19b8444a8a7e66ccbc54>>
+ * @generated SignedSource<<1f35977418a17814ed8c09ee027841fd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,20 +58,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationTestCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -86,13 +86,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationTestCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -105,7 +105,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -148,10 +148,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "525f90d51bcf7f9c6f2ee29ca2aee518";
+  (node/*:: as any*/).hash = "525f90d51bcf7f9c6f2ee29ca2aee518";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteMutationTestCommentQuery$variables,
   RelayModernEnvironmentExecuteMutationTestCommentQuery$data,
 >*/);

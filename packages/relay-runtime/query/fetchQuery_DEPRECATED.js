@@ -26,7 +26,7 @@ const {getRequest} = require('./GraphQLTag');
  * order to be accessible in the result object.
  */
 
-function fetchQuery_DEPRECATED<T: OperationType>(
+function fetchQuery_DEPRECATED<T extends OperationType>(
   environment: IEnvironment,
   taggedNode: GraphQLTaggedNode,
   variables: T['variables'],

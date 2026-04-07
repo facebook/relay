@@ -24,7 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
 const requiredThrowNameCalls: {count: number} = {count: 0};
 
 /**
- * @RelayResolver User.required_throw_name: String
+ * @relayField User.required_throw_name: String
  * @rootFragment UserRequiredThrowNameResolver
  */
 function required_throw_name(

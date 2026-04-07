@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fb123524bf5b22a78d60a19418d59d71>>
+ * @generated SignedSource<<91a9bae70176d3d755987877a11941ec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/s
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoModelResolverType: (
+(queryTodoModelResolverType as (
   args: {|
     todoID: string,
   |},
@@ -84,7 +84,7 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -109,9 +109,10 @@ return {
             "path": "todo_model.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "todo_model",
@@ -120,7 +121,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoModel",
           "kind": "LinkedField",
           "name": "todo_model",
@@ -141,7 +142,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolverModelTestTodoWithPluralFieldQuery",
     "selections": [
@@ -149,7 +150,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "todo_model",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -157,7 +158,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoModel",
           "kind": "LinkedField",
           "name": "todo_model",
@@ -177,7 +178,7 @@ return {
                       "fragment": {
                         "kind": "InlineFragment",
                         "selections": [
-                          (v2/*: any*/)
+                          (v2/*:: as any*/)
                         ],
                         "type": "TodoModel",
                         "abstractKey": null
@@ -205,7 +206,7 @@ return {
                   {
                     "name": "text",
                     "args": null,
-                    "fragment": (v3/*: any*/),
+                    "fragment": (v3/*:: as any*/),
                     "kind": "RelayResolver",
                     "storageKey": null,
                     "isOutputType": true
@@ -213,7 +214,7 @@ return {
                   {
                     "name": "color",
                     "args": null,
-                    "fragment": (v3/*: any*/),
+                    "fragment": (v3/*:: as any*/),
                     "kind": "RelayResolver",
                     "storageKey": null,
                     "isOutputType": true
@@ -222,7 +223,7 @@ return {
                 "storageKey": null
               }
             },
-            (v2/*: any*/)
+            (v2/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -241,10 +242,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8b328e6829eeb1a883ede354bb6dc7de";
+  (node/*:: as any*/).hash = "8b328e6829eeb1a883ede354bb6dc7de";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverModelTestTodoWithPluralFieldQuery$variables,
   RelayResolverModelTestTodoWithPluralFieldQuery$data,
 >*/);

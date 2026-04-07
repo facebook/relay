@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<51126c9cec4db52fcb13ee8a3fedb219>>
+ * @generated SignedSource<<00f2a5da749c710d2e91d43d69110f1c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -75,7 +75,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -101,13 +101,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -126,7 +126,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v1/*: any*/),
+                  (v1/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -164,7 +164,7 @@ return {
           "plural": false,
           "type": "Node"
         },
-        "node.__typename": (v2/*: any*/),
+        "node.__typename": (v2/*:: as any*/),
         "node.id": {
           "enumValues": null,
           "nullable": false,
@@ -177,9 +177,9 @@ return {
           "plural": false,
           "type": "UserNameRenderer"
         },
-        "node.nameRenderer.__module_component_RelayMockPayloadGeneratorTest33Fragment": (v3/*: any*/),
-        "node.nameRenderer.__module_operation_RelayMockPayloadGeneratorTest33Fragment": (v3/*: any*/),
-        "node.nameRenderer.__typename": (v2/*: any*/),
+        "node.nameRenderer.__module_component_RelayMockPayloadGeneratorTest33Fragment": (v3/*:: as any*/),
+        "node.nameRenderer.__module_operation_RelayMockPayloadGeneratorTest33Fragment": (v3/*:: as any*/),
+        "node.nameRenderer.__typename": (v2/*:: as any*/),
         "node.nameRenderer.data": {
           "enumValues": null,
           "nullable": true,
@@ -192,8 +192,8 @@ return {
           "plural": false,
           "type": "ID"
         },
-        "node.nameRenderer.data.markup": (v4/*: any*/),
-        "node.nameRenderer.markdown": (v4/*: any*/)
+        "node.nameRenderer.data.markup": (v4/*:: as any*/),
+        "node.nameRenderer.markdown": (v4/*:: as any*/)
       }
     },
     "name": "RelayMockPayloadGeneratorTest47Query",
@@ -204,10 +204,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "405204aa6f6931208ebc8d03a94890ff";
+  (node/*:: as any*/).hash = "405204aa6f6931208ebc8d03a94890ff";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest47Query$variables,
   RelayMockPayloadGeneratorTest47Query$data,
 >*/);

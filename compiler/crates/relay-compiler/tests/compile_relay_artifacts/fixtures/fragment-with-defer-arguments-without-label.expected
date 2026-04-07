@@ -23,7 +23,7 @@ fragment fragmentWithDeferArgumentsWithoutLabel_DeferredFragment on User @argume
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected all fields on the same parent with the name or alias `profile_picture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (scale: 1.5)
+✖︎ Expected all fields on the same parent with the name or alias `profile_picture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (scale: 1.5). If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: profile_picture(...)`.
 
   fragment-with-defer-arguments-without-label.graphql:20:3
    19 │   name

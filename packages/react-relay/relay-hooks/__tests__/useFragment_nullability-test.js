@@ -26,14 +26,14 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
 const {createMockEnvironment} = require('relay-test-utils');
 
 /*
- * @RelayResolver Query.field_that_throws: Int @semanticNonNull
+ * @relayField Query.field_that_throws: Int @semanticNonNull
  */
 export function field_that_throws(): number {
   throw new Error('There was an error!');
 }
 
 /*
- * @RelayResolver Query.field_with_fragment_that_throws: Int @semanticNonNull
+ * @relayField Query.field_with_fragment_that_throws: Int @semanticNonNull
  * @rootFragment useFragmentNullabilityTestFragmentWithFieldThatThrows
  */
 export function field_with_fragment_that_throws(

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c57aa3fbad447a575acca6402d76585f>>
+ * @generated SignedSource<<0f323809930a3f3dd922f914bd615a93>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,16 +23,13 @@ export type DataCheckerTestQuery$variables = {|
   size?: ?ReadonlyArray<?number>,
 |};
 export type DataCheckerTestQuery$data = {|
-  +node: ?({|
-    +__typename: "Page",
-    +actors: ?ReadonlyArray<?{|
+  +node: ?{|
+    +__typename: string,
+    +actors?: ?ReadonlyArray<?{|
       +name: ?string,
     |}>,
-    +id: string,
-  |} | {|
-    +__typename: "User",
-    +firstName: ?string,
-    +friends: ?{|
+    +firstName?: ?string,
+    +friends?: ?{|
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
@@ -42,14 +39,10 @@ export type DataCheckerTestQuery$data = {|
       |}>,
     |},
     +id: string,
-    +profilePicture: ?{|
+    +profilePicture?: ?{|
       +uri: ?string,
     |},
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+  |},
 |};
 export type DataCheckerTestQuery = {|
   response: DataCheckerTestQuery$data,
@@ -108,7 +101,7 @@ v5 = {
 v6 = {
   "kind": "InlineFragment",
   "selections": [
-    (v5/*: any*/),
+    (v5/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -146,8 +139,8 @@ v6 = {
               "name": "node",
               "plural": false,
               "selections": [
-                (v2/*: any*/),
-                (v5/*: any*/)
+                (v2/*:: as any*/),
+                (v5/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -187,21 +180,21 @@ v6 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "DataCheckerTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -213,7 +206,7 @@ return {
                 "name": "actors",
                 "plural": true,
                 "selections": [
-                  (v4/*: any*/)
+                  (v4/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -221,7 +214,7 @@ return {
             "type": "Page",
             "abstractKey": null
           },
-          (v6/*: any*/)
+          (v6/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -231,20 +224,20 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "DataCheckerTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -256,9 +249,9 @@ return {
                 "name": "actors",
                 "plural": true,
                 "selections": [
-                  (v3/*: any*/),
-                  (v4/*: any*/),
-                  (v2/*: any*/)
+                  (v3/*:: as any*/),
+                  (v4/*:: as any*/),
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -266,7 +259,7 @@ return {
             "type": "Page",
             "abstractKey": null
           },
-          (v6/*: any*/)
+          (v6/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -284,10 +277,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "161a709f3f77e2725725ed8725497047";
+  (node/*:: as any*/).hash = "161a709f3f77e2725725ed8725497047";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   DataCheckerTestQuery$variables,
   DataCheckerTestQuery$data,
 >*/);

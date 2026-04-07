@@ -67,42 +67,6 @@ pub enum ValidationMessage {
     UnsupportedFragmentSpreadInResolverFragment,
 
     #[error(
-        "Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread."
-    )]
-    ActorChangeInvalidSelection,
-
-    #[error("Actor change directive (@as_actor) cannot be applied to scalar fields.")]
-    ActorChangeCannotUseOnScalarFields,
-
-    #[error(
-        "Actor change has limited (experimental) support and is not allowed to use on this fragment spread."
-    )]
-    ActorChangeIsExperimental,
-
-    #[error("Actor change does not support plural fields, yet.")]
-    ActorChangePluralFieldsNotSupported,
-
-    #[error(
-        "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
-    )]
-    ActorChangeExpectViewerFieldOnType {
-        directive_name: DirectiveName,
-        actor_change_field: StringKey,
-        field_name: StringKey,
-        type_name: StringKey,
-    },
-
-    #[error(
-        "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. The field '{actor_change_field}' should be defined as a scalar field in the GraphQL Schema, but is defined with the type '{actor_change_field_type}' instead."
-    )]
-    ActorChangeViewerShouldBeScalar {
-        directive_name: DirectiveName,
-        actor_change_field: StringKey,
-        field_name: StringKey,
-        actor_change_field_type: StringKey,
-    },
-
-    #[error(
         "The '{fragment_name}' is transformed to use @no_inline implicitly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
     )]
     RequiredExplicitNoInlineDirective {
@@ -169,9 +133,34 @@ pub enum ValidationMessage {
     ClientEdgeToServerWithExecTimeResolvers,
 
     #[error(
-        "Server to client edges are not supported in exec time resolvers. Please consider disable exec time resolver on the query for now, or not using server to client edges."
+        "Server-to-client resolver @rootFragment `{fragment_name}` in exec time resolvers may only select `__typename` and/or `id`. Found disallowed selection: {field_name}. S2C resolvers must use identity-only @rootFragment."
     )]
-    ServerEdgeToClientWithExecTimeResolvers,
+    S2CRootFragmentInvalidSelection {
+        fragment_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error(
+        "Client edges to interfaces or unions with server type implementors are not supported in exec time resolvers, because the server type data requires a waterfall refetch that exec time resolvers cannot perform."
+    )]
+    ClientEdgeToMixedInterfaceWithExecTimeResolvers,
+
+    #[error(
+        "Relay Resolver field `{field_name}` returns server type `{server_type_name}` which does not implement the `Node` interface and is not `@fetchable`. Server types returned by Relay Resolvers must be refetchable via the `Node` interface or the `@fetchable` directive."
+    )]
+    ClientEdgeServerTypeNotRefetchable {
+        field_name: StringKey,
+        server_type_name: ObjectName,
+    },
+
+    #[error(
+        "Relay Resolver field `{field_name}` returns `{abstract_type_name}` which includes server type `{server_type_name}`. `{server_type_name}` does not implement the `Node` interface and is not `@fetchable`. Server types returned by Relay Resolvers must be refetchable via the `Node` interface or the `@fetchable` directive."
+    )]
+    ClientEdgeMixedInterfaceServerTypeNotRefetchable {
+        field_name: StringKey,
+        abstract_type_name: StringKey,
+        server_type_name: ObjectName,
+    },
 
     #[error(
         "Invalid @RelayResolver output type for field `{field_name}`. Got input object `{type_name}`."

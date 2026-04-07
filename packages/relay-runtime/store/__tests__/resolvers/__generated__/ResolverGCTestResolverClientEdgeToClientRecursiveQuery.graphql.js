@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<adabbae532fcfefed489c7262591cbc1>>
+ * @generated SignedSource<<be534cf9728c04c58fdd4cb07852d8a0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolverType: (
+(astrologicalSignNameResolverType as (
   rootKey: AstrologicalSignNameResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -34,7 +34,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignOppositeResolverType: (
+(astrologicalSignOppositeResolverType as (
   rootKey: AstrologicalSignOppositeResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -44,7 +44,7 @@ import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalS
 import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAstrologicalSignResolverType: (
+(userAstrologicalSignResolverType as (
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -90,7 +90,7 @@ v2 = {
       "fragment": {
         "kind": "InlineFragment",
         "selections": [
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "type": "AstrologicalSign",
         "abstractKey": null
@@ -106,7 +106,7 @@ v2 = {
 v3 = {
   "name": "name",
   "args": null,
-  "fragment": (v2/*: any*/),
+  "fragment": (v2/*:: as any*/),
   "kind": "RelayResolver",
   "storageKey": null,
   "isOutputType": true
@@ -132,6 +132,7 @@ return {
             "kind": "ClientEdgeToClientObject",
             "concreteType": "AstrologicalSign",
             "modelResolvers": null,
+            "serverObjectOperations": null,
             "backingField": {
               "alias": null,
               "args": null,
@@ -156,7 +157,7 @@ return {
                 {
                   "alias": null,
                   "args": null,
-                  "fragment": (v0/*: any*/),
+                  "fragment": (v0/*:: as any*/),
                   "kind": "RelayResolver",
                   "name": "name",
                   "resolverModule": require('../AstrologicalSignNameResolver').name,
@@ -166,6 +167,7 @@ return {
                   "kind": "ClientEdgeToClientObject",
                   "concreteType": "AstrologicalSign",
                   "modelResolvers": null,
+                  "serverObjectOperations": null,
                   "backingField": {
                     "alias": null,
                     "args": null,
@@ -190,7 +192,7 @@ return {
                       {
                         "alias": null,
                         "args": null,
-                        "fragment": (v0/*: any*/),
+                        "fragment": (v0/*:: as any*/),
                         "kind": "RelayResolver",
                         "name": "name",
                         "resolverModule": require('../AstrologicalSignNameResolver').name,
@@ -274,13 +276,13 @@ return {
               "name": "astrological_sign",
               "plural": false,
               "selections": [
-                (v3/*: any*/),
+                (v3/*:: as any*/),
                 {
                   "kind": "ClientEdgeToClientObject",
                   "backingField": {
                     "name": "opposite",
                     "args": null,
-                    "fragment": (v2/*: any*/),
+                    "fragment": (v2/*:: as any*/),
                     "kind": "RelayResolver",
                     "storageKey": null,
                     "isOutputType": false
@@ -293,18 +295,18 @@ return {
                     "name": "opposite",
                     "plural": false,
                     "selections": [
-                      (v3/*: any*/),
-                      (v1/*: any*/)
+                      (v3/*:: as any*/),
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   }
                 },
-                (v1/*: any*/)
+                (v1/*:: as any*/)
               ],
               "storageKey": null
             }
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -322,10 +324,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "835710d0d7baf55862e8c7a7e122b64c";
+  (node/*:: as any*/).hash = "835710d0d7baf55862e8c7a7e122b64c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverGCTestResolverClientEdgeToClientRecursiveQuery$variables,
   ResolverGCTestResolverClientEdgeToClientRecursiveQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b5d233e5e47322ae637d9132dffe2b46>>
+ * @generated SignedSource<<859f3a7dc004706cf3e876f75e5b0517>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,9 +22,9 @@ export type RelayResponseNormalizerTest24Query$variables = {|
   id?: ?string,
 |};
 export type RelayResponseNormalizerTest24Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +friends: ?{|
+  +node: ?{|
+    +__typename: string,
+    +friends?: ?{|
       +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +firstName: ?string,
@@ -33,12 +33,8 @@ export type RelayResponseNormalizerTest24Query$data = {|
       |}>,
     |},
     +id: string,
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+    +name?: ?string,
+  |},
 |};
 export type RelayResponseNormalizerTest24Query = {|
   response: RelayResponseNormalizerTest24Query$data,
@@ -76,7 +72,7 @@ v2 = [
     "name": "node",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
+      (v1/*:: as any*/),
       {
         "alias": null,
         "args": null,
@@ -124,7 +120,7 @@ v2 = [
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
+                      (v1/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -151,20 +147,20 @@ v2 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest24Query",
-    "selections": (v2/*: any*/),
+    "selections": (v2/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest24Query",
-    "selections": (v2/*: any*/)
+    "selections": (v2/*:: as any*/)
   },
   "params": {
     "cacheID": "ef9be80990c9f3c031e88954f5132b5f",
@@ -178,10 +174,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "dfddcf9b7d22fb1c3f895f915c659752";
+  (node/*:: as any*/).hash = "dfddcf9b7d22fb1c3f895f915c659752";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest24Query$variables,
   RelayResponseNormalizerTest24Query$data,
 >*/);

@@ -12,7 +12,6 @@ use lazy_static::lazy_static;
 pub struct CodegenConstants {
     pub abstract_key: StringKey,
     pub action: StringKey,
-    pub actor_change: StringKey,
     pub alias: StringKey,
     pub aliased_fragment_spread: StringKey,
     pub aliased_inline_fragment_spread: StringKey,
@@ -114,6 +113,7 @@ pub struct CodegenConstants {
     pub scalar_field: StringKey,
     pub scalar_handle: StringKey,
     pub selections: StringKey,
+    pub server_object_operations: StringKey,
     pub split_operation: StringKey,
     pub storage_key: StringKey,
     pub stream: StringKey,
@@ -133,7 +133,6 @@ lazy_static! {
     pub static ref CODEGEN_CONSTANTS: CodegenConstants = CodegenConstants {
         abstract_key: "abstractKey".intern(),
         action: "action".intern(),
-        actor_change: "ActorChange".intern(),
         alias: "alias".intern(),
         aliased_fragment_spread: "AliasedFragmentSpread".intern(),
         aliased_inline_fragment_spread: "AliasedInlineFragmentSpread".intern(),
@@ -235,6 +234,7 @@ lazy_static! {
         scalar_field: "ScalarField".intern(),
         scalar_handle: "ScalarHandle".intern(),
         selections: "selections".intern(),
+        server_object_operations: "serverObjectOperations".intern(),
         split_operation: "SplitOperation".intern(),
         storage_key: "storageKey".intern(),
         stream: "Stream".intern(),

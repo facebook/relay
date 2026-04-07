@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e9d32b946e39a3c997aed689a1a9f2a4>>
+ * @generated SignedSource<<6370d579ff793576fe0966593c7da1a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,7 +57,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "GraphQLTagTest1Query",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -66,7 +66,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "GraphQLTagTest1Query",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "a6921ec95f506d036e38300a1125755e",
@@ -80,10 +80,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3aba6197bd5a1f5de4eccaa2ec627ae3";
+  (node/*:: as any*/).hash = "3aba6197bd5a1f5de4eccaa2ec627ae3";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   GraphQLTagTest1Query$variables,
   GraphQLTagTest1Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f9952061133f0c3f161c56316b5dc157>>
+ * @generated SignedSource<<4a0fcfbdca12a75da23019eefb129b76>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType}
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveUserSuspendsWhenOddResolverType: (
+(queryLiveUserSuspendsWhenOddResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?{|
@@ -88,10 +88,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d99958d995a71b9db58b73932515179f";
+  (node/*:: as any*/).hash = "d99958d995a71b9db58b73932515179f";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   LiveExternalGreetingFragment$fragmentType,
   LiveExternalGreetingFragment$data,
 >*/);

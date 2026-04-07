@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d2e64752613a7b3a35cfb1edd5a5c571>>
+ * @generated SignedSource<<8ee29658ae75bc5fda1ae2bc89522b6f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,18 +23,14 @@ export type RelayResponseNormalizerTest29Query$variables = {|
   size?: ?ReadonlyArray<?number>,
 |};
 export type RelayResponseNormalizerTest29Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +firstName: ?string,
+  +node: ?{|
+    +__typename: string,
+    +firstName?: ?string,
     +id: string,
-    +profilePicture: ?{|
+    +profilePicture?: ?{|
       +uri: ?string,
     |},
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+  |},
 |};
 export type RelayResponseNormalizerTest29Query = {|
   response: RelayResponseNormalizerTest29Query$data,
@@ -128,20 +124,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest29Query",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest29Query",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "deaa4eb6df12cd2e363e059269a2f896",
@@ -155,10 +151,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "def7aab0dc3da657c10fbc20c184dcb7";
+  (node/*:: as any*/).hash = "def7aab0dc3da657c10fbc20c184dcb7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest29Query$variables,
   RelayResponseNormalizerTest29Query$data,
 >*/);

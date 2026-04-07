@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1a9f46bef8d13f707289885732875294>>
+ * @generated SignedSource<<f209cbb82469f2cfed5f78b1e66c51ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -67,7 +67,7 @@ v1 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "readInlineDataTestQueryVariablesQuery",
@@ -84,7 +84,7 @@ return {
             "kind": "InlineDataFragmentSpread",
             "name": "readInlineDataTestQueryVariables",
             "selections": [
-              (v1/*: any*/)
+              (v1/*:: as any*/)
             ],
             "args": null,
             "argumentDefinitions": [
@@ -103,7 +103,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "readInlineDataTestQueryVariablesQuery",
     "selections": [
@@ -115,7 +115,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -140,10 +140,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b81371b5470d08403d2fc99426f4ab5f";
+  (node/*:: as any*/).hash = "b81371b5470d08403d2fc99426f4ab5f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   readInlineDataTestQueryVariablesQuery$variables,
   readInlineDataTestQueryVariablesQuery$data,
 >*/);

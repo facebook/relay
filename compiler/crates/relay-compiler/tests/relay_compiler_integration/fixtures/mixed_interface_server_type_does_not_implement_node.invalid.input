@@ -1,0 +1,53 @@
+//- PersonComponent.js
+graphql`query PersonComponentQuery {
+  vehicle @waterfall {
+    id
+  }
+}`
+
+//- VehicleResolver.js
+/**
+ * @relayField Query.vehicle: IVehicle
+ */
+export function vehicle() {}
+
+//- CarResolver.js
+/**
+ * @relayType Car implements IVehicle
+ */
+export function Car() {}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query {
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+# Truck does NOT implement Node
+type Truck {
+  id: ID!
+  wheels: Int
+}
+
+//- schema-extensions/extension.graphql
+interface IVehicle {
+  id: ID!
+}
+
+extend type Truck implements IVehicle

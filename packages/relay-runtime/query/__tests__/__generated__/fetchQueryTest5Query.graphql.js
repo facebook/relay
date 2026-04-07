@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1141ace88c742e7ead1502b6f2a62ae4>>
+ * @generated SignedSource<<b708d2bf1ef083e5cf08057d1d824f20>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -49,7 +49,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "fetchQueryTest5Query",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -58,7 +58,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "fetchQueryTest5Query",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "1f64dc5de41e4d35c974cef1681434a4",
@@ -72,10 +72,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "51b5507fd390b89ad93a513e19352913";
+  (node/*:: as any*/).hash = "51b5507fd390b89ad93a513e19352913";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   fetchQueryTest5Query$variables,
   fetchQueryTest5Query$data,
 >*/);

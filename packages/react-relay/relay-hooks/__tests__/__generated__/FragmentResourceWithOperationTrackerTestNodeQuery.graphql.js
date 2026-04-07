@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<19fc9778d41a62d22c998b391918e9b3>>
+ * @generated SignedSource<<45685237fccadade7898fbfd5f1f7472>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -60,14 +60,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "FragmentResourceWithOperationTrackerTestNodeQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -87,19 +87,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "FragmentResourceWithOperationTrackerTestNodeQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -131,7 +131,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -177,7 +177,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -216,10 +216,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "43da25d82b333c14f0570f553ebc8631";
+  (node/*:: as any*/).hash = "43da25d82b333c14f0570f553ebc8631";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceWithOperationTrackerTestNodeQuery$variables,
   FragmentResourceWithOperationTrackerTestNodeQuery$data,
 >*/);

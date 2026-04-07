@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0362728f34fbc4ac24be4b95570e76e4>>
+ * @generated SignedSource<<c00d59c9c24a6a79849c95c4a3490efe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -66,14 +66,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -116,19 +116,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -140,7 +140,7 @@ return {
                 "name": "actors",
                 "plural": true,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "if": null,
                     "kind": "Defer",
@@ -162,7 +162,7 @@ return {
                       }
                     ]
                   },
-                  (v3/*: any*/)
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -170,7 +170,7 @@ return {
             "type": "Feedback",
             "abstractKey": null
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -188,10 +188,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8c92153864fe205ace6fefbd5c53fdc4";
+  (node/*:: as any*/).hash = "8c92153864fe205ace6fefbd5c53fdc4";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest9Query$variables,
   RelayResponseNormalizerTest9Query$data,
 >*/);

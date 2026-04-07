@@ -22,6 +22,7 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
 lazy_static = "1.5"
+rayon = "1.11.0"
 relay-transforms = { path = "../relay-transforms" }
 rustc-hash = "2.1.1"
 schema = { path = "../schema" }
@@ -31,4 +32,4 @@ serde = { version = "1.0.219", features = ["derive", "rc"] }
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 relay-test-schema = { path = "../relay-test-schema" }
-tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.50.0", features = ["full", "test-util", "tracing"] }

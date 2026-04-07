@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2e4f7bb7765b2aa5412110074d4299b6>>
+ * @generated SignedSource<<a23ce89919b7ec2208a2f75bca8d85db>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {counter as queryCounterResolverType} from "../LiveCounterResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterResolverType: (
+(queryCounterResolverType as (
   rootKey: LiveCounterResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -126,10 +126,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d570bae0b297f13d75a9a78a1593f0d2";
+  (node/*:: as any*/).hash = "d570bae0b297f13d75a9a78a1593f0d2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverGCTestLiveWithRootFragmentQuery$variables,
   ResolverGCTestLiveWithRootFragmentQuery$data,
 >*/);

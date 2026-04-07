@@ -26,6 +26,7 @@ use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::FeatureFlag;
 use common::Location;
 use common::ScalarName;
 use common::SourceLocationKey;
@@ -33,10 +34,12 @@ use common::Span;
 use common::WithLocation;
 use docblock_shared::DEPRECATED_FIELD;
 use docblock_shared::ResolverSourceHash;
+use docblock_shared::contains_resolver_tag;
 use docblock_syntax::DocblockAST;
 use docblock_syntax::DocblockSection;
-use docblock_syntax::parse_docblock;
+use docblock_syntax::parse_docblock_with_offset;
 use errors::SchemaGenerationError;
+use errors::SchemaGenerationErrorWithData;
 use find_resolver_imports::ImportExportVisitor;
 use find_resolver_imports::JSImportType;
 use find_resolver_imports::ModuleResolution;
@@ -138,6 +141,10 @@ pub struct RelayResolverExtractor {
 
     // Used to map Flow types in return/argument types to GraphQL custom scalars
     custom_scalar_map: FnvIndexMap<CustomType, ScalarName>,
+
+    // Feature flag controlling whether the legacy @RelayResolver tag is allowed
+    // in place of @relayType / @relayField
+    allow_legacy_relay_resolver_tag: FeatureFlag,
 }
 
 enum FieldDefinitionInfo {
@@ -152,6 +159,12 @@ enum FieldDefinitionInfo {
     },
 }
 
+enum UsedTag {
+    LegacyResolver,
+    Type,
+    Field,
+}
+
 struct UnresolvedFieldDefinition {
     entity_name: Option<WithLocation<StringKey>>,
     field_name: WithLocation<StringKey>,
@@ -163,14 +176,8 @@ struct UnresolvedFieldDefinition {
     field_info: FieldDefinitionInfo,
 }
 
-impl Default for RelayResolverExtractor {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl RelayResolverExtractor {
-    pub fn new() -> Self {
+    pub fn new(allow_legacy_relay_resolver_tag: &FeatureFlag) -> Self {
         let mut self_ = Self {
             type_definitions: Default::default(),
             unresolved_field_definitions: Default::default(),
@@ -178,6 +185,7 @@ impl RelayResolverExtractor {
             module_resolutions: Default::default(),
             current_location: SourceLocationKey::generated(),
             custom_scalar_map: FnvIndexMap::default(),
+            allow_legacy_relay_resolver_tag: allow_legacy_relay_resolver_tag.clone(),
         };
         self_.add_relay_runtime_flow_scalars();
         self_
@@ -209,7 +217,8 @@ impl RelayResolverExtractor {
         source_module_path: &str,
         fragment_definitions: Option<&Vec<ExecutableDefinition>>,
     ) -> DiagnosticsResult<()> {
-        // Assume the caller knows the text contains at least one RelayResolver decorator
+        // Assume the caller knows the text contains at least one resolver docblock tag
+        // (@relayType, @relayField, or the legacy @RelayResolver)
 
         self.current_location = SourceLocationKey::standalone(source_module_path);
 
@@ -262,11 +271,28 @@ impl RelayResolverExtractor {
         let result = try_all(
             attached_comments
                 .into_iter()
-                .filter(|(comment, _, _, _)| comment.contains("@RelayResolver"))
+                .filter(|(comment, _, _, _)| contains_resolver_tag(comment))
                 .map(|(comment, comment_range, node, range)| {
                     // TODO: Handle unwraps
-                    let docblock = parse_docblock(comment, self.current_location)?;
-                    let resolver_value = docblock.find_field(intern!("RelayResolver")).unwrap();
+                    // Hermes strips the /* and */ delimiters from the
+                    // comment value but comment_range covers the full
+                    // delimiters, so we pass comment_range.start + 2 as
+                    // the base offset to produce file-relative spans.
+                    let docblock = parse_docblock_with_offset(
+                        comment,
+                        self.current_location,
+                        comment_range.start + 2,
+                    )?;
+                    let (used_tag, resolver_value) =
+                        if let Some(field) = docblock.find_field(intern!("RelayResolver")) {
+                            (UsedTag::LegacyResolver, field)
+                        } else if let Some(field) = docblock.find_field(intern!("relayType")) {
+                            (UsedTag::Type, field)
+                        } else if let Some(field) = docblock.find_field(intern!("relayField")) {
+                            (UsedTag::Field, field)
+                        } else {
+                            return Ok(());
+                        };
 
                     let deprecated = get_deprecated(&docblock);
                     let description = get_description(&docblock, comment_range)?;
@@ -281,15 +307,50 @@ impl RelayResolverExtractor {
                         }) => {
                             let name = resolver_value.field_value.unwrap_or(field_name);
 
-                            // Heuristic to treat lowercase name as field definition, otherwise object definition
-                            // if there is a `.` in the name, it is the old resolver synatx, e.g. @RelayResolver Client.field,
-                            // we should treat it as a field definition
+                            // Heuristic to treat lowercase name as field definition, otherwise object definition.
+                            // If there is a `.` in the name, it is the old verbose syntax,
+                            // e.g. @relayField Client.field; we should treat it as a field definition
                             let is_field_definition = {
                                 let name_str = name.item.lookup();
                                 let is_lowercase_initial =
                                     name_str.chars().next().unwrap().is_lowercase();
                                 is_lowercase_initial || name_str.contains('.')
                             };
+
+                            match used_tag {
+                                UsedTag::LegacyResolver => {
+                                    if !self
+                                        .allow_legacy_relay_resolver_tag
+                                        .is_enabled_for(name.item)
+                                    {
+                                        return Err(vec![Diagnostic::error_with_data(
+                                            if is_field_definition {
+                                                SchemaGenerationErrorWithData::UseRelayFieldTag
+                                            } else {
+                                                SchemaGenerationErrorWithData::UseRelayTypeTag
+                                            },
+                                            resolver_value.field_name.location,
+                                        )]);
+                                    }
+                                }
+                                UsedTag::Type => {
+                                    if is_field_definition {
+                                        return Err(vec![Diagnostic::error_with_data(
+                                            SchemaGenerationErrorWithData::RelayTypeTagUsedForField,
+                                            resolver_value.field_name.location,
+                                        )]);
+                                    }
+                                }
+                                UsedTag::Field => {
+                                    if !is_field_definition {
+                                        return Err(vec![Diagnostic::error_with_data(
+                                            SchemaGenerationErrorWithData::RelayFieldTagUsedForType,
+                                            resolver_value.field_name.location,
+                                        )]);
+                                    }
+                                }
+                            }
+
                             if is_field_definition {
                                 let entity_name = match entity_type {
                                     Some(entity_type) => {
@@ -332,6 +393,30 @@ impl RelayResolverExtractor {
                             type_alias,
                         }) => {
                             let name = resolver_value.field_value.unwrap_or(field_name);
+
+                            match used_tag {
+                                UsedTag::LegacyResolver => {
+                                    if !self
+                                        .allow_legacy_relay_resolver_tag
+                                        .is_enabled_for(name.item)
+                                    {
+                                        return Err(vec![Diagnostic::error_with_data(
+                                            SchemaGenerationErrorWithData::UseRelayTypeTag,
+                                            resolver_value.field_name.location,
+                                        )]);
+                                    }
+                                }
+                                UsedTag::Field => {
+                                    return Err(vec![Diagnostic::error_with_data(
+                                        SchemaGenerationErrorWithData::RelayFieldTagUsedForType,
+                                        resolver_value.field_name.location,
+                                    )]);
+                                }
+                                UsedTag::Type => {
+                                    // This is the expected tag! No errors to report.
+                                }
+                            }
+
                             let mut prop_visitor = PropertyVisitor::new(
                                 source_module_path,
                                 source_hash,
@@ -838,13 +923,12 @@ impl RelayResolverExtractor {
         };
 
         let arguments = if node.params.len() > 1 {
-            let param = &node.params[0];
             let arg_param = &node.params[1];
             let args = if let Pattern::Identifier(identifier) = arg_param {
                 let type_annotation = identifier.type_annotation.as_ref().ok_or_else(|| {
                     Diagnostic::error(
                         SchemaGenerationError::MissingParamType,
-                        self.to_location(param),
+                        self.to_location(arg_param),
                     )
                 })?;
                 if let TypeAnnotationEnum::FlowTypeAnnotation(type_) =

@@ -103,6 +103,7 @@ fn extract_docblock_ir_for_project(
             &project_config.typegen_config.custom_scalar_types,
             compiler_state,
             graphql_asts,
+            &project_config.feature_flags.allow_legacy_relay_resolver_tag,
         )?;
         type_irs.extend(extracted_types);
         field_irs.extend(extracted_fields);

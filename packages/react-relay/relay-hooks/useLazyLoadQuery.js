@@ -30,7 +30,10 @@ const {
 // This separate type export is only needed as long as we are injecting
 // a separate hooks implementation in ./HooksImplementation -- it can
 // be removed after we stop doing that.
-export type UseLazyLoadQueryHookType = hook <TVariables: Variables, TData>(
+export type UseLazyLoadQueryHookType = hook <
+  TVariables extends Variables,
+  TData,
+>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
   options?: Options,
@@ -86,7 +89,7 @@ type Options = {
  * @returns - `data`: Object that contains data which has been read out from the Relay store; the object matches the shape of specified query.
  *   - The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema. For example, the type of `data` above is: `{| user: ?{| name: ?string |} |}`.
  */
-hook useLazyLoadQuery<TVariables: Variables, TData>(
+hook useLazyLoadQuery<TVariables extends Variables, TData>(
   /**
    * GraphQL query specified using a `graphql` template literal.
    */

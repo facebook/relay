@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ee1bddf534a6d5681a53ce1f900d26ed>>
+ * @generated SignedSource<<f29e934cff684d765daa0d007b3423b0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -50,14 +50,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientEdgeQuery_ClientEdgesTest1Query_me__client_node",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +77,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgeQuery_ClientEdgesTest1Query_me__client_node",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -138,10 +138,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "69d7fa3908eedb4d634799d1252e80a7";
+  (node/*:: as any*/).hash = "69d7fa3908eedb4d634799d1252e80a7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeQuery_ClientEdgesTest1Query_me__client_node$variables,
   ClientEdgeQuery_ClientEdgesTest1Query_me__client_node$data,
 >*/);

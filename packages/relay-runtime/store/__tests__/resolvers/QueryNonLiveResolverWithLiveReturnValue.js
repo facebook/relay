@@ -12,7 +12,7 @@
 'use strict';
 
 /**
- * @RelayResolver Query.non_live_resolver_with_live_return_value: String
+ * @relayField Query.non_live_resolver_with_live_return_value: String
  *
  * A non-@live resolver that returns a LiveObject
  */

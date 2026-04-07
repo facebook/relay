@@ -36,7 +36,7 @@ type ContainerCreator = (
  * Helper to create the Relay HOCs with ref forwarding, setting the displayName
  * and reading the React context.
  */
-function buildReactRelayContainer<TBase: component(...empty)>(
+function buildReactRelayContainer<TBase extends component(...empty)>(
   ComponentClass: TBase,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,

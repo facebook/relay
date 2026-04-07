@@ -7,16 +7,18 @@
 
 use std::sync::Arc;
 
+use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::Location;
 use common::PerfLogEvent;
 use fnv::FnvHashMap;
 use relay_config::ProjectName;
 use relay_config::SchemaLocation;
+use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::validate_resolver_schema;
 use schema::SDLSchema;
 use schema::SchemaDocuments;
-use schema::build_schema_with_flat_buffer_unchecked;
-use schema::parse_schema_with_extensions;
+use schema::parse_schema_with_extensions_parallel;
 use schema_validate_lib::SchemaValidationOptions;
 use schema_validate_lib::validate;
 
@@ -37,6 +39,9 @@ pub fn build_schema(
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
     if let Some(schema) = compiler_state.schema_cache.get(&project_config.name)
         && !compiler_state.project_has_pending_schema_changes(project_config.name)
+        && !project_config
+            .base
+            .is_some_and(|base| compiler_state.project_has_pending_schema_changes(base))
     {
         return Ok(schema.clone());
     }
@@ -49,40 +54,6 @@ pub fn build_schema(
     )
 }
 
-fn load_flatbuffer_schema(project_config: &ProjectConfig) -> Option<SDLSchema> {
-    let fb_path = match &project_config.schema_location {
-        SchemaLocation::Directory(dir) => {
-            let mut fb_path = dir.clone();
-            let dir_name = fb_path.file_name()?.to_str()?.to_string();
-            fb_path.pop();
-            fb_path.push(format!("{}.flatbuffer", dir_name));
-            fb_path
-        }
-        SchemaLocation::File(file) => file.with_extension("flatbuffer"),
-    };
-    if !fb_path.exists() {
-        return None;
-    }
-    match std::fs::read(&fb_path) {
-        Ok(bytes) => {
-            log::info!(
-                "Loading FlatBuffer schema from {:?} ({} bytes)",
-                fb_path,
-                bytes.len()
-            );
-            Some(build_schema_with_flat_buffer_unchecked(bytes))
-        }
-        Err(e) => {
-            log::warn!(
-                "Failed to read FlatBuffer schema {:?}: {}, falling back to SDL",
-                fb_path,
-                e,
-            );
-            None
-        }
-    }
-}
-
 fn build_schema_impl(
     compiler_state: &CompilerState,
     project_config: &ProjectConfig,
@@ -90,7 +61,70 @@ fn build_schema_impl(
     config: &Config,
     graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
-    if let Some(schema) = load_flatbuffer_schema(project_config) {
+    if let SchemaLocation::CompactFile(compact_path) = &project_config.schema_location {
+        // Load compact schema (has base schema + SDL extensions, but NOT docblock IRs).
+        // Compact format deserializes directly into InMemorySchema with parallel decoding.
+        let owned_bytes;
+        let compact_bytes: &[u8] = if let Some(compact_sources) =
+            compiler_state.compact_schemas.get(&project_config.name)
+            && let Some(bytes) = compact_sources.get_current_bytes()
+        {
+            bytes
+        } else {
+            owned_bytes = std::fs::read(config.root_dir.join(compact_path))
+                .map_err(|e| vec![Diagnostic::error(e.to_string(), Location::generated())])?;
+            &owned_bytes
+        };
+        let mut schema = log_event.time("deserialize_compact_schema_time", || {
+            SDLSchema::InMemory(schema::compact::deserialize_parallel(compact_bytes))
+        });
+
+        // Extract docblock IRs
+        let resolver_schema_data = log_event.time("collect_resolver_schema_time", || {
+            extract_docblock_ir(config, compiler_state, project_config, graphql_asts_map)
+        })?;
+
+        // Apply type IRs as mutations
+        log_event.time(
+            "build_resolver_types_schema_time",
+            || -> DiagnosticsResult<()> {
+                let type_docs = build_resolver_types_schema_documents(
+                    &resolver_schema_data.type_irs,
+                    config,
+                    project_config,
+                );
+                for doc in type_docs {
+                    let location = doc.location;
+                    for def in doc.definitions {
+                        extend_schema_with_resolver_type_system_definition(
+                            def,
+                            &mut schema,
+                            location,
+                        )?;
+                    }
+                }
+                Ok(())
+            },
+        )?;
+
+        // Apply field IRs
+        log_event.time("extend_schema_with_resolver_fields_time", || {
+            extend_schema_with_field_ir(
+                resolver_schema_data.field_irs,
+                &mut schema,
+                config,
+                project_config,
+            )
+        })?;
+
+        // Validate
+        log_event.time("validate_resolver_schema_time", || {
+            validate_resolver_schema(&schema, &project_config.feature_flags)
+        })?;
+        log_event.time("validate_composite_schema_time", || {
+            maybe_validate_schema(project_config, &schema)
+        })?;
+
         return Ok(Arc::new(schema));
     }
 
@@ -102,7 +136,7 @@ fn build_schema_impl(
         server: server_asts,
         extensions: mut extension_asts,
     } = log_event.time("parse_schema_time", || {
-        parse_schema_with_extensions(&schema_sources, &extensions)
+        parse_schema_with_extensions_parallel(&schema_sources, &extensions)
     })?;
 
     // Collect Relay Resolver schema IR
@@ -152,11 +186,14 @@ fn get_schema_sources<'a>(
     compiler_state: &'a CompilerState,
     project_config: &'a ProjectConfig,
 ) -> Vec<(&'a str, common::SourceLocationKey)> {
-    compiler_state.schemas[&project_config.name]
-        .get_sources_with_location()
-        .into_iter()
-        .map(|(schema, location_key)| (schema.as_str(), location_key))
-        .collect()
+    match compiler_state.schemas.get(&project_config.name) {
+        Some(sources) => sources
+            .get_sources_with_location()
+            .into_iter()
+            .map(|(schema, location_key)| (schema.as_str(), location_key))
+            .collect(),
+        None => vec![],
+    }
 }
 
 fn get_extension_sources<'a>(

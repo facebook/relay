@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6142d9f97247a1b158ca74abfe2c0fb9>>
+ * @generated SignedSource<<e0b11b5acedc381db067b6b904228d3a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userGreetingResolverType: (
+(userGreetingResolverType as (
   rootKey: UserGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -33,7 +33,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScaleResolverType} from "../UserProfilePictureResolver.js";
 // Type assertion validating that `userUserProfilePictureUriWithScaleResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleResolverType: (
+(userUserProfilePictureUriWithScaleResolverType as (
   rootKey: UserProfilePictureResolver$key,
   args: {|
     scale: ?number,
@@ -103,10 +103,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ffbdc95f51d0e268ac8d325a890fcadb";
+  (node/*:: as any*/).hash = "ffbdc95f51d0e268ac8d325a890fcadb";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType,
   UserProfilePictureUriSuspendsWhenTheCounterIsOdd$data,
 >*/);

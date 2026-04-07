@@ -48,7 +48,7 @@ export type LoadQueryOptions = {
   +__nameForWarning?: ?string,
 };
 
-export type PreloadableConcreteRequest<+TQuery: OperationType> = {
+export type PreloadableConcreteRequest<+TQuery extends OperationType> = {
   kind: 'PreloadableConcreteRequest',
   params: RequestParameters,
   // Note: the phantom type parameter here helps ensures that the
@@ -62,14 +62,14 @@ export type PreloadableConcreteRequest<+TQuery: OperationType> = {
 export type EnvironmentProviderOptions = {+[string]: unknown, ...};
 
 export type PreloadedQuery<
-  +TQuery: OperationType,
+  +TQuery extends OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > =
   | PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions>
   | PreloadedQueryInner<TQuery, TEnvironmentProviderOptions>;
 
 export type PreloadedQueryInner_DEPRECATED<
-  +TQuery: OperationType,
+  +TQuery extends OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
   +kind: 'PreloadedQuery_DEPRECATED',
@@ -86,7 +86,7 @@ export type PreloadedQueryInner_DEPRECATED<
 };
 
 export type PreloadedQueryInner<
-  +TQuery: OperationType,
+  +TQuery extends OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
   // Releases query data and cancels network request if still in flight
@@ -131,7 +131,7 @@ TEntryPointComponent -  the root components
 export type EntryPoint<
   -TEntryPointParams,
   // $FlowExpectedError[unclear-type] accepts any root component
-  +TEntryPointComponent: EntryPointComponent<any, any, any, any, any>,
+  +TEntryPointComponent extends EntryPointComponent<any, any, any, any, any>,
 > = Readonly<{
   getPreloadProps: (
     entryPointParams: TEntryPointParams,
@@ -178,7 +178,7 @@ export type EntryPointComponent<
   TPreloadedEntryPoints = {},
   TRuntimeProps = {},
   TExtraProps = null,
-  +TRenders: React.Node = React.Node,
+  +TRenders extends React.Node = React.Node,
 > = component(
   ...EntryPointProps<
     TPreloadedQueries,
@@ -191,8 +191,8 @@ export type EntryPointComponent<
 // Return type of the `getPreloadProps(...)` of the entry point
 export type PreloadProps<
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  TPreloadedQueries: {+[string]: ?PreloadedQuery<any>},
-  TPreloadedEntryPoints: {...},
+  TPreloadedQueries extends {+[string]: ?PreloadedQuery<any>},
+  TPreloadedEntryPoints extends {...},
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = Readonly<{
@@ -215,7 +215,7 @@ export type PreloadedEntryPoint<TEntryPointComponent> = Readonly<{
 }>;
 
 export type EntryPointElementConfig<
-  +TEntryPoint: EntryPoint<
+  +TEntryPoint extends EntryPoint<
     // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
     any,
     // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
@@ -230,7 +230,7 @@ export type EntryPointElementConfig<
     : empty;
 
 export type ThinQueryParams<
-  +TQuery: OperationType,
+  +TQuery extends OperationType,
   TEnvironmentProviderOptions,
 > = Readonly<{
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
@@ -272,7 +272,7 @@ type ExtractThinQueryParams<T, TEnvironmentProviderOptions> = [+t: T] extends [
 export type ExtractQueryTypes<
   TEnvironmentProviderOptions,
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  PreloadedQueries: {+[string]: ?PreloadedQuery<any>} | void,
+  PreloadedQueries extends {+[string]: ?PreloadedQuery<any>} | void,
 > = {
   [K in keyof PreloadedQueries]: ExtractThinQueryParams<
     PreloadedQueries[K],
@@ -281,7 +281,7 @@ export type ExtractQueryTypes<
 };
 
 // $FlowFixMe[unclear-type]: we don't care about the props
-export type RootComponentRenders<+C: component(...any)> =
+export type RootComponentRenders<+C extends component(...any)> =
   // $FlowFixMe[unclear-type]: we don't care about the props
   C extends component(...any) renders infer R extends React.Node ? R : empty;
 

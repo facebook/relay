@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3a7089e56d5fa1d3b8ec95dee43cccf8>>
+ * @generated SignedSource<<112cd25d085774878abec6233ef7a82e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -69,7 +69,7 @@ return {
         "count": "first",
         "cursor": "after",
         "direction": "forward",
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       }
     ],
     "refetch": {
@@ -79,7 +79,7 @@ return {
           "cursor": "after"
         },
         "backward": null,
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       },
       "fragmentPathInResult": [
         "node"
@@ -93,7 +93,7 @@ return {
   },
   "name": "GraphQLTagTest3UserFragment",
   "selections": [
-    (v1/*: any*/),
+    (v1/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -125,7 +125,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v1/*: any*/),
+                (v1/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -181,10 +181,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ef4734e829166cfa64df0cd412904bdf";
+  (node/*:: as any*/).hash = "ef4734e829166cfa64df0cd412904bdf";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   GraphQLTagTest3UserFragment$fragmentType,
   GraphQLTagTest3UserFragment$data,
   GraphQLTagTestUserFragment2RefetchQuery$variables,

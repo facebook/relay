@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<65bf29cfa8527bcc637dab5296140227>>
+ * @generated SignedSource<<f2f114719a53ae91ac56dcf60c46f3e2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {counter_no_fragment as queryCounterNoFragmentResolverType} from "../reso
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentResolverType: (
+(queryCounterNoFragmentResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
@@ -94,10 +94,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5a9253445617d4109238b463c4407c5d";
+  (node/*:: as any*/).hash = "5a9253445617d4109238b463c4407c5d";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayReferenceMarkerTestResolverWithNoFragmentQuery$variables,
   RelayReferenceMarkerTestResolverWithNoFragmentQuery$data,
 >*/);

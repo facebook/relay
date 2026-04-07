@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cc2186853860a47f1fe0eaa275c9a75e>>
+ * @generated SignedSource<<960784238c17b124b2f58734764a8152>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -61,14 +61,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayPublishQueueTest1Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -82,7 +82,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -95,13 +95,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayPublishQueueTest1Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -122,7 +122,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -150,10 +150,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a2b8ecdab8b16a6538bb947d7cd2473a";
+  (node/*:: as any*/).hash = "a2b8ecdab8b16a6538bb947d7cd2473a";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayPublishQueueTest1Mutation$variables,
   RelayPublishQueueTest1Mutation$data,
 >*/);

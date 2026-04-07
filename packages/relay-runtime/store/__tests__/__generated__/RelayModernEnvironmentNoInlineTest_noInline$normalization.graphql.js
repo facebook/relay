@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f2356363ccd058253caf27c2cd1034a7>>
+ * @generated SignedSource<<c9f96d1f087194f37705c3f1104eaf90>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,14 +57,14 @@ return {
               "name": "fileExtension",
               "value": "PNG"
             },
-            (v0/*: any*/),
-            (v1/*: any*/)
+            (v0/*:: as any*/),
+            (v1/*:: as any*/)
           ],
           "concreteType": "Image",
           "kind": "LinkedField",
           "name": "profilePicture2",
           "plural": false,
-          "selections": (v2/*: any*/),
+          "selections": (v2/*:: as any*/),
           "storageKey": null
         },
         {
@@ -75,14 +75,14 @@ return {
               "name": "fileExtension",
               "value": "JPG"
             },
-            (v0/*: any*/),
-            (v1/*: any*/)
+            (v0/*:: as any*/),
+            (v1/*:: as any*/)
           ],
           "concreteType": "Image",
           "kind": "LinkedField",
           "name": "profilePicture2",
           "plural": false,
-          "selections": (v2/*: any*/),
+          "selections": (v2/*:: as any*/),
           "storageKey": null
         }
       ],
@@ -94,7 +94,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e69851050102bb98a80e11aa48993f20";
+  (node/*:: as any*/).hash = "e69851050102bb98a80e11aa48993f20";
 }
 
 module.exports = node;

@@ -454,12 +454,12 @@ pub fn generate_operation(
                     )?;
                     writeln!(
                         section,
-                        "PreloadableQueryRegistry.set((node.params/*: any*/).id, node);",
+                        "PreloadableQueryRegistry.set((node.params/*:: as any*/).id, node);",
                     )?;
                 } else {
                     writeln!(
                         section,
-                        "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);",
+                        "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*:: as any*/).id, node);",
                     )?;
                 }
             }
@@ -967,7 +967,7 @@ pub fn write_export_generated_node(
             variable_node.to_string()
         }
         (TypegenLanguage::Flow, Some(forced_type)) => {
-            format!("(({variable_node}/*: any*/)/*: {forced_type}*/)")
+            format!("(({variable_node}/*:: as any*/)/*:: as {forced_type}*/)")
         }
     };
     if typegen_config.eager_es_modules || typegen_config.language == TypegenLanguage::TypeScript {
@@ -1019,7 +1019,7 @@ fn write_source_hash(
         writeln!(section, "if ({is_dev_variable_name}) {{")?;
         match language {
             TypegenLanguage::Flow => {
-                writeln!(section, "  (node/*: any*/).hash = \"{source_hash}\";")?
+                writeln!(section, "  (node/*:: as any*/).hash = \"{source_hash}\";")?
             }
             TypegenLanguage::JavaScript => writeln!(section, "  node.hash = \"{source_hash}\";")?,
             TypegenLanguage::TypeScript => {
@@ -1030,7 +1030,7 @@ fn write_source_hash(
     } else {
         match language {
             TypegenLanguage::Flow => {
-                writeln!(section, "(node/*: any*/).hash = \"{source_hash}\";")?
+                writeln!(section, "(node/*:: as any*/).hash = \"{source_hash}\";")?
             }
             TypegenLanguage::JavaScript => writeln!(section, "node.hash = \"{source_hash}\";")?,
             TypegenLanguage::TypeScript => {

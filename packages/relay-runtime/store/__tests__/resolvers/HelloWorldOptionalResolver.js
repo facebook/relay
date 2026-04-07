@@ -12,7 +12,7 @@
 'use strict';
 
 /**
- * @RelayResolver Query.hello_optional_world(world: String): String
+ * @relayField Query.hello_optional_world(world: String): String
  *
  * Say `Hello ${world}!` with a fallback if world is null
  */

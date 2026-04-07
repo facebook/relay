@@ -23,7 +23,7 @@ const {
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Todo.self: RelayResolverValue
+ * @relayField Todo.self: RelayResolverValue
  * @rootFragment TodoSelfResolverFragment
  * @live
  */

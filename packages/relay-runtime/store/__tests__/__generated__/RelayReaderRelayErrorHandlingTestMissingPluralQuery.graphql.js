@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5738e29cc4379ccf1e3a9c9ad7ce7e73>>
+ * @generated SignedSource<<a2f1f47e404e791365a099a51538e240>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -76,7 +76,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "throwOnFieldError": true
@@ -91,8 +91,8 @@ return {
         "name": "nodes",
         "plural": true,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/)
+          (v1/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -102,7 +102,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderRelayErrorHandlingTestMissingPluralQuery",
     "selections": [
@@ -121,8 +121,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -147,10 +147,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9e91ce9da23ac341e9d3815c9f9cf2f2";
+  (node/*:: as any*/).hash = "9e91ce9da23ac341e9d3815c9f9cf2f2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTestMissingPluralQuery$variables,
   RelayReaderRelayErrorHandlingTestMissingPluralQuery$data,
 >*/);

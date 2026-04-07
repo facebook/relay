@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<69c15f04c9d930ea2785721b9057dd49>>
+ * @generated SignedSource<<4093732548b796258e3f120434c0b1b2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -61,14 +61,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest1ChangeNameMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -82,7 +82,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -95,13 +95,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest1ChangeNameMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -122,7 +122,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -150,10 +150,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9aab0f135ca751f92d4ed05d68ed057c";
+  (node/*:: as any*/).hash = "9aab0f135ca751f92d4ed05d68ed057c";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest1ChangeNameMutation$variables,
   validateMutationTest1ChangeNameMutation$data,
 >*/);

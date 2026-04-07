@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<761a18017d5ef6c60ef0a1097d5831ff>>
+ * @generated SignedSource<<170741ec9b49d6ce7c6dda5cd75c75bc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -119,20 +119,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useSubscriptionTestCommentCreateSubscription",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Subscription",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useSubscriptionTestCommentCreateSubscription",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "9825c984d20af05ca6d3b97f00793d02",
@@ -146,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "09f7f93828042d5022df685ced707645";
+  (node/*:: as any*/).hash = "09f7f93828042d5022df685ced707645";
 }
 
-module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+module.exports = ((node/*:: as any*/)/*:: as GraphQLSubscription<
   useSubscriptionTestCommentCreateSubscription$variables,
   useSubscriptionTestCommentCreateSubscription$data,
 >*/);

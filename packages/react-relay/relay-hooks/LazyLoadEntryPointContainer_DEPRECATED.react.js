@@ -62,19 +62,19 @@ function stableStringify(value: unknown): string {
 }
 
 function prepareEntryPoint<
-  TEntryPointParams: {...},
+  TEntryPointParams extends {...},
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
-  TPreloadedEntryPoints: {...},
-  TRuntimeProps: {...},
+  TPreloadedQueries extends {+[string]: PreloadedQuery<any>},
+  TPreloadedEntryPoints extends {...},
+  TRuntimeProps extends {...},
   TExtraProps,
-  TEntryPointComponent: EntryPointComponent<
+  TEntryPointComponent extends EntryPointComponent<
     TPreloadedQueries,
     TPreloadedEntryPoints,
     TRuntimeProps,
     TExtraProps,
   >,
-  TEntryPoint: EntryPoint<TEntryPointParams, TEntryPointComponent>,
+  TEntryPoint extends EntryPoint<TEntryPointParams, TEntryPointComponent>,
 >(
   environmentProvider: IEnvironmentProvider<EnvironmentProviderOptions>,
   entryPoint: TEntryPoint,
@@ -155,11 +155,11 @@ function prepareEntryPoint<
 }
 
 function LazyLoadEntryPointContainer_DEPRECATED<
-  TEntryPointParams: {...},
+  TEntryPointParams extends {...},
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
-  TPreloadedEntryPoints: {...},
-  TRuntimeProps: {...},
+  TPreloadedQueries extends {+[string]: PreloadedQuery<any>},
+  TPreloadedEntryPoints extends {...},
+  TRuntimeProps extends {...},
   TExtraProps,
 >({
   entryPoint,

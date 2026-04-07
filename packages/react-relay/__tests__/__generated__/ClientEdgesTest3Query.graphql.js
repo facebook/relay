@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f688624b4fa8913cf231198e43163065>>
+ * @generated SignedSource<<0d4f0219c0e941e973f650bcc4f41edd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {client_node as userClientNodeResolverType} from "../../../relay-runtime/
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientNodeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientNodeResolverType: (
+(userClientNodeResolverType as (
   args: {|
     id: string,
   |},
@@ -64,7 +64,7 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -86,7 +86,7 @@ return {
               "operation": require('./ClientEdgeQuery_ClientEdgesTest3Query_me__client_node.graphql'),
               "backingField": {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "fragment": null,
                 "kind": "RelayResolver",
                 "name": "client_node",
@@ -95,7 +95,7 @@ return {
               },
               "linkedField": {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "client_node",
@@ -130,7 +130,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgesTest3Query",
     "selections": [
@@ -144,7 +144,7 @@ return {
         "selections": [
           {
             "name": "client_node",
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null,
@@ -174,10 +174,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4834e4d5990c86914b1ca32970e43811";
+  (node/*:: as any*/).hash = "4834e4d5990c86914b1ca32970e43811";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgesTest3Query$variables,
   ClientEdgesTest3Query$data,
 >*/);

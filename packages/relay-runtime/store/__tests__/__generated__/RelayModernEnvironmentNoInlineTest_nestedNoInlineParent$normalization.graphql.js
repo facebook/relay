@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<933cf55a67414825e194a14592aaee42>>
+ * @generated SignedSource<<cf786055565d708fb6fc2672906cac45>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -62,7 +62,7 @@ return {
       "name": "username",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
+        (v0/*:: as any*/),
         {
           "args": [
             {
@@ -74,7 +74,7 @@ return {
           "fragment": require('./RelayModernEnvironmentNoInlineTest_nestedNoInline$normalization.graphql'),
           "kind": "FragmentSpread"
         },
-        (v1/*: any*/)
+        (v1/*:: as any*/)
       ],
       "storageKey": "username(name:\"Mark\")"
     },
@@ -92,7 +92,7 @@ return {
       "name": "username",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
+        (v0/*:: as any*/),
         {
           "args": [
             {
@@ -104,7 +104,7 @@ return {
           "fragment": require('./RelayModernEnvironmentNoInlineTest_nestedNoInline$normalization.graphql'),
           "kind": "FragmentSpread"
         },
-        (v1/*: any*/)
+        (v1/*:: as any*/)
       ],
       "storageKey": "username(name:\"Zuck\")"
     },
@@ -122,7 +122,7 @@ return {
       "name": "username",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
+        (v0/*:: as any*/),
         {
           "args": [
             {
@@ -134,7 +134,7 @@ return {
           "fragment": require('./RelayModernEnvironmentNoInlineTest_nestedNoInline$normalization.graphql'),
           "kind": "FragmentSpread"
         },
-        (v1/*: any*/)
+        (v1/*:: as any*/)
       ],
       "storageKey": "username(name:\"Joe\")"
     }
@@ -143,7 +143,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "80e0fda8b8d8bb4e7200ea5387229c4c";
+  (node/*:: as any*/).hash = "80e0fda8b8d8bb4e7200ea5387229c4c";
 }
 
 module.exports = node;

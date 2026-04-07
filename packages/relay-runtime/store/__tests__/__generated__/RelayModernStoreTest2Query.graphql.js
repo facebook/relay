@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3c2e51265523be0dacb71730558a15d9>>
+ * @generated SignedSource<<7f00221ed00be72e6b81bb1cd9282faf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -43,7 +43,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernStoreTest2Query",
@@ -70,7 +70,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernStoreTest2Query",
     "selections": [
@@ -137,10 +137,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e518168e115ad40886299a1906f0a863";
+  (node/*:: as any*/).hash = "e518168e115ad40886299a1906f0a863";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernStoreTest2Query$variables,
   RelayModernStoreTest2Query$data,
 >*/);

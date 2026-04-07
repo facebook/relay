@@ -14,7 +14,7 @@
 import type {LiveState} from 'relay-runtime';
 
 /**
- * @RelayResolver Query.live_resolver_return_undefined: RelayResolverValue
+ * @relayField Query.live_resolver_return_undefined: RelayResolverValue
  * @live
  *
  * A @live resolver that returns undefined

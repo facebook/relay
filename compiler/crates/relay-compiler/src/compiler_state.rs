@@ -42,6 +42,7 @@ use schema::SDLSchema;
 use schema_diff::check::SchemaChangeSafety;
 use schema_diff::definitions::SchemaChange;
 use schema_diff::detect_changes;
+use schema_diff::detect_changes_from_schemas;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
@@ -167,6 +168,12 @@ impl Source for Vec<LocatedDocblockSource> {
     }
 }
 
+impl Source for Vec<u8> {
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+}
+
 type IncrementalSourceSet<V> = FnvHashMap<PathBuf, V>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -259,6 +266,7 @@ pub type GraphQLSources = IncrementalSources<Vec<LocatedGraphQLSource>>;
 pub type SchemaSources = IncrementalSources<String>;
 pub type DocblockSources = IncrementalSources<Vec<LocatedDocblockSource>>;
 pub type FullSources = IncrementalSources<String>;
+pub type CompactSchemaSources = IncrementalSources<Vec<u8>>;
 
 impl Source for String {
     fn is_empty(&self) -> bool {
@@ -291,6 +299,21 @@ impl SchemaSources {
         sources.iter().map(|file_content| file_content.1).collect()
     }
 }
+
+impl CompactSchemaSources {
+    /// Get the current compact bytes (pending merged over processed).
+    /// Returns None if there are no sources. For compact schemas,
+    /// there should be exactly one entry (single file).
+    pub fn get_current_bytes(&self) -> Option<&Vec<u8>> {
+        self.get_all_non_empty().first().map(|(_, v)| *v)
+    }
+
+    /// Get the previous (processed) compact bytes.
+    pub fn get_old_bytes(&self) -> Option<&Vec<u8>> {
+        self.processed.values().find(|v| !v.is_empty())
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub enum ArtifactMapKind {
     /// A simple set of paths of generated files. This kind is used when the
@@ -323,6 +346,8 @@ pub struct CompilerState {
     pub schema_cache: FnvHashMap<ProjectName, Arc<SDLSchema>>,
     #[serde(skip)]
     pub source_control_update_status: Arc<SourceControlUpdateStatus>,
+    #[serde(default)]
+    pub compact_schemas: FnvHashMap<ProjectName, CompactSchemaSources>,
 }
 
 /// Stringify a path such that it's stable across operating systems.
@@ -402,6 +427,7 @@ enum FileSourceIntermediateResult {
         FullSourceSet,
     ),
     Schema(ProjectSet, FnvHashMap<PathBuf, String>, Vec<PathBuf>),
+    CompactSchema(ProjectSet, FnvHashMap<PathBuf, Vec<u8>>, Vec<PathBuf>),
     Extension(ProjectSet, FnvHashMap<PathBuf, String>, Vec<PathBuf>),
     Generated(ProjectName, FnvHashSet<PathBuf>),
     Ignore,
@@ -455,6 +481,15 @@ impl CompilerState {
                         entry.merge_pending_sources(&added);
                     }
                 }
+                FileSourceIntermediateResult::CompactSchema(project_set, added, removed) => {
+                    for project_name in project_set {
+                        let entry = result.compact_schemas.entry(project_name).or_default();
+                        for source in &removed {
+                            entry.pending.insert(source.clone(), Vec::new());
+                        }
+                        entry.merge_pending_sources(&added);
+                    }
+                }
                 FileSourceIntermediateResult::Extension(project_set, added, removed) => {
                     for project_name in project_set {
                         let entry = result.extensions.entry(project_name).or_default();
@@ -490,9 +525,32 @@ impl CompilerState {
             .get(&project_name)
             .is_some_and(|sources| !sources.pending.is_empty())
             || self
-                .extensions
+                .compact_schemas
                 .get(&project_name)
                 .is_some_and(|sources| !sources.pending.is_empty())
+            || self.has_pending_non_schema_changes(project_name)
+    }
+
+    /// Whether two projects have identical pending schema sources.
+    pub fn projects_share_pending_schemas(&self, a: ProjectName, b: ProjectName) -> bool {
+        let sdl_match = match (self.schemas.get(&a), self.schemas.get(&b)) {
+            (Some(a), Some(b)) => a.pending == b.pending,
+            (None, None) => true,
+            _ => false,
+        };
+        let compact_match = match (self.compact_schemas.get(&a), self.compact_schemas.get(&b)) {
+            (Some(a), Some(b)) => a.pending == b.pending,
+            (None, None) => true,
+            _ => false,
+        };
+        sdl_match && compact_match
+    }
+
+    /// Whether a project has pending extension, docblock, or full_source changes.
+    pub fn has_pending_non_schema_changes(&self, project_name: ProjectName) -> bool {
+        self.extensions
+            .get(&project_name)
+            .is_some_and(|sources| !sources.pending.is_empty())
             || self
                 .docblocks
                 .get(&project_name)
@@ -509,6 +567,10 @@ impl CompilerState {
             .any(|sources| !sources.processed.is_empty())
             || self
                 .schemas
+                .values()
+                .any(|sources| !sources.processed.is_empty())
+            || self
+                .compact_schemas
                 .values()
                 .any(|sources| !sources.processed.is_empty())
             || self
@@ -541,37 +603,31 @@ impl CompilerState {
         detect_changes(&current, &previous)
     }
 
-    fn get_schema_change_safety(
-        &self,
+    fn build_schema_for_safety_check(
         sources: &SchemaSources,
-        schema_change: SchemaChange,
-        schema_config: &SchemaConfig,
-    ) -> SchemaChangeSafety {
-        if schema_change == SchemaChange::None {
-            SchemaChangeSafety::Safe
-        } else {
-            let current_sources_with_location = sources
-                .get_sources_with_location()
-                .into_iter()
-                .map(|(schema, location_key)| (schema.as_str(), location_key))
-                .collect::<Vec<_>>();
+    ) -> std::result::Result<SDLSchema, ()> {
+        let current_sources_with_location = sources
+            .get_sources_with_location()
+            .into_iter()
+            .map(|(schema, location_key)| (schema.as_str(), location_key))
+            .collect::<Vec<_>>();
 
-            match relay_schema::build_schema_with_extensions(
-                &current_sources_with_location,
-                &Vec::<(&str, SourceLocationKey)>::new(),
-            ) {
-                Ok(schema) => schema_change.get_safety(&schema, schema_config),
-                Err(_) => SchemaChangeSafety::Unsafe,
-            }
-        }
+        relay_schema::build_schema_with_extensions_parallel(
+            &current_sources_with_location,
+            &Vec::<(&str, SourceLocationKey)>::new(),
+        )
+        .map_err(|_| ())
     }
 
     /// This method is looking at the pending schema changes to see if they may be breaking (removed types, renamed field, etc)
+    /// When `built_schema` is provided, it is reused for the safety check
+    /// instead of rebuilding the schema.
     pub fn schema_change_safety(
         &self,
         log_event: &impl PerfLogEvent,
         project_name: ProjectName,
         schema_config: &SchemaConfig,
+        built_schema: Option<&SDLSchema>,
     ) -> SchemaChangeSafety {
         if let Some(extension) = self.extensions.get(&project_name)
             && !extension.pending.is_empty()
@@ -591,13 +647,60 @@ impl CompilerState {
             log_event.string("has_breaking_schema_change", "full_source".to_owned());
             return SchemaChangeSafety::Unsafe;
         }
-        if let Some(schema) = self.schemas.get(&project_name)
-            && !schema.pending.is_empty()
+        if let Some(compact_sources) = self.compact_schemas.get(&project_name)
+            && !compact_sources.pending.is_empty()
         {
-            let schema_change = self.get_schema_change(schema);
+            let current_bytes = compact_sources.get_current_bytes();
+            let old_bytes = compact_sources.get_old_bytes();
+            match (current_bytes, old_bytes) {
+                (Some(curr), Some(old)) => {
+                    let current_schema =
+                        SDLSchema::InMemory(schema::compact::deserialize_parallel(curr));
+                    let previous_schema =
+                        SDLSchema::InMemory(schema::compact::deserialize_parallel(old));
+                    let schema_change =
+                        detect_changes_from_schemas(&current_schema, &previous_schema);
+                    let schema_change_string = schema_change.to_string();
+                    let schema_change_safety = if schema_change == SchemaChange::None {
+                        SchemaChangeSafety::Safe
+                    } else {
+                        let schema = built_schema.unwrap_or(&current_schema);
+                        schema_change.get_safety(schema, schema_config)
+                    };
+                    match schema_change_safety {
+                        SchemaChangeSafety::Unsafe => {
+                            log_event.string("schema_change", schema_change_string);
+                            log_event.string(
+                                "has_breaking_schema_change",
+                                "compact_schema_change".to_owned(),
+                            );
+                        }
+                        SchemaChangeSafety::SafeWithIncrementalBuild(_)
+                        | SchemaChangeSafety::Safe => {}
+                    }
+                    return schema_change_safety;
+                }
+                _ => {
+                    log_event.string("has_breaking_schema_change", "compact_schema".to_owned());
+                    return SchemaChangeSafety::Unsafe;
+                }
+            }
+        }
+        if let Some(schema_sources) = self.schemas.get(&project_name)
+            && !schema_sources.pending.is_empty()
+        {
+            let schema_change = self.get_schema_change(schema_sources);
             let schema_change_string = schema_change.to_string();
-            let schema_change_safety =
-                self.get_schema_change_safety(schema, schema_change, schema_config);
+            let schema_change_safety = if schema_change == SchemaChange::None {
+                SchemaChangeSafety::Safe
+            } else if let Some(schema) = built_schema {
+                schema_change.get_safety(schema, schema_config)
+            } else {
+                match Self::build_schema_for_safety_check(schema_sources) {
+                    Ok(schema) => schema_change.get_safety(&schema, schema_config),
+                    Err(_) => SchemaChangeSafety::Unsafe,
+                }
+            };
             match schema_change_safety {
                 SchemaChangeSafety::Unsafe => {
                     log_event.string("schema_change", schema_change_string);
@@ -671,6 +774,16 @@ impl CompilerState {
                             entry.merge_pending_sources(&added);
                         }
                     }
+                    FileSourceIntermediateResult::CompactSchema(project_set, added, removed) => {
+                        has_changed = true;
+                        for project_name in project_set {
+                            let entry = self.compact_schemas.entry(project_name).or_default();
+                            for source in &removed {
+                                entry.pending.insert(source.clone(), Vec::new());
+                            }
+                            entry.merge_pending_sources(&added);
+                        }
+                    }
                     FileSourceIntermediateResult::Extension(project_set, added, removed) => {
                         has_changed = true;
                         for project_name in project_set {
@@ -700,6 +813,9 @@ impl CompilerState {
             sources.commit_pending_sources();
         }
         for sources in self.schemas.values_mut() {
+            sources.commit_pending_sources();
+        }
+        for sources in self.compact_schemas.values_mut() {
             sources.commit_pending_sources();
         }
         for sources in self.extensions.values_mut() {
@@ -894,6 +1010,28 @@ fn process_intermediate_schema_change(
     Ok((added_sources, removed_sources))
 }
 
+fn process_intermediate_compact_schema_change(
+    file_source_changes: &FileSourceResult,
+    files: Vec<File>,
+) -> Result<(IncrementalSourceSet<Vec<u8>>, Vec<PathBuf>)> {
+    let mut removed_sources = vec![];
+    let mut added_sources = FnvHashMap::default();
+    for file in files {
+        let file_name = file.name.clone();
+        if file.exists {
+            let absolute_path = file.absolute_path(file_source_changes.resolved_root());
+            let bytes = std::fs::read(&absolute_path).map_err(|err| Error::ReadFileError {
+                file: absolute_path,
+                source: err,
+            })?;
+            added_sources.insert(file_name, bytes);
+        } else {
+            removed_sources.push(file_name);
+        }
+    }
+    Ok((added_sources, removed_sources))
+}
+
 fn process_categorized_sources(
     categorized: HashMap<FileGroup, Vec<File>>,
     config: &Config,
@@ -925,6 +1063,15 @@ fn process_categorized_sources(
                 let (added, removed) =
                     process_intermediate_schema_change(file_source_changes, files)?;
                 Ok(FileSourceIntermediateResult::Schema(
+                    project_set,
+                    added,
+                    removed,
+                ))
+            }
+            FileGroup::CompactSchema { project_set } => {
+                let (added, removed) =
+                    process_intermediate_compact_schema_change(file_source_changes, files)?;
+                Ok(FileSourceIntermediateResult::CompactSchema(
                     project_set,
                     added,
                     removed,
@@ -1107,5 +1254,240 @@ mod tests {
 
         // Pending for a should not be populated
         assert_eq!(incremental_source.pending.get(&a), None);
+    }
+
+    // --- CompactSchemaSources::get_current_bytes tests ---
+
+    #[test]
+    fn get_current_bytes_with_only_pending() {
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
+        sources
+            .pending
+            .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
+        assert_eq!(sources.get_current_bytes(), Some(&vec![1, 2, 3]));
+    }
+
+    #[test]
+    fn get_current_bytes_with_only_processed() {
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
+        sources
+            .processed
+            .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
+        assert_eq!(sources.get_current_bytes(), Some(&vec![1, 2, 3]));
+    }
+
+    #[test]
+    fn get_current_bytes_pending_overrides_processed() {
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
+        let path = PathBuf::from("schema.bin");
+        sources.processed.insert(path.clone(), vec![1, 2, 3]);
+        sources.pending.insert(path, vec![4, 5, 6]);
+        assert_eq!(sources.get_current_bytes(), Some(&vec![4, 5, 6]));
+    }
+
+    #[test]
+    fn get_current_bytes_empty_sources() {
+        let sources: CompactSchemaSources = IncrementalSources::default();
+        assert_eq!(sources.get_current_bytes(), None);
+    }
+
+    #[test]
+    fn get_current_bytes_skips_empty_pending() {
+        // An empty pending vec is treated as a deletion; get_current_bytes
+        // filters out empty entries via get_all_non_empty.
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
+        sources
+            .pending
+            .insert(PathBuf::from("schema.bin"), Vec::new());
+        assert_eq!(sources.get_current_bytes(), None);
+    }
+
+    // --- CompactSchemaSources::get_old_bytes tests ---
+
+    #[test]
+    fn get_old_bytes_returns_processed() {
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
+        sources
+            .processed
+            .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
+        assert_eq!(sources.get_old_bytes(), Some(&vec![1, 2, 3]));
+    }
+
+    #[test]
+    fn get_old_bytes_ignores_pending() {
+        // get_old_bytes only looks at processed, not pending.
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
+        sources
+            .pending
+            .insert(PathBuf::from("schema.bin"), vec![4, 5, 6]);
+        assert_eq!(sources.get_old_bytes(), None);
+    }
+
+    #[test]
+    fn get_old_bytes_skips_empty_processed() {
+        let mut sources: CompactSchemaSources = IncrementalSources::default();
+        sources
+            .processed
+            .insert(PathBuf::from("schema.bin"), Vec::new());
+        assert_eq!(sources.get_old_bytes(), None);
+    }
+
+    #[test]
+    fn get_old_bytes_empty_sources() {
+        let sources: CompactSchemaSources = IncrementalSources::default();
+        assert_eq!(sources.get_old_bytes(), None);
+    }
+
+    // --- CompilerState::projects_share_pending_schemas tests ---
+
+    use intern::string_key::Intern;
+
+    fn project(name: &str) -> ProjectName {
+        name.intern().into()
+    }
+
+    #[test]
+    fn projects_share_pending_schemas_sdl_only_matching() {
+        let mut state = CompilerState::default();
+        let a = project("project_a");
+        let b = project("project_b");
+
+        let mut schemas_a: SchemaSources = IncrementalSources::default();
+        schemas_a.pending.insert(
+            PathBuf::from("schema.graphql"),
+            "type Query { hello: String }".to_string(),
+        );
+        let mut schemas_b: SchemaSources = IncrementalSources::default();
+        schemas_b.pending.insert(
+            PathBuf::from("schema.graphql"),
+            "type Query { hello: String }".to_string(),
+        );
+
+        state.schemas.insert(a, schemas_a);
+        state.schemas.insert(b, schemas_b);
+
+        assert!(state.projects_share_pending_schemas(a, b));
+    }
+
+    #[test]
+    fn projects_share_pending_schemas_sdl_only_different() {
+        let mut state = CompilerState::default();
+        let a = project("project_a");
+        let b = project("project_b");
+
+        let mut schemas_a: SchemaSources = IncrementalSources::default();
+        schemas_a.pending.insert(
+            PathBuf::from("schema.graphql"),
+            "type Query { hello: String }".to_string(),
+        );
+        let mut schemas_b: SchemaSources = IncrementalSources::default();
+        schemas_b.pending.insert(
+            PathBuf::from("schema.graphql"),
+            "type Query { world: String }".to_string(),
+        );
+
+        state.schemas.insert(a, schemas_a);
+        state.schemas.insert(b, schemas_b);
+
+        assert!(!state.projects_share_pending_schemas(a, b));
+    }
+
+    #[test]
+    fn projects_share_pending_schemas_flatbuffer_only_matching() {
+        let mut state = CompilerState::default();
+        let a = project("project_a");
+        let b = project("project_b");
+
+        let mut fb_a: CompactSchemaSources = IncrementalSources::default();
+        fb_a.pending
+            .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
+        let mut fb_b: CompactSchemaSources = IncrementalSources::default();
+        fb_b.pending
+            .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
+
+        state.compact_schemas.insert(a, fb_a);
+        state.compact_schemas.insert(b, fb_b);
+
+        assert!(state.projects_share_pending_schemas(a, b));
+    }
+
+    #[test]
+    fn projects_share_pending_schemas_flatbuffer_only_different() {
+        let mut state = CompilerState::default();
+        let a = project("project_a");
+        let b = project("project_b");
+
+        let mut fb_a: CompactSchemaSources = IncrementalSources::default();
+        fb_a.pending
+            .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
+        let mut fb_b: CompactSchemaSources = IncrementalSources::default();
+        fb_b.pending
+            .insert(PathBuf::from("schema.bin"), vec![4, 5, 6]);
+
+        state.compact_schemas.insert(a, fb_a);
+        state.compact_schemas.insert(b, fb_b);
+
+        assert!(!state.projects_share_pending_schemas(a, b));
+    }
+
+    #[test]
+    fn projects_share_pending_schemas_mixed_sdl_and_flatbuffer() {
+        // One project has only SDL schemas, the other has only flatbuffer
+        // schemas. Since each lookup returns (Some, None) or (None, Some),
+        // neither sdl_match nor fb_match can be true.
+        let mut state = CompilerState::default();
+        let a = project("project_a");
+        let b = project("project_b");
+
+        let mut schemas_a: SchemaSources = IncrementalSources::default();
+        schemas_a.pending.insert(
+            PathBuf::from("schema.graphql"),
+            "type Query { hello: String }".to_string(),
+        );
+        state.schemas.insert(a, schemas_a);
+
+        let mut fb_b: CompactSchemaSources = IncrementalSources::default();
+        fb_b.pending
+            .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
+        state.compact_schemas.insert(b, fb_b);
+
+        assert!(!state.projects_share_pending_schemas(a, b));
+    }
+
+    // --- CompilerState::project_has_pending_schema_changes tests ---
+
+    #[test]
+    fn project_has_pending_schema_changes_with_pending_flatbuffer() {
+        let mut state = CompilerState::default();
+        let proj = project("my_project");
+
+        let mut fb: CompactSchemaSources = IncrementalSources::default();
+        fb.pending
+            .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
+        state.compact_schemas.insert(proj, fb);
+
+        assert!(state.project_has_pending_schema_changes(proj));
+    }
+
+    #[test]
+    fn project_has_pending_schema_changes_no_pending_flatbuffer() {
+        // Only processed flatbuffer data, no pending changes.
+        let mut state = CompilerState::default();
+        let proj = project("my_project");
+
+        let mut fb: CompactSchemaSources = IncrementalSources::default();
+        fb.processed
+            .insert(PathBuf::from("schema.bin"), vec![1, 2, 3]);
+        state.compact_schemas.insert(proj, fb);
+
+        assert!(!state.project_has_pending_schema_changes(proj));
+    }
+
+    #[test]
+    fn project_has_pending_schema_changes_no_schemas() {
+        let state = CompilerState::default();
+        let proj = project("nonexistent");
+
+        assert!(!state.project_has_pending_schema_changes(proj));
     }
 }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f23086d5ecde83b4b2d8ed8130162b9f>>
+ * @generated SignedSource<<682801d851641bbed435491b4d818a3c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {last_name_throw_on_field_error as userLastNameThrowOnFieldErrorResolverT
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userLastNameThrowOnFieldErrorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userLastNameThrowOnFieldErrorResolverType: (
+(userLastNameThrowOnFieldErrorResolverType as (
   rootKey: UserLastNameThrowOnFieldErrorResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -133,10 +133,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f1898474d6207f6accbdf61340aef474";
+  (node/*:: as any*/).hash = "f1898474d6207f6accbdf61340aef474";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTest2Query$variables,
   RelayReaderRelayErrorHandlingTest2Query$data,
 >*/);

@@ -84,7 +84,17 @@ impl SourceLocationKey {
 
 /// An absolute source location describing both the file and position (span)
 /// with that file.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
+#[derive(
+    Copy,
+    Clone,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Location {
     /// The source containing this location (e.g. embedded or standalone file).
     source_location: SourceLocationKey,
@@ -133,7 +143,16 @@ impl Location {
     }
 }
 
-#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Hash,
+    PartialEq,
+    Eq,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct WithLocation<T> {
     pub location: Location,
     pub item: T,

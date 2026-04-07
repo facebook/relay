@@ -84,6 +84,7 @@ pub async fn compile_and_extract_subschema(
         SchemaLocation::Directory(_) => {
             return Err(SubschemaError::DirectorySchemaNotSupported);
         }
+        SchemaLocation::CompactFile(file) => file.clone(),
     };
 
     // Normalize the full schema path relative to root_dir

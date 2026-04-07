@@ -22,7 +22,7 @@ const {waitForFragmentData} = require('./store/waitForFragmentExperimental');
 // Annotates a strong object return type, where `A` is the GraphQL typename and `Typename` is the
 // `__typename` field for returning an interface
 // eslint-disable-next-line no-unused-vars
-export type IdOf<A: string, Typename: void | string = void> = [
+export type IdOf<A extends string, Typename extends void | string = void> = [
   Typename,
 ] extends [void]
   ? {id: DataID}

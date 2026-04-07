@@ -15,7 +15,7 @@ import type {TestResolverContextType} from '../../../mutations/__tests__/TestRes
 import type {LiveState} from 'relay-runtime';
 
 /**
- * @RelayResolver Query.counter_context: Int
+ * @relayField Query.counter_context: Int
  * @live
  *
  * A Relay Resolver that returns an object implementing the External State
@@ -45,7 +45,7 @@ function counter_context(
 }
 
 /**
- * @RelayResolver BaseCounter
+ * @relayType BaseCounter
  * @weak
  */
 export type BaseCounter = {
@@ -53,7 +53,7 @@ export type BaseCounter = {
 };
 
 /**
- * @RelayResolver Query.base_counter_context: BaseCounter
+ * @relayField Query.base_counter_context: BaseCounter
  * @live
  *
  * A Relay Resolver that returns an object implementing the External State
@@ -85,7 +85,7 @@ function base_counter_context(
 }
 
 /**
- * @RelayResolver BaseCounter.count_plus_one: Int
+ * @relayField BaseCounter.count_plus_one: Int
  * @live
  *
  * A Relay Resolver that returns an object implementing the External State

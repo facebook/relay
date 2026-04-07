@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<98e4bfbb28332b751e6a803728b28fde>>
+ * @generated SignedSource<<b8806cbd9b13b07b470634e89586f796>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {best_friend_shouted_greeting as userBestFriendShoutedGreetingResolverTyp
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userBestFriendShoutedGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userBestFriendShoutedGreetingResolverType: (
+(userBestFriendShoutedGreetingResolverType as (
   rootKey: UserBestFriendShoutedGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -161,7 +161,7 @@ return {
                               "storageKey": null,
                               "isOutputType": true
                             },
-                            (v0/*: any*/)
+                            (v0/*:: as any*/)
                           ],
                           "storageKey": null
                         }
@@ -179,7 +179,7 @@ return {
             "storageKey": null,
             "isOutputType": true
           },
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -197,10 +197,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "80dc5662e3d0136fc0079c60f0bf0caf";
+  (node/*:: as any*/).hash = "80dc5662e3d0136fc0079c60f0bf0caf";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest6Query$variables,
   RelayReaderResolverTest6Query$data,
 >*/);

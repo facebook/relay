@@ -26,8 +26,6 @@ directive @configurable on VARIABLE_DEFINITION
 
 directive @_auto_hoisted on VARIABLE_DEFINITION
 
-directive @fb_actor_change on FIELD
-
 directive @defer(
   label: String!
   if: Boolean = true
@@ -45,6 +43,7 @@ directive @fetchable(field_name: String!) on OBJECT
 directive @vulture(name: String!) on QUERY | FRAGMENT_DEFINITION
 
 type Query {
+  bicycle: Bicycle
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings
   route(waypoints: [WayPoint!]!): Route
@@ -252,6 +251,11 @@ type PlainCommentBody {
 
 type MarkdownCommentBody {
   text: Text
+}
+
+type Bicycle implements Node {
+  id: ID!
+  wheels: Int
 }
 
 union CommentBody = PlainCommentBody | MarkdownCommentBody

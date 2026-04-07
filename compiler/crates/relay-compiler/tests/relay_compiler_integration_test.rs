@@ -4,13 +4,27 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b93a993099e126775159eeed33e45796>>
+ * @generated SignedSource<<6a9dca010e2006a0e5621594eec28af2>>
  */
 
 mod relay_compiler_integration;
 
 use relay_compiler_integration::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn bare_graphql_token_does_not_loop() {
+    let input = include_str!("relay_compiler_integration/fixtures/bare_graphql_token_does_not_loop.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/bare_graphql_token_does_not_loop.expected");
+    test_fixture(transform_fixture, file!(), "bare_graphql_token_does_not_loop.input", "relay_compiler_integration/fixtures/bare_graphql_token_does_not_loop.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn block_string_hash_consistency() {
+    let input = include_str!("relay_compiler_integration/fixtures/block_string_hash_consistency.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/block_string_hash_consistency.expected");
+    test_fixture(transform_fixture, file!(), "block_string_hash_consistency.input", "relay_compiler_integration/fixtures/block_string_hash_consistency.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn client_extension_interface_backed_by_resolvers_in_throw_on_field_error() {
@@ -146,6 +160,13 @@ async fn default_excludes_node_modules() {
 }
 
 #[tokio::test]
+async fn delete_match_removes_normalization() {
+    let input = include_str!("relay_compiler_integration/fixtures/delete_match_removes_normalization.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/delete_match_removes_normalization.expected");
+    test_fixture(transform_fixture, file!(), "delete_match_removes_normalization.input", "relay_compiler_integration/fixtures/delete_match_removes_normalization.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn error_handling_fragment() {
     let input = include_str!("relay_compiler_integration/fixtures/error_handling_fragment.input");
     let expected = include_str!("relay_compiler_integration/fixtures/error_handling_fragment.expected");
@@ -164,6 +185,13 @@ async fn exec_resolvers_directive_with_root_fragment() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.expected");
     test_fixture(transform_fixture, file!(), "exec_resolvers_directive_with_root_fragment.input", "relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_resolver_mixed_interface_client_edge_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_mixed_interface_client_edge.invalid.input", "relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -188,6 +216,20 @@ async fn fragment_arguments() {
 }
 
 #[tokio::test]
+async fn incremental_base_project_extension_change() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_base_project_extension_change.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_base_project_extension_change.expected");
+    test_fixture(transform_fixture, file!(), "incremental_base_project_extension_change.input", "relay_compiler_integration/fixtures/incremental_base_project_extension_change.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_delete_fragment_used_by_relay_resolver() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_delete_fragment_used_by_relay_resolver.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_delete_fragment_used_by_relay_resolver.expected");
+    test_fixture(transform_fixture, file!(), "incremental_delete_fragment_used_by_relay_resolver.input", "relay_compiler_integration/fixtures/incremental_delete_fragment_used_by_relay_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn incremental_delete_module_fragment() {
     let input = include_str!("relay_compiler_integration/fixtures/incremental_delete_module_fragment.input");
     let expected = include_str!("relay_compiler_integration/fixtures/incremental_delete_module_fragment.expected");
@@ -202,10 +244,87 @@ async fn incremental_file_deletion() {
 }
 
 #[tokio::test]
+async fn incremental_input_object_field_addition() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_input_object_field_addition.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_input_object_field_addition.expected");
+    test_fixture(transform_fixture, file!(), "incremental_input_object_field_addition.input", "relay_compiler_integration/fixtures/incremental_input_object_field_addition.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_input_object_removed() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_input_object_removed.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_input_object_removed.expected");
+    test_fixture(transform_fixture, file!(), "incremental_input_object_removed.input", "relay_compiler_integration/fixtures/incremental_input_object_removed.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_mutation_field_return_type_change() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_mutation_field_return_type_change.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_mutation_field_return_type_change.expected");
+    test_fixture(transform_fixture, file!(), "incremental_mutation_field_return_type_change.input", "relay_compiler_integration/fixtures/incremental_mutation_field_return_type_change.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_object_added_with_interface() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_object_added_with_interface.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_object_added_with_interface.expected");
+    test_fixture(transform_fixture, file!(), "incremental_object_added_with_interface.input", "relay_compiler_integration/fixtures/incremental_object_added_with_interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_object_removed_with_interface() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_object_removed_with_interface.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_object_removed_with_interface.expected");
+    test_fixture(transform_fixture, file!(), "incremental_object_removed_with_interface.input", "relay_compiler_integration/fixtures/incremental_object_removed_with_interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_schema_change_with_base_project() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_schema_change_with_base_project.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_schema_change_with_base_project.expected");
+    test_fixture(transform_fixture, file!(), "incremental_schema_change_with_base_project.input", "relay_compiler_integration/fixtures/incremental_schema_change_with_base_project.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_schema_field_nullability_change() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_schema_field_nullability_change.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_schema_field_nullability_change.expected");
+    test_fixture(transform_fixture, file!(), "incremental_schema_field_nullability_change.input", "relay_compiler_integration/fixtures/incremental_schema_field_nullability_change.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn live_resolver_implements_interface_field() {
     let input = include_str!("relay_compiler_integration/fixtures/live_resolver_implements_interface_field.input");
     let expected = include_str!("relay_compiler_integration/fixtures/live_resolver_implements_interface_field.expected");
     test_fixture(transform_fixture, file!(), "live_resolver_implements_interface_field.input", "relay_compiler_integration/fixtures/live_resolver_implements_interface_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn mixed_interface_missing_node_interface_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/mixed_interface_missing_node_interface.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/mixed_interface_missing_node_interface.invalid.expected");
+    test_fixture(transform_fixture, file!(), "mixed_interface_missing_node_interface.invalid.input", "relay_compiler_integration/fixtures/mixed_interface_missing_node_interface.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn mixed_interface_server_type_does_not_implement_node_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/mixed_interface_server_type_does_not_implement_node.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/mixed_interface_server_type_does_not_implement_node.invalid.expected");
+    test_fixture(transform_fixture, file!(), "mixed_interface_server_type_does_not_implement_node.invalid.input", "relay_compiler_integration/fixtures/mixed_interface_server_type_does_not_implement_node.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn module_name_validation_enforced_with_flag_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/module_name_validation_enforced_with_flag.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/module_name_validation_enforced_with_flag.invalid.expected");
+    test_fixture(transform_fixture, file!(), "module_name_validation_enforced_with_flag.invalid.input", "relay_compiler_integration/fixtures/module_name_validation_enforced_with_flag.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn module_name_validation_skipped_for_non_haste() {
+    let input = include_str!("relay_compiler_integration/fixtures/module_name_validation_skipped_for_non_haste.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/module_name_validation_skipped_for_non_haste.expected");
+    test_fixture(transform_fixture, file!(), "module_name_validation_skipped_for_non_haste.input", "relay_compiler_integration/fixtures/module_name_validation_skipped_for_non_haste.expected", input, expected).await;
 }
 
 #[tokio::test]

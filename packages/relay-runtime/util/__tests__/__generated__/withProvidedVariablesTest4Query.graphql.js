@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4ea47aea3efd370c3a8321792c54990d>>
+ * @generated SignedSource<<77849ff23c20a812edee31b572202cfd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -33,7 +33,7 @@ export type withProvidedVariablesTest4Query = {|
 ({
   "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider'),
   "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('../provideIncludeUserNames.relayprovider')
-}: {|
+} as {|
   +__relay_internal__pv__provideIncludeUserNamesrelayprovider: {|
     +get: () => boolean,
   |},
@@ -81,7 +81,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -123,7 +123,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -176,8 +176,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v1/*: any*/),
-                          (v2/*: any*/)
+                          (v1/*:: as any*/),
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       }
@@ -187,12 +187,12 @@ return {
                 ],
                 "storageKey": null
               },
-              (v1/*: any*/)
+              (v1/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": "node(id:4)"
       }
@@ -214,10 +214,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b5809a8936443db3f6696119fe66e3ed";
+  (node/*:: as any*/).hash = "b5809a8936443db3f6696119fe66e3ed";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   withProvidedVariablesTest4Query$variables,
   withProvidedVariablesTest4Query$data,
 >*/);

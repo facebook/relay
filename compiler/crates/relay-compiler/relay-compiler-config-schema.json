@@ -207,6 +207,12 @@
             "null"
           ]
         },
+        "schemaCompact": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "schemaConfig": {
           "description": "Extra configuration for the GraphQL schema itself.",
           "$ref": "#/$defs/SchemaConfig",
@@ -553,12 +559,6 @@
     "FeatureFlags": {
       "type": "object",
       "properties": {
-        "actor_change_support": {
-          "$ref": "#/$defs/FeatureFlag",
-          "default": {
-            "kind": "disabled"
-          }
-        },
         "allow_legacy_relay_resolver_tag": {
           "description": "When enabled for a given name, allows `@RelayResolver` as a legacy\nalias for `@relayType` / `@relayField`.",
           "$ref": "#/$defs/FeatureFlag",
@@ -682,15 +682,13 @@
             "kind": "enabled"
           }
         },
+        "enforce_module_name_prefix_for_non_haste": {
+          "description": "Enforce that GraphQL operation and fragment names start with the file\nname. Haste projects have this enforcement automatically; this flag\nis only needed for non-Haste projects that want the same validation.",
+          "type": "boolean",
+          "default": false
+        },
         "legacy_include_path_in_required_reader_nodes": {
           "description": "The `path` field in `@required` Reader AST nodes is no longer used. But\nremoving them in one diff is too large of a change to ship at once.\n\nThis flag will allow us to use the rollout FeatureFlag to remove them\nacross a number of diffs.",
-          "$ref": "#/$defs/FeatureFlag",
-          "default": {
-            "kind": "disabled"
-          }
-        },
-        "new_flow_casting_syntax": {
-          "description": "Use `(expr as Type)` instead of `(expr: Type)` for Flow type assertions.\nThis enables gradual rollout of the new casting syntax across files.",
           "$ref": "#/$defs/FeatureFlag",
           "default": {
             "kind": "disabled"
@@ -900,9 +898,6 @@
           "description": "Enable and disable experimental or legacy behaviors.\nWARNING! These are not stable and may change at any time.",
           "$ref": "#/$defs/FeatureFlags",
           "default": {
-            "actor_change_support": {
-              "kind": "disabled"
-            },
             "allow_legacy_relay_resolver_tag": {
               "kind": "disabled"
             },
@@ -947,10 +942,8 @@
             "enforce_fragment_alias_where_ambiguous": {
               "kind": "enabled"
             },
+            "enforce_module_name_prefix_for_non_haste": false,
             "legacy_include_path_in_required_reader_nodes": {
-              "kind": "disabled"
-            },
-            "new_flow_casting_syntax": {
               "kind": "disabled"
             },
             "no_inline": {

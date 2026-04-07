@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<305bc4cb44edc8ea237917371c400367>>
+ * @generated SignedSource<<ec97f5df94378ef735dadf32efa25227>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,7 @@ export type RelayModernOperationDescriptorTestCycleWithPVQuery = {|
 |};
 ({
   "__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider": require('../RelayProvider_returnsCyclic.relayprovider')
-}: {|
+} as {|
   +__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider: {|
     +get: () => boolean,
   |},
@@ -125,10 +125,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6f13180b64777a29cc0fd27356525b7a";
+  (node/*:: as any*/).hash = "6f13180b64777a29cc0fd27356525b7a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernOperationDescriptorTestCycleWithPVQuery$variables,
   RelayModernOperationDescriptorTestCycleWithPVQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<51cf5b083ada4c1096207a9cec1dbeb0>>
+ * @generated SignedSource<<3537bd5562977fe1253ee2ce9dfe9d64>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -61,14 +61,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest16ChangeNameWebsitesMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -82,7 +82,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -95,13 +95,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest16ChangeNameWebsitesMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -122,7 +122,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -150,10 +150,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "55ab419f1d441f3c273ae1ab5e4c6007";
+  (node/*:: as any*/).hash = "55ab419f1d441f3c273ae1ab5e4c6007";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest16ChangeNameWebsitesMutation$variables,
   validateMutationTest16ChangeNameWebsitesMutation$data,
 >*/);

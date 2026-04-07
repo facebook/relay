@@ -78,6 +78,7 @@ extend type ClientViewer {
                     "path": "client_viewer.client_edge.__relay_model_instance"
                   }
                 },
+                "serverObjectOperations": null,
                 "backingField": {
                   "alias": null,
                   "args": null,

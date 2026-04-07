@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# The preferFetchable argument must be a literal Boolean value,
+# not a variable reference.
+fragment RefetchableFragment on FetchableType
+  @refetchable(queryName: "RefetchableFragmentQuery", preferFetchable: $preferFetchable)
+  @argumentDefinitions(preferFetchable: {type: "Boolean!"}) {
+  fetch_id
+}
+==================================== ERROR ====================================
+✖︎ Expected the 'preferFetchable' argument of @refetchable to be a literal Boolean value, got '$preferFetchable'
+
+  refetchable-prefer-fetchable-non-constant.invalid.graphql:5:55
+    4 │ fragment RefetchableFragment on FetchableType
+    5 │   @refetchable(queryName: "RefetchableFragmentQuery", preferFetchable: $preferFetchable)
+      │                                                       ^^^^^^^^^^^^^^^
+    6 │   @argumentDefinitions(preferFetchable: {type: "Boolean!"}) {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3eede4d1a9bcf4b022b1c837602b57f9>>
+ * @generated SignedSource<<8ba99aad48385b5673ded4c7209949ae>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -77,21 +77,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestComment1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -101,13 +101,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestComment1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -120,8 +120,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -139,10 +139,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1e8fdeaafe483c2f9a2db5ca688aab92";
+  (node/*:: as any*/).hash = "1e8fdeaafe483c2f9a2db5ca688aab92";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestComment1Query$variables,
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestComment1Query$data,
 >*/);

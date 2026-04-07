@@ -642,7 +642,8 @@ enum ValidationMessage {
     },
 
     #[error(
-        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after applying fragment arguments. This field has the applied argument values: {arguments_a}"
+        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after applying fragment arguments. This field has the applied argument values: {arguments_a}. \
+        If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: {field_name}(...)`."
     )]
     InvalidSameFieldWithDifferentArguments {
         field_name: StringKey,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5192dbe0183e27e868a93f398ae4631b>>
+ * @generated SignedSource<<28bae23925175e450af27cda3948b72e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {resolver_that_throws as userResolverThatThrowsResolverType} from "../../
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userResolverThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userResolverThatThrowsResolverType: (
+(userResolverThatThrowsResolverType as (
   rootKey: ResolverThatThrows$key,
   args: void,
   context: TestResolverContextType,
@@ -68,14 +68,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "LiveResolversTest8Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -84,7 +84,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -111,13 +111,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "LiveResolversTest8Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -133,7 +133,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "name": "resolver_that_throws",
                 "args": null,
@@ -183,10 +183,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ec189df401880da95c79b741eaec1006";
+  (node/*:: as any*/).hash = "ec189df401880da95c79b741eaec1006";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTest8Query$variables,
   LiveResolversTest8Query$data,
 >*/);

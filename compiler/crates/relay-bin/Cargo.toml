@@ -9,7 +9,7 @@ repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
-clap = { version = "4.5.42", features = ["derive", "env", "string", "unicode", "wrap_help"] }
+clap = { version = "4.6.0", features = ["derive", "env", "string", "unicode", "wrap_help"] }
 common = { path = "../common" }
 graphql-ir-diff = { path = "../graphql-ir-diff" }
 intern = { path = "../intern" }
@@ -21,4 +21,4 @@ schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 simplelog = "0.12.2"
 thiserror = "2.0.18"
-tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.50.0", features = ["full", "test-util", "tracing"] }

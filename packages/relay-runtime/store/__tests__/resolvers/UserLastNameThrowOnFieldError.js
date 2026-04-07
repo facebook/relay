@@ -17,7 +17,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver User.last_name_throw_on_field_error: String
+ * @relayField User.last_name_throw_on_field_error: String
  * @rootFragment UserLastNameThrowOnFieldErrorResolver
  */
 function last_name_throw_on_field_error(

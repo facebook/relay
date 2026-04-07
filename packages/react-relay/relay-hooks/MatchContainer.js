@@ -93,14 +93,20 @@ export type MatchPointer = {
   ...
 };
 
-export type MatchContainerProps<TProps: {...}, TFallback: React.Node> = {
+export type MatchContainerProps<
+  TProps extends {...},
+  TFallback extends React.Node,
+> = {
   +fallback?: ?TFallback,
   +loader: (module: unknown) => component(...TProps),
   +match: ?MatchPointer | ?TypenameOnlyPointer,
   +props?: TProps,
 };
 
-function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
+function MatchContainer<
+  TProps extends {...},
+  TFallback extends React.Node | null,
+>({
   fallback,
   loader,
   match,

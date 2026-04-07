@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cce458647bf053207301bca428131bb3>>
+ * @generated SignedSource<<4813ee3e9cd508e3ebfab81b5bb56024>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,9 +22,9 @@ export type RelayResponseNormalizerTest2Query$variables = {|
   id: string,
 |};
 export type RelayResponseNormalizerTest2Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +friends: ?{|
+  +node: ?{|
+    +__typename: string,
+    +friends?: ?{|
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
@@ -34,11 +34,7 @@ export type RelayResponseNormalizerTest2Query$data = {|
       |}>,
     |},
     +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+  |},
 |};
 export type RelayResponseNormalizerTest2Query = {|
   response: RelayResponseNormalizerTest2Query$data,
@@ -91,21 +87,21 @@ v5 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -125,7 +121,7 @@ return {
                     "name": "edges",
                     "plural": true,
                     "selections": [
-                      (v4/*: any*/),
+                      (v4/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -134,7 +130,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v2/*: any*/),
+                          (v2/*:: as any*/),
                           {
                             "alias": "name",
                             "args": null,
@@ -164,26 +160,26 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -197,7 +193,7 @@ return {
                     "name": "edges",
                     "plural": true,
                     "selections": [
-                      (v4/*: any*/),
+                      (v4/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -206,7 +202,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v2/*: any*/),
+                          (v2/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -234,7 +230,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "filters": null,
                 "handle": "bestFriends",
                 "key": "",
@@ -262,10 +258,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ca2e327eed6fc5697035ae6741beb609";
+  (node/*:: as any*/).hash = "ca2e327eed6fc5697035ae6741beb609";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest2Query$variables,
   RelayResponseNormalizerTest2Query$data,
 >*/);

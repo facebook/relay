@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<af859db5f4ee226e60a7301d46335ed6>>
+ * @generated SignedSource<<a904a435eb8797eddfe629b46a28fc58>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -62,7 +62,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -71,8 +71,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/)
+              (v1/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -92,7 +92,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -105,11 +105,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -158,10 +158,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4c94de207a7f86585760fa740739802b";
+  (node/*:: as any*/).hash = "4c94de207a7f86585760fa740739802b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest29Query$variables,
   RelayMockPayloadGeneratorTest29Query$data,
 >*/);

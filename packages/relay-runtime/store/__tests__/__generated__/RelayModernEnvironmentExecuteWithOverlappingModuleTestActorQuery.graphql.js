@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7f5eaf6b257850eb07e9b4bac465a62d>>
+ * @generated SignedSource<<0511c7b1b3cd95b9dcd48508e580573f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -77,14 +77,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -101,7 +101,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -118,19 +118,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -142,8 +142,8 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v3/*: any*/),
-                  (v2/*: any*/)
+                  (v3/*:: as any*/),
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -175,10 +175,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5b8c5731fedef0753656577cf15d7702";
+  (node/*:: as any*/).hash = "5b8c5731fedef0753656577cf15d7702";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables,
   RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data,
 >*/);

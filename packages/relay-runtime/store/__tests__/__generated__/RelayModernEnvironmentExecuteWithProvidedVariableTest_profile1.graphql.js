@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7fdcdf176c19910c82d6e84e2c3613a1>>
+ * @generated SignedSource<<675b6ea64f7e7140d0e9fcf0f396eb6d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -43,8 +43,8 @@ var v0 = {
 };
 return {
   "argumentDefinitions": [
-    (v0/*: any*/),
-    (v0/*: any*/)
+    (v0/*:: as any*/),
+    (v0/*:: as any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
@@ -110,10 +110,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a8cd2ff5195aca1bd249ef38ba569f3f";
+  (node/*:: as any*/).hash = "a8cd2ff5195aca1bd249ef38ba569f3f";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
   RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data,
 >*/);

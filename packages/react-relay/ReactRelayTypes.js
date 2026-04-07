@@ -99,7 +99,7 @@ export type $FragmentRef<T> = {
 
 /* $FlowExpectedError[unclear-type]: Intentional so that it won't fail,
  * even if the type we want to exclude doesn't exist in Props */
-type LooseOmitRelayProps<Props, K: keyof any> = Pick<
+type LooseOmitRelayProps<Props, K extends keyof any> = Pick<
   Props,
   Exclude<keyof Props, K>,
 >;
@@ -150,15 +150,13 @@ type MapRelayProp<T> = [+t: T] extends [+t: {+$fragmentType: empty, ...}]
                 ? ?ReadonlyArray<?$FragmentRef<NonNullable<V>>>
                 : T;
 
-export type RelayFragmentContainer<TComponent: component(...empty)> = component(
-  ...$RelayProps<React.ElementConfig<TComponent>, RelayProp>
-);
+export type RelayFragmentContainer<TComponent extends component(...empty)> =
+  component(...$RelayProps<React.ElementConfig<TComponent>, RelayProp>);
 
-export type RelayPaginationContainer<TComponent: component(...empty)> =
+export type RelayPaginationContainer<TComponent extends component(...empty)> =
   component(
     ...$RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>
   );
 
-export type RelayRefetchContainer<TComponent: component(...empty)> = component(
-  ...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>
-);
+export type RelayRefetchContainer<TComponent extends component(...empty)> =
+  component(...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>);

@@ -303,6 +303,12 @@ fn add_descendants(
                 add_descendants(result, dependency_graph, *child);
             }
         }
+        Some(Node { ir: None, .. }) => {
+            // The node exists as a placeholder (referenced by another
+            // definition) but the definition itself is missing, e.g. it was
+            // deleted. Skip it instead of panicking so that the incremental
+            // build can proceed and clean up stale artifacts.
+        }
         _ => {
             panic!("Fragment {key:?} not found in IR.");
         }

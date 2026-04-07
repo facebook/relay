@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e891b243dab2a154783994566f54b5e8>>
+ * @generated SignedSource<<ab48230f1acf8ea97dd2703295ac3691>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {another_client_edge as userAnotherClientEdgeResolverType} from "../UserA
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAnotherClientEdgeResolverType: (
+(userAnotherClientEdgeResolverType as (
   rootKey: UserAnotherClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -83,8 +83,8 @@ return {
   },
   "name": "RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerRecursiveQuery_me__client_edge",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "kind": "ClientEdgeToServerObject",
       "operation": require('./ClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerRecursiveQuery_me__client_edge__another_client_edge.graphql'),
@@ -109,8 +109,8 @@ return {
         "name": "another_client_edge",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/)
+          (v0/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -122,10 +122,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e84993737b8022e99659ef3064e0aeea";
+  (node/*:: as any*/).hash = "e84993737b8022e99659ef3064e0aeea";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerRecursiveQuery_me__client_edge$fragmentType,
   RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerRecursiveQuery_me__client_edge$data,
   ClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerRecursiveQuery_me__client_edge$variables,

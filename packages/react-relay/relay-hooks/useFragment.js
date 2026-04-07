@@ -24,25 +24,25 @@ type HasSpread<TFragmentType> = {
 };
 
 // if the key is non-nullable, return non-nullable value
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType extends FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: HasSpread<TFragmentType>,
 ): TData;
 
 // if the key is nullable, return nullable value
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType extends FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: ?HasSpread<TFragmentType>,
 ): ?TData;
 
 // if the key is a non-nullable array of keys, return non-nullable array
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType extends FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: ReadonlyArray<HasSpread<TFragmentType>>,
 ): TData;
 
 // if the key is a nullable array of keys, return nullable array
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType extends FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: ?ReadonlyArray<HasSpread<TFragmentType>>,
 ): ?TData;

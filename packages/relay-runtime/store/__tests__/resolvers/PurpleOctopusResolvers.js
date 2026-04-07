@@ -10,7 +10,7 @@
  */
 
 /**
- * @RelayResolver PurpleOctopus implements IWeakAnimal
+ * @relayType PurpleOctopus implements IWeakAnimal
  * @weak
  */
 export type PurpleOctopus = {
@@ -18,14 +18,14 @@ export type PurpleOctopus = {
 };
 
 /**
- * @RelayResolver PurpleOctopus.color: String
+ * @relayField PurpleOctopus.color: String
  */
 function color(purpleOctopus: PurpleOctopus): ?string {
   return 'purple';
 }
 
 /**
- * @RelayResolver Query.purple_octopus: PurpleOctopus
+ * @relayField Query.purple_octopus: PurpleOctopus
  */
 function purpleOctopus(): PurpleOctopus {
   return {

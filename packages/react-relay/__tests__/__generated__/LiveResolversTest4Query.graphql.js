@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4d77fd2704c7be091d038e5f2d74a80c>>
+ * @generated SignedSource<<95cfd81a7181a04402685262af73d51d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {ping as queryPingResolverType} from "../../../relay-runtime/store/__test
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryPingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryPingResolverType: (
+(queryPingResolverType as (
   rootKey: LivePingPongResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -126,10 +126,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f88dfcbb9cbb421799731f61d327f4ac";
+  (node/*:: as any*/).hash = "f88dfcbb9cbb421799731f61d327f4ac";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTest4Query$variables,
   LiveResolversTest4Query$data,
 >*/);

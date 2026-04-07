@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+fragment UserFields on User @argumentDefinitions(size: {type: "Int", defaultValue: 32}) {
+  id
+  name
+  profilePicture(size: $size) {
+    url
+  }
+}
+==================================== OUTPUT ===================================
+fragment UserFields on User
+@argumentDefinitions(size: {type: "Int", defaultValue: 32}) {
+  id
+  name
+  profilePicture(size: $size) {
+    url
+  }
+}

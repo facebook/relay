@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<25446f8fd7ea95c8bfaaa39cdd88db3f>>
+ * @generated SignedSource<<7dfa1e73050473556af30a1285e91725>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -105,7 +105,7 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v0/*: any*/),
+                  (v0/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -145,7 +145,7 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v0/*: any*/),
+                  (v0/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -177,10 +177,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5020131dfd6ff7b9b93eda26bdbedb49";
+  (node/*:: as any*/).hash = "5020131dfd6ff7b9b93eda26bdbedb49";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest13Query$variables,
   RelayMockPayloadGeneratorTest13Query$data,
 >*/);

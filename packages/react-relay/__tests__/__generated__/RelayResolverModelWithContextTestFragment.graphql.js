@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<460ee893682cc66f3f00f29fb4d5780d>>
+ * @generated SignedSource<<7cb06cefbaf01a556dbcac4e2002edba>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {another_value_from_context as todoModelAnotherValueFromContextResolverTy
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoModelAnotherValueFromContextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelAnotherValueFromContextResolverType: (
+(todoModelAnotherValueFromContextResolverType as (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -32,7 +32,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {description as todoModelDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelDescriptionResolverType: (
+(todoModelDescriptionResolverType as (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -66,7 +66,7 @@ return {
     {
       "alias": null,
       "args": null,
-      "fragment": (v0/*: any*/),
+      "fragment": (v0/*:: as any*/),
       "kind": "RelayResolver",
       "name": "description",
       "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').description, '__relay_model_instance', true),
@@ -75,7 +75,7 @@ return {
     {
       "alias": null,
       "args": null,
-      "fragment": (v0/*: any*/),
+      "fragment": (v0/*:: as any*/),
       "kind": "RelayResolver",
       "name": "another_value_from_context",
       "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').another_value_from_context, '__relay_model_instance', true),
@@ -100,10 +100,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5373c916bad7d7b7c83e32558cfde3d4";
+  (node/*:: as any*/).hash = "5373c916bad7d7b7c83e32558cfde3d4";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResolverModelWithContextTestFragment$fragmentType,
   RelayResolverModelWithContextTestFragment$data,
 >*/);

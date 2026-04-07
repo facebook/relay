@@ -70,7 +70,10 @@ type PendingQueryEntry =
       status: PreloadQueryStatus,
     }>;
 
-function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
+function preloadQuery<
+  TQuery extends OperationType,
+  TEnvironmentProviderOptions,
+>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: VariablesOf<TQuery>,
@@ -138,7 +141,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   };
 }
 
-function preloadQueryDeduped<TQuery: OperationType>(
+function preloadQueryDeduped<TQuery extends OperationType>(
   environment: IEnvironment,
   pendingQueries: Map<string, PendingQueryEntry>,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,

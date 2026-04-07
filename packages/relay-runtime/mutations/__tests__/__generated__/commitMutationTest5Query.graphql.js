@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f2caff85cb731166f1a800e5bc929f2c>>
+ * @generated SignedSource<<fe97d634e7f62914ba5b418f0faf0721>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -88,8 +88,8 @@ v4 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -135,7 +135,7 @@ v5 = [
     "name": "first",
     "value": 1
   },
-  (v1/*: any*/)
+  (v1/*:: as any*/)
 ];
 return {
   "fragment": {
@@ -146,7 +146,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -158,13 +158,13 @@ return {
               {
                 "alias": "topLevelComments",
                 "args": [
-                  (v1/*: any*/)
+                  (v1/*:: as any*/)
                 ],
                 "concreteType": "TopLevelCommentsConnection",
                 "kind": "LinkedField",
                 "name": "__Feedback_topLevelComments_connection",
                 "plural": false,
-                "selections": (v4/*: any*/),
+                "selections": (v4/*:: as any*/),
                 "storageKey": "__Feedback_topLevelComments_connection(orderBy:\"chronological\")"
               }
             ],
@@ -186,29 +186,29 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "concreteType": "TopLevelCommentsConnection",
                 "kind": "LinkedField",
                 "name": "topLevelComments",
                 "plural": false,
-                "selections": (v4/*: any*/),
+                "selections": (v4/*:: as any*/),
                 "storageKey": "topLevelComments(first:1,orderBy:\"chronological\")"
               },
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "filters": [
                   "orderBy"
                 ],
@@ -221,7 +221,7 @@ return {
             "type": "Feedback",
             "abstractKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": "node(id:\"feedback123\")"
       }
@@ -251,10 +251,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "95a7b3c5f4018a884d2df77e115a4db0";
+  (node/*:: as any*/).hash = "95a7b3c5f4018a884d2df77e115a4db0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   commitMutationTest5Query$variables,
   commitMutationTest5Query$data,
 >*/);

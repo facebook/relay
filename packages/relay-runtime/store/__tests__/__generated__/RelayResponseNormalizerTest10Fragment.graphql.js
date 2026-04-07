@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<59ee6871b946f24dfffec3bd2a7234af>>
+ * @generated SignedSource<<d5d06d64a9206a6c8a8ce96139208627>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -69,7 +69,7 @@ return {
         {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "kind": "Stream",
               "selections": [
@@ -81,7 +81,7 @@ return {
                   "name": "actors",
                   "plural": true,
                   "selections": [
-                    (v0/*: any*/)
+                    (v0/*:: as any*/)
                   ],
                   "storageKey": null
                 }
@@ -101,10 +101,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8c389e04433fbf8aaa29700855a45351";
+  (node/*:: as any*/).hash = "8c389e04433fbf8aaa29700855a45351";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResponseNormalizerTest10Fragment$fragmentType,
   RelayResponseNormalizerTest10Fragment$data,
 >*/);

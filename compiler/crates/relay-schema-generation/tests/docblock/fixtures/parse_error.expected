@@ -18,26 +18,26 @@ func() {}
 
 ✖︎ ';' expected
 
-  module.js:13:8
-   12 │ / @RelayResolver
-   13 │ func() {}
+  module.js:5:8
+    4 │ / @RelayResolver
+    5 │ func() {}
       │        ^
 
 
 ✖︎ non-terminated regular expression literal
 
-  module.js:12:17
-   11 │ 
-   12 │ / @RelayResolver 
+  module.js:4:17
+    3 │ 
+    4 │ / @RelayResolver 
       │                 ^
-   13 │ func() {}
+    5 │ func() {}
 
 
 ✖︎ regular expression started here
 
-  module.js:12:1
-   10 │ import type CatFlowType from "Cat";
-   11 │ 
-   12 │ / @RelayResolver
+  module.js:4:1
+    2 │ import type CatFlowType from "Cat";
+    3 │ 
+    4 │ / @RelayResolver
       │ ^
-   13 │ func() {}
+    5 │ func() {}

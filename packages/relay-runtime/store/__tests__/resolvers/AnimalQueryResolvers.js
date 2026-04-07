@@ -20,7 +20,7 @@ type IAnimalType = {
 };
 
 /**
- * @RelayResolver IAnimal.greeting: String
+ * @relayField IAnimal.greeting: String
  */
 function greeting(model: ?IAnimalType): ?string {
   if (model == null) {
@@ -32,7 +32,7 @@ function greeting(model: ?IAnimalType): ?string {
 /**
  * Returns a single `IAnimal` of a given type and optionally returns an invalid ID.
  *
- * @RelayResolver Query.animal(request: AnimalRequest!): IAnimal
+ * @relayField Query.animal(request: AnimalRequest!): IAnimal
  */
 function animal(args: {request: {ofType: string, returnValidID: boolean}}): {
   __typename: IAnimalTypeNames,
@@ -55,7 +55,7 @@ function animal(args: {request: {ofType: string, returnValidID: boolean}}): {
 /**
  * Returns a list of `IAnimal` of a given type and optionally returns an invalid ID.
  *
- * @RelayResolver Query.animals(requests: [AnimalRequest!]!): [IAnimal]
+ * @relayField Query.animals(requests: [AnimalRequest!]!): [IAnimal]
  */
 function animals(args: {
   requests: ReadonlyArray<{ofType: string, returnValidID: boolean}>,

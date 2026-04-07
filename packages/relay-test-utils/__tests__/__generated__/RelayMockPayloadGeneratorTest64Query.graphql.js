@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<218261eef4f20675a92eb21278f0bbd5>>
+ * @generated SignedSource<<0625c0267f81ebe58361bc846bdf2d44>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -140,11 +140,11 @@ return {
                             "kind": "FragmentSpread",
                             "name": "RelayMockPayloadGeneratorTest64Fragment"
                           },
-                          (v0/*: any*/)
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v1/*: any*/)
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -152,7 +152,7 @@ return {
               },
               {
                 "kind": "Defer",
-                "selections": (v2/*: any*/)
+                "selections": (v2/*:: as any*/)
               }
             ],
             "storageKey": null
@@ -180,7 +180,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v3/*: any*/),
+            "args": (v3/*:: as any*/),
             "concreteType": "FriendsConnection",
             "kind": "LinkedField",
             "name": "friends",
@@ -207,12 +207,12 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v4/*: any*/),
-                          (v0/*: any*/)
+                          (v4/*:: as any*/),
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v1/*: any*/)
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -222,21 +222,21 @@ return {
                 "if": null,
                 "kind": "Defer",
                 "label": "RelayMockPayloadGeneratorTest64Query$defer$test-64__friends$pageInfo",
-                "selections": (v2/*: any*/)
+                "selections": (v2/*:: as any*/)
               }
             ],
             "storageKey": "friends(first:10)"
           },
           {
             "alias": null,
-            "args": (v3/*: any*/),
+            "args": (v3/*:: as any*/),
             "filters": null,
             "handle": "connection",
             "key": "test-64__friends",
             "kind": "LinkedHandle",
             "name": "friends"
           },
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -267,10 +267,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d6bbd2f2c4ce30f659a885858e9729f4";
+  (node/*:: as any*/).hash = "d6bbd2f2c4ce30f659a885858e9729f4";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest64Query$variables,
   RelayMockPayloadGeneratorTest64Query$data,
 >*/);

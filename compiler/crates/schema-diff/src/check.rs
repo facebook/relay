@@ -27,6 +27,7 @@ use crate::definitions::TypeChange;
 #[derive(Eq, PartialEq, Hash)]
 pub enum IncrementalBuildSchemaChange {
     Enum(StringKey),
+    InputObject(StringKey),
     Object(StringKey),
     Union(StringKey),
     Interface(StringKey),
@@ -36,6 +37,7 @@ impl fmt::Debug for IncrementalBuildSchemaChange {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             IncrementalBuildSchemaChange::Enum(name) => write!(f, "enum({name})"),
+            IncrementalBuildSchemaChange::InputObject(name) => write!(f, "input_object({name})"),
             IncrementalBuildSchemaChange::Object(name) => write!(f, "object({name})"),
             IncrementalBuildSchemaChange::Union(name) => write!(f, "union({name})"),
             IncrementalBuildSchemaChange::Interface(name) => write!(f, "interface({name})"),
@@ -94,6 +96,20 @@ impl SchemaChange {
                                 needs_incremental_build
                                     .insert(IncrementalBuildSchemaChange::Object(name));
 
+                                // Also mark the return types of changed fields
+                                // so the finder can discover affected operations
+                                // via visit_linked_field. This is essential for
+                                // root types (Query, Mutation, Subscription)
+                                // where Object("Mutation") alone won't match
+                                // any linked field, but also improves precision
+                                // for non-root types.
+                                add_field_return_types_for_incremental_build(
+                                    schema,
+                                    &mut needs_incremental_build,
+                                    &added,
+                                    &removed,
+                                );
+
                                 let interfaces_changed: Vec<StringKey> = interfaces_added
                                     .into_iter()
                                     .chain(interfaces_removed.into_iter())
@@ -126,7 +142,31 @@ impl SchemaChange {
                         }
                         DefinitionChange::ObjectAdded(name) => {
                             if !is_object_add_safe(name, schema, schema_config) {
-                                return SchemaChangeSafety::Unsafe;
+                                // The new type has an id field and implements
+                                // non-Node interfaces. Queries spreading on
+                                // those interfaces may need updated inline
+                                // spreads. Mark the object and its interfaces
+                                // for incremental rebuild.
+                                needs_incremental_build
+                                    .insert(IncrementalBuildSchemaChange::Object(name));
+                                if let Some(schema::Type::Object(id)) = schema.get_type(name) {
+                                    let object = schema.object(id);
+                                    for iface_id in &object.interfaces {
+                                        let iface = schema.interface(*iface_id);
+                                        // Skip Node: generate_id_field handles all Node
+                                        // implementors via a single `... on Node { id }`
+                                        // fragment, so adding a new Node implementor
+                                        // never changes Node-only operations' output.
+                                        if iface.name.item == *NODE_INTERFACE_KEY {
+                                            continue;
+                                        }
+                                        needs_incremental_build.insert(
+                                            IncrementalBuildSchemaChange::Interface(
+                                                iface.name.item.0,
+                                            ),
+                                        );
+                                    }
+                                }
                             }
                         }
                         // safe changes
@@ -148,12 +188,55 @@ impl SchemaChange {
                                 .insert(IncrementalBuildSchemaChange::Union(name));
                         }
 
+                        // Input object changes need an incremental rebuild because
+                        // generated type definitions include all fields of the
+                        // input object.
+                        DefinitionChange::InputObjectChanged {
+                            name,
+                            added: _,
+                            removed: _,
+                        } => {
+                            needs_incremental_build
+                                .insert(IncrementalBuildSchemaChange::InputObject(name));
+                        }
+
+                        // Object removals need an incremental rebuild
+                        // because queries spreading on the removed
+                        // object's interfaces may need updated inline
+                        // spreads. The interface names come from the
+                        // previous schema since the object no longer
+                        // exists in the current schema.
+                        DefinitionChange::ObjectRemoved { name, interfaces } => {
+                            needs_incremental_build
+                                .insert(IncrementalBuildSchemaChange::Object(name));
+                            for iface_name in &interfaces {
+                                if *iface_name == NODE_INTERFACE_KEY.0 {
+                                    continue;
+                                }
+                                needs_incremental_build
+                                    .insert(IncrementalBuildSchemaChange::Interface(*iface_name));
+                            }
+                        }
+
+                        // Input object removals need an incremental
+                        // rebuild so queries referencing the removed
+                        // type are recompiled. In practice this is a
+                        // no-op: the type no longer exists in the new
+                        // schema, so the dependency analyzer won't
+                        // find any references. Co-occurring ObjectChanged
+                        // entries (e.g. for Mutation) handle the actual
+                        // output changes, and build_ir_in_relay_mode
+                        // validates all definitions regardless.
+                        DefinitionChange::InputObjectRemoved(name) => {
+                            needs_incremental_build
+                                .insert(IncrementalBuildSchemaChange::InputObject(name));
+                        }
+
                         // unsafe changes
                         DefinitionChange::ScalarRemoved(_)
-                        | DefinitionChange::InputObjectChanged { .. }
-                        | DefinitionChange::InputObjectRemoved(_)
-                        | DefinitionChange::InterfaceRemoved(_)
-                        | DefinitionChange::ObjectRemoved(_) => return SchemaChangeSafety::Unsafe,
+                        | DefinitionChange::InterfaceRemoved(_) => {
+                            return SchemaChangeSafety::Unsafe;
+                        }
                     }
                 }
                 if needs_incremental_build.is_empty() {
@@ -269,6 +352,48 @@ fn add_interfaces_for_incremental_build(
             .chain(object_interfaces)
             .map(|interface| IncrementalBuildSchemaChange::Interface(*interface));
         needs_incremental_build.extend(all_interfaces);
+    }
+}
+
+fn inner_type_name(type_: &Type) -> Option<StringKey> {
+    match type_ {
+        Type::Named(name) => Some(*name),
+        Type::NonNull(inner) | Type::List(inner) => inner_type_name(inner),
+    }
+}
+
+fn schema_change_for_type_name(
+    schema: &SDLSchema,
+    type_name: StringKey,
+) -> Option<IncrementalBuildSchemaChange> {
+    schema
+        .get_type(type_name)
+        .and_then(|schema_type| match schema_type {
+            schema::Type::Object(_) => Some(IncrementalBuildSchemaChange::Object(type_name)),
+            schema::Type::Interface(_) => Some(IncrementalBuildSchemaChange::Interface(type_name)),
+            schema::Type::Union(_) => Some(IncrementalBuildSchemaChange::Union(type_name)),
+            schema::Type::Enum(_) => Some(IncrementalBuildSchemaChange::Enum(type_name)),
+            schema::Type::InputObject(_) => {
+                Some(IncrementalBuildSchemaChange::InputObject(type_name))
+            }
+            schema::Type::Scalar(_) => None,
+        })
+}
+
+/// Add the return types of added/removed fields to `needs_incremental_build`.
+/// This lets the finder discover affected operations via `visit_linked_field`.
+fn add_field_return_types_for_incremental_build(
+    schema: &SDLSchema,
+    needs_incremental_build: &mut FxHashSet<IncrementalBuildSchemaChange>,
+    added: &[TypeChange],
+    removed: &[TypeChange],
+) {
+    for type_change in added.iter().chain(removed.iter()) {
+        if let Some(type_name) = inner_type_name(&type_change.type_)
+            && let Some(change) = schema_change_for_type_name(schema, type_name)
+        {
+            needs_incremental_build.insert(change);
+        }
     }
 }
 

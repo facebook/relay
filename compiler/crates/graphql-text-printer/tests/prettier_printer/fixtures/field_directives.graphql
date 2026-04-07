@@ -1,0 +1,6 @@
+query UserQuery {
+  user {
+    email @skip(if: true) @deprecated(reason: "Use primaryEmail instead")
+    name @include(if: $showName)
+  }
+}

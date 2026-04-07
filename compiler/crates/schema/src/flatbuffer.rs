@@ -367,6 +367,10 @@ impl<'fb> FlatBufferSchema<'fb> {
     }
 
     fn parse_argument(&self, argument: schema_flatbuffer::Argument<'fb>) -> Option<Argument> {
+        let directives = match argument.directives() {
+            Some(dirs) => self.parse_directive_values(dirs)?,
+            None => Vec::new(),
+        };
         Some(Argument {
             name: WithLocation::generated(ArgumentName(argument.name().unwrap().intern())),
             default_value: match argument.value() {
@@ -375,7 +379,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             },
             type_: self.parse_type_reference(argument.type_()?)?,
             description: None,
-            directives: Default::default(),
+            directives,
         })
     }
 

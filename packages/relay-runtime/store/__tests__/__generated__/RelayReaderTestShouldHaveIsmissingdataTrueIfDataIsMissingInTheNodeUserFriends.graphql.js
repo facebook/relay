@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b084516a83123209eb54710958e266ed>>
+ * @generated SignedSource<<8c18bb172ae945e6f296b428702da782>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -54,7 +54,7 @@ return {
   "metadata": null,
   "name": "RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -92,7 +92,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -116,10 +116,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "09943f83d1729f2b5dba55f1ff5a68b0";
+  (node/*:: as any*/).hash = "09943f83d1729f2b5dba55f1ff5a68b0";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$fragmentType,
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$data,
 >*/);

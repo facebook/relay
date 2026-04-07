@@ -9,6 +9,7 @@ use std::cmp::Ordering;
 use std::cmp::Ordering::Greater;
 use std::cmp::Ordering::Less;
 use std::fmt::Display;
+use std::str::FromStr;
 
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -207,7 +208,7 @@ fn parse_argument_name<'a>(
                 consume_argument_close(lexer, best_effort)?;
                 Ok(Some(argument_name))
             }
-            Some(Ok(bad_token)) if best_effort => Ok(None),
+            Some(Ok(_)) if best_effort => Ok(None),
             Some(Ok(bad_token)) => Err(format!("Expected Argument Name, got: '{}'", bad_token)),
             Some(Err(_)) if best_effort => Ok(None),
             Some(Err(_)) => Err(format!("Lexer error on: '{}'", lexer.slice())),
@@ -270,6 +271,14 @@ impl Display for SchemaCoordinate {
                 argument_name,
             } => write!(f, "@{}({}:)", directive_name, argument_name),
         }
+    }
+}
+
+impl FromStr for SchemaCoordinate {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        parse_schema_coordinate_best_effort(s)
     }
 }
 

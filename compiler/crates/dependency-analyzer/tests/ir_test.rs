@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e73e0f01d763893458338bcb944955fd>>
+ * @generated SignedSource<<661220fb6e94e2dfba34d92aa2ebb7b1>>
  */
 
 mod ir;
@@ -139,10 +139,24 @@ async fn schema_enum_in_input_object_change() {
 }
 
 #[tokio::test]
+async fn schema_field_return_type_change() {
+    let input = include_str!("ir/fixtures/schema-field-return-type-change.graphql");
+    let expected = include_str!("ir/fixtures/schema-field-return-type-change.expected");
+    test_fixture(transform_fixture, file!(), "schema-field-return-type-change.graphql", "ir/fixtures/schema-field-return-type-change.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn schema_object_change() {
     let input = include_str!("ir/fixtures/schema-object-change.graphql");
     let expected = include_str!("ir/fixtures/schema-object-change.expected");
     test_fixture(transform_fixture, file!(), "schema-object-change.graphql", "ir/fixtures/schema-object-change.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_object_change_without_field_return_types() {
+    let input = include_str!("ir/fixtures/schema-object-change-without-field-return-types.graphql");
+    let expected = include_str!("ir/fixtures/schema-object-change-without-field-return-types.expected");
+    test_fixture(transform_fixture, file!(), "schema-object-change-without-field-return-types.graphql", "ir/fixtures/schema-object-change-without-field-return-types.expected", input, expected).await;
 }
 
 #[tokio::test]

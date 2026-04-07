@@ -89,12 +89,12 @@ function expectSchedulerToFlushAndYieldThrough(expectedYields: any) {
 // The current tests are against useFragmentNode which as a different Flow signature
 // than the external API useFragment. I want to keep the more accurate types
 // for useFragmentInternal, though, so this wrapper adapts it.
-type ReturnType<TFragmentData: unknown> = {
+type ReturnType<TFragmentData extends unknown> = {
   data: TFragmentData,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
 };
-hook useFragmentNode_CURRENT<TFragmentData: unknown>(
+hook useFragmentNode_CURRENT<TFragmentData extends unknown>(
   fragment:
     | Fragment<
         useFragmentNodeTestUserFragment$fragmentType,
@@ -115,7 +115,7 @@ hook useFragmentNode_CURRENT<TFragmentData: unknown>(
     enableStoreUpdates: () => {},
   };
 }
-hook useFragmentNode_EXPERIMENTAL<TFragmentData: unknown>(
+hook useFragmentNode_EXPERIMENTAL<TFragmentData extends unknown>(
   fragment:
     | Fragment<
         useFragmentNodeTestUserFragment$fragmentType,

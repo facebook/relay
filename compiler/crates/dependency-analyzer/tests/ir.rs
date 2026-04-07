@@ -64,6 +64,11 @@ fn parse_schema_changes(extension_content: &str) -> FxHashSet<IncrementalBuildSc
                     changes.insert(IncrementalBuildSchemaChange::Union(key));
                 }
             }
+            "InputObject" => {
+                for key in changed_names {
+                    changes.insert(IncrementalBuildSchemaChange::InputObject(key));
+                }
+            }
             "Interface" => {
                 for key in changed_names {
                     changes.insert(IncrementalBuildSchemaChange::Interface(key));

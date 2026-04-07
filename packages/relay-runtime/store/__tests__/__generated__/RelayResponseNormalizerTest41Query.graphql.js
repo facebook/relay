@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2936d11c8b87767a60267c74eeca5b5a>>
+ * @generated SignedSource<<b23eaa60dc74f27232f4e093f9f27178>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,15 +22,11 @@ export type RelayResponseNormalizerTest41Query$variables = {|
   id: string,
 |};
 export type RelayResponseNormalizerTest41Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +emailAddresses: ?ReadonlyArray<?string>,
+  +node: ?{|
+    +__typename: string,
+    +emailAddresses?: ?ReadonlyArray<?string>,
     +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+  |},
 |};
 export type RelayResponseNormalizerTest41Query = {|
   response: RelayResponseNormalizerTest41Query$data,
@@ -95,20 +91,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest41Query",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest41Query",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "f46c4a92011b2ed6e4222a610f749577",
@@ -122,10 +118,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3bf9e0ffd23df3d6711a66bca7879ca7";
+  (node/*:: as any*/).hash = "3bf9e0ffd23df3d6711a66bca7879ca7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest41Query$variables,
   RelayResponseNormalizerTest41Query$data,
 >*/);

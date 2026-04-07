@@ -18,7 +18,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver User.client_edge: User
+ * @relayField User.client_edge: User
  * @rootFragment UserClientEdgeResolver
  */
 function client_edge(

@@ -21,8 +21,8 @@ export function Cat(id): CatFlowType {
 
 ✖︎ Expected Relay Resolver function param to include type annotation
 
-  module.js:14:21
-   13 │  */
-   14 │ export function Cat(id): CatFlowType {
+  module.js:7:21
+    6 │  */
+    7 │ export function Cat(id): CatFlowType {
       │                     ^^
-   15 │   return {};
+    8 │   return {};

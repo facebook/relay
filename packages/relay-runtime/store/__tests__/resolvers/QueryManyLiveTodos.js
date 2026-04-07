@@ -18,7 +18,7 @@ const {
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 
 /**
- * @RelayResolver Query.many_live_todos: [Todo]
+ * @relayField Query.many_live_todos: [Todo]
  * @live
  */
 function many_live_todos(): LiveState<ReadonlyArray<{todo_id: string}>> {

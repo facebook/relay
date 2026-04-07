@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6e2054587b8ff1c81d40535eb007ee66>>
+ * @generated SignedSource<<2a939b79608153c75b3acbb30b2c8785>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -50,14 +50,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +77,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -134,10 +134,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "649fcb31c6138f80ad0ebb97c80d9ae6";
+  (node/*:: as any*/).hash = "649fcb31c6138f80ad0ebb97c80d9ae6";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$variables,
   ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$data,
 >*/);

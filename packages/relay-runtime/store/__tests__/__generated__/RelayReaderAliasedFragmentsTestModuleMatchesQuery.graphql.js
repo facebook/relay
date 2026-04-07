@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a6ed51be71b0339dad7c5301c2c90dc8>>
+ * @generated SignedSource<<7983394c265ae206e7385212b1f060c3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -70,21 +70,21 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTestModuleMatchesQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
           {
-            "fragment": (v2/*: any*/),
+            "fragment": (v2/*:: as any*/),
             "kind": "AliasedInlineFragmentSpread",
             "name": "aliased_fragment"
           }
@@ -97,13 +97,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestModuleMatchesQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -116,7 +116,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -141,10 +141,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5226926e7aa02b8b824894876a2e0365";
+  (node/*:: as any*/).hash = "5226926e7aa02b8b824894876a2e0365";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestModuleMatchesQuery$variables,
   RelayReaderAliasedFragmentsTestModuleMatchesQuery$data,
 >*/);

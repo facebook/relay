@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8e89229d1ccf12fbd91c9cf5d9da3156>>
+ * @generated SignedSource<<eb809dcba6b11fa83af878d0e901507f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -89,8 +89,8 @@ return {
   "metadata": null,
   "name": "RelayMockPayloadGeneratorTest12Fragment",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -98,7 +98,7 @@ return {
       "kind": "LinkedField",
       "name": "body",
       "plural": false,
-      "selections": (v2/*: any*/),
+      "selections": (v2/*:: as any*/),
       "storageKey": null
     },
     {
@@ -109,8 +109,8 @@ return {
       "name": "hometown",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
-        (v1/*: any*/),
+        (v0/*:: as any*/),
+        (v1/*:: as any*/),
         {
           "alias": null,
           "args": null,
@@ -163,7 +163,7 @@ return {
                       "name": "node",
                       "plural": false,
                       "selections": [
-                        (v0/*: any*/),
+                        (v0/*:: as any*/),
                         {
                           "alias": null,
                           "args": null,
@@ -171,7 +171,7 @@ return {
                           "kind": "LinkedField",
                           "name": "message",
                           "plural": false,
-                          "selections": (v2/*: any*/),
+                          "selections": (v2/*:: as any*/),
                           "storageKey": null
                         },
                         {
@@ -181,7 +181,7 @@ return {
                           "kind": "LinkedField",
                           "name": "likeSentence",
                           "plural": false,
-                          "selections": (v2/*: any*/),
+                          "selections": (v2/*:: as any*/),
                           "storageKey": null
                         }
                       ],
@@ -224,10 +224,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a7a7b02e898e4af94210f0a1ec5dfa47";
+  (node/*:: as any*/).hash = "a7a7b02e898e4af94210f0a1ec5dfa47";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest12Fragment$fragmentType,
   RelayMockPayloadGeneratorTest12Fragment$data,
 >*/);

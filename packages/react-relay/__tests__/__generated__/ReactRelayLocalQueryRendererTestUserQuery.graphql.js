@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<13dfe6bf725d6392e60940fad4056ebe>>
+ * @generated SignedSource<<449dbd539c886c0b23be87f10ddb3989>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -66,24 +66,24 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayLocalQueryRendererTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -102,13 +102,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayLocalQueryRendererTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -121,11 +121,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v3/*: any*/),
+              (v3/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -154,10 +154,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "24c704b361b5a05121618dff23ef81f9";
+  (node/*:: as any*/).hash = "24c704b361b5a05121618dff23ef81f9";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayLocalQueryRendererTestUserQuery$variables,
   ReactRelayLocalQueryRendererTestUserQuery$data,
 >*/);

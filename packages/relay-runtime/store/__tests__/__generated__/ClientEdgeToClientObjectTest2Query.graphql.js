@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9260d2f53d0ef75e100dfce9161fd9c6>>
+ * @generated SignedSource<<f6a3d9eea4e760d6b688e8b207a03ae2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolverType: (
+(astrologicalSignNameResolverType as (
   rootKey: AstrologicalSignNameResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -33,7 +33,7 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAllAstrologicalSignsResolverType: (
+(queryAllAstrologicalSignsResolverType as (
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -73,6 +73,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "AstrologicalSign",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -144,7 +145,7 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -176,7 +177,7 @@ return {
                     "fragment": {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v0/*: any*/)
+                        (v0/*:: as any*/)
                       ],
                       "type": "AstrologicalSign",
                       "abstractKey": null
@@ -193,7 +194,7 @@ return {
               "storageKey": null,
               "isOutputType": true
             },
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -212,10 +213,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b03fba0ae5a32ea645e8614e2f612822";
+  (node/*:: as any*/).hash = "b03fba0ae5a32ea645e8614e2f612822";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeToClientObjectTest2Query$variables,
   ClientEdgeToClientObjectTest2Query$data,
 >*/);

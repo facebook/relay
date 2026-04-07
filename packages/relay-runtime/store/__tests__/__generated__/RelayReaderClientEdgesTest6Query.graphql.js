@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<59385e49fa4328495f39cae77292ff3f>>
+ * @generated SignedSource<<93b6aae7d04dd4c4712b8c07e6fe7685>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClient
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -95,7 +95,7 @@ return {
               "kind": "LinkedField",
               "name": "client_edge",
               "plural": false,
-              "selections": (v0/*: any*/),
+              "selections": (v0/*:: as any*/),
               "storageKey": null
             }
           }
@@ -125,7 +125,7 @@ return {
             "args": null,
             "fragment": {
               "kind": "InlineFragment",
-              "selections": (v0/*: any*/),
+              "selections": (v0/*:: as any*/),
               "type": "User",
               "abstractKey": null
             },
@@ -157,10 +157,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9b8dd5eefbc4ad7a0eb7a42257b6abb5";
+  (node/*:: as any*/).hash = "9b8dd5eefbc4ad7a0eb7a42257b6abb5";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderClientEdgesTest6Query$variables,
   RelayReaderClientEdgesTest6Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bea52561f7e620cdf0a738731ea5bf0a>>
+ * @generated SignedSource<<42e7e80e2c6b6370d5ab13043aadaea9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -86,18 +86,18 @@ v5 = [
     "name": "first",
     "value": 1
   },
-  (v2/*: any*/)
+  (v2/*:: as any*/)
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReferenceMarkerTest3Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -109,7 +109,7 @@ return {
               {
                 "alias": "friends",
                 "args": [
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ],
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
@@ -124,7 +124,7 @@ return {
                     "name": "edges",
                     "plural": true,
                     "selections": [
-                      (v3/*: any*/),
+                      (v3/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -133,7 +133,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v4/*: any*/),
+                          (v4/*:: as any*/),
                           {
                             "alias": "name",
                             "args": null,
@@ -163,13 +163,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReferenceMarkerTest3Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -187,7 +187,7 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -201,7 +201,7 @@ return {
                     "name": "edges",
                     "plural": true,
                     "selections": [
-                      (v3/*: any*/),
+                      (v3/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -210,7 +210,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v4/*: any*/),
+                          (v4/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -238,7 +238,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "filters": [
                   "orderby"
                 ],
@@ -251,7 +251,7 @@ return {
             "type": "User",
             "abstractKey": null
           },
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -269,10 +269,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "02258e36cadb343f27dbc1d667c61417";
+  (node/*:: as any*/).hash = "02258e36cadb343f27dbc1d667c61417";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReferenceMarkerTest3Query$variables,
   RelayReferenceMarkerTest3Query$data,
 >*/);

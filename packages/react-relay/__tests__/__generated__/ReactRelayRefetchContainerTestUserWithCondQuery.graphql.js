@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c2f6836fae3b9637261db53711999de5>>
+ * @generated SignedSource<<6d1474c9a5b1e78d32358366b6ff7031>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -55,8 +55,8 @@ v2 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -64,7 +64,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -91,15 +91,15 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "ReactRelayRefetchContainerTestUserWithCondQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -157,10 +157,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5ead741f93728a15b610b870e2b420f2";
+  (node/*:: as any*/).hash = "5ead741f93728a15b610b870e2b420f2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayRefetchContainerTestUserWithCondQuery$variables,
   ReactRelayRefetchContainerTestUserWithCondQuery$data,
 >*/);

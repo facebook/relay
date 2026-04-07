@@ -18,7 +18,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver AstrologicalSign.opposite: AstrologicalSign
+ * @relayField AstrologicalSign.opposite: AstrologicalSign
  * @rootFragment AstrologicalSignOppositeResolver
  *
  * Expose a sign's opposite as an edge in the graph.

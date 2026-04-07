@@ -6,7 +6,7 @@
  */
 
 /**
- * @RelayResolver User.age: Int
+ * @relayField User.age: Int
  */
 function age(_: unknown, context: {age: number}): number {
   return context.age;

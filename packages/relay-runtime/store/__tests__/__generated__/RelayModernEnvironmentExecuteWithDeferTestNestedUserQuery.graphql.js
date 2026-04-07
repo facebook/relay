@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aba44441e305f45978e190cd5da02b72>>
+ * @generated SignedSource<<b2bf1ffef14b2dce564687cfc05f497e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,14 +57,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithDeferTestNestedUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -89,13 +89,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithDeferTestNestedUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -116,7 +116,7 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "if": null,
                     "kind": "Defer",
@@ -151,7 +151,7 @@ return {
               }
             ]
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -169,10 +169,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d746549fdd29f74e59ee289c7b65d167";
+  (node/*:: as any*/).hash = "d746549fdd29f74e59ee289c7b65d167";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithDeferTestNestedUserQuery$variables,
   RelayModernEnvironmentExecuteWithDeferTestNestedUserQuery$data,
 >*/);

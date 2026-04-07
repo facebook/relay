@@ -15,7 +15,7 @@ import type {TestResolverContextType} from '../../../mutations/__tests__/TestRes
 import type {LiveState} from 'relay-runtime';
 
 /**
- * @RelayResolver Query.hello_world_with_context: String
+ * @relayField Query.hello_world_with_context: String
  * @live
  *
  * Say `Hello ${world}!`

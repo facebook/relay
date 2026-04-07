@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c2b63c369dae87cfed81e7bba17f20ef>>
+ * @generated SignedSource<<19004498fcec54bab12673f4152e3023>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -77,7 +77,7 @@ v2 = {
           "name": "node",
           "plural": false,
           "selections": [
-            (v1/*: any*/),
+            (v1/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -109,7 +109,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -118,8 +118,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/)
+              (v1/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -139,7 +139,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -152,11 +152,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -201,14 +201,14 @@ return {
           "plural": false,
           "type": "User"
         },
-        "node.friends.edges.node.id": (v3/*: any*/),
+        "node.friends.edges.node.id": (v3/*:: as any*/),
         "node.friends.edges.node.name": {
           "enumValues": null,
           "nullable": true,
           "plural": false,
           "type": "String"
         },
-        "node.id": (v3/*: any*/)
+        "node.id": (v3/*:: as any*/)
       }
     },
     "name": "RelayMockPayloadGeneratorTest35Query",
@@ -219,10 +219,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ed8cf7a3680fd928ba712bbb44436899";
+  (node/*:: as any*/).hash = "ed8cf7a3680fd928ba712bbb44436899";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest35Query$variables,
   RelayMockPayloadGeneratorTest35Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7257f4793e9aca16faa5a100f132053a>>
+ * @generated SignedSource<<baffd94e37a5b08f46a66bd402e1eb18>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -42,7 +42,7 @@ var v0 = {
   "storageKey": null
 },
 v1 = [
-  (v0/*: any*/)
+  (v0/*:: as any*/)
 ],
 v2 = [
   {
@@ -52,7 +52,7 @@ v2 = [
   }
 ],
 v3 = [
-  (v0/*: any*/),
+  (v0/*:: as any*/),
   {
     "alias": null,
     "args": null,
@@ -75,17 +75,17 @@ return {
         "kind": "LinkedField",
         "name": "me",
         "plural": false,
-        "selections": (v1/*: any*/),
+        "selections": (v1/*:: as any*/),
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": "User",
         "kind": "LinkedField",
         "name": "fetch__User",
         "plural": false,
-        "selections": (v1/*: any*/),
+        "selections": (v1/*:: as any*/),
         "storageKey": "fetch__User(id:\"100\")"
       }
     ],
@@ -105,17 +105,17 @@ return {
         "kind": "LinkedField",
         "name": "me",
         "plural": false,
-        "selections": (v3/*: any*/),
+        "selections": (v3/*:: as any*/),
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": "User",
         "kind": "LinkedField",
         "name": "fetch__User",
         "plural": false,
-        "selections": (v3/*: any*/),
+        "selections": (v3/*:: as any*/),
         "storageKey": "fetch__User(id:\"100\")"
       }
     ]
@@ -132,10 +132,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "301c4868119c12a0b6c8186a98b9910e";
+  (node/*:: as any*/).hash = "301c4868119c12a0b6c8186a98b9910e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseTransformTestEmptyChunkQuery$variables,
   RelayExperimentalGraphResponseTransformTestEmptyChunkQuery$data,
 >*/);

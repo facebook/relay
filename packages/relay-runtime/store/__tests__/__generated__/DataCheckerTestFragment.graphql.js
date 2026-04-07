@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<edff0b9d99d97249ba2ea353bc20b1c9>>
+ * @generated SignedSource<<e47b60e3a587b98f560d04a7deeee4b1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -71,8 +71,8 @@ return {
   "metadata": null,
   "name": "DataCheckerTestFragment",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -110,8 +110,8 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
-                (v1/*: any*/)
+                (v0/*:: as any*/),
+                (v1/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -152,10 +152,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fed21d577ab464917a1de41052edf774";
+  (node/*:: as any*/).hash = "fed21d577ab464917a1de41052edf774";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   DataCheckerTestFragment$fragmentType,
   DataCheckerTestFragment$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1da63bb719faadf5cbd86befc37052a4>>
+ * @generated SignedSource<<17682dfe995aef86cbe404a9c3d75c23>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -106,20 +106,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentsCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentsCreate",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -129,19 +129,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentsCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentsCreate",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -175,10 +175,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "975c794bccf4fcb2c483d9947130d999";
+  (node/*:: as any*/).hash = "975c794bccf4fcb2c483d9947130d999";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$variables,
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$data,
 >*/);

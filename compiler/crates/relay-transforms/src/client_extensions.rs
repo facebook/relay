@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use common::DirectiveName;
 use common::Location;
+use common::PointerAddress;
 use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::Directive;
@@ -36,7 +37,7 @@ pub fn client_extensions(program: &Program) -> Program {
         .replace_or_else(|| program.clone())
 }
 
-type Seen<'a> = FnvHashMap<&'a Selection, Transformed<Selection>>;
+type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
 lazy_static! {
     pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: DirectiveName =
@@ -45,7 +46,7 @@ lazy_static! {
 
 struct ClientExtensionsTransform<'program> {
     program: &'program Program,
-    seen: Seen<'program>,
+    seen: Seen,
 }
 
 impl<'program> ClientExtensionsTransform<'program> {
@@ -152,13 +153,37 @@ impl<'a> Transformer<'a> for ClientExtensionsTransform<'a> {
     }
 
     fn transform_selection(&mut self, selection: &'a Selection) -> Transformed<Selection> {
-        if let Some(prev) = self.seen.get(selection) {
-            return prev.clone();
+        match selection {
+            Selection::ScalarField(field) => self.transform_scalar_field(field),
+            Selection::FragmentSpread(spread) => self.transform_fragment_spread(spread),
+            Selection::LinkedField(field) => {
+                let key = PointerAddress::new(field.as_ref());
+                if let Some(prev) = self.seen.get(&key) {
+                    return prev.clone();
+                }
+                let result = self.transform_linked_field(field);
+                self.seen.insert(key, result.clone());
+                result
+            }
+            Selection::InlineFragment(fragment) => {
+                let key = PointerAddress::new(fragment.as_ref());
+                if let Some(prev) = self.seen.get(&key) {
+                    return prev.clone();
+                }
+                let result = self.transform_inline_fragment(fragment);
+                self.seen.insert(key, result.clone());
+                result
+            }
+            Selection::Condition(condition) => {
+                let key = PointerAddress::new(condition.as_ref());
+                if let Some(prev) = self.seen.get(&key) {
+                    return prev.clone();
+                }
+                let result = self.transform_condition(condition);
+                self.seen.insert(key, result.clone());
+                result
+            }
         }
-
-        let result = self.default_transform_selection(selection);
-        self.seen.insert(selection, result.clone());
-        result
     }
 
     fn transform_inline_fragment(

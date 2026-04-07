@@ -29,7 +29,8 @@ pub struct TokenKindExtras {
     Ord,
     PartialOrd,
     Hash,
-    serde::Serialize
+    serde::Serialize,
+    serde::Deserialize
 )]
 #[serde(tag = "type")]
 #[logos(extras = TokenKindExtras)]

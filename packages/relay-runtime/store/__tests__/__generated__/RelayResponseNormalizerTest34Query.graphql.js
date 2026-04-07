@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1c64cf5e3dd0e3f7ade9efc8a742d49b>>
+ * @generated SignedSource<<4a84be4c7928fcb9e6b34651fdfaec6f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,21 +22,17 @@ export type RelayResponseNormalizerTest34Query$variables = {|
   id?: ?string,
 |};
 export type RelayResponseNormalizerTest34Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +firstName: ?string,
-    +foo: ?{|
+  +node: ?{|
+    +__typename: string,
+    +firstName?: ?string,
+    +foo?: ?{|
       +bar: ?{|
         +content: ?string,
       |},
     |},
     +id: string,
-    +nickname: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+    +nickname?: ?string,
+  |},
 |};
 export type RelayResponseNormalizerTest34Query = {|
   response: RelayResponseNormalizerTest34Query$data,
@@ -142,20 +138,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest34Query",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest34Query",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "43ebfae93fcf74bf989d71d49bb4739b",
@@ -169,10 +165,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d25f16f785bea376627a9b1fbe94db29";
+  (node/*:: as any*/).hash = "d25f16f785bea376627a9b1fbe94db29";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest34Query$variables,
   RelayResponseNormalizerTest34Query$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6a37ab03e5df65024c27b4da8cfd151d>>
+ * @generated SignedSource<<467f00dd03423b4d139bae388ffef039>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -64,14 +64,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "readInlineDataTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -84,8 +84,8 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v2/*: any*/),
-                  (v3/*: any*/)
+                  (v2/*:: as any*/),
+                  (v3/*:: as any*/)
                 ],
                 "type": "User",
                 "abstractKey": null
@@ -103,13 +103,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "readInlineDataTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -122,11 +122,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -148,10 +148,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "27f84c47b8d1f1f6f15e5a5869ff2687";
+  (node/*:: as any*/).hash = "27f84c47b8d1f1f6f15e5a5869ff2687";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   readInlineDataTestUserQuery$variables,
   readInlineDataTestUserQuery$data,
 >*/);

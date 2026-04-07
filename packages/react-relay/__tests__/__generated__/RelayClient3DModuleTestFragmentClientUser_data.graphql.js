@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1b84f5463d8cb4f862ba0f2c066dafa8>>
+ * @generated SignedSource<<5a0cba4bd58a194d079fe9b0ea8d8273>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {data as clientUserDataResolverType} from "../../../relay-runtime/store/_
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `clientUserDataResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(clientUserDataResolverType: (
+(clientUserDataResolverType as (
   __relay_model_instance: ClientUser____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -66,10 +66,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "adbab56e5ede85b3aa2d238188eef45e";
+  (node/*:: as any*/).hash = "adbab56e5ede85b3aa2d238188eef45e";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayClient3DModuleTestFragmentClientUser_data$fragmentType,
   RelayClient3DModuleTestFragmentClientUser_data$data,
 >*/);

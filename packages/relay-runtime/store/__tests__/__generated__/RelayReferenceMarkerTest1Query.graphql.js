@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<57f8a5f4ae0b1a24ae555bf4e9361145>>
+ * @generated SignedSource<<939add7502a3e3a9a48efd5e2ecb8df7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,18 +24,14 @@ export type RelayReferenceMarkerTest1Query$variables = {|
   size?: ?ReadonlyArray<?number>,
 |};
 export type RelayReferenceMarkerTest1Query$data = {|
-  +node: ?({|
-    +__typename: "Page",
-    +actors: ?ReadonlyArray<?{|
+  +node: ?{|
+    +__typename: string,
+    +actors?: ?ReadonlyArray<?{|
       +name: ?string,
     |}>,
     +id: string,
     +$fragmentSpreads: RelayReferenceMarkerTest1Fragment$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+  |},
 |};
 export type RelayReferenceMarkerTest1Query = {|
   response: RelayReferenceMarkerTest1Query$data,
@@ -100,21 +96,21 @@ v6 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReferenceMarkerTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -126,7 +122,7 @@ return {
                 "name": "actors",
                 "plural": true,
                 "selections": [
-                  (v4/*: any*/)
+                  (v4/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -135,7 +131,7 @@ return {
             "abstractKey": null
           },
           {
-            "args": (v5/*: any*/),
+            "args": (v5/*:: as any*/),
             "kind": "FragmentSpread",
             "name": "RelayReferenceMarkerTest1Fragment"
           }
@@ -148,20 +144,20 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReferenceMarkerTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -173,9 +169,9 @@ return {
                 "name": "actors",
                 "plural": true,
                 "selections": [
-                  (v3/*: any*/),
-                  (v4/*: any*/),
-                  (v2/*: any*/)
+                  (v3/*:: as any*/),
+                  (v4/*:: as any*/),
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -186,7 +182,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v6/*: any*/),
+              (v6/*:: as any*/),
               {
                 "alias": null,
                 "args": [
@@ -224,8 +220,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v2/*: any*/),
-                          (v6/*: any*/)
+                          (v2/*:: as any*/),
+                          (v6/*:: as any*/)
                         ],
                         "storageKey": null
                       }
@@ -237,7 +233,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "concreteType": "Image",
                 "kind": "LinkedField",
                 "name": "profilePicture",
@@ -274,10 +270,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4aafabe534bb518cb3c2f17ba46c0a5b";
+  (node/*:: as any*/).hash = "4aafabe534bb518cb3c2f17ba46c0a5b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReferenceMarkerTest1Query$variables,
   RelayReferenceMarkerTest1Query$data,
 >*/);

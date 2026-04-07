@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a6880296f247ee9d9d2e312d6c26b4a2>>
+ * @generated SignedSource<<3c2cb388d73f2904eee16c3b407de258>>
  */
 
 mod extract;
 
 use extract::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn bare_graphql_token() {
+    let input = include_str!("extract/fixtures/bare_graphql_token.js");
+    let expected = include_str!("extract/fixtures/bare_graphql_token.expected");
+    test_fixture(transform_fixture, file!(), "bare_graphql_token.js", "extract/fixtures/bare_graphql_token.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn comments() {

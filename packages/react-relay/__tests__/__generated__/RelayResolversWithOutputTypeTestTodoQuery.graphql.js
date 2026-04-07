@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1032383843b1e37f04b1c035fac490c6>>
+ * @generated SignedSource<<61f9f11d16766df6caabdf2079f516f3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {todo as queryTodoResolverType} from "../../../relay-runtime/store/__test
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoResolverType: (
+(queryTodoResolverType as (
   args: {|
     todoID: string,
   |},
@@ -90,7 +90,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -101,9 +101,10 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "Todo",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "todo",
@@ -118,7 +119,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "Todo",
           "kind": "LinkedField",
           "name": "todo",
@@ -139,7 +140,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolversWithOutputTypeTestTodoQuery",
     "selections": [
@@ -147,7 +148,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "todo",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -155,7 +156,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "Todo",
           "kind": "LinkedField",
           "name": "todo",
@@ -166,7 +167,7 @@ return {
               "backingField": {
                 "name": "text",
                 "args": null,
-                "fragment": (v2/*: any*/),
+                "fragment": (v2/*:: as any*/),
                 "kind": "RelayResolver",
                 "storageKey": null,
                 "isOutputType": true
@@ -243,7 +244,7 @@ return {
             {
               "name": "complete",
               "args": null,
-              "fragment": (v2/*: any*/),
+              "fragment": (v2/*:: as any*/),
               "kind": "RelayResolver",
               "storageKey": null,
               "isOutputType": true
@@ -266,10 +267,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "936ff6efc3de794eed3131908296dcb9";
+  (node/*:: as any*/).hash = "936ff6efc3de794eed3131908296dcb9";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolversWithOutputTypeTestTodoQuery$variables,
   RelayResolversWithOutputTypeTestTodoQuery$data,
 >*/);

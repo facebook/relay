@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b340b340ee406376c4f492875f840097>>
+ * @generated SignedSource<<567f7ad93934b751bc036281d0eb4f8c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -83,7 +83,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery",
@@ -96,8 +96,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/)
+          (v1/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -107,7 +107,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery",
     "selections": [
@@ -119,8 +119,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -145,10 +145,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "850de1032d800f34d3684ba47d831f8d";
+  (node/*:: as any*/).hash = "850de1032d800f34d3684ba47d831f8d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$variables,
   RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$data,
 >*/);

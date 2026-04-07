@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5991b53bdfcd728cdbffb234a0ef0eb7>>
+ * @generated SignedSource<<1a4bff2bed8dace1009df6697372b1ba>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -56,20 +56,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayOperationTrackerTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -79,13 +79,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayOperationTrackerTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,7 +98,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -116,10 +116,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d7ac241162d417e0fd7a5104a17437b0";
+  (node/*:: as any*/).hash = "d7ac241162d417e0fd7a5104a17437b0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayOperationTrackerTest1Query$variables,
   RelayOperationTrackerTest1Query$data,
 >*/);

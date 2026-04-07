@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6ac5358a7e04f2a07f708afd0062ed45>>
+ * @generated SignedSource<<4c578384d86f74576052474b680d7df3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {hello_user as queryHelloUserResolverType} from "../../../relay-runtime/s
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloUserResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloUserResolverType: (
+(queryHelloUserResolverType as (
   args: {|
     id: string,
   |},
@@ -65,7 +65,7 @@ return {
         "operation": require('./ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user.graphql'),
         "backingField": {
           "alias": null,
-          "args": (v0/*: any*/),
+          "args": (v0/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "hello_user",
@@ -74,7 +74,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v0/*: any*/),
+          "args": (v0/*:: as any*/),
           "concreteType": "User",
           "kind": "LinkedField",
           "name": "hello_user",
@@ -103,7 +103,7 @@ return {
     "selections": [
       {
         "name": "hello_user",
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "fragment": null,
         "kind": "RelayResolver",
         "storageKey": "hello_user(id:\"4\")",
@@ -123,10 +123,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f39e561157fa607bf64e77aad228aa05";
+  (node/*:: as any*/).hash = "f39e561157fa607bf64e77aad228aa05";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ClientOnlyQueriesTest3Query$variables,
   ClientOnlyQueriesTest3Query$data,
 >*/);

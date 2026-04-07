@@ -15,7 +15,7 @@ import {
 } from '@docusaurus/plugin-content-docs/client';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
-import React from 'react';
+import * as React from 'react';
 
 function Version() {
   const {siteConfig} = useDocusaurusContext();

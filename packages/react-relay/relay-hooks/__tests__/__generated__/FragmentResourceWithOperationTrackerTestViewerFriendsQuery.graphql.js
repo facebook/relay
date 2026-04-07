@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e34bca0e561dd007ccaee8291a4f4e20>>
+ * @generated SignedSource<<8850ff809cd86f1713de5104d80e4453>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -148,15 +148,15 @@ return {
                             "kind": "FragmentSpread",
                             "name": "FragmentResourceWithOperationTrackerTestUserFragment"
                           },
-                          (v0/*: any*/)
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v1/*: any*/)
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -192,10 +192,10 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -217,7 +217,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v4/*: any*/),
+                          (v4/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -239,7 +239,7 @@ return {
                             "name": "nameRenderer",
                             "plural": false,
                             "selections": [
-                              (v0/*: any*/),
+                              (v0/*:: as any*/),
                               {
                                 "kind": "InlineFragment",
                                 "selections": [
@@ -285,7 +285,7 @@ return {
                             "name": "nameRenderer",
                             "plural": false,
                             "selections": [
-                              (v0/*: any*/),
+                              (v0/*:: as any*/),
                               {
                                 "kind": "InlineFragment",
                                 "selections": [
@@ -303,28 +303,28 @@ return {
                             ],
                             "storageKey": "nameRenderer(supported:\"1AwQS7\")"
                           },
-                          (v0/*: any*/)
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v1/*: any*/)
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": "friends(first:1)"
               },
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "Viewer_friends",
                 "kind": "LinkedHandle",
                 "name": "friends"
               },
-              (v4/*: any*/)
+              (v4/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -358,10 +358,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9a6980a0f3a95258c3734cfb5f857974";
+  (node/*:: as any*/).hash = "9a6980a0f3a95258c3734cfb5f857974";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables,
   FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data,
 >*/);

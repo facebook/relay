@@ -121,7 +121,8 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             )?;
 
             if had_new_changes {
-                self.build_projects(compiler_state, &setup_event).await
+                let diagnostics = self.build_projects(compiler_state, &setup_event).await?;
+                Ok(diagnostics)
             } else {
                 Ok(vec![])
             }
@@ -149,10 +150,10 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             let initial_watch_compile_timer = setup_event.start("initial_watch_compile");
             self.config.status_reporter.build_starts();
 
-            // Signal that the initial build is starting
-            if let Some(build_status) = &self.config.build_status {
+            if let Some(build_status) = &self.config.daemon_build_status {
                 build_status.changes_pending();
             }
+
             let result: Result<(CompilerState, Arc<Notify>, JoinHandle<()>)> = async {
                 if let Some(initialize_resources) = &self.config.initialize_resources {
                     let timer = setup_event.start("load_resources");
@@ -229,16 +230,10 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     match self.build_projects(&mut compiler_state, &setup_event).await {
                         Ok(diagnostics) => {
                             self.config.status_reporter.build_completes(&diagnostics);
-                            if let Some(build_status) = &self.config.build_status {
-                                build_status.build_completed();
-                            }
                         }
                         Err(err) => {
                             red_to_green.log_error();
                             self.config.status_reporter.build_errors(&err);
-                            if let Some(build_status) = &self.config.build_status {
-                                build_status.build_completed();
-                            }
                         }
                     };
                     setup_event.stop(initial_watch_compile_timer);
@@ -254,10 +249,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 }
                 Err(err) => {
                     self.config.status_reporter.build_errors(&err);
-                    // Signal that the initial setup failed
-                    if let Some(build_status) = &self.config.build_status {
-                        build_status.build_completed();
-                    }
                     break 'watch Err(err);
                 }
             }
@@ -275,14 +266,16 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         loop {
             notify_receiver.notified().await;
 
-            // Signal that changes have been detected and a build may occur
-            if let Some(build_status) = &self.config.build_status {
+            // Signal that changes have been detected and processing may occur.
+            // This must happen before any checks/debouncing so that clients
+            // calling wait_for_idle() are blocked during the entire period.
+            if let Some(build_status) = &self.config.daemon_build_status {
                 build_status.changes_pending();
             }
 
             if compiler_state.source_control_update_status.is_started() {
                 // Clear pending changes since we're skipping this notification
-                if let Some(build_status) = &self.config.build_status {
+                if let Some(build_status) = &self.config.daemon_build_status {
                     build_status.no_pending_changes();
                 }
                 continue;
@@ -300,6 +293,8 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             if compiler_state.has_pending_file_source_changes() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
+                incremental_build_event
+                    .bool("is_daemon_build", self.config.daemon_build_status.is_some());
                 let incremental_build_time =
                     incremental_build_event.start("incremental_build_time");
 
@@ -327,17 +322,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     {
                         Ok(diagnostics) => {
                             self.config.status_reporter.build_completes(&diagnostics);
-                            if let Some(build_status) = &self.config.build_status {
-                                build_status.build_completed();
-                            }
                             red_to_green.clear_error_and_log(self.perf_logger.as_ref());
                         }
                         Err(err) => {
                             red_to_green.log_error();
                             self.config.status_reporter.build_errors(&err);
-                            if let Some(build_status) = &self.config.build_status {
-                                build_status.build_completed();
-                            }
                         }
                     }
 
@@ -346,7 +335,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 } else {
                     debug!("No new changes detected.");
                     // Clear the pending changes flag since there were no actual changes
-                    if let Some(build_status) = &self.config.build_status {
+                    if let Some(build_status) = &self.config.daemon_build_status {
                         build_status.no_pending_changes();
                     }
                     incremental_build_event.stop(incremental_build_time);
@@ -485,26 +474,20 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         let source_control_update_status = Arc::clone(&compiler_state.source_control_update_status);
         handles.push(task::spawn(async move {
             let project_config = &config.projects[&project_name];
-            Ok((
-                (
-                    project_name,
-                    commit_project(
-                        &config,
-                        project_config,
-                        perf_logger,
-                        &schema,
-                        programs,
-                        artifacts,
-                        artifact_map,
-                        removed_artifact_sources,
-                        dirty_artifact_paths,
-                        source_control_update_status,
-                    )
-                    .await?,
-                    schema,
-                ),
-                diagnostics,
-            ))
+            let artifact_map = commit_project(
+                &config,
+                project_config,
+                perf_logger,
+                &schema,
+                programs,
+                artifacts,
+                artifact_map,
+                removed_artifact_sources,
+                dirty_artifact_paths,
+                source_control_update_status,
+            )
+            .await?;
+            Ok(((project_name, artifact_map, schema), diagnostics))
         }));
     }
     setup_event.stop(build_commit_state_timer);

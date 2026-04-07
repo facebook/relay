@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<17735d373d30bac2694fca3a40bf2d5a>>
+ * @generated SignedSource<<36c79cf673dc7b2718215848509afd22>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,9 +24,9 @@ export type RelayResponseNormalizerTest3Query$variables = {|
   orderBy?: ?ReadonlyArray<?string>,
 |};
 export type RelayResponseNormalizerTest3Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +friends: ?{|
+  +node: ?{|
+    +__typename: string,
+    +friends?: ?{|
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
@@ -39,11 +39,7 @@ export type RelayResponseNormalizerTest3Query$data = {|
       |},
     |},
     +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+  |},
 |};
 export type RelayResponseNormalizerTest3Query = {|
   response: RelayResponseNormalizerTest3Query$data,
@@ -122,7 +118,7 @@ v8 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -161,15 +157,15 @@ v9 = [
     "name": "first",
     "value": 1
   },
-  (v6/*: any*/),
-  (v7/*: any*/)
+  (v6/*:: as any*/),
+  (v7/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -177,28 +173,28 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
-          (v5/*: any*/),
+          (v4/*:: as any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": "friends",
                 "args": [
-                  (v6/*: any*/),
-                  (v7/*: any*/)
+                  (v6/*:: as any*/),
+                  (v7/*:: as any*/)
                 ],
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "__UserFriends_friends_bestFriends",
                 "plural": false,
-                "selections": (v8/*: any*/),
+                "selections": (v8/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -215,39 +211,39 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v2/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v2/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest3Query",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
-          (v5/*: any*/),
+          (v4/*:: as any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
                 "plural": false,
-                "selections": (v8/*: any*/),
+                "selections": (v8/*:: as any*/),
                 "storageKey": null
               },
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "filters": [
                   "orderby",
                   "isViewerFriend"
@@ -278,10 +274,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "551218ce1d354f656b656ac1af62fe4d";
+  (node/*:: as any*/).hash = "551218ce1d354f656b656ac1af62fe4d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest3Query$variables,
   RelayResponseNormalizerTest3Query$data,
 >*/);

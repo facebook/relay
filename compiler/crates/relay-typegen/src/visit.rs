@@ -56,7 +56,6 @@ use relay_transforms::FragmentAliasMetadata;
 use relay_transforms::FragmentDataInjectionMode;
 use relay_transforms::ModuleMetadata;
 use relay_transforms::NoInlineFragmentSpreadMetadata;
-use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use relay_transforms::RelayResolverMetadata;
 use relay_transforms::RequiredMetadataDirective;
 use relay_transforms::ResolverOutputTypeInfo;
@@ -100,7 +99,6 @@ use crate::type_selection::TypeSelectionKey;
 use crate::type_selection::TypeSelectionLinkedField;
 use crate::type_selection::TypeSelectionMap;
 use crate::type_selection::TypeSelectionScalarField;
-use crate::typegen_state::ActorChangeStatus;
 use crate::typegen_state::EncounteredEnums;
 use crate::typegen_state::EncounteredFragment;
 use crate::typegen_state::EncounteredFragments;
@@ -156,7 +154,6 @@ pub(crate) fn visit_selections(
     imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
-    actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
     runtime_imports: &mut RuntimeImports,
     custom_error_import: &mut Option<CustomTypeImport>,
@@ -188,7 +185,6 @@ pub(crate) fn visit_selections(
                 imported_raw_response_types,
                 encountered_fragments,
                 imported_resolvers,
-                actor_change_status,
                 custom_scalars,
                 runtime_imports,
                 custom_error_import,
@@ -225,7 +221,6 @@ pub(crate) fn visit_selections(
                             imported_raw_response_types,
                             encountered_fragments,
                             imported_resolvers,
-                            actor_change_status,
                             custom_scalars,
                             runtime_imports,
                             custom_error_import,
@@ -276,7 +271,6 @@ pub(crate) fn visit_selections(
                 imported_raw_response_types,
                 encountered_fragments,
                 imported_resolvers,
-                actor_change_status,
                 custom_scalars,
                 runtime_imports,
                 custom_error_import,
@@ -828,7 +822,6 @@ fn visit_client_edge(
     encountered_fragments: &mut EncounteredFragments,
     type_selections: &mut Vec<TypeSelection>,
     client_edge_metadata: &ClientEdgeMetadata<'_>,
-    actor_change_status: &mut ActorChangeStatus,
     imported_resolvers: &mut ImportedResolvers,
     runtime_imports: &mut RuntimeImports,
     custom_error_import: &mut Option<CustomTypeImport>,
@@ -873,7 +866,6 @@ fn visit_client_edge(
         imported_raw_response_types,
         encountered_fragments,
         imported_resolvers,
-        actor_change_status,
         custom_scalars,
         runtime_imports,
         custom_error_import,
@@ -893,7 +885,6 @@ fn visit_inline_fragment(
     imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
-    actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
     runtime_imports: &mut RuntimeImports,
     custom_error_import: &mut Option<CustomTypeImport>,
@@ -926,27 +917,6 @@ fn visit_inline_fragment(
             conditional: false,
             concrete_type: None,
         }));
-    } else if inline_fragment
-        .directives
-        .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
-        .is_some()
-    {
-        visit_actor_change(
-            typegen_context,
-            type_selections,
-            inline_fragment,
-            input_object_types,
-            encountered_enums,
-            imported_raw_response_types,
-            encountered_fragments,
-            imported_resolvers,
-            actor_change_status,
-            custom_scalars,
-            runtime_imports,
-            custom_error_import,
-            enclosing_linked_field_concrete_type,
-            emit_semantic_types,
-        );
     } else if let Some(client_edge_metadata) = ClientEdgeMetadata::find(inline_fragment) {
         visit_client_edge(
             typegen_context,
@@ -957,7 +927,6 @@ fn visit_inline_fragment(
             encountered_fragments,
             type_selections,
             &client_edge_metadata,
-            actor_change_status,
             imported_resolvers,
             runtime_imports,
             custom_error_import,
@@ -973,7 +942,6 @@ fn visit_inline_fragment(
             imported_raw_response_types,
             encountered_fragments,
             imported_resolvers,
-            actor_change_status,
             custom_scalars,
             runtime_imports,
             custom_error_import,
@@ -1034,80 +1002,6 @@ fn visit_inline_fragment(
         };
         type_selections.append(&mut selections);
     }
-}
-
-#[allow(clippy::too_many_arguments)]
-fn visit_actor_change(
-    typegen_context: &'_ TypegenContext<'_>,
-    type_selections: &mut Vec<TypeSelection>,
-    inline_fragment: &InlineFragment,
-    input_object_types: &mut InputObjectTypes,
-    encountered_enums: &mut EncounteredEnums,
-    imported_raw_response_types: &mut ImportedRawResponseTypes,
-    encountered_fragments: &mut EncounteredFragments,
-    imported_resolvers: &mut ImportedResolvers,
-    actor_change_status: &mut ActorChangeStatus,
-    custom_scalars: &mut CustomScalarsImports,
-    runtime_imports: &mut RuntimeImports,
-    custom_error_import: &mut Option<CustomTypeImport>,
-    enclosing_linked_field_concrete_type: Option<Type>,
-    emit_semantic_types: bool,
-) {
-    let linked_field = match &inline_fragment.selections[0] {
-        Selection::LinkedField(linked_field) => linked_field,
-        _ => {
-            panic!("Expect to have only linked field in the selection of the actor change")
-        }
-    };
-
-    *actor_change_status = ActorChangeStatus::HasActorChange;
-    let field = typegen_context.schema.field(linked_field.definition.item);
-    let schema_name = field.name.item;
-    let key = if let Some(alias) = linked_field.alias {
-        alias.item
-    } else {
-        schema_name
-    };
-
-    let linked_field_selections = visit_selections(
-        typegen_context,
-        &linked_field.selections,
-        input_object_types,
-        encountered_enums,
-        imported_raw_response_types,
-        encountered_fragments,
-        imported_resolvers,
-        actor_change_status,
-        custom_scalars,
-        runtime_imports,
-        custom_error_import,
-        enclosing_linked_field_concrete_type,
-        emit_semantic_types,
-    );
-    type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
-        field_name_or_alias: key,
-        special_field: ScalarFieldSpecialSchemaField::from_schema_name(
-            schema_name,
-            &typegen_context.project_config.schema_config,
-        ),
-        value: AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
-            selections_to_babel(
-                typegen_context,
-                &field.type_.inner(),
-                linked_field_selections.into_iter(),
-                MaskStatus::Masked,
-                None,
-                encountered_enums,
-                encountered_fragments,
-                custom_scalars,
-                runtime_imports,
-                custom_error_import,
-            ),
-        )))),
-        conditional: false,
-        concrete_type: None,
-        is_result_type: false,
-    }));
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1338,7 +1232,6 @@ fn visit_condition(
     imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
-    actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
     runtime_imports: &mut RuntimeImports,
     custom_error_import: &mut Option<CustomTypeImport>,
@@ -1353,7 +1246,6 @@ fn visit_condition(
         imported_raw_response_types,
         encountered_fragments,
         imported_resolvers,
-        actor_change_status,
         custom_scalars,
         runtime_imports,
         custom_error_import,

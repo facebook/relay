@@ -499,7 +499,18 @@ pub struct DirectiveDefinition {
     pub span: Span,
 }
 
-#[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
+#[derive(
+    PartialEq,
+    Eq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Debug,
+    Clone,
+    Copy,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub enum DirectiveLocation {
     // Preserve the ordering as defined in the spec: https://spec.graphql.org/draft/#DirectiveLocation
     Query,

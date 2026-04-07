@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<09aa25739fb3b47f8dc653b6fbe7c376>>
+ * @generated SignedSource<<2b597d1c56ee1cd1787b3880ce303783>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -128,7 +128,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockPayloadGeneratorTest20Query",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -137,7 +137,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayMockPayloadGeneratorTest20Query",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "e3c605af3e0f446bb15989e90814ba9d",
@@ -162,16 +162,16 @@ return {
           "plural": false,
           "type": "ID"
         },
-        "me.name": (v1/*: any*/),
+        "me.name": (v1/*:: as any*/),
         "me.profile_picture": {
           "enumValues": null,
           "nullable": true,
           "plural": false,
           "type": "Image"
         },
-        "me.profile_picture.height": (v2/*: any*/),
-        "me.profile_picture.uri": (v1/*: any*/),
-        "me.profile_picture.width": (v2/*: any*/)
+        "me.profile_picture.height": (v2/*:: as any*/),
+        "me.profile_picture.uri": (v1/*:: as any*/),
+        "me.profile_picture.width": (v2/*:: as any*/)
       }
     },
     "name": "RelayMockPayloadGeneratorTest20Query",
@@ -182,10 +182,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3e2952398f2727b26b7dda64597486e0";
+  (node/*:: as any*/).hash = "3e2952398f2727b26b7dda64597486e0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest20Query$variables,
   RelayMockPayloadGeneratorTest20Query$data,
 >*/);

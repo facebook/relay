@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5c61f7ab7a6df99bf3f8c319e3c138bc>>
+ * @generated SignedSource<<e471c37972018b7a49748e2de6df6d9d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,15 +22,11 @@ export type RelayModernStoreFieldGranularNotificationsTestNodeQuery$variables = 
   id: string,
 |};
 export type RelayModernStoreFieldGranularNotificationsTestNodeQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
+  +node: ?{|
+    +__typename: string,
     +id: string,
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+    +name?: ?string,
+  |},
 |};
 export type RelayModernStoreFieldGranularNotificationsTestNodeQuery = {|
   response: RelayModernStoreFieldGranularNotificationsTestNodeQuery$data,
@@ -95,20 +91,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernStoreFieldGranularNotificationsTestNodeQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernStoreFieldGranularNotificationsTestNodeQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "c02a849ecf611054cc599a96144b7b65",
@@ -122,10 +118,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "112418d79e93dfd1afca1362c91bfe9d";
+  (node/*:: as any*/).hash = "112418d79e93dfd1afca1362c91bfe9d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernStoreFieldGranularNotificationsTestNodeQuery$variables,
   RelayModernStoreFieldGranularNotificationsTestNodeQuery$data,
 >*/);

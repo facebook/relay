@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<82a1b78ff2ee6768bd6e08fb87d7dd91>>
+ * @generated SignedSource<<6f5e4cb4046f76972c0c2fd238704324>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -65,20 +65,20 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -93,20 +93,20 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
-          (v2/*: any*/),
+          (v3/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -123,7 +123,7 @@ return {
                     "name": "actors",
                     "plural": true,
                     "selections": [
-                      (v3/*: any*/),
+                      (v3/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -140,7 +140,7 @@ return {
                         "kind": "ScalarHandle",
                         "name": "name"
                       },
-                      (v2/*: any*/)
+                      (v2/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -167,10 +167,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6a889db656eb4f7bedb8485781900af3";
+  (node/*:: as any*/).hash = "6a889db656eb4f7bedb8485781900af3";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery$variables,
   RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery$data,
 >*/);

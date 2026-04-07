@@ -50,7 +50,10 @@ pub enum DefinitionChange {
         interfaces_added: Vec<StringKey>,
         interfaces_removed: Vec<StringKey>,
     },
-    ObjectRemoved(StringKey),
+    ObjectRemoved {
+        name: StringKey,
+        interfaces: Vec<StringKey>,
+    },
 }
 
 impl fmt::Debug for DefinitionChange {
@@ -106,7 +109,7 @@ impl fmt::Debug for DefinitionChange {
             DefinitionChange::InterfaceAdded(name) => write!(f, "InterfaceAdded {name:?}"),
             DefinitionChange::InterfaceRemoved(name) => write!(f, "InterfaceRemoved {name:?}"),
             DefinitionChange::ObjectAdded(name) => write!(f, "ObjectAdded {name:?}"),
-            DefinitionChange::ObjectRemoved(name) => write!(f, "ObjectRemoved {name:?}"),
+            DefinitionChange::ObjectRemoved { name, .. } => write!(f, "ObjectRemoved {name:?}"),
         }
     }
 }

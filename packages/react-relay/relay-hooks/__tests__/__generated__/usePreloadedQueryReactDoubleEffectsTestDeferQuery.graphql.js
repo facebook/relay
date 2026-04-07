@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f689958c3f5e6e047263cd944af4020>>
+ * @generated SignedSource<<d88abdc6edec9c8a169aabab083e12f8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -66,21 +66,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "usePreloadedQueryReactDoubleEffectsTestDeferQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "Defer",
             "selections": [
@@ -100,13 +100,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "usePreloadedQueryReactDoubleEffectsTestDeferQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -119,8 +119,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "if": null,
             "kind": "Defer",
@@ -159,10 +159,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4b7abb047aa04c8ea7c19b5ab39e46ed";
+  (node/*:: as any*/).hash = "4b7abb047aa04c8ea7c19b5ab39e46ed";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePreloadedQueryReactDoubleEffectsTestDeferQuery$variables,
   usePreloadedQueryReactDoubleEffectsTestDeferQuery$data,
 >*/);

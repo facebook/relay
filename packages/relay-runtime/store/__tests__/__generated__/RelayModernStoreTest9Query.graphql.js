@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<256bc8335a8f91e4c87da44127e0bd66>>
+ * @generated SignedSource<<2eec701b88c7feb77c7c0993ea3a346c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -56,14 +56,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernStoreTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -83,13 +83,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernStoreTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -164,10 +164,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b32973d64f3cb9d3955e0aab2c9a36f2";
+  (node/*:: as any*/).hash = "b32973d64f3cb9d3955e0aab2c9a36f2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernStoreTest9Query$variables,
   RelayModernStoreTest9Query$data,
 >*/);

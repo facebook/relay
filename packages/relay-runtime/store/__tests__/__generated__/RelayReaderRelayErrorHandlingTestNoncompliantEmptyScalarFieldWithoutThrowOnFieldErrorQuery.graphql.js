@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e2dd552bb9529139e62fd2a41622df71>>
+ * @generated SignedSource<<9b6702a055f0b8fa71bea006a63994f9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,11 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery$variables = {||};
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +emailAddresses: ?ReadonlyArray<?string>,
+  +node: ?{|
+    +__typename: string,
+    +emailAddresses?: ?ReadonlyArray<?string>,
     +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+  |},
 |};
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery = {|
   response: RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery$data,
@@ -90,7 +86,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -99,7 +95,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "a278c7d054186ae97ab78b656d9a57c6",
@@ -113,10 +109,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fbd6702b1d66c9949d49205fa661c44f";
+  (node/*:: as any*/).hash = "fbd6702b1d66c9949d49205fa661c44f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery$variables,
   RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery$data,
 >*/);

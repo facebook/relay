@@ -1,0 +1,30 @@
+# Adding a field to an input object is SafeWithIncrementalBuild.
+# The incremental build must regenerate types for mutations that reference
+# the changed input object so the new field appears in generated types.
+
+//- foo.js
+graphql`
+  mutation fooMutation($input: MyInput!) {
+    doSomething(input: $input) {
+      name
+    }
+  }
+`
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query { me: User }
+type Mutation { doSomething(input: MyInput!): User }
+type User { name: String }
+input MyInput { key: String }
+
+//-++ schema.graphql
+type Query { me: User }
+type Mutation { doSomething(input: MyInput!): User }
+type User { name: String }
+input MyInput { key: String, newField: Int }

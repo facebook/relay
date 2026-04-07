@@ -1,0 +1,44 @@
+==================================== INPUT ====================================
+# When a type implements both Node and @fetchable, setting
+# preferFetchable: false should use the Node refetch strategy
+# (same as omitting the argument). Before the fix, the boolean
+# value was ignored and presence alone triggered fetchable-preferred.
+fragment RefetchableFragment on FetchableType
+  @refetchable(queryName: "RefetchableFragmentQuery", preferFetchable: false) {
+  fetch_id
+}
+==================================== OUTPUT ===================================
+query RefetchableFragmentQuery(
+  $id: ID!
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     FragmentDefinitionName(
+#         "RefetchableFragment",
+#     ),
+# )
+ {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+fragment RefetchableFragment on FetchableType @refetchable(queryName: "RefetchableFragmentQuery", preferFetchable: false) @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
+#     path: [
+#         "node",
+#     ],
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
+#     ),
+#     is_prefetchable_pagination: false,
+# }
+ {
+  fetch_id
+  id
+}

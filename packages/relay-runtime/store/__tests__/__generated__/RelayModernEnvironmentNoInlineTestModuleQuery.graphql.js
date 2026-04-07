@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5e094e9d89061cd173e7f71b6077cdbf>>
+ * @generated SignedSource<<4a98ac5ff90151a19d281ecc727634bd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -63,14 +63,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentNoInlineTestModuleQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -123,19 +123,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentNoInlineTestModuleQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -147,7 +147,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -199,10 +199,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3b51939e7e4a114f33a177e515088bdb";
+  (node/*:: as any*/).hash = "3b51939e7e4a114f33a177e515088bdb";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentNoInlineTestModuleQuery$variables,
   RelayModernEnvironmentNoInlineTestModuleQuery$data,
 >*/);

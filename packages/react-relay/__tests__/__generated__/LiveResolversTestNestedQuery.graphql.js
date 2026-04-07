@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e478df1c6e693853d22b20cd0f2ebfb0>>
+ * @generated SignedSource<<2c9f9e75558d3c7639e0b59a203e0a9d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {inner as queryInnerResolverType} from "../../../relay-runtime/store/__te
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryInnerResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryInnerResolverType: (
+(queryInnerResolverType as (
   rootKey: InnerResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -33,7 +33,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {outer as queryOuterResolverType} from "../../../relay-runtime/store/__tests__/resolvers/OuterResolver.js";
 // Type assertion validating that `queryOuterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryOuterResolverType: (
+(queryOuterResolverType as (
   rootKey: OuterResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -138,7 +138,7 @@ return {
         "fragment": {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "type": "Query",
           "abstractKey": null
@@ -147,7 +147,7 @@ return {
         "storageKey": null,
         "isOutputType": true
       },
-      (v0/*: any*/)
+      (v0/*:: as any*/)
     ]
   },
   "params": {
@@ -162,10 +162,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6985c8175a8d589a4b7a04f9e8bb0265";
+  (node/*:: as any*/).hash = "6985c8175a8d589a4b7a04f9e8bb0265";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTestNestedQuery$variables,
   LiveResolversTestNestedQuery$data,
 >*/);

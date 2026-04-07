@@ -19,7 +19,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Todo.blocked_by: [Todo]
+ * @relayField Todo.blocked_by: [Todo]
  * @rootFragment TodoBlockedByResolverFragment
  */
 function blocked_by(

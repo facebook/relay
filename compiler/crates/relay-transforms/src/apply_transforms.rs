@@ -214,10 +214,6 @@ fn apply_common_transforms(
         )
     })?;
 
-    program = log_event.time("relay_actor_change_transform", || {
-        relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
-    })?;
-
     program = log_event.time("provided_variable_fragment_transform", || {
         provided_variable_fragment_transform(&program)
     })?;
@@ -773,10 +769,6 @@ fn apply_typegen_transforms(
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, &base_fragment_names)
     });
-
-    program = log_event.time("relay_actor_change_transform", || {
-        relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
-    })?;
 
     program = apply_after_custom_transforms(
         &program,

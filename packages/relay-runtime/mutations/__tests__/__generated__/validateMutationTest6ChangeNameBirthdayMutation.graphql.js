@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<54e54b815fac23169dc45d4606c05129>>
+ * @generated SignedSource<<013be958b323354392f98e79e04e0f89>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -112,14 +112,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest6ChangeNameBirthdayMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -133,8 +133,8 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/)
+              (v2/*:: as any*/),
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -147,13 +147,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest6ChangeNameBirthdayMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -174,8 +174,8 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
-              (v3/*: any*/),
+              (v2/*:: as any*/),
+              (v3/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -203,10 +203,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d80209a1d442a2efc9d48718ce645ff2";
+  (node/*:: as any*/).hash = "d80209a1d442a2efc9d48718ce645ff2";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest6ChangeNameBirthdayMutation$variables,
   validateMutationTest6ChangeNameBirthdayMutation$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<efcae8ad115150120e5c4d68976a4309>>
+ * @generated SignedSource<<71eb3aa9dcbd5ad0debcd96696089d8c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ declare export opaque type readUpdatableQueryTest_user$fragmentType: FragmentTyp
 var node/*: any*/ = {};
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b4c3265697d01e4f38a505ed5bb58bf7";
+  (node/*:: as any*/).hash = "b4c3265697d01e4f38a505ed5bb58bf7";
 }
 
 module.exports = node;
@@ -40,5 +40,5 @@ module.exports.validate = function validate(value/*: {
   +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
   ...
 }*/ {
-  return value.__typename === 'User' ? (value/*: any*/) : false;
+  return value.__typename === 'User' ? (value/*:: as any*/) : false;
 };

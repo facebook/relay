@@ -15,7 +15,7 @@ use common::TextSource;
 use graphql_cli::DiagnosticPrinter;
 use intern::intern::Lookup;
 use schema::SDLSchema;
-use schema::build_schema_with_extensions;
+use schema::build_schema_with_extensions_parallel;
 use schema_validate_lib::SchemaValidationOptions;
 use schema_validate_lib::validate;
 
@@ -62,7 +62,7 @@ fn build_schema_from_path(schema_file: &str) -> DiagnosticsResult<SDLSchema> {
     let extensions: &[(&str, SourceLocationKey)] = &[];
 
     if path.is_file() {
-        build_schema_with_extensions(&[path_to_schema_source(path)], extensions)
+        build_schema_with_extensions_parallel(&[path_to_schema_source(path)], extensions)
     } else {
         let paths = path
             .read_dir()
@@ -80,7 +80,7 @@ fn build_schema_from_path(schema_file: &str) -> DiagnosticsResult<SDLSchema> {
             .map(|path| path_to_schema_source(path))
             .collect();
 
-        build_schema_with_extensions(&sdls, extensions)
+        build_schema_with_extensions_parallel(&sdls, extensions)
     }
 }
 

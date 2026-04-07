@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<498ec81ccc8cf51aa234802ccdde2673>>
+ * @generated SignedSource<<be708075d82c280af2da47df19fd9d71>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {edge_to_plural_models_that_throw as queryEdgeToPluralModelsThatThrowReso
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToPluralModelsThatThrowResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToPluralModelsThatThrowResolverType: (
+(queryEdgeToPluralModelsThatThrowResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?ReadonlyArray<?{|
@@ -76,6 +76,7 @@ return {
             "path": "edge_to_plural_models_that_throw.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -93,7 +94,7 @@ return {
           "name": "edge_to_plural_models_that_throw",
           "plural": true,
           "selections": [
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -126,7 +127,7 @@ return {
           "name": "edge_to_plural_models_that_throw",
           "plural": true,
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -152,10 +153,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "29e63ae02c6f32c751824079e556f81b";
+  (node/*:: as any*/).hash = "29e63ae02c6f32c751824079e556f81b";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$variables,
   RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$data,
 >*/);

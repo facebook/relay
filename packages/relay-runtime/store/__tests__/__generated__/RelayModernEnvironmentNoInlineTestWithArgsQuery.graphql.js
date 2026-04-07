@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0354b11ae50e8ee98426f3b02b78c271>>
+ * @generated SignedSource<<37fcf1e5ce395cdfafcb31445ced7eea>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -66,8 +66,8 @@ v3 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -97,7 +97,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "username",
@@ -124,8 +124,8 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernEnvironmentNoInlineTestWithArgsQuery",
@@ -156,13 +156,13 @@ return {
             "type": "Actor",
             "abstractKey": "__isActor"
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "username",
@@ -190,7 +190,7 @@ return {
             "fragment": require('./RelayModernEnvironmentNoInlineTestWithArgs_noInline$normalization.graphql'),
             "kind": "FragmentSpread"
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": "username(name:\"Zuck\")"
       }
@@ -208,10 +208,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "33033002af005dc1dfd32353c821dead";
+  (node/*:: as any*/).hash = "33033002af005dc1dfd32353c821dead";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentNoInlineTestWithArgsQuery$variables,
   RelayModernEnvironmentNoInlineTestWithArgsQuery$data,
 >*/);

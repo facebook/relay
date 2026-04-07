@@ -45,8 +45,8 @@ type ContainerState = {
  * updates.
  */
 function createContainerWithFragments<
-  Props: {...},
-  TComponent: component(...Props),
+  Props extends {...},
+  TComponent extends component(...Props),
 >(
   Component: TComponent,
   fragments: FragmentMap,
@@ -265,7 +265,10 @@ function getRelayProp(environment: IEnvironment) {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {...}, TComponent: component(...Props)>(
+function createContainer<
+  Props extends {...},
+  TComponent extends component(...Props),
+>(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
 ): component(...$RelayProps<Props, RelayProp>) {

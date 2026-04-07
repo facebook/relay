@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<20d020948201bd947ae921b85d61f9d2>>
+ * @generated SignedSource<<259fda0e01478939ce2eb13244845291>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {counter as queryCounterResolverType} from "../LiveCounterResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterResolverType: (
+(queryCounterResolverType as (
   rootKey: LiveCounterResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -70,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5c197a1dfaa6945a727e92cd1996348d";
+  (node/*:: as any*/).hash = "5c197a1dfaa6945a727e92cd1996348d";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   CounterPlusOneResolver$fragmentType,
   CounterPlusOneResolver$data,
 >*/);

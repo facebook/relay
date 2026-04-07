@@ -1,0 +1,68 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type CatFlowType from "Cat";
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+// The error should point to `args` (the second parameter), not `cat`.
+/**
+ * @RelayResolver
+ */
+export function name(cat: CatFlowType, args): string {}
+==================================== OUTPUT ===================================
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 80:83,
+                token: Token {
+                    span: 80:83,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: module.js:80:83,
+            root_fragment: WithLocation {
+                location: module.js:80:83,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: module.js:80:83,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "4d65b0571ec19c3ee5414b550ce5882d",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID! @__RelayResolverModelGeneratedIDField
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "4d65b0571ec19c3ee5414b550ce5882d") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+✖︎ Expected Relay Resolver function param to include type annotation
+
+  module.js:15:40
+   14 │  */
+   15 │ export function name(cat: CatFlowType, args): string {}
+      │                                        ^^^^

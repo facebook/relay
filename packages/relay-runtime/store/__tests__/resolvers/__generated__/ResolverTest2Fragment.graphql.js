@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a130679b5e328f4e39739326c1648689>>
+ * @generated SignedSource<<bef3668b1ccdcce34387dcdda2855bd1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userGreetingResolverType: (
+(userGreetingResolverType as (
   rootKey: UserGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -87,10 +87,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9064332782abe615b663971d3f85a3ea";
+  (node/*:: as any*/).hash = "9064332782abe615b663971d3f85a3ea";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   ResolverTest2Fragment$fragmentType,
   ResolverTest2Fragment$data,
   ResolverTest1FragmentRefetchableQuery$variables,

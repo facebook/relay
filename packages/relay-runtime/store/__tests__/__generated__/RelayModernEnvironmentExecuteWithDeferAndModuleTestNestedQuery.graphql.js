@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6d1ca0804e52b8e33179e46bc5e6343f>>
+ * @generated SignedSource<<7160d2871ad65417c43a6b69da95e221>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -70,14 +70,14 @@ v2 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -85,7 +85,7 @@ return {
         "selections": [
           {
             "kind": "Defer",
-            "selections": (v2/*: any*/)
+            "selections": (v2/*:: as any*/)
           }
         ],
         "storageKey": null
@@ -96,13 +96,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -119,7 +119,7 @@ return {
             "if": null,
             "kind": "Defer",
             "label": "RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user",
-            "selections": (v2/*: any*/)
+            "selections": (v2/*:: as any*/)
           },
           {
             "alias": null,
@@ -145,10 +145,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "68b0b6cd9b9dfde4d6098cd27348c45f";
+  (node/*:: as any*/).hash = "68b0b6cd9b9dfde4d6098cd27348c45f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$variables,
   RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$data,
 >*/);

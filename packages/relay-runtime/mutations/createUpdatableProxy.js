@@ -27,7 +27,7 @@ const {getArgumentValues} = require('../store/RelayStoreUtils');
 
 const nonUpdatableKeys = ['id', '__id', '__typename', 'js'];
 
-function createUpdatableProxy<TData: {...}>(
+function createUpdatableProxy<TData extends {...}>(
   updatableProxyRootRecord: RecordProxy,
   variables: Variables,
   selections: ReadonlyArray<ReaderSelection>,
@@ -313,7 +313,7 @@ function createGetterForPluralLinkedField(
           // Flow incorrect assumes that the return value for the get method must match
           // the set parameter.
           // $FlowFixMe[unclear-type] Typed by the generated updatable query flow type
-          return (updatableProxy: any);
+          return updatableProxy as any;
         } else {
           return linkedRecord;
         }

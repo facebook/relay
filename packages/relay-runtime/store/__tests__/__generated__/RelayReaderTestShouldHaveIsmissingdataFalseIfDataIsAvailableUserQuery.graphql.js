@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df993d7654dabeedcad9a3427b48c212>>
+ * @generated SignedSource<<5dc054e661a2e6c6341578226af95b4c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -43,7 +43,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery",
@@ -70,7 +70,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery",
     "selections": [
@@ -130,10 +130,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e67bfc897e5efd72ca5ee4c64e78e016";
+  (node/*:: as any*/).hash = "e67bfc897e5efd72ca5ee4c64e78e016";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables,
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data,
 >*/);

@@ -14,6 +14,7 @@ use graphql_ir::*;
 use intern::Lookup;
 use intern::string_key::Intern;
 use lazy_static::lazy_static;
+use rayon::prelude::*;
 use relay_transforms::REFETCHABLE_NAME;
 use rustc_hash::FxHashSet;
 use schema::InputObjectID;
@@ -40,7 +41,7 @@ struct SchemaChangeDefinitionFinder<'a, 'b> {
     changed_definitions: ExecutableDefinitionNameSet,
     current_executable: &'a ExecutableDefinition,
     schema: &'b SDLSchema,
-    schema_changes: FxHashSet<IncrementalBuildSchemaChange>,
+    schema_changes: &'b FxHashSet<IncrementalBuildSchemaChange>,
     /// Track InputObjects visited by a given definition to avoid infinite
     /// recursion when checking nested types
     visited_input_objects: FxHashSet<InputObjectID>,
@@ -56,26 +57,47 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
             return HashSet::default();
         }
 
-        let mut finder = SchemaChangeDefinitionFinder {
-            changed_definitions: HashSet::default(),
-            current_executable: &definitions[0],
-            schema,
-            schema_changes,
-            visited_input_objects: FxHashSet::default(),
-        };
-        for def in definitions.iter() {
-            finder.current_executable = def;
-
-            // Ensure we reset the visited input objects for each definition since
-            // we want to ensure we traverse into each seen input type at least once
-            // per definition.
-            finder.visited_input_objects.clear();
-            match def {
-                ExecutableDefinition::Operation(operation) => finder.visit_operation(operation),
-                ExecutableDefinition::Fragment(fragment) => finder.visit_fragment(fragment),
+        // Process a chunk of definitions sequentially, accumulating into
+        // changed_definitions. Reset visited_input_objects per definition
+        // so we traverse into each input type at least once per definition.
+        let process_chunk = |changed: ExecutableDefinitionNameSet,
+                             chunk: &[ExecutableDefinition]|
+         -> ExecutableDefinitionNameSet {
+            let mut finder = SchemaChangeDefinitionFinder {
+                changed_definitions: changed,
+                current_executable: &chunk[0],
+                schema,
+                schema_changes: &schema_changes,
+                visited_input_objects: FxHashSet::default(),
             };
+            for def in chunk {
+                finder.current_executable = def;
+
+                // Ensure we reset the visited input objects for each definition since
+                // we want to ensure we traverse into each seen input type at least once
+                // per definition.
+                finder.visited_input_objects.clear();
+                match def {
+                    ExecutableDefinition::Operation(operation) => finder.visit_operation(operation),
+                    ExecutableDefinition::Fragment(fragment) => finder.visit_fragment(fragment),
+                };
+            }
+            finder.changed_definitions
+        };
+
+        if definitions.len() > 500 {
+            definitions
+                .par_iter()
+                .fold(HashSet::default, |changed, def| {
+                    process_chunk(changed, std::slice::from_ref(def))
+                })
+                .reduce(HashSet::default, |mut a, b| {
+                    a.extend(b);
+                    a
+                })
+        } else {
+            process_chunk(HashSet::default(), definitions)
         }
-        finder.changed_definitions
     }
 
     fn get_name_from_executable(&self) -> ExecutableDefinitionName {
@@ -168,6 +190,14 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
                 // `changed_definitions` if needed.
                 if self.visited_input_objects.insert(id) {
                     let input_object = self.schema.input_object(id);
+                    let key = input_object.name.item.0;
+                    if self
+                        .schema_changes
+                        .contains(&IncrementalBuildSchemaChange::InputObject(key))
+                    {
+                        self.changed_definitions
+                            .insert(self.get_name_from_executable());
+                    }
                     for field in input_object.fields.iter() {
                         self.add_type_changes(field.type_.inner());
                     }

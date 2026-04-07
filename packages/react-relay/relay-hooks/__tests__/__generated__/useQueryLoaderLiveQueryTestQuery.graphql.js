@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c17bcbddcaa56246edf93a42d0560052>>
+ * @generated SignedSource<<c2094d8a3cca3fd8a83772d1373979a8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -56,20 +56,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useQueryLoaderLiveQueryTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -79,13 +79,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useQueryLoaderLiveQueryTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,14 +98,14 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "ed71550bc8df05ff931522aecef1143a",
+    "cacheID": "b6e95f5644821fd013fd0e47d14d2000",
     "id": null,
     "metadata": {
       "live": {
@@ -114,16 +114,16 @@ return {
     },
     "name": "useQueryLoaderLiveQueryTestQuery",
     "operationKind": "query",
-    "text": "query useQueryLoaderLiveQueryTestQuery(\n  $id: ID!\n) @live_query(polling_interval: 10000) {\n  node(id: $id) {\n    __typename\n    id\n  }\n}\n"
+    "text": "query useQueryLoaderLiveQueryTestQuery(\n  $id: ID!\n) @client_polling(interval: 10000) {\n  node(id: $id) {\n    __typename\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "db84fb335c4f305e0de63d1246959f74";
+  (node/*:: as any*/).hash = "9405db015f9f799670fa950c59126e04";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useQueryLoaderLiveQueryTestQuery$variables,
   useQueryLoaderLiveQueryTestQuery$data,
 >*/);

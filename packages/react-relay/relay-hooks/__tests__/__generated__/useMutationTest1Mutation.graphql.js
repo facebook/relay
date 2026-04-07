@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1c6073fbca944959eaf29bb7db96c582>>
+ * @generated SignedSource<<9003c3dcf435a17da5e02e1a3f9df009>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -133,20 +133,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useMutationTest1Mutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useMutationTest1Mutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "418fd64122363e51f68b2b3881cbd098",
@@ -160,10 +160,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c6270857d1a1e47844db06a7c9573271";
+  (node/*:: as any*/).hash = "c6270857d1a1e47844db06a7c9573271";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   useMutationTest1Mutation$variables,
   useMutationTest1Mutation$data,
 >*/);

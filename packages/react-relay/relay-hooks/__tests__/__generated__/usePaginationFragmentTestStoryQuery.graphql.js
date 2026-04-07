@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f9740295cde0d77668c74f29279d7cc>>
+ * @generated SignedSource<<6d7cc987b7298ad2da9cdeae92f7fc7b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -64,14 +64,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "usePaginationFragmentTestStoryQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "nonNodeStory",
@@ -91,13 +91,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "usePaginationFragmentTestStoryQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "nonNodeStory",
@@ -105,7 +105,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v2/*:: as any*/),
             "concreteType": "CommentsConnection",
             "kind": "LinkedField",
             "name": "comments",
@@ -127,7 +127,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v3/*: any*/),
+                      (v3/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -178,7 +178,7 @@ return {
           },
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v2/*:: as any*/),
             "filters": null,
             "handle": "connection",
             "key": "StoryFragment_comments",
@@ -192,7 +192,7 @@ return {
             "name": "fetch_id",
             "storageKey": null
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -210,10 +210,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "58177aa39d1e95877117557290be91a1";
+  (node/*:: as any*/).hash = "58177aa39d1e95877117557290be91a1";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePaginationFragmentTestStoryQuery$variables,
   usePaginationFragmentTestStoryQuery$data,
 >*/);

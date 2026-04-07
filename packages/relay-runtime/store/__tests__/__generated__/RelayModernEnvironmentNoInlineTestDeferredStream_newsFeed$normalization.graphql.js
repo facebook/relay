@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<90deff41aefd09013468a079f200626a>>
+ * @generated SignedSource<<60b85270c1386acecb0f5ab9179263da>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -120,17 +120,17 @@ return {
                                   "name": "name",
                                   "storageKey": null
                                 },
-                                (v0/*: any*/)
+                                (v0/*:: as any*/)
                               ],
                               "storageKey": null
                             },
-                            (v0/*: any*/)
+                            (v0/*:: as any*/)
                           ],
                           "storageKey": null
                         }
                       ]
                     },
-                    (v0/*: any*/)
+                    (v0/*:: as any*/)
                   ],
                   "storageKey": null
                 }
@@ -147,7 +147,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a7455d1924444ac117790f34dbd90cec";
+  (node/*:: as any*/).hash = "a7455d1924444ac117790f34dbd90cec";
 }
 
 module.exports = node;

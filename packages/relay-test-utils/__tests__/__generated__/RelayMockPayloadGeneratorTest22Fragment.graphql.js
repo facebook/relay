@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0c5e0a1a494b6036a988fc6f5882e774>>
+ * @generated SignedSource<<d82d621f5eb688cd2bddc4ab990a8ada>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -118,7 +118,7 @@ v3 = {
   "storageKey": null
 },
 v4 = [
-  (v3/*: any*/)
+  (v3/*:: as any*/)
 ];
 return {
   "argumentDefinitions": [
@@ -155,8 +155,8 @@ return {
   },
   "name": "RelayMockPayloadGeneratorTest22Fragment",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "alias": "myActor",
       "args": null,
@@ -165,8 +165,8 @@ return {
       "name": "actor",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
-        (v1/*: any*/)
+        (v0/*:: as any*/),
+        (v1/*:: as any*/)
       ],
       "storageKey": null
     },
@@ -201,8 +201,8 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
-                (v1/*: any*/),
+                (v0/*:: as any*/),
+                (v1/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -230,7 +230,7 @@ return {
           "kind": "LinkedField",
           "name": "pageInfo",
           "plural": false,
-          "selections": (v2/*: any*/),
+          "selections": (v2/*:: as any*/),
           "storageKey": null
         },
         {
@@ -240,7 +240,7 @@ return {
           "kind": "LinkedField",
           "name": "pageInfo",
           "plural": false,
-          "selections": (v2/*: any*/),
+          "selections": (v2/*:: as any*/),
           "storageKey": null
         }
       ],
@@ -253,7 +253,7 @@ return {
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
-      "selections": (v4/*: any*/),
+      "selections": (v4/*:: as any*/),
       "storageKey": null
     },
     {
@@ -274,7 +274,7 @@ return {
           "kind": "LinkedField",
           "name": "profilePicture",
           "plural": false,
-          "selections": (v4/*: any*/),
+          "selections": (v4/*:: as any*/),
           "storageKey": null
         }
       ]
@@ -295,7 +295,7 @@ return {
         {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "alias": "userName",
               "args": null,
@@ -324,7 +324,7 @@ return {
               "name": "profilePicture",
               "plural": false,
               "selections": [
-                (v3/*: any*/),
+                (v3/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -403,7 +403,7 @@ return {
         {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "alias": "pageName",
               "args": null,
@@ -432,10 +432,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "08c62813cbbac5cf9a652eb692b64132";
+  (node/*:: as any*/).hash = "08c62813cbbac5cf9a652eb692b64132";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest22Fragment$fragmentType,
   RelayMockPayloadGeneratorTest22Fragment$data,
 >*/);

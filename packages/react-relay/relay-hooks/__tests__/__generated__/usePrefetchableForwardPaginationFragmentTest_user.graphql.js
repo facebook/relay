@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<04b783e50555d0acdcf3132294736957>>
+ * @generated SignedSource<<19189b576a71fe13710306c9f9006622>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -75,7 +75,7 @@ return {
         "count": null,
         "cursor": null,
         "direction": "bidirectional",
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       }
     ],
     "refetch": {
@@ -88,7 +88,7 @@ return {
           "count": "last",
           "cursor": "before"
         },
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       },
       "fragmentPathInResult": [
         "node"
@@ -183,10 +183,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b556c89ea274871519ed4779f197956d";
+  (node/*:: as any*/).hash = "b556c89ea274871519ed4779f197956d";
 }
 
-module.exports = ((node/*: any*/)/*: PrefetchableRefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as PrefetchableRefetchableFragment<
   usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
   usePrefetchableForwardPaginationFragmentTest_user$data,
   usePrefetchableForwardPaginationFragmentTest_user__edges$data,

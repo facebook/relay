@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6983558fc7ee772d8e56d5b22396f263>>
+ * @generated SignedSource<<ab0551dc03d54c01eb65b9e2e9adf1ed>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {edge_to_server_object_does_not_exist as queryEdgeToServerObjectDoesNotEx
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToServerObjectDoesNotExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToServerObjectDoesNotExistResolverType: (
+(queryEdgeToServerObjectDoesNotExistResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?{|
@@ -112,10 +112,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6e6fc82ab5969e84d7c748516d16686b";
+  (node/*:: as any*/).hash = "6e6fc82ab5969e84d7c748516d16686b";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$variables,
   RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$data,
 >*/);

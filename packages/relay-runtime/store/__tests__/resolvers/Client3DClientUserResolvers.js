@@ -18,7 +18,7 @@ type ClientUserModel = {
 };
 
 /**
- * @RelayResolver ClientUser implements IBasicUser
+ * @relayType ClientUser implements IBasicUser
  */
 function ClientUser(id: DataID): ?ClientUserModel {
   if (id === INVALID_ID) {
@@ -30,7 +30,7 @@ function ClientUser(id: DataID): ?ClientUserModel {
 }
 
 /**
- * @RelayResolver ClientUser.data: String
+ * @relayField ClientUser.data: String
  */
 function data(clientUser: ClientUserModel): string {
   return 'clientUserData';

@@ -17,7 +17,7 @@ const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
 const {suspenseSentinel} = require('relay-runtime');
 
 /**
- * @RelayResolver User.counter_suspends_when_odd: Int
+ * @relayField User.counter_suspends_when_odd: Int
  * @live
  *
  * A Relay Resolver that returns an object implementing the External State

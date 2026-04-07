@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bad330a60489b68ec71d317bc0f1355a>>
+ * @generated SignedSource<<ae9dbee9086c3649d0dcfb1e96949317>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,7 +35,7 @@ export type RelayResponseNormalizerTest_pvQuery = {|
 ({
   "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider'),
   "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('../RelayProvider_returnsFalse.relayprovider')
-}: {|
+} as {|
   +__relay_internal__pv__RelayProvider_returnsFalserelayprovider: {|
     +get: () => boolean,
   |},
@@ -68,7 +68,7 @@ v2 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/)
+      (v0/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -76,13 +76,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -98,7 +98,7 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "defaultValue": null,
         "kind": "LocalArgument",
@@ -115,7 +115,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -128,7 +128,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -213,10 +213,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3d11c5d77a6b30dd28ee9a5eb421373d";
+  (node/*:: as any*/).hash = "3d11c5d77a6b30dd28ee9a5eb421373d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest_pvQuery$variables,
   RelayResponseNormalizerTest_pvQuery$data,
 >*/);

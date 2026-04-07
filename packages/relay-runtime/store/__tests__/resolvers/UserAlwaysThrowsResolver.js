@@ -17,7 +17,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver User.always_throws: String
+ * @relayField User.always_throws: String
  * @rootFragment UserAlwaysThrowsResolver
  *
  * A Relay Resolver that always throws when evaluated.

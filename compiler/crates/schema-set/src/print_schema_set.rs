@@ -7,7 +7,6 @@
 
 use indoc::formatdoc;
 use intern::Lookup;
-use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
@@ -19,6 +18,7 @@ use crate::OutputTypeReference;
 use crate::build_schema_document::output_type_ref_to_semantic_sdl_type;
 use crate::partition_base_extensions::PartitionsBaseExtension;
 use crate::partition_schema_set_base_and_extensions;
+use crate::remove_built_in_scalars;
 use crate::schema_set::CanBeClientDefinition;
 use crate::schema_set::CanHaveDirectives;
 use crate::schema_set::HasDescription;
@@ -248,27 +248,6 @@ impl PrintableDefinition for SetScalar {
     }
 }
 impl PrintableExtendDefinition for SetScalar {}
-
-/// We do not want to print out any built-in scalar types.
-/// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
-fn remove_built_in_scalars(schema_set: &SchemaSet) -> SchemaSet {
-    let mut without_builtins_set = schema_set.clone();
-    let builtin_scalar_names = [
-        "Int".intern(),
-        "Float".intern(),
-        "String".intern(),
-        "Boolean".intern(),
-        "ID".intern(),
-    ];
-    for builtin_name in builtin_scalar_names {
-        if let Some(SetType::Scalar(builtin_type)) = without_builtins_set.types.get(&builtin_name)
-            && builtin_type.directives.is_empty()
-        {
-            without_builtins_set.types.remove(&builtin_name);
-        }
-    }
-    without_builtins_set
-}
 
 #[allow(dead_code)]
 pub trait PrintableBaseAndClientDefinition: CanBeClientDefinition {
@@ -625,14 +604,12 @@ fn print_directive_value_items(directives: &[DirectiveValue]) -> String {
     if directives.is_empty() {
         String::new()
     } else {
-        format!(
-            " {}",
-            directives
-                .iter()
-                .map(print_directive_value)
-                .collect::<Vec<_>>()
-                .join(" ")
-        )
+        let mut printed_directives = directives
+            .iter()
+            .map(print_directive_value)
+            .collect::<Vec<_>>();
+        printed_directives.sort();
+        format!(" {}", printed_directives.join(" "))
     }
 }
 
@@ -640,15 +617,13 @@ fn print_directive_value(directive: &DirectiveValue) -> String {
     let printed_args = if directive.arguments.is_empty() {
         String::new()
     } else {
-        format!(
-            "({})",
-            directive
-                .arguments
-                .iter()
-                .map(print_argument_value)
-                .collect::<Vec<_>>()
-                .join(", ")
-        )
+        let mut printed_values = directive
+            .arguments
+            .iter()
+            .map(print_argument_value)
+            .collect::<Vec<_>>();
+        printed_values.sort();
+        format!("({})", printed_values.join(", "))
     };
 
     format!(

@@ -40,9 +40,9 @@ Field(
         TerseRelayResolverIr {
             field: FieldDefinition {
                 name: Identifier {
-                    span: 529:538,
+                    span: 337:346,
                     token: Token {
-                        span: 529:538,
+                        span: 337:346,
                         kind: Identifier,
                     },
                     value: "full_name",
@@ -50,9 +50,9 @@ Field(
                 type_: Named(
                     NamedTypeAnnotation {
                         name: Identifier {
-                            span: 571:577,
+                            span: 379:385,
                             token: Token {
-                                span: 571:577,
+                                span: 379:385,
                                 kind: Identifier,
                             },
                             value: "String",
@@ -63,7 +63,7 @@ Field(
                 directives: [],
                 description: None,
                 hack_source: None,
-                span: 529:538,
+                span: 337:346,
             },
             type_: WithLocation {
                 location: module.js:34:40,
@@ -81,12 +81,12 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: module.js:529:538,
+            location: module.js:337:346,
             fragment_arguments: Some(
                 [],
             ),
             source_hash: ResolverSourceHash(
-                "0707351e18761dc811f8a249f18a13d8",
+                "53944b5889e9260af3f3f542f76c20fc",
             ),
             type_confirmed: true,
             property_lookup_name: None,
@@ -94,7 +94,7 @@ Field(
     ),
 )
 extend type Cat {
-  full_name: String @relay_resolver(type_confirmed: true, fragment_name: "CatIsHungryFragment", has_output_type: true, import_name: "full_name", import_path: "module.js") @resolver_source_hash(value: "0707351e18761dc811f8a249f18a13d8")
+  full_name: String @relay_resolver(type_confirmed: true, fragment_name: "CatIsHungryFragment", has_output_type: true, import_name: "full_name", import_path: "module.js") @resolver_source_hash(value: "53944b5889e9260af3f3f542f76c20fc")
 }
 
 
@@ -102,16 +102,16 @@ Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
-                span: 449:452,
+                span: 257:260,
                 token: Token {
-                    span: 449:452,
+                    span: 257:260,
                     kind: Identifier,
                 },
                 value: "Cat",
             },
-            rhs_location: module.js:449:452,
+            rhs_location: module.js:257:260,
             root_fragment: WithLocation {
-                location: module.js:449:452,
+                location: module.js:257:260,
                 item: FragmentDefinitionName(
                     "Cat__id",
                 ),
@@ -120,10 +120,10 @@ Type(
             deprecated: None,
             live: None,
             semantic_non_null: None,
-            location: module.js:449:452,
+            location: module.js:257:260,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "0707351e18761dc811f8a249f18a13d8",
+                "53944b5889e9260af3f3f542f76c20fc",
             ),
             type_confirmed: true,
         },
@@ -131,5 +131,5 @@ Type(
 )
 type Cat @__RelayResolverModel {
   id: ID! @__RelayResolverModelGeneratedIDField
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "0707351e18761dc811f8a249f18a13d8") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "53944b5889e9260af3f3f542f76c20fc") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

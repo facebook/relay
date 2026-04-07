@@ -41,8 +41,8 @@ type User implements Node { id: ID! }
 ==================================== OUTPUT ===================================
 ✖︎ Expected a value of type 'FetchPolicy'
 
-  foo.js:12:17
-   11 │     queryName: "FooRefetchQuery"
-   12 │     directives: ["@fetchPolicy(policy: STORE_AND_NETWORK)"]
+  foo.js:5:17
+    4 │     queryName: "FooRefetchQuery"
+    5 │     directives: ["@fetchPolicy(policy: STORE_AND_NETWORK)"]
       │                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   13 │   ) {
+    6 │   ) {

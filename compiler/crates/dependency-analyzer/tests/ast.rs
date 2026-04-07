@@ -17,7 +17,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let definitions = parse_executable(parts[0], source_location).unwrap();
-    let base_definitions = parts
+    let base_definitions: Vec<ExecutableDefinition> = parts
         .iter()
         .skip(1)
         .flat_map(|part| parse_executable(part, source_location).unwrap().definitions)
@@ -25,7 +25,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let ReachableAst {
         definitions: result,
         base_fragment_names,
-    } = get_reachable_ast(definitions.definitions, base_definitions);
+    } = get_reachable_ast(&definitions.definitions, &base_definitions);
 
     let mut texts = result
         .into_iter()

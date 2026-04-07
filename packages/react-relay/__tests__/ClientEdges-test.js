@@ -41,14 +41,14 @@ disallowWarnings();
 disallowConsoleErrors();
 
 /**
- * @RelayResolver User.same_user_client_edge: User
+ * @relayField User.same_user_client_edge: User
  */
 export function same_user_client_edge(): {id: string} {
   return {id: '1'};
 }
 
 /**
- * @RelayResolver User.upper_name: String
+ * @relayField User.upper_name: String
  * @rootFragment ClientEdgesTestUpperName
  */
 

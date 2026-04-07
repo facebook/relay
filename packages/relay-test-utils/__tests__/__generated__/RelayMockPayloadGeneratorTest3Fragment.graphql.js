@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8736f36d225048bcf5394be3138252eb>>
+ * @generated SignedSource<<114f93cae1b7699d34b4fbcdf05a6c2d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -102,7 +102,7 @@ return {
       "name": "id",
       "storageKey": null
     },
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": "customId",
       "args": null,
@@ -122,7 +122,7 @@ return {
           "kind": "LinkedField",
           "name": "profile_picture",
           "plural": false,
-          "selections": (v1/*: any*/),
+          "selections": (v1/*:: as any*/),
           "storageKey": null
         }
       ]
@@ -174,7 +174,7 @@ return {
       "name": "author",
       "plural": false,
       "selections": [
-        (v0/*: any*/)
+        (v0/*:: as any*/)
       ],
       "storageKey": null
     },
@@ -260,7 +260,7 @@ return {
       "kind": "LinkedField",
       "name": "__backgroundImage_customBackground",
       "plural": false,
-      "selections": (v1/*: any*/),
+      "selections": (v1/*:: as any*/),
       "storageKey": null
     }
   ],
@@ -270,10 +270,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "07a710f2ca89951dc1275ada481d2fae";
+  (node/*:: as any*/).hash = "07a710f2ca89951dc1275ada481d2fae";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest3Fragment$fragmentType,
   RelayMockPayloadGeneratorTest3Fragment$data,
 >*/);

@@ -19,7 +19,7 @@ const {graphql, suspenseSentinel} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver User.user_profile_picture_uri_suspends_when_the_counter_is_odd: String
+ * @relayField User.user_profile_picture_uri_suspends_when_the_counter_is_odd: String
  * @rootFragment UserProfilePictureUriSuspendsWhenTheCounterIsOdd
  * @live
  *

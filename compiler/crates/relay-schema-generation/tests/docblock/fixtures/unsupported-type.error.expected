@@ -29,16 +29,16 @@ Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
-                span: 272:275,
+                span: 80:83,
                 token: Token {
-                    span: 272:275,
+                    span: 80:83,
                     kind: Identifier,
                 },
                 value: "Cat",
             },
-            rhs_location: module.js:272:275,
+            rhs_location: module.js:80:83,
             root_fragment: WithLocation {
-                location: module.js:272:275,
+                location: module.js:80:83,
                 item: FragmentDefinitionName(
                     "Cat__id",
                 ),
@@ -47,10 +47,10 @@ Type(
             deprecated: None,
             live: None,
             semantic_non_null: None,
-            location: module.js:272:275,
+            location: module.js:80:83,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "dbaa81766321d75c0da7fa6c70895562",
+                "c2f0ff1be02d29f7199c1e600ba5a95e",
             ),
             type_confirmed: true,
         },
@@ -58,14 +58,14 @@ Type(
 )
 type Cat @__RelayResolverModel {
   id: ID! @__RelayResolverModelGeneratedIDField
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "dbaa81766321d75c0da7fa6c70895562") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "c2f0ff1be02d29f7199c1e600ba5a95e") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 
 ✖︎ UnionTypeAnnotation is not supported
 
-  module.js:22:26
-   21 │  */
-   22 │ export function name(id: CatFlowType | DogFlowType): boolean {
+  module.js:15:26
+   14 │  */
+   15 │ export function name(id: CatFlowType | DogFlowType): boolean {
       │                          ^^^^^^^^^^^^^^^^^^^^^^^^^
-   23 │   return {};
+   16 │   return {};

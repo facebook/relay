@@ -1,0 +1,73 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+// Docblock parse error with file-relative location: the diagnostic underline
+// should point at the `@` on the correct line in the file, not at an offset
+// relative to the start of the docblock comment.
+/**
+  @RelayResolver
+ */
+export function name(cat: CatFlowType): ?string {
+  return "cat";
+}
+==================================== OUTPUT ===================================
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 80:83,
+                token: Token {
+                    span: 80:83,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: module.js:80:83,
+            root_fragment: WithLocation {
+                location: module.js:80:83,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: module.js:80:83,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "ce25277bb3583bcc33dc2ab23600290a",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID! @__RelayResolverModelGeneratedIDField
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "ce25277bb3583bcc33dc2ab23600290a") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+✖︎ Expected "*".
+
+  module.js:15:3
+   14 │ /**
+   15 │   @RelayResolver
+      │   ^
+   16 │  */

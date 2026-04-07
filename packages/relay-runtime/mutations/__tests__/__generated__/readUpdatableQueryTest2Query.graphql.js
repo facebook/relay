@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<88fe93c5b9a904ac7103fa3166ecc584>>
+ * @generated SignedSource<<de8e74adb92abbf3daa679f17ce8ebd3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -50,7 +50,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "readUpdatableQueryTest2Query",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -59,7 +59,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "readUpdatableQueryTest2Query",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "dd26ecea75e3561a6784a7144142c864",
@@ -73,10 +73,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "17153fb9c11380ca4682cb0bf6f90711";
+  (node/*:: as any*/).hash = "17153fb9c11380ca4682cb0bf6f90711";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   readUpdatableQueryTest2Query$variables,
   readUpdatableQueryTest2Query$data,
 >*/);

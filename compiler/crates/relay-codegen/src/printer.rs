@@ -106,7 +106,12 @@ pub fn print_request_params(
         operation.name.map(|x| x.0),
         project_config,
     );
-    let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
+    let printer = JSONPrinter::new(
+        &builder,
+        project_config,
+        top_level_statements,
+        Some(operation.name.item.0),
+    );
     printer.print(request_parameters_ast_key, false)
 }
 
@@ -168,6 +173,7 @@ impl<'p> Printer<'p> {
             &self.builder,
             self.project_config,
             &mut top_level_statements,
+            Some(operation.name.item.0),
         );
         Some(printer.print(
             provided_variables,
@@ -198,6 +204,7 @@ impl<'p> Printer<'p> {
             &self.builder,
             self.project_config,
             &mut top_level_statements,
+            Some(fragment_definition.name.item.0),
         );
         printer.print(key, self.should_dedupe(fragment_definition.name.item.0))
     }
@@ -227,7 +234,12 @@ impl<'p> Printer<'p> {
             fragment.name.map(|x| x.0),
             self.project_config,
         );
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            Some(operation.name.item.0),
+        );
         printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
@@ -247,7 +259,12 @@ impl<'p> Printer<'p> {
             self.project_config,
         );
         let key = build_preloadable_request(&mut self.builder, request_parameters);
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            Some(operation.name.item.0),
+        );
         printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
@@ -264,7 +281,12 @@ impl<'p> Printer<'p> {
             operation.name.map(|x| x.0),
             self.project_config,
         );
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            Some(operation.name.item.0),
+        );
         printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
@@ -281,7 +303,12 @@ impl<'p> Printer<'p> {
             fragment.name.map(|x| x.0),
             self.project_config,
         );
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            Some(fragment.name.item.0),
+        );
         printer.print(key, self.should_dedupe(fragment.name.item.0))
     }
 
@@ -300,7 +327,12 @@ impl<'p> Printer<'p> {
             operation.name.map(|x| x.0),
             self.project_config,
         );
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            Some(operation.name.item.0),
+        );
         printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
@@ -310,7 +342,12 @@ impl<'p> Printer<'p> {
         top_level_statements: &mut TopLevelStatements,
     ) -> String {
         let key = build_resolvers_schema(&mut self.builder, schema, self.project_config);
-        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            top_level_statements,
+            None,
+        );
         printer.print(key, self.dedupe)
     }
 
@@ -335,7 +372,6 @@ pub struct JSONPrinter<'b> {
     top_level_statements: &'b mut TopLevelStatements,
     skip_printing_nulls: bool,
     relativize_js_module_paths: bool,
-    use_new_flow_casting_syntax: bool,
 }
 
 impl<'b> JSONPrinter<'b> {
@@ -343,6 +379,7 @@ impl<'b> JSONPrinter<'b> {
         builder: &'b AstBuilder,
         project_config: &ProjectConfig,
         top_level_statements: &'b mut TopLevelStatements,
+        _name: Option<StringKey>,
     ) -> Self {
         Self {
             variable_definitions: Default::default(),
@@ -355,10 +392,6 @@ impl<'b> JSONPrinter<'b> {
             skip_printing_nulls: project_config
                 .feature_flags
                 .skip_printing_nulls
-                .is_fully_enabled(),
-            use_new_flow_casting_syntax: project_config
-                .feature_flags
-                .new_flow_casting_syntax
                 .is_fully_enabled(),
         }
     }
@@ -447,11 +480,7 @@ impl<'b> JSONPrinter<'b> {
                 self.variable_definitions.insert(key, variable);
                 v
             };
-            return if self.use_new_flow_casting_syntax {
-                write!(f, "(v{v}/*:: as any*/)").unwrap()
-            } else {
-                write!(f, "(v{v}/*: any*/)").unwrap()
-            };
+            return write!(f, "(v{v}/*:: as any*/)").unwrap();
         }
 
         let ast = self.builder.lookup(key);
@@ -486,11 +515,7 @@ impl<'b> JSONPrinter<'b> {
                         // Empty arrays can only have one inferred flow type and then conflict if
                         // used in different places, this is unsound if we would write to them but
                         // this whole module is based on the idea of a read only JSON tree.
-                        if self.use_new_flow_casting_syntax {
-                            f.push_str("([]/* as any*/)");
-                        } else {
-                            f.push_str("([]/*: any*/)");
-                        }
+                        f.push_str("([]/*:: as any*/)");
                     } else {
                         f.push_str("[]");
                     }
@@ -603,7 +628,7 @@ impl<'b> JSONPrinter<'b> {
                 }
             },
             Primitive::PropertyAccessor(property) => {
-                write_arrow_fn(f, &["o"], &format!("o.{property}"))
+                write_arrow_fn(f, &["o/*: any*/"], &format!("o.{property}"))
             }
             Primitive::RelayResolverModel {
                 graphql_module_path,

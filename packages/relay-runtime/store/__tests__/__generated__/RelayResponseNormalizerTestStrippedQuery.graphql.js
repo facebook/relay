@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fc7853ea675feada3efc80b7c5980fb1>>
+ * @generated SignedSource<<02750f4a4012a5bf130061d0e556aa2b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,21 +22,17 @@ export type RelayResponseNormalizerTestStrippedQuery$variables = {|
   id?: ?string,
 |};
 export type RelayResponseNormalizerTestStrippedQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +firstName: ?string,
-    +foo: ?{|
+  +node: ?{|
+    +__typename: string,
+    +firstName?: ?string,
+    +foo?: ?{|
       +bar: ?{|
         +content: ?string,
       |},
     |},
     +id: string,
-    +nickname: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+    +nickname?: ?string,
+  |},
 |};
 export type RelayResponseNormalizerTestStrippedQuery = {|
   response: RelayResponseNormalizerTestStrippedQuery$data,
@@ -142,20 +138,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTestStrippedQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTestStrippedQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "37a66fa4bf09ce1ccc9633f40513f90a",
@@ -169,10 +165,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0e208d9fa88413c2a2a25066a002b64d";
+  (node/*:: as any*/).hash = "0e208d9fa88413c2a2a25066a002b64d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTestStrippedQuery$variables,
   RelayResponseNormalizerTestStrippedQuery$data,
 >*/);

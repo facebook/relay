@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0a43feccc1acf186ac8bb48cfbb4da2b>>
+ * @generated SignedSource<<65dba248a809536987e0ebf6524c27c4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -82,7 +82,7 @@ v2 = {
           "name": "node",
           "plural": false,
           "selections": [
-            (v1/*: any*/),
+            (v1/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -158,7 +158,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -167,8 +167,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/)
+              (v1/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -188,7 +188,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -201,11 +201,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -250,18 +250,18 @@ return {
           "plural": false,
           "type": "User"
         },
-        "node.friends.edges.node.id": (v3/*: any*/),
-        "node.friends.edges.node.name": (v4/*: any*/),
+        "node.friends.edges.node.id": (v3/*:: as any*/),
+        "node.friends.edges.node.name": (v4/*:: as any*/),
         "node.friends.edges.node.profile_picture": {
           "enumValues": null,
           "nullable": true,
           "plural": false,
           "type": "Image"
         },
-        "node.friends.edges.node.profile_picture.height": (v5/*: any*/),
-        "node.friends.edges.node.profile_picture.uri": (v4/*: any*/),
-        "node.friends.edges.node.profile_picture.width": (v5/*: any*/),
-        "node.id": (v3/*: any*/)
+        "node.friends.edges.node.profile_picture.height": (v5/*:: as any*/),
+        "node.friends.edges.node.profile_picture.uri": (v4/*:: as any*/),
+        "node.friends.edges.node.profile_picture.width": (v5/*:: as any*/),
+        "node.id": (v3/*:: as any*/)
       }
     },
     "name": "RelayMockPayloadGeneratorTest34Query",
@@ -272,10 +272,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "eaa8d17b1b9852ab92700a07fe611f3b";
+  (node/*:: as any*/).hash = "eaa8d17b1b9852ab92700a07fe611f3b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest34Query$variables,
   RelayMockPayloadGeneratorTest34Query$data,
 >*/);

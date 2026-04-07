@@ -1,0 +1,46 @@
+# Incremental schema change with a base project sharing the same schema.
+#
+# Changing a field type (String → Int) is ObjectChanged → SafeWithIncrementalBuild.
+# The incremental build must recompile operations referencing the changed type
+# so that generated types reflect the new field type.
+
+//- base_src/base.js
+graphql`
+  query baseQuery {
+    me { name }
+  }
+`;
+
+//- derived_src/derived.js
+graphql`
+  query derivedQuery {
+    me { name }
+  }
+`;
+
+//- relay.config.json
+{
+  "sources": {
+    "base_src": "base_project",
+    "derived_src": "derived_project"
+  },
+  "projects": {
+    "base_project": {
+      "schema": "schema.graphql",
+      "language": "typescript"
+    },
+    "derived_project": {
+      "schema": "schema.graphql",
+      "base": "base_project",
+      "language": "typescript"
+    }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+
+//-++ schema.graphql
+type Query { me: User }
+type User { name: Int }

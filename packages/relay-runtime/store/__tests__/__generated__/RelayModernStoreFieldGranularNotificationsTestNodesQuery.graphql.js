@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c59af4dad6557909488e07d93b7118a1>>
+ * @generated SignedSource<<35c555105c224fe66d9b722f68ad07ff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,15 +22,11 @@ export type RelayModernStoreFieldGranularNotificationsTestNodesQuery$variables =
   ids: ReadonlyArray<string>,
 |};
 export type RelayModernStoreFieldGranularNotificationsTestNodesQuery$data = {|
-  +nodes: ?ReadonlyArray<?({|
-    +__typename: "User",
+  +nodes: ?ReadonlyArray<?{|
+    +__typename: string,
     +id: string,
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |})>,
+    +name?: ?string,
+  |}>,
 |};
 export type RelayModernStoreFieldGranularNotificationsTestNodesQuery = {|
   response: RelayModernStoreFieldGranularNotificationsTestNodesQuery$data,
@@ -95,20 +91,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernStoreFieldGranularNotificationsTestNodesQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernStoreFieldGranularNotificationsTestNodesQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "c355d266b7d1839f998b595dfc532b33",
@@ -122,10 +118,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bb546b55fa120c643b44c131e6eb007e";
+  (node/*:: as any*/).hash = "bb546b55fa120c643b44c131e6eb007e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernStoreFieldGranularNotificationsTestNodesQuery$variables,
   RelayModernStoreFieldGranularNotificationsTestNodesQuery$data,
 >*/);

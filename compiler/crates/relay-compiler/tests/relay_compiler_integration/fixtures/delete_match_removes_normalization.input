@@ -1,0 +1,76 @@
+//- parent.js
+// Incremental compilation bug: when a fragment spread with a @match directive
+// is removed from a fragment, the compiler should delete the associated
+// $normalization artifact (even if the fragment itself still exists).
+
+graphql`
+  fragment parent_Fragment on User {
+    id
+    nameRenderer @match {
+      ...renderer_Fragment
+        @module(name: "PlainUserNameRenderer.react")
+    }
+  }
+`;
+
+//- renderer.js
+graphql`
+  fragment renderer_Fragment on PlainUserNameRenderer {
+    plaintext
+    data {
+      text
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "featureFlags": {
+     "no_inline": {
+       "kind": "enabled"
+     },
+     "enable_3d_branch_arg_generation": true
+   }
+}
+
+//- schema.graphql
+scalar JSDependency
+
+interface HasJsField {
+  js(module: String!, id: String, branch: String): JSDependency
+}
+
+interface Node {
+  id: ID!
+}
+
+union UserNameRenderer = PlainUserNameRenderer
+
+type PlainUserNameRenderer implements HasJsField {
+  plaintext: String
+  data: PlainUserNameData
+  js(module: String!, id: String, branch: String): JSDependency
+}
+
+type PlainUserNameData {
+  id: ID
+  text: String
+}
+
+type User implements Node {
+  id: ID!
+  nameRenderer(supported: [String!]): UserNameRenderer
+}
+
+type Query {
+  node(id: ID): Node
+}
+
+//-++ parent.js
+graphql`
+  fragment parent_Fragment on User {
+    id
+  }
+`;

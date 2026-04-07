@@ -132,7 +132,7 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     this.__recordSource.invalidateStore();
   }
 
-  readUpdatableQuery<TVariables: Variables, TData>(
+  readUpdatableQuery<TVariables extends Variables, TData>(
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,
   ): UpdatableData<TData> {
@@ -144,7 +144,7 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     );
   }
 
-  readUpdatableFragment<TFragmentType: FragmentType, TData>(
+  readUpdatableFragment<TFragmentType extends FragmentType, TData>(
     fragment: UpdatableFragment<TFragmentType, TData>,
     fragmentReference: HasUpdatableSpread<TFragmentType>,
   ): UpdatableData<TData> {

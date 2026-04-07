@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e8e8a8aa6dd4934771eebd16fe4a970a>>
+ * @generated SignedSource<<cf2d375896da9973f5feb2b73cdd1a5b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -79,7 +79,7 @@ return {
               "kind": "LinkedField",
               "name": "actor",
               "plural": false,
-              "selections": (v0/*: any*/),
+              "selections": (v0/*:: as any*/),
               "storageKey": null
             }
           ],
@@ -99,7 +99,7 @@ return {
           "kind": "LinkedField",
           "name": "me",
           "plural": false,
-          "selections": (v0/*: any*/),
+          "selections": (v0/*:: as any*/),
           "storageKey": null
         }
       ]
@@ -111,10 +111,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3e09cebb24166f50723abfb502abb690";
+  (node/*:: as any*/).hash = "3e09cebb24166f50723abfb502abb690";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
   RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data,
 >*/);

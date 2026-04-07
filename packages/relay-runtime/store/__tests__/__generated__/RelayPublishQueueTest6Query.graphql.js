@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<764aecb8d549d4ed946140c6da3f60e0>>
+ * @generated SignedSource<<4b0f96eb90654fee9bea3767e3640583>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -53,7 +53,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -75,7 +75,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -100,10 +100,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "995ca39ae8c20ede1b1bab43af698550";
+  (node/*:: as any*/).hash = "995ca39ae8c20ede1b1bab43af698550";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayPublishQueueTest6Query$variables,
   RelayPublishQueueTest6Query$data,
 >*/);

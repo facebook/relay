@@ -52,21 +52,21 @@ function withResolverContext<T>(context: ResolverContext, cb: () => T): T {
 //   - array of nullable if the provided ref type is an array of nullable refs
 
 declare function readFragment<
-  TKey: {+$data?: unknown, +$fragmentSpreads: FragmentType, ...},
+  TKey extends {+$data?: unknown, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
 ): NonNullable<TKey['$data']>;
 
 declare function readFragment<
-  TKey: ?{+$data?: unknown, +$fragmentSpreads: FragmentType, ...},
+  TKey extends ?{+$data?: unknown, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
 ): ?TKey?.['$data'];
 
 declare function readFragment<
-  TKey: ReadonlyArray<{
+  TKey extends ReadonlyArray<{
     +$data?: unknown,
     +$fragmentSpreads: FragmentType,
     ...
@@ -77,7 +77,7 @@ declare function readFragment<
 ): NonNullable<TKey[number]['$data']>;
 
 declare function readFragment<
-  TKey: ?ReadonlyArray<{
+  TKey extends ?ReadonlyArray<{
     +$data?: unknown,
     +$fragmentSpreads: FragmentType,
     ...
@@ -87,7 +87,7 @@ declare function readFragment<
   fragmentKey: TKey,
 ): ?TKey?.[number]['$data'];
 
-declare function readFragment<TKey: FragmentType, TData>(
+declare function readFragment<TKey extends FragmentType, TData>(
   fragmentInput: Fragment<TKey, TData>,
   fragmentKey: TKey,
 ): TData;

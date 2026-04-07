@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<30742386b99674a8389c0477b6392d7c>>
+ * @generated SignedSource<<79204b70ff24760b09bf91d0964c1fd4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -79,21 +79,21 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
           {
-            "fragment": (v2/*: any*/),
+            "fragment": (v2/*:: as any*/),
             "kind": "AliasedInlineFragmentSpread",
             "name": "a_common_alias"
           },
@@ -135,13 +135,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -154,7 +154,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "TypeDiscriminator",
             "abstractKey": "__isNode"
@@ -183,10 +183,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8deb3de5ffb9bc595f8cc31652d4ce7a";
+  (node/*:: as any*/).hash = "8deb3de5ffb9bc595f8cc31652d4ce7a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$variables,
   RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$data,
 >*/);

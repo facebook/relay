@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<60f62f906d38fb0b33e62d87e40efff5>>
+ * @generated SignedSource<<962f357657fe98a49b578b496159b5ae>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {constant_dependent as userConstantDependentResolverType} from "../resolv
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userConstantDependentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userConstantDependentResolverType: (
+(userConstantDependentResolverType as (
   rootKey: UserConstantDependentResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -147,10 +147,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fd0c2d161f1a5237011571fb21fabd9c";
+  (node/*:: as any*/).hash = "fd0c2d161f1a5237011571fb21fabd9c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest2Query$variables,
   RelayReaderResolverTest2Query$data,
 >*/);

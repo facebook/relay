@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9ef1f52104624c2e023f5c39b88f31f1>>
+ * @generated SignedSource<<2583413869561dedd2bcdd8667ff60da>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/s
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoModelResolverType: (
+(queryTodoModelResolverType as (
   args: {|
     todoID: string,
   |},
@@ -36,7 +36,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextWithPrefixResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoDescriptionTextWithPrefixResolverType: (
+(todoDescriptionTextWithPrefixResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: {|
     prefix: string,
@@ -46,7 +46,7 @@ import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelFancyDescriptionResolverType: (
+(todoModelFancyDescriptionResolverType as (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -99,7 +99,7 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -124,9 +124,10 @@ return {
             "path": "todo_model.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "todo_model",
@@ -135,7 +136,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoModel",
           "kind": "LinkedField",
           "name": "todo_model",
@@ -145,6 +146,7 @@ return {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "TodoDescription",
               "modelResolvers": null,
+              "serverObjectOperations": null,
               "backingField": {
                 "alias": null,
                 "args": null,
@@ -173,7 +175,7 @@ return {
                 "selections": [
                   {
                     "alias": null,
-                    "args": (v2/*: any*/),
+                    "args": (v2/*:: as any*/),
                     "fragment": {
                       "args": null,
                       "kind": "FragmentSpread",
@@ -198,7 +200,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolverModelTestFieldWithArgumentsQuery",
     "selections": [
@@ -206,7 +208,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "todo_model",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -214,7 +216,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoModel",
           "kind": "LinkedField",
           "name": "todo_model",
@@ -234,7 +236,7 @@ return {
                       "fragment": {
                         "kind": "InlineFragment",
                         "selections": [
-                          (v3/*: any*/)
+                          (v3/*:: as any*/)
                         ],
                         "type": "TodoModel",
                         "abstractKey": null
@@ -261,7 +263,7 @@ return {
                 "selections": [
                   {
                     "name": "text_with_prefix",
-                    "args": (v2/*: any*/),
+                    "args": (v2/*:: as any*/),
                     "fragment": {
                       "kind": "InlineFragment",
                       "selections": [
@@ -284,7 +286,7 @@ return {
                 "storageKey": null
               }
             },
-            (v3/*: any*/)
+            (v3/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -303,10 +305,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d0daaf4fcd4eaf3bce605aa4775fff4a";
+  (node/*:: as any*/).hash = "d0daaf4fcd4eaf3bce605aa4775fff4a";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverModelTestFieldWithArgumentsQuery$variables,
   RelayResolverModelTestFieldWithArgumentsQuery$data,
 >*/);

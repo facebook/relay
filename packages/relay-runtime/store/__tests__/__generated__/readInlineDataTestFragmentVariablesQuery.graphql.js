@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<25aea7751a908926dee43bf71f9aed93>>
+ * @generated SignedSource<<b1c03453f266cb01966c36ed21cf2f8d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -52,7 +52,7 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "readInlineDataTestFragmentVariablesQuery",
@@ -82,7 +82,7 @@ return {
                 "kind": "LinkedField",
                 "name": "profile_picture",
                 "plural": false,
-                "selections": (v1/*: any*/),
+                "selections": (v1/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -110,7 +110,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "readInlineDataTestFragmentVariablesQuery",
     "selections": [
@@ -135,7 +135,7 @@ return {
             "kind": "LinkedField",
             "name": "profile_picture",
             "plural": false,
-            "selections": (v1/*: any*/),
+            "selections": (v1/*:: as any*/),
             "storageKey": null
           },
           {
@@ -162,10 +162,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cff614ecb857c3bd9cfc99f00f1e5471";
+  (node/*:: as any*/).hash = "cff614ecb857c3bd9cfc99f00f1e5471";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   readInlineDataTestFragmentVariablesQuery$variables,
   readInlineDataTestFragmentVariablesQuery$data,
 >*/);

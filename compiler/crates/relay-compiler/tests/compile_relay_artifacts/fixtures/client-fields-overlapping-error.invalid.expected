@@ -12,7 +12,7 @@ extend type Query {
   client_field(arg: String): String
 }
 ==================================== ERROR ====================================
-✖︎ Expected all fields on the same parent with the name or alias `client_field` to have the same argument values after applying fragment arguments. This field has the applied argument values: (arg: "Value1")
+✖︎ Expected all fields on the same parent with the name or alias `client_field` to have the same argument values after applying fragment arguments. This field has the applied argument values: (arg: "Value1"). If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: client_field(...)`.
 
   client-fields-overlapping-error.invalid.graphql:4:3
     3 │ query clientFieldsOverlappingErrorQuery {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<79cfd1aa462fa1625baaea91b7e7dd2f>>
+ * @generated SignedSource<<044ec89a9827667fde906962ca812f19>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -74,7 +74,7 @@ return {
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
-      "selections": (v0/*: any*/),
+      "selections": (v0/*:: as any*/),
       "storageKey": null
     },
     {
@@ -90,7 +90,7 @@ return {
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
-      "selections": (v0/*: any*/),
+      "selections": (v0/*:: as any*/),
       "storageKey": null
     }
   ],
@@ -100,10 +100,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6e08f5797205b7b5bb2a77db4e738fd9";
+  (node/*:: as any*/).hash = "6e08f5797205b7b5bb2a77db4e738fd9";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   withProvidedVariablesTest5Fragment$fragmentType,
   withProvidedVariablesTest5Fragment$data,
 >*/);

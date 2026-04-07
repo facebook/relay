@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ce24691de836cbd17f6f9c94fa0da9fa>>
+ * @generated SignedSource<<3fb00288c5e2cee6e7bf90ac8f6ef2fb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import {another_client_edge as userAnotherClientEdgeResolverType} from "../UserA
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAnotherClientEdgeResolverType: (
+(userAnotherClientEdgeResolverType as (
   rootKey: UserAnotherClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -35,7 +35,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -94,7 +94,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "kind": "ClientEdgeToServerObject",
             "operation": require('./ClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerRecursiveQuery_me__client_edge.graphql'),
@@ -119,8 +119,8 @@ return {
               "name": "client_edge",
               "plural": false,
               "selections": [
-                (v1/*: any*/),
-                (v0/*: any*/),
+                (v1/*:: as any*/),
+                (v0/*:: as any*/),
                 {
                   "kind": "ClientEdgeToServerObject",
                   "operation": require('./ClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerRecursiveQuery_me__client_edge__another_client_edge.graphql'),
@@ -145,8 +145,8 @@ return {
                     "name": "another_client_edge",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
-                      (v0/*: any*/)
+                      (v1/*:: as any*/),
+                      (v0/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -176,14 +176,14 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "name": "client_edge",
             "args": null,
             "fragment": {
               "kind": "InlineFragment",
               "selections": [
-                (v0/*: any*/)
+                (v0/*:: as any*/)
               ],
               "type": "User",
               "abstractKey": null
@@ -192,7 +192,7 @@ return {
             "storageKey": null,
             "isOutputType": false
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -210,10 +210,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e84993737b8022e99659ef3064e0aeea";
+  (node/*:: as any*/).hash = "e84993737b8022e99659ef3064e0aeea";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverGCTestResolverClientEdgeToServerRecursiveQuery$variables,
   ResolverGCTestResolverClientEdgeToServerRecursiveQuery$data,
 >*/);

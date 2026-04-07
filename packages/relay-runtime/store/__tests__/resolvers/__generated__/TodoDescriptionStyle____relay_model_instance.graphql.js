@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fee9ab0d6e344059cf2c0d173656d54e>>
+ * @generated SignedSource<<14b455044911b34ea9155ba6533cfea5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -55,7 +55,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoDescriptionStyle____relay_model_instance$fragmentType,
   TodoDescriptionStyle____relay_model_instance$data,
 >*/);

@@ -60,7 +60,7 @@ impl<I: Send, A: ParallelIterator<Item = I>, B: ParallelIterator<Item = I>> Para
 #[derive(Debug)]
 pub enum SDLSchema {
     InMemory(InMemorySchema),
-    FlatBuffer(SchemaWrapper),
+    FlatBuffer(Box<SchemaWrapper>),
 }
 
 impl Schema for SDLSchema {
@@ -313,9 +313,9 @@ impl SDLSchema {
             client_schema_documents,
         )?);
         let flatbuffer_bytes = crate::flatbuffer::serialize_as_flatbuffer(&sdl_schema);
-        Ok(SDLSchema::FlatBuffer(SchemaWrapper::from_vec(
+        Ok(SDLSchema::FlatBuffer(Box::new(SchemaWrapper::from_vec(
             flatbuffer_bytes,
-        )))
+        ))))
     }
 
     pub fn add_object_type_extension(
@@ -324,7 +324,9 @@ impl SDLSchema {
         location_key: SourceLocationKey,
     ) -> DiagnosticsResult<()> {
         match self {
-            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::FlatBuffer(schema) => {
+                schema.add_object_type_extension(object_extension, location_key)
+            }
             SDLSchema::InMemory(schema) => {
                 schema.add_object_type_extension(object_extension, location_key)
             }
@@ -337,7 +339,9 @@ impl SDLSchema {
         location_key: SourceLocationKey,
     ) -> DiagnosticsResult<()> {
         match self {
-            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::FlatBuffer(schema) => {
+                schema.add_interface_type_extension(interface_extension, location_key)
+            }
             SDLSchema::InMemory(schema) => {
                 schema.add_interface_type_extension(interface_extension, location_key)
             }
@@ -350,7 +354,7 @@ impl SDLSchema {
         location_key: SourceLocationKey,
     ) -> DiagnosticsResult<()> {
         match self {
-            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::FlatBuffer(schema) => schema.add_extension_scalar(scalar, location_key),
             SDLSchema::InMemory(schema) => schema.add_extension_scalar(scalar, location_key),
         }
     }
@@ -361,7 +365,7 @@ impl SDLSchema {
         location_key: SourceLocationKey,
     ) -> DiagnosticsResult<()> {
         match self {
-            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::FlatBuffer(schema) => schema.add_extension_object(object, location_key),
             SDLSchema::InMemory(schema) => schema.add_extension_object(object, location_key),
         }
     }

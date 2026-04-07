@@ -1,0 +1,35 @@
+# Adding a type that implements a non-Node interface with an id field.
+#
+# is_object_add_safe() returns false for this case. The incremental build
+# must recompile queries that spread on the interface so that generated
+# output reflects the new type.
+
+//- foo.js
+graphql`
+  query fooQuery {
+    node(id: "1") {
+      ... on Actor {
+        name
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query { node(id: ID!): Node }
+interface Node { id: ID! }
+interface Actor { name: String }
+type User implements Node & Actor { id: ID!, name: String }
+
+//-++ schema.graphql
+type Query { node(id: ID!): Node }
+interface Node { id: ID! }
+interface Actor { name: String }
+type User implements Node & Actor { id: ID!, name: String }
+type Bot implements Node & Actor { id: ID!, name: String }

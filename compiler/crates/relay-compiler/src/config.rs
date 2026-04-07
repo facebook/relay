@@ -17,6 +17,7 @@ use std::vec;
 use async_trait::async_trait;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::FeatureFlag;
 use common::FeatureFlags;
 use common::Rollout;
 use common::ScalarName;
@@ -108,6 +109,7 @@ type CustomExtractRelayResolvers = Box<
             &FnvIndexMap<ScalarName, CustomType>,
             &CompilerState,
             Option<&GraphQLAsts>,
+            &FeatureFlag,
         ) -> DiagnosticsResult<(Vec<DocblockIr>, Vec<DocblockIr>)>
         // (Types, Fields)
         + Send
@@ -136,6 +138,7 @@ pub struct Config {
     /// directories).
     pub generated_sources: FnvIndexMap<PathBuf, ProjectSet>,
     pub projects: FnvIndexMap<ProjectName, ProjectConfig>,
+    pub is_multi_project: bool,
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
     /// If set, tries to initialize the compiler from the saved state file.
@@ -175,7 +178,7 @@ pub struct Config {
     /// Optional build status for coordinating between daemon and clients.
     /// When set, the compiler will notify this status object of file changes
     /// and build completion, allowing the client to wait for builds.
-    pub build_status: Option<Arc<BuildStatus>>,
+    pub daemon_build_status: Option<Arc<BuildStatus>>,
 
     /// We may generate some content in the artifacts that's stripped in production if __DEV__ variable is set
     /// This config option is here to define the name of that special variable
@@ -400,23 +403,27 @@ impl Config {
         let projects = projects
             .into_iter()
             .map(|(project_name, config_file_project)| {
-                let schema_location =
-                    match (config_file_project.schema, config_file_project.schema_dir) {
-                        (Some(schema_file), None) => Ok(SchemaLocation::File(
-                            normalize_relative_path(&root_dir, &schema_file),
-                        )),
-                        (None, Some(schema_dir)) => Ok(SchemaLocation::Directory(
-                            normalize_relative_path(&root_dir, &schema_dir),
-                        )),
-                        _ => Err(Error::ConfigFileValidation {
-                            config_path: config_path.clone(),
-                            validation_errors: vec![
-                                ConfigValidationError::ProjectNeedsSchemaXorSchemaDir {
-                                    project_name,
-                                },
-                            ],
-                        }),
-                    }?;
+                let schema_location = match (
+                    config_file_project.schema,
+                    config_file_project.schema_dir,
+                    config_file_project.schema_compact,
+                ) {
+                    (Some(schema_file), None, None) => Ok(SchemaLocation::File(
+                        normalize_relative_path(&root_dir, &schema_file),
+                    )),
+                    (None, Some(schema_dir), None) => Ok(SchemaLocation::Directory(
+                        normalize_relative_path(&root_dir, &schema_dir),
+                    )),
+                    (None, None, Some(schema_compact)) => Ok(SchemaLocation::CompactFile(
+                        normalize_relative_path(&root_dir, &schema_compact),
+                    )),
+                    _ => Err(Error::ConfigFileValidation {
+                        config_path: config_path.clone(),
+                        validation_errors: vec![
+                            ConfigValidationError::ProjectNeedsSchemaXorSchemaDir { project_name },
+                        ],
+                    }),
+                }?;
 
                 let shard_strip_regex = config_file_project
                     .shard_strip_regex
@@ -525,12 +532,13 @@ impl Config {
                 root_dir.clone(),
                 is_multi_project,
             )),
-            build_status: None,
+            daemon_build_status: None,
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
             generated_sources: config_file.generated_sources,
             projects,
+            is_multi_project,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
@@ -652,7 +660,7 @@ impl Config {
 
         for (_, project) in &self.projects {
             match &project.schema_location {
-                SchemaLocation::File(schema_file) => {
+                SchemaLocation::CompactFile(schema_file) | SchemaLocation::File(schema_file) => {
                     validator.assert_is_included_schema_file(schema_file);
                 }
                 SchemaLocation::Directory(schema_dir) => {
@@ -730,7 +738,9 @@ impl Config {
         self.projects
             .values()
             .filter_map(|project_config| match &project_config.schema_location {
-                SchemaLocation::File(schema_file) => Some(schema_file.clone()),
+                SchemaLocation::File(schema_file) | SchemaLocation::CompactFile(schema_file) => {
+                    Some(schema_file.clone())
+                }
                 SchemaLocation::Directory(_) => None,
             })
             .collect()
@@ -741,7 +751,7 @@ impl Config {
         self.projects
             .values()
             .filter_map(|project_config| match &project_config.schema_location {
-                SchemaLocation::File(_) => None,
+                SchemaLocation::File(_) | SchemaLocation::CompactFile(_) => None,
                 SchemaLocation::Directory(schema_dir) => Some(schema_dir.clone()),
             })
             .collect()
@@ -1239,6 +1249,7 @@ pub struct ConfigFileProject {
     /// Exactly 1 of these options needs to be defined.
     schema: Option<PathBuf>,
     schema_dir: Option<PathBuf>,
+    schema_compact: Option<PathBuf>,
 
     /// Schema name, if differs from project name.
     /// If schema name is unset, the project name will be used as schema name.

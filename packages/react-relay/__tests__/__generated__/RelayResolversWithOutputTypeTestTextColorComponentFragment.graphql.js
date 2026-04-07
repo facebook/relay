@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8ccda0e6400fbe28467e1480ff53c72f>>
+ * @generated SignedSource<<0632808dd861493d33f3c6fccd8726be>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {human_readable_color as todoTextColorHumanReadableColorResolverType} fro
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoTextColorHumanReadableColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoTextColorHumanReadableColorResolverType: (
+(todoTextColorHumanReadableColorResolverType as (
   rootKey: TodoTextColorResolverFragment$key,
   args: void,
   context: TestResolverContextType,
@@ -66,10 +66,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d236248a49dbfef90d13bc458b58a7f5";
+  (node/*:: as any*/).hash = "d236248a49dbfef90d13bc458b58a7f5";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
   RelayResolversWithOutputTypeTestTextColorComponentFragment$data,
 >*/);

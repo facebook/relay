@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2f9c6b6a1fc4d8449cbbe02eb131caa1>>
+ * @generated SignedSource<<86f94af5e7694b7dfb39ea3171d85f94>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -41,7 +41,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useLazyLoadQueryNodeTestOnlyFragmentsQuery",
@@ -57,7 +57,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useLazyLoadQueryNodeTestOnlyFragmentsQuery",
     "selections": [
@@ -113,10 +113,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "01b943dc86633c9c75db8215fb4fbfa1";
+  (node/*:: as any*/).hash = "01b943dc86633c9c75db8215fb4fbfa1";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useLazyLoadQueryNodeTestOnlyFragmentsQuery$variables,
   useLazyLoadQueryNodeTestOnlyFragmentsQuery$data,
 >*/);

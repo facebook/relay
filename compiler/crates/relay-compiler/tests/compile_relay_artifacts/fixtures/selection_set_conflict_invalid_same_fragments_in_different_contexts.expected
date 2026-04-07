@@ -40,7 +40,7 @@ fragment selectionSetConflictInvalidSameFragmentsInDifferentContextsB on Actor {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected all fields on the same parent with the name or alias `profilePicture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (size: [42])
+✖︎ Expected all fields on the same parent with the name or alias `profilePicture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (size: [42]). If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: profilePicture(...)`.
 
   selection_set_conflict_invalid_same_fragments_in_different_contexts.graphql:31:3
    30 │ fragment selectionSetConflictInvalidSameFragmentsInDifferentContextsA on Actor {

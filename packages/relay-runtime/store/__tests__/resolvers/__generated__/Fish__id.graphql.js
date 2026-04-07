@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<47ead1ae3d880ee8b9569a3aafda536a>>
+ * @generated SignedSource<<ca471c185f6d36a28f70816bce2213ba>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -54,7 +54,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   Fish__id$fragmentType,
   Fish__id$data,
 >*/);

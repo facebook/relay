@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6b8e37ba706d3b0dd8eecce0e1e5a5de>>
+ * @generated SignedSource<<72627688a6405820bf82bbdcb8963266>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {TodoModel as todoModelRelayModelInstanceResolverType} from "../TodoModel
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoModelRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelRelayModelInstanceResolverType: (
+(todoModelRelayModelInstanceResolverType as (
   id: TodoModel__id$data['id'],
   args: void,
   context: TestResolverContextType,
@@ -65,7 +65,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoModel____relay_model_instance$fragmentType,
   TodoModel____relay_model_instance$data,
 >*/);

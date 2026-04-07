@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0a91e17a4ed84b98fd7bc53d86b68e4d>>
+ * @generated SignedSource<<99145b87737a19b2f74f0457b37a2664>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -70,8 +70,8 @@ v2 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/)
+          (v0/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -151,7 +151,7 @@ return {
                     "kind": "LinkedField",
                     "name": "__Friends_friends_connection",
                     "plural": false,
-                    "selections": (v2/*: any*/),
+                    "selections": (v2/*:: as any*/),
                     "storageKey": null
                   }
                 ],
@@ -190,23 +190,23 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v1/*: any*/),
+              (v1/*:: as any*/),
               {
                 "kind": "InlineFragment",
                 "selections": [
                   {
                     "alias": null,
-                    "args": (v3/*: any*/),
+                    "args": (v3/*:: as any*/),
                     "concreteType": "FriendsConnection",
                     "kind": "LinkedField",
                     "name": "friends",
                     "plural": false,
-                    "selections": (v2/*: any*/),
+                    "selections": (v2/*:: as any*/),
                     "storageKey": "friends(first:1)"
                   },
                   {
                     "alias": null,
-                    "args": (v3/*: any*/),
+                    "args": (v3/*:: as any*/),
                     "filters": null,
                     "handle": "connection",
                     "key": "Friends_friends",
@@ -217,7 +217,7 @@ return {
                 "type": "User",
                 "abstractKey": null
               },
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -251,10 +251,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7a02d40aa4245312a2f1189bb1049b15";
+  (node/*:: as any*/).hash = "7a02d40aa4245312a2f1189bb1049b15";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   commitMutationTest3Query$variables,
   commitMutationTest3Query$data,
 >*/);

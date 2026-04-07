@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5aa2b321153fbb5396c3d0fef57d17dd>>
+ * @generated SignedSource<<5e0f4be69fae0c14f1ae24e921e88e5c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -63,20 +63,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayQueryRendererTestNextQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -86,13 +86,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayQueryRendererTestNextQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -105,7 +105,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -130,10 +130,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2653367ac12aeab05ef739c0c9cf766f";
+  (node/*:: as any*/).hash = "2653367ac12aeab05ef739c0c9cf766f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayQueryRendererTestNextQuery$variables,
   ReactRelayQueryRendererTestNextQuery$data,
 >*/);

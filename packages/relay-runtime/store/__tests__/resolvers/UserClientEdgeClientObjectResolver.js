@@ -12,7 +12,7 @@
 'use strict';
 
 /**
- * @RelayResolver User.client_object(return_null: Boolean!): ClientObject
+ * @relayField User.client_object(return_null: Boolean!): ClientObject
  *
  * Returns a weak ClientObject or null depending upon the argument.
  */

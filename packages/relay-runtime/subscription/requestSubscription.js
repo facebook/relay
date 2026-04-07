@@ -53,7 +53,7 @@ export type GraphQLSubscriptionConfig<TVariables, TData, TRawResponse> =
     updater?: ?SelectorStoreUpdater<TData>,
   }>;
 
-function requestSubscription<TVariables: Variables, TData, TRawResponse>(
+function requestSubscription<TVariables extends Variables, TData, TRawResponse>(
   environment: IEnvironment,
   config: GraphQLSubscriptionConfig<TVariables, TData, TRawResponse>,
 ): Disposable {

@@ -66,7 +66,20 @@ pub fn parse_docblock(
     source: &str,
     source_location: SourceLocationKey,
 ) -> DiagnosticsResult<DocblockAST> {
-    DocblockParser::new(source, source_location).parse()
+    DocblockParser::new(source, source_location, 0).parse()
+}
+
+/// Like [`parse_docblock`], but adds `base_offset` to all produced spans so
+/// they become file-relative rather than relative to the start of the comment
+/// text. For comments extracted by Hermes, this is typically
+/// `comment_range.start + 2` (the range covers the `/*` delimiter which is
+/// stripped from the text).
+pub fn parse_docblock_with_offset(
+    source: &str,
+    source_location: SourceLocationKey,
+    base_offset: u32,
+) -> DiagnosticsResult<DocblockAST> {
+    DocblockParser::new(source, source_location, base_offset).parse()
 }
 
 /**
@@ -99,12 +112,12 @@ struct DocblockParser<'a> {
 }
 
 impl<'a> DocblockParser<'a> {
-    fn new(source: &'a str, source_location: SourceLocationKey) -> Self {
+    fn new(source: &'a str, source_location: SourceLocationKey, base_offset: u32) -> Self {
         let chars = source.chars().peekable();
         Self {
             errors: Vec::new(),
             source_location,
-            offset: 0,
+            offset: base_offset,
             chars,
             in_progress_text: None,
             sections: Vec::new(),

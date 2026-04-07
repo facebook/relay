@@ -4,9 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ecdf928eb3f2acad2a9c0245a8e0263d>>
+ * @generated SignedSource<<5213156639f5e33acfdd79872ea56f77>>
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,7 +29,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -56,7 +55,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",

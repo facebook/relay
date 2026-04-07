@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9b5834e69eb9329b872f158917a0fd48>>
+ * @generated SignedSource<<a466a0d147b0713a0544150e8448569e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -50,14 +50,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +77,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -141,10 +141,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "93b6d7b88ae03eb88e1eb60be7cb244d";
+  (node/*:: as any*/).hash = "93b6d7b88ae03eb88e1eb60be7cb244d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery$variables,
   ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery$data,
 >*/);

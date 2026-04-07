@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2e1d56f339c3fc473fcf40d268b97df2>>
+ * @generated SignedSource<<eefd23f12ad80dcf2fe6361567c96f89>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -45,7 +45,7 @@ var v0 = {
   "storageKey": null
 },
 v1 = [
-  (v0/*: any*/)
+  (v0/*:: as any*/)
 ],
 v2 = {
   "alias": null,
@@ -55,8 +55,8 @@ v2 = {
   "storageKey": null
 },
 v3 = [
-  (v0/*: any*/),
-  (v2/*: any*/)
+  (v0/*:: as any*/),
+  (v2/*:: as any*/)
 ];
 return {
   "fragment": {
@@ -75,7 +75,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -83,7 +83,7 @@ return {
             "kind": "LinkedField",
             "name": "nearest_neighbor",
             "plural": false,
-            "selections": (v1/*: any*/),
+            "selections": (v1/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -96,7 +96,7 @@ return {
         "kind": "LinkedField",
         "name": "me",
         "plural": false,
-        "selections": (v1/*: any*/),
+        "selections": (v1/*:: as any*/),
         "storageKey": null
       }
     ],
@@ -117,7 +117,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -125,10 +125,10 @@ return {
             "kind": "LinkedField",
             "name": "nearest_neighbor",
             "plural": false,
-            "selections": (v3/*: any*/),
+            "selections": (v3/*:: as any*/),
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -139,7 +139,7 @@ return {
         "kind": "LinkedField",
         "name": "me",
         "plural": false,
-        "selections": (v3/*: any*/),
+        "selections": (v3/*:: as any*/),
         "storageKey": null
       }
     ]
@@ -156,10 +156,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d5a7d5606148861a51f3e0ff315a68b3";
+  (node/*:: as any*/).hash = "d5a7d5606148861a51f3e0ff315a68b3";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTestErrorOrderQuery$variables,
   RelayReaderRelayErrorHandlingTestErrorOrderQuery$data,
 >*/);

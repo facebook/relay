@@ -15,6 +15,30 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 pub use resolver_source_hash::ResolverSourceHash;
 
+/// Check if a string contains any resolver docblock tag
+/// (`@RelayResolver`, `@relayType`, or `@relayField`).
+///
+/// This performs a single pass over the string, avoiding the cost of
+/// multiple `str::contains` calls which would each iterate the full text.
+pub fn contains_resolver_tag(text: &str) -> bool {
+    let bytes = text.as_bytes();
+    let len = bytes.len();
+    let mut i = 0;
+    while i < len {
+        if bytes[i] == b'@' {
+            let remaining = &text[i + 1..];
+            if remaining.starts_with("RelayResolver")
+                || remaining.starts_with("relayType")
+                || remaining.starts_with("relayField")
+            {
+                return true;
+            }
+        }
+        i += 1;
+    }
+    false
+}
+
 lazy_static! {
     /// Resolver fields and types get their schema definitions annotated with
     /// a directive using this name to signal to the rest of Relay that they are backed by

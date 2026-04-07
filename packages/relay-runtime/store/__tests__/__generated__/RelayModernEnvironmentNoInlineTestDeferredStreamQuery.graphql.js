@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bb6924948dfdb9fc53f21eeb8b587b1e>>
+ * @generated SignedSource<<a8cac63f346fbf70fa9c19daade0df33>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -49,7 +49,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentNoInlineTestDeferredStreamQuery",
@@ -87,7 +87,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentNoInlineTestDeferredStreamQuery",
     "selections": [
@@ -139,10 +139,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bbd7ede751091238fba6e4da25d3237b";
+  (node/*:: as any*/).hash = "bbd7ede751091238fba6e4da25d3237b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables,
   RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data,
 >*/);

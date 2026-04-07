@@ -311,21 +311,10 @@ impl SchemaSet {
         // Set any unset `schema` types to be the default schema types.
 
         if self.root_schema.query_type.is_none() {
-            // There MUST be a query type defined, either via schema { .. } or as a default Query type
-            self.types
-                .entry("Query".intern())
-                .or_insert(SetType::Object(SetObject {
-                    // Note: When partitioning a schema into server and client
-                    // types, types without any definition/fields will be
-                    // assumed to be client types (presumably since it's not
-                    // valid SDL to have no fields).
-                    definition: None,
-                    interfaces: StringKeyIndexMap::default(),
-                    fields: StringKeyMap::default(),
-                    name: ObjectName("Query".intern()),
-                    directives: Vec::new(),
-                }));
-            self.root_schema.query_type = Some("Query".intern());
+            self.root_schema.query_type = self
+                .types
+                .get(&"Query".intern())
+                .map(|op_type| op_type.string_key_name());
         }
         if self.root_schema.mutation_type.is_none() {
             self.root_schema.mutation_type = self
@@ -867,4 +856,18 @@ pub trait HasInterfaces {
 
 pub trait HasDescription {
     fn description(&self) -> Option<StringKey>;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Testing fix_all_types
+    #[test]
+    fn fix_empty_schema() {
+        let mut schema = SchemaSet::default();
+        schema.fix_all_types();
+        assert!(schema.root_schema.is_empty());
+        assert!(schema.types.is_empty());
+    }
 }

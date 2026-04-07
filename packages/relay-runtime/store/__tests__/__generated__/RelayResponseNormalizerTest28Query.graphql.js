@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a1cd8c3aebb8d2bfd7f1f9f632aac07e>>
+ * @generated SignedSource<<7cecacec683b8e7036d8f5c51f7f41a5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,22 +22,18 @@ export type RelayResponseNormalizerTest28Query$variables = {|
   id?: ?string,
 |};
 export type RelayResponseNormalizerTest28Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +actor: ?{|
+  +node: ?{|
+    +__typename: string,
+    +actor?: ?{|
       +__typename: string,
       +id: string,
     |},
-    +actors: ?ReadonlyArray<?{|
+    +actors?: ?ReadonlyArray<?{|
       +__typename: string,
       +id: string,
     |}>,
     +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+  |},
 |};
 export type RelayResponseNormalizerTest28Query = {|
   response: RelayResponseNormalizerTest28Query$data,
@@ -68,8 +64,8 @@ v2 = {
   "storageKey": null
 },
 v3 = [
-  (v1/*: any*/),
-  (v2/*: any*/)
+  (v1/*:: as any*/),
+  (v2/*:: as any*/)
 ],
 v4 = [
   {
@@ -86,8 +82,8 @@ v4 = [
     "name": "node",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
-      (v2/*: any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
       {
         "kind": "InlineFragment",
         "selections": [
@@ -98,7 +94,7 @@ v4 = [
             "kind": "LinkedField",
             "name": "actor",
             "plural": false,
-            "selections": (v3/*: any*/),
+            "selections": (v3/*:: as any*/),
             "storageKey": null
           },
           {
@@ -108,7 +104,7 @@ v4 = [
             "kind": "LinkedField",
             "name": "actors",
             "plural": true,
-            "selections": (v3/*: any*/),
+            "selections": (v3/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -121,20 +117,20 @@ v4 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest28Query",
-    "selections": (v4/*: any*/),
+    "selections": (v4/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest28Query",
-    "selections": (v4/*: any*/)
+    "selections": (v4/*:: as any*/)
   },
   "params": {
     "cacheID": "9866ace1f18c62ad5f39a430b7eeda86",
@@ -148,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d30a30e5d20f8dcd34e1a7dfaac67ca0";
+  (node/*:: as any*/).hash = "d30a30e5d20f8dcd34e1a7dfaac67ca0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest28Query$variables,
   RelayResponseNormalizerTest28Query$data,
 >*/);

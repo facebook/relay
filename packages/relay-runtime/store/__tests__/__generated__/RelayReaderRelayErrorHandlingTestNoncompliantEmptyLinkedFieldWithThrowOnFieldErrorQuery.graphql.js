@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<648e6665258f2d1c51590c7fb8574127>>
+ * @generated SignedSource<<488f52e1df92c6a1da85b948d16fcb82>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,19 +20,15 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery$variables = {||};
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +friends: ?{|
+  +node: ?{|
+    +__typename: string,
+    +friends?: ?{|
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
       |}>,
     |},
     +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+  |},
 |};
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery = {|
   response: RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery$data,
@@ -124,7 +120,7 @@ return {
       "throwOnFieldError": true
     },
     "name": "RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -133,7 +129,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "b4e49b016710bab100689bfb7b5fd99a",
@@ -147,10 +143,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f545f883732869b6e4527c5f09a6b5eb";
+  (node/*:: as any*/).hash = "f545f883732869b6e4527c5f09a6b5eb";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery$variables,
   RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<de1ada6aa9b9bc54726015b07388a3a4>>
+ * @generated SignedSource<<430055db3b40ba6ccab48aca4d5218b3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,7 +59,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -81,7 +81,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -106,10 +106,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b434befceff784339e980ff85befcedd";
+  (node/*:: as any*/).hash = "b434befceff784339e980ff85befcedd";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModuleQuery$variables,
   RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModuleQuery$data,
 >*/);

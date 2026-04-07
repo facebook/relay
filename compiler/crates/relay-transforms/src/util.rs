@@ -40,7 +40,6 @@ use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
 use crate::inline_data_fragment::InlineDirectiveMetadata;
 use crate::raw_text::RAW_TEXT_DIRECTIVE_NAME;
 use crate::refetchable_fragment::RefetchableMetadata;
-use crate::relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use crate::required_directive::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::required_directive::REQUIRED_DIRECTIVE_NAME;
 
@@ -87,7 +86,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 21] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 20] = [
         *CATCH_DIRECTIVE_NAME,
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
@@ -105,7 +104,6 @@ lazy_static! {
         *CHILDREN_CAN_BUBBLE_METADATA_KEY,
         RelayResolverMetadata::directive_name(),
         *UNUSED_LOCAL_VARIABLE_DEPRECATED,
-        *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
         ProvidedVariableMetadata::directive_name(),
         FragmentAliasMetadata::directive_name(),
         *RAW_TEXT_DIRECTIVE_NAME,
@@ -122,11 +120,10 @@ lazy_static! {
         *REQUIRED_DIRECTIVE_NAME,
         *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME
     ];
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [DirectiveName; 8] = [
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [DirectiveName; 7] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ModuleMetadata::directive_name(),
         InlineDirectiveMetadata::directive_name(),
-        *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
         ClientEdgeMetadataDirective::directive_name(),
         DirectiveName("defer".intern()),
         FragmentAliasMetadata::directive_name(),

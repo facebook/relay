@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<07c8f7fcdf0fef6f1826595be092252c>>
+ * @generated SignedSource<<db8e537ac49d4befb391dc9c44d6a735>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -71,21 +71,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayQueryRendererReactDoubleEffectsTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -95,13 +95,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayQueryRendererReactDoubleEffectsTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -114,8 +114,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -133,10 +133,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "66e1ca90a9f7c60c2256a44afed5f5cb";
+  (node/*:: as any*/).hash = "66e1ca90a9f7c60c2256a44afed5f5cb";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$variables,
   ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$data,
 >*/);

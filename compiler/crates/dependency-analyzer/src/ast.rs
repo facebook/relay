@@ -23,14 +23,18 @@ pub struct ReachableAst {
     pub base_fragment_names: FragmentDefinitionNameSet,
 }
 
-/// Get all definitions that are reachable from project definitions
+/// Get all definitions that are reachable from project definitions.
+///
+/// Takes borrowed slices to avoid cloning all definitions upfront. Only clones
+/// into the result Vec once, saving ~222K deep clones for large projects with
+/// base definitions.
 pub fn get_reachable_ast(
-    project_definitions: Vec<ExecutableDefinition>,
-    base_definitions: Vec<ExecutableDefinition>,
+    project_definitions: &[ExecutableDefinition],
+    base_definitions: &[ExecutableDefinition],
 ) -> ReachableAst {
     if base_definitions.is_empty() {
         return ReachableAst {
-            definitions: project_definitions,
+            definitions: project_definitions.to_vec(),
             base_fragment_names: Default::default(),
         };
     }
@@ -42,30 +46,31 @@ pub fn get_reachable_ast(
     // Preprocess all base fragment definitions
     // Skipping operations because project definitions can't reference base operations
     for base_definition in base_definitions {
-        match &base_definition {
-            ExecutableDefinition::Fragment(fragment) => {
-                let name = FragmentDefinitionName(fragment.name.value);
-                assert!(
-                    base_definitions_map.insert(name, base_definition).is_none(),
-                    "get_reachable_ast called on graph with duplicate definition of `{name}`"
-                )
-            }
-            ExecutableDefinition::Operation(_) => {}
+        if let ExecutableDefinition::Fragment(fragment) = base_definition {
+            let name = FragmentDefinitionName(fragment.name.value);
+            assert!(
+                base_definitions_map
+                    .insert(name, base_definition.clone())
+                    .is_none(),
+                "get_reachable_ast called on graph with duplicate definition of `{name}`"
+            );
         }
     }
 
-    let mut result = project_definitions.clone();
+    // Clone project definitions into result once. We iterate the borrowed slice
+    // directly below for selection visiting, avoiding a second clone.
+    let mut result = project_definitions.to_vec();
 
     // Find references from project definitions -> base definitions
     for definition in project_definitions {
         let selections = match definition {
-            ExecutableDefinition::Operation(definition) => definition.selections,
-            ExecutableDefinition::Fragment(definition) => definition.selections,
+            ExecutableDefinition::Operation(definition) => &definition.selections,
+            ExecutableDefinition::Fragment(definition) => &definition.selections,
         };
         visit_selections(
             &base_definitions_map,
             &mut reachable_base_asts,
-            &selections,
+            selections,
             false,
         )
     }

@@ -1,0 +1,6 @@
+query UserQuery {
+  myUser: user(id: "123") {
+    fullName: name
+    primaryEmail: email
+  }
+}

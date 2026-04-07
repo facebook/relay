@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+/**
+ * at-relayField is used on a type alias, which should error
+ * @relayField
+ */
+export type FullName = {first: string, last: string};
+==================================== OUTPUT ===================================
+
+
+✖︎ Unexpected `@relayField` for a type definition. Expected `@relayType`.
+
+  module.js:4:5
+    3 │  * at-relayField is used on a type alias, which should error
+    4 │  * @relayField
+      │     ^^^^^^^^^^
+    5 │  */

@@ -16,7 +16,7 @@ import type {LiveState} from 'relay-runtime';
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
 
 /**
- * @RelayResolver Query.counter_throws_when_odd: Int
+ * @relayField Query.counter_throws_when_odd: Int
  * @live
  *
  * A @live resolver that throws when counter is odd. Useful for testing

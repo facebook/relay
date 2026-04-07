@@ -1,0 +1,16 @@
+{
+  "message": "Variable '$count' is never used",
+  "message_type": "common_diagnostic_json_snapshot_test::TaggedMessage",
+  "severity": "warning",
+  "location": {
+    "source_location": {
+      "type": "Embedded",
+      "path": "src/components/Feed.js",
+      "index": 3
+    },
+    "span": {
+      "start": 120,
+      "end": 126
+    }
+  }
+}

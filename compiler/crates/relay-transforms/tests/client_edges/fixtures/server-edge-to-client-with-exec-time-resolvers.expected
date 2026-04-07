@@ -1,0 +1,64 @@
+==================================== INPUT ====================================
+# S2C edges on server types are allowed in exec time resolvers
+query TestQuery @exec_time_resolvers {
+  me {
+    client_recommendation {
+      id
+    }
+  }
+}
+
+fragment ClientRecommendationResolverFragment on User {
+  __typename
+}
+
+# %extensions%
+
+type ClientOnlyType implements Node {
+  id: ID!
+}
+
+extend type User {
+  client_recommendation: ClientOnlyType @relay_resolver(fragment_name: "ClientRecommendationResolverFragment", import_path: "ClientRecommendationResolver")
+}
+==================================== OUTPUT ===================================
+fragment ClientRecommendationResolverFragment on User {
+  __typename
+}
+
+query TestQuery @exec_time_resolvers {
+  me {
+    ... @__ClientEdgeMetadataDirective
+    # ClientObject {
+    #     type_name: Some(
+    #         ObjectName(
+    #             "ClientOnlyType",
+    #         ),
+    #     ),
+    #     unique_id: 0,
+    #     model_resolvers: [],
+    #     server_object_operations: [],
+    # }
+     {
+      ...ClientRecommendationResolverFragment @__RelayResolverMetadata
+      # RelayResolverMetadata {
+      #     field_id: FieldID(530),
+      #     import_path: "ClientRecommendationResolver",
+      #     import_name: None,
+      #     field_alias: None,
+      #     field_path: "me.client_recommendation",
+      #     field_arguments: [],
+      #     live: false,
+      #     output_type_info: EdgeTo,
+      #     fragment_data_injection_mode: None,
+      #     type_confirmed: false,
+      #     resolver_type: ResolverModule,
+      #     return_fragment: None,
+      # }
+      
+      client_recommendation {
+        id
+      }
+    }
+  }
+}

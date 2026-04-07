@@ -30,6 +30,9 @@ mod validate;
 use std::fmt;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::Ordering;
+use std::time::Instant;
 
 pub use artifact_generated_types::ArtifactGeneratedTypes;
 use build_ir::BuildIRResult;
@@ -58,6 +61,7 @@ use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
 use indexmap::IndexSet;
 use log::debug;
+use log::error;
 use log::info;
 use log::warn;
 use petgraph::unionfind::UnionFind;
@@ -317,16 +321,29 @@ pub fn build_programs(
             log_event,
             project_name,
             &project_config.schema_config,
+            Some(&schema),
         );
         match project_schema_change {
             SchemaChangeSafety::Unsafe => BuildMode::Full,
             SchemaChangeSafety::Safe | SchemaChangeSafety::SafeWithIncrementalBuild(_) => {
                 let base_schema_change = if let Some(base) = project_config.base {
-                    compiler_state.schema_change_safety(
-                        log_event,
-                        base,
-                        &project_config.schema_config,
-                    )
+                    // When the base project shares the same pending schema
+                    // sources as this project, the expensive schema rebuild
+                    // and diff would produce an identical result — the
+                    // project's own check already captured these changes.
+                    // Skip it and only check extensions/docblocks/full_sources.
+                    if compiler_state.projects_share_pending_schemas(project_name, base)
+                        && !compiler_state.has_pending_non_schema_changes(base)
+                    {
+                        SchemaChangeSafety::Safe
+                    } else {
+                        compiler_state.schema_change_safety(
+                            log_event,
+                            base,
+                            &project_config.schema_config,
+                            None,
+                        )
+                    }
                 } else {
                     SchemaChangeSafety::Safe
                 };
@@ -582,6 +599,19 @@ pub async fn commit_project(
         return Err(BuildProjectFailure::Cancelled);
     }
 
+    // Start hash map prefetch as a background task. The closure extracts
+    // artifact paths synchronously, then the spawned future does the async
+    // Eden Thrift RPC (~5-10s). This overlaps the network I/O with
+    // persist_operations and generate_extra_artifacts below.
+    let hash_map_handle = if !artifacts.is_empty() {
+        config
+            .get_artifacts_file_hash_map
+            .as_ref()
+            .map(|get_fn| tokio::spawn(get_fn(&artifacts)))
+    } else {
+        None
+    };
+
     if let Some(operation_persister) = config
         .create_operation_persister
         .as_ref()
@@ -636,15 +666,21 @@ pub async fn commit_project(
         }
     };
 
-    let artifacts_file_hash_map = match &config.get_artifacts_file_hash_map {
-        Some(get_fn) => {
+    // Await the prefetched hash map. The timer measures only the remaining
+    // wait time — if the Eden RPC completed during persist/generate above,
+    // this resolves immediately (~0ms).
+    let artifacts_file_hash_map = match hash_map_handle {
+        Some(handle) => {
             let get_artifacts_file_hash_map_timer =
                 log_event.start("get_artifacts_file_hash_map_time");
-            let res = get_fn(&artifacts).await;
+            let res = handle.await.unwrap_or_else(|e| {
+                error!("hash map prefetch failed: {e}");
+                None
+            });
             log_event.stop(get_artifacts_file_hash_map_timer);
             res
         }
-        _ => None,
+        None => None,
     };
 
     // Write the generated artifacts to disk. This step is separate from
@@ -662,6 +698,7 @@ pub async fn commit_project(
                 &artifacts,
                 &fragment_locations,
                 &artifacts_file_hash_map,
+                &log_event,
             )?;
             for artifact in &artifacts {
                 if !existing_artifacts.remove(&artifact.path) {
@@ -698,6 +735,7 @@ pub async fn commit_project(
                 &artifacts,
                 &fragment_locations,
                 &artifacts_file_hash_map,
+                &log_event,
             )?;
             artifacts.into_par_iter().for_each(|artifact| {
                 current_paths_map.insert(artifact);
@@ -781,7 +819,7 @@ The compiler may produce outdated artifacts, but it will regenerate the correct 
         project_config.name,
         programs.reader.document_count(),
         programs.normalization.document_count(),
-        programs.operation_text.document_count()
+        programs.operation_text.document_count(),
     );
     log_event.stop(commit_time);
     log_event.complete();
@@ -789,6 +827,7 @@ The compiler may produce outdated artifacts, but it will regenerate the correct 
     Ok(next_artifact_map)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     config: &Config,
     project_config: &ProjectConfig,
@@ -797,15 +836,37 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     artifacts: &[Artifact],
     fragment_locations: &FragmentLocations,
     artifacts_file_hash_map: &Option<FxHashMap<String, Option<String>>>,
+    log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectFailure> {
+    // Cumulative CPU time summed across all parallel rayon threads (not
+    // wall-clock). Accumulated in microseconds (not millis) because
+    // per-artifact operations are sub-millisecond — as_millis() would
+    // truncate each to 0. Converted to ms when logging to Scuba.
+    let codegen_us = AtomicUsize::new(0);
+    let should_write_us = AtomicUsize::new(0);
+    let write_us = AtomicUsize::new(0);
+    let count_written = AtomicUsize::new(0);
+    let count_skipped = AtomicUsize::new(0);
+
     artifacts.par_chunks(8).try_for_each_init(
         || Printer::with_dedupe(project_config),
         |printer, artifacts| {
+            // Accumulate per-chunk to minimize atomic contention across threads.
+            // Only one batch of atomic ops per chunk (8 artifacts) instead of
+            // per artifact.
+            let mut chunk_codegen_us = 0usize;
+            let mut chunk_sw_us = 0usize;
+            let mut chunk_write_us = 0usize;
+            let mut chunk_written = 0usize;
+            let mut chunk_skipped = 0usize;
+
             for artifact in artifacts {
                 if should_stop_updating_artifacts() {
                     return Err(BuildProjectFailure::Cancelled);
                 }
                 let path = config.root_dir.join(&artifact.path);
+
+                let codegen_start = Instant::now();
                 let content = artifact.content.as_bytes(
                     config,
                     project_config,
@@ -814,21 +875,60 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
                     artifact.source_file,
                     fragment_locations,
                 );
+                chunk_codegen_us += codegen_start.elapsed().as_micros() as usize;
+
                 let file_hash = match artifact.path.to_str() {
                     Some(key) => artifacts_file_hash_map
                         .as_ref()
                         .and_then(|map| map.get(key).cloned().flatten()),
                     _ => None,
                 };
-                if config
+
+                let sw_start = Instant::now();
+                let needs_write = config
                     .artifact_writer
-                    .should_write(&path, &content, file_hash)?
-                {
+                    .should_write(&path, &content, file_hash)?;
+                chunk_sw_us += sw_start.elapsed().as_micros() as usize;
+
+                if needs_write {
+                    let write_start = Instant::now();
                     config.artifact_writer.write(path, content)?;
+                    chunk_write_us += write_start.elapsed().as_micros() as usize;
+                    chunk_written += 1;
+                } else {
+                    chunk_skipped += 1;
                 }
             }
+
+            codegen_us.fetch_add(chunk_codegen_us, Ordering::Relaxed);
+            should_write_us.fetch_add(chunk_sw_us, Ordering::Relaxed);
+            write_us.fetch_add(chunk_write_us, Ordering::Relaxed);
+            count_written.fetch_add(chunk_written, Ordering::Relaxed);
+            count_skipped.fetch_add(chunk_skipped, Ordering::Relaxed);
             Ok(())
         },
     )?;
+
+    log_event.number(
+        "write_artifacts_codegen_cpu_time",
+        codegen_us.load(Ordering::Relaxed) / 1000,
+    );
+    log_event.number(
+        "write_artifacts_should_write_cpu_time",
+        should_write_us.load(Ordering::Relaxed) / 1000,
+    );
+    log_event.number(
+        "write_artifacts_write_cpu_time",
+        write_us.load(Ordering::Relaxed) / 1000,
+    );
+    log_event.number(
+        "write_artifacts_count_written",
+        count_written.load(Ordering::Relaxed),
+    );
+    log_event.number(
+        "write_artifacts_count_skipped",
+        count_skipped.load(Ordering::Relaxed),
+    );
+
     Ok(())
 }

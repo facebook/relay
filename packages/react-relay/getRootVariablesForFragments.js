@@ -15,7 +15,7 @@ import type {FragmentMap, Variables} from 'relay-runtime';
 
 const {getSelector} = require('relay-runtime');
 
-function getRootVariablesForFragments<TProps: {...}>(
+function getRootVariablesForFragments<TProps extends {...}>(
   fragments: FragmentMap,
   props: TProps,
 ): Variables {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<635fe705b8ea34a50256964d7bb92456>>
+ * @generated SignedSource<<be263356756c5a6dd33f4ab18dc7b97c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,15 +22,11 @@ export type RelayModernStoreFieldGranularNotificationsTestNodesPluralQuery$varia
   ids: ReadonlyArray<string>,
 |};
 export type RelayModernStoreFieldGranularNotificationsTestNodesPluralQuery$data = {|
-  +nodes: ?ReadonlyArray<?({|
-    +__typename: "User",
+  +nodes: ?ReadonlyArray<?{|
+    +__typename: string,
     +id: string,
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |})>,
+    +name?: ?string,
+  |}>,
 |};
 export type RelayModernStoreFieldGranularNotificationsTestNodesPluralQuery = {|
   response: RelayModernStoreFieldGranularNotificationsTestNodesPluralQuery$data,
@@ -95,20 +91,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernStoreFieldGranularNotificationsTestNodesPluralQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernStoreFieldGranularNotificationsTestNodesPluralQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "d0c690d7fbe8783be5f4782e3d57f1c3",
@@ -122,10 +118,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "eff0f7bda57b8b2a6e87fae0905ec755";
+  (node/*:: as any*/).hash = "eff0f7bda57b8b2a6e87fae0905ec755";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernStoreFieldGranularNotificationsTestNodesPluralQuery$variables,
   RelayModernStoreFieldGranularNotificationsTestNodesPluralQuery$data,
 >*/);

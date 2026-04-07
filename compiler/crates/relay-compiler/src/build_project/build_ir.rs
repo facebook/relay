@@ -9,6 +9,7 @@ use std::collections::HashSet;
 
 use common::Diagnostic;
 use common::PerfLogEvent;
+use common::sync::ParallelIterator;
 use dependency_analyzer::get_reachable_ir;
 use fnv::FnvHashMap;
 use graphql_ir::ExecutableDefinitionName;
@@ -18,6 +19,7 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
 use md5::Digest;
 use md5::Md5;
+use rayon::prelude::*;
 use relay_transforms::annotate_resolver_root_fragments;
 use schema::SDLSchema;
 
@@ -35,16 +37,19 @@ pub struct SourceHashes(FnvHashMap<ExecutableDefinitionName, String>);
 
 impl SourceHashes {
     pub fn from_definitions(definitions: &[ExecutableDefinition]) -> Self {
-        let mut source_hashes = FnvHashMap::default();
-        for ast in definitions {
-            if let Some(name) = ast.name() {
-                let key = match ast {
-                    ExecutableDefinition::Operation(_) => OperationDefinitionName(name).into(),
-                    ExecutableDefinition::Fragment(_) => FragmentDefinitionName(name).into(),
-                };
-                source_hashes.insert(key, md5(&print_executable_definition_ast(ast)));
-            }
-        }
+        let hash_one = |ast: &ExecutableDefinition| {
+            let name = ast.name()?;
+            let key = match ast {
+                ExecutableDefinition::Operation(_) => OperationDefinitionName(name).into(),
+                ExecutableDefinition::Fragment(_) => FragmentDefinitionName(name).into(),
+            };
+            Some((key, md5(&print_executable_definition_ast(ast))))
+        };
+        let source_hashes: FnvHashMap<_, _> = if definitions.len() > 500 {
+            definitions.par_iter().filter_map(hash_one).collect()
+        } else {
+            definitions.iter().filter_map(hash_one).collect()
+        };
         Self(source_hashes)
     }
 

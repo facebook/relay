@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d7569abd3e4583103aff92e2df2628e8>>
+ * @generated SignedSource<<0e84af5e7ac9e7ba2b4886680b59b4c4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {color as todoDescriptionColorResolverType} from "../TodoDescription.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoDescriptionColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoDescriptionColorResolverType: (
+(todoDescriptionColorResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -70,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "52e426266439c85da8dce2dda6133fe2";
+  (node/*:: as any*/).hash = "52e426266439c85da8dce2dda6133fe2";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoDescription_text_style$fragmentType,
   TodoDescription_text_style$data,
 >*/);

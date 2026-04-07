@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<778663a0ddbc20c886dfd863bb68b217>>
+ * @generated SignedSource<<db1083721129a5d87854bba6a17dc38b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,7 +57,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -66,7 +66,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "aba03ad31bc3122c807d8d4f51828637",
@@ -80,10 +80,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3b3b10704291421f33fcda5e9ed0ac7c";
+  (node/*:: as any*/).hash = "3b3b10704291421f33fcda5e9ed0ac7c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery$variables,
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery$data,
 >*/);

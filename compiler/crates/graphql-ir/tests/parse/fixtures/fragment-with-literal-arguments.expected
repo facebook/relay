@@ -21,7 +21,7 @@ fragment ChildFragment on User
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(70),
+            type_condition: Object(71),
             directives: [],
             selections: [
                 FragmentSpread {
@@ -78,7 +78,7 @@ fragment ChildFragment on User
                                     directives: [],
                                 },
                             ],
-                            type_condition: Object(70),
+                            type_condition: Object(71),
                             directives: [
                                 Directive {
                                     name: WithLocation {
@@ -125,7 +125,7 @@ fragment ChildFragment on User
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(70),
+            type_condition: Object(71),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -144,7 +144,7 @@ fragment ChildFragment on User
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-literal-arguments.graphql:174:188,
-                        item: FieldID(476),
+                        item: FieldID(479),
                     },
                     arguments: [
                         Argument {
@@ -180,7 +180,7 @@ fragment ChildFragment on User
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-literal-arguments.graphql:215:218,
-                                item: FieldID(182),
+                                item: FieldID(185),
                             },
                             arguments: [],
                             directives: [],

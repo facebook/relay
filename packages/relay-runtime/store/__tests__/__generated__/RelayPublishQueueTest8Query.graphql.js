@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<37d9b18b1a05a65a04263e1a773ed1e5>>
+ * @generated SignedSource<<35f7e00736b5e08a28c42037331a6e30>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -74,7 +74,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -85,13 +85,13 @@ return {
       },
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
         "plural": true,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": "nodes(ids:[\"4\"])"
       }
@@ -113,7 +113,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -121,13 +121,13 @@ return {
             "name": "username",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -140,8 +140,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v0/*: any*/),
-          (v2/*: any*/)
+          (v0/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": "nodes(ids:[\"4\"])"
       }
@@ -159,10 +159,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "aff62129ab4598cd1638ff02a71fa1c5";
+  (node/*:: as any*/).hash = "aff62129ab4598cd1638ff02a71fa1c5";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayPublishQueueTest8Query$variables,
   RelayPublishQueueTest8Query$data,
 >*/);

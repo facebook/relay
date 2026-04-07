@@ -40,7 +40,7 @@ let ROBOT: Entity = {
 const subscriptions: Array<() => void> = [];
 let isHuman: boolean = true;
 /**
- * @RelayResolver Query.mutable_entity: RelayResolverValue
+ * @relayField Query.mutable_entity: RelayResolverValue
  * @live
 
  */

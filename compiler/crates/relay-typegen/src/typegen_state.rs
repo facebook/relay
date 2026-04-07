@@ -159,10 +159,3 @@ pub(crate) struct ImportedResolvers(pub(crate) IndexMap<StringKey, ImportedResol
 
 #[derive(Default)]
 pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexMap<StringKey, Option<Location>>);
-
-/// Have we encountered an actor change? Use an enum for bookkeeping, since it
-/// will be passed around in many places.
-pub(crate) enum ActorChangeStatus {
-    HasActorChange,
-    NoActorChange,
-}

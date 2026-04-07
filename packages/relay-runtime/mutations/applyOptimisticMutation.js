@@ -28,7 +28,7 @@ const {
 const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
 const invariant = require('invariant');
 
-export type OptimisticMutationConfig<TMutation: MutationParameters> = {
+export type OptimisticMutationConfig<TMutation extends MutationParameters> = {
   configs?: ?Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
   variables: Variables,
@@ -40,7 +40,7 @@ export type OptimisticMutationConfig<TMutation: MutationParameters> = {
  * Higher-level helper function to execute a mutation against a specific
  * environment.
  */
-function applyOptimisticMutation<TMutation: MutationParameters>(
+function applyOptimisticMutation<TMutation extends MutationParameters>(
   environment: IEnvironment,
   config: OptimisticMutationConfig<TMutation>,
 ): Disposable {

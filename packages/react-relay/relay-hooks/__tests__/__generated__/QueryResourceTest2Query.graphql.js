@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cb1586cdb5d19f64194cbf128fe2b0d3>>
+ * @generated SignedSource<<9b78f226d0e9e190b2436b129dda9a15>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -64,14 +64,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "QueryResourceTest2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -80,8 +80,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/)
+              (v2/*:: as any*/),
+              (v3/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -95,13 +95,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "QueryResourceTest2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -114,11 +114,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -140,10 +140,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "abb18dae5c0772fd962f230e88166e15";
+  (node/*:: as any*/).hash = "abb18dae5c0772fd962f230e88166e15";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   QueryResourceTest2Query$variables,
   QueryResourceTest2Query$data,
 >*/);

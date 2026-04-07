@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9bbb9b738ba1d0ecee039582795af39b>>
+ * @generated SignedSource<<1fee3b10311299abd084df0083590d9f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -45,7 +45,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTestConditionalQuery",
@@ -90,7 +90,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestConditionalQuery",
     "selections": [
@@ -140,10 +140,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8a983bb43381d44133495544bf14d58a";
+  (node/*:: as any*/).hash = "8a983bb43381d44133495544bf14d58a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestConditionalQuery$variables,
   RelayReaderAliasedFragmentsTestConditionalQuery$data,
 >*/);

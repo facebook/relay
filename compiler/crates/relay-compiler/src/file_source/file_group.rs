@@ -23,6 +23,9 @@ pub enum FileGroup {
     Source {
         project_set: ProjectSet,
     },
+    CompactSchema {
+        project_set: ProjectSet,
+    },
     /// Files, that are located in the generated directory, but not created
     /// by relay compiler (utility files: .gitkeep, README, etc.) and should
     /// be ignored

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<062d94bcb5fc70a4d50953ed3bbff8e6>>
+ * @generated SignedSource<<04c1d2e991c9b196ff175df79e6ca216>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -87,7 +87,7 @@ v4 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -106,7 +106,7 @@ v4 = [
             ],
             "storageKey": null
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -155,14 +155,14 @@ v5 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "requestSubscriptionTestFeedbackCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -178,7 +178,7 @@ return {
                 "kind": "LinkedField",
                 "name": "__FeedbackCommentQuery_comments_connection",
                 "plural": false,
-                "selections": (v4/*: any*/),
+                "selections": (v4/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -194,35 +194,35 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "requestSubscriptionTestFeedbackCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
                 "name": "comments",
                 "plural": false,
-                "selections": (v4/*: any*/),
+                "selections": (v4/*:: as any*/),
                 "storageKey": "comments(first:2)"
               },
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "FeedbackCommentQuery_comments",
@@ -233,7 +233,7 @@ return {
             "type": "Feedback",
             "abstractKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -263,10 +263,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "996046673b6bc26bab075ef2da371fd3";
+  (node/*:: as any*/).hash = "996046673b6bc26bab075ef2da371fd3";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   requestSubscriptionTestFeedbackCommentQuery$variables,
   requestSubscriptionTestFeedbackCommentQuery$data,
 >*/);

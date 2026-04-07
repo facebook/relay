@@ -16,7 +16,7 @@ import type {LiveState} from 'relay-runtime';
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
 
 /**
- * @RelayResolver Query.counter_no_fragment_with_arg(prefix: String!): String
+ * @relayField Query.counter_no_fragment_with_arg(prefix: String!): String
  * @live
  *
  * A Relay Resolver that returns an object implementing the External State

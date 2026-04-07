@@ -13,7 +13,7 @@
 import type {LiveState} from 'relay-runtime';
 
 /**
- * @RelayResolver Query.live_resolver_with_bad_return_value: String
+ * @relayField Query.live_resolver_with_bad_return_value: String
  * @live
  *
  * A @live resolver that does not return a LiveObject

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<49cb93949440d2a868b586f3e7146e63>>
+ * @generated SignedSource<<7b75a2c48f958b704563cc71353d3bce>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,20 +59,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentsDeleteResponsePayload",
         "kind": "LinkedField",
         "name": "commentsDelete",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -82,19 +82,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentsDeleteResponsePayload",
         "kind": "LinkedField",
         "name": "commentsDelete",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -121,10 +121,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b5238896d960787f8900c1bc830b1d71";
+  (node/*:: as any*/).hash = "b5238896d960787f8900c1bc830b1d71";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$variables,
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$data,
 >*/);

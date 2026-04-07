@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<150c2fd0188f6de7085b680c8177baea>>
+ * @generated SignedSource<<f0fa7a119891a38a3b338e7d63d6b271>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -83,7 +83,7 @@ v5 = [
     "name": "edges",
     "plural": true,
     "selections": [
-      (v3/*: any*/),
+      (v3/*:: as any*/),
       {
         "alias": null,
         "args": null,
@@ -92,8 +92,8 @@ v5 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
-          (v3/*: any*/)
+          (v4/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -151,18 +151,18 @@ v6 = [
     "name": "first",
     "value": 2
   },
-  (v2/*: any*/)
+  (v2/*:: as any*/)
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -171,13 +171,13 @@ return {
           {
             "alias": "comments",
             "args": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "concreteType": "CommentsConnection",
             "kind": "LinkedField",
             "name": "__FeedbackFragment_comments_connection",
             "plural": false,
-            "selections": (v5/*: any*/),
+            "selections": (v5/*:: as any*/),
             "storageKey": "__FeedbackFragment_comments_connection(orderby:\"date\")"
           }
         ],
@@ -189,32 +189,32 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
+          (v3/*:: as any*/),
           {
             "alias": null,
-            "args": (v6/*: any*/),
+            "args": (v6/*:: as any*/),
             "concreteType": "CommentsConnection",
             "kind": "LinkedField",
             "name": "comments",
             "plural": false,
-            "selections": (v5/*: any*/),
+            "selections": (v5/*:: as any*/),
             "storageKey": "comments(first:2,orderby:\"date\")"
           },
           {
             "alias": null,
-            "args": (v6/*: any*/),
+            "args": (v6/*:: as any*/),
             "filters": [
               "orderby"
             ],
@@ -223,7 +223,7 @@ return {
             "kind": "LinkedHandle",
             "name": "comments"
           },
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -253,10 +253,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "78fd9497990ef3d977dfe89712d3101a";
+  (node/*:: as any*/).hash = "78fd9497990ef3d977dfe89712d3101a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$variables,
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$data,
 >*/);

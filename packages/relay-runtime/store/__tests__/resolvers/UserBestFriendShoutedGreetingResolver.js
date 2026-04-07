@@ -17,7 +17,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver User.best_friend_shouted_greeting: String
+ * @relayField User.best_friend_shouted_greeting: String
  * @rootFragment UserBestFriendShoutedGreetingResolver
  */
 function best_friend_shouted_greeting(

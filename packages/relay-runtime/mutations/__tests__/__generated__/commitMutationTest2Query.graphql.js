@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a3aa1c74bb768934eecc822e595dbe93>>
+ * @generated SignedSource<<39c23bc62f03559eba61adc1c7549a18>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -126,7 +126,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -159,16 +159,16 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v1/*: any*/),
-                          (v2/*: any*/)
+                          (v1/*:: as any*/),
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v3/*: any*/)
+                      (v3/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v4/*: any*/)
+                  (v4/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -191,19 +191,19 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
                 "name": "comments",
@@ -225,23 +225,23 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v1/*: any*/),
-                          (v6/*: any*/),
-                          (v2/*: any*/)
+                          (v1/*:: as any*/),
+                          (v6/*:: as any*/),
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v3/*: any*/)
+                      (v3/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v4/*: any*/)
+                  (v4/*:: as any*/)
                 ],
                 "storageKey": "comments(first:10)"
               },
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "Feedback_comments",
@@ -252,7 +252,7 @@ return {
             "type": "Feedback",
             "abstractKey": null
           },
-          (v6/*: any*/)
+          (v6/*:: as any*/)
         ],
         "storageKey": "node(id:\"123\")"
       }
@@ -282,10 +282,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2c78e5d44978f1498019545fcadf8984";
+  (node/*:: as any*/).hash = "2c78e5d44978f1498019545fcadf8984";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   commitMutationTest2Query$variables,
   commitMutationTest2Query$data,
 >*/);

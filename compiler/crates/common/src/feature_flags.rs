@@ -49,9 +49,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_3d_branch_arg_generation: bool,
 
-    #[serde(default)]
-    pub actor_change_support: FeatureFlag,
-
     /// Enable generation of text artifacts used to generate full query strings
     /// later.
     #[serde(default)]
@@ -194,15 +191,16 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_shadow_resolvers: FeatureFlag,
 
-    /// Use `(expr as Type)` instead of `(expr: Type)` for Flow type assertions.
-    /// This enables gradual rollout of the new casting syntax across files.
-    #[serde(default)]
-    pub new_flow_casting_syntax: FeatureFlag,
-
     /// When enabled for a given name, allows `@RelayResolver` as a legacy
     /// alias for `@relayType` / `@relayField`.
     #[serde(default)]
     pub allow_legacy_relay_resolver_tag: FeatureFlag,
+
+    /// Enforce that GraphQL operation and fragment names start with the file
+    /// name. Haste projects have this enforcement automatically; this flag
+    /// is only needed for non-Haste projects that want the same validation.
+    #[serde(default)]
+    pub enforce_module_name_prefix_for_non_haste: bool,
 }
 
 impl Default for FeatureFlags {
@@ -212,7 +210,6 @@ impl Default for FeatureFlags {
             allow_output_type_resolvers: Default::default(),
             no_inline: Default::default(),
             enable_3d_branch_arg_generation: Default::default(),
-            actor_change_support: Default::default(),
             text_artifacts: Default::default(),
             skip_printing_nulls: Default::default(),
             compact_query_text: Default::default(),
@@ -236,8 +233,8 @@ impl Default for FeatureFlags {
             legacy_include_path_in_required_reader_nodes: Default::default(),
             disallow_required_action_throw_on_semantically_nullable_fields: Default::default(),
             enable_shadow_resolvers: Default::default(),
-            new_flow_casting_syntax: Default::default(),
             allow_legacy_relay_resolver_tag: Default::default(),
+            enforce_module_name_prefix_for_non_haste: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

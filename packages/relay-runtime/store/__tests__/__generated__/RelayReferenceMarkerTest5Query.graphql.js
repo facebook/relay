@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cc3fcc3c7d9dc7cfaa8982efe0057af8>>
+ * @generated SignedSource<<c548cb8aca45180a1610d90f02935183>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,14 +59,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReferenceMarkerTest5Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -86,19 +86,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReferenceMarkerTest5Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -123,7 +123,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -176,10 +176,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7b4c00aa61d93ed96cf7e372fcaf9a6d";
+  (node/*:: as any*/).hash = "7b4c00aa61d93ed96cf7e372fcaf9a6d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReferenceMarkerTest5Query$variables,
   RelayReferenceMarkerTest5Query$data,
 >*/);

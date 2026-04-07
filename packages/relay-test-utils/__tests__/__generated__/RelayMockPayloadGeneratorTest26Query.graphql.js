@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4e6124886cfbdebfdea90fc343214632>>
+ * @generated SignedSource<<6909bca12e13bff577c7d9369d87c4e4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -55,7 +55,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -86,7 +86,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -162,8 +162,8 @@ return {
           "plural": false,
           "type": "ID"
         },
-        "node.pageName": (v1/*: any*/),
-        "node.userName": (v1/*: any*/)
+        "node.pageName": (v1/*:: as any*/),
+        "node.userName": (v1/*:: as any*/)
       }
     },
     "name": "RelayMockPayloadGeneratorTest26Query",
@@ -174,10 +174,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e3566d23bc9b945b0bd9131af72fdde9";
+  (node/*:: as any*/).hash = "e3566d23bc9b945b0bd9131af72fdde9";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest26Query$variables,
   RelayMockPayloadGeneratorTest26Query$data,
 >*/);

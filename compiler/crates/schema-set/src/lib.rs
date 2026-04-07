@@ -6,6 +6,8 @@
  */
 
 mod build_schema_document;
+mod builtin_scalars;
+pub mod find_subset_violations;
 mod from_schema;
 mod ir_collector;
 mod macros;
@@ -26,6 +28,8 @@ use intern::string_key::Intern;
 use lazy_static::lazy_static;
 
 pub use crate::build_schema_document::ToSDLDefinition;
+pub use crate::builtin_scalars::add_built_in_scalars;
+pub use crate::builtin_scalars::remove_built_in_scalars;
 pub use crate::from_schema::SchemaDefault;
 pub use crate::from_schema::SchemaInsertArgument;
 pub use crate::from_schema::SchemaInsertDirectiveValue;

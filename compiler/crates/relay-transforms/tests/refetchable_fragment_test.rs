@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b5ce6ba653f419089b892dcdd3b4b32d>>
+ * @generated SignedSource<<4f2114418f17cd3a52a3694c396d65f6>>
  */
 
 mod refetchable_fragment;
@@ -227,4 +227,18 @@ async fn refetchable_interface_some_types_impl_node() {
     let input = include_str!("refetchable_fragment/fixtures/refetchable-interface-some-types-impl-node.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/refetchable-interface-some-types-impl-node.expected");
     test_fixture(transform_fixture, file!(), "refetchable-interface-some-types-impl-node.graphql", "refetchable_fragment/fixtures/refetchable-interface-some-types-impl-node.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_prefer_fetchable_false_uses_node() {
+    let input = include_str!("refetchable_fragment/fixtures/refetchable-prefer-fetchable-false-uses-node.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/refetchable-prefer-fetchable-false-uses-node.expected");
+    test_fixture(transform_fixture, file!(), "refetchable-prefer-fetchable-false-uses-node.graphql", "refetchable_fragment/fixtures/refetchable-prefer-fetchable-false-uses-node.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_prefer_fetchable_non_constant_invalid() {
+    let input = include_str!("refetchable_fragment/fixtures/refetchable-prefer-fetchable-non-constant.invalid.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/refetchable-prefer-fetchable-non-constant.invalid.expected");
+    test_fixture(transform_fixture, file!(), "refetchable-prefer-fetchable-non-constant.invalid.graphql", "refetchable_fragment/fixtures/refetchable-prefer-fetchable-non-constant.invalid.expected", input, expected).await;
 }

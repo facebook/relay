@@ -1,0 +1,46 @@
+#
+# When a field's return type changes on any object type, marking the
+# changed return type (e.g. Object("PayloadB")) ensures only operations
+# using that specific field are affected — not all operations that
+# reference the parent type.
+#
+mutation FooMutation {
+  createThing {
+    success
+    message
+  }
+}
+
+mutation BarMutation {
+  doOther {
+    result
+  }
+}
+
+query BazQuery {
+  me {
+    name
+  }
+}
+
+%extensions%
+# Object: PayloadB
+
+type PayloadA {
+  success: Boolean
+  message: String
+}
+
+type PayloadB {
+  success: Boolean
+  message: String
+}
+
+type OtherResult {
+  result: String
+}
+
+extend type Mutation {
+    createThing: PayloadB
+    doOther: OtherResult
+}

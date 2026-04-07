@@ -43,7 +43,7 @@ let friendsMock;
 let user_oneMock;
 
 /**
- * @RelayResolver RelayReaderExecResolversTestUser
+ * @relayType RelayReaderExecResolversTestUser
  */
 export function RelayReaderExecResolversTestUser(id: DataID): TReaderTestUser {
   modelMock();
@@ -53,7 +53,7 @@ export function RelayReaderExecResolversTestUser(id: DataID): TReaderTestUser {
 }
 
 /**
- * @RelayResolver RelayReaderExecResolversTestUser.name: String
+ * @relayField RelayReaderExecResolversTestUser.name: String
  */
 export function name(user: TReaderTestUser): ?string {
   nameMock();
@@ -61,7 +61,7 @@ export function name(user: TReaderTestUser): ?string {
 }
 
 /**
- * @RelayResolver RelayReaderExecResolversTestUser.best_friend: RelayReaderExecResolversTestUser
+ * @relayField RelayReaderExecResolversTestUser.best_friend: RelayReaderExecResolversTestUser
  */
 export function best_friend(
   user: TReaderTestUser,
@@ -71,7 +71,7 @@ export function best_friend(
 }
 
 /**
- * @RelayResolver RelayReaderExecResolversTestUser.friends: [RelayReaderExecResolversTestUser]
+ * @relayField RelayReaderExecResolversTestUser.friends: [RelayReaderExecResolversTestUser]
  */
 export function friends(
   user: TReaderTestUser,
@@ -81,7 +81,7 @@ export function friends(
 }
 
 /**
- * @RelayResolver Query.RelayReaderExecResolversTest_user_one: RelayReaderExecResolversTestUser
+ * @relayField Query.RelayReaderExecResolversTest_user_one: RelayReaderExecResolversTestUser
  */
 export function RelayReaderExecResolversTest_user_one(): IdOf<'RelayReaderExecResolversTestUser'> {
   user_oneMock();

@@ -9,4 +9,4 @@ repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
-flatbuffers = "25.2.10"
+flatbuffers = "25.12.19"

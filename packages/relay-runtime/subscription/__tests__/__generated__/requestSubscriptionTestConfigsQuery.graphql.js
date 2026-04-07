@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<25bd670c61eb47e0a33ee66a89877b05>>
+ * @generated SignedSource<<e0a97bbb75f084292e61de2d5f2a74ee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -96,7 +96,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "requestSubscriptionTestConfigsQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -105,7 +105,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "requestSubscriptionTestConfigsQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "2e8459a1348e993fdb5ffe578b057275",
@@ -119,10 +119,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "16ca9c7a54273df2636b21f815941e23";
+  (node/*:: as any*/).hash = "16ca9c7a54273df2636b21f815941e23";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   requestSubscriptionTestConfigsQuery$variables,
   requestSubscriptionTestConfigsQuery$data,
 >*/);

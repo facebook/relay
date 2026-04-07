@@ -444,6 +444,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 log_event,
                 project_config.name,
                 &project_config.schema_config,
+                None,
             );
             match project_schema_change {
                 SchemaChangeSafety::Unsafe => BuildMode::Full,
@@ -453,6 +454,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                             log_event,
                             base,
                             &project_config.schema_config,
+                            None,
                         )
                     } else {
                         SchemaChangeSafety::Safe

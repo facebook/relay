@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8f4a4e255a6a0611ccc1a4c1a0282d8a>>
+ * @generated SignedSource<<049f03f8637f3fddd8e68a35de548b30>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {counter_no_fragment as queryCounterNoFragmentResolverType} from "../Live
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentResolverType: (
+(queryCounterNoFragmentResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
@@ -94,10 +94,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "516ead6979415176350fc87c03a6e4c3";
+  (node/*:: as any*/).hash = "516ead6979415176350fc87c03a6e4c3";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ResolverGCTestWithoutFragmentQuery$variables,
   ResolverGCTestWithoutFragmentQuery$data,
 >*/);

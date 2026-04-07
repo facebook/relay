@@ -40,7 +40,7 @@ injectPromisePolyfill__DEPRECATED();
  */
 
 /**
- * @RelayResolver Query.edge_to_plural_live_objects_some_exist: [TodoModel]
+ * @relayField Query.edge_to_plural_live_objects_some_exist: [TodoModel]
  */
 export function edge_to_plural_live_objects_some_exist(): ReadonlyArray<{
   id: DataID,
@@ -49,7 +49,7 @@ export function edge_to_plural_live_objects_some_exist(): ReadonlyArray<{
 }
 
 /**
- * @RelayResolver Query.edge_to_plural_live_objects_none_exist: [TodoModel]
+ * @relayField Query.edge_to_plural_live_objects_none_exist: [TodoModel]
  */
 export function edge_to_plural_live_objects_none_exist(): ReadonlyArray<{
   id: DataID,
@@ -62,7 +62,7 @@ export function edge_to_plural_live_objects_none_exist(): ReadonlyArray<{
  */
 
 /**
- * @RelayResolver Query.edge_to_live_object_does_not_exist: TodoModel
+ * @relayField Query.edge_to_live_object_does_not_exist: TodoModel
  */
 export function edge_to_live_object_does_not_exist(): {id: DataID} {
   return {id: 'THERE_IS_NO_TODO_WITH_THIS_ID'};
@@ -73,7 +73,7 @@ export function edge_to_live_object_does_not_exist(): {id: DataID} {
  */
 
 /**
- * @RelayResolver WeakModel
+ * @relayType WeakModel
  * @weak
  */
 export type WeakModel = {
@@ -82,14 +82,14 @@ export type WeakModel = {
 };
 
 /**
- * @RelayResolver Query.edge_to_null_weak_model: WeakModel
+ * @relayField Query.edge_to_null_weak_model: WeakModel
  */
 export function edge_to_null_weak_model(): ?WeakModel {
   return null;
 }
 
 /**
- * @RelayResolver WeakModel.first_name: String
+ * @relayField WeakModel.first_name: String
  */
 export function first_name(model: WeakModel): string {
   return model.firstName;
@@ -105,21 +105,21 @@ type StrongModelType = ?{
 };
 
 /**
- * @RelayResolver StrongModel
+ * @relayType StrongModel
  */
 export function StrongModel(id: string): StrongModelType {
   return null;
 }
 
 /**
- * @RelayResolver StrongModel.name: String
+ * @relayField StrongModel.name: String
  */
 export function name(model: StrongModelType): ?string {
   return model?.name;
 }
 
 /**
- * @RelayResolver Query.edge_to_strong_model_does_not_exist: StrongModel
+ * @relayField Query.edge_to_strong_model_does_not_exist: StrongModel
  */
 export function edge_to_strong_model_does_not_exist(): {id: DataID} {
   return {id: 'THERE_IS_NO_STRONG_MODEL_WITH_THIS_ID'};
@@ -130,7 +130,7 @@ export function edge_to_strong_model_does_not_exist(): {id: DataID} {
  */
 
 /**
- * @RelayResolver Query.edge_to_server_object_does_not_exist: Comment
+ * @relayField Query.edge_to_server_object_does_not_exist: Comment
  */
 export function edge_to_server_object_does_not_exist(): {id: DataID} {
   return {id: 'THERE_IS_NO_COMMENT_WITH_THIS_ID'};
@@ -148,7 +148,7 @@ type ErrorModelType = ?{
 };
 
 /**
- * @RelayResolver ErrorModel
+ * @relayType ErrorModel
  */
 export function ErrorModel(id: string): ErrorModelType {
   if (!id.includes(ERROR_ID)) {
@@ -158,14 +158,14 @@ export function ErrorModel(id: string): ErrorModelType {
 }
 
 /**
- * @RelayResolver Query.edge_to_model_that_throws: ErrorModel
+ * @relayField Query.edge_to_model_that_throws: ErrorModel
  */
 export function edge_to_model_that_throws(): {id: DataID} {
   return {id: ERROR_ID};
 }
 
 /**
- * @RelayResolver Query.edge_to_plural_models_that_throw: [ErrorModel]
+ * @relayField Query.edge_to_plural_models_that_throw: [ErrorModel]
  */
 export function edge_to_plural_models_that_throw(): ReadonlyArray<{
   id: DataID,
@@ -174,7 +174,7 @@ export function edge_to_plural_models_that_throw(): ReadonlyArray<{
 }
 
 /**
- * @RelayResolver Query.edge_to_plural_models_some_throw: [ErrorModel]
+ * @relayField Query.edge_to_plural_models_some_throw: [ErrorModel]
  */
 export function edge_to_plural_models_some_throw(): ReadonlyArray<{
   id: DataID,

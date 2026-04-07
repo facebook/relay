@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1385c82c4f7d308f7fb1db2b10d94c70>>
+ * @generated SignedSource<<756fd6329550517baeac5d4790113807>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {greeting as iWeakAnimalGreetingResolverType} from "../../../relay-runtim
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `iWeakAnimalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(iWeakAnimalGreetingResolverType: (
+(iWeakAnimalGreetingResolverType as (
   model: PurpleOctopus____relay_model_instance$data['__relay_model_instance'] | RedOctopus____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -32,7 +32,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {weak_animal as queryWeakAnimalResolverType} from "../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers.js";
 // Type assertion validating that `queryWeakAnimalResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryWeakAnimalResolverType: (
+(queryWeakAnimalResolverType as (
   args: {|
     request: WeakAnimalRequest,
   |},
@@ -82,7 +82,7 @@ v2 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -93,9 +93,10 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": null,
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "weak_animal",
@@ -110,7 +111,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": null,
           "kind": "LinkedField",
           "name": "weak_animal",
@@ -166,7 +167,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolverInterfaceTestWeakAnimalGreetingQuery",
     "selections": [
@@ -174,7 +175,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "weak_animal",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -182,7 +183,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": null,
           "kind": "LinkedField",
           "name": "weak_animal",
@@ -203,7 +204,7 @@ return {
                   "args": null,
                   "fragment": {
                     "kind": "InlineFragment",
-                    "selections": (v2/*: any*/),
+                    "selections": (v2/*:: as any*/),
                     "type": "PurpleOctopus",
                     "abstractKey": null
                   },
@@ -223,7 +224,7 @@ return {
                   "args": null,
                   "fragment": {
                     "kind": "InlineFragment",
-                    "selections": (v2/*: any*/),
+                    "selections": (v2/*:: as any*/),
                     "type": "RedOctopus",
                     "abstractKey": null
                   },
@@ -253,10 +254,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f871e0ce246bae6f8a3048e352bf8bd2";
+  (node/*:: as any*/).hash = "f871e0ce246bae6f8a3048e352bf8bd2";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestWeakAnimalGreetingQuery$variables,
   RelayResolverInterfaceTestWeakAnimalGreetingQuery$data,
 >*/);

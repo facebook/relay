@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<30c863335fc36186c9a5448b91b55ce5>>
+ * @generated SignedSource<<65c450fc00fda97c1969cc8a6a0fb4d6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import {hello as queryHelloResolverType} from "../../../relay-runtime/store/__te
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloResolverType: (
+(queryHelloResolverType as (
   args: {|
     world: string,
   |},
@@ -58,7 +58,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "name": "hello",
@@ -82,7 +82,7 @@ return {
         "selections": [
           {
             "name": "hello",
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": "hello(world:\"World\")",
@@ -104,10 +104,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "42a67a5a5af91776ffbd2e05505b5001";
+  (node/*:: as any*/).hash = "42a67a5a5af91776ffbd2e05505b5001";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ClientOnlyQueriesTest2Query$variables,
   ClientOnlyQueriesTest2Query$data,
 >*/);

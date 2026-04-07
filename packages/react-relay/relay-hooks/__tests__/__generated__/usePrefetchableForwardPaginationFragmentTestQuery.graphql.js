@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a4344a044191d41fc5b6f730f4208c15>>
+ * @generated SignedSource<<1b88086b3a5c39dd82bec210220917a7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -109,11 +109,11 @@ v8 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -121,7 +121,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -142,31 +142,31 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v3/*: any*/),
-      (v0/*: any*/),
-      (v2/*: any*/),
-      (v1/*: any*/),
-      (v4/*: any*/)
+      (v3/*:: as any*/),
+      (v0/*:: as any*/),
+      (v2/*:: as any*/),
+      (v1/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "usePrefetchableForwardPaginationFragmentTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
-          (v7/*: any*/),
+          (v6/*:: as any*/),
+          (v7/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v8/*: any*/),
+                "args": (v8/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -188,7 +188,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v7/*: any*/),
+                          (v7/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -196,7 +196,7 @@ return {
                             "name": "name",
                             "storageKey": null
                           },
-                          (v6/*: any*/)
+                          (v6/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -254,7 +254,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v8/*: any*/),
+                "args": (v8/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "UserFragment_friends",
@@ -282,10 +282,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "785e649312a81a6861dbabc7c8c80d56";
+  (node/*:: as any*/).hash = "785e649312a81a6861dbabc7c8c80d56";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePrefetchableForwardPaginationFragmentTestQuery$variables,
   usePrefetchableForwardPaginationFragmentTestQuery$data,
 >*/);

@@ -1,0 +1,34 @@
+# Removing an object that implements a non-Node interface is
+# SafeWithIncrementalBuild. The incremental build must recompile
+# queries that spread on the interface so generated output reflects
+# the removed type.
+
+//- foo.js
+graphql`
+  query fooQuery {
+    node(id: "1") {
+      ... on Actor {
+        name
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query { node(id: ID!): Node }
+interface Node { id: ID! }
+interface Actor { name: String }
+type User implements Node & Actor { id: ID!, name: String }
+type Bot implements Node & Actor { id: ID!, name: String }
+
+//-++ schema.graphql
+type Query { node(id: ID!): Node }
+interface Node { id: ID! }
+interface Actor { name: String }
+type User implements Node & Actor { id: ID!, name: String }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<690b2d02e2010d3ff690bb5eda828a74>>
+ * @generated SignedSource<<1c08a3b368e6d39901b0fe7a36f4b5e6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -55,7 +55,7 @@ v1 = {
   "name": "author",
   "plural": false,
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -67,11 +67,11 @@ v1 = {
   "storageKey": null
 },
 v2 = [
-  (v1/*: any*/)
+  (v1/*:: as any*/)
 ],
 v3 = [
-  (v1/*: any*/),
-  (v0/*: any*/)
+  (v1/*:: as any*/),
+  (v0/*:: as any*/)
 ];
 return {
   "fragment": {
@@ -87,7 +87,7 @@ return {
         "kind": "LinkedField",
         "name": "me",
         "plural": false,
-        "selections": (v2/*: any*/),
+        "selections": (v2/*:: as any*/),
         "storageKey": null
       },
       {
@@ -97,7 +97,7 @@ return {
         "kind": "LinkedField",
         "name": "me",
         "plural": false,
-        "selections": (v2/*: any*/),
+        "selections": (v2/*:: as any*/),
         "storageKey": null
       }
     ],
@@ -117,7 +117,7 @@ return {
         "kind": "LinkedField",
         "name": "me",
         "plural": false,
-        "selections": (v3/*: any*/),
+        "selections": (v3/*:: as any*/),
         "storageKey": null
       },
       {
@@ -127,7 +127,7 @@ return {
         "kind": "LinkedField",
         "name": "me",
         "plural": false,
-        "selections": (v3/*: any*/),
+        "selections": (v3/*:: as any*/),
         "storageKey": null
       }
     ]
@@ -144,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f1001c077d96e90b10fc29e250690d5c";
+  (node/*:: as any*/).hash = "f1001c077d96e90b10fc29e250690d5c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest16Query$variables,
   RelayResponseNormalizerTest16Query$data,
 >*/);

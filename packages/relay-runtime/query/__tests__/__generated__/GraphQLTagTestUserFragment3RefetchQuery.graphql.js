@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5cb45ccc3a8ad0d6f4eea43b70f4282f>>
+ * @generated SignedSource<<83e8fd975f05be363209d59486e3578e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -51,14 +51,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "GraphQLTagTestUserFragment3RefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -78,13 +78,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "GraphQLTagTestUserFragment3RefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -135,10 +135,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8c6f16917d7019fa1e958f35d43ef8f5";
+  (node/*:: as any*/).hash = "8c6f16917d7019fa1e958f35d43ef8f5";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   GraphQLTagTestUserFragment3RefetchQuery$variables,
   GraphQLTagTestUserFragment3RefetchQuery$data,
 >*/);

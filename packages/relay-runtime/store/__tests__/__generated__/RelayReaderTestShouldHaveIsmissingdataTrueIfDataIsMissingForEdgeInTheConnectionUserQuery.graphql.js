@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<70ce74c4f77b8c9205402cd83b2431ab>>
+ * @generated SignedSource<<1fa516c57839bb9d415f797fe21692c9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -80,7 +80,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": [
@@ -118,7 +118,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v0/*: any*/)
+                      (v0/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -145,10 +145,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1beb440e4acb521e6c2519a439b43898";
+  (node/*:: as any*/).hash = "1beb440e4acb521e6c2519a439b43898";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForEdgeInTheConnectionUserQuery$variables,
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForEdgeInTheConnectionUserQuery$data,
 >*/);

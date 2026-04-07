@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1840285b84942e8de77d88dfd48dd8f6>>
+ * @generated SignedSource<<7a75e4bf6f8f9a62199816d9acf9aed4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from ".
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAllAstrologicalSignsResolverType: (
+(queryAllAstrologicalSignsResolverType as (
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -59,7 +59,7 @@ v1 = {
   "name": "all_astrological_signs",
   "plural": true,
   "selections": [
-    (v0/*: any*/)
+    (v0/*:: as any*/)
   ],
   "storageKey": null
 };
@@ -76,6 +76,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "AstrologicalSign",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -89,7 +90,7 @@ return {
           "resolverModule": require('../resolvers/QueryAllAstrologicalSignsResolver').all_astrological_signs,
           "path": "all_astrological_signs"
         },
-        "linkedField": (v1/*: any*/)
+        "linkedField": (v1/*:: as any*/)
       }
     ],
     "type": "Query",
@@ -124,7 +125,7 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -136,7 +137,7 @@ return {
           "storageKey": null,
           "isOutputType": false
         },
-        "linkedField": (v1/*: any*/)
+        "linkedField": (v1/*:: as any*/)
       }
     ]
   },
@@ -152,10 +153,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2ca79d027314a1a8e7f8c700d07c8fb0";
+  (node/*:: as any*/).hash = "2ca79d027314a1a8e7f8c700d07c8fb0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReferenceMarkerTestResolverWithEdgeToClientQuery$variables,
   RelayReferenceMarkerTestResolverWithEdgeToClientQuery$data,
 >*/);

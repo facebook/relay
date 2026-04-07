@@ -18,7 +18,7 @@ const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
 const {suspenseSentinel} = require('relay-runtime');
 
 /**
- * @RelayResolver Query.virgo_suspends_when_counter_is_odd: AstrologicalSign
+ * @relayField Query.virgo_suspends_when_counter_is_odd: AstrologicalSign
  * @live
  *
  * A client edge to a client object that is @live and can suspend

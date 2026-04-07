@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<80bbcd385f69522f7e379b1d4266a42e>>
+ * @generated SignedSource<<58f193005f00c1a538645185ca5d0969>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -52,15 +52,15 @@ export type readUpdatableQueryTestMissingFieldsUpdatableQuery = {|
 var node/*: ConcreteUpdatableQuery*/ = (function(){
 var v0 = [
   {
-    "alias": null,
-    "args": null,
-    "kind": "ScalarField",
-    "name": "__typename",
-    "storageKey": null
-  },
-  {
     "kind": "InlineFragment",
     "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "__typename",
+        "storageKey": null
+      },
       {
         "alias": null,
         "args": null,
@@ -93,7 +93,7 @@ return {
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
-        "selections": (v0/*: any*/),
+        "selections": (v0/*:: as any*/),
         "storageKey": "node(id:\"4\")"
       },
       {
@@ -111,7 +111,7 @@ return {
         "kind": "LinkedField",
         "name": "nodes",
         "plural": true,
-        "selections": (v0/*: any*/),
+        "selections": (v0/*:: as any*/),
         "storageKey": "nodes(ids:[\"4\"])"
       },
       {
@@ -141,10 +141,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c5f0695089b38ebe9d316561c8b5432d";
+  (node/*:: as any*/).hash = "33578755c95870b57a52adef714a176e";
 }
 
-module.exports = ((node/*: any*/)/*: UpdatableQuery<
+module.exports = ((node/*:: as any*/)/*:: as UpdatableQuery<
   readUpdatableQueryTestMissingFieldsUpdatableQuery$variables,
   readUpdatableQueryTestMissingFieldsUpdatableQuery$data,
 >*/);

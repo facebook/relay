@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<08e3a35a1ab1ae3d9c5b726e1c6e2fdb>>
+ * @generated SignedSource<<f82a050672f936ef6a3174f8a46ba5e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,7 +59,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery",
@@ -72,8 +72,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "kind": "Defer",
             "selections": [
@@ -93,7 +93,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery",
     "selections": [
@@ -105,8 +105,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "if": null,
             "kind": "Defer",
@@ -155,10 +155,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a8ccb92b8e2653a27d1d12558fe72ee4";
+  (node/*:: as any*/).hash = "a8ccb92b8e2653a27d1d12558fe72ee4";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables,
   RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data,
 >*/);

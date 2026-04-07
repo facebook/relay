@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+#expected-to-throw
+# S2C @rootFragment must only select __typename and/or id in exec time resolvers
+query TestQuery @exec_time_resolvers {
+  me {
+    client_recommendation_with_name {
+      id
+    }
+  }
+}
+
+fragment ClientRecommendationWithNameResolverFragment on User {
+  __typename
+  name
+}
+
+# %extensions%
+
+type ClientOnlyType implements Node {
+  id: ID!
+}
+
+extend type User {
+  client_recommendation_with_name: ClientOnlyType @relay_resolver(fragment_name: "ClientRecommendationWithNameResolverFragment", import_path: "ClientRecommendationWithNameResolver")
+}
+==================================== ERROR ====================================
+✖︎ Server-to-client resolver @rootFragment `ClientRecommendationWithNameResolverFragment` in exec time resolvers may only select `__typename` and/or `id`. Found disallowed selection: name. S2C resolvers must use identity-only @rootFragment.
+
+  server-edge-to-client-with-exec-time-resolvers-invalid-root-fragment.invalid.graphql:13:3
+   12 │   __typename
+   13 │   name
+      │   ^^^^
+   14 │ }

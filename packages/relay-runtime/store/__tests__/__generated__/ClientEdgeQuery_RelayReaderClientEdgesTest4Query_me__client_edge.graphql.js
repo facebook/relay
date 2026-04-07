@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5fcf88c330efa0f0de6a44d554f6f4a8>>
+ * @generated SignedSource<<b596e2a294f492bc9484d48a5c5544ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,14 +57,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -84,19 +84,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -113,7 +113,7 @@ return {
                 "fragment": {
                   "kind": "InlineFragment",
                   "selections": [
-                    (v2/*: any*/)
+                    (v2/*:: as any*/)
                   ],
                   "type": "User",
                   "abstractKey": null
@@ -143,10 +143,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f12dcfffcc6bbf929b4fad3a4eb5602d";
+  (node/*:: as any*/).hash = "f12dcfffcc6bbf929b4fad3a4eb5602d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$variables,
   ClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$data,
 >*/);

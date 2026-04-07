@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a2dce50b98c838928410b79e1411c3c2>>
+ * @generated SignedSource<<2634945974e4eb1e3ef3c8efd275827f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -107,16 +107,16 @@ v9 = [
     "name": "isViewerFriend",
     "variableName": "isViewerFriend"
   },
-  (v8/*: any*/)
+  (v8/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -124,14 +124,14 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
-          (v7/*: any*/),
+          (v6/*:: as any*/),
+          (v7/*:: as any*/),
           {
             "args": [
               {
@@ -139,7 +139,7 @@ return {
                 "name": "isViewerFriendLocal",
                 "variableName": "isViewerFriend"
               },
-              (v8/*: any*/)
+              (v8/*:: as any*/)
             ],
             "kind": "FragmentSpread",
             "name": "ReactRelayPaginationContainerTestUserFragment"
@@ -154,31 +154,31 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v4/*: any*/),
-      (v3/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v4/*:: as any*/),
+      (v3/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "ReactRelayPaginationContainerTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
-          (v7/*: any*/),
+          (v6/*:: as any*/),
+          (v7/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -200,8 +200,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v6/*: any*/),
-                          (v7/*: any*/)
+                          (v6/*:: as any*/),
+                          (v7/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -245,7 +245,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "filters": [
                   "orderby",
                   "isViewerFriend"
@@ -276,10 +276,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f780c50ab163e4a29c81eb497cfd5d1b";
+  (node/*:: as any*/).hash = "f780c50ab163e4a29c81eb497cfd5d1b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayPaginationContainerTestUserQuery$variables,
   ReactRelayPaginationContainerTestUserQuery$data,
 >*/);

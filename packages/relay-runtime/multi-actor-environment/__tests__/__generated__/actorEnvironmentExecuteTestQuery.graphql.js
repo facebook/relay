@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c2d9f8dda94ad8cefa61836ce5019889>>
+ * @generated SignedSource<<dbc68024ad98e3f4798ced23e7bd4e8c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -63,20 +63,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "actorEnvironmentExecuteTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -86,13 +86,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "actorEnvironmentExecuteTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -105,7 +105,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -130,10 +130,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9748c6cb3c3549117a925a61cf59f7ad";
+  (node/*:: as any*/).hash = "9748c6cb3c3549117a925a61cf59f7ad";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   actorEnvironmentExecuteTestQuery$variables,
   actorEnvironmentExecuteTestQuery$data,
 >*/);

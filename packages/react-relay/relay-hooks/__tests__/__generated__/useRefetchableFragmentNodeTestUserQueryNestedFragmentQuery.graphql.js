@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9845e8eed54c5f1856ba893ec688f537>>
+ * @generated SignedSource<<e1bb7d9285c07d14c8e9d6a7c63cb04c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -72,14 +72,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -110,19 +110,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -131,8 +131,8 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/),
+              (v2/*:: as any*/),
+              (v3/*:: as any*/),
               {
                 "kind": "InlineFragment",
                 "selections": [
@@ -181,7 +181,7 @@ return {
             ],
             "storageKey": null
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -199,10 +199,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7ca81283026cd4a1b1204958f00d095c";
+  (node/*:: as any*/).hash = "7ca81283026cd4a1b1204958f00d095c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery$variables,
   useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery$data,
 >*/);

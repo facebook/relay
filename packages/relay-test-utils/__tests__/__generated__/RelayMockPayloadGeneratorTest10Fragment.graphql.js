@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2ad37142f5554e0ed01152e764f7625a>>
+ * @generated SignedSource<<da2f3c4942aceb088646a6bbb8d14d42>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -63,7 +63,7 @@ return {
   "metadata": null,
   "name": "RelayMockPayloadGeneratorTest10Fragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -82,7 +82,7 @@ return {
               "name": "id",
               "storageKey": null
             },
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -91,7 +91,7 @@ return {
               "name": "profile_picture",
               "plural": false,
               "selections": [
-                (v1/*: any*/),
+                (v1/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -117,7 +117,7 @@ return {
       "name": "profile_picture",
       "plural": false,
       "selections": [
-        (v1/*: any*/)
+        (v1/*:: as any*/)
       ],
       "storageKey": null
     }
@@ -128,10 +128,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ec0c12ef5340739f0ea25f1d9fd89a50";
+  (node/*:: as any*/).hash = "ec0c12ef5340739f0ea25f1d9fd89a50";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest10Fragment$fragmentType,
   RelayMockPayloadGeneratorTest10Fragment$data,
 >*/);

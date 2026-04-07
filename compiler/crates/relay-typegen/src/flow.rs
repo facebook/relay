@@ -20,7 +20,6 @@ use crate::writer::Writer;
 pub struct FlowPrinter {
     result: String,
     indentation: usize,
-    use_new_flow_casting_syntax: bool,
 }
 
 impl Write for FlowPrinter {
@@ -65,7 +64,6 @@ impl Writer for FlowPrinter {
             AST::ReturnTypeOfMethodCall(object, method_name) => {
                 self.write_return_type_of_method_call(object, *method_name)
             }
-            AST::ActorChangePoint(selections) => self.write_actor_change_point(selections),
             AST::AssertFunctionType(FunctionTypeAssertion {
                 function_name,
                 arguments,
@@ -87,11 +85,7 @@ impl Writer for FlowPrinter {
     }
 
     fn write_type_assertion(&mut self, name: &str, value: &AST) -> FmtResult {
-        if self.use_new_flow_casting_syntax {
-            write!(&mut self.result, "({name} as ")?;
-        } else {
-            write!(&mut self.result, "({name}: ")?;
-        }
+        write!(&mut self.result, "({name} as ")?;
         self.write(value)?;
         writeln!(&mut self.result, ");")
     }
@@ -157,11 +151,10 @@ impl Writer for FlowPrinter {
 }
 
 impl FlowPrinter {
-    pub fn new(use_new_flow_casting_syntax: bool) -> Self {
+    pub fn new() -> Self {
         Self {
             result: String::new(),
             indentation: 0,
-            use_new_flow_casting_syntax,
         }
     }
 
@@ -329,13 +322,6 @@ impl FlowPrinter {
         write!(&mut self.result, "[\"{method_name}\"]>")
     }
 
-    fn write_actor_change_point(&mut self, selections: &AST) -> FmtResult {
-        write!(&mut self.result, "ActorChangePoint<")?;
-        self.write(selections)?;
-        write!(&mut self.result, ">")?;
-        Ok(())
-    }
-
     fn write_callable(&mut self, return_type: &AST) -> FmtResult {
         write!(&mut self.result, "() => ")?;
         self.write(return_type)
@@ -355,11 +341,7 @@ impl FlowPrinter {
             &mut self.result,
             "// A type error here indicates that the type signature of the resolver module is incorrect."
         )?;
-        let cast_op = if self.use_new_flow_casting_syntax {
-            " as "
-        } else {
-            ": "
-        };
+        let cast_op = " as ";
         if arguments.is_empty() {
             write!(&mut self.result, "({function_name}{cast_op}(")?;
         } else {
@@ -403,7 +385,7 @@ mod tests {
     use crate::writer::SortedASTList;
 
     fn print_type(ast: &AST) -> String {
-        let mut printer = Box::new(FlowPrinter::new(false));
+        let mut printer = Box::new(FlowPrinter::new());
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -606,7 +588,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(FlowPrinter::new(false));
+        let mut printer = Box::new(FlowPrinter::new());
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(
             printer.into_string(),
@@ -616,7 +598,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(FlowPrinter::new(false));
+        let mut printer = Box::new(FlowPrinter::new());
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

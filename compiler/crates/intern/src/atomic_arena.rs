@@ -668,7 +668,6 @@ mod tests {
     use parking_lot::Condvar;
     use parking_lot::Mutex;
     use rand::Rng;
-    use rand::rng;
 
     use super::*;
 
@@ -807,7 +806,7 @@ mod tests {
             let len = len.clone();
             consumers.push(thread::spawn(move || {
                 const I: u32 = N * 3 / 2;
-                let mut rng = rng();
+                let mut rng = rand::rng();
                 let mut next_poke = 1500;
                 let mut next_seek = 1000;
                 let mut n_seen = 0;
@@ -904,7 +903,7 @@ mod tests {
             let avail = avail.clone();
             let progress = progress.clone();
             consumers.push(thread::spawn(move || {
-                let mut rng = rng();
+                let mut rng = rand::rng();
                 let mut next_poke = 150;
                 let mut next_seek = 10;
                 let mut n_seen = 0;

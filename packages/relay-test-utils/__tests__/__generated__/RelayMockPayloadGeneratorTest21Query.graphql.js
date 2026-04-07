@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7239a172fcd66a4c2ab01781399ce4ae>>
+ * @generated SignedSource<<1721ea33dfa31b12be51e66cb9870d25>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -60,7 +60,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -86,7 +86,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -180,16 +180,16 @@ return {
           "plural": false,
           "type": "ID"
         },
-        "node.name": (v1/*: any*/),
+        "node.name": (v1/*:: as any*/),
         "node.profile_picture": {
           "enumValues": null,
           "nullable": true,
           "plural": false,
           "type": "Image"
         },
-        "node.profile_picture.height": (v2/*: any*/),
-        "node.profile_picture.uri": (v1/*: any*/),
-        "node.profile_picture.width": (v2/*: any*/)
+        "node.profile_picture.height": (v2/*:: as any*/),
+        "node.profile_picture.uri": (v1/*:: as any*/),
+        "node.profile_picture.width": (v2/*:: as any*/)
       }
     },
     "name": "RelayMockPayloadGeneratorTest21Query",
@@ -200,10 +200,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c67efae098def8e3b4cf2c6f23d48f3a";
+  (node/*:: as any*/).hash = "c67efae098def8e3b4cf2c6f23d48f3a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest21Query$variables,
   RelayMockPayloadGeneratorTest21Query$data,
 >*/);

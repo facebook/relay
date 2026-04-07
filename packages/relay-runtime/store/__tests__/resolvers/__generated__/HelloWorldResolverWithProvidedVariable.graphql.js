@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4f3705ae49dac8dc45ab3d386293a4ae>>
+ * @generated SignedSource<<f67067fe12c3cffe8a1f9ca99c1844d8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {hello as queryHelloResolverType} from "../HelloWorldResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloResolverType: (
+(queryHelloResolverType as (
   args: {|
     world: string,
   |},
@@ -78,10 +78,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9f94df55099df09e6d33779b83f732fc";
+  (node/*:: as any*/).hash = "9f94df55099df09e6d33779b83f732fc";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   HelloWorldResolverWithProvidedVariable$fragmentType,
   HelloWorldResolverWithProvidedVariable$data,
 >*/);

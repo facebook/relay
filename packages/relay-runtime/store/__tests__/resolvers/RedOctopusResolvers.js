@@ -10,7 +10,7 @@
  */
 
 /**
- * @RelayResolver RedOctopus implements IWeakAnimal
+ * @relayType RedOctopus implements IWeakAnimal
  * @weak
  */
 export type RedOctopus = {
@@ -18,14 +18,14 @@ export type RedOctopus = {
 };
 
 /**
- * @RelayResolver RedOctopus.color: String
+ * @relayField RedOctopus.color: String
  */
 function color(red_octopus: RedOctopus): ?string {
   return 'red';
 }
 
 /**
- * @RelayResolver Query.red_octopus: RedOctopus
+ * @relayField Query.red_octopus: RedOctopus
  */
 function red_octopus(): RedOctopus {
   return {

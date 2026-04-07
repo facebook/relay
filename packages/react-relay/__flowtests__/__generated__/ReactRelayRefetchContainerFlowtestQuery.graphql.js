@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<909036439f4d2e9e2d5728ade52035dc>>
+ * @generated SignedSource<<05eed8664e3472bb30c45c5d1aedf648>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -68,7 +68,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayRefetchContainerFlowtestQuery",
@@ -95,7 +95,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayRefetchContainerFlowtestQuery",
     "selections": [
@@ -117,7 +117,7 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -146,7 +146,7 @@ return {
                             "name": "__typename",
                             "storageKey": null
                           },
-                          (v2/*: any*/)
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -190,14 +190,14 @@ return {
               },
               {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "ReactRelayRefetchContainerFlowtest_viewer__friends",
                 "kind": "LinkedHandle",
                 "name": "friends"
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -218,10 +218,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ce05ae9de6327d14ff0f3813ec77e594";
+  (node/*:: as any*/).hash = "ce05ae9de6327d14ff0f3813ec77e594";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayRefetchContainerFlowtestQuery$variables,
   ReactRelayRefetchContainerFlowtestQuery$data,
 >*/);

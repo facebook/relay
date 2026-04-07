@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1092790224fe96fae775da11bd2b74b7>>
+ * @generated SignedSource<<3604eb4ee49ef3ad0940392ed05a918e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -92,9 +92,9 @@ v6 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -102,7 +102,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -134,29 +134,29 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v2/*: any*/),
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v2/*:: as any*/),
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernEnvironmentConnectionTestPaginationQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
-          (v5/*: any*/),
+          (v4/*:: as any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v6/*: any*/),
+                "args": (v6/*:: as any*/),
                 "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
                 "name": "comments",
@@ -178,8 +178,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v5/*: any*/),
-                          (v4/*: any*/)
+                          (v5/*:: as any*/),
+                          (v4/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -223,7 +223,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v6/*: any*/),
+                "args": (v6/*:: as any*/),
                 "filters": [
                   "orderby"
                 ],
@@ -253,10 +253,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3c7371dcfecf7c2f23845a4381e25223";
+  (node/*:: as any*/).hash = "3c7371dcfecf7c2f23845a4381e25223";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentConnectionTestPaginationQuery$variables,
   RelayModernEnvironmentConnectionTestPaginationQuery$data,
 >*/);

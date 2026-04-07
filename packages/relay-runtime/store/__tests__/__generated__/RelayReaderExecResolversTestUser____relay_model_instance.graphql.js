@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d3353783e9ee116d87f60539a455c4bb>>
+ * @generated SignedSource<<8d03ca79daf27b16e755d02d7ba90fa2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {RelayReaderExecResolversTestUser as relayReaderExecResolversTestUserRela
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `relayReaderExecResolversTestUserRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(relayReaderExecResolversTestUserRelayModelInstanceResolverType: (
+(relayReaderExecResolversTestUserRelayModelInstanceResolverType as (
   id: RelayReaderExecResolversTestUser__id$data['id'],
   args: void,
   context: TestResolverContextType,
@@ -65,7 +65,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderExecResolversTestUser____relay_model_instance$fragmentType,
   RelayReaderExecResolversTestUser____relay_model_instance$data,
 >*/);

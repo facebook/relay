@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f0fa6944a28207e9c7f4f5d77a60c274>>
+ * @generated SignedSource<<15c11a375d9674176a72af12b335fc32>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,26 +58,26 @@ v2 = [
 ],
 v3 = {
   "kind": "InlineFragment",
-  "selections": (v2/*: any*/),
+  "selections": (v2/*:: as any*/),
   "type": "User",
   "abstractKey": null
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest43Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "userOrPage",
         "plural": false,
         "selections": [
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -87,13 +87,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest43Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "userOrPage",
@@ -106,10 +106,10 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v3/*: any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
-            "selections": (v2/*: any*/),
+            "selections": (v2/*:: as any*/),
             "type": "Node",
             "abstractKey": "__isNode"
           }
@@ -130,10 +130,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1f32c7b33101aed4f9650bfc68e12aad";
+  (node/*:: as any*/).hash = "1f32c7b33101aed4f9650bfc68e12aad";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest43Query$variables,
   RelayResponseNormalizerTest43Query$data,
 >*/);

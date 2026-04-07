@@ -1,0 +1,148 @@
+==================================== INPUT ====================================
+# The two fragments RowFragment and RootFragment both select
+# nameRenderer with @match, but with different @module spreads.
+# RowFragment also spreads RootFragment, so both selections end
+# up in the same query, generating different `supported` arguments.
+# This should be an error but currently isn't because
+# transform_match processes each fragment independently.
+query TestQuery {
+  me {
+    ...RowFragment
+  }
+}
+
+fragment RowFragment on User {
+  id
+  ...RootFragment
+  nameRenderer @match {
+    ...PlainUserNameRenderer_row @module(name: "PlainRow.react")
+  }
+}
+
+fragment RootFragment on User {
+  nameRenderer @match {
+    ...PlainUserNameRenderer_root @module(name: "PlainRoot.react")
+    ...MarkdownUserNameRenderer_root @module(name: "MarkdownRoot.react")
+  }
+}
+
+fragment PlainUserNameRenderer_row on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment PlainUserNameRenderer_root on PlainUserNameRenderer {
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_root on MarkdownUserNameRenderer {
+  markdown
+}
+==================================== OUTPUT ===================================
+query TestQuery {
+  me {
+    ...RowFragment
+  }
+}
+
+fragment MarkdownUserNameRenderer_root on MarkdownUserNameRenderer {
+  markdown
+}
+
+fragment PlainUserNameRenderer_root on PlainUserNameRenderer {
+  data {
+    text
+  }
+}
+
+fragment PlainUserNameRenderer_row on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment RootFragment on User {
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
+    ... on PlainUserNameRenderer {
+      ... on PlainUserNameRenderer @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: same-field-with-different-match-across-fragments.graphql:659:666,
+      #     key: "RootFragment",
+      #     module_id: "RootFragment.nameRenderer",
+      #     module_name: "PlainRoot.react",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "RootFragment",
+      #         ),
+      #     ),
+      #     read_time_resolvers: false,
+      #     fragment_name: FragmentDefinitionName(
+      #         "PlainUserNameRenderer_root",
+      #     ),
+      #     fragment_source_location: same-field-with-different-match-across-fragments.graphql:858:884,
+      #     no_inline: false,
+      # }
+       {
+        ...PlainUserNameRenderer_root
+        __module_operation_RootFragment: js(module: "PlainUserNameRenderer_root$normalization.graphql", id: "RootFragment.nameRenderer")
+        __module_component_RootFragment: js(module: "PlainRoot.react", id: "RootFragment.nameRenderer")
+      }
+    }
+    ... on MarkdownUserNameRenderer {
+      ... on MarkdownUserNameRenderer @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: same-field-with-different-match-across-fragments.graphql:729:736,
+      #     key: "RootFragment",
+      #     module_id: "RootFragment.nameRenderer",
+      #     module_name: "MarkdownRoot.react",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "RootFragment",
+      #         ),
+      #     ),
+      #     read_time_resolvers: false,
+      #     fragment_name: FragmentDefinitionName(
+      #         "MarkdownUserNameRenderer_root",
+      #     ),
+      #     fragment_source_location: same-field-with-different-match-across-fragments.graphql:946:975,
+      #     no_inline: false,
+      # }
+       {
+        ...MarkdownUserNameRenderer_root
+        __module_operation_RootFragment: js(module: "MarkdownUserNameRenderer_root$normalization.graphql", id: "RootFragment.nameRenderer")
+        __module_component_RootFragment: js(module: "MarkdownRoot.react", id: "RootFragment.nameRenderer")
+      }
+    }
+  }
+}
+
+fragment RowFragment on User {
+  id
+  ...RootFragment
+  nameRenderer(supported: ["PlainUserNameRenderer"]) {
+    ... on PlainUserNameRenderer {
+      ... on PlainUserNameRenderer @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: same-field-with-different-match-across-fragments.graphql:530:537,
+      #     key: "RowFragment",
+      #     module_id: "RowFragment.nameRenderer",
+      #     module_name: "PlainRow.react",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "RowFragment",
+      #         ),
+      #     ),
+      #     read_time_resolvers: false,
+      #     fragment_name: FragmentDefinitionName(
+      #         "PlainUserNameRenderer_row",
+      #     ),
+      #     fragment_source_location: same-field-with-different-match-across-fragments.graphql:781:806,
+      #     no_inline: false,
+      # }
+       {
+        ...PlainUserNameRenderer_row
+        __module_operation_RowFragment: js(module: "PlainUserNameRenderer_row$normalization.graphql", id: "RowFragment.nameRenderer")
+        __module_component_RowFragment: js(module: "PlainRow.react", id: "RowFragment.nameRenderer")
+      }
+    }
+  }
+}

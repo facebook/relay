@@ -18,7 +18,7 @@ type CatModel = {
 };
 
 /**
- * @RelayResolver Cat implements IAnimal
+ * @relayType Cat implements IAnimal
  */
 function Cat(id: DataID): ?CatModel {
   if (id === INVALID_ID) {
@@ -30,14 +30,14 @@ function Cat(id: DataID): ?CatModel {
 }
 
 /**
- * @RelayResolver Cat.legs: Int
+ * @relayField Cat.legs: Int
  */
 function legs(cat: CatModel): number {
   return 4;
 }
 
 /**
- * @RelayResolver Query.cat: Cat
+ * @relayField Query.cat: Cat
  */
 function cat(): {id: DataID} {
   return {id: '9'};

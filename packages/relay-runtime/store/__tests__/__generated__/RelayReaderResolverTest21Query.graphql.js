@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4bd6e021a50e5a68f54574bf5244bdd8>>
+ * @generated SignedSource<<055f570bac53f2d627f41f1e94bef340>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScal
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriWithScaleResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleResolverType: (
+(userUserProfilePictureUriWithScaleResolverType as (
   rootKey: UserProfilePictureResolver$key,
   args: {|
     scale: ?number,
@@ -61,7 +61,7 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderResolverTest21Query",
@@ -78,7 +78,7 @@ return {
             "alias": "profile_picture",
             "args": [],
             "fragment": {
-              "args": (v1/*: any*/),
+              "args": (v1/*:: as any*/),
               "kind": "FragmentSpread",
               "name": "UserProfilePictureResolver"
             },
@@ -96,7 +96,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderResolverTest21Query",
     "selections": [
@@ -116,7 +116,7 @@ return {
               "selections": [
                 {
                   "alias": null,
-                  "args": (v1/*: any*/),
+                  "args": (v1/*:: as any*/),
                   "concreteType": "Image",
                   "kind": "LinkedField",
                   "name": "profile_picture",
@@ -164,10 +164,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "244ca7ba41fb3b6de0129e7170c17727";
+  (node/*:: as any*/).hash = "244ca7ba41fb3b6de0129e7170c17727";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest21Query$variables,
   RelayReaderResolverTest21Query$data,
 >*/);

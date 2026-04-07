@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<53fb7999c9c76bbe516af2493f21b882>>
+ * @generated SignedSource<<4f8c6631499fc44965d1475f563ab21d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from ".
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAllAstrologicalSignsResolverType: (
+(queryAllAstrologicalSignsResolverType as (
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -71,6 +71,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "AstrologicalSign",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -92,7 +93,7 @@ return {
           "name": "all_astrological_signs",
           "plural": true,
           "selections": [
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -130,7 +131,7 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v1/*: any*/)
+                  (v1/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -150,8 +151,8 @@ return {
           "name": "all_astrological_signs",
           "plural": true,
           "selections": [
-            (v0/*: any*/),
-            (v1/*: any*/)
+            (v0/*:: as any*/),
+            (v1/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -170,10 +171,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "036bd92cbd98ae61be666414bbc2d707";
+  (node/*:: as any*/).hash = "036bd92cbd98ae61be666414bbc2d707";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverGCTestResolverClientEdgeToPluralClientQuery$variables,
   ResolverGCTestResolverClientEdgeToPluralClientQuery$data,
 >*/);

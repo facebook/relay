@@ -13,7 +13,7 @@ use std::sync::Arc;
 
 use common::SourceLocationKey;
 use lazy_static::lazy_static;
-use relay_schema::build_schema_with_extensions;
+use relay_schema::build_schema_with_extensions_parallel;
 use schema::SDLSchema;
 
 const TEST_SCHEMA_DATA: &str = include_str!("testschema.graphql");
@@ -21,14 +21,14 @@ const TEST_SCHEMA_WITH_CUSTOM_ID_DATA: &str = include_str!("testschema_with_cust
 
 lazy_static! {
     pub static ref TEST_SCHEMA: Arc<SDLSchema> = Arc::new(
-        build_schema_with_extensions::<_, &str>(
+        build_schema_with_extensions_parallel::<_, &str>(
             &[(TEST_SCHEMA_DATA, SourceLocationKey::generated())],
             &[]
         )
         .expect("Expected test schema to be valid")
     );
     pub static ref TEST_SCHEMA_WITH_CUSTOM_ID: Arc<SDLSchema> = Arc::new(
-        build_schema_with_extensions::<_, &str>(
+        build_schema_with_extensions_parallel::<_, &str>(
             &[(
                 TEST_SCHEMA_WITH_CUSTOM_ID_DATA,
                 SourceLocationKey::generated()
@@ -52,7 +52,7 @@ pub fn get_test_schema_with_located_extensions(
     source_location: SourceLocationKey,
 ) -> Arc<SDLSchema> {
     Arc::new(
-        build_schema_with_extensions(
+        build_schema_with_extensions_parallel(
             &[(TEST_SCHEMA_DATA, SourceLocationKey::generated())],
             &[(extensions_sdl, source_location)],
         )
@@ -66,7 +66,7 @@ pub fn get_test_schema_with_custom_id() -> Arc<SDLSchema> {
 
 pub fn get_test_schema_with_custom_id_with_extensions(extensions_sdl: &str) -> Arc<SDLSchema> {
     Arc::new(
-        build_schema_with_extensions(
+        build_schema_with_extensions_parallel(
             &[(
                 TEST_SCHEMA_WITH_CUSTOM_ID_DATA,
                 SourceLocationKey::generated(),

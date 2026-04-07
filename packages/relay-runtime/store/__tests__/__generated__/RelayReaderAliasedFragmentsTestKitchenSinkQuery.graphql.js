@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0f635e1223ce0a75546d8f1bcf5f6c43>>
+ * @generated SignedSource<<ce21193342f7dac4680159a54bd3a2b7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -76,9 +76,9 @@ v4 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -86,7 +86,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -103,7 +103,7 @@ return {
                   "selections": [
                     {
                       "kind": "Defer",
-                      "selections": (v4/*: any*/)
+                      "selections": (v4/*:: as any*/)
                     }
                   ],
                   "type": "User",
@@ -124,16 +124,16 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v2/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v2/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestKitchenSinkQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -158,7 +158,7 @@ return {
                 "selections": [
                   {
                     "kind": "InlineFragment",
-                    "selections": (v4/*: any*/),
+                    "selections": (v4/*:: as any*/),
                     "type": "User",
                     "abstractKey": null
                   }
@@ -190,10 +190,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6fe1b479a0d3b28e19a70f0fed540186";
+  (node/*:: as any*/).hash = "6fe1b479a0d3b28e19a70f0fed540186";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestKitchenSinkQuery$variables,
   RelayReaderAliasedFragmentsTestKitchenSinkQuery$data,
 >*/);

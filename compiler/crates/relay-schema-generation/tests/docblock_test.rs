@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d124eae14c9ad5e3113351e51a857e50>>
+ * @generated SignedSource<<e2288c5bad0d8c2ce75db0162d7f9055>>
  */
 
 mod docblock;
@@ -69,6 +69,13 @@ async fn description() {
 }
 
 #[tokio::test]
+async fn docblock_parse_error_location() {
+    let input = include_str!("docblock/fixtures/docblock-parse-error-location.input");
+    let expected = include_str!("docblock/fixtures/docblock-parse-error-location.expected");
+    test_fixture(transform_fixture, file!(), "docblock-parse-error-location.input", "docblock/fixtures/docblock-parse-error-location.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn idof() {
     let input = include_str!("docblock/fixtures/idof.input");
     let expected = include_str!("docblock/fixtures/idof.expected");
@@ -94,6 +101,13 @@ async fn live() {
     let input = include_str!("docblock/fixtures/live.input");
     let expected = include_str!("docblock/fixtures/live.expected");
     test_fixture(transform_fixture, file!(), "live.input", "docblock/fixtures/live.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn missing_args_param_type_error() {
+    let input = include_str!("docblock/fixtures/missing-args-param-type-error.input");
+    let expected = include_str!("docblock/fixtures/missing-args-param-type-error.expected");
+    test_fixture(transform_fixture, file!(), "missing-args-param-type-error.input", "docblock/fixtures/missing-args-param-type-error.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -143,6 +157,34 @@ async fn property_lookup() {
     let input = include_str!("docblock/fixtures/property-lookup.input");
     let expected = include_str!("docblock/fixtures/property-lookup.expected");
     test_fixture(transform_fixture, file!(), "property-lookup.input", "docblock/fixtures/property-lookup.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_field_on_field() {
+    let input = include_str!("docblock/fixtures/relay-field-on-field.input");
+    let expected = include_str!("docblock/fixtures/relay-field-on-field.expected");
+    test_fixture(transform_fixture, file!(), "relay-field-on-field.input", "docblock/fixtures/relay-field-on-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_field_on_type_error() {
+    let input = include_str!("docblock/fixtures/relay-field-on-type.error.input");
+    let expected = include_str!("docblock/fixtures/relay-field-on-type.error.expected");
+    test_fixture(transform_fixture, file!(), "relay-field-on-type.error.input", "docblock/fixtures/relay-field-on-type.error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_type_on_field_error() {
+    let input = include_str!("docblock/fixtures/relay-type-on-field.error.input");
+    let expected = include_str!("docblock/fixtures/relay-type-on-field.error.expected");
+    test_fixture(transform_fixture, file!(), "relay-type-on-field.error.input", "docblock/fixtures/relay-type-on-field.error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_type_on_type() {
+    let input = include_str!("docblock/fixtures/relay-type-on-type.input");
+    let expected = include_str!("docblock/fixtures/relay-type-on-type.expected");
+    test_fixture(transform_fixture, file!(), "relay-type-on-type.input", "docblock/fixtures/relay-type-on-type.expected", input, expected).await;
 }
 
 #[tokio::test]

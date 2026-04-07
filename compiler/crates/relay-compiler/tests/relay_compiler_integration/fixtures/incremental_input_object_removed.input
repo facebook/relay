@@ -1,0 +1,31 @@
+# Removing an input object that is not referenced by any query is
+# SafeWithIncrementalBuild. The incremental build correctly produces
+# the same result as a full build (no artifacts need updating).
+
+//- foo.js
+graphql`
+  query fooQuery {
+    node(id: "1") {
+      ... on User {
+        name
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query { node(id: ID!): Node }
+interface Node { id: ID! }
+type User implements Node { id: ID!, name: String }
+input MyInput { key: String }
+
+//-++ schema.graphql
+type Query { node(id: ID!): Node }
+interface Node { id: ID! }
+type User implements Node { id: ID!, name: String }

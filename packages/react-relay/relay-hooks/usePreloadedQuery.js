@@ -29,7 +29,7 @@ const {
 const warning = require('warning');
 
 type PreloadedQuery<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
   TRawResponse,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
@@ -52,9 +52,9 @@ type PreloadedQuery<
     >;
 
 declare hook usePreloadedQuery<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
+  TRawResponse extends ?{...} = void,
 >(
   gqlQuery:
     | Query<TVariables, TData, TRawResponse>
@@ -66,9 +66,9 @@ declare hook usePreloadedQuery<
 ): TData;
 
 declare hook usePreloadedQuery<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
+  TRawResponse extends ?{...} = void,
 >(
   gqlQuery:
     | Query<TVariables, TData, TRawResponse>
@@ -80,10 +80,10 @@ declare hook usePreloadedQuery<
 ): ?TData;
 
 hook usePreloadedQuery<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
-  TPreloadedQuery: ?PreloadedQuery<
+  TRawResponse extends ?{...} = void,
+  TPreloadedQuery extends ?PreloadedQuery<
     TVariables,
     TData,
     NonNullable<TRawResponse>,

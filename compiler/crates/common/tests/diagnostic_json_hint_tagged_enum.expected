@@ -1,0 +1,15 @@
+{
+  "message": "This field is semantically non-null, consider adding @required",
+  "message_type": "common_diagnostic_json_snapshot_test::TaggedMessage",
+  "severity": "hint",
+  "location": {
+    "source_location": {
+      "type": "Standalone",
+      "path": "src/schema.graphql"
+    },
+    "span": {
+      "start": 100,
+      "end": 150
+    }
+  }
+}

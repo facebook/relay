@@ -581,6 +581,157 @@ describe('RelayReader @catch', () => {
     ]);
   });
 
+  it('@catch(to: RESULT) on aliased inline fragment with field error returns error', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchErrorInAliasedInlineFragmentToResultQuery {
+        me {
+          ... @catch(to: RESULT) @alias(as: "myAlias") {
+            lastName
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        myAlias: {
+          ok: false,
+          errors: [
+            {
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
+    });
+
+    expect(fieldErrors).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        handled: true,
+        kind: 'relay_field_payload.error',
+        owner:
+          'RelayReaderCatchFieldsTestCatchErrorInAliasedInlineFragmentToResultQuery',
+        shouldThrow: false,
+      },
+    ]);
+  });
+
+  it('@catch(to: NULL) on aliased inline fragment with field error returns null', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchErrorInAliasedInlineFragmentToNullQuery {
+        me {
+          ... @catch(to: NULL) @alias(as: "myAlias") {
+            lastName
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {myAlias: null},
+    });
+
+    expect(fieldErrors).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        handled: true,
+        kind: 'relay_field_payload.error',
+        owner:
+          'RelayReaderCatchFieldsTestCatchErrorInAliasedInlineFragmentToNullQuery',
+        shouldThrow: false,
+      },
+    ]);
+  });
+
+  it('@catch(to: RESULT) on aliased inline fragment with no error returns ok result', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: 'Big Bird',
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchOkInAliasedInlineFragmentToResultQuery {
+        me {
+          ... @catch(to: RESULT) @alias(as: "myAlias") {
+            lastName
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        myAlias: {
+          ok: true,
+          value: {
+            lastName: 'Big Bird',
+          },
+        },
+      },
+    });
+
+    expect(fieldErrors).toBeNull();
+  });
+
   it('if scalar has catch to RESULT - but no error, response should reflect', () => {
     const source = RelayRecordSource.create({
       'client:root': {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bd1b9d3f7e8fa03407042331198d1a35>>
+ * @generated SignedSource<<c112fdc168751990cf1c5eb2c5a19484>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {live_resolver_throws as queryLiveResolverThrowsResolverType} from "../..
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveResolverThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveResolverThrowsResolverType: (
+(queryLiveResolverThrowsResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?unknown>);
@@ -94,10 +94,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ff79f7f1fb9a3cffea1d0903cfff24d0";
+  (node/*:: as any*/).hash = "ff79f7f1fb9a3cffea1d0903cfff24d0";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTest18Query$variables,
   LiveResolversTest18Query$data,
 >*/);

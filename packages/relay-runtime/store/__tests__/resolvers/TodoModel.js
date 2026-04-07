@@ -30,7 +30,7 @@ const {
 type TodoModelType = ?TodoItem;
 
 /**
- * @RelayResolver TodoModel
+ * @relayType TodoModel
  * @live
  */
 function TodoModel(id: string): LiveState<TodoModelType> {
@@ -45,14 +45,14 @@ function TodoModel(id: string): LiveState<TodoModelType> {
 }
 
 /**
- * @RelayResolver TodoModel.description: String
+ * @relayField TodoModel.description: String
  */
 function description(model: TodoModelType): ?string {
   return model?.description;
 }
 
 /**
- * @RelayResolver TodoModel.another_value_from_context: String
+ * @relayField TodoModel.another_value_from_context: String
  */
 function another_value_from_context(
   model: TodoModelType,
@@ -63,7 +63,7 @@ function another_value_from_context(
 }
 
 /**
- * @RelayResolver TodoModel.capitalized_id: String
+ * @relayField TodoModel.capitalized_id: String
  * @rootFragment TodoModelCapitalizedID
  *
  * A resolver on a model type that reads its own rootFragment
@@ -81,7 +81,7 @@ function capitalized_id(key: TodoModelCapitalizedID$key): ?string {
 }
 
 /**
- * @RelayResolver TodoModel.capitalized_id_legacy: String
+ * @relayField TodoModel.capitalized_id_legacy: String
  * @rootFragment TodoModelCapitalizedIDLegacy
  *
  * Like `capitalized_id`, but implemented using the non-terse legacy syntax
@@ -99,7 +99,7 @@ function capitalized_id_legacy(key: TodoModelCapitalizedIDLegacy$key): ?string {
 }
 
 /**
- * @RelayResolver TodoModel.fancy_description: TodoDescription
+ * @relayField TodoModel.fancy_description: TodoDescription
  */
 function fancy_description(model: TodoModelType): ?TodoDescription {
   if (model == null) {
@@ -109,14 +109,14 @@ function fancy_description(model: TodoModelType): ?TodoDescription {
 }
 
 /**
- * @RelayResolver TodoModel.fancy_description_null: TodoDescription
+ * @relayField TodoModel.fancy_description_null: TodoDescription
  */
 function fancy_description_null(model: TodoModelType): ?TodoDescription {
   return null;
 }
 
 /**
- * @RelayResolver TodoModel.fancy_description_suspends: TodoDescription
+ * @relayField TodoModel.fancy_description_suspends: TodoDescription
  * @live
  */
 function fancy_description_suspends(
@@ -133,7 +133,7 @@ function fancy_description_suspends(
 }
 
 /**
- * @RelayResolver TodoModel.many_fancy_descriptions: [TodoDescription]
+ * @relayField TodoModel.many_fancy_descriptions: [TodoDescription]
  */
 function many_fancy_descriptions(
   model: TodoModelType,
@@ -146,7 +146,7 @@ function many_fancy_descriptions(
 }
 
 /**
- * @RelayResolver TodoModel.many_fancy_descriptions_but_some_are_null: [TodoDescription]
+ * @relayField TodoModel.many_fancy_descriptions_but_some_are_null: [TodoDescription]
  */
 function many_fancy_descriptions_but_some_are_null(
   model: TodoModelType,
@@ -159,14 +159,14 @@ function many_fancy_descriptions_but_some_are_null(
 }
 
 /**
- * @RelayResolver Query.todo_model_null: TodoModel
+ * @relayField Query.todo_model_null: TodoModel
  */
 function todo_model_null(): ?ConcreteClientEdgeResolverReturnType<> {
   return null;
 }
 
 /**
- * @RelayResolver Query.live_todo_description(todoID: ID!): TodoDescription
+ * @relayField Query.live_todo_description(todoID: ID!): TodoDescription
  * @live
  *
  */

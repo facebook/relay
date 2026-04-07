@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<623769945819d176c24e3232659b0b2c>>
+ * @generated SignedSource<<e5295d2a98cea0c3838ae36176aa3a77>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -137,11 +137,11 @@ return {
                     "type": "SpecialUser",
                     "abstractKey": null
                   },
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "storageKey": null
               },
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -161,10 +161,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8dbcbcf741954b447de47b29ffdc8244";
+  (node/*:: as any*/).hash = "8dbcbcf741954b447de47b29ffdc8244";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayClient3DModuleTestQuery$variables,
   RelayClient3DModuleTestQuery$data,
 >*/);

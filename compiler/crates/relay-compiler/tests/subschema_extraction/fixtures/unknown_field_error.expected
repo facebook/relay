@@ -33,8 +33,8 @@ type User {
 Compilation failed: ✖︎ The type `User` has no field `unknownField`.
 See https://relay.dev/docs/error-reference/unknown-field/
 
-  src/TestQuery.js:7:7
-    6 │     user {
-    7 │       unknownField
+  src/TestQuery.js:4:7
+    3 │     user {
+    4 │       unknownField
       │       ^^^^^^^^^^^^
-    8 │     }
+    5 │     }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<88e9de0c5050bb53aaef1e75f63e9401>>
+ * @generated SignedSource<<5f4787d40ecc63bc0e12f5a7842f04bf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -135,15 +135,15 @@ return {
                         "kind": "FragmentSpread",
                         "name": "RelayMockPayloadGeneratorTest66Fragment"
                       },
-                      (v0/*: any*/)
+                      (v0/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v1/*: any*/)
+                  (v1/*:: as any*/)
                 ],
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -170,7 +170,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v3/*: any*/),
+            "args": (v3/*:: as any*/),
             "concreteType": "FriendsConnection",
             "kind": "LinkedField",
             "name": "friends",
@@ -192,29 +192,29 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v4/*: any*/),
-                      (v0/*: any*/)
+                      (v4/*:: as any*/),
+                      (v0/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v1/*: any*/)
+                  (v1/*:: as any*/)
                 ],
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": "friends(first:10)"
           },
           {
             "alias": null,
-            "args": (v3/*: any*/),
+            "args": (v3/*:: as any*/),
             "filters": null,
             "handle": "connection",
             "key": "test-66__friends",
             "kind": "LinkedHandle",
             "name": "friends"
           },
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -245,10 +245,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b92d71278394a4845d13fc6206966c02";
+  (node/*:: as any*/).hash = "b92d71278394a4845d13fc6206966c02";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest66Query$variables,
   RelayMockPayloadGeneratorTest66Query$data,
 >*/);

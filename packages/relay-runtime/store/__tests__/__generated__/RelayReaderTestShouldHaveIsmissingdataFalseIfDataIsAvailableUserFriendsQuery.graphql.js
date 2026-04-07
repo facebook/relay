@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7949315a649e3ddda87be498f46a167f>>
+ * @generated SignedSource<<85c9c207cbe7c7fb95c885a81974206e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -80,7 +80,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": [
@@ -118,7 +118,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v0/*: any*/)
+                      (v0/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -145,10 +145,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5c8e7c278a183816c699d12ac87c1d8c";
+  (node/*:: as any*/).hash = "5c8e7c278a183816c699d12ac87c1d8c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$variables,
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<287a510a57f147dc9086ffd1d27ddaae>>
+ * @generated SignedSource<<c4dfb447b522a67643c574983823829b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -63,10 +63,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b7e65e1c3646e22d52de26d24bb8c2a9";
+  (node/*:: as any*/).hash = "b7e65e1c3646e22d52de26d24bb8c2a9";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   usePaginationFragmentTest3Fragment$fragmentType,
   usePaginationFragmentTest3Fragment$data,
   usePaginationFragmentTest3FragmentRefetchQuery$variables,

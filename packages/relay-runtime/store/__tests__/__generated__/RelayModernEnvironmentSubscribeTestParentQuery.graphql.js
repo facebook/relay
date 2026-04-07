@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eaac3f5f9680dd591a6e45f16b3efea8>>
+ * @generated SignedSource<<0dfb8730ff65cfce03d5257cfb9de868>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -65,7 +65,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentSubscribeTestParentQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -74,7 +74,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayModernEnvironmentSubscribeTestParentQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "3c6a4f8ea29c885ac4073e9430c4c8dd",
@@ -88,10 +88,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "05d4bca13d0af57cb676421347016c3e";
+  (node/*:: as any*/).hash = "05d4bca13d0af57cb676421347016c3e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentSubscribeTestParentQuery$variables,
   RelayModernEnvironmentSubscribeTestParentQuery$data,
 >*/);

@@ -107,6 +107,7 @@ pub fn get_project_name_from_file_group(file_group: &FileGroup) -> Result<String
         FileGroup::Source { project_set } => Ok(project_set),
         FileGroup::Schema { project_set } => Ok(project_set),
         FileGroup::Extension { project_set } => Ok(project_set),
+        FileGroup::CompactSchema { project_set } => Ok(project_set),
         _ => Err("Not part of a source set"),
     }?;
 

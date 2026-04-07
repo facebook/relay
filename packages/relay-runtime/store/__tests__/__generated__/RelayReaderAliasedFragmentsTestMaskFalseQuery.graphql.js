@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<20ee849e641548310cb35106c54fd734>>
+ * @generated SignedSource<<d8832f28df83b3ee45819851c81d78b2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,7 +59,7 @@ return {
             "fragment": {
               "kind": "InlineFragment",
               "selections": [
-                (v0/*: any*/)
+                (v0/*:: as any*/)
               ],
               "type": "User",
               "abstractKey": null
@@ -88,7 +88,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -113,10 +113,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3c9f27dfac516a9d2c68c535b4c0804f";
+  (node/*:: as any*/).hash = "3c9f27dfac516a9d2c68c535b4c0804f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestMaskFalseQuery$variables,
   RelayReaderAliasedFragmentsTestMaskFalseQuery$data,
 >*/);

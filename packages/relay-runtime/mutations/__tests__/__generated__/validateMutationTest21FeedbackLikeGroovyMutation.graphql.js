@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b79b077c6721fab092b47c76041567b9>>
+ * @generated SignedSource<<fd6e79396b3adc656c441bd44a8acbae>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -66,14 +66,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest21FeedbackLikeGroovyMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "FeedbackLikeResponsePayload",
         "kind": "LinkedField",
         "name": "feedbackLike",
@@ -87,7 +87,7 @@ return {
             "name": "feedback",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -100,13 +100,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest21FeedbackLikeGroovyMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "FeedbackLikeResponsePayload",
         "kind": "LinkedField",
         "name": "feedbackLike",
@@ -120,7 +120,7 @@ return {
             "name": "feedback",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -148,10 +148,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1e3c3d5ff5319327113cae797b6e7f72";
+  (node/*:: as any*/).hash = "1e3c3d5ff5319327113cae797b6e7f72";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest21FeedbackLikeGroovyMutation$variables,
   validateMutationTest21FeedbackLikeGroovyMutation$data,
 >*/);

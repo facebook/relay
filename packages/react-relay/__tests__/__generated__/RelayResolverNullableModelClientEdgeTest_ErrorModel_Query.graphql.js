@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<264224bcbf3cac18840f289171287825>>
+ * @generated SignedSource<<66ca2c6834e44cc49881bef3404764a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {edge_to_model_that_throws as queryEdgeToModelThatThrowsResolverType} fro
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToModelThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToModelThatThrowsResolverType: (
+(queryEdgeToModelThatThrowsResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?{|
@@ -76,6 +76,7 @@ return {
             "path": "edge_to_model_that_throws.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -93,7 +94,7 @@ return {
           "name": "edge_to_model_that_throws",
           "plural": false,
           "selections": [
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -126,7 +127,7 @@ return {
           "name": "edge_to_model_that_throws",
           "plural": false,
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -152,10 +153,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ebe9a87123ffc5546caeba534e71db9b";
+  (node/*:: as any*/).hash = "ebe9a87123ffc5546caeba534e71db9b";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_ErrorModel_Query$variables,
   RelayResolverNullableModelClientEdgeTest_ErrorModel_Query$data,
 >*/);

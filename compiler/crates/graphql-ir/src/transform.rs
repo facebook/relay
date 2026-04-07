@@ -146,7 +146,7 @@ pub trait Transformer<'a> {
         variable_definitions: &[VariableDefinition],
     ) -> TransformedValue<Vec<VariableDefinition>> {
         transform_list(variable_definitions, |variable_definition| {
-            self.default_transform_variable_definition(variable_definition)
+            self.transform_variable_definition(variable_definition)
         })
     }
 
@@ -671,5 +671,64 @@ impl<T> From<TransformedValue<T>> for Transformed<T> {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(replacement) => Transformed::Replace(replacement),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use intern::string_key::Intern;
+    use schema::ScalarID;
+    use schema::Type;
+    use schema::TypeReference;
+
+    use super::*;
+
+    /// Regression test: default_transform_variable_definitions must dispatch
+    /// through transform_variable_definition (the overridable method), not
+    /// default_transform_variable_definition. This is consistent with every
+    /// other plural-to-singular dispatch in the Transformer trait.
+    #[test]
+    fn default_transform_variable_definitions_dispatches_through_override() {
+        struct CountingTransformer {
+            call_count: usize,
+        }
+
+        impl<'a> Transformer<'a> for CountingTransformer {
+            const NAME: &'static str = "CountingTransformer";
+            const VISIT_ARGUMENTS: bool = false;
+            const VISIT_DIRECTIVES: bool = false;
+
+            fn transform_variable_definition(
+                &mut self,
+                _variable_definition: &VariableDefinition,
+            ) -> TransformedValue<VariableDefinition> {
+                self.call_count += 1;
+                TransformedValue::Keep
+            }
+        }
+
+        let var_defs = vec![
+            VariableDefinition {
+                name: WithLocation::generated(VariableName("a".intern())),
+                type_: TypeReference::Named(Type::Scalar(ScalarID(0))),
+                default_value: None,
+                directives: vec![],
+            },
+            VariableDefinition {
+                name: WithLocation::generated(VariableName("b".intern())),
+                type_: TypeReference::Named(Type::Scalar(ScalarID(0))),
+                default_value: None,
+                directives: vec![],
+            },
+        ];
+
+        let mut transformer = CountingTransformer { call_count: 0 };
+        transformer.default_transform_variable_definitions(&var_defs);
+
+        assert_eq!(
+            transformer.call_count, 2,
+            "default_transform_variable_definitions should dispatch through \
+             transform_variable_definition for each variable definition"
+        );
     }
 }

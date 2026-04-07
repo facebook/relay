@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5726cba61ebb52ee860350425cec509c>>
+ * @generated SignedSource<<b6b7f3587d320efe725d5ed22ee721bc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -71,8 +71,8 @@ return {
   "metadata": null,
   "name": "RelayReaderTestReadsFragmentData",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -110,8 +110,8 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
-                (v1/*: any*/)
+                (v0/*:: as any*/),
+                (v1/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -152,10 +152,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "92a7ad8bc63727cda5956b23cf6d231f";
+  (node/*:: as any*/).hash = "92a7ad8bc63727cda5956b23cf6d231f";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestReadsFragmentData$fragmentType,
   RelayReaderTestReadsFragmentData$data,
 >*/);

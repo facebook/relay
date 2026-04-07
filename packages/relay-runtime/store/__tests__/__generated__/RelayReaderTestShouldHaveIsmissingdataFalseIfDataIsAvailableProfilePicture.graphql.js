@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<71f40913925a736f7bc770502a400b82>>
+ * @generated SignedSource<<db1ca8c04b4afcf286d516b43b9416e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -82,10 +82,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2f4de82999fbf30021bd6609f5500a31";
+  (node/*:: as any*/).hash = "2f4de82999fbf30021bd6609f5500a31";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$fragmentType,
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$data,
 >*/);

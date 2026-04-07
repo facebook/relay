@@ -147,7 +147,7 @@ function create(dataID: DataID, typeName: string): Record {
  *
  * Convert the JSON representation of a record into a record.
  */
-function fromObject<TMaybe: ?empty = empty>(
+function fromObject<TMaybe extends ?empty = empty>(
   json: RecordJSON | TMaybe,
 ): Record | TMaybe {
   return json;
@@ -710,7 +710,7 @@ function hasFieldChanged(
  *
  * Convert a record to JSON.
  */
-function toJSON<TMaybe: ?empty = empty>(
+function toJSON<TMaybe extends ?empty = empty>(
   record: Record | TMaybe,
 ): RecordJSON | TMaybe {
   return record;

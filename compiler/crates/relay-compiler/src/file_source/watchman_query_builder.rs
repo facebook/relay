@@ -28,12 +28,14 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
                 exclude_negates.push(Expr::Match(MatchTerm {
                     glob: negate.into(),
                     wholename: true,
+                    include_dot_files: true,
                     ..Default::default()
                 }));
             } else {
                 excludes.push(Expr::Match(MatchTerm {
                     glob: exclude.into(),
                     wholename: true,
+                    include_dot_files: true,
                     ..Default::default()
                 }));
             }

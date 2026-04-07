@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<57a0cca54701d5c3202b324f85c19182>>
+ * @generated SignedSource<<be7b4fd99a3196532803070c85ce3cc5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -71,10 +71,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bc14e8d2677d8a33ad9d1cfa5411894d";
+  (node/*:: as any*/).hash = "bc14e8d2677d8a33ad9d1cfa5411894d";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
   RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data,
 >*/);

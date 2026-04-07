@@ -12,8 +12,19 @@ use common::Span;
 use intern::string_key::StringKey;
 
 use super::primitive::*;
+use crate::lexer::TokenKind;
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub enum ConstantValue {
     Int(IntNode),
     Float(FloatNode),
@@ -83,7 +94,13 @@ impl fmt::Display for ConstantValue {
         match self {
             ConstantValue::Int(value) => f.write_fmt(format_args!("{value}")),
             ConstantValue::Float(value) => f.write_fmt(format_args!("{value}",)),
-            ConstantValue::String(value) => f.write_fmt(format_args!("\"{value}\"")),
+            ConstantValue::String(value) => {
+                if value.token.kind == TokenKind::BlockStringLiteral {
+                    f.write_fmt(format_args!("\"\"\"{value}\"\"\""))
+                } else {
+                    f.write_fmt(format_args!("\"{value}\""))
+                }
+            }
             ConstantValue::Boolean(value) => f.write_fmt(format_args!("{value}")),
             ConstantValue::Null(_) => f.write_str("null"),
             ConstantValue::Enum(value) => f.write_fmt(format_args!("{value}")),
@@ -109,7 +126,17 @@ impl fmt::Display for ConstantValue {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct ConstantArgument {
     pub span: Span,
     pub name: Identifier,
@@ -130,7 +157,17 @@ impl Named for ConstantArgument {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct IntNode {
     pub token: Token,
     pub value: i64,
@@ -142,7 +179,17 @@ impl fmt::Display for IntNode {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct FloatNode {
     pub token: Token,
     /// NOTE: we can't just store an f64 here because it doesn't implement Hash, Eq, Ord
@@ -158,7 +205,17 @@ impl fmt::Display for FloatNode {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct StringNode {
     pub token: Token,
     pub value: StringKey,
@@ -170,7 +227,17 @@ impl fmt::Display for StringNode {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct EnumNode {
     pub token: Token,
     pub value: StringKey,
@@ -182,7 +249,17 @@ impl fmt::Display for EnumNode {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct BooleanNode {
     pub token: Token,
     pub value: bool,
@@ -197,7 +274,17 @@ impl fmt::Display for BooleanNode {
     }
 }
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Copy,
+    Clone,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct FloatValue(u64);
 
 impl FloatValue {

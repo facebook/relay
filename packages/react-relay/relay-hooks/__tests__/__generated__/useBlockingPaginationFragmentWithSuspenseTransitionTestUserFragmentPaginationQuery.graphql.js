@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c66227b00387b63b41d40f6db685904c>>
+ * @generated SignedSource<<891a511cd16fdecd8d61135f0d6c572a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -135,18 +135,18 @@ v12 = [
     "name": "last",
     "variableName": "last"
   },
-  (v8/*: any*/)
+  (v8/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/),
-      (v6/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/),
+      (v6/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -154,7 +154,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v7/*: any*/),
+        "args": (v7/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -167,7 +167,7 @@ return {
                 "name": "isViewerFriendLocal",
                 "variableName": "isViewerFriendLocal"
               },
-              (v8/*: any*/)
+              (v8/*:: as any*/)
             ],
             "kind": "FragmentSpread",
             "name": "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment"
@@ -182,34 +182,34 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/),
-      (v6/*: any*/),
-      (v3/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/),
+      (v6/*:: as any*/),
+      (v3/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v7/*: any*/),
+        "args": (v7/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v9/*: any*/),
-          (v10/*: any*/),
+          (v9/*:: as any*/),
+          (v10/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v11/*: any*/),
+              (v11/*:: as any*/),
               {
                 "alias": null,
-                "args": (v12/*: any*/),
+                "args": (v12/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -231,8 +231,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v10/*: any*/),
-                          (v11/*: any*/),
+                          (v10/*:: as any*/),
+                          (v11/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -240,7 +240,7 @@ return {
                             "name": "username",
                             "storageKey": null
                           },
-                          (v9/*: any*/)
+                          (v9/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -298,7 +298,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v12/*: any*/),
+                "args": (v12/*:: as any*/),
                 "filters": [
                   "orderby",
                   "isViewerFriend"
@@ -329,10 +329,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f40001b7b963988467bb56b398ac1e1a";
+  (node/*:: as any*/).hash = "f40001b7b963988467bb56b398ac1e1a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables,
   useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$data,
 >*/);

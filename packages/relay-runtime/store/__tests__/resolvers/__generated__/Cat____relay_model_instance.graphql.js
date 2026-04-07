@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7507fc6eafa586cea26267bc25667d34>>
+ * @generated SignedSource<<bce398e64e2578e9861102055fdfd7c7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {Cat as catRelayModelInstanceResolverType} from "../CatResolvers.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `catRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(catRelayModelInstanceResolverType: (
+(catRelayModelInstanceResolverType as (
   id: Cat__id$data['id'],
   args: void,
   context: TestResolverContextType,
@@ -65,7 +65,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   Cat____relay_model_instance$fragmentType,
   Cat____relay_model_instance$data,
 >*/);

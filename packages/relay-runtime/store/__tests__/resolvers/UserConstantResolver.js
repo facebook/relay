@@ -17,7 +17,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver User.constant: Int
+ * @relayField User.constant: Int
  * @rootFragment UserConstantResolver
  *
  * You thought "one" was the loneliest number? Pffft. Let me introduce you to zero!

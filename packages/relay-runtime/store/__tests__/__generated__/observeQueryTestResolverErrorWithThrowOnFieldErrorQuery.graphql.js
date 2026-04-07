@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bd90cca9b044b078325f3888b466808f>>
+ * @generated SignedSource<<c7aee6e513e154135c3ebca500da3264>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {always_throws as userAlwaysThrowsResolverType} from "../resolvers/UserAl
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolverType: (
+(userAlwaysThrowsResolverType as (
   rootKey: UserAlwaysThrowsResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -135,10 +135,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "37e387539b481973fc13b94cc329ce2a";
+  (node/*:: as any*/).hash = "37e387539b481973fc13b94cc329ce2a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeQueryTestResolverErrorWithThrowOnFieldErrorQuery$variables,
   observeQueryTestResolverErrorWithThrowOnFieldErrorQuery$data,
 >*/);

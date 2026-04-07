@@ -82,7 +82,7 @@ export type DeclarativeMutationConfig =
   | RangeDeleteConfig
   | NodeDeleteConfig;
 
-function convert<TMutation: MutationParameters>(
+function convert<TMutation extends MutationParameters>(
   configs: Array<DeclarativeMutationConfig>,
   request: ConcreteRequest,
   optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,

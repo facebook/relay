@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<34fbc597ca3cfa2732f1f70e142ca602>>
+ * @generated SignedSource<<d0055d22ac04a54067f4a08f3c29c4c2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -74,14 +74,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest12ChangeNamePhonesMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -95,7 +95,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -108,13 +108,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest12ChangeNamePhonesMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -135,7 +135,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -163,10 +163,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e8f3d78c3a2e9ff7c989679f65d57979";
+  (node/*:: as any*/).hash = "e8f3d78c3a2e9ff7c989679f65d57979";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest12ChangeNamePhonesMutation$variables,
   validateMutationTest12ChangeNamePhonesMutation$data,
 >*/);

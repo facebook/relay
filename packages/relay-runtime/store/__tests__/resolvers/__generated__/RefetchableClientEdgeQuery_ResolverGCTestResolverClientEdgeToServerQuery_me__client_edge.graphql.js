@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ce4f1a36de7f23bca45c37b7108e333c>>
+ * @generated SignedSource<<9fbecab58571aa2492d9bf982973c3f2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -70,8 +70,8 @@ return {
   },
   "name": "RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -80,8 +80,8 @@ return {
       "name": "nearest_neighbor",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
-        (v1/*: any*/)
+        (v0/*:: as any*/),
+        (v1/*:: as any*/)
       ],
       "storageKey": null
     }
@@ -92,10 +92,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fe9d1d04537877d59f4905abc58c777f";
+  (node/*:: as any*/).hash = "fe9d1d04537877d59f4905abc58c777f";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$fragmentType,
   RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$data,
   ClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$variables,

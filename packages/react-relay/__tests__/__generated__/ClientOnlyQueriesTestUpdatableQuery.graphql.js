@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<628c814c146ce36f8b17c47654403092>>
+ * @generated SignedSource<<c959863b5b50398ff0845aeffc4359c1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -69,10 +69,10 @@ var node/*: ConcreteUpdatableQuery*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0a0119dc9f4fe139042af0839c700351";
+  (node/*:: as any*/).hash = "0a0119dc9f4fe139042af0839c700351";
 }
 
-module.exports = ((node/*: any*/)/*: UpdatableQuery<
+module.exports = ((node/*:: as any*/)/*:: as UpdatableQuery<
   ClientOnlyQueriesTestUpdatableQuery$variables,
   ClientOnlyQueriesTestUpdatableQuery$data,
 >*/);

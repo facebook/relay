@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2bbd0da377c806b10b1f08a2eb5c9e8a>>
+ * @generated SignedSource<<1455f246c236a694617d8a7085655b46>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -133,20 +133,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useMutationFastRefreshTestCommentCreateMutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useMutationFastRefreshTestCommentCreateMutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "11f37ac72f53f8fd3c69fa772ca756f9",
@@ -160,10 +160,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "97430a57093eac226b7c8c315e30f400";
+  (node/*:: as any*/).hash = "97430a57093eac226b7c8c315e30f400";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   useMutationFastRefreshTestCommentCreateMutation$variables,
   useMutationFastRefreshTestCommentCreateMutation$data,
 >*/);

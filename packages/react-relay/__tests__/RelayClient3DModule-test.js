@@ -18,7 +18,7 @@ import type {
 } from 'relay-runtime/util/NormalizationNode';
 
 import MatchContainer from '../relay-hooks/MatchContainer';
-import React from 'react';
+import * as React from 'react';
 import {
   RelayEnvironmentProvider,
   useClientQuery,

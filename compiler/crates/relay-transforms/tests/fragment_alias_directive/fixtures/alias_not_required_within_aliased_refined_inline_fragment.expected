@@ -20,10 +20,10 @@ query RelayReaderNamedFragmentsTest2Query {
     #         item: "User",
     #     },
     #     type_condition: Some(
-    #         Object(70),
+    #         Object(71),
     #     ),
     #     non_nullable: false,
-    #     selection_type: Object(70),
+    #     selection_type: Object(71),
     #     wraps_spread: false,
     # }
      {

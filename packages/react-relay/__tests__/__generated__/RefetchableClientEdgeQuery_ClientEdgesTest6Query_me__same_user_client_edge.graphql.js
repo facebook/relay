@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8ea39c0a6070c25a68e02cc8a3820ec5>>
+ * @generated SignedSource<<aa881c5f23b9795c67f4ebdf2884b03c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {upper_name as userUpperNameResolverType} from "../ClientEdges-test.js";
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUpperNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUpperNameResolverType: (
+(userUpperNameResolverType as (
   rootKey: ClientEdgesTestUpperName$key,
   args: void,
   context: TestResolverContextType,
@@ -87,10 +87,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "330a0878ce30575d8c36e2fdd626c833";
+  (node/*:: as any*/).hash = "330a0878ce30575d8c36e2fdd626c833";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType,
   RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$data,
   ClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$variables,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b695e94e12cb58dbb47628319a156521>>
+ * @generated SignedSource<<d14e175a56544667a9e02b1406b00833>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import {field_with_fragment_that_throws as queryFieldWithFragmentThatThrowsResol
 import type { TestResolverContextType } from "../../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryFieldWithFragmentThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryFieldWithFragmentThatThrowsResolverType: (
+(queryFieldWithFragmentThatThrowsResolverType as (
   rootKey: useFragmentNullabilityTestFragmentWithFieldThatThrows$key,
   args: void,
   context: TestResolverContextType,
@@ -108,10 +108,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "10916d7ec8d66dc54d930f21305b5778";
+  (node/*:: as any*/).hash = "10916d7ec8d66dc54d930f21305b5778";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   useFragmentNullabilityTest3Query$variables,
   useFragmentNullabilityTest3Query$data,
 >*/);

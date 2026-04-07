@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+query UserQuery($id: ID!, $first: Int = 10) {
+  user(id: $id) {
+    friends(first: $first) {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query UserQuery($id: ID!, $first: Int = 10) {
+  user(id: $id) {
+    friends(first: $first) {
+      name
+    }
+  }
+}

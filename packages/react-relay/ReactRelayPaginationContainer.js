@@ -318,8 +318,8 @@ function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
 }
 
 function createContainerWithFragments<
-  Props: {...},
-  TComponent: component(...Props),
+  Props extends {...},
+  TComponent extends component(...Props),
 >(
   Component: TComponent,
   fragments: FragmentMap,
@@ -941,7 +941,10 @@ function createContainerWithFragments<
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {...}, TComponent: component(...Props)>(
+function createContainer<
+  Props extends {...},
+  TComponent extends component(...Props),
+>(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
   connectionConfig: ConnectionConfig,

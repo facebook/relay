@@ -44,7 +44,7 @@ export type OperationType = {
   +rawResponse?: {...},
 };
 
-export type VariablesOf<T: OperationType> = T['variables'];
+export type VariablesOf<T extends OperationType> = T['variables'];
 
 /**
  * Settings for how a query response may be cached.
@@ -86,7 +86,7 @@ export type RenderPolicy = 'full' | 'partial';
  * Return type of graphql tag literals for all operations.
  */
 declare export opaque type Operation<
-  -TVariables: Variables,
+  -TVariables extends Variables,
   +TData,
   TRawResponse,
 >: ConcreteRequest;
@@ -95,7 +95,7 @@ declare export opaque type Operation<
  * Return type of graphql tag literals for updatable queries.
  */
 declare export opaque type UpdatableQuery<
-  -TVariables: Variables,
+  -TVariables extends Variables,
   +TData,
 >: ConcreteUpdatableQuery;
 
@@ -111,7 +111,7 @@ declare export opaque type UpdatableFragment<
  * Return type of graphql tag literals for queries.
  */
 declare export opaque type Query<
-  -TVariables: Variables,
+  -TVariables extends Variables,
   +TData,
   TRawResponse = void,
 >: Operation<TVariables, TData, TRawResponse>;
@@ -120,7 +120,7 @@ declare export opaque type Query<
  * Return type of graphql tag literals for client-only queries.
  */
 declare export opaque type ClientQuery<
-  -TVariables: Variables,
+  -TVariables extends Variables,
   +TData,
   TRawResponse = void,
 >: ClientRequest;
@@ -129,7 +129,7 @@ declare export opaque type ClientQuery<
  * Return type of graphql tag literals for mutations.
  */
 declare export opaque type Mutation<
-  -TVariables: Variables,
+  -TVariables extends Variables,
   +TData,
   TRawResponse = {...},
 >: Operation<TVariables, TData, TRawResponse>;
@@ -141,7 +141,7 @@ declare export opaque type Mutation<
  *       `RelayObservable`'s `Subscription` type.
  */
 declare export opaque type GraphQLSubscription<
-  -TVariables: Variables,
+  -TVariables extends Variables,
   +TData,
   TRawResponse = void,
 >: Operation<TVariables, TData, TRawResponse>;
@@ -166,7 +166,7 @@ declare export opaque type Fragment<TFragmentType, +TData>: ReaderFragment;
 declare export opaque type RefetchableFragment<
   TFragmentType,
   +TData,
-  TVariables: Variables,
+  TVariables extends Variables,
 >: Fragment<TFragmentType, TData>;
 
 /**
@@ -177,5 +177,5 @@ declare export opaque type PrefetchableRefetchableFragment<
   TFragmentType,
   +TData,
   +TEdgeData,
-  TVariables: Variables,
+  TVariables extends Variables,
 >: Fragment<TFragmentType, TData>;

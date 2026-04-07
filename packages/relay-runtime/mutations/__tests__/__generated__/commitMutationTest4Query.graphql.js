@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<efd898763e79a5ac5626ec87a1d6cc15>>
+ * @generated SignedSource<<ec2f46aa59e1425f7d90715064e88dff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -75,8 +75,8 @@ v3 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/)
+          (v1/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -132,7 +132,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -148,7 +148,7 @@ return {
                 "kind": "LinkedField",
                 "name": "__Feedback_topLevelComments_connection",
                 "plural": false,
-                "selections": (v3/*: any*/),
+                "selections": (v3/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -170,29 +170,29 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "concreteType": "TopLevelCommentsConnection",
                 "kind": "LinkedField",
                 "name": "topLevelComments",
                 "plural": false,
-                "selections": (v3/*: any*/),
+                "selections": (v3/*:: as any*/),
                 "storageKey": "topLevelComments(first:1)"
               },
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "Feedback_topLevelComments",
@@ -203,7 +203,7 @@ return {
             "type": "Feedback",
             "abstractKey": null
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": "node(id:\"feedback123\")"
       }
@@ -233,10 +233,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7104dfb986be1868726cca080aac477b";
+  (node/*:: as any*/).hash = "7104dfb986be1868726cca080aac477b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   commitMutationTest4Query$variables,
   commitMutationTest4Query$data,
 >*/);

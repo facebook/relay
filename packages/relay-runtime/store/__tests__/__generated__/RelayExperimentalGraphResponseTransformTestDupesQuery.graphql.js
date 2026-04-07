@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ad01329a7e1f5d2613ed02c54e8f2cd5>>
+ * @generated SignedSource<<7a895d5acf9a4d90cb361090d4ceccbb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -78,20 +78,20 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "User",
         "kind": "LinkedField",
         "name": "fetch__User",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v2/*: any*/)
+          (v0/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": "fetch__User(id:\"100\")"
       }
@@ -113,22 +113,22 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v3/*: any*/)
+          (v0/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "User",
         "kind": "LinkedField",
         "name": "fetch__User",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v0/*:: as any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": "fetch__User(id:\"100\")"
       }
@@ -146,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5b1ecc69ba47da95a0caf03ee553f180";
+  (node/*:: as any*/).hash = "5b1ecc69ba47da95a0caf03ee553f180";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseTransformTestDupesQuery$variables,
   RelayExperimentalGraphResponseTransformTestDupesQuery$data,
 >*/);

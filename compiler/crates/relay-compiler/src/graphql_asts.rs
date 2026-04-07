@@ -24,6 +24,7 @@ use graphql_syntax::ParserFeatures;
 use rayon::iter::IntoParallelRefIterator;
 use relay_config::ProjectConfig;
 use relay_config::ProjectName;
+use relay_transforms::MATCH_CONSTANTS;
 
 use crate::artifact_map::ArtifactSourceKey;
 use crate::compiler_state::GraphQLSources;
@@ -33,14 +34,51 @@ use crate::errors::Result;
 use crate::file_source::LocatedGraphQLSource;
 use crate::utils::get_parser_features;
 
+/// Collect the names of fragments spread with a @module directive within the
+/// given selections. When a definition that spreads a fragment with @module is
+/// removed or modified, the spread fragment must be recompiled so that its
+/// $normalization (SplitOperation) artifact can be removed if no longer needed.
+fn collect_module_fragment_spreads_from_selections(
+    selections: &[graphql_syntax::Selection],
+    out: &mut Vec<ExecutableDefinitionName>,
+) {
+    for selection in selections {
+        match selection {
+            graphql_syntax::Selection::FragmentSpread(spread) => {
+                if spread
+                    .directives
+                    .iter()
+                    .any(|d| d.name.value == MATCH_CONSTANTS.module_directive_name.0)
+                {
+                    out.push(FragmentDefinitionName(spread.name.value).into());
+                }
+            }
+            graphql_syntax::Selection::InlineFragment(inline_fragment) => {
+                collect_module_fragment_spreads_from_selections(
+                    &inline_fragment.selections.items,
+                    out,
+                );
+            }
+            graphql_syntax::Selection::LinkedField(field) => {
+                collect_module_fragment_spreads_from_selections(&field.selections.items, out);
+            }
+            graphql_syntax::Selection::ScalarField(_) => {}
+        }
+    }
+}
+
 /// A collection of GraphQL abstract syntax trees (ASTs) for a set of files.
 ///
-/// This struct contains a map of file paths to their corresponding GraphQL ASTs,
-/// as well as sets of pending and removed definition names.
+/// Stores definitions both per-file (for per-file lookup) and in a pre-flattened
+/// Vec (for efficient access to all definitions). `get_all_executable_definitions`
+/// returns a borrowed slice instead of cloning ~222K definitions each time.
 #[derive(Debug)]
 pub struct GraphQLAsts {
     /// A map of file paths to their corresponding GraphQL ASTs.
     asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>>,
+    /// Pre-flattened Vec of all definitions across all files. Avoids expensive
+    /// per-call cloning in `get_all_executable_definitions`.
+    all_definitions: Vec<ExecutableDefinition>,
     /// Names of fragments and operations that are updated or created.
     pub pending_definition_names: ExecutableDefinitionNameSet,
     /// Names of fragments and operations that are deleted.
@@ -55,8 +93,8 @@ impl GraphQLAsts {
         self.asts.get(file_path)
     }
 
-    pub fn get_all_executable_definitions(&self) -> Vec<ExecutableDefinition> {
-        self.asts.values().flatten().cloned().collect()
+    pub fn get_all_executable_definitions(&self) -> &[ExecutableDefinition] {
+        &self.all_definitions
     }
 
     pub fn from_graphql_sources_map(
@@ -198,8 +236,13 @@ impl GraphQLAsts {
         }
 
         if syntax_errors.is_empty() {
+            // Pre-flatten all definitions to avoid cloning on every call to
+            // get_all_executable_definitions(). This trades memory for avoiding
+            // ~222K deep clones per build on the intern project.
+            let all_definitions = asts.values().flatten().cloned().collect();
             Ok(Self {
                 asts,
+                all_definitions,
                 pending_definition_names,
                 removed_definition_names,
             })
@@ -280,14 +323,14 @@ fn parse_pending_graphql_source_and_collect_removed_definitions<'a>(
                 for def in document.definitions {
                     match def {
                         ExecutableDefinition::Operation(operation) => {
-                            if !(definitions_for_file.iter().any(|def| {
+                            let still_exists = definitions_for_file.iter().any(|def| {
                                 if let ExecutableDefinition::Operation(op) = def {
                                     op.name == operation.name
                                 } else {
                                     false
                                 }
-                            })) && let Some(operation_name) = operation.name
-                            {
+                            });
+                            if !still_exists && let Some(operation_name) = operation.name {
                                 local_removed_definition_names.push(
                                     ArtifactSourceKey::ExecutableDefinition(
                                         ExecutableDefinitionName::OperationDefinitionName(
@@ -296,15 +339,25 @@ fn parse_pending_graphql_source_and_collect_removed_definitions<'a>(
                                     ),
                                 );
                             }
+                            // When a definition is removed or modified, any
+                            // fragments it previously spread with @module may
+                            // need to be recompiled so that the
+                            // SplitOperation ($normalization) artifact can be
+                            // removed if no longer needed.
+                            collect_module_fragment_spreads_from_selections(
+                                &operation.selections.items,
+                                &mut local_pending_definition_names,
+                            );
                         }
                         ExecutableDefinition::Fragment(fragment) => {
-                            if !(definitions_for_file.iter().any(|def| {
+                            let still_exists = definitions_for_file.iter().any(|def| {
                                 if let ExecutableDefinition::Fragment(frag) = def {
                                     frag.name == fragment.name
                                 } else {
                                     false
                                 }
-                            })) {
+                            });
+                            if !still_exists {
                                 local_removed_definition_names.push(
                                     ArtifactSourceKey::ExecutableDefinition(
                                         ExecutableDefinitionName::FragmentDefinitionName(
@@ -313,6 +366,15 @@ fn parse_pending_graphql_source_and_collect_removed_definitions<'a>(
                                     ),
                                 );
                             }
+                            // When a definition is removed or modified, any
+                            // fragments it previously spread with @module may
+                            // need to be recompiled so that the
+                            // SplitOperation ($normalization) artifact can be
+                            // removed if no longer needed.
+                            collect_module_fragment_spreads_from_selections(
+                                &fragment.selections.items,
+                                &mut local_pending_definition_names,
+                            );
                         }
                     }
                 }

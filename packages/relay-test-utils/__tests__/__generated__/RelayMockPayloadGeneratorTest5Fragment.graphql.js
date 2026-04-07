@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6bebbf5f3de26493219790f34111170f>>
+ * @generated SignedSource<<6ea409c9d57746228c2d37496f0db935>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,8 +22,8 @@ import type { RelayMockPayloadGeneratorTest4Fragment$fragmentType } from "./Rela
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest5Fragment$fragmentType: FragmentType;
 export type RelayMockPayloadGeneratorTest5Fragment$data = {|
-  +actor: ?{|
-    +friends?: ?{|
+  +actor: ?({|
+    +friends: ?{|
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
@@ -32,12 +32,16 @@ export type RelayMockPayloadGeneratorTest5Fragment$data = {|
         |},
       |}>,
     |},
-    +id?: string,
-    +myName?: ?string,
+    +id: string,
+    +myName: ?string,
     +myType: "User",
-    +name?: ?string,
+    +name: ?string,
     +$fragmentSpreads: RelayMockPayloadGeneratorTest4Fragment$fragmentType,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +myType: "%other",
+  |}),
   +$fragmentType: RelayMockPayloadGeneratorTest5Fragment$fragmentType,
 |};
 export type RelayMockPayloadGeneratorTest5Fragment$key = {
@@ -98,7 +102,7 @@ return {
         {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "alias": "myType",
               "args": null,
@@ -151,13 +155,13 @@ return {
                       "name": "node",
                       "plural": false,
                       "selections": [
-                        (v0/*: any*/),
+                        (v0/*:: as any*/),
                         {
                           "condition": "skipUserInConnection",
                           "kind": "Condition",
                           "passingValue": false,
                           "selections": [
-                            (v1/*: any*/)
+                            (v1/*:: as any*/)
                           ]
                         },
                         {
@@ -201,7 +205,7 @@ return {
               ],
               "storageKey": null
             },
-            (v1/*: any*/)
+            (v1/*:: as any*/)
           ],
           "type": "User",
           "abstractKey": null
@@ -216,10 +220,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f00962ad9a873757b70472af4c68956a";
+  (node/*:: as any*/).hash = "f00962ad9a873757b70472af4c68956a";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest5Fragment$fragmentType,
   RelayMockPayloadGeneratorTest5Fragment$data,
 >*/);

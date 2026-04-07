@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0df017f62e79dce8d709bee83a912239>>
+ * @generated SignedSource<<4db142c70e57941f480b21d32daefe9c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ import {many_live_todos as queryManyLiveTodosResolverType} from "../../../relay-
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryManyLiveTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryManyLiveTodosResolverType: (
+(queryManyLiveTodosResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?ReadonlyArray<?Query__many_live_todos$normalization>>);
@@ -83,6 +83,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "Todo",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -148,7 +149,7 @@ return {
               "backingField": {
                 "name": "text",
                 "args": null,
-                "fragment": (v0/*: any*/),
+                "fragment": (v0/*:: as any*/),
                 "kind": "RelayResolver",
                 "storageKey": null,
                 "isOutputType": true
@@ -225,7 +226,7 @@ return {
             {
               "name": "complete",
               "args": null,
-              "fragment": (v0/*: any*/),
+              "fragment": (v0/*:: as any*/),
               "kind": "RelayResolver",
               "storageKey": null,
               "isOutputType": true
@@ -248,10 +249,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f42ffca5f81738e839984490939acc31";
+  (node/*:: as any*/).hash = "f42ffca5f81738e839984490939acc31";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables,
   RelayResolversWithOutputTypeTestManyLiveTodosQuery$data,
 >*/);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<347772eef5c7ca3bf0b932e2a89367b4>>
+ * @generated SignedSource<<c9ce36f542a0fbdda458329edd2f2724>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -49,7 +49,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "ResolverGCTestGCEmptyQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -58,7 +58,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "ResolverGCTestGCEmptyQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "4441972ffdfbbb6e70d96d2e7f2acd6e",
@@ -72,10 +72,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ab6e960e9de528ba22d3d893f64409b3";
+  (node/*:: as any*/).hash = "ab6e960e9de528ba22d3d893f64409b3";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ResolverGCTestGCEmptyQuery$variables,
   ResolverGCTestGCEmptyQuery$data,
 >*/);

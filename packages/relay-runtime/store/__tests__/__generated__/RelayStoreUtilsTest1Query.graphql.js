@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d4c9c7725c311e6835764892f3aabc87>>
+ * @generated SignedSource<<caf4efc159df1bfe0728ec195391c478>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -64,7 +64,7 @@ return {
             "kind": "LinkedField",
             "name": "__UserQuery_address_addressHandler",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -95,7 +95,7 @@ return {
             "kind": "LinkedField",
             "name": "address",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": null
           },
           {
@@ -131,10 +131,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d17659fb075bc208ab1af109ed7f442c";
+  (node/*:: as any*/).hash = "d17659fb075bc208ab1af109ed7f442c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayStoreUtilsTest1Query$variables,
   RelayStoreUtilsTest1Query$data,
 >*/);

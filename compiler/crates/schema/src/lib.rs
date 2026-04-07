@@ -11,6 +11,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+pub mod compact;
 pub mod definitions;
 mod errors;
 mod field_descriptions;
@@ -66,7 +67,7 @@ const BUILTINS: &str = include_str!("./builtins.graphql");
 pub use flatbuffer::serialize_as_flatbuffer;
 
 pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
-    build_schema_with_extensions::<_, &str>(&[(sdl, SourceLocationKey::generated())], &[])
+    build_schema_with_extensions_parallel::<_, &str>(&[(sdl, SourceLocationKey::generated())], &[])
 }
 
 pub struct SchemaDocuments {
@@ -74,7 +75,7 @@ pub struct SchemaDocuments {
     pub extensions: Vec<SchemaDocument>,
 }
 
-pub fn build_schema_with_extensions<
+pub fn build_schema_with_extensions_parallel<
     T: AsRef<str> + std::marker::Sync,
     U: AsRef<str> + std::marker::Sync,
 >(
@@ -82,11 +83,11 @@ pub fn build_schema_with_extensions<
     extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {
     let SchemaDocuments { server, extensions } =
-        parse_schema_with_extensions(server_sdls, extension_sdls)?;
+        parse_schema_with_extensions_parallel(server_sdls, extension_sdls)?;
     SDLSchema::build(&server, &extensions)
 }
 
-pub fn parse_schema_with_extensions<
+pub fn parse_schema_with_extensions_parallel<
     T: AsRef<str> + std::marker::Sync,
     U: AsRef<str> + std::marker::Sync,
 >(
@@ -158,11 +159,11 @@ pub fn parse_schema_with_extensions<
 }
 
 pub fn build_schema_with_flat_buffer(bytes: Vec<u8>) -> SDLSchema {
-    SDLSchema::FlatBuffer(SchemaWrapper::from_vec(bytes))
+    SDLSchema::FlatBuffer(Box::new(SchemaWrapper::from_vec(bytes)))
 }
 
 pub fn build_schema_with_flat_buffer_unchecked(bytes: Vec<u8>) -> SDLSchema {
-    SDLSchema::FlatBuffer(SchemaWrapper::from_vec_unchecked(bytes))
+    SDLSchema::FlatBuffer(Box::new(SchemaWrapper::from_vec_unchecked(bytes)))
 }
 
 pub fn build_schema_from_flat_buffer(bytes: &[u8]) -> DiagnosticsResult<FlatBufferSchema<'_>> {

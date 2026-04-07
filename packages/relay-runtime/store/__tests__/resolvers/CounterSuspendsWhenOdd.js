@@ -19,7 +19,7 @@ const {graphql, suspenseSentinel} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Query.counter_suspends_when_odd: Int
+ * @relayField Query.counter_suspends_when_odd: Int
  * @rootFragment CounterSuspendsWhenOdd
  * @live
  *

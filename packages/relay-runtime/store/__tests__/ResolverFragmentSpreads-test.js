@@ -35,7 +35,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 /**
- * @RelayResolver Query.field_that_spreads_inline_fragment: String
+ * @relayField Query.field_that_spreads_inline_fragment: String
  * @rootFragment ResolverFragmentSpreadsTestInlineFragment
  */
 export function field_that_spreads_inline_fragment(
@@ -59,7 +59,7 @@ export function field_that_spreads_inline_fragment(
 }
 
 /**
- * @RelayResolver Query.field_that_spreads_unmasked_fragment: String
+ * @relayField Query.field_that_spreads_unmasked_fragment: String
  * @rootFragment ResolverFragmentSpreadsTestUnmaskedFragment
  */
 export function field_that_spreads_unmasked_fragment(

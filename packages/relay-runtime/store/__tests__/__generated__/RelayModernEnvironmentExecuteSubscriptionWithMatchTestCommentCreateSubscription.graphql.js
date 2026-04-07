@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<71298e8ba42d5946b77669231f1dbd1a>>
+ * @generated SignedSource<<a1ade6d6b42aa04991afd901cd21e2b1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -122,14 +122,14 @@ v7 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreateSubscribe",
@@ -151,17 +151,17 @@ return {
                 "name": "actor",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
-                    "args": (v3/*: any*/),
+                    "args": (v3/*:: as any*/),
                     "concreteType": null,
                     "kind": "LinkedField",
                     "name": "nameRenderer",
                     "plural": false,
                     "selections": [
-                      (v4/*: any*/),
-                      (v5/*: any*/)
+                      (v4/*:: as any*/),
+                      (v5/*:: as any*/)
                     ],
                     "storageKey": "nameRenderer(supported:\"34hjiS\")"
                   }
@@ -180,13 +180,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreateSubscribe",
@@ -208,27 +208,27 @@ return {
                 "name": "actor",
                 "plural": false,
                 "selections": [
-                  (v6/*: any*/),
-                  (v2/*: any*/),
+                  (v6/*:: as any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
-                    "args": (v3/*: any*/),
+                    "args": (v3/*:: as any*/),
                     "concreteType": null,
                     "kind": "LinkedField",
                     "name": "nameRenderer",
                     "plural": false,
                     "selections": [
-                      (v6/*: any*/),
-                      (v4/*: any*/),
-                      (v5/*: any*/)
+                      (v6/*:: as any*/),
+                      (v4/*:: as any*/),
+                      (v5/*:: as any*/)
                     ],
                     "storageKey": "nameRenderer(supported:\"34hjiS\")"
                   },
-                  (v7/*: any*/)
+                  (v7/*:: as any*/)
                 ],
                 "storageKey": null
               },
-              (v7/*: any*/)
+              (v7/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -249,10 +249,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7ff1492359f8843cfbc0780bb95cbbde";
+  (node/*:: as any*/).hash = "7ff1492359f8843cfbc0780bb95cbbde";
 }
 
-module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+module.exports = ((node/*:: as any*/)/*:: as GraphQLSubscription<
   RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables,
   RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$data,
 >*/);

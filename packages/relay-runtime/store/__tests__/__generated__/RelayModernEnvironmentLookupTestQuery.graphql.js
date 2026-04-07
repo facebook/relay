@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<629ed9c9a568a671bd412efd80885a34>>
+ * @generated SignedSource<<77f1ec1788954e2ff2d6141a3d845ae4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,28 +28,20 @@ export type RelayModernEnvironmentLookupTestQuery$data = {|
     +__id: string,
     +id: string,
   |},
-  +node: ?({|
-    +__typename: "Comment",
+  +node: ?{|
+    +__typename: string,
     +__id: string,
-    +commentBody: ?({|
-      +__typename: "PlainCommentBody",
+    +commentBody?: ?{|
+      +__typename: string,
       +__id: string,
-      +text: ?{|
+      +text?: ?{|
         +__typename: "Text",
         +__id: string,
         +text: ?string,
       |},
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
+    |},
     +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+  |},
 |};
 export type RelayModernEnvironmentLookupTestQuery = {|
   response: RelayModernEnvironmentLookupTestQuery$data,
@@ -100,9 +92,9 @@ v4 = [
     "name": "me",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/)
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/)
     ],
     "storageKey": null
   },
@@ -120,8 +112,8 @@ v4 = [
     "name": "node",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
-      (v2/*: any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
       {
         "kind": "InlineFragment",
         "selections": [
@@ -139,7 +131,7 @@ v4 = [
             "name": "commentBody",
             "plural": false,
             "selections": [
-              (v1/*: any*/),
+              (v1/*:: as any*/),
               {
                 "kind": "InlineFragment",
                 "selections": [
@@ -151,7 +143,7 @@ v4 = [
                     "name": "text",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
+                      (v1/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -159,16 +151,16 @@ v4 = [
                         "name": "text",
                         "storageKey": null
                       },
-                      (v3/*: any*/)
+                      (v3/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v3/*: any*/)
+                  (v3/*:: as any*/)
                 ],
                 "type": "PlainCommentBody",
                 "abstractKey": null
               },
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "storageKey": "commentBody(supported:\"2Rll6p\")"
           }
@@ -176,28 +168,28 @@ v4 = [
         "type": "Comment",
         "abstractKey": null
       },
-      (v3/*: any*/)
+      (v3/*:: as any*/)
     ],
     "storageKey": null
   },
-  (v3/*: any*/)
+  (v3/*:: as any*/)
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentLookupTestQuery",
-    "selections": (v4/*: any*/),
+    "selections": (v4/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentLookupTestQuery",
-    "selections": (v4/*: any*/)
+    "selections": (v4/*:: as any*/)
   },
   "params": {
     "cacheID": "200d36d0a47ffc528a3c4df53b03401f",
@@ -211,10 +203,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bea49102c3069567ca430f28d38ba916";
+  (node/*:: as any*/).hash = "bea49102c3069567ca430f28d38ba916";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentLookupTestQuery$variables,
   RelayModernEnvironmentLookupTestQuery$data,
 >*/);

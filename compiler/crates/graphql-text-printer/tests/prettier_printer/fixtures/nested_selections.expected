@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+query NestedQuery {
+  user {
+    friends {
+      posts {
+        comments {
+          author {
+            name
+          }
+          content
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query NestedQuery {
+  user {
+    friends {
+      posts {
+        comments {
+          author {
+            name
+          }
+          content
+        }
+      }
+    }
+  }
+}

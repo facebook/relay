@@ -1,0 +1,8 @@
+# expected-to-throw
+# The preferFetchable argument must be a literal Boolean value,
+# not a variable reference.
+fragment RefetchableFragment on FetchableType
+  @refetchable(queryName: "RefetchableFragmentQuery", preferFetchable: $preferFetchable)
+  @argumentDefinitions(preferFetchable: {type: "Boolean!"}) {
+  fetch_id
+}

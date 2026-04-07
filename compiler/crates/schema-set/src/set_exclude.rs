@@ -814,14 +814,20 @@ impl<V: CanBeEmpty> CanBeEmpty for Vec<V> {
 impl<V: SetExclude> SetExclude for StringKeyMap<V> {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         self.iter()
-            .map(|(k, v)| {
+            .filter_map(|(k, v)| {
                 if let Some(other_v) = other.get(k) {
-                    (*k, v.exclude(other_v, options))
+                    // This key exists in both sets - exclude and filter if empty
+                    let excluded = v.exclude(other_v, options);
+                    if excluded.is_set_empty() {
+                        None
+                    } else {
+                        Some((*k, excluded))
+                    }
                 } else {
-                    (*k, v.clone())
+                    // This key only exists in self - preserve it as-is
+                    Some((*k, v.clone()))
                 }
             })
-            .filter(|(_, v)| !v.is_set_empty())
             .collect()
     }
 }
@@ -829,14 +835,20 @@ impl<V: SetExclude> SetExclude for StringKeyMap<V> {
 impl<K: Clone + Ord, V: SetExclude> SetExclude for BTreeMap<K, V> {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         self.iter()
-            .map(|(k, v)| {
+            .filter_map(|(k, v)| {
                 if let Some(other_v) = other.get(k) {
-                    (k.clone(), v.exclude(other_v, options))
+                    // This key exists in both sets - exclude and filter if empty
+                    let excluded = v.exclude(other_v, options);
+                    if excluded.is_set_empty() {
+                        None
+                    } else {
+                        Some((k.clone(), excluded))
+                    }
                 } else {
-                    (k.clone(), v.clone())
+                    // This key only exists in self - preserve it as-is
+                    Some((k.clone(), v.clone()))
                 }
             })
-            .filter(|(_, v)| !v.is_set_empty())
             .collect()
     }
 }
@@ -1377,6 +1389,33 @@ pub mod tests {
                 id: ID
             }
             type MyType @strong(field: "id")
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_exclude_preserves_empty_types_not_in_exclusion_set() {
+        // Regression test: Empty types that are NOT in the exclusion set should
+        // be preserved after exclusion. Previously, the exclude implementation
+        // would filter out ALL empty types, including ones that weren't touched.
+        let base = r#"
+            scalar String
+            scalar Int
+
+            type EmptyType
+        "#;
+        let excluded = r#"
+            scalar String
+            scalar Int
+        "#;
+
+        // EmptyType has no fields (is "empty"), but it should be preserved
+        // because it's not in the exclusion set.
+        assert_base_exclude_expected!(
+            base,
+            excluded,
+            r#"
+            type EmptyType
             "#,
         );
     }

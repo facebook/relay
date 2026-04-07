@@ -17,7 +17,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Query.user_name_and_counter_suspends_when_odd: String
+ * @relayField Query.user_name_and_counter_suspends_when_odd: String
  * @rootFragment UserNameAndCounterSuspendsWhenOdd
  *
  */

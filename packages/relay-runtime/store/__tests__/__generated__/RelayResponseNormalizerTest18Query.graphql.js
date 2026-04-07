@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ee7f04b58c1522bc59744a6b369e069e>>
+ * @generated SignedSource<<4499eeba2778e47cff6305f82c8c1649>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,18 +22,14 @@ export type RelayResponseNormalizerTest18Query$variables = {|
   id?: ?string,
 |};
 export type RelayResponseNormalizerTest18Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +actors: ?ReadonlyArray<?{|
+  +node: ?{|
+    +__typename: string,
+    +actors?: ?ReadonlyArray<?{|
       +__typename: string,
       +id: string,
     |}>,
     +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+  |},
 |};
 export type RelayResponseNormalizerTest18Query = {|
   response: RelayResponseNormalizerTest18Query$data,
@@ -78,8 +74,8 @@ v3 = [
     "name": "node",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
-      (v2/*: any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
       {
         "kind": "InlineFragment",
         "selections": [
@@ -91,8 +87,8 @@ v3 = [
             "name": "actors",
             "plural": true,
             "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/)
+              (v1/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -106,20 +102,20 @@ v3 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest18Query",
-    "selections": (v3/*: any*/),
+    "selections": (v3/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest18Query",
-    "selections": (v3/*: any*/)
+    "selections": (v3/*:: as any*/)
   },
   "params": {
     "cacheID": "514a19bfb085d2ffabcd60fa0ad25568",
@@ -133,10 +129,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a47c0241271bec11d726c3a424d30ea1";
+  (node/*:: as any*/).hash = "a47c0241271bec11d726c3a424d30ea1";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest18Query$variables,
   RelayResponseNormalizerTest18Query$data,
 >*/);

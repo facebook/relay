@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a8d67a61e39c86323f5596bf1fe8ed1b>>
+ * @generated SignedSource<<b78a1be8e938489bb4794e2b26722b57>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -73,7 +73,7 @@ return {
         "selections": [
           {
             "kind": "RequiredField",
-            "field": (v0/*: any*/),
+            "field": (v0/*:: as any*/),
             "action": "LOG"
           }
         ],
@@ -91,7 +91,7 @@ return {
           "selections": [
             {
               "kind": "RequiredField",
-              "field": (v1/*: any*/),
+              "field": (v1/*:: as any*/),
               "action": "THROW"
             }
           ],
@@ -117,8 +117,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v2/*: any*/)
+          (v0/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -130,8 +130,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/)
+          (v1/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -149,10 +149,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "92ad5972e7b9516f470d0ab4f548a16d";
+  (node/*:: as any*/).hash = "92ad5972e7b9516f470d0ab4f548a16d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$variables,
   RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$data,
 >*/);

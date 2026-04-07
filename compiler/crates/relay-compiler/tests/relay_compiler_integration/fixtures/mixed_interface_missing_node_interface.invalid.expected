@@ -1,0 +1,66 @@
+==================================== INPUT ====================================
+//- PersonComponent.js
+graphql`query PersonComponentQuery {
+  vehicle @waterfall {
+    id
+  }
+}`
+
+//- VehicleResolver.js
+/**
+ * @relayField Query.vehicle: IVehicle
+ */
+export function vehicle() {}
+
+//- CarResolver.js
+/**
+ * @relayType Car implements IVehicle
+ */
+export function Car() {}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+# Schema without a Node interface
+type Query {
+  greeting: String
+}
+
+type Truck {
+  id: ID!
+  wheels: Int
+}
+
+//- schema-extensions/extension.graphql
+interface IVehicle {
+  id: ID!
+}
+
+extend type Truck implements IVehicle
+==================================== OUTPUT ===================================
+✖︎ Relay Resolver field `vehicle` returns `IVehicle` which includes server type `Truck`. `Truck` does not implement the `Node` interface and is not `@fetchable`. Server types returned by Relay Resolvers must be refetchable via the `Node` interface or the `@fetchable` directive.
+
+  PersonComponent.js:2:3
+    1 │ query PersonComponentQuery {
+    2 │   vehicle @waterfall {
+      │   ^^^^^^^
+    3 │     id
+
+  ℹ︎ field defined here
+
+  VehicleResolver.js:2:22
+    1 │ *
+    2 │  * @relayField Query.vehicle: IVehicle
+      │                      ^^^^^^^
+    3 │

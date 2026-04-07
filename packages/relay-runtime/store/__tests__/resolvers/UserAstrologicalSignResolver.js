@@ -20,7 +20,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver User.astrological_sign: AstrologicalSign
+ * @relayField User.astrological_sign: AstrologicalSign
  * @rootFragment UserAstrologicalSignResolver
  *
  * A Client Edge that points to a client-defined representation of the user's

@@ -18,7 +18,7 @@ type FishModel = {
 };
 
 /**
- * @RelayResolver Fish implements IAnimal
+ * @relayType Fish implements IAnimal
  */
 function Fish(id: DataID): ?FishModel {
   if (id === INVALID_ID) {
@@ -30,14 +30,14 @@ function Fish(id: DataID): ?FishModel {
 }
 
 /**
- * @RelayResolver Fish.legs: Int
+ * @relayField Fish.legs: Int
  */
 function legs(cat: FishModel): number {
   return 0;
 }
 
 /**
- * @RelayResolver Query.fish: Fish
+ * @relayField Query.fish: Fish
  */
 function fish(): {id: DataID} {
   return {id: '12redblue'};

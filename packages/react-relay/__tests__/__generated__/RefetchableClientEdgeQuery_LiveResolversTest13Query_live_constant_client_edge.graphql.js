@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d7701dcb310bcfd6ce6689c52581b325>>
+ * @generated SignedSource<<9b17158e3224df88bcf876bd760ff91f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -71,10 +71,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5e0a692af3d1acd9f3fbcb5fe00b0e77";
+  (node/*:: as any*/).hash = "5e0a692af3d1acd9f3fbcb5fe00b0e77";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_LiveResolversTest13Query_live_constant_client_edge$fragmentType,
   RefetchableClientEdgeQuery_LiveResolversTest13Query_live_constant_client_edge$data,
   ClientEdgeQuery_LiveResolversTest13Query_live_constant_client_edge$variables,

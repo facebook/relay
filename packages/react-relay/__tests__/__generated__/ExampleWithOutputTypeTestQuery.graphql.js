@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<14d6d8cfc809694e6ed8e47cc2da2588>>
+ * @generated SignedSource<<ed53d0b1c6cb2d93c12791c5cb893b19>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import {example_client_object as queryExampleClientObjectResolverType} from "../
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryExampleClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryExampleClientObjectResolverType: (
+(queryExampleClientObjectResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?Query__example_client_object$normalization);
@@ -71,6 +71,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "ClientObject",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -86,7 +87,7 @@ return {
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__example_client_object$normalization.graphql')
           }
         },
-        "linkedField": (v0/*: any*/)
+        "linkedField": (v0/*:: as any*/)
       }
     ],
     "type": "Query",
@@ -108,7 +109,7 @@ return {
           "storageKey": null,
           "isOutputType": true
         },
-        "linkedField": (v0/*: any*/)
+        "linkedField": (v0/*:: as any*/)
       }
     ]
   },
@@ -124,10 +125,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6af44b9f4263bf177df8d084dc79d494";
+  (node/*:: as any*/).hash = "6af44b9f4263bf177df8d084dc79d494";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ExampleWithOutputTypeTestQuery$variables,
   ExampleWithOutputTypeTestQuery$data,
 >*/);

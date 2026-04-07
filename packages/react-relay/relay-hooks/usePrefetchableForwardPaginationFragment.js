@@ -43,7 +43,7 @@ const {
   getValueAtPath,
 } = require('relay-runtime');
 
-type LoadMoreFn<TVariables: Variables> = (
+type LoadMoreFn<TVariables extends Variables> = (
   count: number,
   options?: {
     onComplete?: (Error | null) => void,
@@ -79,11 +79,11 @@ export type GetExtraVariablesFn<TEdgeData, TData, TVariables, TKey> = ({
 }) => Partial<TVariables>;
 
 hook usePrefetchableForwardPaginationFragment<
-  TFragmentType: FragmentType,
-  TVariables: Variables,
+  TFragmentType extends FragmentType,
+  TVariables extends Variables,
   TData,
   TEdgeData,
-  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{+$fragmentSpreads: TFragmentType, ...},
 >(
   fragmentInput: PrefetchableRefetchableFragment<
     TFragmentType,

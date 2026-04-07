@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8d7a88db11028c9923cf70cd19641ea2>>
+ * @generated SignedSource<<a935111e7e93edb1f77e001cb5f4304c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -107,14 +107,14 @@ v6 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "requestSubscriptionTestSubscription",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreateSubscribe",
@@ -136,16 +136,16 @@ return {
                 "name": "actor",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
-                    "args": (v3/*: any*/),
+                    "args": (v3/*:: as any*/),
                     "concreteType": null,
                     "kind": "LinkedField",
                     "name": "nameRenderer",
                     "plural": false,
                     "selections": [
-                      (v4/*: any*/)
+                      (v4/*:: as any*/)
                     ],
                     "storageKey": "nameRenderer(supported:\"1AwQS7\")"
                   }
@@ -164,13 +164,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "requestSubscriptionTestSubscription",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreateSubscribe",
@@ -192,26 +192,26 @@ return {
                 "name": "actor",
                 "plural": false,
                 "selections": [
-                  (v5/*: any*/),
-                  (v2/*: any*/),
+                  (v5/*:: as any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
-                    "args": (v3/*: any*/),
+                    "args": (v3/*:: as any*/),
                     "concreteType": null,
                     "kind": "LinkedField",
                     "name": "nameRenderer",
                     "plural": false,
                     "selections": [
-                      (v5/*: any*/),
-                      (v4/*: any*/)
+                      (v5/*:: as any*/),
+                      (v4/*:: as any*/)
                     ],
                     "storageKey": "nameRenderer(supported:\"1AwQS7\")"
                   },
-                  (v6/*: any*/)
+                  (v6/*:: as any*/)
                 ],
                 "storageKey": null
               },
-              (v6/*: any*/)
+              (v6/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -232,10 +232,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "311e059536555ff9d7a020724eea959c";
+  (node/*:: as any*/).hash = "311e059536555ff9d7a020724eea959c";
 }
 
-module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+module.exports = ((node/*:: as any*/)/*:: as GraphQLSubscription<
   requestSubscriptionTestSubscription$variables,
   requestSubscriptionTestSubscription$data,
 >*/);

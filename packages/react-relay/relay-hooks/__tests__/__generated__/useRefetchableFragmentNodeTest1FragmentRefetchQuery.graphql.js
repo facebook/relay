@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f2064a3b2c8cf9665d0d9de963ac00b0>>
+ * @generated SignedSource<<d932a82c035d11b89f7f4a246ed3b6d5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,14 +58,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useRefetchableFragmentNodeTest1FragmentRefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "fetch__NonNodeStory",
@@ -85,13 +85,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useRefetchableFragmentNodeTest1FragmentRefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "fetch__NonNodeStory",
@@ -119,7 +119,7 @@ return {
                 "name": "name",
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -130,7 +130,7 @@ return {
             "name": "fetch_id",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -148,10 +148,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5edfb0ad9be0c72a1ba5d714bff331ae";
+  (node/*:: as any*/).hash = "5edfb0ad9be0c72a1ba5d714bff331ae";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables,
   useRefetchableFragmentNodeTest1FragmentRefetchQuery$data,
 >*/);

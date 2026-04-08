@@ -2,6 +2,9 @@
 <PROJECT_ROOT>/dist/.*
 <PROJECT_ROOT>/compiler/.*
 <PROJECT_ROOT>/.*/node_modules/.*
+<PROJECT_ROOT>/\.claude/.*
+<PROJECT_ROOT>/website/build/.*
+<PROJECT_ROOT>/website/\.docusaurus/.*
 .*/node_modules/resolve/test/resolver/malformed_package_json/package.json
 
 [options]

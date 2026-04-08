@@ -73,6 +73,11 @@ type InvalidationSubscription = {
   invalidationState: InvalidationState,
 };
 
+type Batch = {
+  sourceOperations: Array<OperationDescriptor>,
+  invalidateStore: boolean,
+};
+
 const DEFAULT_RELEASE_BUFFER_SIZE = 10;
 
 /**
@@ -122,6 +127,7 @@ class RelayModernStore implements Store {
   _actorIdentifier: ?ActorIdentifier;
   _treatMissingFieldsAsNull: boolean;
   _deferDeduplicatedFields: boolean;
+  _batch: Batch | null;
 
   constructor(
     source: MutableRecordSource,
@@ -192,6 +198,7 @@ class RelayModernStore implements Store {
     this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
     this._deferDeduplicatedFields = options?.deferDeduplicatedFields ?? false;
     this._actorIdentifier = options?.actorIdentifier;
+    this._batch = null;
 
     initializeRecordSource(this._recordSource);
   }
@@ -240,6 +247,44 @@ class RelayModernStore implements Store {
     } finally {
       if (this.__log != null) {
         this.__log({name: 'liveresolver.batch.end'});
+      }
+    }
+  }
+
+  /**
+   * Batch multiple store updates into a single notification pass.
+   *
+   * Fragments will still correctly Suspend on their own parent query during
+   * a batch. However, cross-operation Suspense (a fragment suspending on a
+   * *different* in-flight operation) may not work correctly for operations
+   * that complete during the batch.
+   */
+  experimental_batchUpdates(callback: () => void): void {
+    if (this._batch != null) {
+      throw new Error(
+        'RelayModernStore: Cannot batch updates while already batching updates.',
+      );
+    }
+    const log = this.__log;
+    if (log != null) {
+      log({name: 'store.batch.start'});
+    }
+    const batch: Batch = {sourceOperations: [], invalidateStore: false};
+    this._batch = batch;
+    try {
+      callback();
+    } finally {
+      this._batch = null;
+      this.notify(undefined, batch.invalidateStore);
+      for (const sourceOperation of batch.sourceOperations) {
+        this._recordSourceOperation(sourceOperation);
+      }
+      if (log != null) {
+        log({
+          name: 'store.batch.complete',
+          sourceOperations: batch.sourceOperations,
+          invalidateStore: batch.invalidateStore,
+        });
       }
     }
   }
@@ -431,6 +476,21 @@ class RelayModernStore implements Store {
     sourceOperation?: OperationDescriptor,
     invalidateStore?: boolean,
   ): ReadonlyArray<RequestDescriptor> {
+    // If we're inside a batchUpdates() call, defer notification.
+    const batch = this._batch;
+    if (batch != null) {
+      if (sourceOperation != null) {
+        batch.sourceOperations.push(sourceOperation);
+      }
+      if (invalidateStore === true) {
+        batch.invalidateStore = true;
+      }
+      // Returning [] here means the OperationExecutor's _updateOperationTracker
+      // will be a no-op for this call, since it relies on notify() returning
+      // the list of affected owners. See the experimental_batchUpdates JSDoc.
+      return [];
+    }
+
     const log = this.__log;
     if (log != null) {
       log({
@@ -507,38 +567,8 @@ class RelayModernStore implements Store {
       });
     }
 
-    // If a source operation was provided (indicating the operation
-    // that produced this update to the store), record the current epoch
-    // at which this operation was written.
     if (sourceOperation != null) {
-      // We only track the epoch at which the operation was written if
-      // it was previously retained, to keep the size of our operation
-      // epoch map bounded. If a query wasn't retained, we assume it can
-      // may be deleted at any moment and thus is not relevant for us to track
-      // for the purposes of invalidation.
-      const id = sourceOperation.request.identifier;
-      const rootEntry = this._roots.get(id);
-      if (rootEntry != null) {
-        rootEntry.epoch = this._currentWriteEpoch;
-        rootEntry.fetchTime = Date.now();
-      } else if (
-        sourceOperation.request.node.params.operationKind === 'query' &&
-        this._gcReleaseBufferSize > 0 &&
-        this._releaseBuffer.length < this._gcReleaseBufferSize
-      ) {
-        // The operation isn't retained but there is space in the release buffer:
-        // temporarily track this operation in case the data can be reused soon.
-        const temporaryRootEntry = {
-          operation: sourceOperation,
-          refCount: 0,
-          epoch: this._currentWriteEpoch,
-          fetchTime: Date.now(),
-        };
-        this._releaseBuffer.push(id);
-        /* $FlowFixMe[incompatible-type] Natural Inference rollout. See
-         * https://fburl.com/gdoc/y8dn025u */
-        this._roots.set(id, temporaryRootEntry);
-      }
+      this._recordSourceOperation(sourceOperation);
     }
 
     if (log != null) {
@@ -556,6 +586,40 @@ class RelayModernStore implements Store {
     this._invalidatedRecordIDs.clear();
 
     return updatedOwners;
+  }
+
+  /**
+   * Record that a source operation was written at the current epoch.
+   * We only track the epoch at which the operation was written if
+   * it was previously retained, to keep the size of our operation
+   * epoch map bounded. If a query wasn't retained, we assume it can
+   * be deleted at any moment and thus is not relevant for us to track
+   * for the purposes of invalidation.
+   */
+  _recordSourceOperation(sourceOperation: OperationDescriptor): void {
+    const id = sourceOperation.request.identifier;
+    const rootEntry = this._roots.get(id);
+    if (rootEntry != null) {
+      rootEntry.epoch = this._currentWriteEpoch;
+      rootEntry.fetchTime = Date.now();
+    } else if (
+      sourceOperation.request.node.params.operationKind === 'query' &&
+      this._gcReleaseBufferSize > 0 &&
+      this._releaseBuffer.length < this._gcReleaseBufferSize
+    ) {
+      // The operation isn't retained but there is space in the release buffer:
+      // temporarily track this operation in case the data can be reused soon.
+      const temporaryRootEntry = {
+        operation: sourceOperation,
+        refCount: 0,
+        epoch: this._currentWriteEpoch,
+        fetchTime: Date.now(),
+      };
+      this._releaseBuffer.push(id);
+      /* $FlowFixMe[incompatible-type] Natural Inference rollout. See
+       * https://fburl.com/gdoc/y8dn025u */
+      this._roots.set(id, temporaryRootEntry);
+    }
   }
 
   publish(source: RecordSource, idsMarkedForInvalidation?: DataIDSet): void {

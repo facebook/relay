@@ -787,6 +787,16 @@ export type StoreGcEndEvent = {
   +references: DataIDSet,
 };
 
+export type StoreBatchStartLogEvent = {
+  +name: 'store.batch.start',
+};
+
+export type StoreBatchCompleteLogEvent = {
+  +name: 'store.batch.complete',
+  +sourceOperations: Array<OperationDescriptor>,
+  +invalidateStore: boolean,
+};
+
 export type StoreNotifyStartLogEvent = {
   +name: 'store.notify.start',
   +sourceOperation: ?OperationDescriptor,
@@ -894,6 +904,8 @@ export type LogEvent =
   | StoreGcStartEvent
   | StoreGcInterruptedEvent
   | StoreGcEndEvent
+  | StoreBatchStartLogEvent
+  | StoreBatchCompleteLogEvent
   | StoreNotifyStartLogEvent
   | StoreNotifyCompleteLogEvent
   | StoreNotifySubscriptionLogEvent

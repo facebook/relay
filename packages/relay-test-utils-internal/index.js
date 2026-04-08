@@ -7,8 +7,6 @@
  * @flow
  * @format
  * @oncall relay
- *
- * Relay documentation is available in node_modules/relay-runtime/llm-docs/
  */
 
 'use strict';

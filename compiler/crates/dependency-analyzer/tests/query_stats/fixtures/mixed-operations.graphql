@@ -1,0 +1,21 @@
+# Tests that query, mutation, and subscription operation kinds are counted
+# separately and reported correctly in the summary.
+query FetchUser {
+  me {
+    ...UserFields
+  }
+}
+mutation UpdateName {
+  updateName {
+    ...UserFields
+  }
+}
+subscription OnUpdate {
+  onUpdate {
+    name
+  }
+}
+fragment UserFields on User {
+  name
+  age
+}

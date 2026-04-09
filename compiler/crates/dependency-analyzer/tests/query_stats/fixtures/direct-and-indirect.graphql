@@ -1,0 +1,16 @@
+# Tests that max_depth is correct when a fragment is reachable via both a direct
+# spread (Query->B at depth 1) and an indirect chain (Query->A->B at depth 2).
+# The correct max_depth should be 2, not 1.
+query OverlapQuery {
+  me {
+    ...A
+    ...B
+  }
+}
+fragment A on User {
+  ...B
+  name
+}
+fragment B on User {
+  age
+}

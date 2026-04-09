@@ -1,0 +1,52 @@
+==================================== INPUT ====================================
+# Tests ranking of multiple operations with varying fragment complexity:
+# heavy (deep chain), medium (single fragment), and light (no fragments).
+query HeavyQuery {
+  me {
+    ...A
+  }
+}
+query LightQuery {
+  me {
+    name
+  }
+}
+query MediumQuery {
+  me {
+    ...B
+  }
+}
+fragment A on User {
+  ...B
+  ...C
+}
+fragment B on User {
+  name
+}
+fragment C on User {
+  ...D
+}
+fragment D on User {
+  age
+}
+==================================== OUTPUT ===================================
+== Operations (by transitive fragments, descending) ==
+  4 HeavyQuery (query) [direct: 1, depth: 3]
+  1 MediumQuery (query) [direct: 1, depth: 1]
+  0 LightQuery (query) [direct: 0, depth: 0]
+
+== Summary ==
+Total operations: 3
+  Queries: 3, Mutations: 0, Subscriptions: 0
+Operations with 0 fragments: 1 (33.3%)
+
+== Distribution (transitive fragments) ==
+Min: 0  Max: 4  Mean: 1.67  Median: 1
+P90: 4  P99: 4
+
+== Histogram ==
+    0 fragments: 1 (33.3%)
+  1-5 fragments: 2 (66.7%)
+ 6-20 fragments: 0 (0.0%)
+21-50 fragments: 0 (0.0%)
+  51+ fragments: 0 (0.0%)

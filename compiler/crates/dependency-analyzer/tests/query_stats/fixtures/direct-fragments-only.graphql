@@ -1,0 +1,14 @@
+# Tests that direct fragment spreads (no nesting) yield depth 1 and matching
+# direct/transitive counts.
+query UserQuery {
+  me {
+    ...UserName
+    ...UserAge
+  }
+}
+fragment UserName on User {
+  name
+}
+fragment UserAge on User {
+  age
+}

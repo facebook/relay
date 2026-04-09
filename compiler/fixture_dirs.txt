@@ -1,5 +1,6 @@
 crates/dependency-analyzer/tests/ast
 crates/dependency-analyzer/tests/ir
+crates/dependency-analyzer/tests/query_stats
 crates/docblock-syntax/tests/parse
 crates/extract-graphql/tests/extract
 crates/fixture-tests/tests/uppercase

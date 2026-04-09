@@ -1,0 +1,6 @@
+# Tests that an operation with no fragment spreads reports zero for all metrics.
+query SimpleQuery {
+  me {
+    name
+  }
+}

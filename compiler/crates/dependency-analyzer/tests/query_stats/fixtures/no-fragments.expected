@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# Tests that an operation with no fragment spreads reports zero for all metrics.
+query SimpleQuery {
+  me {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+== Operations (by transitive fragments, descending) ==
+  0 SimpleQuery (query) [direct: 0, depth: 0]
+
+== Summary ==
+Total operations: 1
+  Queries: 1, Mutations: 0, Subscriptions: 0
+Operations with 0 fragments: 1 (100.0%)
+
+== Distribution (transitive fragments) ==
+Min: 0  Max: 0  Mean: 0.00  Median: 0
+P90: 0  P99: 0
+
+== Histogram ==
+    0 fragments: 1 (100.0%)
+  1-5 fragments: 0 (0.0%)
+ 6-20 fragments: 0 (0.0%)
+21-50 fragments: 0 (0.0%)
+  51+ fragments: 0 (0.0%)

@@ -57,6 +57,8 @@ use crate::ClientEdgeMetadata;
 use crate::FragmentAliasMetadata;
 use crate::REQUIRED_DIRECTIVE_NAME;
 use crate::RequiredMetadataDirective;
+use crate::catch_directive::CATCH_DIRECTIVE_NAME;
+use crate::catch_directive::CatchMetadataDirective;
 use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
 
 // Type definitions
@@ -142,12 +144,14 @@ impl<'program> RelayResolverFieldTransform<'program> {
                 Ok(resolver_info) => {
                     let mut non_required_directives =
                         field.directives().iter().filter(|directive| {
-                            // For now, only @required and @waterfall are allowed on Resolver fields.
+                            // For now, only @required, @waterfall, and @catch are allowed on Resolver fields.
                             directive.name.item != RequiredMetadataDirective::directive_name()
                                 && directive.name.item != *REQUIRED_DIRECTIVE_NAME
                                 && directive.name.item != *CHILDREN_CAN_BUBBLE_METADATA_KEY
                                 && directive.name.item != *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME
                                 && directive.name.item != crate::match_::MATCH_CONSTANTS.match_directive_name
+                                && directive.name.item != *CATCH_DIRECTIVE_NAME
+                                && directive.name.item != CatchMetadataDirective::directive_name()
                         });
                     if let Some(directive) = non_required_directives.next() {
                         self.errors.push(Diagnostic::error(

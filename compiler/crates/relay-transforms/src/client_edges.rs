@@ -56,6 +56,8 @@ use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::REQUIRED_DIRECTIVE_NAME;
 use crate::RequiredMetadataDirective;
 use crate::ValidationMessage;
+use crate::catch_directive::CATCH_DIRECTIVE_NAME;
+use crate::catch_directive::CatchMetadataDirective;
 use crate::match_::MATCH_CONSTANTS;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
 use crate::refetchable_fragment::RefetchableFragment;
@@ -402,6 +404,8 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             *CHILDREN_CAN_BUBBLE_METADATA_KEY,
             RequiredMetadataDirective::directive_name(),
             MATCH_CONSTANTS.match_directive_name,
+            *CATCH_DIRECTIVE_NAME,
+            CatchMetadataDirective::directive_name(),
         ];
 
         let other_directives = directives
@@ -830,16 +834,39 @@ fn create_inline_fragment_for_client_edge(
     {
         inline_fragment_directives.push(required_directive_metadata);
     }
+    if let Some(catch_directive_metadata) = field
+        .directives
+        .named(CatchMetadataDirective::directive_name())
+        .cloned()
+    {
+        inline_fragment_directives.push(catch_directive_metadata);
+    }
+
+    // The transformed_field (used as linkedField in codegen) strips only
+    // CatchMetadataDirective to prevent double-wrapping in CatchField.
+    // RequiredMetadataDirective is kept so codegen generates non-nullable types.
+    let transformed_field_directives: Vec<Directive> = field
+        .directives()
+        .iter()
+        .filter(|directive| directive.name.item != CatchMetadataDirective::directive_name())
+        .cloned()
+        .collect();
 
     let transformed_field = Arc::new(LinkedField {
         selections: selections.clone(),
+        directives: transformed_field_directives,
         ..field.clone()
     });
 
-    let backing_field_directives = field
+    // The backing_field strips both @required and @catch metadata since
+    // they have been lifted to the inline fragment level.
+    let backing_field_directives: Vec<Directive> = field
         .directives()
         .iter()
-        .filter(|directive| directive.name.item != RequiredMetadataDirective::directive_name())
+        .filter(|directive| {
+            directive.name.item != RequiredMetadataDirective::directive_name()
+                && directive.name.item != CatchMetadataDirective::directive_name()
+        })
         .cloned()
         .collect();
 

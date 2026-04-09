@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cf57256111f5ae311f3d36140dfea4c4>>
+ * @generated SignedSource<<b732ff12738f056b4826f8ce084de095>>
  */
 
 mod client_edges;
@@ -76,6 +76,13 @@ async fn client_edge_to_client_object() {
 }
 
 #[tokio::test]
+async fn client_edge_to_client_object_with_catch() {
+    let input = include_str!("client_edges/fixtures/client-edge-to-client-object-with-catch.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-to-client-object-with-catch.expected");
+    test_fixture(transform_fixture, file!(), "client-edge-to-client-object-with-catch.graphql", "client_edges/fixtures/client-edge-to-client-object-with-catch.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn client_edge_to_client_union() {
     let input = include_str!("client_edges/fixtures/client-edge-to-client-union.graphql");
     let expected = include_str!("client_edges/fixtures/client-edge-to-client-union.expected");
@@ -115,6 +122,13 @@ async fn client_edge_variables() {
     let input = include_str!("client_edges/fixtures/client-edge-variables.graphql");
     let expected = include_str!("client_edges/fixtures/client-edge-variables.expected");
     test_fixture(transform_fixture, file!(), "client-edge-variables.graphql", "client_edges/fixtures/client-edge-variables.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_with_catch() {
+    let input = include_str!("client_edges/fixtures/client-edge-with-catch.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-with-catch.expected");
+    test_fixture(transform_fixture, file!(), "client-edge-with-catch.graphql", "client_edges/fixtures/client-edge-with-catch.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e3be208238d5b95df5661f64db2814f8>>
+ * @generated SignedSource<<a8fc0f7ed3b39d6848dbff2c6bd9dd1f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,13 +26,28 @@ export type fetchQueryInternalTest3Query$variables = {|
   id: string,
 |};
 export type fetchQueryInternalTest3Query$data = {|
-  +node: ?{|
-    +nameRenderer?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType & fetchQueryInternalTestPlain1Fragment_name$fragmentType,
-    |},
-  |},
+  +node: ?({|
+    +__typename: "User",
+    +nameRenderer: ?({|
+      +__typename: "MarkdownUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
+      +$fragmentSpreads: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
+    |} | {|
+      +__typename: "PlainUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
+      +$fragmentSpreads: fetchQueryInternalTestPlain1Fragment_name$fragmentType,
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type fetchQueryInternalTest3Query = {|
   response: fetchQueryInternalTest3Query$data,

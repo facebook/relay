@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<23618048a0b54d91a45b9cb155d7daf6>>
+ * @generated SignedSource<<6f2fe86f3756a46b719ea83a6f406881>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,11 +26,21 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType: FragmentType;
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data = {|
   +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType & RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType,
-  |},
+  +nameRenderer: ?({|
+    +__typename: "MarkdownUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType,
+  |} | {|
+    +__typename: "PlainUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
   +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
 |};
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$key = {

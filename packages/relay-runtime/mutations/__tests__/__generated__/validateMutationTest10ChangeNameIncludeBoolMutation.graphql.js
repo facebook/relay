@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e058b363c4065051ecf4da3fef487f25>>
+ * @generated SignedSource<<3b637f0bf23370ae31b6b41de247a023>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,10 +27,15 @@ export type validateMutationTest10ChangeNameIncludeBoolMutation$variables = {|
 |};
 export type validateMutationTest10ChangeNameIncludeBoolMutation$data = {|
   +actorNameChange: ?{|
-    +actor: ?{|
+    +actor: ?({|
+      +__typename: "Page",
       +canViewerLike?: ?boolean,
       +username?: ?string,
-    |},
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
   |},
 |};
 export type validateMutationTest10ChangeNameIncludeBoolMutation = {|

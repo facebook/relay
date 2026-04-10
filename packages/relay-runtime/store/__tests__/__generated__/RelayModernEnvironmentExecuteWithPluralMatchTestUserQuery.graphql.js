@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5b0f30c851267d1f4a695972134f0a89>>
+ * @generated SignedSource<<270d15cdab01dcbbbd7a9bb834ec9f06>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,13 +26,28 @@ export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables 
   id: string,
 |};
 export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data = {|
-  +node: ?{|
-    +nameRenderers?: ?ReadonlyArray<?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$fragmentType,
-    |}>,
-  |},
+  +node: ?({|
+    +__typename: "User",
+    +nameRenderers: ?ReadonlyArray<?({|
+      +__typename: "MarkdownUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType,
+    |} | {|
+      +__typename: "PlainUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$fragmentType,
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |})>,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery = {|
   response: RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data,

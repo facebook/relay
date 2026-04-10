@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5e0f4be69fae0c14f1ae24e921e88e5c>>
+ * @generated SignedSource<<93cca61ae202b728bf596b4b9d8fb186>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,9 +22,14 @@ export type ReactRelayQueryRendererTestNextQuery$variables = {|
   id: string,
 |};
 export type ReactRelayQueryRendererTestNextQuery$data = {|
-  +node: ?{|
-    +name?: ?string,
-  |},
+  +node: ?({|
+    +__typename: "User",
+    +name: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type ReactRelayQueryRendererTestNextQuery = {|
   response: ReactRelayQueryRendererTestNextQuery$data,

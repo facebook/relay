@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<da2f3c4942aceb088646a6bbb8d14d42>>
+ * @generated SignedSource<<9bc7739b9c951cf9a9390949479a0ac5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,14 +21,19 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest10Fragment$fragmentType: FragmentType;
 export type RelayMockPayloadGeneratorTest10Fragment$data = {|
-  +actor: ?{|
-    +id?: string,
-    +name?: ?string,
-    +profile_picture?: ?{|
+  +actor: ?({|
+    +__typename: "User",
+    +id: string,
+    +name: ?string,
+    +profile_picture: ?{|
       +height: ?number,
       +uri: ?string,
     |},
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
   +name: ?string,
   +profile_picture: ?{|
     +uri: ?string,

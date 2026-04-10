@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3076809e3c35569ea2d42c2014f8d999>>
+ * @generated SignedSource<<a253fd08b36f69e07b5083022ce592c9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,17 +27,27 @@ export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$vari
   id: string,
 |};
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data = {|
-  +node: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
+  +node: ?({|
+    +__typename: "User",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
     +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
   +viewer: ?{|
-    +actor: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
+    +actor: ?({|
+      +__typename: "User",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
       +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
-    |},
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
   |},
 |};
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery = {|

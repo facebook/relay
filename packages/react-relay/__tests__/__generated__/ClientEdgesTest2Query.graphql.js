@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2679d8f37bf29132aad58fc4aff52d59>>
+ * @generated SignedSource<<f042bc72bb721dcb5c41a2211c793648>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -36,9 +36,14 @@ export type ClientEdgesTest2Query$variables = {|
 |};
 export type ClientEdgesTest2Query$data = {|
   +me: ?{|
-    +client_node: ?{|
-      +name?: ?string,
-    |},
+    +client_node: ?({|
+      +__typename: "User",
+      +name: ?string,
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
   |},
 |};
 export type ClientEdgesTest2Query = {|

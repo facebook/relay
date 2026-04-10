@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<17d502f86aea6f4d5315329a59c0cc00>>
+ * @generated SignedSource<<0891907beb9f36688afba54b0e02d315>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,11 +26,21 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest5Fragment$fragmentType: FragmentType;
 export type DataCheckerTest5Fragment$data = {|
   +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType & DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
-  |},
+  +nameRenderer: ?({|
+    +__typename: "MarkdownUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType,
+  |} | {|
+    +__typename: "PlainUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
   +$fragmentType: DataCheckerTest5Fragment$fragmentType,
 |};
 export type DataCheckerTest5Fragment$key = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f1333e6f9ccd655c47b76ffd6b81509e>>
+ * @generated SignedSource<<3a5f10b869ae57b02da68a8f9bda9e76>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,16 +28,31 @@ declare export opaque type RelayModernEnvironmentWithOperationTrackerTestFeedbac
 export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data = {|
   +author: ?{|
     +__typename: "User",
-    +nameRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-    |},
-    +plainNameRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
+    +nameRenderer: ?({|
+      +__typename: "MarkdownUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
+      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
+    |} | {|
+      +__typename: "PlainUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
       +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-    |},
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
+    +plainNameRenderer: ?({|
+      +__typename: "PlainUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
+      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
   |},
   +body: ?{|
     +text: ?string,

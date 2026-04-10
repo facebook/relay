@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c91ad0f87b9fc7523e412026abd607cb>>
+ * @generated SignedSource<<ff9fe0638fba55b96f728364a49355b0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,14 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayExperimentalGraphResponseTransformTestInlineFragmentQuery$variables = {||};
 export type RelayExperimentalGraphResponseTransformTestInlineFragmentQuery$data = {|
-  +node: ?{|
-    +name?: ?string,
-  |},
+  +node: ?({|
+    +__typename: "User",
+    +name: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayExperimentalGraphResponseTransformTestInlineFragmentQuery = {|
   response: RelayExperimentalGraphResponseTransformTestInlineFragmentQuery$data,

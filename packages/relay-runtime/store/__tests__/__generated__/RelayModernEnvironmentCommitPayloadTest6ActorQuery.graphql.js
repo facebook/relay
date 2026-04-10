@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<22150b01c7aab957ee81b65d4d183d91>>
+ * @generated SignedSource<<e7b8f5ccf9f065d8a47285c730174af9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,11 +26,16 @@ export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables = {||};
 export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$data = {|
   +me: ?{|
     +name: ?string,
-    +nameRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
+    +nameRenderer: ?({|
+      +__typename: "MarkdownUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
       +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
-    |},
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
     +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
   |},
 |};

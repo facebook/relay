@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<478d8b1d675b049ccd2e6fe52f9d530f>>
+ * @generated SignedSource<<2cb9883e8746de91cdd7e5fee801f331>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,11 +22,12 @@ export type RelayModernEnvironmentWithOperationTrackerTest1Query$variables = {|
   id?: ?string,
 |};
 export type RelayModernEnvironmentWithOperationTrackerTest1Query$data = {|
-  +node: ?{|
-    +body?: ?{|
+  +node: ?({|
+    +__typename: "Feedback",
+    +body: ?{|
       +text: ?string,
     |},
-    +comments?: ?{|
+    +comments: ?{|
       +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +id: string,
@@ -36,8 +37,12 @@ export type RelayModernEnvironmentWithOperationTrackerTest1Query$data = {|
         |},
       |}>,
     |},
-    +id?: string,
-  |},
+    +id: string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayModernEnvironmentWithOperationTrackerTest1Query = {|
   response: RelayModernEnvironmentWithOperationTrackerTest1Query$data,

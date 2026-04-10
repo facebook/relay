@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a1ade6d6b42aa04991afd901cd21e2b1>>
+ * @generated SignedSource<<e445ca12c4afd79427e4549a89f0abe5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,11 +34,21 @@ export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateS
     +comment: ?{|
       +actor: ?{|
         +name: ?string,
-        +nameRenderer: ?{|
-          +__fragmentPropName?: ?string,
-          +__module_component?: ?string,
-          +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
-        |},
+        +nameRenderer: ?({|
+          +__typename: "MarkdownUserNameRenderer",
+          +__fragmentPropName: ?string,
+          +__module_component: ?string,
+          +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
+        |} | {|
+          +__typename: "PlainUserNameRenderer",
+          +__fragmentPropName: ?string,
+          +__module_component: ?string,
+          +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
+        |} | {|
+          // This will never be '%other', but we need some
+          // value in case none of the concrete values match.
+          +__typename: "%other",
+        |}),
       |},
     |},
   |},

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ec46de083fcf2a635c1e946caf12567a>>
+ * @generated SignedSource<<61d8e7294167f084a0f6f533b1e84856>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,15 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type Environment = "MOBILE" | "WEB" | "%future added value";
 export type RelayMockPayloadGeneratorTest39Query$variables = {||};
 export type RelayMockPayloadGeneratorTest39Query$data = {|
-  +node: ?{|
-    +environment?: ?Environment,
-    +id?: string,
-  |},
+  +node: ?({|
+    +__typename: "User",
+    +environment: ?Environment,
+    +id: string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayMockPayloadGeneratorTest39Query = {|
   response: RelayMockPayloadGeneratorTest39Query$data,

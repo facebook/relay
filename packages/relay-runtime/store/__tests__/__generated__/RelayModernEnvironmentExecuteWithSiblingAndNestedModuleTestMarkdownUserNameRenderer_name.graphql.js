@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9fa38209d567f211094396da1052f22c>>
+ * @generated SignedSource<<e2c836340ca1a5dc1d63330a7748d917>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,11 +27,16 @@ export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownU
   +__typename: "MarkdownUserNameRenderer",
   +markdown: ?string,
   +user: ?{|
-    +innerRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
+    +innerRenderer: ?({|
+      +__typename: "PlainUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
       +$fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$fragmentType,
-    |},
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
     +name: ?string,
   |},
   +$fragmentType: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$fragmentType,

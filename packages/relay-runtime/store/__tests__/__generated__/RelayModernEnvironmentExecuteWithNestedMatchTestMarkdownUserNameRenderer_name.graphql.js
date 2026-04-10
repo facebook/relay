@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bbe24935187a06264dc26a5c47736e13>>
+ * @generated SignedSource<<5018c3ebd90b67bdaa24cd386d73fd4b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,11 +30,16 @@ export type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRend
   |},
   +markdown: ?string,
   +user: ?{|
-    +innerRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
+    +innerRenderer: ?({|
+      +__typename: "PlainUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
       +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
-    |},
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
   |},
   +$fragmentType: RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType,
 |};

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d82d621f5eb688cd2bddc4ab990a8ada>>
+ * @generated SignedSource<<b0e4853d779ae5baeac25fdf4119e2cd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,8 +23,14 @@ import type { RelayMockPayloadGeneratorTest23Fragment$fragmentType } from "./Rel
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest22Fragment$fragmentType: FragmentType;
 export type RelayMockPayloadGeneratorTest22Fragment$data = {|
-  +actor: ?{|
-    +feedback?: ?{|
+  +actor: ?({|
+    +__typename: "Page",
+    +id: string,
+    +pageName: ?string,
+    +username: ?string,
+  |} | {|
+    +__typename: "User",
+    +feedback: ?{|
       +comments: ?{|
         +edges: ?ReadonlyArray<?{|
           +node: ?{|
@@ -33,17 +39,20 @@ export type RelayMockPayloadGeneratorTest22Fragment$data = {|
         |}>,
       |},
     |},
-    +id?: string,
-    +name?: ?string,
-    +pageName?: ?string,
-    +profilePicture?: ?{|
+    +id: string,
+    +name: ?string,
+    +profilePicture: ?{|
       +height: ?number,
       +uri: ?string,
       +width: ?number,
     |},
-    +userName?: ?string,
+    +userName: ?string,
     +username: ?string,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
   +customName: ?string,
   +friends: ?{|
     +edges: ?ReadonlyArray<?{|

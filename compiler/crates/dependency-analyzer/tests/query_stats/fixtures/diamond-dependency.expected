@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+# Tests that diamond-shaped fragment dependencies (Left->Shared, Right->Shared)
+# count the shared fragment only once transitively but preserve correct depth.
+query DiamondQuery {
+  me {
+    ...Left
+    ...Right
+  }
+}
+fragment Left on User {
+  ...Shared
+  name
+}
+fragment Right on User {
+  ...Shared
+  age
+}
+fragment Shared on User {
+  name
+}
+==================================== OUTPUT ===================================
+== Operations (by transitive fragments, descending) ==
+  3 DiamondQuery (query) [direct: 2, depth: 2]
+
+== Summary ==
+Total operations: 1
+  Queries: 1, Mutations: 0, Subscriptions: 0
+Operations with 0 fragments: 0 (0.0%)
+
+== Distribution (transitive fragments) ==
+Min: 3  Max: 3  Mean: 3.00  Median: 3
+P90: 3  P99: 3
+
+== Histogram ==
+    0 fragments: 0 (0.0%)
+  1-5 fragments: 1 (100.0%)
+ 6-20 fragments: 0 (0.0%)
+21-50 fragments: 0 (0.0%)
+  51+ fragments: 0 (0.0%)

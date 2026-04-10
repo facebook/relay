@@ -565,6 +565,29 @@ export type SuspenseFragmentLogEvent = {
   +pendingOperations: ReadonlyArray<RequestDescriptor>,
 };
 
+export type SuspenseResolverLogEvent = {
+  +name: 'suspense.resolver',
+  +fragment: ReaderFragment,
+  +fragmentOwner: RequestDescriptor,
+  +isMount: boolean,
+  +suspendingLiveResolvers: ReadonlyArray<DataID>,
+};
+
+export type SuspenseClientEdgeLogEvent = {
+  +name: 'suspense.client_edge',
+  +fragment: ReaderFragment,
+  +fragmentOwner: RequestDescriptor,
+  +isMount: boolean,
+};
+
+export type SuspenseMissingDataLogEvent = {
+  +name: 'suspense.missing_data',
+  +fragment: ReaderFragment,
+  +fragmentOwner: RequestDescriptor,
+  +isMount: boolean,
+  +pendingOperations: ReadonlyArray<RequestDescriptor>,
+};
+
 export type SuspenseQueryLogEvent = {
   +name: 'suspense.query',
   +fetchPolicy: string,
@@ -764,6 +787,16 @@ export type StoreGcEndEvent = {
   +references: DataIDSet,
 };
 
+export type StoreBatchStartLogEvent = {
+  +name: 'store.batch.start',
+};
+
+export type StoreBatchCompleteLogEvent = {
+  +name: 'store.batch.complete',
+  +sourceOperations: Array<OperationDescriptor>,
+  +invalidateStore: boolean,
+};
+
 export type StoreNotifyStartLogEvent = {
   +name: 'store.notify.start',
   +sourceOperation: ?OperationDescriptor,
@@ -836,6 +869,9 @@ export type FetchQueryFetchLogEvent = {
 
 export type LogEvent =
   | SuspenseFragmentLogEvent
+  | SuspenseResolverLogEvent
+  | SuspenseClientEdgeLogEvent
+  | SuspenseMissingDataLogEvent
   | SuspenseQueryLogEvent
   | QueryResourceFetchLogEvent
   | QueryResourceRetainLogEvent
@@ -868,6 +904,8 @@ export type LogEvent =
   | StoreGcStartEvent
   | StoreGcInterruptedEvent
   | StoreGcEndEvent
+  | StoreBatchStartLogEvent
+  | StoreBatchCompleteLogEvent
   | StoreNotifyStartLogEvent
   | StoreNotifyCompleteLogEvent
   | StoreNotifySubscriptionLogEvent

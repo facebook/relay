@@ -13,6 +13,7 @@
 mod ast;
 mod ir;
 mod minimized_executable;
+mod query_stats;
 mod schema_change_analyzer;
 
 pub use ast::ReachableAst;
@@ -24,3 +25,5 @@ pub use ir::ExecutableDefinitionNameVec;
 pub use ir::get_ir_definition_references;
 pub use ir::get_reachable_ir;
 pub use minimized_executable::MinProgram;
+pub use query_stats::QueryStatsReport;
+pub use query_stats::compute_query_stats;

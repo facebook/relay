@@ -194,8 +194,9 @@ pub fn extract_subschema(programs: &Programs) -> Result<String, SubschemaError> 
 
     used_schema.fix_all_types();
 
-    let (printed_base_schema, _printed_client_schema) =
-        used_schema.print_base_and_client_definitions();
+    let (printed_base_schema, _printed_client_schema) = used_schema
+        .print_base_and_client_definitions()
+        .map_err(|diagnostics| SubschemaError::CompilationFailed(format!("{:?}", diagnostics)))?;
 
     let mut output = printed_base_schema
         .into_iter()

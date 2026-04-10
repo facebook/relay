@@ -1,0 +1,19 @@
+# Tests that diamond-shaped fragment dependencies (Left->Shared, Right->Shared)
+# count the shared fragment only once transitively but preserve correct depth.
+query DiamondQuery {
+  me {
+    ...Left
+    ...Right
+  }
+}
+fragment Left on User {
+  ...Shared
+  name
+}
+fragment Right on User {
+  ...Shared
+  age
+}
+fragment Shared on User {
+  name
+}

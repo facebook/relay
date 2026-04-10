@@ -1,0 +1,43 @@
+==================================== INPUT ====================================
+# Tests that query, mutation, and subscription operation kinds are counted
+# separately and reported correctly in the summary.
+query FetchUser {
+  me {
+    ...UserFields
+  }
+}
+mutation UpdateName {
+  updateName {
+    ...UserFields
+  }
+}
+subscription OnUpdate {
+  onUpdate {
+    name
+  }
+}
+fragment UserFields on User {
+  name
+  age
+}
+==================================== OUTPUT ===================================
+== Operations (by transitive fragments, descending) ==
+  1 FetchUser (query) [direct: 1, depth: 1]
+  1 UpdateName (mutation) [direct: 1, depth: 1]
+  0 OnUpdate (subscription) [direct: 0, depth: 0]
+
+== Summary ==
+Total operations: 3
+  Queries: 1, Mutations: 1, Subscriptions: 1
+Operations with 0 fragments: 1 (33.3%)
+
+== Distribution (transitive fragments) ==
+Min: 0  Max: 1  Mean: 0.67  Median: 1
+P90: 1  P99: 1
+
+== Histogram ==
+    0 fragments: 1 (33.3%)
+  1-5 fragments: 2 (66.7%)
+ 6-20 fragments: 0 (0.0%)
+21-50 fragments: 0 (0.0%)
+  51+ fragments: 0 (0.0%)

@@ -17,6 +17,7 @@ use std::io::Write;
 
 use anyhow::Result;
 use clap::Parser;
+use common::SourceLocationKey;
 use prettier_format_lib::format_graphql_source;
 use prettier_format_lib::format_js_file;
 
@@ -60,9 +61,14 @@ fn main() -> Result<()> {
     };
 
     let formatted = if is_graphql {
-        format_graphql_source(&source)?
+        let source_location = match &opt.file {
+            Some(path) => SourceLocationKey::standalone(path),
+            None => SourceLocationKey::standalone("<stdin>"),
+        };
+        format_graphql_source(&source, source_location)?
     } else {
-        format_js_file(&source)?
+        let file_path = opt.file.as_deref().unwrap_or("<stdin>");
+        format_js_file(&source, file_path)?
     };
 
     std::io::stdout().write_all(formatted.as_bytes())?;

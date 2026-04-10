@@ -101,6 +101,18 @@ describe.each([[true], [false]])(
       });
     });
 
+    const ClientEdgesTest1Query = graphql`
+      query ClientEdgesTest1Query($id: ID!) {
+        me {
+          client_node(id: $id) @waterfall {
+            ... on User {
+              name
+            }
+          }
+        }
+      }
+    `;
+
     it('should fetch and render client-edge query', () => {
       function TestComponent() {
         return (
@@ -114,20 +126,7 @@ describe.each([[true], [false]])(
 
       const variables = {id: '4'};
       function InnerComponent() {
-        const data = useLazyLoadQuery(
-          graphql`
-            query ClientEdgesTest1Query($id: ID!) {
-              me {
-                client_node(id: $id) @waterfall {
-                  ... on User {
-                    name
-                  }
-                }
-              }
-            }
-          `,
-          variables,
-        );
+        const data = useLazyLoadQuery(ClientEdgesTest1Query, variables);
         return data.me?.client_node?.name;
       }
 
@@ -497,6 +496,63 @@ describe.each([[true], [false]])(
         jest.runAllImmediates();
       });
       expect(renderer?.toJSON()).toBe('ALICE');
+    });
+
+    it('logs suspense.client_edge with isMount=true when suspending during initial mount', () => {
+      const logger = jest.fn();
+      const loggedEnvironment = new Environment({
+        store: new RelayModernStore(
+          new RecordSource({
+            'client:root': {
+              __id: 'client:root',
+              __typename: '__Root',
+              me: {__ref: '1'},
+            },
+            '1': {
+              __id: '1',
+              id: '1',
+              __typename: 'User',
+            },
+          }),
+        ),
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+        network: Network.create(fetchFn),
+        log: logger,
+      });
+
+      const variables = {id: '4'};
+      function InnerComponent() {
+        const data = useLazyLoadQuery(ClientEdgesTest1Query, variables);
+        return data.me?.client_node?.name;
+      }
+
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <RelayEnvironmentProvider environment={loggedEnvironment}>
+            <React.Suspense fallback="Loading">
+              <InnerComponent />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+      });
+
+      // Component should be suspended waiting for the client edge fetch
+      expect(renderer?.toJSON()).toBe('Loading');
+
+      const clientEdgeEvents = logger.mock.calls
+        .map(call => call[0])
+        .filter(event => event.name === 'suspense.client_edge');
+      expect(clientEdgeEvents.length).toBeGreaterThan(0);
+      // Component hasn't mounted yet, so isMount should be true
+      expect(clientEdgeEvents[0]).toMatchObject({
+        name: 'suspense.client_edge',
+        isMount: true,
+      });
+      expect(clientEdgeEvents[0].fragment.name).toBe('ClientEdgesTest1Query');
+      expect(clientEdgeEvents[0].fragmentOwner.node.params.name).toBe(
+        'ClientEdgesTest1Query',
+      );
     });
   },
 );

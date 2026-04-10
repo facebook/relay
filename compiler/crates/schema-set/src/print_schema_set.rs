@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DiagnosticsResult;
 use indoc::formatdoc;
 use intern::Lookup;
 use intern::string_key::StringKey;
@@ -40,7 +41,9 @@ use crate::schema_set::SetUnion;
 use crate::schema_set::StringKeyNamed;
 
 impl SchemaSet {
-    pub fn print_base_and_client_definitions(&self) -> (Vec<String>, Vec<String>) {
+    pub fn print_base_and_client_definitions(
+        &self,
+    ) -> DiagnosticsResult<(Vec<String>, Vec<String>)> {
         let without_builtin_definitions = remove_built_in_scalars(self);
 
         let (base_set, client_set) =
@@ -50,7 +53,7 @@ impl SchemaSet {
         let client_definitions: Vec<String> =
             client_set.print_definitions_for_used_schema(Some(&base_set));
 
-        (base_definitions, client_definitions)
+        Ok((base_definitions, client_definitions))
     }
 
     /// schema { query: QueryType }

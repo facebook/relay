@@ -8,6 +8,7 @@
 use std::collections::BTreeMap;
 use std::fmt;
 
+use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
@@ -183,12 +184,12 @@ impl SchemaSet {
         used_schema_collector.visit_program(&program.into());
     }
 
-    pub fn printed_base_and_client_schema(&self) -> (String, String) {
-        let (base_definitions, client_definitions) = self.print_base_and_client_definitions();
-        (
+    pub fn printed_base_and_client_schema(&self) -> DiagnosticsResult<(String, String)> {
+        let (base_definitions, client_definitions) = self.print_base_and_client_definitions()?;
+        Ok((
             base_definitions.join("\n\n") + "\n",
             client_definitions.join("\n\n") + "\n",
-        )
+        ))
     }
 
     pub fn add_or_merge_type(&mut self, type_: SetType) {

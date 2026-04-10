@@ -1,0 +1,30 @@
+# Tests ranking of multiple operations with varying fragment complexity:
+# heavy (deep chain), medium (single fragment), and light (no fragments).
+query HeavyQuery {
+  me {
+    ...A
+  }
+}
+query LightQuery {
+  me {
+    name
+  }
+}
+query MediumQuery {
+  me {
+    ...B
+  }
+}
+fragment A on User {
+  ...B
+  ...C
+}
+fragment B on User {
+  name
+}
+fragment C on User {
+  ...D
+}
+fragment D on User {
+  age
+}

@@ -287,6 +287,17 @@ class RelayModernEnvironment implements IEnvironment {
     return this._store.retain(operation);
   }
 
+  experimental_batchUpdates(callback: () => void): void {
+    // $FlowFixMe[prop-missing] - experimental method not on Store interface
+    const batchFn = this._store.experimental_batchUpdates;
+    invariant(
+      typeof batchFn === 'function',
+      'RelayModernEnvironment: The current store does not support experimental_batchUpdates.',
+    );
+    // We must use .call to preserve Flow's narrowing from the above typeof check.
+    batchFn.call(this._store, callback);
+  }
+
   isServer(): boolean {
     return this._isServer;
   }

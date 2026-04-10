@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+# Tests that a linear chain of nested fragments (F1->F2->F3) produces the
+# correct transitive count and max depth.
+query DeepQuery {
+  me {
+    ...F1
+  }
+}
+fragment F1 on User {
+  ...F2
+  name
+}
+fragment F2 on User {
+  ...F3
+  age
+}
+fragment F3 on User {
+  name
+}
+==================================== OUTPUT ===================================
+== Operations (by transitive fragments, descending) ==
+  3 DeepQuery (query) [direct: 1, depth: 3]
+
+== Summary ==
+Total operations: 1
+  Queries: 1, Mutations: 0, Subscriptions: 0
+Operations with 0 fragments: 0 (0.0%)
+
+== Distribution (transitive fragments) ==
+Min: 3  Max: 3  Mean: 3.00  Median: 3
+P90: 3  P99: 3
+
+== Histogram ==
+    0 fragments: 0 (0.0%)
+  1-5 fragments: 1 (100.0%)
+ 6-20 fragments: 0 (0.0%)
+21-50 fragments: 0 (0.0%)
+  51+ fragments: 0 (0.0%)

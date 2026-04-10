@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+# Tests that direct fragment spreads (no nesting) yield depth 1 and matching
+# direct/transitive counts.
+query UserQuery {
+  me {
+    ...UserName
+    ...UserAge
+  }
+}
+fragment UserName on User {
+  name
+}
+fragment UserAge on User {
+  age
+}
+==================================== OUTPUT ===================================
+== Operations (by transitive fragments, descending) ==
+  2 UserQuery (query) [direct: 2, depth: 1]
+
+== Summary ==
+Total operations: 1
+  Queries: 1, Mutations: 0, Subscriptions: 0
+Operations with 0 fragments: 0 (0.0%)
+
+== Distribution (transitive fragments) ==
+Min: 2  Max: 2  Mean: 2.00  Median: 2
+P90: 2  P99: 2
+
+== Histogram ==
+    0 fragments: 0 (0.0%)
+  1-5 fragments: 1 (100.0%)
+ 6-20 fragments: 0 (0.0%)
+21-50 fragments: 0 (0.0%)
+  51+ fragments: 0 (0.0%)

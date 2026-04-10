@@ -1,10 +1,11 @@
 query UpdatableQuery @updatable {
   maybeNodeInterface {
-    __typename
     ... on NonNodeNoID {
+      __typename
       name
     }
     ... on Story {
+      __typename
       actorCount
       address {
         city

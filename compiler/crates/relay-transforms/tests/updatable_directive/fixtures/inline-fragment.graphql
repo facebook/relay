@@ -1,26 +1,28 @@
 query TestQuery @updatable {
   node(id: 4) {
-    __typename
     ... on Page {
+      __typename
       name
     }
     ... on Comment {
+      __typename
       firstName
     }
   }
   node_union: node(id: 5) {
-    __typename
     ... on Feedback {
+      __typename
       commentBodies {
         edges {
           node {
-            __typename
             ... on PlainCommentBody {
+              __typename
               text {
                 text
               }
             }
             ... on MarkdownCommentBody {
+              __typename
               text {
                 text
               }

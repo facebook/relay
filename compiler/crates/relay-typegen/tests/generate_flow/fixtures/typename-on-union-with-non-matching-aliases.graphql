@@ -1,7 +1,6 @@
 fragment Foo on Node {
-  __typename
   ... on User {
-    usertype: __typename
+    __typename
   }
   ... on Comment {
     alias: __typename

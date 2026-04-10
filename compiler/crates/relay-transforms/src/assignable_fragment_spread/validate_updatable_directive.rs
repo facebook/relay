@@ -163,25 +163,7 @@ impl<'a> UpdatableDirective<'a> {
             return Ok(());
         }
 
-        // If a linked field contains inline fragments, it must contain __typename.
         let mut errors = vec![];
-        if fragment_spreads.len() > 0
-            && !parent_field.selections.iter().any(|selection| {
-                if let Selection::ScalarField(scalar_field) = selection {
-                    scalar_field.definition.item == self.program.schema.typename_field()
-                        && scalar_field.alias.is_none()
-                } else {
-                    false
-                }
-            })
-        {
-            errors.push(Diagnostic::error(
-                ValidationMessage::UpdatableTypenameWithInlineFragments {
-                    outer_type_plural: self.executable_definition_info.unwrap().type_plural,
-                },
-                parent_field.definition.location,
-            ));
-        }
 
         // Furthermore, inline fragments are only allowed if the parent type is an interface or union
         let parent_field_id = parent_field.definition.item;

@@ -94,7 +94,7 @@ impl SchemaSet {
         // We don't currently use the subset_directives, which tells me the union logic used by merge
         // is *probably* subtly wrong. Need tests to verify.
         let mut union_set = self.clone();
-        union_set.merge(to_union.clone());
+        union_set.merge(to_union.clone())?;
         Ok(union_set)
     }
 
@@ -198,7 +198,7 @@ impl SchemaSet {
 
     pub fn add_or_merge_type(&mut self, type_: SetType) -> DiagnosticsResult<()> {
         if let Some(existing) = self.types.get_mut(&type_.string_key_name()) {
-            existing.merge(type_);
+            existing.merge(type_)?;
         } else {
             self.types.insert(type_.string_key_name(), type_);
         }
@@ -224,15 +224,15 @@ impl SchemaSet {
         is_ext_document: bool,
     ) -> DiagnosticsResult<()> {
         match definition {
-            TypeSystemDefinition::SchemaDefinition(schema_def) => Ok(self
+            TypeSystemDefinition::SchemaDefinition(schema_def) => self
                 .root_schema
-                .merge(schema_def.to_set_definition(source, is_ext_document))),
-            TypeSystemDefinition::SchemaExtension(schema_ext) => Ok(self.root_schema.merge(
+                .merge(schema_def.to_set_definition(source, is_ext_document)),
+            TypeSystemDefinition::SchemaExtension(schema_ext) => self.root_schema.merge(
                 schema_ext
                     .clone()
                     .into_definition()
                     .to_set_definition(source, true),
-            )),
+            ),
             TypeSystemDefinition::EnumTypeDefinition(def) => {
                 merge_def_into(&mut self.types, def, source, is_ext_document)
             }
@@ -384,7 +384,8 @@ impl SchemaSet {
                                         None
                                     }
                                 }),
-                            );
+                                &set_object.name.to_string(),
+                            )?;
                         }
                     }
                     set_object.interfaces = included_interfaces;
@@ -417,7 +418,8 @@ impl SchemaSet {
                                         None
                                     }
                                 }),
-                            );
+                                &set_interface.name.to_string(),
+                            )?;
                         }
                     }
                     set_interface.interfaces = included_interfaces;

@@ -19,3 +19,4 @@ program-with-dependencies = { path = "../program-with-dependencies" }
 schema = { path = "../schema" }
 schema-coordinates = { path = "../schema-coordinates" }
 serde = { version = "1.0.219", features = ["derive", "rc"] }
+thiserror = "2.0.18"

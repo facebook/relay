@@ -83,7 +83,7 @@ pub fn merge_def_into<
     let merge_type = type_def.to_set_definition(source, is_client_definition);
     let name = merge_type.string_key_name();
     if let Some(exists) = merge_map.get_mut(&name) {
-        exists.merge(merge_type);
+        exists.merge(merge_type)?;
     } else {
         merge_map.insert(name, merge_type);
     }
@@ -111,7 +111,7 @@ where
         .to_set_definition(source, true);
     let name = set_type.string_key_name();
     if let Some(exists) = used_map.get_mut(&name) {
-        exists.merge(set_type);
+        exists.merge(set_type)?;
     } else {
         used_map.insert(name, set_type);
     }

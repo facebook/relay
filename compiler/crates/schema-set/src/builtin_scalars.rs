@@ -53,8 +53,7 @@ lazy_static! {
 ///
 /// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
 pub fn add_built_in_scalars(schema_set: &mut SchemaSet) -> DiagnosticsResult<()> {
-    schema_set.merge(BUILTIN_SCALAR_SET.clone());
-    Ok(())
+    schema_set.merge(BUILTIN_SCALAR_SET.clone())
 }
 
 /// Removes built-in scalar types (Int, Float, String, Boolean, ID) from the schema.

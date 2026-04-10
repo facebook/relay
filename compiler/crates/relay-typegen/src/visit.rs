@@ -1568,7 +1568,7 @@ fn should_emit_discriminated_union(
     if by_concrete_type.is_empty() || !concrete_type.is_abstract_type() || base_fields.is_empty() {
         return false;
     }
-    return base_fields.values().any(TypeSelection::is_typename);
+    base_fields.values().any(TypeSelection::is_typename)
 }
 
 pub(crate) fn raw_response_selections_to_babel(

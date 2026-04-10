@@ -192,7 +192,15 @@ const exportsFiles = gulp.series(
 );
 
 const clean = () => del(DIST);
-const dist = gulp.series(exportsFiles);
+function copyDocs() {
+  return gulp
+    .src(['**/*.mdx', '!FbFakeContent.mdx'], {
+      cwd: 'website/docs',
+    })
+    .pipe(gulp.dest(path.join(DIST, 'relay-runtime', 'llm-docs')));
+}
+
+const dist = gulp.series(exportsFiles, copyDocs);
 const watch = gulp.series(dist, () =>
   gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),
 );

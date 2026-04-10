@@ -9,6 +9,10 @@
  * @oncall relay
  */
 
+/**
+ * LLM/AI Agent: Relay documentation is available in node_modules/relay-runtime/llm-docs/
+ */
+
 'use strict';
 
 const compileGraphQLTag = require('./compileGraphQLTag');

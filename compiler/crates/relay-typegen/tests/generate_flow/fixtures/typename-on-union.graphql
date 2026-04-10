@@ -20,11 +20,12 @@ fragment TypenameOutside on Actor {
 }
 
 fragment TypenameOutsideWithAbstractType on Node {
+  __typename
   ... on User {
     firstName
     address {
-      city # common
       street # only here
+      city # common
     }
   }
   ... on Actor {
@@ -96,5 +97,20 @@ fragment TypenameWithNestedCommonSelections on Actor {
     address {
       country # only here
     }
+  }
+}
+
+fragment PlainFragment on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment MarkFragment on MarkdownUserNameRenderer {
+  markdown
+}
+
+fragment TypenameMask on User {
+  nameRenderer {
+    ...MarkFragment @relay(mask: false) @dangerously_unaliased_fixme
+    ...PlainFragment @relay(mask: false) @dangerously_unaliased_fixme
   }
 }

@@ -868,6 +868,7 @@ pub mod tests {
             SourceLocationKey::generated(),
         )
         .unwrap()])
+        .unwrap()
     }
 
     // Note: keeping all args the same length to make reading in VSCode easier.

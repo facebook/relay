@@ -86,12 +86,16 @@ impl SchemaSet {
         self.is_set_empty()
     }
 
-    pub fn union_set(&self, to_union: &SchemaSet, _subset_directives: &StringKeySet) -> SchemaSet {
+    pub fn union_set(
+        &self,
+        to_union: &SchemaSet,
+        _subset_directives: &StringKeySet,
+    ) -> DiagnosticsResult<SchemaSet> {
         // We don't currently use the subset_directives, which tells me the union logic used by merge
         // is *probably* subtly wrong. Need tests to verify.
         let mut union_set = self.clone();
         union_set.merge(to_union.clone());
-        union_set
+        Ok(union_set)
     }
 
     pub fn exclude_set(
@@ -112,7 +116,7 @@ impl SchemaSet {
         &self,
         to_intersect: &SchemaSet,
         subset_directives: &StringKeySet,
-    ) -> SchemaSet {
+    ) -> DiagnosticsResult<SchemaSet> {
         // An intersect is the same as:
         //  A.exclude( A.exclude(B).union(B.exclude(A)) )
         //
@@ -130,11 +134,11 @@ impl SchemaSet {
         let b_exclude_a = b.exclude_set(a, subset_directives);
 
         let everything_except_the_intersect =
-            a_exclude_b.union_set(&b_exclude_a, subset_directives);
+            a_exclude_b.union_set(&b_exclude_a, subset_directives)?;
 
         // arbitrarily picking A, but could be B instead.
         // Exclude everything-except-the-intersect from A to get the intersect.
-        a.exclude_set(&everything_except_the_intersect, subset_directives)
+        Ok(a.exclude_set(&everything_except_the_intersect, subset_directives))
     }
 
     // We don't want to make custom logic for "expanding" the SchemaSet at IR collection time,
@@ -144,7 +148,7 @@ impl SchemaSet {
     pub fn from_ir(
         program: &ProgramWithDependencies,
         used_schema_options: UsedSchemaCollectionOptions,
-    ) -> SchemaSet {
+    ) -> DiagnosticsResult<SchemaSet> {
         SchemaSet::from_ir_with_used_type_definitions(program, None, used_schema_options)
     }
 
@@ -152,25 +156,25 @@ impl SchemaSet {
         program: &ProgramWithDependencies,
         type_definitions_doc: Option<SchemaDocument>,
         used_schema_options: UsedSchemaCollectionOptions,
-    ) -> SchemaSet {
+    ) -> DiagnosticsResult<SchemaSet> {
         let mut used_schema = SchemaSet::new();
         let mut used_schema_collector =
             UsedSchemaIRCollector::new(&mut used_schema, program, used_schema_options);
 
         used_schema_collector.visit_program(&program.into());
         if let Some(type_definitions_doc) = type_definitions_doc {
-            used_schema_collector.add_used_type_definitions(type_definitions_doc);
+            used_schema_collector.add_used_type_definitions(type_definitions_doc)?;
         }
 
-        used_schema
+        Ok(used_schema)
     }
 
-    pub fn from_schema_documents(schema_documents: &[SchemaDocument]) -> Self {
+    pub fn from_schema_documents(schema_documents: &[SchemaDocument]) -> DiagnosticsResult<Self> {
         let mut used_schema = SchemaSet::new();
         for document in schema_documents {
-            used_schema.merge_sdl_document(document, false);
+            used_schema.merge_sdl_document(document, false)?;
         }
-        used_schema
+        Ok(used_schema)
     }
 
     /// Add another IR program's used definitions to an existing SetSchema's definitions.
@@ -192,19 +196,25 @@ impl SchemaSet {
         ))
     }
 
-    pub fn add_or_merge_type(&mut self, type_: SetType) {
+    pub fn add_or_merge_type(&mut self, type_: SetType) -> DiagnosticsResult<()> {
         if let Some(existing) = self.types.get_mut(&type_.string_key_name()) {
             existing.merge(type_);
         } else {
             self.types.insert(type_.string_key_name(), type_);
         }
+        Ok(())
     }
 
-    pub fn merge_sdl_document(&mut self, document: &SchemaDocument, is_ext_document: bool) {
+    pub fn merge_sdl_document(
+        &mut self,
+        document: &SchemaDocument,
+        is_ext_document: bool,
+    ) -> DiagnosticsResult<()> {
         let source = document.location.source_location();
         for definition in &document.definitions {
-            self.merge_type_system_definition(definition, source, is_ext_document);
+            self.merge_type_system_definition(definition, source, is_ext_document)?;
         }
+        Ok(())
     }
 
     pub fn merge_type_system_definition(
@@ -212,17 +222,17 @@ impl SchemaSet {
         definition: &TypeSystemDefinition,
         source: SourceLocationKey,
         is_ext_document: bool,
-    ) {
+    ) -> DiagnosticsResult<()> {
         match definition {
-            TypeSystemDefinition::SchemaDefinition(schema_def) => self
+            TypeSystemDefinition::SchemaDefinition(schema_def) => Ok(self
                 .root_schema
-                .merge(schema_def.to_set_definition(source, is_ext_document)),
-            TypeSystemDefinition::SchemaExtension(schema_ext) => self.root_schema.merge(
+                .merge(schema_def.to_set_definition(source, is_ext_document))),
+            TypeSystemDefinition::SchemaExtension(schema_ext) => Ok(self.root_schema.merge(
                 schema_ext
                     .clone()
                     .into_definition()
                     .to_set_definition(source, true),
-            ),
+            )),
             TypeSystemDefinition::EnumTypeDefinition(def) => {
                 merge_def_into(&mut self.types, def, source, is_ext_document)
             }
@@ -288,15 +298,18 @@ impl SchemaSet {
     /// Fixes types from a potentially-invalid SchemaSet, to make it all spec compliant.
     /// This should be run before printing a binary-level, must-be-valid used schema,
     /// but should NOT be run to produce partial, library-level used schemas.
-    pub fn fix_all_types(&mut self) {
-        self.fix_all_types_impl(None);
+    pub fn fix_all_types(&mut self) -> DiagnosticsResult<()> {
+        self.fix_all_types_impl(None)
     }
 
-    pub fn fix_all_types_with_schema(&mut self, original_schema: &SchemaSet) {
-        self.fix_all_types_impl(Some(original_schema));
+    pub fn fix_all_types_with_schema(
+        &mut self,
+        original_schema: &SchemaSet,
+    ) -> DiagnosticsResult<()> {
+        self.fix_all_types_impl(Some(original_schema))
     }
 
-    fn fix_all_types_impl(&mut self, original_schema: Option<&SchemaSet>) {
+    fn fix_all_types_impl(&mut self, original_schema: Option<&SchemaSet>) -> DiagnosticsResult<()> {
         let defined_interfaces: StringKeyMap<SetInterface> = self
             .types
             .iter()
@@ -428,6 +441,7 @@ impl SchemaSet {
         }
 
         //
+        Ok(())
     }
 }
 
@@ -867,7 +881,7 @@ mod tests {
     #[test]
     fn fix_empty_schema() {
         let mut schema = SchemaSet::default();
-        schema.fix_all_types();
+        schema.fix_all_types().unwrap();
         assert!(schema.root_schema.is_empty());
         assert!(schema.types.is_empty());
     }

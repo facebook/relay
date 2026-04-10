@@ -637,6 +637,7 @@ mod tests {
             SourceLocationKey::generated(),
         )
         .unwrap()])
+        .unwrap()
     }
 
     #[test]

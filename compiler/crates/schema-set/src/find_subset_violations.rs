@@ -646,6 +646,7 @@ mod tests {
             SourceLocationKey::generated(),
         )
         .unwrap()])
+        .unwrap()
     }
 
     fn violations(base: &str, subset: &str) -> Vec<SubsetViolation> {

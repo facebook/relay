@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DiagnosticsResult;
+
 use crate::SchemaSet;
 use crate::SetDirective;
 use crate::SetInterface;
@@ -16,7 +18,9 @@ use crate::schema_set::CanHaveDirectives;
 use crate::schema_set::HasFields;
 use crate::schema_set::HasInterfaces;
 
-pub fn partition_schema_set_base_and_extensions(schema_set: &SchemaSet) -> (SchemaSet, SchemaSet) {
+pub fn partition_schema_set_base_and_extensions(
+    schema_set: &SchemaSet,
+) -> DiagnosticsResult<(SchemaSet, SchemaSet)> {
     let mut base = SchemaSet::new();
     let mut extensions = SchemaSet::new();
 
@@ -42,17 +46,17 @@ pub fn partition_schema_set_base_and_extensions(schema_set: &SchemaSet) -> (Sche
 
     for type_ in schema_set.types.values() {
         if type_.is_client_definition() {
-            extensions.add_or_merge_type(type_.clone());
+            extensions.add_or_merge_type(type_.clone())?;
         } else {
             let (base_type, extension_type) = type_.partition_base_extension(schema_set);
-            base.add_or_merge_type(base_type);
+            base.add_or_merge_type(base_type)?;
             if let Some(extension_type) = extension_type {
-                extensions.add_or_merge_type(extension_type);
+                extensions.add_or_merge_type(extension_type)?;
             }
         }
     }
 
-    (base, extensions)
+    Ok((base, extensions))
 }
 
 pub trait PartitionsBaseExtension: CanBeClientDefinition + Sized + Clone {

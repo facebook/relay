@@ -12,6 +12,7 @@
 //!
 //! See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
 
+use common::DiagnosticsResult;
 use common::ScalarName;
 use intern::string_key::Intern;
 use intern::string_key::StringKeySet;
@@ -51,8 +52,9 @@ lazy_static! {
 /// include built-in scalar definitions.
 ///
 /// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
-pub fn add_built_in_scalars(schema_set: &mut SchemaSet) {
+pub fn add_built_in_scalars(schema_set: &mut SchemaSet) -> DiagnosticsResult<()> {
     schema_set.merge(BUILTIN_SCALAR_SET.clone());
+    Ok(())
 }
 
 /// Removes built-in scalar types (Int, Float, String, Boolean, ID) from the schema.
@@ -80,6 +82,7 @@ mod tests {
             SourceLocationKey::generated(),
         )
         .unwrap()])
+        .unwrap()
     }
 
     // The reason we are testing SchemaSet::new here is that it's important for
@@ -119,7 +122,7 @@ mod tests {
         let mut schema_set = SchemaSet::new();
         assert!(!schema_set.types.contains_key(&"String".intern()));
 
-        add_built_in_scalars(&mut schema_set);
+        add_built_in_scalars(&mut schema_set).unwrap();
 
         assert!(schema_set.types.contains_key(&"String".intern()));
         assert!(schema_set.types.contains_key(&"Int".intern()));

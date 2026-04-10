@@ -9,6 +9,7 @@ use std::collections::BTreeMap;
 use std::collections::VecDeque;
 
 use common::ArgumentName;
+use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
@@ -78,7 +79,7 @@ pub fn merge_def_into<
     type_def: &TypeDef,
     source: SourceLocationKey,
     is_client_definition: bool,
-) {
+) -> DiagnosticsResult<()> {
     let merge_type = type_def.to_set_definition(source, is_client_definition);
     let name = merge_type.string_key_name();
     if let Some(exists) = merge_map.get_mut(&name) {
@@ -86,6 +87,7 @@ pub fn merge_def_into<
     } else {
         merge_map.insert(name, merge_type);
     }
+    Ok(())
 }
 
 pub fn merge_ext_into<
@@ -95,7 +97,8 @@ pub fn merge_ext_into<
     used_map: &mut StringKeyMap<SetDefinition>,
     type_ext: &TypeExt,
     source: SourceLocationKey,
-) where
+) -> DiagnosticsResult<()>
+where
     TypeExt::DefinitionType: ToSetDefinition<SetDefinition>,
 {
     let set_type = type_ext
@@ -112,6 +115,7 @@ pub fn merge_ext_into<
     } else {
         used_map.insert(name, set_type);
     }
+    Ok(())
 }
 
 impl ToSetDefinition<SetRootSchema> for SchemaDefinition {

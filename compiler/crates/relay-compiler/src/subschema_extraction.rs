@@ -190,9 +190,12 @@ pub fn extract_subschema(programs: &Programs) -> Result<String, SubschemaError> 
             include_implicit_output_enum_values: true,
             include_implicit_input_fields_and_enum_values: true,
         },
-    );
+    )
+    .map_err(|diagnostics| SubschemaError::CompilationFailed(format!("{:?}", diagnostics)))?;
 
-    used_schema.fix_all_types();
+    used_schema
+        .fix_all_types()
+        .map_err(|diagnostics| SubschemaError::CompilationFailed(format!("{:?}", diagnostics)))?;
 
     let (printed_base_schema, _printed_client_schema) = used_schema
         .print_base_and_client_definitions()

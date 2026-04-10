@@ -47,7 +47,7 @@ impl SchemaSet {
         let without_builtin_definitions = remove_built_in_scalars(self);
 
         let (base_set, client_set) =
-            partition_schema_set_base_and_extensions(&without_builtin_definitions);
+            partition_schema_set_base_and_extensions(&without_builtin_definitions)?;
 
         let base_definitions: Vec<String> = base_set.print_definitions_for_used_schema(None);
         let client_definitions: Vec<String> =

@@ -73,10 +73,11 @@ export type ConcreateTypes$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FragmentSpread$data = {
-  readonly UserFrag1?: {
+  readonly __typename: "User";
+  readonly UserFrag1: {
     readonly " $fragmentSpreads": FragmentRefs<"UserFrag1">;
   } | null | undefined;
-  readonly UserFrag2?: {
+  readonly UserFrag2: {
     readonly " $fragmentSpreads": FragmentRefs<"UserFrag2">;
   } | null | undefined;
   readonly fragAndField: {
@@ -88,6 +89,11 @@ export type FragmentSpread$data = {
     readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
   } | null | undefined;
   readonly " $fragmentSpreads": FragmentRefs<"OtherFragment">;
+  readonly " $fragmentType": "FragmentSpread";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "FragmentSpread";
 };
 export type FragmentSpread$key = {

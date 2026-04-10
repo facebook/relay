@@ -2,7 +2,6 @@
 # expected-to-throw
 query TestQuery @updatable {
   node(id: 4) {
-    __typename
     ... on Page @defer {
       __typename
     }
@@ -11,8 +10,8 @@ query TestQuery @updatable {
 ==================================== ERROR ====================================
 ✖︎ The @defer directive is not allowed in updatable operations.
 
-  directive-inline-fragment.invalid.graphql:5:17
-    4 │     __typename
-    5 │     ... on Page @defer {
+  directive-inline-fragment.invalid.graphql:4:17
+    3 │   node(id: 4) {
+    4 │     ... on Page @defer {
       │                 ^^^^^^
-    6 │       __typename
+    5 │       __typename

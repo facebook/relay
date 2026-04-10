@@ -67,11 +67,17 @@ fragment SomeFragment on User {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragment$fragmentType: FragmentType;
 export type InlineFragment$data = {|
+  +__typename: "User",
   +id: string,
-  +message?: ?{|
+  +message: ?{|
     +text: ?string,
   |},
   +name?: ?string,
+  +$fragmentType: InlineFragment$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
   +$fragmentType: InlineFragment$fragmentType,
 |};
 export type InlineFragment$key = {
@@ -97,18 +103,29 @@ import type { SomeFragment$fragmentType } from "SomeFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragmentKitchenSink$fragmentType: FragmentType;
 export type InlineFragmentKitchenSink$data = {|
-  +actor: ?{|
-    +SomeFragment?: ?{|
+  +actor: ?({|
+    +__typename: "Page",
+    +id: string,
+    +profilePicture: ?{|
+      +height: ?number,
+      +uri: ?string,
+    |},
+  |} | {|
+    +__typename: "User",
+    +SomeFragment: ?{|
       +$fragmentSpreads: SomeFragment$fragmentType,
     |},
     +id: string,
-    +name?: ?string,
+    +name: ?string,
     +profilePicture: ?{|
-      +height?: ?number,
       +uri: ?string,
-      +width?: ?number,
+      +width: ?number,
     |},
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
   +$fragmentType: InlineFragmentKitchenSink$fragmentType,
 |};
 export type InlineFragmentKitchenSink$key = {
@@ -120,14 +137,26 @@ export type InlineFragmentKitchenSink$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragmentWithOverlappingFields$fragmentType: FragmentType;
 export type InlineFragmentWithOverlappingFields$data = {|
-  +hometown?: ?{|
+  +__typename: "Page",
+  +hometown: ?{|
     +id: string,
-    +message?: ?{|
+    +message: ?{|
       +text: ?string,
     |},
+  |},
+  +name: ?string,
+  +$fragmentType: InlineFragmentWithOverlappingFields$fragmentType,
+|} | {|
+  +__typename: "User",
+  +hometown: ?{|
+    +id: string,
     +name: ?string,
   |},
-  +name?: ?string,
+  +$fragmentType: InlineFragmentWithOverlappingFields$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
   +$fragmentType: InlineFragmentWithOverlappingFields$fragmentType,
 |};
 export type InlineFragmentWithOverlappingFields$key = {

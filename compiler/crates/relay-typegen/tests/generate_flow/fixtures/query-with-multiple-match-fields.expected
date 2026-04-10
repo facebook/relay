@@ -55,19 +55,29 @@ import type { MarkdownUserNameRenderer_name$normalization } from "MarkdownUserNa
 import type { PlainUserNameRenderer_name$normalization } from "PlainUserNameRenderer_name$normalization.graphql";
 export type Test$variables = {||};
 export type Test$data = {|
-  +node: ?{|
-    +NameRendererFragment?: ?{|
+  +node: ?({|
+    +__typename: "User",
+    +NameRendererFragment: ?{|
       +$fragmentSpreads: NameRendererFragment$fragmentType,
     |},
-    +username?: ?string,
-  |},
+    +username: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
   +viewer: ?{|
-    +actor: ?{|
-      +AnotherNameRendererFragment?: ?{|
+    +actor: ?({|
+      +__typename: "User",
+      +AnotherNameRendererFragment: ?{|
         +$fragmentSpreads: AnotherNameRendererFragment$fragmentType,
       |},
-      +name?: ?string,
-    |},
+      +name: ?string,
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
   |},
 |};
 export type PlainUserNameRenderer_name = {|
@@ -146,11 +156,21 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type AnotherNameRendererFragment$fragmentType: FragmentType;
 export type AnotherNameRendererFragment$data = {|
   +name: ?string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: MarkdownUserNameRenderer_name$fragmentType & PlainUserNameRenderer_name$fragmentType,
-  |},
+  +nameRenderer: ?({|
+    +__typename: "MarkdownUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: MarkdownUserNameRenderer_name$fragmentType,
+  |} | {|
+    +__typename: "PlainUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: PlainUserNameRenderer_name$fragmentType,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
   +$fragmentType: AnotherNameRendererFragment$fragmentType,
 |};
 export type AnotherNameRendererFragment$key = {
@@ -180,11 +200,21 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type NameRendererFragment$fragmentType: FragmentType;
 export type NameRendererFragment$data = {|
   +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: MarkdownUserNameRenderer_name$fragmentType & PlainUserNameRenderer_name$fragmentType,
-  |},
+  +nameRenderer: ?({|
+    +__typename: "MarkdownUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: MarkdownUserNameRenderer_name$fragmentType,
+  |} | {|
+    +__typename: "PlainUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: PlainUserNameRenderer_name$fragmentType,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
   +$fragmentType: NameRendererFragment$fragmentType,
 |};
 export type NameRendererFragment$key = {

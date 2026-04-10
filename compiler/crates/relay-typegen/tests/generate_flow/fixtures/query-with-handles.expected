@@ -21,11 +21,16 @@ export type LinkedHandleField$variables = {|
   id: string,
 |};
 export type LinkedHandleField$data = {|
-  +node: ?{|
-    +friends?: ?{|
+  +node: ?({|
+    +__typename: "User",
+    +friends: ?{|
       +count: ?number,
     |},
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type LinkedHandleField$rawResponse = {|
   +node: ?({|
@@ -49,9 +54,14 @@ export type ScalarHandleField$variables = {|
   id: string,
 |};
 export type ScalarHandleField$data = {|
-  +node: ?{|
-    +name?: ?string,
-  |},
+  +node: ?({|
+    +__typename: "User",
+    +name: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type ScalarHandleField$rawResponse = {|
   +node: ?({|

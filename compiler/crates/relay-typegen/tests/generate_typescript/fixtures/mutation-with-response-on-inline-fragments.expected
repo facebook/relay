@@ -89,14 +89,26 @@ export type TestMutation = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentWithOverlappingFields$data = {
-  readonly hometown?: {
+  readonly __typename: "Page";
+  readonly hometown: {
     readonly id: string;
-    readonly message?: {
+    readonly message: {
       readonly text: string | null | undefined;
     } | null | undefined;
+  } | null | undefined;
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "InlineFragmentWithOverlappingFields";
+} | {
+  readonly __typename: "User";
+  readonly hometown: {
+    readonly id: string;
     readonly name: string | null | undefined;
   } | null | undefined;
-  readonly name?: string | null | undefined;
+  readonly " $fragmentType": "InlineFragmentWithOverlappingFields";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "InlineFragmentWithOverlappingFields";
 };
 export type InlineFragmentWithOverlappingFields$key = {

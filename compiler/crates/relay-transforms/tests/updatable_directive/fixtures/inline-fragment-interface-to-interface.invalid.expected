@@ -15,12 +15,3 @@ query TestQuery @updatable {
     3 │   node(id: 4) {
       │   ^^^^
     4 │     ... on FeedUnit {
-
-
-✖︎ Within updatable operations, if a linked field contains an inline fragment spread, it must contain __typename.
-
-  inline-fragment-interface-to-interface.invalid.graphql:3:3
-    2 │ query TestQuery @updatable {
-    3 │   node(id: 4) {
-      │   ^^^^
-    4 │     ... on FeedUnit {

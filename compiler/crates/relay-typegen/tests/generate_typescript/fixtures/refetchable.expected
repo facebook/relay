@@ -23,8 +23,14 @@ export type FlowRefetchableFragmentQuery = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FlowRefetchableFragment$data = {
+  readonly __typename: "User";
   readonly id: string;
-  readonly name?: string | null | undefined;
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "FlowRefetchableFragment";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "FlowRefetchableFragment";
 };
 export type FlowRefetchableFragment$key = {

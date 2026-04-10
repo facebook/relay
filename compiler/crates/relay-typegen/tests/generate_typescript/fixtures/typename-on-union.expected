@@ -21,11 +21,12 @@ fragment TypenameOutside on Actor {
 }
 
 fragment TypenameOutsideWithAbstractType on Node {
+  __typename
   ... on User {
     firstName
     address {
-      city # common
       street # only here
+      city # common
     }
   }
   ... on Actor {
@@ -99,7 +100,42 @@ fragment TypenameWithNestedCommonSelections on Actor {
     }
   }
 }
+
+fragment PlainFragment on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment MarkFragment on MarkdownUserNameRenderer {
+  markdown
+}
+
+fragment TypenameMask on User {
+  nameRenderer {
+    ...MarkFragment @relay(mask: false) @dangerously_unaliased_fixme
+    ...PlainFragment @relay(mask: false) @dangerously_unaliased_fixme
+  }
+}
 ==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type MarkFragment$data = {
+  readonly markdown: string | null | undefined;
+  readonly " $fragmentType": "MarkFragment";
+};
+export type MarkFragment$key = {
+  readonly " $data"?: MarkFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MarkFragment">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type PlainFragment$data = {
+  readonly plaintext: string | null | undefined;
+  readonly " $fragmentType": "PlainFragment";
+};
+export type PlainFragment$key = {
+  readonly " $data"?: PlainFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"PlainFragment">;
+};
+-------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameAlias$data = {
   readonly _typeAlias: "User";
@@ -147,14 +183,42 @@ export type TypenameAliases$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameInside$data = {
+  readonly __typename: "Page";
+  readonly username: string | null | undefined;
+  readonly " $fragmentType": "TypenameInside";
+} | {
   readonly __typename: "User";
-  readonly firstName?: string | null | undefined;
-  readonly username?: string | null | undefined;
+  readonly firstName: string | null | undefined;
+  readonly " $fragmentType": "TypenameInside";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "TypenameInside";
 };
 export type TypenameInside$key = {
   readonly " $data"?: TypenameInside$data;
   readonly " $fragmentSpreads": FragmentRefs<"TypenameInside">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameMask$data = {
+  readonly nameRenderer: {
+    readonly __typename: "MarkdownUserNameRenderer";
+    readonly markdown: string | null | undefined;
+  } | {
+    readonly __typename: "PlainUserNameRenderer";
+    readonly plaintext: string | null | undefined;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
+  } | null | undefined;
+  readonly " $fragmentType": "TypenameMask";
+};
+export type TypenameMask$key = {
+  readonly " $data"?: TypenameMask$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameMask">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
@@ -179,13 +243,19 @@ export type TypenameOutside$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameOutsideWithAbstractType$data = {
-  readonly address?: {
+  readonly __typename: "User";
+  readonly address: {
     readonly city: string | null | undefined;
     readonly country: string | null | undefined;
-    readonly street?: string | null | undefined;
+    readonly street: string | null | undefined;
   } | null | undefined;
-  readonly firstName?: string | null | undefined;
+  readonly firstName: string | null | undefined;
   readonly username?: string | null | undefined;
+  readonly " $fragmentType": "TypenameOutsideWithAbstractType";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "TypenameOutsideWithAbstractType";
 };
 export type TypenameOutsideWithAbstractType$key = {

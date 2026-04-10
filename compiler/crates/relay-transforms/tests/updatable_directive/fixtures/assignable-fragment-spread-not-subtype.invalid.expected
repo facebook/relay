@@ -18,15 +18,6 @@ query TestQuery @updatable {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Within updatable operations, if a linked field contains an inline fragment spread, it must contain __typename.
-
-  assignable-fragment-spread-not-subtype.invalid.graphql:7:3
-    6 │ query TestQuery @updatable {
-    7 │   node(id: 4) {
-      │   ^^^^
-    8 │     ... on Feedback {
-
-
 ✖︎ Within updatable operations, if an assignable fragment is spread on a linked field, the fragment's type (`Node`) must be equal to or a subtype of the field's type (`Comment`).
 
   assignable-fragment-spread-not-subtype.invalid.graphql:12:16

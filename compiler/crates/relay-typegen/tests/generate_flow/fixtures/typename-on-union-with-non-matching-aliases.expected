@@ -1,8 +1,7 @@
 ==================================== INPUT ====================================
 fragment Foo on Node {
-  __typename
   ... on User {
-    usertype: __typename
+    __typename
   }
   ... on Comment {
     alias: __typename
@@ -24,7 +23,6 @@ export type Foo$data = {|
   +$fragmentType: Foo$fragmentType,
 |} | {|
   +__typename: "User",
-  +usertype: "User",
   +$fragmentType: Foo$fragmentType,
 |} | {|
   // This will never be '%other', but we need some
@@ -36,9 +34,6 @@ export type Foo$data = {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   +foo: "%other",
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +usertype: "%other",
   +$fragmentType: Foo$fragmentType,
 |};
 export type Foo$key = {

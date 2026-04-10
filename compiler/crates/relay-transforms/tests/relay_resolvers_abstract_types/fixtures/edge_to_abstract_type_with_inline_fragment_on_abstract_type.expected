@@ -44,6 +44,7 @@ query edgeToAbstractTypeWithInlineFragmentOnAbstractTypeQuery {
         #     field_alias: None,
         #     field_path: "cat.description",
         #     field_arguments: [],
+        #     fragment_arguments: [],
         #     live: false,
         #     output_type_info: Legacy,
         #     fragment_data_injection_mode: None,

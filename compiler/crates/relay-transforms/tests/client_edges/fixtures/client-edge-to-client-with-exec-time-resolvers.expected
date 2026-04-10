@@ -51,6 +51,7 @@ query TestQuery @exec_time_resolvers {
       #     field_alias: None,
       #     field_path: "client_me.best_friend",
       #     field_arguments: [],
+      #     fragment_arguments: [],
       #     live: false,
       #     output_type_info: EdgeTo,
       #     fragment_data_injection_mode: None,

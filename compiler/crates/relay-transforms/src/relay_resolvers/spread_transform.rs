@@ -90,6 +90,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                 field_path: field_metadata.field_path,
                 field_id: field.definition().item,
                 field_arguments,
+                fragment_arguments: fragment_arguments.clone(),
                 live: field_metadata.live,
                 output_type_info: field_metadata.output_type_info.clone(),
                 fragment_data_injection_mode: field_metadata

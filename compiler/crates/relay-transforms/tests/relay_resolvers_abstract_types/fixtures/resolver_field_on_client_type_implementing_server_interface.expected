@@ -37,6 +37,7 @@ fragment resolverFieldOnClientTypeImplementingServerInterfaceFragment on FeedUni
     #     field_alias: None,
     #     field_path: "tracking",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: true,
     #     output_type_info: Legacy,
     #     fragment_data_injection_mode: None,

@@ -115,6 +115,12 @@ pub struct RelayResolverMetadata {
     pub field_alias: Option<StringKey>,
     pub field_path: StringKey,
     pub field_arguments: Vec<Argument>,
+    /// Arguments that map to the root fragment's @argumentDefinitions.
+    /// Partitioned from field.arguments during the spread transform.
+    /// Needed by exec-time normalization codegen to include the variable
+    /// mapping (e.g., include_friend → $my_flag) that would otherwise be
+    /// lost since the normalization AST has no FragmentSpread to carry them.
+    pub fragment_arguments: Vec<Argument>,
     pub live: bool,
     pub output_type_info: ResolverOutputTypeInfo,
     /// A tuple with fragment name and field name we need read

@@ -987,8 +987,17 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         exec_resolvers_only: bool,
     ) -> Primitive {
         let field_name = resolver_metadata.field_name(self.schema);
-        let field_arguments = &resolver_metadata.field_arguments;
-        let args = self.build_arguments(field_arguments);
+        // Include both field_arguments and fragment_arguments so the
+        // exec-time executor can see variable mappings (e.g.,
+        // include_friend → $my_flag) that would otherwise be lost since
+        // the normalization AST has no FragmentSpread to carry them.
+        let all_arguments: Vec<_> = resolver_metadata
+            .field_arguments
+            .iter()
+            .chain(resolver_metadata.fragment_arguments.iter())
+            .cloned()
+            .collect();
+        let args = self.build_arguments(&all_arguments);
         let is_output_type = resolver_metadata
             .output_type_info
             .normalization_ast_should_have_is_output_type_true();
@@ -1026,7 +1035,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             storage_key: match args {
                 None => Primitive::SkippableNull,
                 Some(key) => {
-                    if is_static_storage_key_available(&resolver_metadata.field_arguments) {
+                    if is_static_storage_key_available(&all_arguments) {
                         Primitive::StorageKey(field_name, key)
                     } else {
                         Primitive::SkippableNull
@@ -1092,8 +1101,15 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
         let field_name = resolver_metadata.field_name(self.schema);
-        let field_arguments = &resolver_metadata.field_arguments;
-        let args = self.build_arguments(field_arguments);
+        // Include both field_arguments and fragment_arguments (see comment
+        // in build_normalization_relay_resolver_exec_and_read_time).
+        let all_arguments: Vec<_> = resolver_metadata
+            .field_arguments
+            .iter()
+            .chain(resolver_metadata.fragment_arguments.iter())
+            .cloned()
+            .collect();
+        let args = self.build_arguments(&all_arguments);
         let is_output_type = resolver_metadata
             .output_type_info
             .normalization_ast_should_have_is_output_type_true();
@@ -1120,7 +1136,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             storage_key: match args {
                 None => Primitive::SkippableNull,
                 Some(key) => {
-                    if is_static_storage_key_available(&resolver_metadata.field_arguments) {
+                    if is_static_storage_key_available(&all_arguments) {
                         Primitive::StorageKey(field_name, key)
                     } else {
                         Primitive::SkippableNull
@@ -1573,6 +1589,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             field_alias: None,
             field_path: path,
             field_arguments: vec![], // The model resolver field does not take GraphQL arguments.
+            fragment_arguments: vec![],
             live: resolver_info.live,
             output_type_info: ResolverOutputTypeInfo::ScalarField,
             fragment_data_injection_mode: resolver_info

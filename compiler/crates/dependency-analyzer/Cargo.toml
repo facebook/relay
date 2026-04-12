@@ -28,7 +28,7 @@ intern = { path = "../intern" }
 lazy_static = "1.5"
 rayon = "1.11.0"
 relay-transforms = { path = "../relay-transforms" }
-rustc-hash = "2.1.1"
+rustc-hash = "2.1.2"
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
 serde = { version = "1.0.219", features = ["derive", "rc"] }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c3418546d77ed88dad7883aa12b0326b>>
+ * @generated SignedSource<<db5ee03255aa7bbb4b292b26a4aae2d9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,16 +28,31 @@ declare export opaque type FragmentResourceWithOperationTrackerTestUserFragment$
 export type FragmentResourceWithOperationTrackerTestUserFragment$data = {|
   +id: string,
   +name: ?string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType & FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-  |},
-  +plainNameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
+  +nameRenderer: ?({|
+    +__typename: "MarkdownUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
+  |} | {|
+    +__typename: "PlainUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
     +$fragmentSpreads: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
+  +plainNameRenderer: ?({|
+    +__typename: "PlainUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
   +$fragmentType: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
 |};
 export type FragmentResourceWithOperationTrackerTestUserFragment$key = {

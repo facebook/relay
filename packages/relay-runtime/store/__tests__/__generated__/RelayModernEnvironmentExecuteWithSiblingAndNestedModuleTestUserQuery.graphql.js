@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<35f5bb0aa83948ab43878c5bd1480479>>
+ * @generated SignedSource<<4b7799b01d56a51bac158aafe2fc2233>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,18 +28,33 @@ export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery
   id: string,
 |};
 export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data = {|
-  +node: ?{|
-    +outerRendererA?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
+  +node: ?({|
+    +__typename: "User",
+    +outerRendererA: ?({|
+      +__typename: "MarkdownUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
       +$fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$fragmentType,
-    |},
-    +outerRendererB?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
+    +outerRendererB: ?({|
+      +__typename: "PlainUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
       +$fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$fragmentType,
-    |},
-  |},
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery = {|
   response: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data,

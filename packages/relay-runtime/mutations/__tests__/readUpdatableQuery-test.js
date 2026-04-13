@@ -72,14 +72,14 @@ const updatableQuery = graphql`
       ...readUpdatableQueryTest_user
     }
     node(id: "4") {
+      __typename
       ... on User {
-        __typename
         name
       }
     }
     node2: node(id: "5") {
+      __typename
       ... on User {
-        __typename
         name
         parents {
           ...readUpdatableQueryTest_user
@@ -1175,14 +1175,14 @@ describe('readUpdatableQuery', () => {
     const missingFieldsUpdatableQuery = graphql`
       query readUpdatableQueryTestMissingFieldsUpdatableQuery @updatable {
         node(id: "4") {
+          __typename
           ... on User {
-            __typename
             name
           }
         }
         nodes(ids: ["4"]) {
+          __typename
           ... on User {
-            __typename
             name
           }
         }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<57d523c9a82f1b78e40cfb557921bcb8>>
+ * @generated SignedSource<<5ede616b5c6fa0c44203c7038ce0938d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,14 +26,21 @@ export type validateMutationTestIsActorInlineMutation$variables = {|
 |};
 export type validateMutationTestIsActorInlineMutation$data = {|
   +actorNameChange: ?{|
-    +actor: ?{|
-      +birthdate?: ?{|
+    +actor: ?({|
+      +__typename: "Page",
+      +username: ?string,
+    |} | {|
+      +__typename: "User",
+      +birthdate: ?{|
         +day: ?number,
         +month: ?number,
         +year: ?number,
       |},
-      +username?: ?string,
-    |},
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
   |},
 |};
 export type validateMutationTestIsActorInlineMutation$rawResponse = {|

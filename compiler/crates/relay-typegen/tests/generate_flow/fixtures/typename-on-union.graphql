@@ -78,3 +78,39 @@ fragment TypenameAliases on Actor {
     username
   }
 }
+
+fragment TypenameWithNestedCommonSelections on Actor {
+  __typename
+  name
+  emailAddresses
+  address {
+    city # common
+  }
+  ... on User {
+    firstName
+    address {
+      street # only here
+    }
+  }
+  ... on Page {
+    username
+    address {
+      country # only here
+    }
+  }
+}
+
+fragment PlainFragment on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment MarkFragment on MarkdownUserNameRenderer {
+  markdown
+}
+
+fragment TypenameMask on User {
+  nameRenderer {
+    ...MarkFragment @relay(mask: false) @dangerously_unaliased_fixme
+    ...PlainFragment @relay(mask: false) @dangerously_unaliased_fixme
+  }
+}

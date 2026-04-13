@@ -66,11 +66,7 @@ export type User__pop_star_game$normalization = {|
 export type User__pop_star_name$normalization$variables = {||};
 export type User__pop_star_name$normalization$data = {|
   +__typename: "ClientType",
-  +name: ?string,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
+  +name?: ?string,
 |};
 export type User__pop_star_name$normalization = {|
   response: User__pop_star_name$normalization$data,

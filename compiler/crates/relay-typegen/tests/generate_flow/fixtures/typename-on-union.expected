@@ -79,7 +79,67 @@ fragment TypenameAliases on Actor {
     username
   }
 }
+
+fragment TypenameWithNestedCommonSelections on Actor {
+  __typename
+  name
+  emailAddresses
+  address {
+    city # common
+  }
+  ... on User {
+    firstName
+    address {
+      street # only here
+    }
+  }
+  ... on Page {
+    username
+    address {
+      country # only here
+    }
+  }
+}
+
+fragment PlainFragment on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment MarkFragment on MarkdownUserNameRenderer {
+  markdown
+}
+
+fragment TypenameMask on User {
+  nameRenderer {
+    ...MarkFragment @relay(mask: false) @dangerously_unaliased_fixme
+    ...PlainFragment @relay(mask: false) @dangerously_unaliased_fixme
+  }
+}
 ==================================== OUTPUT ===================================
+import type { FragmentType } from "relay-runtime";
+declare export opaque type MarkFragment$fragmentType: FragmentType;
+export type MarkFragment$data = {|
+  +markdown: ?string,
+  +$fragmentType: MarkFragment$fragmentType,
+|};
+export type MarkFragment$key = {
+  +$data?: MarkFragment$data,
+  +$fragmentSpreads: MarkFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type PlainFragment$fragmentType: FragmentType;
+export type PlainFragment$data = {|
+  +plaintext: ?string,
+  +$fragmentType: PlainFragment$fragmentType,
+|};
+export type PlainFragment$key = {
+  +$data?: PlainFragment$data,
+  +$fragmentSpreads: PlainFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameAlias$fragmentType: FragmentType;
 export type TypenameAlias$data = {|
@@ -152,6 +212,28 @@ export type TypenameInside$key = {
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameMask$fragmentType: FragmentType;
+export type TypenameMask$data = {|
+  +nameRenderer: ?({|
+    +__typename: "MarkdownUserNameRenderer",
+    +markdown: ?string,
+  |} | {|
+    +__typename: "PlainUserNameRenderer",
+    +plaintext: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
+  +$fragmentType: TypenameMask$fragmentType,
+|};
+export type TypenameMask$key = {
+  +$data?: TypenameMask$data,
+  +$fragmentSpreads: TypenameMask$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutside$fragmentType: FragmentType;
 export type TypenameOutside$data = {|
   +__typename: "Page",
@@ -176,14 +258,19 @@ export type TypenameOutside$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutsideWithAbstractType$fragmentType: FragmentType;
 export type TypenameOutsideWithAbstractType$data = {|
-  +__typename: string,
-  +address?: ?{|
+  +__typename: "User",
+  +address: ?{|
     +city: ?string,
     +country: ?string,
-    +street?: ?string,
+    +street: ?string,
   |},
-  +firstName?: ?string,
+  +firstName: ?string,
   +username?: ?string,
+  +$fragmentType: TypenameOutsideWithAbstractType$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
   +$fragmentType: TypenameOutsideWithAbstractType$fragmentType,
 |};
 export type TypenameOutsideWithAbstractType$key = {
@@ -195,15 +282,58 @@ export type TypenameOutsideWithAbstractType$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithCommonSelections$fragmentType: FragmentType;
 export type TypenameWithCommonSelections$data = {|
-  +__typename: string,
-  +firstName?: ?string,
+  +__typename: "Page",
   +name: ?string,
-  +username?: ?string,
+  +username: ?string,
+  +$fragmentType: TypenameWithCommonSelections$fragmentType,
+|} | {|
+  +__typename: "User",
+  +firstName: ?string,
+  +name: ?string,
+  +$fragmentType: TypenameWithCommonSelections$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
   +$fragmentType: TypenameWithCommonSelections$fragmentType,
 |};
 export type TypenameWithCommonSelections$key = {
   +$data?: TypenameWithCommonSelections$data,
   +$fragmentSpreads: TypenameWithCommonSelections$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameWithNestedCommonSelections$fragmentType: FragmentType;
+export type TypenameWithNestedCommonSelections$data = {|
+  +__typename: "Page",
+  +address: ?{|
+    +city: ?string,
+    +country: ?string,
+  |},
+  +emailAddresses: ?ReadonlyArray<?string>,
+  +name: ?string,
+  +username: ?string,
+  +$fragmentType: TypenameWithNestedCommonSelections$fragmentType,
+|} | {|
+  +__typename: "User",
+  +address: ?{|
+    +city: ?string,
+    +street: ?string,
+  |},
+  +emailAddresses: ?ReadonlyArray<?string>,
+  +firstName: ?string,
+  +name: ?string,
+  +$fragmentType: TypenameWithNestedCommonSelections$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$fragmentType: TypenameWithNestedCommonSelections$fragmentType,
+|};
+export type TypenameWithNestedCommonSelections$key = {
+  +$data?: TypenameWithNestedCommonSelections$data,
+  +$fragmentSpreads: TypenameWithNestedCommonSelections$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cf588e4f7e1d988eb4083e6d71909c28>>
+ * @generated SignedSource<<2aff8d9db57d8b02c9aa50f90b14336c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,11 +26,21 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResponseNormalizerTestFragment$fragmentType: FragmentType;
 export type RelayResponseNormalizerTestFragment$data = {|
   +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayResponseNormalizerTestMarkdownUserNameRenderer_name$fragmentType & RelayResponseNormalizerTestPlainUserNameRenderer_name$fragmentType,
-  |},
+  +nameRenderer: ?({|
+    +__typename: "MarkdownUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: RelayResponseNormalizerTestMarkdownUserNameRenderer_name$fragmentType,
+  |} | {|
+    +__typename: "PlainUserNameRenderer",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
+    +$fragmentSpreads: RelayResponseNormalizerTestPlainUserNameRenderer_name$fragmentType,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
   +$fragmentType: RelayResponseNormalizerTestFragment$fragmentType,
 |};
 export type RelayResponseNormalizerTestFragment$key = {

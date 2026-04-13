@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7ff4fc4debe81f946d477726cb08092f>>
+ * @generated SignedSource<<432e8d7f53e9457416a56f7b2ac46f6f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -36,10 +36,15 @@ export type LiveResolversTest7Query$variables = {|
   scale: number,
 |};
 export type LiveResolversTest7Query$data = {|
-  +node: ?{|
-    +name?: ?string,
-    +user_profile_picture_uri_suspends_when_the_counter_is_odd?: ?string,
-  |},
+  +node: ?({|
+    +__typename: "User",
+    +name: ?string,
+    +user_profile_picture_uri_suspends_when_the_counter_is_odd: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type LiveResolversTest7Query = {|
   response: LiveResolversTest7Query$data,

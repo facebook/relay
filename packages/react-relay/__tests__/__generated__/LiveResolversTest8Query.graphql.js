@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<28bae23925175e450af27cda3948b72e>>
+ * @generated SignedSource<<c7cb745eada3e8bee9834cc860b67008>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -33,10 +33,15 @@ export type LiveResolversTest8Query$variables = {|
   id: string,
 |};
 export type LiveResolversTest8Query$data = {|
-  +node: ?{|
-    +name?: ?string,
-    +resolver_that_throws?: ?ReturnType<ReturnType<typeof userResolverThatThrowsResolverType>["read"]>,
-  |},
+  +node: ?({|
+    +__typename: "User",
+    +name: ?string,
+    +resolver_that_throws: ?ReturnType<ReturnType<typeof userResolverThatThrowsResolverType>["read"]>,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type LiveResolversTest8Query = {|
   response: LiveResolversTest8Query$data,

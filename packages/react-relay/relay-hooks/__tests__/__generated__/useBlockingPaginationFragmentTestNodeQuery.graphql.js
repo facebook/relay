@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<be374ef8d6c543dcf7fad40ca5be2f06>>
+ * @generated SignedSource<<90c70bd573a4765dcd11e678c2da9a52>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,9 +22,14 @@ export type useBlockingPaginationFragmentTestNodeQuery$variables = {|
   id: string,
 |};
 export type useBlockingPaginationFragmentTestNodeQuery$data = {|
-  +node: ?{|
-    +name?: ?string,
-  |},
+  +node: ?({|
+    +__typename: "User",
+    +name: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type useBlockingPaginationFragmentTestNodeQuery = {|
   response: useBlockingPaginationFragmentTestNodeQuery$data,

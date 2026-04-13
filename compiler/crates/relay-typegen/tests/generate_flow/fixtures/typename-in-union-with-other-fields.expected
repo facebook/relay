@@ -12,6 +12,11 @@ export type Foo$data = {|
   +__typename: "User",
   +id: string,
   +$fragmentType: Foo$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$fragmentType: Foo$fragmentType,
 |};
 export type Foo$key = {
   +$data?: Foo$data,

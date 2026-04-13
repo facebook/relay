@@ -17,12 +17,3 @@ query TestQuery @updatable {
     2 │ query TestQuery @updatable {
       │       ^^^^^^^^^
     3 │ 	node(id: 4) {
-
-
-✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
-
-  doubly-nested-fragment-spread.invalid.graphql:3:2
-    2 │ query TestQuery @updatable {
-    3 │ 	node(id: 4) {
-      │  ^^^^
-    4 │ 		... on Page {

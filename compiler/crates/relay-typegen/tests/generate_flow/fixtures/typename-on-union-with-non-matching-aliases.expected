@@ -14,6 +14,14 @@ fragment Foo on Node {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Foo$fragmentType: FragmentType;
 export type Foo$data = {|
+  +__typename: "Comment",
+  +alias: "Comment",
+  +$fragmentType: Foo$fragmentType,
+|} | {|
+  +__typename: "Feedback",
+  +foo: "Feedback",
+  +$fragmentType: Foo$fragmentType,
+|} | {|
   +__typename: "User",
   +$fragmentType: Foo$fragmentType,
 |} | {|
@@ -26,12 +34,6 @@ export type Foo$data = {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   +foo: "%other",
-  +$fragmentType: Foo$fragmentType,
-|} | {|
-  +alias: "Comment",
-  +$fragmentType: Foo$fragmentType,
-|} | {|
-  +foo: "Feedback",
   +$fragmentType: Foo$fragmentType,
 |};
 export type Foo$key = {

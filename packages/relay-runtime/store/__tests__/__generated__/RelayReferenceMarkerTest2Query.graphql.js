@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a82038bbc80693ca464c227bda2bbf17>>
+ * @generated SignedSource<<24be35856c495af7ac6350c6959672ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,8 +22,9 @@ export type RelayReferenceMarkerTest2Query$variables = {|
   id: string,
 |};
 export type RelayReferenceMarkerTest2Query$data = {|
-  +node: ?{|
-    +friends?: ?{|
+  +node: ?({|
+    +__typename: "User",
+    +friends: ?{|
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
@@ -32,7 +33,11 @@ export type RelayReferenceMarkerTest2Query$data = {|
         |},
       |}>,
     |},
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayReferenceMarkerTest2Query = {|
   response: RelayReferenceMarkerTest2Query$data,

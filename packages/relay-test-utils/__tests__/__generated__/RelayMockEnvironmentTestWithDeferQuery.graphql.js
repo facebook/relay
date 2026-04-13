@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<672b0856e2f0c5d35c7a6a58161332c4>>
+ * @generated SignedSource<<836fd871eebd20735a9ae945e44e419c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,10 +23,15 @@ export type RelayMockEnvironmentTestWithDeferQuery$variables = {|
   id: string,
 |};
 export type RelayMockEnvironmentTestWithDeferQuery$data = {|
-  +node: ?{|
+  +node: ?({|
+    +__typename: "User",
     +id: string,
     +$fragmentSpreads: RelayMockEnvironmentTestWithDeferFragment_user$fragmentType,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayMockEnvironmentTestWithDeferQuery = {|
   response: RelayMockEnvironmentTestWithDeferQuery$data,

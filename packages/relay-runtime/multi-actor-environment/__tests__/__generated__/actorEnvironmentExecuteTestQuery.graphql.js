@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dbc68024ad98e3f4798ced23e7bd4e8c>>
+ * @generated SignedSource<<efbba382a5dcac7d823f0130f5525a96>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,9 +22,14 @@ export type actorEnvironmentExecuteTestQuery$variables = {|
   id: string,
 |};
 export type actorEnvironmentExecuteTestQuery$data = {|
-  +node: ?{|
-    +name?: ?string,
-  |},
+  +node: ?({|
+    +__typename: "User",
+    +name: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type actorEnvironmentExecuteTestQuery = {|
   response: actorEnvironmentExecuteTestQuery$data,

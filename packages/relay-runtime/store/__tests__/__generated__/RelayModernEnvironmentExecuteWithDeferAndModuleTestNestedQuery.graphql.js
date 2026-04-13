@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7160d2871ad65417c43a6b69da95e221>>
+ * @generated SignedSource<<6046119279da08f12b410286781af1a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,11 +25,16 @@ export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$varia
   id: string,
 |};
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$data = {|
-  +node: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
+  +node: ?({|
+    +__typename: "User",
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
     +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$fragmentType,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery = {|
   response: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$data,

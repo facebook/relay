@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9b9d091df5f85f362e47d3bc8e2ec29a>>
+ * @generated SignedSource<<8822846dbcce62337d6f5052487cd2b1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,8 +22,14 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType: FragmentType;
 type ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$variables = any;
 export type RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data = {|
+  +__typename: "User",
   +id: string,
-  +name?: ?string,
+  +name: ?string,
+  +$fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
   +$fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
 |};
 export type RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$key = {

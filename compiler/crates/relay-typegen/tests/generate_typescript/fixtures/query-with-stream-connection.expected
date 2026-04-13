@@ -20,7 +20,8 @@ query TestDefer @raw_response_type {
 export type TestDefer$variables = Record<PropertyKey, never>;
 export type TestDefer$data = {
   readonly node: {
-    readonly friends?: {
+    readonly __typename: "User";
+    readonly friends: {
       readonly edges: ReadonlyArray<{
         readonly node: {
           readonly actor: {
@@ -29,7 +30,11 @@ export type TestDefer$data = {
         } | null | undefined;
       } | null | undefined> | null | undefined;
     } | null | undefined;
-    readonly name?: string | null | undefined;
+    readonly name: string | null | undefined;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
   } | null | undefined;
 };
 export type TestDefer$rawResponse = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e8d1bb0e004d93747cf6a7ac68748de9>>
+ * @generated SignedSource<<650fd5c4db7dc656e42ded895ecd7930>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,10 +22,15 @@ export type RelayMockEnvironmentTestQuery$variables = {|
   id: string,
 |};
 export type RelayMockEnvironmentTestQuery$data = {|
-  +node: ?{|
+  +node: ?({|
+    +__typename: "User",
     +id: string,
-    +name?: ?string,
-  |},
+    +name: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayMockEnvironmentTestQuery = {|
   response: RelayMockEnvironmentTestQuery$data,

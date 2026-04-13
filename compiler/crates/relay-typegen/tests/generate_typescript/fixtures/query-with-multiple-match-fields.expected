@@ -52,17 +52,27 @@ import { FragmentRefs, Local3DPayload } from "relay-runtime";
 export type Test$variables = Record<PropertyKey, never>;
 export type Test$data = {
   readonly node: {
-    readonly NameRendererFragment?: {
+    readonly __typename: "User";
+    readonly NameRendererFragment: {
       readonly " $fragmentSpreads": FragmentRefs<"NameRendererFragment">;
     } | null | undefined;
-    readonly username?: string | null | undefined;
+    readonly username: string | null | undefined;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
   } | null | undefined;
   readonly viewer: {
     readonly actor: {
-      readonly AnotherNameRendererFragment?: {
+      readonly __typename: "User";
+      readonly AnotherNameRendererFragment: {
         readonly " $fragmentSpreads": FragmentRefs<"AnotherNameRendererFragment">;
       } | null | undefined;
-      readonly name?: string | null | undefined;
+      readonly name: string | null | undefined;
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other";
     } | null | undefined;
   } | null | undefined;
 };
@@ -140,9 +150,19 @@ import { FragmentRefs } from "relay-runtime";
 export type AnotherNameRendererFragment$data = {
   readonly name: string | null | undefined;
   readonly nameRenderer: {
-    readonly __fragmentPropName?: string | null | undefined;
-    readonly __module_component?: string | null | undefined;
-    readonly " $fragmentSpreads": FragmentRefs<"MarkdownUserNameRenderer_name" | "PlainUserNameRenderer_name">;
+    readonly __typename: "MarkdownUserNameRenderer";
+    readonly __fragmentPropName: string | null | undefined;
+    readonly __module_component: string | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"MarkdownUserNameRenderer_name">;
+  } | {
+    readonly __typename: "PlainUserNameRenderer";
+    readonly __fragmentPropName: string | null | undefined;
+    readonly __module_component: string | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"PlainUserNameRenderer_name">;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
   } | null | undefined;
   readonly " $fragmentType": "AnotherNameRendererFragment";
 };
@@ -168,9 +188,19 @@ import { FragmentRefs } from "relay-runtime";
 export type NameRendererFragment$data = {
   readonly id: string;
   readonly nameRenderer: {
-    readonly __fragmentPropName?: string | null | undefined;
-    readonly __module_component?: string | null | undefined;
-    readonly " $fragmentSpreads": FragmentRefs<"MarkdownUserNameRenderer_name" | "PlainUserNameRenderer_name">;
+    readonly __typename: "MarkdownUserNameRenderer";
+    readonly __fragmentPropName: string | null | undefined;
+    readonly __module_component: string | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"MarkdownUserNameRenderer_name">;
+  } | {
+    readonly __typename: "PlainUserNameRenderer";
+    readonly __fragmentPropName: string | null | undefined;
+    readonly __module_component: string | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"PlainUserNameRenderer_name">;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
   } | null | undefined;
   readonly " $fragmentType": "NameRendererFragment";
 };

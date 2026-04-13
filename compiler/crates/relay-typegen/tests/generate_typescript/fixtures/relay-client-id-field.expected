@@ -38,18 +38,26 @@ export type RelayClientIDFieldQuery$data = {
     readonly id: string;
   } | null | undefined;
   readonly node: {
-    readonly __typename: string;
+    readonly __typename: "Comment";
     readonly __id: string;
-    readonly commentBody?: {
-      readonly __typename: string;
+    readonly commentBody: {
+      readonly __typename: "PlainCommentBody";
       readonly __id: string;
-      readonly text?: {
+      readonly text: {
         readonly __typename: "Text";
         readonly __id: string;
         readonly text: string | null | undefined;
       } | null | undefined;
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other";
     } | null | undefined;
     readonly id: string;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
   } | null | undefined;
 };
 export type RelayClientIDFieldQuery = {

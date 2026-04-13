@@ -66,11 +66,17 @@ fragment SomeFragment on User {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragment$data = {
+  readonly __typename: "User";
   readonly id: string;
-  readonly message?: {
+  readonly message: {
     readonly text: string | null | undefined;
   } | null | undefined;
   readonly name?: string | null | undefined;
+  readonly " $fragmentType": "InlineFragment";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "InlineFragment";
 };
 export type InlineFragment$key = {
@@ -92,16 +98,27 @@ export type InlineFragmentConditionalID$key = {
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentKitchenSink$data = {
   readonly actor: {
-    readonly SomeFragment?: {
+    readonly __typename: "Page";
+    readonly id: string;
+    readonly profilePicture: {
+      readonly height: number | null | undefined;
+      readonly uri: string | null | undefined;
+    } | null | undefined;
+  } | {
+    readonly __typename: "User";
+    readonly SomeFragment: {
       readonly " $fragmentSpreads": FragmentRefs<"SomeFragment">;
     } | null | undefined;
     readonly id: string;
-    readonly name?: string | null | undefined;
+    readonly name: string | null | undefined;
     readonly profilePicture: {
-      readonly height?: number | null | undefined;
       readonly uri: string | null | undefined;
-      readonly width?: number | null | undefined;
+      readonly width: number | null | undefined;
     } | null | undefined;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
   } | null | undefined;
   readonly " $fragmentType": "InlineFragmentKitchenSink";
 };
@@ -112,14 +129,26 @@ export type InlineFragmentKitchenSink$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentWithOverlappingFields$data = {
-  readonly hometown?: {
+  readonly __typename: "Page";
+  readonly hometown: {
     readonly id: string;
-    readonly message?: {
+    readonly message: {
       readonly text: string | null | undefined;
     } | null | undefined;
+  } | null | undefined;
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "InlineFragmentWithOverlappingFields";
+} | {
+  readonly __typename: "User";
+  readonly hometown: {
+    readonly id: string;
     readonly name: string | null | undefined;
   } | null | undefined;
-  readonly name?: string | null | undefined;
+  readonly " $fragmentType": "InlineFragmentWithOverlappingFields";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "InlineFragmentWithOverlappingFields";
 };
 export type InlineFragmentWithOverlappingFields$key = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<58f193005f00c1a538645185ca5d0969>>
+ * @generated SignedSource<<21abbcfb711752de86d754d8fdad4025>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -52,15 +52,15 @@ export type readUpdatableQueryTestMissingFieldsUpdatableQuery = {|
 var node/*: ConcreteUpdatableQuery*/ = (function(){
 var v0 = [
   {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "__typename",
+    "storageKey": null
+  },
+  {
     "kind": "InlineFragment",
     "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "__typename",
-        "storageKey": null
-      },
       {
         "alias": null,
         "args": null,
@@ -141,7 +141,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*:: as any*/).hash = "33578755c95870b57a52adef714a176e";
+  (node/*:: as any*/).hash = "c5f0695089b38ebe9d316561c8b5432d";
 }
 
 module.exports = ((node/*:: as any*/)/*:: as UpdatableQuery<

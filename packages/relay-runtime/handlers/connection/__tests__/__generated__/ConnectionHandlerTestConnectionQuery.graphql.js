@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a2e521dd499b87ebaa45414967e1a770>>
+ * @generated SignedSource<<8c1f37f3260393281f86a9d114d84251>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,8 +26,9 @@ export type ConnectionHandlerTestConnectionQuery$variables = {|
   orderby?: ?ReadonlyArray<?string>,
 |};
 export type ConnectionHandlerTestConnectionQuery$data = {|
-  +node: ?{|
-    +friends?: ?{|
+  +node: ?({|
+    +__typename: "User",
+    +friends: ?{|
       +count: ?number,
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
@@ -42,7 +43,11 @@ export type ConnectionHandlerTestConnectionQuery$data = {|
         +startCursor: ?string,
       |},
     |},
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type ConnectionHandlerTestConnectionQuery = {|
   response: ConnectionHandlerTestConnectionQuery$data,

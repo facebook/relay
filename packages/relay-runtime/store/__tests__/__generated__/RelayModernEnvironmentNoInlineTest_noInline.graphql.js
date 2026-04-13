@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<76c24fcca754a33492c713700eac0bc7>>
+ * @generated SignedSource<<8606d19a982904b27713af77732ba1bc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,10 +22,16 @@ import type { RelayModernEnvironmentNoInlineTest_inner$fragmentType } from "./Re
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTest_noInline$fragmentType: FragmentType;
 export type RelayModernEnvironmentNoInlineTest_noInline$data = {|
-  +profile_picture?: ?{|
+  +__typename: "User",
+  +profile_picture: ?{|
     +uri: ?string,
   |},
   +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
+  +$fragmentType: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
   +$fragmentType: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
 |};
 export type RelayModernEnvironmentNoInlineTest_noInline$key = {

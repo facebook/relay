@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6ea409c9d57746228c2d37496f0db935>>
+ * @generated SignedSource<<8df0bf06a58e7448f679d2b772a0505d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,6 +23,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest5Fragment$fragmentType: FragmentType;
 export type RelayMockPayloadGeneratorTest5Fragment$data = {|
   +actor: ?({|
+    +__typename: "User",
     +friends: ?{|
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
@@ -38,6 +39,9 @@ export type RelayMockPayloadGeneratorTest5Fragment$data = {|
     +name: ?string,
     +$fragmentSpreads: RelayMockPayloadGeneratorTest4Fragment$fragmentType,
   |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +myType: "%other",

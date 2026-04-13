@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<99c0a4acdd89a58c26a4cb058f1493e4>>
+ * @generated SignedSource<<16615faedf52b070cc9d57cf7a9a172d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,10 +22,10 @@ export type RelayResponseNormalizerTest38Query$variables = {|
   id: string,
 |};
 export type RelayResponseNormalizerTest38Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +firstName?: ?string,
-    +friends?: ?{|
+  +node: ?({|
+    +__typename: "User",
+    +firstName: ?string,
+    +friends: ?{|
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
@@ -35,8 +35,12 @@ export type RelayResponseNormalizerTest38Query$data = {|
       |}>,
     |},
     +id: string,
-    +lastName?: ?string,
-  |},
+    +lastName: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayResponseNormalizerTest38Query = {|
   response: RelayResponseNormalizerTest38Query$data,

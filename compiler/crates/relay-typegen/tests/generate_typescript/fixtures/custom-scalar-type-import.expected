@@ -18,9 +18,14 @@ export type Viewer$variables = {
 export type Viewer$data = {
   readonly viewer: {
     readonly actor: {
-      readonly profilePicture2?: {
+      readonly __typename: "User";
+      readonly profilePicture2: {
         readonly __typename: "Image";
       } | null | undefined;
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other";
     } | null | undefined;
   } | null | undefined;
 };

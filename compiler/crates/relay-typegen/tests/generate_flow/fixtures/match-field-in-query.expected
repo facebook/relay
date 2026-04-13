@@ -28,11 +28,21 @@ import type { PlainUserNameRenderer_name$fragmentType } from "PlainUserNameRende
 export type NameRendererQuery$variables = {||};
 export type NameRendererQuery$data = {|
   +me: ?{|
-    +nameRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: MarkdownUserNameRenderer_name$fragmentType & PlainUserNameRenderer_name$fragmentType,
-    |},
+    +nameRenderer: ?({|
+      +__typename: "MarkdownUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
+      +$fragmentSpreads: MarkdownUserNameRenderer_name$fragmentType,
+    |} | {|
+      +__typename: "PlainUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
+      +$fragmentSpreads: PlainUserNameRenderer_name$fragmentType,
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
   |},
 |};
 export type NameRendererQuery = {|

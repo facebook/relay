@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a935111e7e93edb1f77e001cb5f4304c>>
+ * @generated SignedSource<<c1598c169ddf6ff06e8b1d5c57708440>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -33,11 +33,16 @@ export type requestSubscriptionTestSubscription$data = {|
     +comment: ?{|
       +actor: ?{|
         +name: ?string,
-        +nameRenderer: ?{|
-          +__fragmentPropName?: ?string,
-          +__module_component?: ?string,
+        +nameRenderer: ?({|
+          +__typename: "PlainUserNameRenderer",
+          +__fragmentPropName: ?string,
+          +__module_component: ?string,
           +$fragmentSpreads: requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
-        |},
+        |} | {|
+          // This will never be '%other', but we need some
+          // value in case none of the concrete values match.
+          +__typename: "%other",
+        |}),
       |},
     |},
   |},

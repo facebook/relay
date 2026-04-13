@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<de49d14ceffe84ae46715c8cdaccf33f>>
+ * @generated SignedSource<<4ce5e0d427edc1948e31e7dc212497aa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,8 +22,9 @@ export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuer
   id: string,
 |};
 export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data = {|
-  +node: ?{|
-    +friends?: ?{|
+  +node: ?({|
+    +__typename: "User",
+    +friends: ?{|
       +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
@@ -32,7 +33,11 @@ export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuer
         |},
       |}>,
     |},
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery = {|
   response: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data,

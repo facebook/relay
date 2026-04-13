@@ -35,6 +35,7 @@ pub mod generate_relay_resolvers_model_fragments;
 mod generate_relay_resolvers_operations_for_nested_objects;
 mod generate_relay_resolvers_root_fragment_split_operation;
 mod generate_typename;
+mod generate_typename_union;
 mod handle_fields;
 mod hash_arguments;
 mod inline_data_fragment;
@@ -148,6 +149,7 @@ pub use generate_relay_resolvers_root_fragment_split_operation::annotate_resolve
 pub use generate_relay_resolvers_root_fragment_split_operation::generate_relay_resolvers_root_fragment_split_operation;
 pub use generate_typename::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
 pub use generate_typename::generate_typename;
+pub use generate_typename_union::generate_typename_union;
 pub use handle_fields::extract_handle_field_directives;
 pub use handle_fields::extract_values_from_handle_field_directive;
 pub use handle_fields::handle_field_transform;

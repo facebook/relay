@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4e0ee4a3a5f07b7ad07947ee09b44e13>>
+ * @generated SignedSource<<45d7d96a0a7705dfdeb045bafbac2fd4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,8 +26,9 @@ export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$variables = {|
   id: string,
 |};
 export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$data = {|
-  +node: ?{|
-    +nameRenderer?: ?({|
+  +node: ?({|
+    +__typename: "User",
+    +nameRenderer: ?({|
       +__typename: "MarkdownUserNameRenderer",
       +__fragmentPropName: ?string,
       +__module_component: ?string,
@@ -42,7 +43,11 @@ export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$data = {|
       // value in case none of the concrete values match.
       +__typename: "%other",
     |}),
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayModernEnvironmentExecuteWithMatchTestUserQuery = {|
   response: RelayModernEnvironmentExecuteWithMatchTestUserQuery$data,

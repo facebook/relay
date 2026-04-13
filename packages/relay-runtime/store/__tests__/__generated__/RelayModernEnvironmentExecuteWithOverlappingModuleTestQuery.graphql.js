@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ae7a59037c2c482abfb6d3ad2a47fe49>>
+ * @generated SignedSource<<59661c1869071db080c8538f11afeb8a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,13 +26,28 @@ export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$variable
   id: string,
 |};
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$data = {|
-  +node: ?{|
-    +nameRenderer?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType,
-    |},
-  |},
+  +node: ?({|
+    +__typename: "User",
+    +nameRenderer: ?({|
+      +__typename: "MarkdownUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType,
+    |} | {|
+      +__typename: "PlainUserNameRenderer",
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType,
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery = {|
   response: RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$data,

@@ -98,9 +98,19 @@ import { FragmentRefs } from "relay-runtime";
 export type NameRendererFragment$data = {
   readonly id: string;
   readonly nameRenderer: {
-    readonly __fragmentPropName?: string | null | undefined;
-    readonly __module_component?: string | null | undefined;
-    readonly " $fragmentSpreads": FragmentRefs<"MarkdownUserNameRenderer_name" | "PlainUserNameRenderer_name">;
+    readonly __typename: "MarkdownUserNameRenderer";
+    readonly __fragmentPropName: string | null | undefined;
+    readonly __module_component: string | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"MarkdownUserNameRenderer_name">;
+  } | {
+    readonly __typename: "PlainUserNameRenderer";
+    readonly __fragmentPropName: string | null | undefined;
+    readonly __module_component: string | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"PlainUserNameRenderer_name">;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
   } | null | undefined;
   readonly " $fragmentType": "NameRendererFragment";
 };

@@ -278,7 +278,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin
+          git fetch origin main-atl release --depth=1
           git push origin main-atl:release --force-with-lease
           git checkout release
 
@@ -302,6 +302,18 @@ jobs:
         uses: atlassian-labs/artifact-publish-token@v1.0.1
         with:
           output-modes: npm
+
+      - name: Debug npm config
+        if: github.ref == 'refs/heads/main-atl' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+        run: |
+          echo "=== Checking npmrc files ==="
+          ls -la .npmrc* 2>/dev/null || echo "No .npmrc files found"
+          echo "=== Checking environment variables ==="
+          echo "ARTIFACTORY_PASSWORD_BASE64: ${ARTIFACTORY_PASSWORD_BASE64:-NOT SET}"
+          echo "=== Current directory ==="
+          pwd
+          echo "=== Files in current directory ==="
+          ls -la | head -20
 
       - name: Publish to npm
         if: github.ref == 'refs/heads/main-atl' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')

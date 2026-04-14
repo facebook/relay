@@ -12,7 +12,7 @@ directive @credentials(
   token: String
 ) on FIELD
 
-directive @live_query(polling_interval: Int, config_id: String) on QUERY
+directive @live_query(config_id: String) on QUERY
 
 directive @client_polling(interval: Int) on QUERY
 

@@ -35,11 +35,11 @@ lazy_static! {
     static ref LIVE_QUERY_DIRECTIVE_NAME: DirectiveName = DirectiveName("live_query".intern());
     static ref CLIENT_POLLING_DIRECTIVE_NAME: DirectiveName = DirectiveName("client_polling".intern());
     static ref LIVE_DIRECTIVE_NAME: DirectiveName = DirectiveName("live".intern());
-    static ref LIVE_METADATA_KEY: ArgumentName = ArgumentName("live".intern());
-    static ref POLLING_INTERVAL_ARG: ArgumentName = ArgumentName("polling_interval".intern());
-
     static ref CLIENT_POLLING_INTERVAL_ARG: ArgumentName = ArgumentName("interval".intern());
     static ref CONFIG_ID_ARG: ArgumentName = ArgumentName("config_id".intern());
+    static ref LIVE_METADATA_KEY: ArgumentName = ArgumentName("live".intern());
+    static ref POLLING_INTERVAL_METADATA_KEY: ArgumentName = ArgumentName("polling_interval".intern());
+
 }
 
 pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Program> {
@@ -74,11 +74,8 @@ impl Transformer<'_> for GenerateLiveQueryMetadata {
                 let mut next_directives = operation.directives.clone();
                 let live_query_directive = operation.directives.named(*LIVE_QUERY_DIRECTIVE_NAME);
                 if let Some(live_query_directive) = live_query_directive {
-                    let polling_interval =
-                        live_query_directive.arguments.named(*POLLING_INTERVAL_ARG);
-                    let config_id = live_query_directive.arguments.named(*CONFIG_ID_ARG);
-
-                    if polling_interval.is_none() && config_id.is_none() {
+                    let Some(config_id) = live_query_directive.arguments.named(*CONFIG_ID_ARG)
+                    else {
                         self.errors.push(Diagnostic::error(
                             LiveQueryTransformValidationMessage::MissingConfig {
                                 query_name: operation.name.item,
@@ -86,63 +83,27 @@ impl Transformer<'_> for GenerateLiveQueryMetadata {
                             live_query_directive.location,
                         ));
                         return Transformed::Keep;
-                    }
+                    };
 
-                    if polling_interval.is_some() && config_id.is_some() {
-                        self.errors.push(Diagnostic::error(
-                            LiveQueryTransformValidationMessage::InvalidConfig {
-                                query_name: operation.name.item,
-                            },
-                            live_query_directive.location,
-                        ));
-                        return Transformed::Keep;
-                    }
-
-                    if let Some(polling_interval) = polling_interval {
-                        let poll_interval_value = match polling_interval.value.item {
-                            Value::Constant(ConstantValue::Int(value)) => value,
-                            _ => {
-                                self.errors.push(Diagnostic::error(
-                                    LiveQueryTransformValidationMessage::InvalidPollingInterval {
-                                        query_name: operation.name.item,
-                                    },
-                                    polling_interval.value.location,
-                                ));
-                                return Transformed::Keep;
-                            }
-                        };
-                        next_directives.push(create_metadata_directive(
-                            *LIVE_METADATA_KEY,
-                            ConstantValue::Object(vec![ConstantArgument {
-                                name: WithLocation::generated(*POLLING_INTERVAL_ARG),
-                                value: WithLocation::generated(ConstantValue::Int(
-                                    poll_interval_value,
-                                )),
-                            }]),
-                        ));
-                    } else if let Some(config_id) = config_id {
-                        let config_id_value = match config_id.value.item.get_string_literal() {
-                            Some(value) => value,
-                            None => {
-                                self.errors.push(Diagnostic::error(
-                                    LiveQueryTransformValidationMessage::InvalidConfigId {
-                                        query_name: operation.name.item,
-                                    },
-                                    config_id.value.location,
-                                ));
-                                return Transformed::Keep;
-                            }
-                        };
-                        next_directives.push(create_metadata_directive(
-                            *LIVE_METADATA_KEY,
-                            ConstantValue::Object(vec![ConstantArgument {
-                                name: WithLocation::generated(*CONFIG_ID_ARG),
-                                value: WithLocation::generated(ConstantValue::String(
-                                    config_id_value,
-                                )),
-                            }]),
-                        ));
-                    }
+                    let config_id_value = match config_id.value.item.get_string_literal() {
+                        Some(value) => value,
+                        None => {
+                            self.errors.push(Diagnostic::error(
+                                LiveQueryTransformValidationMessage::InvalidConfigId {
+                                    query_name: operation.name.item,
+                                },
+                                config_id.value.location,
+                            ));
+                            return Transformed::Keep;
+                        }
+                    };
+                    next_directives.push(create_metadata_directive(
+                        *LIVE_METADATA_KEY,
+                        ConstantValue::Object(vec![ConstantArgument {
+                            name: WithLocation::generated(*CONFIG_ID_ARG),
+                            value: WithLocation::generated(ConstantValue::String(config_id_value)),
+                        }]),
+                    ));
                 } else if let Some(client_polling_directive) =
                     operation.directives.named(*CLIENT_POLLING_DIRECTIVE_NAME)
                 {
@@ -165,7 +126,7 @@ impl Transformer<'_> for GenerateLiveQueryMetadata {
                     next_directives.push(create_metadata_directive(
                         *LIVE_METADATA_KEY,
                         ConstantValue::Object(vec![ConstantArgument {
-                            name: WithLocation::generated(*POLLING_INTERVAL_ARG),
+                            name: WithLocation::generated(*POLLING_INTERVAL_METADATA_KEY),
                             value: WithLocation::generated(ConstantValue::Int(poll_interval_value)),
                         }]),
                     ));
@@ -217,23 +178,16 @@ fn is_live_selection(selection: &Selection) -> bool {
 #[derive(Error, Debug, serde::Serialize)]
 #[serde(tag = "type")]
 enum LiveQueryTransformValidationMessage {
-    #[error(
-        "Live query expects 'polling_interval' or 'config_id' as an argument to @live_query to for root field {query_name}"
-    )]
+    #[error("Live query expects 'config_id' as an argument to @live_query for query {query_name}")]
     MissingConfig { query_name: OperationDefinitionName },
 
     #[error(
-        "'polling_interval' and 'config_id' cannot both be present in @live_query for root field {query_name}"
-    )]
-    InvalidConfig { query_name: OperationDefinitionName },
-
-    #[error(
-        "Expected the 'polling_interval' argument to @live_query to be a literal number for root field {query_name}"
+        "Expected the 'interval' argument to @client_polling to be a literal number for query {query_name}"
     )]
     InvalidPollingInterval { query_name: OperationDefinitionName },
 
     #[error(
-        "Expected the 'config_id' argument to @live_query to be a literal string for root field {query_name}"
+        "Expected the 'config_id' argument to @live_query to be a literal string for query {query_name}"
     )]
     InvalidConfigId { query_name: OperationDefinitionName },
 }

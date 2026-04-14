@@ -171,7 +171,7 @@ builds.forEach(build => {
             .readFileSync(path.join(DIST, build.package, 'package.json'))
             .toString(),
         );
-        pkgJson.name = 'atl-' + pkgJson.name;
+        pkgJson.name = '@atlassian/' + pkgJson.name;
         fs.writeFileSync(
           path.join(DIST, build.package, 'package.json'),
           JSON.stringify(pkgJson, null, 2),

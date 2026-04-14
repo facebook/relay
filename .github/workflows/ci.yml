@@ -8,7 +8,7 @@ name: CI
 on: [push, pull_request]
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -224,22 +224,6 @@ jobs:
         with:
           name: ${{ matrix.target.artifact-name }}
           path: compiler/target/${{ matrix.target.target }}/release/${{ matrix.target.build-name }}
-  
-  # Artifactory restricts publishing to certain branch , it will not accept publishing from main-atl
-  sync-to-release:
-    name: Sync main-atl to release branch
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.repository == 'atlassian-forks/relay' && github.ref == 'refs/heads/main-atl'
-    needs: [js-tests, js-lint, typecheck, build-tests, build-compiler]
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - name: Sync main-atl to release branch
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git push origin main-atl:release --force-with-lease
 
   main-release:
     name: Publish to NPM
@@ -304,6 +288,14 @@ jobs:
         uses: atlassian-labs/artifact-publish-token@v1.0.1
         with:
           output-modes: npm
+
+      # Artifactory restricts publishing to certain branch , it will not accept publishing from main-atl
+      - name: Sync main-atl to release branch
+        if: github.ref == 'refs/heads/main-atl'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git push origin main-atl:release --force-with-lease
 
       - name: Publish to npm
         if: github.ref == 'refs/heads/release' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')

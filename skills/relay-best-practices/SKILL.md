@@ -22,10 +22,12 @@ detailed API documentation, read the relevant page from the doc map below.
 
 ## Documentation
 
-Detailed Relay documentation is available in your project at
-`node_modules/relay-runtime/llm-docs/`. All doc paths below are relative to this
-directory (referred to as `<llm-docs>/`). Before writing Relay code, read the
-relevant doc page for the API you're using. Key docs:
+Relay ships LLM-friendly docs in `node_modules/relay-runtime/llm-docs/`
+(available after v20.1.1). For older versions, fetch the same files from
+`https://raw.githubusercontent.com/facebook/relay/main/website/docs/`.
+
+Paths below are relative to this directory (`<llm-docs>/`). Read the relevant
+page before writing Relay code. Key docs:
 
 | Topic | Path |
 |-------|------|
@@ -86,28 +88,15 @@ You can also emit a JSON Schema for the config by running
 
 ### Running the compiler
 
-After modifying any `graphql` template literal (adding/removing fields, creating
-new queries/fragments/mutations), run the compiler to regenerate artifacts:
-
-```bash
-npx relay-compiler
-```
-
-Some projects add this as a script in `package.json` (e.g., `yarn relay` or
-`npm run relay`). The compiler can also run in watch mode:
-
-```bash
-npx relay-compiler --watch
-```
+Run `npx relay-compiler` after any change to the contents of a `graphql` tagged
+template literal or the docblock of a Relay Resolver. Some projects add this as
+a script in `package.json` (e.g., `yarn relay`). The compiler also supports watch mode (`--watch`), but avoid using it in
+non-interactive contexts since the process never exits.
 
 Generated files go into `__generated__/` directories next to the source files.
-Never edit these files — they are overwritten on every compiler run.
-
-### When to run the compiler
-
-Run it after any change to the contents of a `graphql` tagged template literal
-or the docblock of a Relay Resolver. If you see TypeScript errors about missing
-generated types, run the compiler first — the types are likely just out of date.
+Never edit these files — they are overwritten on every compiler run. If you see
+type errors about missing generated types, run the compiler first — the
+types are likely just out of date.
 
 ## Lint Rules
 
@@ -186,10 +175,6 @@ See `<llm-docs>/guides/relay-resolvers/introduction.mdx` for how to define resol
 
 ## Critical Anti-Patterns
 
-These are the most common mistakes when writing Relay code. Understanding *why*
-they're wrong matters more than memorizing the rules — Relay's design makes the
-correct pattern simpler once you understand the underlying model.
-
 ### Never copy Relay data into React state
 
 This is the single most important rule. Do not read data from `useFragment` and
@@ -253,8 +238,8 @@ fragment.
 
 ```tsx
 // WRONG: Parent fetches everything, passes raw data
-function Parent() {
-  const data = useLazyLoadQuery(graphql`
+function Parent({queryRef}) {
+  const data = usePreloadedQuery(graphql`
     query ParentQuery {
       user {
         name
@@ -262,19 +247,19 @@ function Parent() {
         avatarUrl
       }
     }
-  `, {});
+  `, queryRef);
   return <UserCard name={data.user.name} avatarUrl={data.user.avatarUrl} />;
 }
 
 // CORRECT: Child declares its own fragment
-function Parent() {
-  const data = useLazyLoadQuery(graphql`
+function Parent({queryRef}) {
+  const data = usePreloadedQuery(graphql`
     query ParentQuery {
       user {
         ...UserCard_user
       }
     }
-  `, {});
+  `, queryRef);
   return <UserCard user={data.user} />;
 }
 ```
@@ -306,5 +291,5 @@ mutation UpdateUserMutation($input: UpdateUserInput!) {
 |---------|-----------|---------|
 | Fragment | `ComponentName_propName` | `UserCard_user` |
 | Query | `ComponentNameQuery` | `HomePageQuery` |
-| Mutation | `ComponentNameMutationType` | `LikeButtonMutationType` |
+| Mutation | `ComponentNameMutation` | `LikeButtonMutation` |
 | Generated files | `__generated__/*.graphql` | Never edit these |

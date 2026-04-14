@@ -48,6 +48,11 @@ fetchQuery(
 * `options`: *_[Optional]_* options object
     * `networkCacheConfig`: *_[Optional]_ *Object containing cache config options
         * `force`: Boolean value. If true, will bypass the network response cache. Defaults to true.
+    * `fetchPolicy`: *_[Optional]_* Determines whether `fetchQuery` should reuse data that is already available in the local Relay store. Must be one of the following values:
+        * `"network-only"`: *(default)* Always issue a network request, regardless of what is in the store.
+        * `"store-or-network"`: Reuse data from the store if the full query is available locally; otherwise, issue a network request.
+
+        The `"store-and-network"` and `"store-only"` fetch policies are **not supported** by `fetchQuery`, because it is designed around issuing a single network request and returning the response. If you need those policies, use [`useLazyLoadQuery`](../use-lazy-load-query/) instead.
 
 ### Flow Type Parameters
 

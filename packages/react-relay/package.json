@@ -29,5 +29,6 @@
     "": "./"
   },
   "main": "index.js",
+  "types": "index.d.ts",
   "haste_commonjs": true
 }

@@ -292,7 +292,11 @@ jobs:
         if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
         run: yarn gulp release
 
-      - name: Get Artifact Publish Token
+      - name: Update GitHub ref for publish token generation
+        if: github.ref == 'refs/heads/main-atl'
+        run: echo "GITHUB_REF=refs/heads/release" >> $GITHUB_ENV
+
+      - name: Get Artifact publish token
         if: github.ref == 'refs/heads/main-atl' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
         id: publish-token
         uses: atlassian-labs/artifact-publish-token@v1.0.1

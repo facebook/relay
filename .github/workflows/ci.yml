@@ -282,15 +282,17 @@ jobs:
         if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
         run: yarn gulp release
 
-      - name: Configure @atlassian npm registry
-        run: |
-          npm config set "@atlassian:registry" "https://packages.atlassian.com/api/npm/npm-public/"
-
       - name: Get Artifact Publish Token
+        if: github.ref == 'refs/heads/main-atl' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
         id: publish-token
         uses: atlassian-labs/artifact-publish-token@v1.0.1
         with:
           output-modes: npm
+
+      - name: Set registry to Artifactory
+        if: github.ref == 'refs/heads/main-atl' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+        run: |
+          echo "@atlassian:registry=https://packages.atlassian.com/api/npm/npm-public/" >> ${{ github.workspace }}/.npmrc-public
 
       - name: Publish to npm
         if: github.ref == 'refs/heads/main-atl' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')

@@ -28,10 +28,9 @@ const RelayFeatureFlags = require('relay-runtime/util/RelayFeatureFlags');
 const {createMockEnvironment} = require('relay-test-utils');
 const {
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe.each([true, false])(
@@ -308,7 +307,7 @@ describe.each([true, false])(
       ).toEqual(['FragmentResourceWithOperationTrackerTestNodeQuery']);
     });
 
-    it('should read the data from the store once operation fully completed', () => {
+    it('should read the data from the store once operation fully completed', async () => {
       environment.execute({operation: nodeOperation}).subscribe({});
       operationLoader.load.mockImplementation(() =>
         Promise.resolve(PlainUserNameRenderer_name$normalization),
@@ -349,7 +348,7 @@ describe.each([true, false])(
       expect(operationLoader.load).toBeCalledTimes(2);
       environment.mock.complete(nodeOperation);
       // To make sure promise is resolved
-      jest.runAllTimers();
+      await flushMicrotasks();
       const snapshot = FragmentResource.read(
         PlainUserNameRenderer_name,
         {
@@ -370,7 +369,7 @@ describe.each([true, false])(
       });
     });
 
-    it('should suspend on pagination query and then read the data', () => {
+    it('should suspend on pagination query and then read the data', async () => {
       const paginationOperation = createOperationDescriptor(
         FriendsPaginationQuery,
         {
@@ -457,7 +456,7 @@ describe.each([true, false])(
       // Complete the request
       environment.mock.complete(paginationOperation);
       // This should resolve promises
-      jest.runAllTimers();
+      await flushMicrotasks();
 
       const snapshot = FragmentResource.read(
         PlainUserNameRenderer_name,

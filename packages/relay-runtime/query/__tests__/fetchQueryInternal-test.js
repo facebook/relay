@@ -38,11 +38,7 @@ const {
 } = require('../fetchQueryInternal');
 const {createOperationDescriptor, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-const {
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
+const {flushMicrotasks} = require('relay-test-utils-internal');
 
 let response: GraphQLSingularResponse;
 let gqlQuery:
@@ -482,7 +478,7 @@ describe('getPromiseForActiveRequest', () => {
       };
       subscription = fetchQuery(environment, query).subscribe(observer);
     });
-    it('returns a promise that rejects when error occurs', () => {
+    it('returns a promise that rejects when error occurs', async () => {
       expect.assertions(5);
       const promise = getPromiseForActiveRequest(environment, query.request);
       expect(promise).not.toEqual(null);
@@ -493,7 +489,7 @@ describe('getPromiseForActiveRequest', () => {
       // Assert that promise hasn't resolved
       const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
       promise.then(spy).catch(spy);
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(spy).toHaveBeenCalledTimes(0);
 
       // Make observable call `error`
@@ -507,7 +503,7 @@ describe('getPromiseForActiveRequest', () => {
       });
     });
 
-    it('returns a promise that resolves when the request is unsubcribed (canceled)', () => {
+    it('returns a promise that resolves when the request is unsubcribed (canceled)', async () => {
       expect.assertions(4);
       const promise = getPromiseForActiveRequest(environment, query.request);
       expect(promise).not.toEqual(null);
@@ -518,7 +514,7 @@ describe('getPromiseForActiveRequest', () => {
       // Assert that promise hasn't resolved
       const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
       promise.then(spy).catch(spy);
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(spy).toHaveBeenCalledTimes(0);
 
       // Cancel the request
@@ -531,7 +527,7 @@ describe('getPromiseForActiveRequest', () => {
       });
     });
 
-    it('calling getPromiseForActiveRequest does not prevent the request from being unsubscribed (canceled)', () => {
+    it('calling getPromiseForActiveRequest does not prevent the request from being unsubscribed (canceled)', async () => {
       expect.assertions(6);
       const promise = getPromiseForActiveRequest(environment, query.request);
       expect(promise).not.toEqual(null);
@@ -542,7 +538,7 @@ describe('getPromiseForActiveRequest', () => {
       // Assert that promise hasn't resolved
       const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
       promise.then(spy).catch(spy);
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(spy).toHaveBeenCalledTimes(0);
 
       // Cancel the request
@@ -563,7 +559,7 @@ describe('getPromiseForActiveRequest', () => {
     });
 
     describe("when `next` hasn't been called", () => {
-      it('returns a promise that resolves when the next call to `next` occurs', () => {
+      it('returns a promise that resolves when the next call to `next` occurs', async () => {
         expect.assertions(4);
         const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
@@ -574,7 +570,7 @@ describe('getPromiseForActiveRequest', () => {
         // Assert that promise hasn't resolved
         const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
         promise.then(spy).catch(spy);
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(spy).toHaveBeenCalledTimes(0);
 
         // Make observable call `next`
@@ -587,7 +583,7 @@ describe('getPromiseForActiveRequest', () => {
         });
       });
 
-      it('returns a promise that resolves when the request completes', () => {
+      it('returns a promise that resolves when the request completes', async () => {
         expect.assertions(4);
         const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
@@ -598,7 +594,7 @@ describe('getPromiseForActiveRequest', () => {
         // Assert that promise hasn't resolved
         const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
         promise.then(spy).catch(spy);
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(spy).toHaveBeenCalledTimes(0);
 
         // Make observable call `complete`
@@ -622,7 +618,7 @@ describe('getPromiseForActiveRequest', () => {
         expect(observer.next).toHaveBeenCalledTimes(1);
       });
 
-      it('returns a promise that resolves when the next call to `next` occurs', () => {
+      it('returns a promise that resolves when the next call to `next` occurs', async () => {
         expect.assertions(5);
         const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
@@ -634,7 +630,7 @@ describe('getPromiseForActiveRequest', () => {
         // `next` has already occurred
         const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
         promise.then(spy).catch(spy);
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(spy).toHaveBeenCalledTimes(0);
 
         // Make observable call `next`
@@ -647,7 +643,7 @@ describe('getPromiseForActiveRequest', () => {
         });
       });
 
-      it('returns a promise that resolves when the next call to `next` occurs when next has been called more than once', () => {
+      it('returns a promise that resolves when the next call to `next` occurs when next has been called more than once', async () => {
         expect.assertions(6);
 
         // Call next a second time
@@ -664,7 +660,7 @@ describe('getPromiseForActiveRequest', () => {
         // `next` has already occurred
         const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
         promise.then(spy).catch(spy);
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(spy).toHaveBeenCalledTimes(0);
 
         // Make observable call `next`
@@ -677,7 +673,7 @@ describe('getPromiseForActiveRequest', () => {
         });
       });
 
-      it('returns a promise that resolves when the request completes', () => {
+      it('returns a promise that resolves when the request completes', async () => {
         expect.assertions(5);
         const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
@@ -689,7 +685,7 @@ describe('getPromiseForActiveRequest', () => {
         // `next` has already occurred
         const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
         promise.then(spy).catch(spy);
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(spy).toHaveBeenCalledTimes(0);
 
         // Make observable call `complete`
@@ -866,7 +862,7 @@ describe('getPromiseForActiveRequest', () => {
       }
 
       resolveModule(markdownRendererNormalizationFragment);
-      jest.runAllTimers();
+      await flushMicrotasks();
 
       expect(getPromiseForActiveRequest(environment, query.request)).toEqual(
         null,
@@ -1125,7 +1121,7 @@ describe('getObservableForActiveRequest', () => {
       expect(events).toEqual(['complete']);
     });
 
-    it('returns observable if module still loading after final payload', () => {
+    it('returns observable if module still loading after final payload', async () => {
       const observable = getObservableForActiveRequest(
         environment,
         query.request,
@@ -1167,7 +1163,7 @@ describe('getObservableForActiveRequest', () => {
       expect(events).toEqual(['next']);
 
       resolveModule(markdownRendererNormalizationFragment);
-      jest.runAllTimers();
+      await flushMicrotasks();
 
       expect(events).toEqual(['next', 'complete']);
       expect(getObservableForActiveRequest(environment, query.request)).toEqual(

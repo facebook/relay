@@ -45,11 +45,10 @@ const {
 const {
   disallowConsoleErrors,
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
   skipIf,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 disallowConsoleErrors();
 
@@ -333,7 +332,7 @@ test('Subscriptions created while in an optimistic state is in place get cleaned
   disposable.dispose();
 });
 
-test('Outer resolvers do not overwrite subscriptions made by inner resolvers (regression)', () => {
+test('Outer resolvers do not overwrite subscriptions made by inner resolvers (regression)', async () => {
   const source = RelayRecordSource.create({
     '1': {
       __id: '1',
@@ -405,7 +404,7 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
     });
   });
 
-  TestRenderer.act(() => jest.runAllImmediates());
+  await TestRenderer.act(() => flushMicrotasks());
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual(null);
 
@@ -414,7 +413,7 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
-  TestRenderer.act(() => jest.runAllImmediates());
+  await TestRenderer.act(() => flushMicrotasks());
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual(null);
 
@@ -429,7 +428,7 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
-  TestRenderer.act(() => jest.runAllImmediates());
+  await TestRenderer.act(() => flushMicrotasks());
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('2');
 });
@@ -500,14 +499,14 @@ test("Resolvers without fragments aren't reevaluated when their parent record up
   // When the network response returns, it updates the query root, which would
   // invalidate a resolver with a fragment on Query. However,
   // `counter_no_fragment` has no fragment, so it should not be revaluated.
-  TestRenderer.act(() => jest.runAllImmediates());
+  await TestRenderer.act(() => flushMicrotasks());
 
   expect(counterNoFragmentResolver.callCount).toBe(initialCallCount + 1);
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('0');
 });
 
-test('Can suspend', () => {
+test('Can suspend', async () => {
   const source = RelayRecordSource.create({
     'client:root': {
       __id: 'client:root',
@@ -564,21 +563,21 @@ test('Can suspend', () => {
     );
   });
   expect(renderer?.toJSON()).toEqual('0');
-  TestRenderer.act(() => {
+  await TestRenderer.act(async () => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    await flushMicrotasks();
   });
-  // If do not trigger `act` here, the renderer is still `0`. Probably, a React thing...
-  TestRenderer.act(() => jest.runAllImmediates());
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Loading...');
-  TestRenderer.act(() => {
+  await TestRenderer.act(async () => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    await flushMicrotasks();
   });
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('2');
 });
 
-test('Can suspend with resolver that uses live resolver', () => {
+test('Can suspend with resolver that uses live resolver', async () => {
   const source = RelayRecordSource.create({
     '1': {
       __id: '1',
@@ -638,15 +637,15 @@ test('Can suspend with resolver that uses live resolver', () => {
     );
   });
   expect(renderer?.toJSON()).toEqual('Alice 0');
-  TestRenderer.act(() => {
+  await TestRenderer.act(async () => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    await flushMicrotasks();
   });
-  // If do not trigger `act` here, the renderer is still `0`. Probably, a React thing...
-  TestRenderer.act(() => jest.runAllImmediates());
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Loading...');
-  TestRenderer.act(() => {
+  await TestRenderer.act(async () => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    await flushMicrotasks();
   });
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Alice 2');
@@ -711,7 +710,7 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     });
   }
 
-  it('should renderer the data from the store, after global state resolves the value', () => {
+  it('should renderer the data from the store, after global state resolves the value', async () => {
     const source = RelayRecordSource.create({
       '1': {
         __id: '1',
@@ -743,13 +742,13 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
-    TestRenderer.act(() => jest.runAllImmediates());
+    await TestRenderer.act(() => flushMicrotasks());
     expect(renderer.toJSON()).toEqual(
       'Alice: Hello, Alice! Picture Url: scale 1.5',
     );
   });
 
-  it('should render undefined value for missing data in live resolver field', () => {
+  it('should render undefined value for missing data in live resolver field', async () => {
     const source = RelayRecordSource.create({
       '1': {
         __id: '1',
@@ -786,7 +785,7 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
-    TestRenderer.act(() => jest.runAllImmediates());
+    await TestRenderer.act(() => flushMicrotasks());
     expect(renderer.toJSON()).toEqual(
       'Alice: Hello, Alice! Picture Url: scale 1.5',
     );
@@ -797,7 +796,7 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     expect(renderer.toJSON()).toEqual('Alice: undefined');
   });
 
-  it('should render undefined value for missing data in live resolver field and trigger different states of suspense ', () => {
+  it('should render undefined value for missing data in live resolver field and trigger different states of suspense ', async () => {
     const source = RelayRecordSource.create({
       '1': {
         __id: '1',
@@ -848,10 +847,10 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     // Now, the whole live field became undefined, as some of
     // the data in the live field resolver fragment is missing
     expect(renderer.toJSON()).toEqual('Alice: undefined');
-    TestRenderer.act(() => {
+    await TestRenderer.act(async () => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      await flushMicrotasks();
     });
-    TestRenderer.act(() => jest.runAllImmediates());
     expect(renderer.toJSON()).toEqual('Alice: undefined');
 
     // Next, we're re-rendering with new `scale`, and for this value (3) we have the data in
@@ -879,10 +878,10 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     );
 
     // Now, the global store should have the data
-    TestRenderer.act(() => {
+    await TestRenderer.act(async () => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      await flushMicrotasks();
     });
-    TestRenderer.act(() => jest.runAllImmediates());
 
     // Now, again we are suspending, because the global state is still not ready
     expect(renderer.toJSON()).toEqual('Loading...');
@@ -1021,7 +1020,7 @@ skipIf(
   },
 );
 
-test('apply optimistic updates to live resolver field', () => {
+test('apply optimistic updates to live resolver field', async () => {
   let renderer;
 
   function InnerTestComponent({scale}: {scale: number}) {
@@ -1102,7 +1101,7 @@ test('apply optimistic updates to live resolver field', () => {
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
-  TestRenderer.act(() => jest.runAllImmediates());
+  await TestRenderer.act(() => flushMicrotasks());
   expect(renderer.toJSON()).toEqual('Hello, Alice! Picture Url: scale 1.5');
 
   let update;
@@ -1122,7 +1121,7 @@ test('apply optimistic updates to live resolver field', () => {
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
-  TestRenderer.act(() => jest.runAllImmediates());
+  await TestRenderer.act(() => flushMicrotasks());
   expect(renderer.toJSON()).toEqual('Loading...');
 
   // Revering optimistic update
@@ -1132,8 +1131,9 @@ test('apply optimistic updates to live resolver field', () => {
   // this should still be `Loading...`
   expect(renderer.toJSON()).toEqual('Loading...');
 
-  TestRenderer.act(() => {
+  await TestRenderer.act(async () => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    await flushMicrotasks();
   });
   expect(renderer.toJSON()).toEqual('Hello, Alice! Picture Url: scale 1.5');
 });
@@ -1432,7 +1432,7 @@ describe('client-only fragments', () => {
     return fragmentData?.counter_suspends_when_odd;
   }
 
-  test('correctly suspend on fragments with client-only data', () => {
+  test('correctly suspend on fragments with client-only data', async () => {
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store: new RelayModernStore(RelayRecordSource.create()),
@@ -1454,20 +1454,21 @@ describe('client-only fragments', () => {
       );
     });
     expect(renderer?.toJSON()).toEqual('0');
-    TestRenderer.act(() => {
+    await TestRenderer.act(async () => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      await flushMicrotasks();
     });
-    TestRenderer.act(() => jest.runAllImmediates());
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
-    TestRenderer.act(() => {
+    await TestRenderer.act(async () => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      await flushMicrotasks();
     });
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('2');
   });
 
-  test('invariant for invalid liveState value in the Relay store.', () => {
+  test('invariant for invalid liveState value in the Relay store.', async () => {
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store: new RelayModernStore(RelayRecordSource.create()),
@@ -1489,10 +1490,10 @@ describe('client-only fragments', () => {
       );
     });
     expect(renderer?.toJSON()).toEqual('0');
-    TestRenderer.act(() => {
+    await TestRenderer.act(async () => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      await flushMicrotasks();
     });
-    TestRenderer.act(() => jest.runAllImmediates());
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
     environment.applyUpdate({
@@ -1560,7 +1561,7 @@ describe('client-only fragments', () => {
     );
   });
 
-  test('logs suspense.resolver with isMount=false when suspending after mount', () => {
+  test('logs suspense.resolver with isMount=false when suspending after mount', async () => {
     const logger = jest.fn();
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
@@ -1592,7 +1593,7 @@ describe('client-only fragments', () => {
     TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
-    TestRenderer.act(() => jest.runAllImmediates());
+    await TestRenderer.act(() => flushMicrotasks());
 
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
@@ -1615,7 +1616,7 @@ describe('client-only fragments', () => {
   });
 });
 
-test('Subscriptions cleaned up correctly after GC', () => {
+test('Subscriptions cleaned up correctly after GC', async () => {
   const store = new RelayModernStore(RelayRecordSource.create(), {
     gcReleaseBufferSize: 0,
   });
@@ -1685,7 +1686,7 @@ test('Subscriptions cleaned up correctly after GC', () => {
 
   // Go-go-go! Clean the store!
   store.scheduleGC();
-  jest.runAllImmediates();
+  await flushMicrotasks();
   // This will clean the store, and unsubscribe from the external states
 
   const subscriptionsCountAfterGCRun = GLOBAL_STORE.getSubscriptionsCount();
@@ -2083,7 +2084,7 @@ test('ResolverContext as passed through nested resolver counters', async () => {
   });
 });
 
-test('Defer does not prevent suspense from a deferred fragment', () => {
+test('Defer does not prevent suspense from a deferred fragment', async () => {
   const source = RelayRecordSource.create({
     'client:root': {
       __id: 'client:root',
@@ -2147,6 +2148,6 @@ test('Defer does not prevent suspense from a deferred fragment', () => {
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
-  TestRenderer.act(() => jest.runAllImmediates());
+  await TestRenderer.act(() => flushMicrotasks());
   expect(renderer?.toJSON()).toEqual('2');
 });

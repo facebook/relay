@@ -35,11 +35,8 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
 const {disallowWarnings} = require('relay-test-utils-internal');
-const {
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
+const {flushMicrotasks} = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() a query with plural @match', () => {
@@ -159,7 +156,7 @@ describe('execute() a query with plural @match', () => {
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
-  it('calls next() and publishes the initial payload to the store', () => {
+  it('calls next() and publishes the initial payload to the store', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -183,7 +180,7 @@ describe('execute() a query with plural @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
@@ -229,7 +226,7 @@ describe('execute() a query with plural @match', () => {
     });
   });
 
-  it('loads the @match fragment and normalizes/publishes the field payload', () => {
+  it('loads the @match fragment and normalizes/publishes the field payload', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -255,7 +252,7 @@ describe('execute() a query with plural @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
     next.mockClear();
     expect(operationCallback).toBeCalledTimes(1); // initial results tested above
     const operationSnapshot = operationCallback.mock.calls[0][0];
@@ -274,7 +271,7 @@ describe('execute() a query with plural @match', () => {
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(markdownRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
     // next() should not be called when @match resolves, no new GraphQLResponse
     // was received for this case
     expect(next).toBeCalledTimes(0);

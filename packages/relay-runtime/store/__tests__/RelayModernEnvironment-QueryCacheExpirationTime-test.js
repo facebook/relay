@@ -23,10 +23,9 @@ const {ROOT_ID} = require('../RelayStoreUtils');
 const {graphql} = require('relay-runtime');
 const {
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('query cache expiration time', () => {
@@ -71,7 +70,7 @@ describe('query cache expiration time', () => {
   });
 
   describe('interactions with the release buffer', () => {
-    it('retains disposed query in release buffer if less time than the query cache expiration time has passed when query is released', () => {
+    it('retains disposed query in release buffer if less time than the query cache expiration time has passed when query is released', async () => {
       environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',
@@ -98,7 +97,7 @@ describe('query cache expiration time', () => {
 
       fetchTime += QUERY_CACHE_EXPIRATION_TIME - 1;
       dispose();
-      jest.runAllTimers();
+      await flushMicrotasks();
       const snapshot2 = environment.lookup(
         createReaderSelector(
           ParentQuery.fragment,
@@ -117,7 +116,7 @@ describe('query cache expiration time', () => {
       });
     });
 
-    it('immediately releases stale disposed items', () => {
+    it('immediately releases stale disposed items', async () => {
       environment.commitPayload(operationDescriptor, {
         me: {
           id: '4',
@@ -143,7 +142,7 @@ describe('query cache expiration time', () => {
       });
       fetchTime += QUERY_CACHE_EXPIRATION_TIME;
       dispose();
-      jest.runAllTimers();
+      await flushMicrotasks();
       const snapshot2 = environment.lookup(
         createReaderSelector(
           ParentQuery.fragment,

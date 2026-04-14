@@ -32,10 +32,9 @@ const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
 const {
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() a query with @module on a field with a nullable concrete type', () => {
@@ -119,7 +118,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
-  it('calls next() and publishes the initial payload to the store', () => {
+  it('calls next() and publishes the initial payload to the store', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -139,7 +138,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     };
     dataSource.next(payload);
     expect(error.mock.calls).toEqual([]);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
@@ -181,7 +180,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     });
   });
 
-  it('loads the @match fragment and normalizes/publishes the field payload', () => {
+  it('loads the @match fragment and normalizes/publishes the field payload', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -200,7 +199,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
     next.mockClear();
     expect(error.mock.calls).toEqual([]);
     expect(operationCallback).toBeCalledTimes(1); // initial results tested above
@@ -220,7 +219,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(authorNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
     // next() should not be called when @match resolves, no new GraphQLResponse
     // was received for this case
     expect(next).toBeCalledTimes(0);

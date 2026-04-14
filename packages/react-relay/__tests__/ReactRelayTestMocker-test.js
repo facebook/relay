@@ -25,10 +25,8 @@ const ReactTestRenderer = require('react-test-renderer');
 const {graphql} = require('relay-runtime');
 const {
   createMockEnvironment,
-  injectPromisePolyfill__DEPRECATED,
+  flushAsyncWork,
 } = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
 
 const ReactRelayTestMockerTestQuery = graphql`
   query ReactRelayTestMockerTestQuery {
@@ -190,7 +188,7 @@ describe('ReactRelayTestMocker', () => {
       writer.unsetDefault(nestedQueryDefault);
     });
 
-    it('updates the store properly via network', () => {
+    it('updates the store properly via network', async () => {
       const Component = ({me}: {me: $FlowFixMe}) => (
         <div>{'My name is ' + me.name}</div>
       );
@@ -223,8 +221,8 @@ describe('ReactRelayTestMocker', () => {
           payload: {data: payload},
         });
       });
-      ReactTestRenderer.act(() => {
-        jest.runAllTimers();
+      await ReactTestRenderer.act(async () => {
+        await flushAsyncWork();
       });
       expect(JSON.stringify(tree?.toJSON())).toEqual(
         expect.stringContaining('My name is ' + name),
@@ -248,8 +246,8 @@ describe('ReactRelayTestMocker', () => {
           },
         });
       });
-      ReactTestRenderer.act(() => {
-        jest.runAllTimers();
+      await ReactTestRenderer.act(async () => {
+        await flushAsyncWork();
       });
       expect(tree?.toJSON()).toMatchSnapshot();
       ReactTestRenderer.act(() => {

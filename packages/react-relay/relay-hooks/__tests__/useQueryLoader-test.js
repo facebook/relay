@@ -18,10 +18,8 @@ const ReactTestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags, getRequest, graphql} = require('relay-runtime');
 const {
   createMockEnvironment,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
 
 const query = graphql`
   query useQueryLoaderTestQuery($id: ID!) {
@@ -147,12 +145,12 @@ describe.each([
     expect(loadQuery.mock.calls[0][3]).toBe(defaultOptions);
   });
 
-  it('releases the old preloaded query and calls loadQuery anew if the callback is called again', () => {
+  it('releases the old preloaded query and calls loadQuery anew if the callback is called again', async () => {
     render();
 
     const variables = {id: '4'};
     ReactTestRenderer.act(() => queryLoaderCallback(variables));
-    ReactTestRenderer.act(() => jest.runAllImmediates());
+    await ReactTestRenderer.act(() => flushMicrotasks());
     expect(loadQuery).toHaveBeenCalledTimes(1);
 
     const currentRelease = releaseQuery;
@@ -367,7 +365,7 @@ describe.each([
     jest.dontMock('scheduler');
   });
 
-  it('does not release the query before the new component tree unsuspends in concurrent mode', () => {
+  it('does not release the query before the new component tree unsuspends in concurrent mode', async () => {
     if (typeof React.startTransition === 'function') {
       let resolve;
       let resolved = false;
@@ -435,18 +433,18 @@ describe.each([
       // currentRelease will have been called in non-concurrent mode
       expect(currentRelease).not.toHaveBeenCalled();
 
-      ReactTestRenderer.act(() => {
+      await ReactTestRenderer.act(async () => {
         /* $FlowFixMe[constant-condition] Error discovered during Constant
          * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
         resolve && resolve();
-        jest.runAllImmediates();
+        await flushMicrotasks();
       });
 
       expect(currentRelease).toHaveBeenCalled();
     }
   });
 
-  it('releases query references associated with previous suspensions when multiple state changes trigger suspense and the final suspension concludes', () => {
+  it('releases query references associated with previous suspensions when multiple state changes trigger suspense and the final suspension concludes', async () => {
     // Three state changes and calls to loadQuery: A, B, C, each causing suspense
     // When C unsuspends, A and B's queries are disposed.
 
@@ -535,9 +533,9 @@ describe.each([
       expect(firstDispose).not.toHaveBeenCalled();
       expect(secondDispose).not.toHaveBeenCalled();
 
-      ReactTestRenderer.act(() => {
+      await ReactTestRenderer.act(async () => {
         resolve();
-        jest.runAllImmediates();
+        await flushMicrotasks();
       });
       expect(firstDispose).toHaveBeenCalledTimes(1);
       expect(secondDispose).toHaveBeenCalledTimes(1);
@@ -545,7 +543,7 @@ describe.each([
     }
   });
 
-  it('releases query references associated with subsequent suspensions when multiple state changes trigger suspense and the initial suspension concludes', () => {
+  it('releases query references associated with subsequent suspensions when multiple state changes trigger suspense and the initial suspension concludes', async () => {
     // Three state changes and calls to loadQuery: A, B, C, each causing suspense
     // When A unsuspends, B and C's queries do not get disposed.
 
@@ -631,9 +629,9 @@ describe.each([
       });
       const thirdDispose = releaseQuery;
 
-      ReactTestRenderer.act(() => {
+      await ReactTestRenderer.act(async () => {
         resolve();
-        jest.runAllImmediates();
+        await flushMicrotasks();
       });
       expect(innerUnsuspendedCorrectly).toEqual(true);
       expect(firstDispose).not.toHaveBeenCalled();

@@ -27,12 +27,8 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-const {
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
+const {flushMicrotasks} = require('relay-test-utils-internal');
 const Scheduler = require('scheduler');
-
-injectPromisePolyfill__DEPRECATED();
 
 const {useLayoutEffect, useTransition, useMemo, useState} = React;
 
@@ -330,7 +326,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
     describe('refetch', () => {
       // Sanity check test, should already be tested in useRefetchableFragmentNode test
-      it('refetches and sets pending state correctly', () => {
+      it('refetches and sets pending state correctly', async () => {
         const renderer = renderFragment();
         const initialUser = {
           id: '1',
@@ -373,7 +369,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
             },
           },
         });
-        jest.runAllImmediates();
+        await flushMicrotasks();
 
         // Assert fragment is rendered with new data
         const refetchedUser = {
@@ -413,7 +409,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
             });
         });
 
-        it('refetches correctly when a second refetch starts while the first is one suspended', () => {
+        it('refetches correctly when a second refetch starts while the first is one suspended', async () => {
           const renderer = renderFragment();
           const initialUser = {
             id: '1',
@@ -496,7 +492,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               },
             },
           });
-          jest.runAllImmediates();
+          await flushMicrotasks();
 
           // Assert that we are still in a pending state even after
           // the first refetch completes
@@ -530,7 +526,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               },
             },
           });
-          jest.runAllImmediates();
+          await flushMicrotasks();
 
           // Assert component is rendered with data from second request
           const refetchedUser = {
@@ -544,7 +540,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           expect(fetchSpy).toBeCalledTimes(4);
         });
 
-        it('does not re-issue initial refetch request if second refetch is interrupted by high-pri update', () => {
+        it('does not re-issue initial refetch request if second refetch is interrupted by high-pri update', async () => {
           const renderer = renderFragment();
           const initialUser = {
             id: '1',
@@ -638,7 +634,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               },
             },
           });
-          jest.runAllImmediates();
+          await flushMicrotasks();
 
           // Assert that we are still in a pending state even after
           // the first refetch completes
@@ -672,7 +668,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               },
             },
           });
-          jest.runAllImmediates();
+          await flushMicrotasks();
 
           // Assert component is rendered with data from second request
           const refetchedUser = {
@@ -686,7 +682,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           expect(fetchSpy).toBeCalledTimes(4);
         });
 
-        it('refetches correctly when switching between multiple refetches', () => {
+        it('refetches correctly when switching between multiple refetches', async () => {
           const renderer = renderFragment();
           const initialUser = {
             id: '1',
@@ -799,7 +795,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               },
             },
           });
-          jest.runAllImmediates();
+          await flushMicrotasks();
 
           // Assert that we are still in a pending state even after
           // the second refetch completes
@@ -833,7 +829,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               },
             },
           });
-          jest.runAllImmediates();
+          await flushMicrotasks();
 
           // Assert component is rendered with data from second request
           const refetchedUser = {

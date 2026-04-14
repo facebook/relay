@@ -62,12 +62,10 @@ const {
 } = require('relay-runtime');
 const {
   createMockEnvironment,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
   trackRetentionForEnvironment,
 } = require('relay-test-utils-internal');
 const Scheduler = require('scheduler');
-
-injectPromisePolyfill__DEPRECATED();
 
 const {useMemo, useState, useEffect} = React;
 
@@ -161,11 +159,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     expect(actualData).toEqual(expected.data);
   }
 
-  function expectFragmentResults(
+  async function expectFragmentResults(
     expectedCalls: ReadonlyArray<{data: $FlowFixMe}>,
   ) {
     // This ensures that useEffect runs
-    TestRenderer.act(() => jest.runAllImmediates());
+    await TestRenderer.act(() => flushMicrotasks());
     expect(commitSpy).toBeCalledTimes(expectedCalls.length);
     expectedCalls.forEach((expected, idx) => assertCall(expected, idx));
     commitSpy.mockClear();
@@ -388,17 +386,17 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       return 'Fallback';
     };
 
-    renderFragment = (args?: {
+    renderFragment = async (args?: {
       isConcurrent?: boolean,
       owner?: $FlowFixMe,
       userRef?: $FlowFixMe,
       fragment?: $FlowFixMe,
       callDuringRenderKey?: ?number,
       ...
-    }): $FlowFixMe => {
+    }): Promise<$FlowFixMe> => {
       const {isConcurrent = false, ...props} = args ?? {};
       let renderer;
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         renderer = TestRenderer.create(
           <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
             <React.Suspense fallback={<Fallback />}>
@@ -410,7 +408,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
-        jest.runAllImmediates();
+        await flushMicrotasks();
       });
       return renderer;
     };
@@ -424,7 +422,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
   describe('initial render', () => {
     // The bulk of initial render behavior is covered in useFragmentNode-test,
     // so this suite covers the basic cases as a sanity check.
-    it('should throw error if fragment is plural', () => {
+    it('should throw error if fragment is plural', async () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
       const UserFragment = graphql`
@@ -433,7 +431,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           id
         }
       `;
-      const renderer = renderFragment({fragment: UserFragment});
+      const renderer = await renderFragment({fragment: UserFragment});
       expect(
         renderer
           .toJSON()
@@ -441,7 +439,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       ).toEqual(true);
     });
 
-    it('should throw error if fragment is missing @refetchable directive', () => {
+    it('should throw error if fragment is missing @refetchable directive', async () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
       const UserFragment = graphql`
@@ -449,7 +447,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           id
         }
       `;
-      const renderer = renderFragment({fragment: UserFragment});
+      const renderer = await renderFragment({fragment: UserFragment});
       expect(
         renderer
           .toJSON()
@@ -459,9 +457,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       ).toEqual(true);
     });
 
-    it('should render fragment without error when data is available', () => {
-      renderFragment();
-      expectFragmentResults([
+    it('should render fragment without error when data is available', async () => {
+      await renderFragment();
+      await expectFragmentResults([
         {
           data: {
             id: '1',
@@ -473,19 +471,19 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       ]);
     });
 
-    it('should render fragment without error when ref is null', () => {
-      renderFragment({userRef: null});
-      expectFragmentResults([{data: null}]);
+    it('should render fragment without error when ref is null', async () => {
+      await renderFragment({userRef: null});
+      await expectFragmentResults([{data: null}]);
     });
 
-    it('should render fragment without error when ref is undefined', () => {
-      renderFragment({userRef: undefined});
-      expectFragmentResults([{data: null}]);
+    it('should render fragment without error when ref is undefined', async () => {
+      await renderFragment({userRef: undefined});
+      await expectFragmentResults([{data: null}]);
     });
 
-    it('should update when fragment data changes', () => {
-      renderFragment();
-      expectFragmentResults([
+    it('should update when fragment data changes', async () => {
+      await renderFragment();
+      await expectFragmentResults([
         {
           data: {
             id: '1',
@@ -506,7 +504,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           },
         });
       });
-      expectFragmentResults([
+      await expectFragmentResults([
         {
           data: {
             id: '1',
@@ -519,7 +517,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       ]);
     });
 
-    it('should throw a promise if data is missing for fragment and request is in flight', () => {
+    it('should throw a promise if data is missing for fragment and request is in flight', async () => {
       // This prevents console.error output in the test, which is expected
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
@@ -540,7 +538,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
 
       fetchQuery(environment, missingDataQuery).subscribe({});
 
-      const renderer = renderFragment({owner: missingDataQuery});
+      const renderer = await renderFragment({owner: missingDataQuery});
       expect(renderer.toJSON()).toEqual('Fallback');
     });
   });
@@ -603,18 +601,18 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       );
     }
 
-    it('does not refetch and warns if component has unmounted', () => {
+    it('does not refetch and warns if component has unmounted', async () => {
       const warning = require('warning');
       // $FlowFixMe[prop-missing]
       warning.mockClear();
-      const renderer = renderFragment();
+      const renderer = await renderFragment();
       const initialUser = {
         id: '1',
         name: 'Alice',
         profile_picture: null,
         ...createFragmentRef('1', query),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       TestRenderer.act(() => {
         renderer.unmount();
@@ -634,13 +632,13 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
     });
 
-    it('warns if fragment ref passed to useRefetchableFragmentNode() was null', () => {
+    it('warns if fragment ref passed to useRefetchableFragmentNode() was null', async () => {
       const warning = require('warning');
       // $FlowFixMe[prop-missing]
       warning.mockClear();
 
-      renderFragment({userRef: null});
-      expectFragmentResults([{data: null}]);
+      await renderFragment({userRef: null});
+      await expectFragmentResults([{data: null}]);
 
       TestRenderer.act(() => {
         refetch({id: '4'});
@@ -657,18 +655,18 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
     });
 
-    it('throws error when error occurs during refetch', () => {
+    it('throws error when error occurs during refetch', async () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
       const callback = jest.fn<[Error | null], void>();
-      const renderer = renderFragment();
+      const renderer = await renderFragment();
       const initialUser = {
         id: '1',
         name: 'Alice',
         profile_picture: null,
         ...createFragmentRef('1', query),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       TestRenderer.act(() => {
         refetch({id: '4'}, {onComplete: callback});
@@ -694,8 +692,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       TestRenderer.act(() => {
         environment.mock.reject(gqlRefetchQuery, new Error('Oops'));
       });
-      TestRenderer.act(() => {
-        jest.runAllImmediates();
+      await TestRenderer.act(async () => {
+        await flushMicrotasks();
       });
 
       // Assert error is caught in Error boundary
@@ -710,15 +708,15 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       expect(isOperationRetained(refetchQuery)).toBe(false);
     });
 
-    it('refetches new variables correctly when refetching new id', () => {
-      const renderer = renderFragment();
+    it('refetches new variables correctly when refetching new id', async () => {
+      const renderer = await renderFragment();
       const initialUser = {
         id: '1',
         name: 'Alice',
         profile_picture: null,
         ...createFragmentRef('1', query),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       TestRenderer.act(() => {
         refetch({id: '4'});
@@ -766,21 +764,21 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         },
         ...createFragmentRef('4', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}]);
+      await expectFragmentResults([{data: refetchedUser}]);
 
       // Assert refetch query was retained
       expect(isOperationRetained(refetchQuery)).toBe(true);
     });
 
-    it('refetches new variables correctly when refetching same id', () => {
-      const renderer = renderFragment();
+    it('refetches new variables correctly when refetching same id', async () => {
+      const renderer = await renderFragment();
       const initialUser = {
         id: '1',
         name: 'Alice',
         profile_picture: null,
         ...createFragmentRef('1', query),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       TestRenderer.act(() => {
         refetch({scale: 32});
@@ -828,11 +826,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         },
         ...createFragmentRef('1', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}]);
+      await expectFragmentResults([{data: refetchedUser}]);
       expect(isOperationRetained(refetchQuery)).toBe(true);
     });
 
-    it('with correct id from refetchable fragment when using nested fragment', () => {
+    it('with correct id from refetchable fragment when using nested fragment', async () => {
       // Populate store with data for query using nested fragment
       TestRenderer.act(() => {
         environment.commitPayload(queryNestedFragment, {
@@ -855,14 +853,17 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         environment.lookup(queryNestedFragment.fragment).data as $FlowFixMe
       )?.node?.actor;
 
-      const renderer = renderFragment({owner: queryNestedFragment, userRef});
+      const renderer = await renderFragment({
+        owner: queryNestedFragment,
+        userRef,
+      });
       const initialUser = {
         id: '1',
         name: 'Alice',
         profile_picture: null,
         ...createFragmentRef('1', queryNestedFragment),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       TestRenderer.act(() => {
         refetch({scale: 32});
@@ -912,13 +913,13 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         },
         ...createFragmentRef('1', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}]);
+      await expectFragmentResults([{data: refetchedUser}]);
       expect(isOperationRetained(refetchQuery)).toBe(true);
     });
 
-    it('refetches new variables correctly when using @arguments', () => {
+    it('refetches new variables correctly when using @arguments', async () => {
       const userRef = environment.lookup(queryWithArgs.fragment).data?.node;
-      const renderer = renderFragment({
+      const renderer = await renderFragment({
         fragment: gqlFragmentWithArgs,
         userRef,
       });
@@ -928,7 +929,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         profile_picture: null,
         ...createFragmentRef('1', queryWithArgs),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       TestRenderer.act(() => {
         refetch({scaleLocal: 32});
@@ -977,14 +978,14 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         },
         ...createFragmentRef('1', refetchQueryWithArgs),
       };
-      expectFragmentResults([{data: refetchedUser}]);
+      await expectFragmentResults([{data: refetchedUser}]);
       expect(isOperationRetained(refetchQueryWithArgs)).toBe(true);
     });
 
-    it('refetches new variables correctly when using @arguments with literal values', () => {
+    it('refetches new variables correctly when using @arguments with literal values', async () => {
       const userRef = environment.lookup(queryWithLiteralArgs.fragment).data
         ?.node;
-      const renderer = renderFragment({
+      const renderer = await renderFragment({
         fragment: gqlFragmentWithArgs,
         userRef,
       });
@@ -994,7 +995,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         profile_picture: null,
         ...createFragmentRef('1', queryWithLiteralArgs),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       TestRenderer.act(() => {
         refetch({id: '4'});
@@ -1043,12 +1044,12 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         },
         ...createFragmentRef('4', refetchQueryWithArgs),
       };
-      expectFragmentResults([{data: refetchedUser}]);
+      await expectFragmentResults([{data: refetchedUser}]);
       expect(isOperationRetained(refetchQueryWithArgs)).toBe(true);
     });
 
-    it('subscribes to changes in refetched data', () => {
-      renderFragment();
+    it('subscribes to changes in refetched data', async () => {
+      await renderFragment();
       commitSpy.mockClear();
       TestRenderer.act(() => {
         refetch({id: '4'});
@@ -1089,7 +1090,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         },
         ...createFragmentRef('4', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}]);
+      await expectFragmentResults([{data: refetchedUser}]);
       expect(isOperationRetained(refetchQuery)).toBe(true);
 
       // Update refetched data
@@ -1104,7 +1105,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       });
 
       // Assert that refetched data is updated
-      expectFragmentResults([
+      await expectFragmentResults([
         {
           data: {
             id: '4',
@@ -1119,8 +1120,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       ]);
     });
 
-    it('resets to parent data when environment changes', () => {
-      renderFragment();
+    it('resets to parent data when environment changes', async () => {
+      await renderFragment();
       commitSpy.mockClear();
       TestRenderer.act(() => {
         refetch({id: '4'});
@@ -1161,7 +1162,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         },
         ...createFragmentRef('4', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}]);
+      await expectFragmentResults([{data: refetchedUser}]);
       expect(isOperationRetained(refetchQuery)).toBe(true);
 
       // Set new environment
@@ -1186,7 +1187,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         profile_picture: null,
         ...createFragmentRef('1', query),
       };
-      expectFragmentResults([{data: expectedUser}]);
+      await expectFragmentResults([{data: expectedUser}]);
 
       // FIXME I think this should be false and the test was missing a bug here.
       expect(isOperationRetained(refetchQuery)).toBe(true);
@@ -1203,7 +1204,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       });
 
       // Assert that data in new environment is updated
-      expectFragmentResults([
+      await expectFragmentResults([
         {
           data: {
             id: '1',
@@ -1215,15 +1216,15 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       ]);
     });
 
-    it('refetches with new environment when environment changes', () => {
-      const renderer = renderFragment();
+    it('refetches with new environment when environment changes', async () => {
+      const renderer = await renderFragment();
       const initialUser = {
         id: '1',
         name: 'Alice',
         profile_picture: null,
         ...createFragmentRef('1', query),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       // Set new environment
       const newEnvironment = createMockEnvironment();
@@ -1277,11 +1278,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         profile_picture: null,
         ...createFragmentRef('1', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}]);
+      await expectFragmentResults([{data: refetchedUser}]);
     });
 
-    it('resets to parent data when parent fragment ref changes', () => {
-      renderFragment();
+    it('resets to parent data when parent fragment ref changes', async () => {
+      await renderFragment();
       commitSpy.mockClear();
       TestRenderer.act(() => {
         refetch({id: '4'});
@@ -1322,7 +1323,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         },
         ...createFragmentRef('4', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}]);
+      await expectFragmentResults([{data: refetchedUser}]);
 
       expect(isOperationRetained(refetchQuery)).toBe(true);
 
@@ -1353,7 +1354,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         },
         ...createFragmentRef('1', newQuery),
       };
-      expectFragmentResults([{data: expectedUser}]);
+      await expectFragmentResults([{data: expectedUser}]);
 
       // FIXME I think this should be false and the test was not revealing a bug here
       expect(isOperationRetained(refetchQuery)).toBe(true);
@@ -1370,7 +1371,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       });
 
       // Assert that new data from parent is updated
-      expectFragmentResults([
+      await expectFragmentResults([
         {
           data: {
             id: '1',
@@ -1384,12 +1385,12 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       ]);
     });
 
-    it('warns if data returned has different __typename', () => {
+    it('warns if data returned has different __typename', async () => {
       const warning = require('warning');
       // $FlowFixMe[prop-missing]
       warning.mockClear();
 
-      const renderer = renderFragment();
+      const renderer = await renderFragment();
 
       const initialUser = {
         id: '1',
@@ -1397,7 +1398,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         profile_picture: null,
         ...createFragmentRef('1', query),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       const refetchVariables = {
         id: '1',
@@ -1442,8 +1443,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         });
       });
 
-      TestRenderer.act(() => {
-        jest.runAllImmediates();
+      await TestRenderer.act(async () => {
+        await flushMicrotasks();
       });
 
       // $FlowFixMe[prop-missing]
@@ -1457,12 +1458,12 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       ).toBe(true);
     });
 
-    it('does not error if returned node is null', () => {
+    it('does not error if returned node is null', async () => {
       const warning = require('warning');
       // $FlowFixMe[prop-missing]
       warning.mockClear();
 
-      const renderer = renderFragment();
+      const renderer = await renderFragment();
 
       const initialUser = {
         id: '1',
@@ -1470,7 +1471,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         profile_picture: null,
         ...createFragmentRef('1', query),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       const refetchVariables = {
         id: '1',
@@ -1507,18 +1508,18 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         });
       });
 
-      TestRenderer.act(() => {
-        jest.runAllImmediates();
+      await TestRenderer.act(async () => {
+        await flushMicrotasks();
       });
 
       expect(renderer.toJSON()).toEqual(null);
     });
 
-    it('warns if a different id is returned', () => {
+    it('warns if a different id is returned', async () => {
       const warning = require('warning');
       // $FlowFixMe[prop-missing]
       warning.mockClear();
-      const renderer = renderFragment();
+      const renderer = await renderFragment();
 
       const initialUser = {
         id: '1',
@@ -1526,7 +1527,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         profile_picture: null,
         ...createFragmentRef('1', query),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       const refetchVariables = {
         id: '1',
@@ -1570,8 +1571,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         });
       });
 
-      TestRenderer.act(() => {
-        jest.runAllImmediates();
+      await TestRenderer.act(async () => {
+        await flushMicrotasks();
       });
 
       // $FlowFixMe[prop-missing]
@@ -1584,12 +1585,12 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       ).toEqual(true);
     });
 
-    it("doesn't warn if refetching on a different id than the current one in display", () => {
+    it("doesn't warn if refetching on a different id than the current one in display", async () => {
       const warning = require('warning');
       // $FlowFixMe[prop-missing]
       warning.mockClear();
 
-      renderFragment();
+      await renderFragment();
 
       const initialUser = {
         id: '1',
@@ -1597,7 +1598,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         profile_picture: null,
         ...createFragmentRef('1', query),
       };
-      expectFragmentResults([{data: initialUser}]);
+      await expectFragmentResults([{data: initialUser}]);
 
       const refetchVariables = {
         id: '1',
@@ -1616,9 +1617,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       environment.retain.mockClear();
       release.mockClear();
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         refetch({id: '2', scale: 32}, {fetchPolicy: 'network-only'});
-        jest.runAllImmediates();
+        await flushMicrotasks();
       });
 
       TestRenderer.act(() => {
@@ -1672,15 +1673,15 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         fetchSpy.mockClear();
       });
 
-      it('refetches correctly when refetching multiple times in a row', () => {
-        const renderer = renderFragment();
+      it('refetches correctly when refetching multiple times in a row', async () => {
+        const renderer = await renderFragment();
         const initialUser = {
           id: '1',
           name: 'Alice',
           profile_picture: null,
           ...createFragmentRef('1', query),
         };
-        expectFragmentResults([{data: initialUser}]);
+        await expectFragmentResults([{data: initialUser}]);
 
         const refetchVariables = {
           id: '1',
@@ -1700,7 +1701,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           ...createFragmentRef('1', refetchQuery),
         };
 
-        const doAndAssertRefetch = (fragmentResults: Array<{data: any}>) => {
+        const doAndAssertRefetch = async (
+          fragmentResults: Array<{data: any}>,
+        ) => {
           commitSpy.mockClear();
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
@@ -1738,21 +1741,21 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           });
 
           // Assert fragment is rendered with new data
-          expectFragmentResults(fragmentResults);
+          await expectFragmentResults(fragmentResults);
 
           // Assert refetch query was retained
           expect(isOperationRetained(refetchQuery)).toBe(true);
         };
 
         // Refetch once
-        doAndAssertRefetch([{data: refetchedUser}]);
+        await doAndAssertRefetch([{data: refetchedUser}]);
 
         // Refetch twice
-        doAndAssertRefetch([{data: refetchedUser}]);
+        await doAndAssertRefetch([{data: refetchedUser}]);
       });
 
-      it('refetches correctly when a second refetch starts while the first is one suspended', () => {
-        const renderer = renderFragment();
+      it('refetches correctly when a second refetch starts while the first is one suspended', async () => {
+        const renderer = await renderFragment();
         commitSpy.mockClear();
         TestRenderer.act(() => {
           refetch(
@@ -1854,13 +1857,13 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           profile_picture: {uri: 'scale16'},
           ...createFragmentRef('4', refetchQuery2),
         };
-        expectFragmentResults([{data: refetchedUser}]);
+        await expectFragmentResults([{data: refetchedUser}]);
 
         expect(fetchSpy).toBeCalledTimes(4);
       });
 
-      it('does not re-issue initial refetch request if second refetch is interrupted by high-pri update', () => {
-        const renderer = renderFragment();
+      it('does not re-issue initial refetch request if second refetch is interrupted by high-pri update', async () => {
+        const renderer = await renderFragment();
         commitSpy.mockClear();
         TestRenderer.act(() => {
           refetch(
@@ -1981,13 +1984,13 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           profile_picture: {uri: 'scale16'},
           ...createFragmentRef('4', refetchQuery2),
         };
-        expectFragmentResults([{data: refetchedUser}]);
+        await expectFragmentResults([{data: refetchedUser}]);
 
         expect(fetchSpy).toBeCalledTimes(4);
       });
 
-      it('refetches correctly when switching between multiple refetches', () => {
-        const renderer = renderFragment();
+      it('refetches correctly when switching between multiple refetches', async () => {
+        const renderer = await renderFragment();
         commitSpy.mockClear();
         TestRenderer.act(() => {
           refetch(
@@ -2102,13 +2105,13 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           profile_picture: {uri: 'scale16'},
           ...createFragmentRef('1', refetchQuery1),
         };
-        expectFragmentResults([{data: refetchedUser}]);
+        await expectFragmentResults([{data: refetchedUser}]);
 
         expect(fetchSpy).toBeCalledTimes(5);
       });
 
-      it('does not dispose ongoing request if refetch is called again', () => {
-        const renderer = renderFragment();
+      it('does not dispose ongoing request if refetch is called again', async () => {
+        const renderer = await renderFragment();
         commitSpy.mockClear();
         TestRenderer.act(() => {
           refetch(
@@ -2142,7 +2145,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           profile_picture: null,
           ...createFragmentRef('1', refetchQuery1),
         };
-        expectFragmentResults([{data: refetchingUser}]);
+        await expectFragmentResults([{data: refetchingUser}]);
 
         // Call refetch a second time
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2219,7 +2222,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           },
         });
         let renderer;
-        TestRenderer.act(() => {
+        await TestRenderer.act(async () => {
           renderer = TestRenderer.create(
             <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
               <React.Suspense fallback={'Loading'}>
@@ -2237,7 +2240,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
-          jest.runAllImmediates();
+          await flushMicrotasks();
         });
         expect(refetchCount).toBe(2);
         expect(renderer?.toJSON()).toBe(null);
@@ -2254,8 +2257,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           beforeEach(() => {
             renderPolicy = 'partial';
           });
-          it("doesn't start network request if refetch query is fully cached", () => {
-            renderFragment();
+          it("doesn't start network request if refetch query is fully cached", async () => {
+            await renderFragment();
             commitSpy.mockClear();
             TestRenderer.act(() => {
               refetch(
@@ -2285,18 +2288,18 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               profile_picture: null,
               ...createFragmentRef('1', refetchQuery),
             };
-            expectFragmentResults([{data: refetchingUser}]);
+            await expectFragmentResults([{data: refetchingUser}]);
           });
 
-          it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
-            const renderer = renderFragment();
+          it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', async () => {
+            const renderer = await renderFragment();
             const initialUser = {
               id: '1',
               name: 'Alice',
               profile_picture: null,
               ...createFragmentRef('1', query),
             };
-            expectFragmentResults([{data: initialUser}]);
+            await expectFragmentResults([{data: initialUser}]);
 
             TestRenderer.act(() => {
               refetch(
@@ -2347,10 +2350,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([{data: refetchedUser}]);
+            await expectFragmentResults([{data: refetchedUser}]);
           });
 
-          it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
+          it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", async () => {
             // Cache user with missing username
             const refetchVariables = {id: '4', scale: 16};
             refetchQuery = createOperationDescriptor(
@@ -2367,7 +2370,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
             });
 
-            renderFragment();
+            await renderFragment();
             commitSpy.mockClear();
             TestRenderer.act(() => {
               refetch(
@@ -2391,7 +2394,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               profile_picture: null,
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([{data: refetchingUser}]);
+            await expectFragmentResults([{data: refetchingUser}]);
           });
         });
 
@@ -2399,8 +2402,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           beforeEach(() => {
             renderPolicy = 'full';
           });
-          it("doesn't start network request if refetch query is fully cached", () => {
-            renderFragment();
+          it("doesn't start network request if refetch query is fully cached", async () => {
+            await renderFragment();
             commitSpy.mockClear();
             TestRenderer.act(() => {
               refetch(
@@ -2430,18 +2433,18 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               profile_picture: null,
               ...createFragmentRef('1', refetchQuery),
             };
-            expectFragmentResults([{data: refetchingUser}]);
+            await expectFragmentResults([{data: refetchingUser}]);
           });
 
-          it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
-            const renderer = renderFragment();
+          it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', async () => {
+            const renderer = await renderFragment();
             const initialUser = {
               id: '1',
               name: 'Alice',
               profile_picture: null,
               ...createFragmentRef('1', query),
             };
-            expectFragmentResults([{data: initialUser}]);
+            await expectFragmentResults([{data: initialUser}]);
 
             TestRenderer.act(() => {
               refetch(
@@ -2492,10 +2495,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([{data: refetchedUser}]);
+            await expectFragmentResults([{data: refetchedUser}]);
           });
 
-          it("starts network request if refetch query is not fully cached and suspends even if fragment doesn't have missing data", () => {
+          it("starts network request if refetch query is not fully cached and suspends even if fragment doesn't have missing data", async () => {
             // Cache user with missing username
             const refetchVariables = {id: '4', scale: 16};
             refetchQuery = createOperationDescriptor(
@@ -2512,14 +2515,14 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
             });
 
-            const renderer = renderFragment();
+            const renderer = await renderFragment();
             const initialUser = {
               id: '1',
               name: 'Alice',
               profile_picture: null,
               ...createFragmentRef('1', query),
             };
-            expectFragmentResults([{data: initialUser}]);
+            await expectFragmentResults([{data: initialUser}]);
 
             TestRenderer.act(() => {
               refetch(
@@ -2559,7 +2562,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([{data: refetchedUser}]);
+            await expectFragmentResults([{data: refetchedUser}]);
           });
         });
       });
@@ -2574,8 +2577,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             renderPolicy = 'partial';
           });
 
-          it('starts network request if refetch query is fully cached', () => {
-            renderFragment();
+          it('starts network request if refetch query is fully cached', async () => {
+            await renderFragment();
             commitSpy.mockClear();
             TestRenderer.act(() => {
               refetch(
@@ -2605,18 +2608,18 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               profile_picture: null,
               ...createFragmentRef('1', refetchQuery),
             };
-            expectFragmentResults([{data: refetchingUser}]);
+            await expectFragmentResults([{data: refetchingUser}]);
           });
 
-          it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
-            const renderer = renderFragment();
+          it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', async () => {
+            const renderer = await renderFragment();
             const initialUser = {
               id: '1',
               name: 'Alice',
               profile_picture: null,
               ...createFragmentRef('1', query),
             };
-            expectFragmentResults([{data: initialUser}]);
+            await expectFragmentResults([{data: initialUser}]);
 
             TestRenderer.act(() => {
               refetch(
@@ -2667,10 +2670,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([{data: refetchedUser}]);
+            await expectFragmentResults([{data: refetchedUser}]);
           });
 
-          it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
+          it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", async () => {
             // Cache user with missing username
             const refetchVariables = {id: '4', scale: 16};
             refetchQuery = createOperationDescriptor(
@@ -2687,7 +2690,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
             });
 
-            renderFragment();
+            await renderFragment();
             commitSpy.mockClear();
             TestRenderer.act(() => {
               refetch(
@@ -2711,7 +2714,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               profile_picture: null,
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([{data: refetchingUser}]);
+            await expectFragmentResults([{data: refetchingUser}]);
           });
         });
 
@@ -2720,8 +2723,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             renderPolicy = 'full';
           });
 
-          it('starts network request if refetch query is fully cached', () => {
-            renderFragment();
+          it('starts network request if refetch query is fully cached', async () => {
+            await renderFragment();
             commitSpy.mockClear();
             TestRenderer.act(() => {
               refetch(
@@ -2751,18 +2754,18 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               profile_picture: null,
               ...createFragmentRef('1', refetchQuery),
             };
-            expectFragmentResults([{data: refetchingUser}]);
+            await expectFragmentResults([{data: refetchingUser}]);
           });
 
-          it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
-            const renderer = renderFragment();
+          it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', async () => {
+            const renderer = await renderFragment();
             const initialUser = {
               id: '1',
               name: 'Alice',
               profile_picture: null,
               ...createFragmentRef('1', query),
             };
-            expectFragmentResults([{data: initialUser}]);
+            await expectFragmentResults([{data: initialUser}]);
 
             TestRenderer.act(() => {
               refetch(
@@ -2813,10 +2816,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([{data: refetchedUser}]);
+            await expectFragmentResults([{data: refetchedUser}]);
           });
 
-          it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
+          it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", async () => {
             // Cache user with missing username
             const refetchVariables = {id: '4', scale: 16};
             refetchQuery = createOperationDescriptor(
@@ -2833,7 +2836,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
             });
 
-            const renderer = renderFragment();
+            const renderer = await renderFragment();
             commitSpy.mockClear();
             TestRenderer.act(() => {
               refetch(
@@ -2874,7 +2877,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([{data: refetchedUser}]);
+            await expectFragmentResults([{data: refetchedUser}]);
           });
         });
       });
@@ -2884,15 +2887,15 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           fetchPolicy = 'network-only';
         });
 
-        it('starts network request and suspends if refetch query is fully cached', () => {
-          const renderer = renderFragment();
+        it('starts network request and suspends if refetch query is fully cached', async () => {
+          const renderer = await renderFragment();
           const initialUser = {
             id: '1',
             name: 'Alice',
             profile_picture: null,
             ...createFragmentRef('1', query),
           };
-          expectFragmentResults([{data: initialUser}]);
+          await expectFragmentResults([{data: initialUser}]);
 
           TestRenderer.act(() => {
             refetch(
@@ -2936,18 +2939,18 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             ...initialUser,
             ...createFragmentRef('1', refetchQuery),
           };
-          expectFragmentResults([{data: refetchedUser}]);
+          await expectFragmentResults([{data: refetchedUser}]);
         });
 
-        it('starts network request and suspends if refetch query is not fully cached', () => {
-          const renderer = renderFragment();
+        it('starts network request and suspends if refetch query is not fully cached', async () => {
+          const renderer = await renderFragment();
           const initialUser = {
             id: '1',
             name: 'Alice',
             profile_picture: null,
             ...createFragmentRef('1', query),
           };
-          expectFragmentResults([{data: initialUser}]);
+          await expectFragmentResults([{data: initialUser}]);
 
           TestRenderer.act(() => {
             refetch(
@@ -2998,7 +3001,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             },
             ...createFragmentRef('4', refetchQuery),
           };
-          expectFragmentResults([{data: refetchedUser}]);
+          await expectFragmentResults([{data: refetchedUser}]);
         });
       });
 
@@ -3007,8 +3010,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           fetchPolicy = 'store-only';
         });
 
-        it("doesn't start network request if refetch query is fully cached", () => {
-          renderFragment();
+        it("doesn't start network request if refetch query is fully cached", async () => {
+          await renderFragment();
           commitSpy.mockClear();
           TestRenderer.act(() => {
             refetch(
@@ -3038,11 +3041,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             profile_picture: null,
             ...createFragmentRef('1', refetchQuery),
           };
-          expectFragmentResults([{data: refetchingUser}]);
+          await expectFragmentResults([{data: refetchingUser}]);
         });
 
-        it("doesn't start network request if refetch query is not fully cached", () => {
-          renderFragment();
+        it("doesn't start network request if refetch query is not fully cached", async () => {
+          await renderFragment();
           commitSpy.mockClear();
           TestRenderer.act(() => {
             refetch(
@@ -3066,11 +3069,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           });
 
           // Assert component renders immediately with empty data
-          expectFragmentResults([{data: null}]);
+          await expectFragmentResults([{data: null}]);
         });
 
-        it("doesn't use data from previous network fetch and releases previous query", () => {
-          const renderer = renderFragment();
+        it("doesn't use data from previous network fetch and releases previous query", async () => {
+          const renderer = await renderFragment();
           commitSpy.mockClear();
           TestRenderer.act(() => {
             refetch(
@@ -3122,7 +3125,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             },
             ...createFragmentRef('4', refetchQuery),
           };
-          expectFragmentResults([{data: refetchedUser}]);
+          await expectFragmentResults([{data: refetchedUser}]);
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.retain.mockClear();
           release.mockClear();
@@ -3151,7 +3154,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           });
 
           // Assert component renders immediately with empty data
-          expectFragmentResults([{data: null}]);
+          await expectFragmentResults([{data: null}]);
           // FIXME should be released
           expect(isOperationRetained(refetchQuery)).toBe(true);
         });
@@ -3185,8 +3188,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         unsubscribe.mockClear();
       });
 
-      it('does not cancel ongoing request if environment changes', () => {
-        renderFragment();
+      it('does not cancel ongoing request if environment changes', async () => {
+        await renderFragment();
         commitSpy.mockClear();
         TestRenderer.act(() => {
           refetch(
@@ -3217,7 +3220,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           profile_picture: null,
           ...createFragmentRef('1', refetchQuery),
         };
-        expectFragmentResults([{data: refetchingUser}]);
+        await expectFragmentResults([{data: refetchingUser}]);
 
         // Set new environment
         const newEnvironment = createMockEnvironment();
@@ -3251,11 +3254,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           profile_picture: null,
           ...createFragmentRef('1', query),
         };
-        expectFragmentResults([{data: expectedUser}]);
+        await expectFragmentResults([{data: expectedUser}]);
       });
 
-      it('does not cancel ongoing request if fragment ref changes', () => {
-        renderFragment();
+      it('does not cancel ongoing request if fragment ref changes', async () => {
+        await renderFragment();
         commitSpy.mockClear();
         TestRenderer.act(() => {
           refetch(
@@ -3286,7 +3289,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           profile_picture: null,
           ...createFragmentRef('1', refetchQuery),
         };
-        expectFragmentResults([{data: refetchingUser}]);
+        await expectFragmentResults([{data: refetchingUser}]);
 
         // Pass new parent fragment ref with different variables
         const newVariables = {...variables, scale: 32};
@@ -3327,11 +3330,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           },
           ...createFragmentRef('1', newQuery),
         };
-        expectFragmentResults([{data: expectedUser}]);
+        await expectFragmentResults([{data: expectedUser}]);
       });
 
-      it('does not cancel ongoing request on unmount when refetch suspends', () => {
-        const renderer = renderFragment();
+      it('does not cancel ongoing request on unmount when refetch suspends', async () => {
+        const renderer = await renderFragment();
         commitSpy.mockClear();
         TestRenderer.act(() => {
           refetch(
@@ -3362,8 +3365,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         expect(unsubscribe).toBeCalledTimes(0);
       });
 
-      it('does not cancel ongoing request on unmount when refetch does not suspend', () => {
-        const renderer = renderFragment();
+      it('does not cancel ongoing request on unmount when refetch does not suspend', async () => {
+        const renderer = await renderFragment();
         commitSpy.mockClear();
         TestRenderer.act(() => {
           refetch(
@@ -3394,7 +3397,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           profile_picture: null,
           ...createFragmentRef('1', refetchQuery),
         };
-        expectFragmentResults([{data: refetchingUser}]);
+        await expectFragmentResults([{data: refetchingUser}]);
 
         TestRenderer.act(() => {
           renderer.unmount();
@@ -3405,8 +3408,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         expect(unsubscribe).toBeCalledTimes(0);
       });
 
-      it('disposes ongoing request if it is manually disposed when refetch suspends', () => {
-        const renderer = renderFragment();
+      it('disposes ongoing request if it is manually disposed when refetch suspends', async () => {
+        const renderer = await renderFragment();
         commitSpy.mockClear();
         let disposable;
         TestRenderer.act(() => {
@@ -3428,9 +3431,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           refetchVariables,
         });
 
-        TestRenderer.act(() => {
+        await TestRenderer.act(async () => {
           disposable && disposable.dispose();
-          jest.runAllImmediates();
+          await flushMicrotasks();
         });
 
         // The request is not able to be cancelled
@@ -3456,11 +3459,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           profile_picture: null,
           ...createFragmentRef('1', query),
         };
-        expectFragmentResults([{data: initialUser}]);
+        await expectFragmentResults([{data: initialUser}]);
       });
 
-      it('disposes ongoing request if it is manually disposed when refetch does not suspend', () => {
-        renderFragment();
+      it('disposes ongoing request if it is manually disposed when refetch does not suspend', async () => {
+        await renderFragment();
         commitSpy.mockClear();
         let disposable;
         TestRenderer.act(() => {
@@ -3492,11 +3495,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           profile_picture: null,
           ...createFragmentRef('1', refetchQuery),
         };
-        expectFragmentResults([{data: refetchingUser}]);
+        await expectFragmentResults([{data: refetchingUser}]);
 
-        TestRenderer.act(() => {
+        await TestRenderer.act(async () => {
           disposable && disposable.dispose();
-          jest.runAllImmediates();
+          await flushMicrotasks();
         });
 
         // Assert request is not cancelled. useQueryLoader does not cancel
@@ -3511,7 +3514,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           profile_picture: null,
           ...createFragmentRef('1', query),
         };
-        expectFragmentResults([{data: initialUser}]);
+        await expectFragmentResults([{data: initialUser}]);
       });
     });
 
@@ -3561,13 +3564,13 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         });
       });
 
-      it('refetches new variables correctly when refetching new id', () => {
-        const renderer = renderFragment();
+      it('refetches new variables correctly when refetching new id', async () => {
+        const renderer = await renderFragment();
         const initialUser = {
           actor: {name: 'Alice'},
           fetch_id: 'fetch:a',
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
           },
@@ -3611,17 +3614,17 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           actor: {name: 'Mark'},
           fetch_id: 'fetch:b',
         };
-        expectFragmentResults([{data: refetchedUser}]);
+        await expectFragmentResults([{data: refetchedUser}]);
         expect(isOperationRetained(refetchQuery)).toBe(true);
       });
 
-      it('refetches new variables correctly when refetching same id', () => {
-        const renderer = renderFragment();
+      it('refetches new variables correctly when refetching same id', async () => {
+        const renderer = await renderFragment();
         const initialUser = {
           actor: {name: 'Alice'},
           fetch_id: 'fetch:a',
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
           },
@@ -3665,11 +3668,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           actor: {name: 'Alice (updated)'},
           fetch_id: 'fetch:a',
         };
-        expectFragmentResults([{data: refetchedUser}]);
+        await expectFragmentResults([{data: refetchedUser}]);
         expect(isOperationRetained(refetchQuery)).toBe(true);
       });
 
-      it('refetches new variables correctly when refetching after the id from the parent has changed', () => {
+      it('refetches new variables correctly when refetching after the id from the parent has changed', async () => {
         // add data for second query
         const query2 = createOperationDescriptor(
           gqlQuery,
@@ -3687,12 +3690,12 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           },
         });
 
-        const renderer = renderFragment();
+        const renderer = await renderFragment();
         const initialUser = {
           actor: {name: 'Alice'},
           fetch_id: 'fetch:a',
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
           },
@@ -3706,7 +3709,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           actor: {name: 'Zuck'},
           fetch_id: 'fetch:b',
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: nextUser,
           },
@@ -3749,7 +3752,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           actor: {name: 'Zuck (updated)'},
           fetch_id: 'fetch:b',
         };
-        expectFragmentResults([{data: refetchedUser}]);
+        await expectFragmentResults([{data: refetchedUser}]);
         expect(isOperationRetained(refetchQuery)).toBe(true);
       });
     });
@@ -3811,8 +3814,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         });
       });
 
-      it('refetches new variables correctly when refetching new id', () => {
-        const renderer = renderFragment();
+      it('refetches new variables correctly when refetching new id', async () => {
+        const renderer = await renderFragment();
         const initialUser = {
           id: '1',
           name: 'Alice',
@@ -3823,7 +3826,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             'useRefetchableFragmentNodeTest2Fragment',
           ),
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
           },
@@ -3879,12 +3882,12 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             'useRefetchableFragmentNodeTest2Fragment',
           ),
         };
-        expectFragmentResults([{data: refetchedUser}]);
+        await expectFragmentResults([{data: refetchedUser}]);
         expect(isOperationRetained(refetchQuery)).toBe(true);
       });
 
-      it('refetches new variables correctly when refetching same id', () => {
-        const renderer = renderFragment();
+      it('refetches new variables correctly when refetching same id', async () => {
+        const renderer = await renderFragment();
         const initialUser = {
           id: '1',
           name: 'Alice',
@@ -3895,7 +3898,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             'useRefetchableFragmentNodeTest2Fragment',
           ),
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
           },
@@ -3951,7 +3954,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             'useRefetchableFragmentNodeTest2Fragment',
           ),
         };
-        expectFragmentResults([{data: refetchedUser}]);
+        await expectFragmentResults([{data: refetchedUser}]);
         expect(isOperationRetained(refetchQuery)).toBe(true);
       });
     });
@@ -3969,8 +3972,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         } = trackRetentionForEnvironment(newEnvironment));
       });
 
-      it('reloads new data into new environment, and renders successfully', () => {
-        const renderer = renderFragment();
+      it('reloads new data into new environment, and renders successfully', async () => {
+        const renderer = await renderFragment();
         const initialUser = {
           id: '1',
           name: 'Alice',
@@ -3982,7 +3985,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           ),
         };
         // initial data on default environment
-        expectFragmentResults([{data: initialUser}]);
+        await expectFragmentResults([{data: initialUser}]);
 
         TestRenderer.act(() => {
           refetch(
@@ -4027,7 +4030,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             },
           });
         });
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
 
         // Data should be loaded on the newEnvironment
         const dataInSource = {
@@ -4064,14 +4067,14 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           ...createFragmentRef('1', refetchQuery),
         };
 
-        expectFragmentResults([{data: refetchedUser}]);
+        await expectFragmentResults([{data: refetchedUser}]);
 
         // Refetch on another enironment afterwards should work
         commitSpy.mockClear();
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
         const anotherNewEnvironment = createMockEnvironment();
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
 
         TestRenderer.act(() => {
           refetch(

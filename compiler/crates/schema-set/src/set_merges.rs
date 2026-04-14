@@ -8,7 +8,6 @@
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
-use common::NamedItem;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
@@ -409,13 +408,17 @@ impl SetArgument {
     }
 }
 
-// If we ever start merging arguments between directive usages, then we will need to split this
-// into a standard merge and a fn merge_directive_values_from_abstract_parent(...).
 fn merge_directive_values<T: CanHaveDirectives>(existing: &mut T, other: Vec<DirectiveValue>) {
     let existing_directives: &mut Vec<DirectiveValue> = existing.directives_mut();
-    // Move from other into existing directives.
     for value in other {
-        if existing_directives.named(value.name).is_none() {
+        let existing_pos = existing_directives
+            .iter()
+            .position(|d| d.name == value.name);
+        if let Some(pos) = existing_pos {
+            if existing_directives[pos].arguments.is_empty() {
+                existing_directives[pos].arguments = value.arguments;
+            }
+        } else {
             existing_directives.push(value);
         }
     }
@@ -1072,6 +1075,48 @@ pub mod tests {
                   field: String @deprecated
                 }
             "#,
+        );
+    }
+
+    #[test]
+    fn test_merge_directive_arguments_on_type() {
+        // When existing directive already has arguments, they are kept as-is.
+        assert_base_merge_expected!(
+            r#"type A @strong(field: "id") { id: ID! }"#,
+            r#"type A @strong(field: "name", other_arg: "value") { id: ID! }"#,
+            r#"type A @strong(field: "id") { id: ID! }"#,
+        );
+    }
+
+    #[test]
+    fn test_merge_directive_arguments_on_field() {
+        // When existing directive has arguments, other's arguments are not merged in.
+        assert_base_merge_expected!(
+            r#"
+                type Query {
+                  myQ: String @deprecated(reason: "old")
+                }
+            "#,
+            r#"
+                type Query {
+                  myQ: String @deprecated(reason: "new", replacement: "newQ")
+                }
+            "#,
+            r#"
+                type Query {
+                  myQ: String @deprecated(reason: "old")
+                }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_merge_directive_no_args_gets_other_args() {
+        // Existing has no args, other has args -- other's args should be adopted.
+        assert_base_merge_expected!(
+            "type A @deprecated { id: ID! }",
+            r#"type A @deprecated(reason: "use B") { id: ID! }"#,
+            r#"type A @deprecated(reason: "use B") { id: ID! }"#,
         );
     }
 }

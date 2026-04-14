@@ -96,20 +96,26 @@ fn extract_docblock_ir_for_project(
         graphql_asts_map,
     )?;
 
+    let mut parse_errors: Vec<Diagnostic> = vec![];
+
     if let Some(custom_extract_resolver) = &config.custom_extract_relay_resolvers {
         let graphql_asts = graphql_asts_map.get(&project_config.name);
-        let (extracted_types, extracted_fields) = custom_extract_resolver(
+        match custom_extract_resolver(
             project_config.name,
             &project_config.typegen_config.custom_scalar_types,
             compiler_state,
             graphql_asts,
             &project_config.feature_flags.allow_legacy_relay_resolver_tag,
-        )?;
-        type_irs.extend(extracted_types);
-        field_irs.extend(extracted_fields);
+        ) {
+            Ok((extracted_types, extracted_fields)) => {
+                type_irs.extend(extracted_types);
+                field_irs.extend(extracted_fields);
+            }
+            Err(errors) => {
+                parse_errors.extend(errors);
+            }
+        }
     }
-
-    let mut parse_errors: Vec<Diagnostic> = vec![];
 
     for ast in project_schema_docs.type_asts.0 {
         match parse_docblock_ast(&project_config.name, &ast, None, &parse_options) {

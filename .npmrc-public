@@ -1,4 +1,0 @@
-/packages.atlassian.com/api/npm/npm-public/:_password=${ARTIFACTORY_PASSWORD_BASE64}
-//packages.atlassian.com/api/npm/npm-public/:username=${ARTIFACTORY_USERNAME}
-//packages.atlassian.com/api/npm/npm-public/:email=build-team@atlassian.com
-//packages.atlassian.com/api/npm/npm-public/:always-auth=true

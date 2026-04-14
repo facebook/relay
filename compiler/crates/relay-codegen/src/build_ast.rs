@@ -238,11 +238,13 @@ pub fn build_resolvers_schema(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> AstKey {
-    let artifact_path = &project_config
+    let artifact_path = project_config
         .resolvers_schema_module
         .as_ref()
         .unwrap()
-        .path;
+        .path
+        .as_ref()
+        .expect("build_resolvers_schema called without a resolversSchemaModule path");
 
     let mut map = vec![];
     for object in schema.get_objects() {

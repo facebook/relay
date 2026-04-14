@@ -1,0 +1,23 @@
+{
+  "name": "relay-e2e-test",
+  "version": "1.0.0",
+  "private": true,
+  "description": "End-to-end tests for Relay using markdown-driven fixtures",
+  "scripts": {
+    "test": "jest --config jest.config.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@babel/plugin-transform-typescript": "^7.25.2",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "babel-plugin-relay": "^20.1.1",
+    "fbjs": "^3.0.2",
+    "graphql": "16.1.0-experimental-stream-defer.6",
+    "grats": "0.0.0-main-db08606c",
+    "react": "0.0.0-experimental-7670501b-20241124",
+    "react-dom": "0.0.0-experimental-7670501b-20241124",
+    "relay-compiler": "^20.1.1",
+    "typescript": "^5.9.3"
+  }
+}

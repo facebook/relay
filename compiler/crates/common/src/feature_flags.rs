@@ -201,6 +201,13 @@ pub struct FeatureFlags {
     /// is only needed for non-Haste projects that want the same validation.
     #[serde(default)]
     pub enforce_module_name_prefix_for_non_haste: bool,
+
+    /// When enabled, the `@nogrep` annotation is included in the docblock
+    /// header of generated artifacts. This annotation was historically always
+    /// emitted but is no longer needed. This flag allows incremental removal
+    /// across projects using the rollout variant keyed on the artifact name.
+    #[serde(default)]
+    pub emit_nogrep_annotation: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -235,6 +242,7 @@ impl Default for FeatureFlags {
             enable_shadow_resolvers: Default::default(),
             allow_legacy_relay_resolver_tag: Default::default(),
             enforce_module_name_prefix_for_non_haste: Default::default(),
+            emit_nogrep_annotation: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

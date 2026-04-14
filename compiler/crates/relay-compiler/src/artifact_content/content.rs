@@ -14,6 +14,7 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
+use intern::string_key::StringKey;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
 use relay_codegen::build_request_params;
@@ -62,6 +63,7 @@ pub fn generate_preloadable_query_parameters(
         config,
         project_config,
         extra_annotations,
+        normalization_operation.name.item.0,
     )?));
     // -- End Docblock Section --
 
@@ -176,6 +178,7 @@ pub fn generate_updatable_query(
         config,
         project_config,
         vec![],
+        reader_operation.name.item.0,
     )?));
     // -- End Docblock Section --
 
@@ -320,6 +323,7 @@ pub fn generate_operation(
         config,
         project_config,
         extra_annotations,
+        normalization_operation.name.item.0,
     )?));
     // -- End Docblock Section --
 
@@ -518,6 +522,7 @@ pub fn generate_split_operation(
         config,
         project_config,
         vec![],
+        normalization_operation.name.item.0,
     )?));
     // -- End Docblock Section --
 
@@ -670,6 +675,7 @@ fn generate_read_only_fragment(
         config,
         project_config,
         vec![],
+        reader_fragment.name.item.0,
     )?));
     // -- End Docblock Section --
 
@@ -796,6 +802,7 @@ fn generate_assignable_fragment(
         config,
         project_config,
         vec![],
+        typegen_fragment.name.item.0,
     )?));
     // -- End Docblock Section --
 
@@ -981,6 +988,7 @@ pub fn generate_docblock_section(
     config: &Config,
     project_config: &ProjectConfig,
     extra_annotations: Vec<String>,
+    artifact_source_key: StringKey,
 ) -> Result<DocblockSection, FmtError> {
     let mut section = DocblockSection::default();
     if !config.header.is_empty() {
@@ -997,7 +1005,13 @@ pub fn generate_docblock_section(
         writeln!(section, "@flow")?;
     }
     writeln!(section, "@lightSyntaxTransform")?;
-    writeln!(section, "@nogrep")?;
+    if project_config
+        .feature_flags
+        .emit_nogrep_annotation
+        .is_enabled_for(artifact_source_key)
+    {
+        writeln!(section, "@nogrep")?;
+    }
 
     if let Some(codegen_command) = &project_config
         .codegen_command
@@ -1075,6 +1089,7 @@ pub fn generate_resolvers_schema_module_content(
         config,
         project_config,
         vec![],
+        StringKey::from(project_config.name),
     )?));
     // -- End Docblock Section --
 

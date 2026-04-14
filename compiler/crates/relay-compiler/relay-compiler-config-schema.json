@@ -639,6 +639,13 @@
             "kind": "disabled"
           }
         },
+        "emit_nogrep_annotation": {
+          "description": "When enabled, the `@nogrep` annotation is included in the docblock\nheader of generated artifacts. This annotation was historically always\nemitted but is no longer needed. This flag allows incremental removal\nacross projects using the rollout variant keyed on the artifact name.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "enable_3d_branch_arg_generation": {
           "type": "boolean",
           "default": false
@@ -928,6 +935,9 @@
             "disable_resolver_reader_ast": false,
             "disable_schema_validation": false,
             "disallow_required_action_throw_on_semantically_nullable_fields": {
+              "kind": "disabled"
+            },
+            "emit_nogrep_annotation": {
               "kind": "disabled"
             },
             "enable_3d_branch_arg_generation": false,

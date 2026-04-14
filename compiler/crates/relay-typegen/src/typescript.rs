@@ -118,21 +118,27 @@ impl Writer for TypeScriptPrinter {
         name: &str,
         import_as: Option<&str>,
         from: &str,
+        ignore_use_import_type_syntax: bool,
     ) -> FmtResult {
         let import_type = if let Some(import_as) = import_as {
             format!("{name} as {import_as}")
         } else {
             name.to_string()
         };
-        self.write_import_type(&[&import_type], from)
+        self.write_import_type(&[&import_type], from, ignore_use_import_type_syntax)
     }
 
-    fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {
+    fn write_import_type(
+        &mut self,
+        types: &[&str],
+        from: &str,
+        ignore_use_import_type_syntax: bool,
+    ) -> FmtResult {
         let from_without_extension = from.strip_suffix(".ts").unwrap_or(from);
         writeln!(
             &mut self.result,
             "import {}{{ {} }} from \"{}\";",
-            if self.use_import_type_syntax {
+            if !ignore_use_import_type_syntax && self.use_import_type_syntax {
                 "type "
             } else {
                 ""

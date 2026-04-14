@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+# When spreading on an interface inside a union in @raw_response_type,
+# fields from the interface should remain required (not optional)
+# on concrete type branches that implement the interface.
+# Story implements MaybeNodeInterface (has `name`), but FakeNode and NonNode do not.
+query ExampleQuery @raw_response_type {
+  maybeNode {
+    __typename
+    ... on MaybeNodeInterface {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = {||};
+export type ExampleQuery$data = {|
+  +maybeNode: ?{|
+    +__typename: string,
+    +name?: ?string,
+  |},
+|};
+export type ExampleQuery$rawResponse = {|
+  +maybeNode: ?({|
+    +__typename: "FakeNode",
+    +id: string,
+  |} | {|
+    +__typename: string,
+    +__isMaybeNodeInterface?: string,
+    +__isNode?: string,
+    +id?: string,
+    +name?: ?string,
+  |}),
+|};
+export type ExampleQuery = {|
+  rawResponse: ExampleQuery$rawResponse,
+  response: ExampleQuery$data,
+  variables: ExampleQuery$variables,
+|};

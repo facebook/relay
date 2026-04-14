@@ -627,6 +627,13 @@
             "kind": "disabled"
           }
         },
+        "disable_more_precise_abstract_selection_raw_response_type": {
+          "description": "Disable the generation of a more precise raw response type\nfor selections on abstract types.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "disable_resolver_reader_ast": {
           "description": "Mirror of `enable_resolver_normalization_ast`\nexcludes resolver metadata from reader ast",
           "type": "boolean",
@@ -935,6 +942,9 @@
               "kind": "disabled"
             },
             "disable_full_argument_type_validation": {
+              "kind": "disabled"
+            },
+            "disable_more_precise_abstract_selection_raw_response_type": {
               "kind": "disabled"
             },
             "disable_resolver_reader_ast": false,

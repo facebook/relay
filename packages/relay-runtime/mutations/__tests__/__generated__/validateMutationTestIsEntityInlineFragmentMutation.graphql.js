@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f2808a59d18f9b70fb356f4a8005e26d>>
+ * @generated SignedSource<<7d65522e1657c8e2d6df862a9b5b7311>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -34,9 +34,9 @@ export type validateMutationTestIsEntityInlineFragmentMutation$rawResponse = {|
   +actorNameChange: ?{|
     +actor: ?{|
       +__typename: string,
-      +__isEntity: string,
+      +__isEntity?: string,
       +id: string,
-      +url: ?string,
+      +url?: ?string,
     |},
   |},
 |};

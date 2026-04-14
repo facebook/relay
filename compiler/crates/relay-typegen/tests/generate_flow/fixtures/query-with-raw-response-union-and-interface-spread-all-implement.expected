@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+# When ALL concrete type branches in a raw response union implement the
+# abstract type, the fallback should also have the interface fields as
+# non-optional since every known type has them.
+# Here, Node is the interface and all concrete branches (FakeNode from
+# generate_id_field, plus any others) implement it, so id should be
+# non-optional in the fallback.
+query ExampleQuery @raw_response_type {
+  node(id: "1") {
+    __typename
+    ... on FeedUnit {
+      id
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = {||};
+export type ExampleQuery$data = {|
+  +node: ?{|
+    +__typename: string,
+    +id?: string,
+  |},
+|};
+export type ExampleQuery$rawResponse = {|
+  +node: ?{|
+    +__typename: string,
+    +__isFeedUnit?: string,
+    +id: string,
+  |},
+|};
+export type ExampleQuery = {|
+  rawResponse: ExampleQuery$rawResponse,
+  response: ExampleQuery$data,
+  variables: ExampleQuery$variables,
+|};

@@ -1,0 +1,70 @@
+==================================== INPUT ====================================
+query ExampleQuery @raw_response_type {
+  maybeNode {
+    __typename
+    ... on MaybeNodeInterface {
+      name
+      ... on FeedUnit {
+        tracking
+      }
+    }
+    ... on Story {
+      body {
+        text
+      }
+    }
+    ... on NonNodeNoID {
+      name
+    }
+  }
+}
+
+%extensions%
+
+extend union MaybeNode = NonNodeNoID
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = {||};
+export type ExampleQuery$data = {|
+  +maybeNode: ?{|
+    +__typename: string,
+    +body?: ?{|
+      +text: ?string,
+    |},
+    +name?: ?string,
+    +tracking?: ?string,
+  |},
+|};
+export type ExampleQuery$rawResponse = {|
+  +maybeNode: ?({|
+    +__typename: "FakeNode",
+    +id: string,
+  |} | {|
+    +__typename: "NonNodeNoID",
+    +__isMaybeNodeInterface: "NonNodeNoID",
+    +name: ?string,
+  |} | {|
+    +__typename: "Story",
+    +__isFeedUnit: "Story",
+    +__isMaybeNodeInterface: "Story",
+    +__isNode: "Story",
+    +body: ?{|
+      +text: ?string,
+    |},
+    +id: string,
+    +name: ?string,
+    +tracking: ?string,
+  |} | {|
+    +__typename: string,
+    +__isFeedUnit?: string,
+    +__isMaybeNodeInterface?: string,
+    +__isNode?: string,
+    +id?: string,
+    +name?: ?string,
+    +tracking?: ?string,
+  |}),
+|};
+export type ExampleQuery = {|
+  rawResponse: ExampleQuery$rawResponse,
+  response: ExampleQuery$data,
+  variables: ExampleQuery$variables,
+|};

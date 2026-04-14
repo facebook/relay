@@ -208,6 +208,11 @@ pub struct FeatureFlags {
     /// across projects using the rollout variant keyed on the artifact name.
     #[serde(default)]
     pub emit_nogrep_annotation: FeatureFlag,
+
+    /// Disable the generation of a more precise raw response type
+    /// for selections on abstract types.
+    #[serde(default)]
+    pub disable_more_precise_abstract_selection_raw_response_type: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -243,6 +248,7 @@ impl Default for FeatureFlags {
             allow_legacy_relay_resolver_tag: Default::default(),
             enforce_module_name_prefix_for_non_haste: Default::default(),
             emit_nogrep_annotation: Default::default(),
+            disable_more_precise_abstract_selection_raw_response_type: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

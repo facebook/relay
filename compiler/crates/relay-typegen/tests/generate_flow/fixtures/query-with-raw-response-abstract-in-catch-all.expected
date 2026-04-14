@@ -1,0 +1,56 @@
+==================================== INPUT ====================================
+query ExampleQuery @raw_response_type {
+  node(id: "test-id") {
+    __typename
+    ... on Story {
+      name
+    }
+    ... on PhotoStory {
+      photo {
+        uri
+      }
+    }
+    ... on FeedUnit {
+      tracking
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = {||};
+export type ExampleQuery$data = {|
+  +node: ?{|
+    +__typename: string,
+    +name?: ?string,
+    +photo?: ?{|
+      +uri: ?string,
+    |},
+    +tracking?: ?string,
+  |},
+|};
+export type ExampleQuery$rawResponse = {|
+  +node: ?({|
+    +__typename: "PhotoStory",
+    +__isFeedUnit: "PhotoStory",
+    +id: string,
+    +photo: ?{|
+      +uri: ?string,
+    |},
+    +tracking: ?string,
+  |} | {|
+    +__typename: "Story",
+    +__isFeedUnit: "Story",
+    +id: string,
+    +name: ?string,
+    +tracking: ?string,
+  |} | {|
+    +__typename: string,
+    +__isFeedUnit?: string,
+    +id: string,
+    +tracking?: ?string,
+  |}),
+|};
+export type ExampleQuery = {|
+  rawResponse: ExampleQuery$rawResponse,
+  response: ExampleQuery$data,
+  variables: ExampleQuery$variables,
+|};

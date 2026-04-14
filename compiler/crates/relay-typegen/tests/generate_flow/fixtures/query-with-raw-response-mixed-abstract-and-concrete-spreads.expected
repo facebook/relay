@@ -1,0 +1,62 @@
+==================================== INPUT ====================================
+# Tests raw response type generation when a field has both interface and
+# concrete type spreads. The concrete branches that implement the interface
+# should include the interface fields as non-optional.
+# Story implements FeedUnit & Node, so it should get FeedUnit fields merged in.
+# PhotoStory also implements FeedUnit & Node.
+# The catch-all should have FeedUnit fields as optional.
+query ExampleQuery @raw_response_type {
+  node(id: "1") {
+    __typename
+    ... on FeedUnit {
+      tracking
+    }
+    ... on Story {
+      name
+    }
+    ... on PhotoStory {
+      photo {
+        uri
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = {||};
+export type ExampleQuery$data = {|
+  +node: ?{|
+    +__typename: string,
+    +name?: ?string,
+    +photo?: ?{|
+      +uri: ?string,
+    |},
+    +tracking?: ?string,
+  |},
+|};
+export type ExampleQuery$rawResponse = {|
+  +node: ?({|
+    +__typename: "PhotoStory",
+    +__isFeedUnit: "PhotoStory",
+    +id: string,
+    +photo: ?{|
+      +uri: ?string,
+    |},
+    +tracking: ?string,
+  |} | {|
+    +__typename: "Story",
+    +__isFeedUnit: "Story",
+    +id: string,
+    +name: ?string,
+    +tracking: ?string,
+  |} | {|
+    +__typename: string,
+    +__isFeedUnit?: string,
+    +id: string,
+    +tracking?: ?string,
+  |}),
+|};
+export type ExampleQuery = {|
+  rawResponse: ExampleQuery$rawResponse,
+  response: ExampleQuery$data,
+  variables: ExampleQuery$variables,
+|};

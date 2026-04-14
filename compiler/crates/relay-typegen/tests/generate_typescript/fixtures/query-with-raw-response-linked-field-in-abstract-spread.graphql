@@ -1,0 +1,19 @@
+# Tests that linked fields inside abstract type spreads correctly
+# inherit abstract_type and are merged into concrete branches.
+# FeedUnit has `message: Text` (a linked field). Story and PhotoStory
+# implement FeedUnit, so the message field should be non-optional
+# in their branches and optional in the catch-all.
+query ExampleQuery @raw_response_type {
+  node(id: "1") {
+    __typename
+    ... on FeedUnit {
+      message {
+        text
+      }
+      tracking
+    }
+    ... on Story {
+      name
+    }
+  }
+}

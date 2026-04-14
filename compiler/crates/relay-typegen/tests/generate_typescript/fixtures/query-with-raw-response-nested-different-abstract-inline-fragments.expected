@@ -1,0 +1,70 @@
+==================================== INPUT ====================================
+query ExampleQuery @raw_response_type {
+  maybeNode {
+    __typename
+    ... on MaybeNodeInterface {
+      name
+      ... on FeedUnit {
+        tracking
+      }
+    }
+    ... on Story {
+      body {
+        text
+      }
+    }
+    ... on NonNodeNoID {
+      name
+    }
+  }
+}
+
+%extensions%
+
+extend union MaybeNode = NonNodeNoID
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = Record<PropertyKey, never>;
+export type ExampleQuery$data = {
+  readonly maybeNode: {
+    readonly __typename: string;
+    readonly body?: {
+      readonly text: string | null | undefined;
+    } | null | undefined;
+    readonly name?: string | null | undefined;
+    readonly tracking?: string | null | undefined;
+  } | null | undefined;
+};
+export type ExampleQuery$rawResponse = {
+  readonly maybeNode: {
+    readonly __typename: "FakeNode";
+    readonly id: string;
+  } | {
+    readonly __typename: "NonNodeNoID";
+    readonly __isMaybeNodeInterface: "NonNodeNoID";
+    readonly name: string | null | undefined;
+  } | {
+    readonly __typename: "Story";
+    readonly __isFeedUnit: "Story";
+    readonly __isMaybeNodeInterface: "Story";
+    readonly __isNode: "Story";
+    readonly body: {
+      readonly text: string | null | undefined;
+    } | null | undefined;
+    readonly id: string;
+    readonly name: string | null | undefined;
+    readonly tracking: string | null | undefined;
+  } | {
+    readonly __typename: string;
+    readonly __isFeedUnit?: string;
+    readonly __isMaybeNodeInterface?: string;
+    readonly __isNode?: string;
+    readonly id?: string;
+    readonly name?: string | null | undefined;
+    readonly tracking?: string | null | undefined;
+  } | null | undefined;
+};
+export type ExampleQuery = {
+  rawResponse: ExampleQuery$rawResponse;
+  response: ExampleQuery$data;
+  variables: ExampleQuery$variables;
+};

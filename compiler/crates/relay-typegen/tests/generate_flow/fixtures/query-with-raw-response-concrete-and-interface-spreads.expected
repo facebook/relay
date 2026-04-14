@@ -1,0 +1,43 @@
+==================================== INPUT ====================================
+# When a query spreads on both an interface and concrete types,
+# concrete type branches that implement the interface should include
+# the interface fields as non-optional (merged into the concrete branch).
+# Story implements Node & FeedUnit & MaybeNodeInterface,
+# so interface fields from those spreads should appear on Story's branch.
+query ExampleQuery @raw_response_type {
+  node(id: "1") {
+    __typename
+    ... on FeedUnit {
+      id
+    }
+    ... on Story {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = {||};
+export type ExampleQuery$data = {|
+  +node: ?{|
+    +__typename: string,
+    +id?: string,
+    +name?: ?string,
+  |},
+|};
+export type ExampleQuery$rawResponse = {|
+  +node: ?({|
+    +__typename: "Story",
+    +__isFeedUnit: "Story",
+    +id: string,
+    +name: ?string,
+  |} | {|
+    +__typename: string,
+    +__isFeedUnit?: string,
+    +id: string,
+  |}),
+|};
+export type ExampleQuery = {|
+  rawResponse: ExampleQuery$rawResponse,
+  response: ExampleQuery$data,
+  variables: ExampleQuery$variables,
+|};

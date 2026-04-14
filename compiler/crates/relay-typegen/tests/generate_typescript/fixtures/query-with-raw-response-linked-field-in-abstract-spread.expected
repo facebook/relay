@@ -1,0 +1,57 @@
+==================================== INPUT ====================================
+# Tests that linked fields inside abstract type spreads correctly
+# inherit abstract_type and are merged into concrete branches.
+# FeedUnit has `message: Text` (a linked field). Story and PhotoStory
+# implement FeedUnit, so the message field should be non-optional
+# in their branches and optional in the catch-all.
+query ExampleQuery @raw_response_type {
+  node(id: "1") {
+    __typename
+    ... on FeedUnit {
+      message {
+        text
+      }
+      tracking
+    }
+    ... on Story {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = Record<PropertyKey, never>;
+export type ExampleQuery$data = {
+  readonly node: {
+    readonly __typename: string;
+    readonly message?: {
+      readonly text: string | null | undefined;
+    } | null | undefined;
+    readonly name?: string | null | undefined;
+    readonly tracking?: string | null | undefined;
+  } | null | undefined;
+};
+export type ExampleQuery$rawResponse = {
+  readonly node: {
+    readonly __typename: "Story";
+    readonly __isFeedUnit: "Story";
+    readonly id: string;
+    readonly message: {
+      readonly text: string | null | undefined;
+    } | null | undefined;
+    readonly name: string | null | undefined;
+    readonly tracking: string | null | undefined;
+  } | {
+    readonly __typename: string;
+    readonly __isFeedUnit?: string;
+    readonly id: string;
+    readonly message?: {
+      readonly text: string | null | undefined;
+    } | null | undefined;
+    readonly tracking?: string | null | undefined;
+  } | null | undefined;
+};
+export type ExampleQuery = {
+  rawResponse: ExampleQuery$rawResponse;
+  response: ExampleQuery$data;
+  variables: ExampleQuery$variables;
+};

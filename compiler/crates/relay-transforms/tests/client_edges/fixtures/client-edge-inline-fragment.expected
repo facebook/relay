@@ -43,7 +43,7 @@ fragment Foo_node on Node {
        {
         ...BestFriendResolverFragment_name @__RelayResolverMetadata
         # RelayResolverMetadata {
-        #     field_id: FieldID(529),
+        #     field_id: FieldID(530),
         #     import_path: "BestFriendResolver",
         #     import_name: None,
         #     field_alias: None,
@@ -76,7 +76,7 @@ fragment Foo_node on Node {
        {
         ...BestFriendResolverFragment_name @__RelayResolverMetadata
         # RelayResolverMetadata {
-        #     field_id: FieldID(529),
+        #     field_id: FieldID(530),
         #     import_path: "BestFriendResolver",
         #     import_name: None,
         #     field_alias: None,

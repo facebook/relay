@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8298469873db01e6c9336098f8c1faca>>
+ * @generated SignedSource<<1e9b50192ae621a2fb72df79a51491ff>>
  */
 
 mod generate_flow;
@@ -297,6 +297,13 @@ async fn mutation_with_nested_fragments() {
     let input = include_str!("generate_flow/fixtures/mutation-with-nested-fragments.graphql");
     let expected = include_str!("generate_flow/fixtures/mutation-with-nested-fragments.expected");
     test_fixture(transform_fixture, file!(), "mutation-with-nested-fragments.graphql", "generate_flow/fixtures/mutation-with-nested-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn mutation_with_one_of() {
+    let input = include_str!("generate_flow/fixtures/mutation-with-one-of.graphql");
+    let expected = include_str!("generate_flow/fixtures/mutation-with-one-of.expected");
+    test_fixture(transform_fixture, file!(), "mutation-with-one-of.graphql", "generate_flow/fixtures/mutation-with-one-of.expected", input, expected).await;
 }
 
 #[tokio::test]

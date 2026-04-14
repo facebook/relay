@@ -38,7 +38,7 @@ fragment Foo_user on User {
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(530),
+    #     field_id: FieldID(531),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,

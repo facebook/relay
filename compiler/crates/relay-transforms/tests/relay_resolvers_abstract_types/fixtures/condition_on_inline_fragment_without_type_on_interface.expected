@@ -30,7 +30,7 @@ fragment conditionOnInlineFragmentWithoutTypeOnInterfaceFragment on Cat {
     ... on Tabby {
       __id @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_id: FieldID(532),
+      #     field_id: FieldID(533),
       #     import_path: "TabbyResolver",
       #     import_name: None,
       #     field_alias: None,
@@ -47,7 +47,7 @@ fragment conditionOnInlineFragmentWithoutTypeOnInterfaceFragment on Cat {
       
       __id @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_id: FieldID(531),
+      #     field_id: FieldID(532),
       #     import_path: "TabbyResolver",
       #     import_name: None,
       #     field_alias: None,

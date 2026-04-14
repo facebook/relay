@@ -39,7 +39,7 @@ fragment nestedFragmentSpreadOnAbstractTypeFragment on Cat {
   ... on Tabby {
     __id @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(530),
+    #     field_id: FieldID(531),
     #     import_path: "TabbyResolver",
     #     import_name: None,
     #     field_alias: None,
@@ -70,7 +70,7 @@ query nestedFragmentSpreadOnAbstractTypeQuery {
     ... on Tabby {
       __id @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_id: FieldID(530),
+      #     field_id: FieldID(531),
       #     import_path: "TabbyResolver",
       #     import_name: None,
       #     field_alias: None,

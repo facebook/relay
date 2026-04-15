@@ -8,6 +8,7 @@
 import { DataID, Disposable } from "../util/RelayRuntimeTypes";
 import {
     CheckOptions,
+    LogFunction,
     MutableRecordSource,
     OperationAvailability,
     OperationDescriptor,
@@ -31,6 +32,7 @@ export default class RelayModernStore implements Store {
         source: MutableRecordSource,
         options?: {
             gcScheduler?: Scheduler | null | undefined;
+            log?: LogFunction | null | undefined;
             operationLoader?: OperationLoader | null | undefined;
             gcReleaseBufferSize?: number | null | undefined;
             queryCacheExpirationTime?: number | null | undefined;

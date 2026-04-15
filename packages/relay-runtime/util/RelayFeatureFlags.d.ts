@@ -34,6 +34,7 @@ export interface FeatureFlags {
     DISALLOW_NESTED_UPDATES: boolean;
     ENABLE_TYPENAME_PREFIXED_DATA_ID: boolean;
     CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: boolean;
+    ENABLE_READER_FRAGMENTS_LOGGING: boolean;
 }
 
 export const RelayFeatureFlags: FeatureFlags;

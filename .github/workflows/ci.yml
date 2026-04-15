@@ -272,6 +272,16 @@ jobs:
           chmod +x macos-x64/relay
           chmod +x macos-arm64/relay
 
+      # Artifactory restricts publishing to certain branch names, it will not accept publishing from main-atl
+      - name: Sync main-atl to release branch
+        if: github.ref == 'refs/heads/main-atl'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main-atl release --depth=1
+          git push origin main-atl:release --force-with-lease
+          git checkout release
+
       - name: Build latest (main) version
         if: github.ref == 'refs/heads/main-atl'
         run: yarn gulp mainrelease
@@ -281,6 +291,10 @@ jobs:
       - name: Build release version
         if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
         run: yarn gulp release
+
+      - name: Update GitHub ref for publish token generation
+        if: github.ref == 'refs/heads/main-atl'
+        run: echo "GITHUB_REF=refs/heads/release" >> $GITHUB_ENV
 
       - name: Get Artifact publish token
         if: github.ref == 'refs/heads/main-atl' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
@@ -296,5 +310,5 @@ jobs:
             npm publish "./$pkg" ${TAG} --userconfig=./.npmrc-public --@atlassian:registry="https://packages.atlassian.com/api/npm/npm-public/"
           done
         env:
-          TAG: ${{ github.ref == 'refs/heads/main-atl' && '--tag=release' || ((contains(github.ref_name, '-rc.') && '--tag=dev') || '' )}}
+          TAG: ${{ github.ref == 'refs/heads/main-atl' && '--tag=main-atl' || ((contains(github.ref_name, '-rc.') && '--tag=dev') || '' )}}
           NPM_REGISTRY: ${{ secrets.REGISTRY }}

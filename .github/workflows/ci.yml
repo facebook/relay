@@ -280,10 +280,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main-atl release --depth=1
           git push origin main-atl:release --force-with-lease
-          git checkout release
 
       - name: Build latest (main) version
-        if: github.ref == 'refs/heads/main-atl'
+        if: github.ref == 'refs/heads/release'
         run: yarn gulp mainrelease
         env:
           RELEASE_COMMIT_SHA: ${{ github.sha }}
@@ -292,23 +291,19 @@ jobs:
         if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
         run: yarn gulp release
 
-      - name: Update GitHub ref for publish token generation
-        if: github.ref == 'refs/heads/main-atl'
-        run: echo "GITHUB_REF=refs/heads/release" >> $GITHUB_ENV
-
       - name: Get Artifact publish token
-        if: github.ref == 'refs/heads/main-atl' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+        if: github.ref == 'refs/heads/release'
         id: publish-token
         uses: atlassian-labs/artifact-publish-token@v1.0.1
         with:
           output-modes: npm
 
       - name: Publish to npm
-        if: github.ref == 'refs/heads/main-atl' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+        if: github.ref == 'refs/heads/release' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
         run: |
           for pkg in dist/*; do
             npm publish "./$pkg" ${TAG} --userconfig=./.npmrc-public --@atlassian:registry="https://packages.atlassian.com/api/npm/npm-public/"
           done
         env:
-          TAG: ${{ github.ref == 'refs/heads/main-atl' && '--tag=main-atl' || ((contains(github.ref_name, '-rc.') && '--tag=dev') || '' )}}
+          TAG: ${{ github.ref == 'refs/heads/release' && '--tag=main-atl' || ((contains(github.ref_name, '-rc.') && '--tag=dev') || '' )}}
           NPM_REGISTRY: ${{ secrets.REGISTRY }}

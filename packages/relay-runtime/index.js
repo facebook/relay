@@ -15,6 +15,8 @@
 
 'use strict';
 
+/* eslint relay-internal/esm-compatible-cjs: error */
+
 const {isErrorResult, isValueResult} = require('./experimental');
 const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
 const ConnectionInterface = require('./handlers/connection/ConnectionInterface');
@@ -266,6 +268,77 @@ if (__DEV__) {
   }
 }
 
+const {
+  areEqualSelectors,
+  createNormalizationSelector,
+  createReaderSelector,
+  getDataIDsFromFragment,
+  getDataIDsFromObject,
+  getPluralSelector,
+  getSelector,
+  getSelectorsFromObject,
+  getSingularSelector,
+  getVariablesFromFragment,
+  getVariablesFromObject,
+  getVariablesFromPluralFragment,
+  getVariablesFromSingularFragment,
+} = RelayModernSelector;
+
+const {createOperationDescriptor, createRequestDescriptor} =
+  RelayModernOperationDescriptor;
+
+const {
+  getArgumentValues,
+  getModuleComponentKey,
+  getModuleOperationKey,
+  getStorageKey,
+  FRAGMENTS_KEY,
+  FRAGMENT_OWNER_KEY,
+  ID_KEY,
+  REF_KEY,
+  REFS_KEY,
+  ROOT_ID,
+  ROOT_TYPE,
+  TYPENAME_KEY,
+} = RelayStoreUtils;
+
+const {
+  getNode,
+  getFragment,
+  getInlineDataFragment,
+  getPaginationFragment,
+  getRefetchableFragment,
+  getRequest,
+  graphql,
+  isFragment,
+  isInlineDataFragment,
+  isRequest,
+} = GraphQLTag;
+
+const {readFragment} = ResolverFragments;
+
+const {DEFAULT_HANDLE_KEY} = RelayDefaultHandleKey;
+
+const {MutationTypes, RangeOperations} = RelayDeclarativeMutationConfig;
+
+const {VIEWER_ID, VIEWER_TYPE} = ViewerPattern;
+
+const __internal = {
+  ResolverFragments,
+  OperationTracker: RelayOperationTracker,
+  createRelayContext: createRelayContext,
+  createRelayLoggingContext: createRelayLoggingContext,
+  getOperationVariables: RelayConcreteVariables.getOperationVariables,
+  getLocalVariables: RelayConcreteVariables.getLocalVariables,
+  fetchQuery: fetchQueryInternal.fetchQuery,
+  fetchQueryDeduped: fetchQueryInternal.fetchQueryDeduped,
+  getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
+  getObservableForActiveRequest:
+    fetchQueryInternal.getObservableForActiveRequest,
+  normalizeResponse: normalizeResponse,
+  withProvidedVariables: withProvidedVariables,
+};
+
 /**
  * The public interface to Relay Runtime.
  */
@@ -280,59 +353,55 @@ module.exports = {
   ReplaySubject: RelayReplaySubject,
   Store: RelayModernStore,
 
-  areEqualSelectors: RelayModernSelector.areEqualSelectors,
+  areEqualSelectors,
   createFragmentSpecResolver: createFragmentSpecResolver,
-  createNormalizationSelector: RelayModernSelector.createNormalizationSelector,
-  createOperationDescriptor:
-    RelayModernOperationDescriptor.createOperationDescriptor,
-  createReaderSelector: RelayModernSelector.createReaderSelector,
-  createRequestDescriptor:
-    RelayModernOperationDescriptor.createRequestDescriptor,
-  getArgumentValues: RelayStoreUtils.getArgumentValues,
-  getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
-  getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
-  getNode: GraphQLTag.getNode,
-  getFragment: GraphQLTag.getFragment,
-  getInlineDataFragment: GraphQLTag.getInlineDataFragment,
-  getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
-  getModuleOperationKey: RelayStoreUtils.getModuleOperationKey,
-  getPaginationFragment: GraphQLTag.getPaginationFragment,
-  getPluralSelector: RelayModernSelector.getPluralSelector,
-  getRefetchableFragment: GraphQLTag.getRefetchableFragment,
-  getRequest: GraphQLTag.getRequest,
+  createNormalizationSelector,
+  createOperationDescriptor,
+  createReaderSelector,
+  createRequestDescriptor,
+  getArgumentValues,
+  getDataIDsFromFragment,
+  getDataIDsFromObject,
+  getNode,
+  getFragment,
+  getInlineDataFragment,
+  getModuleComponentKey,
+  getModuleOperationKey,
+  getPaginationFragment,
+  getPluralSelector,
+  getRefetchableFragment,
+  getRequest,
   getRequestIdentifier: getRequestIdentifier,
-  getSelector: RelayModernSelector.getSelector,
-  getSelectorsFromObject: RelayModernSelector.getSelectorsFromObject,
-  getSingularSelector: RelayModernSelector.getSingularSelector,
-  getStorageKey: RelayStoreUtils.getStorageKey,
-  getVariablesFromFragment: RelayModernSelector.getVariablesFromFragment,
-  getVariablesFromObject: RelayModernSelector.getVariablesFromObject,
-  getVariablesFromPluralFragment:
-    RelayModernSelector.getVariablesFromPluralFragment,
-  getVariablesFromSingularFragment:
-    RelayModernSelector.getVariablesFromSingularFragment,
+  getSelector,
+  getSelectorsFromObject,
+  getSingularSelector,
+  getStorageKey,
+  getVariablesFromFragment,
+  getVariablesFromObject,
+  getVariablesFromPluralFragment,
+  getVariablesFromSingularFragment,
   handlePotentialSnapshotErrors,
-  graphql: GraphQLTag.graphql,
+  graphql,
   isErrorResult: isErrorResult,
   isValueResult: isValueResult,
-  isFragment: GraphQLTag.isFragment,
-  isInlineDataFragment: GraphQLTag.isInlineDataFragment,
+  isFragment,
+  isInlineDataFragment,
   isSuspenseSentinel,
   suspenseSentinel,
-  isRequest: GraphQLTag.isRequest,
+  isRequest,
   readInlineData,
-  readFragment: ResolverFragments.readFragment,
+  readFragment,
 
   // Declarative mutation API
-  MutationTypes: RelayDeclarativeMutationConfig.MutationTypes,
-  RangeOperations: RelayDeclarativeMutationConfig.RangeOperations,
+  MutationTypes,
+  RangeOperations,
 
   // Extensions
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
   ConnectionHandler,
   MutationHandlers,
-  VIEWER_ID: ViewerPattern.VIEWER_ID,
-  VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
+  VIEWER_ID,
+  VIEWER_TYPE,
 
   // Helpers (can be implemented via the above API)
   applyOptimisticMutation,
@@ -355,15 +424,15 @@ module.exports = {
   RelayConcreteNode: RelayConcreteNode,
   RelayError: RelayError,
   RelayFeatureFlags: RelayFeatureFlags,
-  DEFAULT_HANDLE_KEY: RelayDefaultHandleKey.DEFAULT_HANDLE_KEY,
-  FRAGMENTS_KEY: RelayStoreUtils.FRAGMENTS_KEY,
-  FRAGMENT_OWNER_KEY: RelayStoreUtils.FRAGMENT_OWNER_KEY,
-  ID_KEY: RelayStoreUtils.ID_KEY,
-  REF_KEY: RelayStoreUtils.REF_KEY,
-  REFS_KEY: RelayStoreUtils.REFS_KEY,
-  ROOT_ID: RelayStoreUtils.ROOT_ID,
-  ROOT_TYPE: RelayStoreUtils.ROOT_TYPE,
-  TYPENAME_KEY: RelayStoreUtils.TYPENAME_KEY,
+  DEFAULT_HANDLE_KEY,
+  FRAGMENTS_KEY,
+  FRAGMENT_OWNER_KEY,
+  ID_KEY,
+  REF_KEY,
+  REFS_KEY,
+  ROOT_ID,
+  ROOT_TYPE,
+  TYPENAME_KEY,
 
   deepFreeze: deepFreeze,
   generateClientID: generateClientID,
@@ -381,19 +450,5 @@ module.exports = {
   getPaginationVariables: getPaginationVariables,
   getPendingOperationsForFragment: getPendingOperationsForFragment,
   getValueAtPath: getValueAtPath,
-  __internal: {
-    ResolverFragments,
-    OperationTracker: RelayOperationTracker,
-    createRelayContext: createRelayContext,
-    createRelayLoggingContext: createRelayLoggingContext,
-    getOperationVariables: RelayConcreteVariables.getOperationVariables,
-    getLocalVariables: RelayConcreteVariables.getLocalVariables,
-    fetchQuery: fetchQueryInternal.fetchQuery,
-    fetchQueryDeduped: fetchQueryInternal.fetchQueryDeduped,
-    getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
-    getObservableForActiveRequest:
-      fetchQueryInternal.getObservableForActiveRequest,
-    normalizeResponse: normalizeResponse,
-    withProvidedVariables: withProvidedVariables,
-  },
+  __internal,
 };

@@ -1455,6 +1455,44 @@ mod tests {
         );
     }
 
+    /// End-to-end test: a type with 5000 fields must not stack-overflow when
+    /// printed on a 1 MB thread stack (Windows default). Before the
+    /// `balanced_intersperse` fix, `RcDoc::intersperse` built a linear chain
+    /// whose recursive `Drop` overflowed.
+    #[test]
+    fn test_large_type_no_stack_overflow_1mb() {
+        let result = std::thread::Builder::new()
+            .name("1mb-schema-test".into())
+            .stack_size(1024 * 1024) // 1 MB
+            .spawn(|| {
+                let n = 5000;
+                let fields: Vec<String> =
+                    (0..n).map(|i| format!("  field_{}: String", i)).collect();
+                let source = format!("type HugeType {{\n{}\n}}", fields.join("\n"));
+                let document = graphql_syntax::parse_schema_document(
+                    &source,
+                    common::SourceLocationKey::generated(),
+                )
+                .expect("should parse schema with 5000 fields");
+                let output = prettier_print_schema_document(&document);
+                assert!(
+                    output.contains("field_0: String"),
+                    "output should contain field_0"
+                );
+                assert!(
+                    output.contains(&format!("field_{}: String", n - 1)),
+                    "output should contain last field"
+                );
+            })
+            .expect("should spawn thread")
+            .join();
+
+        assert!(
+            result.is_ok(),
+            "thread panicked or aborted (stack overflow?)"
+        );
+    }
+
     #[test]
     fn test_field_arg_stays_inline_with_short_directive() {
         let result = print(

@@ -262,6 +262,36 @@ mod tests {
         assert_eq!(result, expected);
     }
 
+    /// Verifies that `balanced_intersperse` does not stack-overflow when
+    /// dropping a large tree on a 1 MB thread stack (the Windows default).
+    /// With the old `RcDoc::intersperse`, 5000 docs produce a linear Append
+    /// chain ~10000 deep, which overflows during `Rc<Doc>::drop`.
+    #[test]
+    fn test_balanced_intersperse_no_stack_overflow_1mb() {
+        let result = std::thread::Builder::new()
+            .name("1mb-stack-test".into())
+            .stack_size(1024 * 1024) // 1 MB — Windows default
+            .spawn(|| {
+                let n = 5000;
+                let docs: Vec<RcDoc<'static, ()>> = (0..n)
+                    .map(|i| RcDoc::text(format!("field_{}", i)))
+                    .collect();
+                let doc = balanced_intersperse(docs, RcDoc::hardline());
+                let output = render_doc(doc, LINE_WIDTH);
+                let lines: Vec<&str> = output.lines().collect();
+                assert_eq!(lines.len(), n, "should have {} lines", n);
+                assert_eq!(lines[0], "field_0");
+                assert_eq!(lines[n - 1], &format!("field_{}", n - 1));
+            })
+            .expect("should spawn thread")
+            .join();
+
+        assert!(
+            result.is_ok(),
+            "thread panicked or aborted (stack overflow?)"
+        );
+    }
+
     #[test]
     fn test_if_break_doc_flat() {
         let doc = if_break_doc(RcDoc::text("BROKEN"), RcDoc::text("flat"))

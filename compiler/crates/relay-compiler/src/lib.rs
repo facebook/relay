@@ -59,6 +59,7 @@ pub use config::ProjectConfig;
 pub use config::RemotePersistConfig;
 pub use config::SchemaLocation;
 pub use config::TestFileSourceConfig;
+pub use config::TestFileSourceEvent;
 pub use errors::CompilerErrorPrinter;
 pub use errors::print_compiler_error;
 pub use file_source::ExternalFileSourceResult;

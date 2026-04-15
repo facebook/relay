@@ -38,7 +38,7 @@ pub use read_file_to_string::read_file_to_string;
 use serde::Deserialize;
 use serde_bser::value::Value;
 pub use source_control_update_status::SourceControlUpdateStatus;
-use tokio::sync::Notify;
+use tokio::sync::broadcast;
 pub use watchman_client::prelude::Clock;
 use watchman_file_source::WatchmanFileSource;
 
@@ -55,6 +55,7 @@ pub use self::walk_dir_file_source::WalkDirFileSourceResult;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::config::FileSourceKind;
+use crate::config::TestFileSourceEvent;
 use crate::errors::Error;
 use crate::errors::Result;
 
@@ -150,8 +151,8 @@ impl FileSource {
                     .walk_dir_source
                     .create_compiler_state(perf_logger)?;
 
-                let notify = match &file_source.config.file_source_config {
-                    FileSourceKind::Test(config) => Arc::clone(&config.notify),
+                let receiver = match &file_source.config.file_source_config {
+                    FileSourceKind::Test(config) => config.subscribe(),
                     _ => unreachable!("TestFileSource must have FileSourceKind::Test config"),
                 };
                 let walk_dir_source = WalkDirFileSource::new(Arc::clone(&file_source.config));
@@ -159,7 +160,7 @@ impl FileSource {
                 Ok((
                     compiler_state,
                     FileSourceSubscription::Test(TestFileSourceSubscription {
-                        notify,
+                        receiver,
                         walk_dir_source,
                     }),
                 ))
@@ -235,12 +236,12 @@ pub enum FileSourceSubscription {
 
 /// Test file source subscription for watch mode testing.
 ///
-/// This subscription waits on a Notify signal from tests, then does a
-/// WalkDir rescan to find what files changed. This allows tests to:
-/// 1. Write file changes to disk
-/// 2. Call `TestFileSourceConfig::notify()` to trigger a rescan and rebuild
+/// This subscription receives typed events from a broadcast channel,
+/// allowing tests to simulate file changes and source control events.
+/// On `FileChanged`, it does a WalkDir rescan to find changed files.
+/// Source control events are forwarded to the compiler's event handling.
 pub struct TestFileSourceSubscription {
-    notify: Arc<Notify>,
+    receiver: broadcast::Receiver<TestFileSourceEvent>,
     walk_dir_source: WalkDirFileSource,
 }
 
@@ -254,10 +255,32 @@ impl FileSourceSubscription {
                 )
             }
             Self::Test(test_subscription) => {
-                test_subscription.notify.notified().await;
-                // Do a WalkDir rescan to find what files changed
-                let result = test_subscription.walk_dir_source.query_files()?;
-                Ok(FileSourceSubscriptionNextChange::Test(result))
+                match test_subscription.receiver.recv().await {
+                    Ok(TestFileSourceEvent::FileChanged) => {
+                        let result = test_subscription.walk_dir_source.query_files()?;
+                        Ok(FileSourceSubscriptionNextChange::Test(result))
+                    }
+                    Ok(TestFileSourceEvent::SourceControlUpdateEnter) => {
+                        Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateEnter)
+                    }
+                    Ok(TestFileSourceEvent::SourceControlUpdateLeave) => {
+                        Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateLeave)
+                    }
+                    Ok(TestFileSourceEvent::SourceControlUpdate) => {
+                        Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdate)
+                    }
+                    Err(broadcast::error::RecvError::Lagged(_)) => {
+                        // The receiver fell behind and missed messages because the
+                        // broadcast channel's fixed capacity was exceeded. Unlikely
+                        // in tests, but recover by doing a full WalkDir rescan to
+                        // pick up the current disk state.
+                        let result = test_subscription.walk_dir_source.query_files()?;
+                        Ok(FileSourceSubscriptionNextChange::Test(result))
+                    }
+                    Err(broadcast::error::RecvError::Closed) => Err(Error::ConfigError {
+                        details: "Test broadcast channel closed".to_string(),
+                    }),
+                }
             }
         }
     }
@@ -268,4 +291,10 @@ pub enum FileSourceSubscriptionNextChange {
     Watchman(WatchmanFileSourceSubscriptionNextChange),
     /// Test file source notification with rescanned files
     Test(WalkDirFileSourceResult),
+    /// Test: source control update started (mirrors watchman hg.update enter)
+    TestSourceControlUpdateEnter,
+    /// Test: source control update finished, no base revision change
+    TestSourceControlUpdateLeave,
+    /// Test: source control update finished with new base revision (triggers watch loop restart)
+    TestSourceControlUpdate,
 }

@@ -689,10 +689,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       });
 
       // Mock network error
-      TestRenderer.act(() => {
-        environment.mock.reject(gqlRefetchQuery, new Error('Oops'));
-      });
       await TestRenderer.act(async () => {
+        environment.mock.reject(gqlRefetchQuery, new Error('Oops'));
         await flushMicrotasks();
       });
 
@@ -1622,11 +1620,12 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         await flushMicrotasks();
       });
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         refetch({id: '3', scale: 32}, {fetchPolicy: 'network-only'});
+        await flushMicrotasks();
       });
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         environment.mock.resolve(gqlRefetchQuery, {
           data: {
             node: {
@@ -1640,10 +1639,12 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             },
           },
         });
+        await flushMicrotasks();
       });
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         jest.runAllTimers();
+        await flushMicrotasks();
       });
 
       expect(
@@ -4015,7 +4016,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           newEnvironment,
         );
 
-        TestRenderer.act(() => {
+        await TestRenderer.act(async () => {
           newEnvironment.mock.resolve(gqlRefetchQuery, {
             data: {
               node: {
@@ -4029,8 +4030,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
             },
           });
+          await flushMicrotasks();
         });
-        await TestRenderer.act(() => flushMicrotasks());
 
         // Data should be loaded on the newEnvironment
         const dataInSource = {
@@ -4093,7 +4094,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           anotherNewEnvironment,
         );
 
-        TestRenderer.act(() => {
+        await TestRenderer.act(async () => {
           anotherNewEnvironment.mock.resolve(gqlRefetchQuery, {
             data: {
               node: {
@@ -4107,6 +4108,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               },
             },
           });
+          await flushMicrotasks();
         });
         expect(anotherNewEnvironment.getStore().getSource().get('1')).toEqual(
           dataInSource,

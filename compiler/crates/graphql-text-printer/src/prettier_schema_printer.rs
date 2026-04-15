@@ -42,6 +42,7 @@ use pretty::RcDoc;
 
 use crate::prettier_doc_builders::INDENT_WIDTH;
 use crate::prettier_doc_builders::LINE_WIDTH;
+use crate::prettier_doc_builders::balanced_intersperse;
 use crate::prettier_doc_builders::constant_argument_doc;
 use crate::prettier_doc_builders::constant_directive_doc;
 use crate::prettier_doc_builders::constant_directives_doc;
@@ -151,7 +152,7 @@ fn operation_type_fields_doc(fields: &[OperationTypeDefinition]) -> RcDoc<'stati
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(field_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -353,7 +354,7 @@ fn union_members_doc(
 
         RcDoc::text(" =")
             .append(RcDoc::hardline())
-            .append(RcDoc::intersperse(member_docs, RcDoc::hardline()))
+            .append(balanced_intersperse(member_docs, RcDoc::hardline()))
     } else {
         RcDoc::text(single_line)
     }
@@ -415,7 +416,7 @@ fn enum_values_doc(values: &[EnumValueDefinition]) -> RcDoc<'static, ()> {
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(value_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(value_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -495,7 +496,7 @@ fn input_fields_doc(fields: &[InputValueDefinition]) -> RcDoc<'static, ()> {
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(field_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -588,7 +589,7 @@ fn directive_definition_doc(def: &DirectiveDefinition) -> RcDoc<'static, ()> {
             doc = doc
                 .append(RcDoc::text("("))
                 .append(RcDoc::hardline())
-                .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+                .append(balanced_intersperse(arg_docs, RcDoc::hardline()))
                 .append(RcDoc::hardline())
                 .append(RcDoc::text(")"));
         }
@@ -622,7 +623,7 @@ fn field_definitions_doc(fields: &[FieldDefinition]) -> RcDoc<'static, ()> {
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(field_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -703,7 +704,7 @@ fn arguments_definition_doc(
 
         RcDoc::text("(")
             .append(RcDoc::hardline())
-            .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+            .append(balanced_intersperse(arg_docs, RcDoc::hardline()))
             .append(RcDoc::hardline())
             .append(RcDoc::text("  )"))
     }

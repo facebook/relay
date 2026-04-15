@@ -212,6 +212,20 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                                     .push(FileSourceResult::WalkDir(file_source_changes));
                                 notify_sender.notify_one();
                             }
+                            Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateEnter) => {
+                                info!("Test: source control update started...");
+                                source_control_update_status.mark_as_started();
+                            }
+                            Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateLeave) => {
+                                info!("Test: source control update completed.");
+                                source_control_update_status.set_to_default();
+                            }
+                            Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdate) => {
+                                info!("Test: source control update with new base revision...");
+                                source_control_update_status.mark_as_completed();
+                                notify_sender.notify_one();
+                                break;
+                            }
                             Err(err) => {
                                 panic!("Watchman subscription error: {err}");
                             }

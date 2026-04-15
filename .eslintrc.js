@@ -89,6 +89,9 @@ module.exports = {
     // Custom rules for our own codebase
     'relay-internal/no-mixed-import-and-require': 'error',
     'relay-internal/sort-imports': 'error',
+
+    // Enabled only in relay package entry files
+    'relay-internal/esm-compatible-cjs': 'off',
   },
   overrides: [
     {

@@ -17,6 +17,8 @@
     "prettier": "find . -name node_modules -prune -or -name dist -prune -or -name '*.js' -print | xargs prettier --write",
     "prettier-check": "find . -name node_modules -prune -or -name dist -prune -or -name '*.js' -print | xargs prettier --check",
     "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; npm run test-dependencies || EXIT=$?; npm run jest \"$@\" || EXIT=$?; exit $EXIT; }; f",
+    "test:e2e": "cross-env NODE_ENV=test jest --config packages/relay-e2e-test/jest.config.js",
+    "test:e2e:install": "cd packages/relay-e2e-test && yarn install",
     "test-dependencies": "node ./scripts/testDependencies.js",
     "typecheck": "flow check"
   },
@@ -72,7 +74,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "nullthrows": "^1.1.1",
     "prettier": "3.6.2",
-    "prettier-plugin-hermes-parser": "0.34.1",
+    "prettier-plugin-hermes-parser": "0.35.0",
     "react": "0.0.0-experimental-7670501b-20241124",
     "react-dom": "0.0.0-experimental-7670501b-20241124",
     "react-refresh": "0.0.0-experimental-7670501b-20241124",
@@ -90,7 +92,8 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
       "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/))",
-      "<rootDir>/packages/relay-flight-experimental/"
+      "<rootDir>/packages/relay-flight-experimental/",
+      "<rootDir>/packages/relay-e2e-test/"
     ],
     "rootDir": "",
     "roots": [

@@ -667,7 +667,7 @@ mod tests {
 
     use parking_lot::Condvar;
     use parking_lot::Mutex;
-    use rand::Rng;
+    use rand::RngExt as _;
 
     use super::*;
 

@@ -1233,7 +1233,7 @@
       ]
     },
     "ResolversSchemaModuleConfig": {
-      "description": "Configuration for resolvers_schema_module generation",
+      "description": "Configuration for resolvers_schema_module generation.\n\nWhen `path` is provided, a monolithic resolver map file is generated at that\npath. When `path` is omitted, the map file is not generated but root\nfragment normalization split operations are still produced.",
       "type": "object",
       "properties": {
         "applyToNormalizationAst": {
@@ -1241,8 +1241,11 @@
           "default": false
         },
         "path": {
-          "type": "string",
-          "default": ""
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
         }
       },
       "additionalProperties": false

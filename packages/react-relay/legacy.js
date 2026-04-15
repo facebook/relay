@@ -11,6 +11,8 @@
 
 'use strict';
 
+/* eslint relay-internal/esm-compatible-cjs: error */
+
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayFragmentContainer = require('./ReactRelayFragmentContainer');
 const ReactRelayLocalQueryRenderer = require('./ReactRelayLocalQueryRenderer');
@@ -47,28 +49,45 @@ export type {
   FetchPolicy,
 } from 'relay-runtime';
 
+const {
+  ConnectionHandler,
+  MutationTypes,
+  RangeOperations,
+  applyOptimisticMutation,
+  commitLocalUpdate,
+  commitMutation,
+  fetchQuery_DEPRECATED,
+  graphql,
+  readInlineData,
+  requestSubscription,
+} = RelayRuntime;
+
+const createFragmentContainer = ReactRelayFragmentContainer.createContainer;
+const createPaginationContainer = ReactRelayPaginationContainer.createContainer;
+const createRefetchContainer = ReactRelayRefetchContainer.createContainer;
+
 /**
  * Legacy react-relay exports.
  * Should prefer using interface defined in ./hooks.js
  */
 module.exports = {
-  ConnectionHandler: RelayRuntime.ConnectionHandler,
+  ConnectionHandler,
   QueryRenderer: ReactRelayQueryRenderer,
   LocalQueryRenderer: ReactRelayLocalQueryRenderer,
 
-  MutationTypes: RelayRuntime.MutationTypes,
-  RangeOperations: RelayRuntime.RangeOperations,
+  MutationTypes,
+  RangeOperations,
 
   ReactRelayContext,
 
-  applyOptimisticMutation: RelayRuntime.applyOptimisticMutation,
-  commitLocalUpdate: RelayRuntime.commitLocalUpdate,
-  commitMutation: RelayRuntime.commitMutation,
-  createFragmentContainer: ReactRelayFragmentContainer.createContainer,
-  createPaginationContainer: ReactRelayPaginationContainer.createContainer,
-  createRefetchContainer: ReactRelayRefetchContainer.createContainer,
-  fetchQuery_DEPRECATED: RelayRuntime.fetchQuery_DEPRECATED,
-  graphql: RelayRuntime.graphql,
-  readInlineData: RelayRuntime.readInlineData,
-  requestSubscription: RelayRuntime.requestSubscription,
+  applyOptimisticMutation,
+  commitLocalUpdate,
+  commitMutation,
+  createFragmentContainer,
+  createPaginationContainer,
+  createRefetchContainer,
+  fetchQuery_DEPRECATED,
+  graphql,
+  readInlineData,
+  requestSubscription,
 };

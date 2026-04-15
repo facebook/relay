@@ -683,26 +683,26 @@ fn exclude_directives(
 ) -> Vec<DirectiveValue> {
     let mut not_excluded = Vec::new();
 
-    // Keep those directives NOT in the subset allowlist and NOT in other, or that are in other but are not equal.
+    // Keep those directives NOT in the subset allowlist and NOT in other, or that are in other but is not a directive subset.
     for this_directive in this {
         if !subset_directives.contains(&this_directive.name.0)
             && other
                 .named(this_directive.name)
                 .is_none_or(|other_directive| {
-                    !directive_value_semantically_eq(this_directive, other_directive)
+                    !directive_value_is_subset_of(this_directive, other_directive)
                 })
         {
             not_excluded.push(this_directive.clone());
         }
     }
 
-    // Now verify that all subset directives on other are contained in self with equal definitions!
+    // Now verify that all subset directives on other are contained in self with subset-equal definitions!
     for other_diretive in other {
         if subset_directives.contains(&other_diretive.name.0)
             && this
                 .named(other_diretive.name)
                 .is_none_or(|this_directive| {
-                    !directive_value_semantically_eq(other_diretive, this_directive)
+                    !directive_value_is_subset_of(this_directive, other_diretive)
                 })
         {
             not_excluded.push(build_missing_required_directive(other_diretive))
@@ -712,20 +712,32 @@ fn exclude_directives(
     not_excluded
 }
 
-/// Semantic equality for DirectiveValue, ignoring Token/Span source positions
-/// in directive argument values.
+/// Semantic subset for DirectiveValue, ignoring Token/Span source positions
+/// in directive argument values. Checks that 'this' is a subset of 'other'.
 ///
 /// The derived PartialEq on DirectiveValue compares argument ConstantValues structurally,
 /// which includes Token (containing Span { start, end }). Two semantically identical directives
 /// parsed at different byte offsets compare as unequal. This function compares only the semantic
 /// content: directive name, argument names, and argument values (ignoring source positions).
-fn directive_value_semantically_eq(a: &DirectiveValue, b: &DirectiveValue) -> bool {
-    a.name == b.name
-        && a.arguments.len() == b.arguments.len()
-        && a.arguments
-            .iter()
-            .zip(b.arguments.iter())
-            .all(|(a, b)| a.name == b.name && constant_value_semantically_eq(&a.value, &b.value))
+fn directive_value_is_subset_of(this: &DirectiveValue, other: &DirectiveValue) -> bool {
+    if this.name != other.name {
+        return false;
+    }
+
+    if this.arguments.is_empty() {
+        // We merge directives with no arguments and directives with arguments, so we also consider
+        // a no-argument directive as a subset of a directive with arguments.
+        return true;
+    }
+
+    if this.arguments.len() != other.arguments.len() {
+        return false;
+    }
+
+    this.arguments
+        .iter()
+        .zip(other.arguments.iter())
+        .all(|(a, b)| a.name == b.name && constant_value_semantically_eq(&a.value, &b.value))
 }
 
 /// Semantic equality for ConstantValue, ignoring Token/Span source positions.
@@ -1417,6 +1429,162 @@ pub mod tests {
             excluded,
             r#"
             type EmptyType
+            "#,
+        );
+    }
+
+    /// A directive with no arguments is a subset of the same directive with arguments,
+    /// matching the merge behavior where a no-arg directive adopts the other's arguments.
+    #[test]
+    fn directive_no_args_is_subset_of_directive_with_args() {
+        assert_base_exclude_expected!(
+            r#"
+            type Padding { id: ID }
+            type MyType @strong {
+                field: String
+            }
+            "#,
+            r#"
+            type MyType @strong(field: "id") {
+                field: String
+            }
+            "#,
+            r#"
+            type Padding {
+                id: ID
+            }
+            "#,
+        );
+    }
+
+    /// A directive WITH arguments is NOT a subset of the same directive with no arguments.
+    /// This is asymmetric: no-args is subset of with-args, but not vice versa.
+    #[test]
+    fn directive_with_args_is_not_subset_of_directive_no_args() {
+        assert_base_exclude_expected!(
+            r#"
+            type Padding { id: ID }
+            type MyType @strong(field: "id") {
+                field: String
+            }
+            "#,
+            r#"
+            type MyType @strong {
+                field: String
+            }
+            "#,
+            r#"
+            type Padding {
+                id: ID
+            }
+            type MyType @strong(field: "id")
+            "#,
+        );
+    }
+
+    /// Both directives have no arguments — they are equal and thus subsets of each other.
+    #[test]
+    fn directive_no_args_both_sides_excluded() {
+        assert_base_exclude_expected!(
+            r#"
+            type Padding { id: ID }
+            type MyType @deprecated {
+                field: String
+            }
+            "#,
+            r#"
+            type MyType @deprecated {
+                field: String
+            }
+            "#,
+            r#"
+            type Padding {
+                id: ID
+            }
+            "#,
+        );
+    }
+
+    /// Directives with different argument counts are NOT subsets (when both have args).
+    #[test]
+    fn directive_different_arg_count_not_excluded() {
+        assert_base_exclude_expected!(
+            r#"
+            type MyType @strong(field: "id") {
+                field: String
+            }
+            "#,
+            r#"
+            type MyType @strong(field: "id", other: "value") {
+                field: String
+            }
+            "#,
+            r#"
+            type MyType @strong(field: "id")
+            "#,
+        );
+    }
+
+    /// For subset_directives: a no-arg subset directive in base is a subset of
+    /// the with-arg version in exclude, so no @missing_required_directive is emitted.
+    #[test]
+    fn subset_directive_no_args_base_with_args_exclude() {
+        assert_base_exclude_empty!(
+            r#"
+            type Query { myQ: String @deprecated }
+            "#,
+            r#"
+            type Query { myQ: String @deprecated(reason: "use newQ") }
+            "#,
+            SafeExclusionOptions {
+                subset_directives: ["deprecated".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            }
+        );
+    }
+
+    /// For subset_directives: with-arg version is NOT a subset of no-arg version,
+    /// so @missing_required_directive should be emitted.
+    #[test]
+    fn subset_directive_with_args_base_no_args_exclude() {
+        assert_base_exclude_expected!(
+            r#"
+            type Query { myQ: String @deprecated(reason: "old") }
+            "#,
+            r#"
+            type Query { myQ: String @deprecated }
+            "#,
+            r#"
+            type Query { myQ: String @missing_required_directive(name: "deprecated") }
+            "#,
+            SafeExclusionOptions {
+                subset_directives: ["deprecated".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            }
+        );
+    }
+
+    /// On fields: a no-arg directive on a field is a subset of the same directive with args.
+    #[test]
+    fn field_directive_no_args_subset_of_with_args() {
+        assert_base_exclude_expected!(
+            r#"
+            type Padding { id: ID }
+            type Query {
+                myQ: String @deprecated
+                other: Int
+            }
+            "#,
+            r#"
+            type Query {
+                myQ: String @deprecated(reason: "use newQ")
+                other: Int
+            }
+            "#,
+            r#"
+            type Padding {
+                id: ID
+            }
             "#,
         );
     }

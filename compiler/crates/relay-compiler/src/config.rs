@@ -63,7 +63,7 @@ use serde::de::Error as DeError;
 use serde_json::Value;
 use sha1::Digest;
 use sha1::Sha1;
-use tokio::sync::Notify;
+use tokio::sync::broadcast;
 use watchman_client::pdu::ScmAwareClockData;
 
 use crate::GraphQLAsts;
@@ -225,26 +225,54 @@ pub enum FileSourceKind {
     Test(TestFileSourceConfig),
 }
 
+/// Events that can be sent through the test file source to simulate
+/// various file system and source control scenarios.
+#[derive(Debug, Clone)]
+pub enum TestFileSourceEvent {
+    /// Regular file changes detected (triggers WalkDir rescan)
+    FileChanged,
+    /// Source control update started (e.g. hg.update in progress).
+    /// Pauses build processing until leave/complete.
+    SourceControlUpdateEnter,
+    /// Source control update finished without a base revision change.
+    /// Resumes normal build processing.
+    SourceControlUpdateLeave,
+    /// Source control update finished with a new base revision.
+    /// Triggers a full watch loop restart (new subscription, fresh initial build).
+    SourceControlUpdate,
+}
+
 /// Configuration for test file source.
 ///
 /// This enables testing of watch mode by allowing external code to trigger
-/// file rescans. When notified, the compiler does a WalkDir rescan to find
-/// what files changed.
+/// file rescans and source control events. Uses a broadcast channel so that
+/// watch loop restarts (after `SourceControlUpdate`) can create fresh
+/// receivers from the same sender.
 #[derive(Clone)]
 pub struct TestFileSourceConfig {
-    /// Shared notify used for signaling file changes
-    pub notify: Arc<Notify>,
+    sender: broadcast::Sender<TestFileSourceEvent>,
 }
 
 impl TestFileSourceConfig {
     pub fn new() -> Self {
-        Self {
-            notify: Arc::new(Notify::new()),
-        }
+        let (sender, _) = broadcast::channel(16);
+        Self { sender }
     }
 
+    /// Notify the compiler of file changes (backward-compatible).
     pub fn notify(&self) {
-        self.notify.notify_one();
+        let _ = self.sender.send(TestFileSourceEvent::FileChanged);
+    }
+
+    /// Send a specific event to the test subscription.
+    pub fn send_event(&self, event: TestFileSourceEvent) {
+        let _ = self.sender.send(event);
+    }
+
+    /// Create a new broadcast receiver. Called each time a subscription is created,
+    /// including after watch loop restarts.
+    pub fn subscribe(&self) -> broadcast::Receiver<TestFileSourceEvent> {
+        self.sender.subscribe()
     }
 }
 

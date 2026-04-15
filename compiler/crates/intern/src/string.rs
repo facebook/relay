@@ -302,6 +302,13 @@ macro_rules! bytes_id {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+    use std::sync::atomic::AtomicU32;
+    use std::sync::atomic::Ordering;
+    use std::thread;
+
+    use rand::RngExt as _;
+
     use super::*;
 
     #[test]
@@ -376,13 +383,6 @@ mod tests {
 
     #[test]
     fn multithreaded() {
-        use std::sync::Arc;
-        use std::sync::atomic::AtomicU32;
-        use std::sync::atomic::Ordering;
-        use std::thread;
-
-        use rand::Rng;
-
         // Load test lots of threads creating strings, with load
         // gradually getting heavier on later (popular) strings.
         const N: usize = 20_000_000;

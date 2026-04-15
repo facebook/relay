@@ -379,7 +379,6 @@ it('does not release or cancel the query before the new component tree unsuspend
       /* $FlowFixMe[constant-condition] Error discovered during Constant
        * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       resolve && resolve();
-      await flushMicrotasks();
     });
 
     expect(currentDispose).toHaveBeenCalled();
@@ -477,7 +476,6 @@ it('releases and cancels query references associated with previous suspensions w
 
     await ReactTestRenderer.act(async () => {
       resolve();
-      await flushMicrotasks();
     });
     expect(firstDispose).toHaveBeenCalledTimes(1);
     expect(secondDispose).toHaveBeenCalledTimes(1);
@@ -573,7 +571,6 @@ it('releases and cancels query references associated with subsequent suspensions
 
     await ReactTestRenderer.act(async () => {
       resolve();
-      await flushMicrotasks();
     });
     expect(innerUnsuspendedCorrectly).toEqual(true);
     expect(firstDispose).not.toHaveBeenCalled();

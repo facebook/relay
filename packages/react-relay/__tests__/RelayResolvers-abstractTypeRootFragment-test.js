@@ -21,7 +21,6 @@ const {createMockEnvironment} = require('relay-test-utils');
 const {
   disallowConsoleErrors,
   disallowWarnings,
-  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -84,7 +83,6 @@ test('Can read a resolver with a rootFragment on an abstract type', async () => 
         },
       },
     });
-    await flushMicrotasks();
   });
 
   expect(logEvents).toEqual([]);

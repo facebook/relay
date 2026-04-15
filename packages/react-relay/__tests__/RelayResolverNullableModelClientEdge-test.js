@@ -29,7 +29,6 @@ const {
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {createMockEnvironment} = require('relay-test-utils');
-const {flushMicrotasks} = require('relay-test-utils-internal');
 
 /**
  * CLIENT EDGE TO PLURAL LIVE STRONG CLIENT OBJECT
@@ -429,7 +428,6 @@ test('client edge to server ID with no corresponding server object', async () =>
   expect(renderer?.toJSON()).toEqual('Loading...');
   await TestRenderer.act(async () => {
     mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
-    await flushMicrotasks();
   });
   // TODO T169274655 should this be 'server object was null'?
   expect(renderer?.toJSON()).toEqual('server object was undefined');
@@ -471,7 +469,6 @@ test('client edge to server ID with no corresponding server object (read only id
   expect(renderer?.toJSON()).toEqual('Loading...');
   await TestRenderer.act(async () => {
     mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
-    await flushMicrotasks();
   });
   // TODO T169274655 should this be 'server object was null'?
   expect(renderer?.toJSON()).toEqual('server object was undefined');

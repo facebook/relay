@@ -1082,7 +1082,6 @@ describe('usePreloadedQuery', () => {
                 </React.Suspense>
               </RelayEnvironmentProvider>,
             );
-            await flushMicrotasks();
           });
         };
 

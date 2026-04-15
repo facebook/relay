@@ -21,7 +21,6 @@ const {createMockEnvironment} = require('relay-test-utils');
 const {
   disallowConsoleErrors,
   disallowWarnings,
-  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -71,7 +70,6 @@ it('should catch a server field error', async () => {
         ],
       };
     });
-    await flushMicrotasks();
   });
   expect(renderer?.toJSON()).toBe('Error');
 });
@@ -111,7 +109,6 @@ it('should catch a @required(action: THROW) error', async () => {
     environment.mock.resolveMostRecentOperation(() => {
       return {data: {me: {id: '1', name: null}}};
     });
-    await flushMicrotasks();
   });
   expect(renderer?.toJSON()).toBe('Error');
 });
@@ -155,7 +152,6 @@ it('should catch Relay Resolver errors', async () => {
     environment.mock.resolveMostRecentOperation(() => {
       return {data: {me: {id: '1', __typename: 'User'}}};
     });
-    await flushMicrotasks();
   });
   expect(renderer?.toJSON()).toBe(
     '[{"message":"Relay: Error in resolver for field at me.always_throws in CatchTestResolverErrorThrowQuery"}]',

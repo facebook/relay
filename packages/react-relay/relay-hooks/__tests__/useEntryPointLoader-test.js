@@ -17,10 +17,7 @@ import type {IEnvironment} from 'relay-runtime/store/RelayStoreTypes';
 const useEntryPointLoader = require('../useEntryPointLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {
-  createMockEnvironment,
-  flushMicrotasks,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 let loadedEntryPoint;
 let instance;
@@ -246,7 +243,6 @@ it('does not dispose the entry point before the new component tree unsuspends in
       /* $FlowFixMe[constant-condition] Error discovered during Constant
        * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       resolve && resolve();
-      await flushMicrotasks();
     });
 
     expect(currentDispose).toHaveBeenCalled();
@@ -348,7 +344,6 @@ it('disposes entry point references associated with previous suspensions when mu
 
     await ReactTestRenderer.act(async () => {
       resolve();
-      await flushMicrotasks();
     });
     expect(firstDispose).toHaveBeenCalledTimes(1);
     expect(secondDispose).toHaveBeenCalledTimes(1);
@@ -448,7 +443,6 @@ it('disposes entry point references associated with subsequent suspensions when 
 
     await ReactTestRenderer.act(async () => {
       resolve();
-      await flushMicrotasks();
     });
     expect(innerUnsuspendedCorrectly).toEqual(true);
     expect(firstDispose).not.toHaveBeenCalled();
@@ -496,7 +490,6 @@ it('should dispose of entry points on unmount if the callback is called, the com
   ReactTestRenderer.act(() => {
     outerInstance = ReactTestRenderer.create(<Outer />);
   });
-  await ReactTestRenderer.act(() => flushMicrotasks());
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
     entryPointLoaderCallback({});

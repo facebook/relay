@@ -287,9 +287,6 @@ describe('ReactRelayLocalQueryRenderer', () => {
       ReactTestRenderer.act(() => {
         setProps({variables: secondVariables});
       });
-      await ReactTestRenderer.act(async () => {
-        await flushMicrotasks();
-      });
 
       expect(environment.retain).toBeCalledTimes(2);
       expect(environment.check).toBeCalledTimes(2);
@@ -307,9 +304,6 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
       ReactTestRenderer.act(() => {
         setProps({variables: {id: '6'}});
-      });
-      await ReactTestRenderer.act(async () => {
-        await flushMicrotasks();
       });
       expect(render).toBeCalledTimes(2);
       expect(instance.toJSON()).toEqual(null);
@@ -484,8 +478,6 @@ describe('ReactRelayLocalQueryRenderer', () => {
           },
         });
       });
-
-      await ReactTestRenderer.act(() => flushMicrotasks());
       expect(instance.toJSON()).toBe('Alice');
     });
 

@@ -33,7 +33,6 @@ const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {
   disallowConsoleErrors,
   disallowWarnings,
-  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -155,7 +154,6 @@ describe.each([[true], [false]])(
             },
           },
         });
-        await flushMicrotasks();
       });
       expect(renderer?.toJSON()).toBe('Alice');
     });
@@ -224,7 +222,6 @@ describe.each([[true], [false]])(
         // otherwise, client-edge query will think that the query is still in progress
         // and will show a suspense placeholder
         networkSink.complete();
-        await flushMicrotasks();
       });
       expect(renderer?.toJSON()).toBe('client_node is undefined');
       expect(fetchFn.mock.calls.length).toBe(1);
@@ -281,7 +278,6 @@ describe.each([[true], [false]])(
             node: null,
           },
         });
-        await flushMicrotasks();
       });
       // Still waiting, maybe the data will be there
       expect(renderer?.toJSON()).toBe('Loading');
@@ -290,7 +286,6 @@ describe.each([[true], [false]])(
         await TestRenderer.act(async () => {
           // This should resolve client-edge query
           networkSink.complete();
-          await flushMicrotasks();
         });
       }).rejects.toThrow(
         "Relay: Missing @required value at path 'me.client_node' in 'ClientEdgesTest3Query'.",
@@ -420,7 +415,6 @@ describe.each([[true], [false]])(
                 },
               },
             });
-            await flushMicrotasks();
           });
           expect(renderer?.toJSON()).toBe('Alice');
         }
@@ -492,7 +486,6 @@ describe.each([[true], [false]])(
             },
           },
         });
-        await flushMicrotasks();
       });
       expect(renderer?.toJSON()).toBe('ALICE');
     });

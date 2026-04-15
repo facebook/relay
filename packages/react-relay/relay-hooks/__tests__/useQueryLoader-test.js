@@ -437,7 +437,6 @@ describe.each([
         /* $FlowFixMe[constant-condition] Error discovered during Constant
          * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
         resolve && resolve();
-        await flushMicrotasks();
       });
 
       expect(currentRelease).toHaveBeenCalled();
@@ -535,7 +534,6 @@ describe.each([
 
       await ReactTestRenderer.act(async () => {
         resolve();
-        await flushMicrotasks();
       });
       expect(firstDispose).toHaveBeenCalledTimes(1);
       expect(secondDispose).toHaveBeenCalledTimes(1);
@@ -631,7 +629,6 @@ describe.each([
 
       await ReactTestRenderer.act(async () => {
         resolve();
-        await flushMicrotasks();
       });
       expect(innerUnsuspendedCorrectly).toEqual(true);
       expect(firstDispose).not.toHaveBeenCalled();

@@ -379,7 +379,7 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
   }
 
   let renderer;
-  TestRenderer.act(() => {
+  await TestRenderer.act(() => {
     renderer = TestRenderer.create(
       <Environment>
         <TestComponent />
@@ -403,17 +403,14 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
       },
     });
   });
-
-  await TestRenderer.act(() => flushMicrotasks());
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual(null);
 
   // Calling increment here should be ignored by Relay. However, if there are
   // dangling subscriptions, this will put inner into a dirty state.
-  TestRenderer.act(() => {
+  await TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
-  await TestRenderer.act(() => flushMicrotasks());
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual(null);
 
@@ -425,10 +422,9 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
   expect(renderer.toJSON()).toEqual('1');
 
   // Not part of the repro, but just to confirm: We should now be resubscribed...
-  TestRenderer.act(() => {
+  await TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
-  await TestRenderer.act(() => flushMicrotasks());
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('2');
 });
@@ -563,15 +559,13 @@ test('Can suspend', async () => {
     );
   });
   expect(renderer?.toJSON()).toEqual('0');
-  await TestRenderer.act(async () => {
+  await TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-    await flushMicrotasks();
   });
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Loading...');
-  await TestRenderer.act(async () => {
+  await TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-    await flushMicrotasks();
   });
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('2');
@@ -637,15 +631,13 @@ test('Can suspend with resolver that uses live resolver', async () => {
     );
   });
   expect(renderer?.toJSON()).toEqual('Alice 0');
-  await TestRenderer.act(async () => {
+  await TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-    await flushMicrotasks();
   });
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Loading...');
-  await TestRenderer.act(async () => {
+  await TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-    await flushMicrotasks();
   });
   // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Alice 2');
@@ -739,10 +731,9 @@ describe('Live Resolver with Suspense and Missing Data', () => {
       );
     });
     expect(renderer.toJSON()).toEqual('Loading...');
-    TestRenderer.act(() => {
+    await TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
-    await TestRenderer.act(() => flushMicrotasks());
     expect(renderer.toJSON()).toEqual(
       'Alice: Hello, Alice! Picture Url: scale 1.5',
     );
@@ -782,10 +773,9 @@ describe('Live Resolver with Suspense and Missing Data', () => {
         <TestComponent environment={environment} scale={1.5} />,
       );
     });
-    TestRenderer.act(() => {
+    await TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
-    await TestRenderer.act(() => flushMicrotasks());
     expect(renderer.toJSON()).toEqual(
       'Alice: Hello, Alice! Picture Url: scale 1.5',
     );
@@ -847,9 +837,8 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     // Now, the whole live field became undefined, as some of
     // the data in the live field resolver fragment is missing
     expect(renderer.toJSON()).toEqual('Alice: undefined');
-    await TestRenderer.act(async () => {
+    await TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-      await flushMicrotasks();
     });
     expect(renderer.toJSON()).toEqual('Alice: undefined');
 
@@ -878,9 +867,8 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     );
 
     // Now, the global store should have the data
-    await TestRenderer.act(async () => {
+    await TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-      await flushMicrotasks();
     });
 
     // Now, again we are suspending, because the global state is still not ready
@@ -1098,10 +1086,9 @@ test('apply optimistic updates to live resolver field', async () => {
   }
 
   expect(renderer.toJSON()).toEqual('Loading...');
-  TestRenderer.act(() => {
+  await TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
-  await TestRenderer.act(() => flushMicrotasks());
   expect(renderer.toJSON()).toEqual('Hello, Alice! Picture Url: scale 1.5');
 
   let update;
@@ -1118,10 +1105,9 @@ test('apply optimistic updates to live resolver field', async () => {
   });
   expect(renderer.toJSON()).toEqual('Hello, Alicia! Picture Url: scale 1.5');
 
-  TestRenderer.act(() => {
+  await TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
-  await TestRenderer.act(() => flushMicrotasks());
   expect(renderer.toJSON()).toEqual('Loading...');
 
   // Revering optimistic update
@@ -1133,7 +1119,6 @@ test('apply optimistic updates to live resolver field', async () => {
 
   await TestRenderer.act(async () => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-    await flushMicrotasks();
   });
   expect(renderer.toJSON()).toEqual('Hello, Alice! Picture Url: scale 1.5');
 });
@@ -1454,15 +1439,13 @@ describe('client-only fragments', () => {
       );
     });
     expect(renderer?.toJSON()).toEqual('0');
-    await TestRenderer.act(async () => {
+    await TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-      await flushMicrotasks();
     });
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
-    await TestRenderer.act(async () => {
+    await TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-      await flushMicrotasks();
     });
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('2');
@@ -1490,9 +1473,8 @@ describe('client-only fragments', () => {
       );
     });
     expect(renderer?.toJSON()).toEqual('0');
-    await TestRenderer.act(async () => {
+    await TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-      await flushMicrotasks();
     });
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
@@ -1590,10 +1572,9 @@ describe('client-only fragments', () => {
 
     // Clear logs, then increment to odd to trigger suspense after mount
     logger.mockClear();
-    TestRenderer.act(() => {
+    await TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
-    await TestRenderer.act(() => flushMicrotasks());
 
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
@@ -2145,9 +2126,8 @@ test('Defer does not prevent suspense from a deferred fragment', async () => {
   });
   // @defer does not prevent suspense from a resolve field
   expect(renderer?.toJSON()).toEqual('Loading...');
-  TestRenderer.act(() => {
+  await TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
-  await TestRenderer.act(() => flushMicrotasks());
   expect(renderer?.toJSON()).toEqual('2');
 });

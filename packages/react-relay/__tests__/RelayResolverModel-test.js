@@ -279,7 +279,6 @@ describe.each([['New', useFragment]])(
 
       await TestRenderer.act(async () => {
         completeTodo('todo-1');
-        await flushMicrotasks();
       });
       // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('Test todo - green');
@@ -324,7 +323,6 @@ describe.each([['New', useFragment]])(
 
       await TestRenderer.act(async () => {
         completeTodo('todo-1');
-        await flushMicrotasks();
       });
       expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(1);
 
@@ -333,7 +331,6 @@ describe.each([['New', useFragment]])(
 
       await TestRenderer.act(async () => {
         removeTodo('todo-1');
-        await flushMicrotasks();
       });
 
       // $FlowFixMe[incompatible-use]
@@ -378,7 +375,6 @@ describe.each([['New', useFragment]])(
 
       await TestRenderer.act(async () => {
         changeDescription('todo-1', 'Changed todo description text');
-        await flushMicrotasks();
       });
       // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('[x] Changed todo description text');
@@ -672,7 +668,6 @@ describe.each([['New', useFragment]])(
 
       await TestRenderer.act(async () => {
         setIsHuman(false);
-        await flushMicrotasks();
       });
       // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('robot:0');
@@ -680,7 +675,6 @@ describe.each([['New', useFragment]])(
       await TestRenderer.act(async () => {
         chargeBattery();
         setIsHuman(true);
-        await flushMicrotasks();
       });
       // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('human:0');

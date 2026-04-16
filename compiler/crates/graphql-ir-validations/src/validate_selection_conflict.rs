@@ -328,6 +328,11 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                     {
                         errors.push(err);
                     };
+                    if !fields_mutually_exclusive
+                        && let Err(err) = self.validate_match_conflict(key, l, r)
+                    {
+                        errors.push(err);
+                    }
                     if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
                         let mut l_fields = self.validate_linked_field_selections(l)?;
                         let r_fields = self.validate_linked_field_selections(r)?;
@@ -486,6 +491,65 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 (None, None) => Ok(()),
             }
         }
+    }
+
+    /// Check if two linked fields both have @match but with different matched
+    /// type sets.  When two fragments are composed in a query and both use
+    /// @match on the same field with different type configurations, the
+    /// resulting supported arguments or module selections will conflict.
+    fn validate_match_conflict(
+        &self,
+        response_key: StringKey,
+        l: &LinkedField,
+        r: &LinkedField,
+    ) -> Result<(), Diagnostic> {
+        let l_has_match = l
+            .directives
+            .iter()
+            .any(|d| d.name.item.0.lookup() == "match");
+        let r_has_match = r
+            .directives
+            .iter()
+            .any(|d| d.name.item.0.lookup() == "match");
+        if !l_has_match || !r_has_match {
+            return Ok(());
+        }
+
+        let l_types = Self::collect_match_types(self.program, &l.selections);
+        let r_types = Self::collect_match_types(self.program, &r.selections);
+
+        if l_types != r_types {
+            Err(Diagnostic::error(
+                ValidationMessage::MatchConflictUsedInMultiplePlaces { response_key },
+                l.definition.location,
+            )
+            .annotate("the other field", r.definition.location))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Collect the set of matched type conditions from a @match field's
+    /// selections.  Handles both pre-transform (FragmentSpread with @module)
+    /// and post-transform (InlineFragment with type_condition) IR.
+    fn collect_match_types(program: &Program, selections: &[Selection]) -> HashSet<Type> {
+        let mut types = HashSet::new();
+        for selection in selections {
+            match selection {
+                Selection::InlineFragment(f) => {
+                    if let Some(type_condition) = f.type_condition {
+                        types.insert(type_condition);
+                    }
+                }
+                Selection::FragmentSpread(spread) => {
+                    if let Some(fragment) = program.fragment(spread.fragment.item) {
+                        types.insert(fragment.type_condition);
+                    }
+                }
+                _ => {}
+            }
+        }
+        types
     }
 
     fn create_conflicting_fields_error(
@@ -679,4 +743,9 @@ enum ValidationMessage {
         "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them."
     )]
     StreamConflictUsedInMultiplePlaces { response_key: StringKey },
+
+    #[error(
+        "Field '{response_key}' is marked with @match in multiple places. Please use an alias to distinguish them."
+    )]
+    MatchConflictUsedInMultiplePlaces { response_key: StringKey },
 }

@@ -128,13 +128,16 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             }
         }
 
+        let mut all_errors = vec![];
         let dummy_hashset = HashSet::new();
         while let Some(visiting) = unclaimed_fragment_queue.pop_front() {
-            self.validate_and_collect_fragment(
+            if let Err(errors) = self.validate_and_collect_fragment(
                 program
                     .fragment(visiting)
                     .expect("fragment must have been registered"),
-            )?;
+            ) {
+                all_errors.extend(errors);
+            }
 
             for used_by in dag_used_by.get(&visiting).unwrap_or(&dummy_hashset) {
                 // fragment "used_by" now can assume "...now" cached.
@@ -145,7 +148,12 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 }
             }
         }
-        Ok(())
+        if all_errors.is_empty() {
+            Ok(())
+        } else {
+            all_errors.sort_by_key(|d| d.location());
+            Err(all_errors)
+        }
     }
 
     fn validate_operation(&self, operation: &'s OperationDefinition) -> DiagnosticsResult<()> {
@@ -217,10 +225,22 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         if let Some(cached) = self.fragment_cache.get(&fragment.name.item.0) {
             return Ok(Arc::clone(&cached));
         }
-        let fields = Arc::new(self.validate_selections(&fragment.selections)?);
-        self.fragment_cache
-            .insert(fragment.name.item.0, Arc::clone(&fields));
-        Ok(fields)
+        match self.validate_selections(&fragment.selections) {
+            Ok(fields) => {
+                let fields = Arc::new(fields);
+                self.fragment_cache
+                    .insert(fragment.name.item.0, Arc::clone(&fields));
+                Ok(fields)
+            }
+            Err(errors) => {
+                // Cache empty fields to avoid redundant re-validation of this
+                // fragment by dependent fragments or operations.
+                let fields: Arc<Fields<'s>> = Arc::new(Default::default());
+                self.fragment_cache
+                    .insert(fragment.name.item.0, Arc::clone(&fields));
+                Err(errors)
+            }
+        }
     }
 
     fn validate_linked_field_selections(

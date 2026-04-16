@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<52305c15753efb60305d9e0b604d36f3>>
+ * @generated SignedSource<<156733c720f9ac5339091aaaa25a3392>>
  */
 
 mod validate_selection_conflict;
@@ -17,6 +17,20 @@ async fn field_names_still_conflict_in_aliased_fragment() {
     let input = include_str!("validate_selection_conflict/fixtures/field_names_still_conflict_in_aliased_fragment.graphql");
     let expected = include_str!("validate_selection_conflict/fixtures/field_names_still_conflict_in_aliased_fragment.expected");
     test_fixture(transform_fixture, file!(), "field_names_still_conflict_in_aliased_fragment.graphql", "validate_selection_conflict/fixtures/field_names_still_conflict_in_aliased_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_alias_conflicts_across_independent_fragments_invalid() {
+    let input = include_str!("validate_selection_conflict/fixtures/multiple-alias-conflicts-across-independent-fragments.invalid.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/multiple-alias-conflicts-across-independent-fragments.invalid.expected");
+    test_fixture(transform_fixture, file!(), "multiple-alias-conflicts-across-independent-fragments.invalid.graphql", "validate_selection_conflict/fixtures/multiple-alias-conflicts-across-independent-fragments.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_conflicts_across_independent_fragments_invalid() {
+    let input = include_str!("validate_selection_conflict/fixtures/multiple-conflicts-across-independent-fragments.invalid.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/multiple-conflicts-across-independent-fragments.invalid.expected");
+    test_fixture(transform_fixture, file!(), "multiple-conflicts-across-independent-fragments.invalid.graphql", "validate_selection_conflict/fixtures/multiple-conflicts-across-independent-fragments.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

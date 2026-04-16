@@ -1,0 +1,80 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# Two independent fragment chains each have an ambiguous field alias
+# conflict. Both errors should be reported in a single compilation pass.
+query TestQuery {
+  me {
+    ...ContainerA
+    ...ContainerB
+  }
+}
+
+# First conflict: alias "myName" maps to different fields
+fragment AliasA1 on User {
+  myName: nameA
+}
+
+fragment AliasA2 on User {
+  myName: nameB
+}
+
+fragment ContainerA on User {
+  ...AliasA1
+  ...AliasA2
+}
+
+# Second conflict: alias "myLabel" maps to different fields
+fragment AliasB1 on User {
+  myLabel: labelA
+}
+
+fragment AliasB2 on User {
+  myLabel: labelB
+}
+
+fragment ContainerB on User {
+  ...AliasB1
+  ...AliasB2
+}
+
+%extensions%
+
+extend type User {
+  nameA: String
+  nameB: String
+  labelA: String
+  labelB: String
+}
+==================================== ERROR ====================================
+✖︎ Field 'myLabel' is ambiguous because it references two different fields: 'labelA' and 'labelB'
+
+  multiple-alias-conflicts-across-independent-fragments.invalid.graphql:27:12
+   26 │ fragment AliasB1 on User {
+   27 │   myLabel: labelA
+      │            ^^^^^^
+   28 │ }
+
+  ℹ︎ the other field
+
+  multiple-alias-conflicts-across-independent-fragments.invalid.graphql:31:12
+   30 │ fragment AliasB2 on User {
+   31 │   myLabel: labelB
+      │            ^^^^^^
+   32 │ }
+
+
+✖︎ Field 'myName' is ambiguous because it references two different fields: 'nameA' and 'nameB'
+
+  multiple-alias-conflicts-across-independent-fragments.invalid.graphql:13:11
+   12 │ fragment AliasA1 on User {
+   13 │   myName: nameA
+      │           ^^^^^
+   14 │ }
+
+  ℹ︎ the other field
+
+  multiple-alias-conflicts-across-independent-fragments.invalid.graphql:17:11
+   16 │ fragment AliasA2 on User {
+   17 │   myName: nameB
+      │           ^^^^^
+   18 │ }

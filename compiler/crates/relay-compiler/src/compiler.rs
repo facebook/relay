@@ -361,6 +361,14 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     incremental_build_event.stop(incremental_build_time);
                 }
                 incremental_build_event.complete();
+            } else {
+                // The notification resolved (possibly from a stored Notify
+                // permit) but all pending changes were already consumed by a
+                // prior iteration. Clear is_building so clients aren't blocked
+                // indefinitely in wait_for_idle().
+                if let Some(build_status) = &self.config.daemon_build_status {
+                    build_status.no_pending_changes();
+                }
             }
         }
     }

@@ -146,6 +146,12 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
     pub async fn watch(&self) -> Result<()> {
         'watch: loop {
+            // Clear any stale cached artifact operations from a previous watch
+            // loop iteration. After a source control update (rebase), the old
+            // cached operations are derived from the pre-rebase compiler state
+            // and may reference artifacts for files that no longer exist.
+            self.config.artifact_writer.reset();
+
             let setup_event = self.perf_logger.create_event("compiler_setup");
             let initial_watch_compile_timer = setup_event.start("initial_watch_compile");
             self.config.status_reporter.build_starts();

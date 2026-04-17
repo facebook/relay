@@ -36,6 +36,11 @@ pub trait ArtifactWriter {
     fn write(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult;
     fn remove(&self, path: PathBuf) -> BuildProjectResult;
     fn finalize(&self) -> crate::errors::Result<()>;
+
+    /// Clear all pending operations. Called when the watch loop restarts
+    /// after a source control update (rebase) to discard stale cached
+    /// operations that were derived from the pre-rebase compiler state.
+    fn reset(&self) {}
 }
 
 #[derive(Default)]

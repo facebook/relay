@@ -13,6 +13,7 @@ use schema_coordinates::SchemaCoordinate;
 use serde::Serialize;
 
 use crate::OutputNonNull;
+use crate::print_schema_set::print_directive_value;
 
 /// A source file location for a schema coordinate.
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
@@ -575,8 +576,8 @@ fn walk_type_directive_violations(
         violations.push(SubsetViolation {
             violation_type: SubsetViolationType::InconsistentTypeDirectiveUse,
             description: format!(
-                "{type_name} does not have @{directive_name} in the base schema.",
-                directive_name = directive.name,
+                "{type_name} does not have {directive_definition} in the base schema.",
+                directive_definition = print_directive_value(directive),
             ),
             schema_coordinate: SchemaCoordinate::Type { name: type_name }.to_string(),
             base: None,
@@ -1103,6 +1104,24 @@ mod tests {
         assert_has_violations(
             "type T { afield: String } type Query { myQ: T }",
             "type T @strong(field: \"id\") { afield: String } type Query { myQ: T }",
+        );
+    }
+
+    #[test]
+    fn test_type_directive_violation_includes_full_definition() {
+        let v = violations(
+            "type T { afield: String } type Query { myQ: T }",
+            "type T @strong(field: \"id\") { afield: String } type Query { myQ: T }",
+        );
+        assert_eq!(v.len(), 1);
+        assert_eq!(
+            v[0].violation_type,
+            SubsetViolationType::InconsistentTypeDirectiveUse
+        );
+        assert!(
+            v[0].description.contains("@strong(field: \"id\")"),
+            "Expected description to contain full directive definition, got: {}",
+            v[0].description
         );
     }
 

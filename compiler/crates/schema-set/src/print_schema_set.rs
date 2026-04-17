@@ -616,7 +616,7 @@ fn print_directive_value_items(directives: &[DirectiveValue]) -> String {
     }
 }
 
-fn print_directive_value(directive: &DirectiveValue) -> String {
+pub fn print_directive_value(directive: &DirectiveValue) -> String {
     let printed_args = if directive.arguments.is_empty() {
         String::new()
     } else {

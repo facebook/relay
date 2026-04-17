@@ -41,6 +41,7 @@ use crate::SetObject;
 use crate::SetScalar;
 use crate::SetType;
 use crate::SetUnion;
+use crate::schema_set::CanBeClientDefinition;
 use crate::schema_set::SetRootSchema;
 
 lazy_static! {
@@ -243,7 +244,11 @@ impl CanBeEmpty for SetScalar {
 impl SetExclude for SetScalar {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
-            definition: None,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
+            ),
             directives: exclude_directives(
                 &self.directives,
                 &other.directives,
@@ -298,7 +303,11 @@ impl SetExclude for SetEnum {
         }
 
         Self {
-            definition: None,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
+            ),
             directives: exclude_directives(
                 &self.directives,
                 &other.directives,
@@ -322,7 +331,11 @@ impl CanBeEmpty for SetObject {
 impl SetExclude for SetObject {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
-            definition: None,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
+            ),
             interfaces: exclude_set_members(&self.interfaces, &other.interfaces),
             directives: exclude_directives(
                 &self.directives,
@@ -347,7 +360,11 @@ impl CanBeEmpty for SetInterface {
 impl SetExclude for SetInterface {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
-            definition: None,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
+            ),
             interfaces: exclude_set_members(&self.interfaces, &other.interfaces),
             directives: exclude_directives(
                 &self.directives,
@@ -369,7 +386,11 @@ impl CanBeEmpty for SetUnion {
 impl SetExclude for SetUnion {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
-            definition: None,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
+            ),
             members: exclude_set_members(&self.members, &other.members),
             directives: exclude_directives(
                 &self.directives,
@@ -390,7 +411,11 @@ impl CanBeEmpty for SetInputObject {
 impl SetExclude for SetInputObject {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
-            definition: None,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
+            ),
             directives: exclude_directives(
                 &self.directives,
                 &other.directives,
@@ -1585,6 +1610,128 @@ pub mod tests {
             type Padding {
                 id: ID
             }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_type_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            type Foo {
+                id: ID
+            }
+            type Bar {
+                name: String
+            }
+            "#,
+            r#"
+            extend type Foo {
+                id: ID
+            }
+            "#,
+            r#"
+            type Foo
+            type Bar {
+                name: String
+            }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_interface_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            interface Foo {
+                id: ID
+            }
+            "#,
+            r#"
+            extend interface Foo {
+                id: ID
+            }
+            "#,
+            r#"
+            interface Foo
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_enum_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            enum Foo {
+                A
+                B
+            }
+            "#,
+            r#"
+            extend enum Foo {
+                A
+                B
+            }
+            "#,
+            r#"
+            enum Foo
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_union_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            type A { id: ID }
+            type B { id: ID }
+            union Foo = A | B
+            "#,
+            r#"
+            extend union Foo = A | B
+            "#,
+            r#"
+            type A {
+                id: ID
+            }
+            type B {
+                id: ID
+            }
+            union Foo
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_input_object_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            input Foo {
+                id: ID
+            }
+            "#,
+            r#"
+            extend input Foo {
+                id: ID
+            }
+            "#,
+            r#"
+            input Foo
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_scalar_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            scalar Foo @deprecated
+            "#,
+            r#"
+            extend scalar Foo @deprecated
+            "#,
+            r#"
+            scalar Foo
             "#,
         );
     }

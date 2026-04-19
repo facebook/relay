@@ -370,13 +370,15 @@ mod tests {
         use crate::intern::DeGuard;
         use crate::intern::SerGuard;
         let original = intern("hello world");
-        let mut encoded = Vec::new();
         let g = SerGuard::default();
-        bincode::serialize_into(&mut encoded, &original).unwrap();
+        let encoded = bincode::serde::encode_to_vec(original, bincode::config::legacy()).unwrap();
         drop(g);
         assert!(encoded.len() > 11);
         let g = DeGuard::default();
-        let decoded: StringId = bincode::deserialize(&encoded).unwrap();
+        let decoded: StringId =
+            bincode::serde::decode_from_slice(&encoded, bincode::config::legacy())
+                .map(|(v, _)| v)
+                .unwrap();
         drop(g);
         assert_eq!(original, decoded);
     }

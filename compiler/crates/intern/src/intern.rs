@@ -821,14 +821,15 @@ mod tests {
         let i1 = CrateId::intern(m1);
         let i2 = CrateId::intern(m2);
         let val = (i1, i2, i1);
-        let mut serialized: Vec<u8> = vec![];
-        {
+        let serialized: Vec<u8> = {
             let _guard = SerGuard::default();
-            bincode::serialize_into(&mut serialized, &val).unwrap()
-        }
+            bincode::serde::encode_to_vec(val, bincode::config::legacy()).unwrap()
+        };
         let deserialized: (CrateId, CrateId, CrateId) = {
             let _guard = DeGuard::default();
-            bincode::deserialize(&serialized).unwrap()
+            bincode::serde::decode_from_slice(&serialized, bincode::config::legacy())
+                .map(|(v, _)| v)
+                .unwrap()
         };
         assert_eq!(deserialized, val);
     }
@@ -840,9 +841,15 @@ mod tests {
         let i1 = CrateId::intern(m1);
         let i2 = CrateId::intern(m2);
         let val = (i1, i2, i1);
-        let serialized: Vec<u8> = { bincode::serialize(&WithIntern(&val)).unwrap() };
-        let deserialized: (CrateId, CrateId, CrateId) =
-            { WithIntern::strip(bincode::deserialize(&serialized)).unwrap() };
+        let serialized: Vec<u8> =
+            { bincode::serde::encode_to_vec(WithIntern(&val), bincode::config::legacy()).unwrap() };
+        let deserialized: (CrateId, CrateId, CrateId) = {
+            WithIntern::strip(
+                bincode::serde::decode_from_slice(&serialized, bincode::config::legacy())
+                    .map(|(v, _)| v),
+            )
+            .unwrap()
+        };
         assert_eq!(deserialized, val);
     }
 

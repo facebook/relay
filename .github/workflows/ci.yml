@@ -10,7 +10,6 @@ on: [push, pull_request]
 permissions:
   contents: write
   id-token: write
-  pull-requests: write
 
 jobs:
   vscode-extension-lint:
@@ -230,20 +229,22 @@ jobs:
     name: Create PR to release branch for Artifactory publish
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main-atl' && github.event_name == 'push' && github.repository == 'atlassian-forks/relay'
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
       - name: Create or update pull request to release branch
-        uses: peter-evans/create-pull-request@v7
-        with:
-          base: release
-          branch: main-atl
-          title: "[Main release] Merge to trigger Artifactory publish to NPM (main-atl → release)"
-          body: |
-            This PR was automatically created by CI when a push was made to `main-atl`.
-            Merging this PR will trigger the `main-release` job and publish to Artifactory.
-          labels: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            --base release \
+            --head main-atl \
+            --title "[Main release] Merge to trigger Artifactory publish to NPM (main-atl → release)" \
+            --body "This PR was automatically created by CI when a push was made to \`main-atl\`. Merging this PR will trigger the \`main-release\` job and publish to Artifactory." \
+            --label release \
+          || echo "PR already exists, skipping creation"
 
   main-release:
     name: Publish release branch to Artifactory

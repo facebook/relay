@@ -242,7 +242,7 @@ const relayCompiler = gulp.parallel(
           .readFileSync(path.join(DIST, 'relay-compiler', 'package.json'))
           .toString(),
       );
-      pkg.name = 'atl-' + pkg.name;
+      pkg.name = '@atlassian/' + pkg.name;
       fs.writeFileSync(
         path.join(DIST, 'relay-compiler', 'package.json'),
         JSON.stringify(pkg, null, 2),

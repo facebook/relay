@@ -13,6 +13,7 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Validator;
 use schema::Schema;
@@ -22,12 +23,14 @@ use schema::TypeReference;
 use super::ValidationMessage;
 use super::ensure_discriminated_union_is_created;
 use crate::UPDATABLE_DIRECTIVE;
+use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 pub fn validate_updatable_fragment_spread(program: &Program) -> DiagnosticsResult<()> {
     UpdatableFragmentSpread {
         program,
         path: vec![],
+        containing_type: None,
     }
     .validate_program(program)
 }
@@ -43,6 +46,7 @@ pub fn validate_updatable_fragment_spread(program: &Program) -> DiagnosticsResul
 /// additional validation that ensures that a discriminated union is created.
 enum PathItem {
     InlineFragment,
+    AliasedInlineFragment { type_condition: Type },
     LinkedField(LinkedFieldPathItem),
     Condition,
 }
@@ -55,13 +59,13 @@ struct LinkedFieldPathItem {
 struct UpdatableFragmentSpread<'a> {
     program: &'a Program,
     path: Vec<PathItem>,
+    containing_type: Option<Type>,
 }
 
 impl UpdatableFragmentSpread<'_> {
     /// Validate many conditions for spreads of updatable fragments:
     /// * the fragment spread contains no directives
     /// * there is no @if or @skip between the linked field and the fragment spread
-    /// * the fragment spread is not at the top level
     /// * the fragment's type is a superset or equal to the outer type
     ///   * this ensures that if we read this fragment with readUpdatableFragment,
     ///     the result is guaranteed to be valid, i.e. the concrete type is guaranteed
@@ -92,7 +96,10 @@ impl UpdatableFragmentSpread<'_> {
         let invalid_directive = fragment_spread
             .directives
             .iter()
-            .find(|directive| directive.name.item != *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME);
+            .find(|directive| {
+                directive.name.item != *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME
+                    && directive.name.item != *FRAGMENT_ALIAS_DIRECTIVE_NAME
+            });
 
         if let Some(directive) = invalid_directive {
             errors.push(Diagnostic::error(
@@ -100,6 +107,11 @@ impl UpdatableFragmentSpread<'_> {
                 directive.location,
             ));
         }
+
+        let has_alias = fragment_spread
+            .directives
+            .named(*FRAGMENT_ALIAS_DIRECTIVE_NAME)
+            .is_some();
 
         let mut encountered_inline_fragment = false;
         let mut encountered_linked_field = false;
@@ -113,6 +125,34 @@ impl UpdatableFragmentSpread<'_> {
                         ));
                     }
                     encountered_inline_fragment = true;
+                }
+                PathItem::AliasedInlineFragment { type_condition } => {
+                    // An aliased inline fragment acts as a type boundary (like a linked field).
+                    // We check that the fragment's type is compatible, but we do NOT set
+                    // `encountered_inline_fragment` or `should_ensure_discriminated_union_is_created`
+                    // because @alias provides its own type narrowing semantics.
+                    if !self.program.schema.is_type_subtype_of(
+                        &TypeReference::Named(*type_condition),
+                        &TypeReference::Named(fragment_definition.type_condition),
+                    ) {
+                        errors.push(Diagnostic::error(
+                            ValidationMessage::UpdatableFragmentSpreadTypeMismatch {
+                                updatable_fragment_type: self
+                                    .program
+                                    .schema
+                                    .get_type_name(fragment_definition.type_condition),
+                                enclosing_type: self
+                                    .program
+                                    .schema
+                                    .get_type_name(*type_condition),
+                            },
+                            fragment_spread.fragment.location,
+                        ));
+                    }
+                    // Treat as a type boundary — prevents the top-level containing type
+                    // check from firing.
+                    encountered_linked_field = true;
+                    break;
                 }
                 PathItem::LinkedField(linked_field_path_item) => {
                     encountered_linked_field = true;
@@ -132,24 +172,23 @@ impl UpdatableFragmentSpread<'_> {
                         // does not match, we wouldn't get here - earlier validations would catch that the fragment
                         // can never occur on that type. Note also that  inline fragments are enforced to refine to a
                         // concrete type. Therefore, this check isn't necessary for inline fragments.
-                        if !self.program.schema.is_type_subtype_of(
+                        //
+                        // If the spread has @alias, the result is nullable and handles the type
+                        // mismatch at runtime, so we skip this check.
+                        if !has_alias && !self.program.schema.is_type_subtype_of(
                             &TypeReference::Named(linked_field_path_item.type_reference.inner()),
                             &TypeReference::Named(fragment_definition.type_condition),
                         ) {
                             errors.push(Diagnostic::error(
-                                ValidationMessage::UpdatableFragmentSpreadSubtypeOrEqualLinkedField {
+                                ValidationMessage::UpdatableFragmentSpreadTypeMismatch {
                                     updatable_fragment_type: self
                                         .program
                                         .schema
                                         .get_type_name(fragment_definition.type_condition),
-                                    linked_field_inner_type: self
+                                    enclosing_type: self
                                         .program
                                         .schema
                                         .get_type_name(linked_field_path_item.type_reference.inner()),
-                                    linked_field_type: self
-                                        .program
-                                        .schema
-                                        .get_type_string(&linked_field_path_item.type_reference),
                                 },
                                 fragment_spread.fragment.location,
                             ));
@@ -175,10 +214,36 @@ impl UpdatableFragmentSpread<'_> {
         }
 
         if !encountered_linked_field {
-            errors.push(Diagnostic::error(
-                ValidationMessage::UpdatableFragmentTopLevel,
-                fragment_spread.fragment.location,
-            ));
+            if encountered_inline_fragment {
+                // An inline fragment at the top level (no linked field) doesn't have a
+                // linked field to validate for discriminated union creation.
+                errors.push(Diagnostic::error(
+                    ValidationMessage::UpdatableFragmentTopLevelInlineFragment,
+                    fragment_spread.fragment.location,
+                ));
+            } else if let Some(containing_type) = self.containing_type {
+                // The fragment definition's type must be a superset or equal to the
+                // containing operation/fragment type. Same logic as the linked field
+                // supertype check, but using the containing type.
+                //
+                // If the spread has @alias, the result is nullable and handles the type
+                // mismatch at runtime, so we skip this check.
+                if !has_alias && !self.program.schema.is_type_subtype_of(
+                    &TypeReference::Named(containing_type),
+                    &TypeReference::Named(fragment_definition.type_condition),
+                ) {
+                    errors.push(Diagnostic::error(
+                        ValidationMessage::UpdatableFragmentSpreadTypeMismatch {
+                            updatable_fragment_type: self
+                                .program
+                                .schema
+                                .get_type_name(fragment_definition.type_condition),
+                            enclosing_type: self.program.schema.get_type_name(containing_type),
+                        },
+                        fragment_spread.fragment.location,
+                    ));
+                }
+            }
         }
 
         if !errors.is_empty() {
@@ -193,6 +258,20 @@ impl Validator for UpdatableFragmentSpread<'_> {
     const NAME: &'static str = "UpdatableFragmentSpread";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
+
+    fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
+        self.containing_type = Some(operation.type_);
+        let result = self.default_validate_operation(operation);
+        self.containing_type = None;
+        result
+    }
+
+    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
+        self.containing_type = Some(fragment.type_condition);
+        let result = self.default_validate_fragment(fragment);
+        self.containing_type = None;
+        result
+    }
 
     fn validate_linked_field(&mut self, linked_field: &LinkedField) -> DiagnosticsResult<()> {
         let mut errors = vec![];
@@ -235,7 +314,21 @@ impl Validator for UpdatableFragmentSpread<'_> {
         &mut self,
         inline_fragment: &InlineFragment,
     ) -> DiagnosticsResult<()> {
-        self.path.push(PathItem::InlineFragment);
+        let has_alias = inline_fragment
+            .directives
+            .named(*FRAGMENT_ALIAS_DIRECTIVE_NAME)
+            .is_some();
+
+        if has_alias {
+            if let Some(type_condition) = inline_fragment.type_condition {
+                self.path
+                    .push(PathItem::AliasedInlineFragment { type_condition });
+            } else {
+                self.path.push(PathItem::InlineFragment);
+            }
+        } else {
+            self.path.push(PathItem::InlineFragment);
+        }
         let result = self.default_validate_inline_fragment(inline_fragment);
         self.path.pop().expect("path should not be empty");
         result

@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Node {
+  ...Updatable_user
+}
+
+fragment Updatable_user on User @updatable {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ The type of this updatable fragment is `User`, but the enclosing selection has type `Node`. A `Node` is not guaranteed to be a `User`. Try adding `@alias` to the fragment spread.
+
+  updatable_fragment_spread_top_level_wrong_type.invalid.graphql:3:6
+    2 │ fragment Foo on Node {
+    3 │   ...Updatable_user
+      │      ^^^^^^^^^^^^^^
+    4 │ }

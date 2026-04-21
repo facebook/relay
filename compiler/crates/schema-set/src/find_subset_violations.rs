@@ -21,6 +21,8 @@ pub struct SchemaFileLocation {
     pub file: String,
     pub line: u32,
 }
+
+use crate::CanHaveDirectives;
 use crate::OutputTypeReference;
 use crate::SchemaSet;
 use crate::SetArgument;
@@ -563,16 +565,7 @@ fn walk_type_directive_violations(
     type_name: StringKey,
     rem_type: &SetType,
 ) {
-    let directives = match rem_type {
-        SetType::Scalar(s) => &s.directives,
-        SetType::Enum(e) => &e.directives,
-        SetType::Object(o) => &o.directives,
-        SetType::Interface(i) => &i.directives,
-        SetType::Union(u) => &u.directives,
-        SetType::InputObject(i) => &i.directives,
-    };
-
-    for directive in directives {
+    for directive in rem_type.directives() {
         violations.push(SubsetViolation {
             violation_type: SubsetViolationType::InconsistentTypeDirectiveUse,
             description: format!(

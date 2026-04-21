@@ -64,7 +64,7 @@ pub struct SafeExclusionOptions {
     ///
     /// When the directive IS in the base schema, but NOT in the excluded schema,
     /// we will still remove the directive during exclude.
-    /// So SchemaSet(`my_field: Foo @deprecated`) exclude SchemSet(`my_field: Foo`) is an empty set.
+    /// So SchemaSet(`my_field: Foo @deprecated`) exclude SchemaSet(`my_field: Foo`) is an empty set.
     ///
     /// For *most* directives, if they are in the base schema but not in the to-exclude schema, they will be *left* in the
     /// base schema. For instance `type Foo @strong(field: "id")` exclude `type Foo` will leave `@strong(field: "id")`,
@@ -459,7 +459,7 @@ impl SetExclude for SetField {
 
 impl CanBeEmpty for SetArgument {
     fn is_set_empty(&self) -> bool {
-        // We don't need to check things liek the type or default value: if it HAS a definition, then it is NOT empty.
+        // We don't need to check things like the type or default value: if it HAS a definition, then it is NOT empty.
         // Likewise the definition cannot exist if its definition is empty, UNLESS there are just directives extending it
         self.definition.is_none() && self.directives.is_empty()
     }
@@ -587,7 +587,7 @@ fn is_excluded_output_type(
 /// This is not right because we are not handling *default* type exclusions: if one schema has NO defaults
 /// and the other only uses default types, they are actually identical and should be excluded!
 ///
-/// Th'is logical difficulty is desribed in the spec here: https://spec.graphql.org/September2025/#sec-Root-Operation-Types.Default-Root-Operation-Type-Names
+/// This logical difficulty is described in the spec here: https://spec.graphql.org/September2025/#sec-Root-Operation-Types.Default-Root-Operation-Type-Names
 fn exclude_operation_type(this: Option<StringKey>, other: Option<StringKey>) -> Option<StringKey> {
     match (this, other) {
         // Nothing to exclude away
@@ -812,7 +812,7 @@ fn build_missing_required_directive(directive_from_other: &DirectiveValue) -> Di
 
 impl<V: CanBeEmpty> CanBeEmpty for StringKeyMap<V> {
     fn is_set_empty(&self) -> bool {
-        // This is not *quite* the same  if there are no items in the set.
+        // This is not *quite* the same if there are no items in the set.
         // If each item ended up being empty (for instance via an exclude), then the set is empty
         self.values().all(|v| v.is_set_empty())
     }
@@ -820,7 +820,7 @@ impl<V: CanBeEmpty> CanBeEmpty for StringKeyMap<V> {
 
 impl<V: CanBeEmpty> CanBeEmpty for StringKeyIndexMap<V> {
     fn is_set_empty(&self) -> bool {
-        // This is not *quite* the same  if there are no items in the set.
+        // This is not *quite* the same if there are no items in the set.
         // If each item ended up being empty (for instance via an exclude), then the set is empty
         self.values().all(|v| v.is_set_empty())
     }
@@ -834,7 +834,7 @@ impl CanBeEmpty for StringKeySet {
 
 impl<K, V: CanBeEmpty> CanBeEmpty for BTreeMap<K, V> {
     fn is_set_empty(&self) -> bool {
-        // This is not *quite* the same  if there are no items in the set.
+        // This is not *quite* the same if there are no items in the set.
         // If each item ended up being empty (for instance via an exclude), then the set is empty
         self.values().all(|v| v.is_set_empty())
     }
@@ -842,7 +842,7 @@ impl<K, V: CanBeEmpty> CanBeEmpty for BTreeMap<K, V> {
 
 impl<V: CanBeEmpty> CanBeEmpty for Vec<V> {
     fn is_set_empty(&self) -> bool {
-        // This is not *quite* the same  if there are no items in the set.
+        // This is not *quite* the same if there are no items in the set.
         // If each item ended up being empty (for instance via an exclude), then the set is empty
         self.iter().all(|v| !v.is_set_empty())
     }

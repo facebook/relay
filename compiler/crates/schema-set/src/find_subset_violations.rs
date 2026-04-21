@@ -74,6 +74,11 @@ pub struct SubsetViolation {
 /// Uses `SchemaSet::exclude_set()` to compute the remainder (what's in subset
 /// but not covered by base), then walks the remainder to produce structured
 /// violation objects.
+///
+/// `subset_directives` lists directives that the subset is allowed to have
+/// even when the base does not. For example, `@deprecated` in this set means
+/// a subset field with `@deprecated` is still a valid subset of the same
+/// base field without it.
 pub fn find_subset_violations(
     base: &SchemaSet,
     subset: &SchemaSet,
@@ -631,6 +636,7 @@ fn same_type_kind(a: &SetType, b: &SetType) -> bool {
 mod tests {
     use common::SourceLocationKey;
     use graphql_syntax::parse_schema_document;
+    use intern::string_key::Intern;
 
     use super::*;
 
@@ -647,6 +653,18 @@ mod tests {
         let base_set = set_from_str(base);
         let subset_set = set_from_str(subset);
         find_subset_violations(&base_set, &subset_set, &StringKeySet::default())
+    }
+
+    fn violations_with_subset_directives(
+        base: &str,
+        subset: &str,
+        subset_directives: &[&str],
+    ) -> Vec<SubsetViolation> {
+        let base_set = set_from_str(base);
+        let subset_set = set_from_str(subset);
+        let subset_set_directives: StringKeySet =
+            subset_directives.iter().map(|s| (*s).intern()).collect();
+        find_subset_violations(&base_set, &subset_set, &subset_set_directives)
     }
 
     #[allow(dead_code)]
@@ -1218,5 +1236,79 @@ mod tests {
         assert_eq!(v.len(), 2);
         assert_eq!(v[0].schema_coordinate, "A");
         assert_eq!(v[1].schema_coordinate, "B");
+    }
+
+    // ───────────────────────────────────────────────────────────────
+    // @deprecated: subset can have it without base (subset_directives)
+    // ───────────────────────────────────────────────────────────────
+
+    #[test]
+    fn test_deprecated_on_subset_field_not_in_base_is_valid() {
+        let v = violations_with_subset_directives(
+            "type Query { myQ: String }",
+            "type Query { myQ: String @deprecated }",
+            &["deprecated"],
+        );
+        assert!(
+            v.is_empty(),
+            "Subset-only @deprecated should be allowed, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_deprecated_on_subset_type_not_in_base_is_valid() {
+        let v = violations_with_subset_directives(
+            "type T { afield: String } type Query { myQ: T }",
+            "type T @deprecated { afield: String } type Query { myQ: T }",
+            &["deprecated"],
+        );
+        assert!(
+            v.is_empty(),
+            "Subset-only @deprecated on type should be allowed, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_deprecated_on_both_field_is_valid() {
+        let v = violations_with_subset_directives(
+            "type Query { myQ: String @deprecated }",
+            "type Query { myQ: String @deprecated }",
+            &["deprecated"],
+        );
+        assert!(
+            v.is_empty(),
+            "Both having @deprecated should be valid, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_deprecated_on_both_type_is_valid() {
+        let v = violations_with_subset_directives(
+            "type T @deprecated { afield: String } type Query { myQ: T }",
+            "type T @deprecated { afield: String } type Query { myQ: T }",
+            &["deprecated"],
+        );
+        assert!(
+            v.is_empty(),
+            "Both having @deprecated on type should be valid, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_deprecated_with_different_reason_args() {
+        let v = violations_with_subset_directives(
+            r#"type Query { myQ: String @deprecated(reason: "use newQ") }"#,
+            r#"type Query { myQ: String @deprecated(reason: "old reason") }"#,
+            &["deprecated"],
+        );
+        assert!(
+            v.is_empty(),
+            "Both having @deprecated with different args should be valid, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
     }
 }

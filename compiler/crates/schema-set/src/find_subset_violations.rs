@@ -7,6 +7,8 @@
 
 use intern::Lookup;
 use intern::string_key::StringKey;
+use intern::string_key::StringKeyIndexMap;
+use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use schema::TypeReference;
 use schema_coordinates::SchemaCoordinate;
@@ -265,9 +267,9 @@ fn walk_same_kind_violations(
 fn walk_field_violations(
     violations: &mut Vec<SubsetViolation>,
     type_name: StringKey,
-    rem_fields: &intern::string_key::StringKeyMap<SetField>,
-    base_fields: &intern::string_key::StringKeyMap<SetField>,
-    subset_fields: Option<&intern::string_key::StringKeyMap<SetField>>,
+    rem_fields: &StringKeyMap<SetField>,
+    base_fields: &StringKeyMap<SetField>,
+    subset_fields: Option<&StringKeyMap<SetField>>,
 ) {
     for (field_name, rem_field) in rem_fields {
         match base_fields.get(field_name) {
@@ -328,9 +330,9 @@ fn walk_arg_violations(
     violations: &mut Vec<SubsetViolation>,
     type_name: StringKey,
     field_name: StringKey,
-    rem_args: &intern::string_key::StringKeyIndexMap<SetArgument>,
-    base_args: &intern::string_key::StringKeyIndexMap<SetArgument>,
-    subset_args: Option<&intern::string_key::StringKeyIndexMap<SetArgument>>,
+    rem_args: &StringKeyIndexMap<SetArgument>,
+    base_args: &StringKeyIndexMap<SetArgument>,
+    subset_args: Option<&StringKeyIndexMap<SetArgument>>,
 ) {
     for (arg_name, rem_arg) in rem_args {
         let in_subset = subset_args.is_some_and(|sa| sa.contains_key(arg_name));
@@ -415,9 +417,9 @@ fn walk_arg_violations(
 fn walk_input_field_violations(
     violations: &mut Vec<SubsetViolation>,
     type_name: StringKey,
-    rem_fields: &intern::string_key::StringKeyIndexMap<SetArgument>,
-    base_fields: &intern::string_key::StringKeyIndexMap<SetArgument>,
-    subset_fields: Option<&intern::string_key::StringKeyIndexMap<SetArgument>>,
+    rem_fields: &StringKeyIndexMap<SetArgument>,
+    base_fields: &StringKeyIndexMap<SetArgument>,
+    subset_fields: Option<&StringKeyIndexMap<SetArgument>>,
 ) {
     for (field_name, rem_field) in rem_fields {
         let in_subset = subset_fields.is_some_and(|sf| sf.contains_key(field_name));

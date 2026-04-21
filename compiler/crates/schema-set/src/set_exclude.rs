@@ -139,11 +139,7 @@ impl SetExclude for SetRootSchema {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
             definition: self.definition.clone(),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
-            ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             query_type: exclude_operation_type(self.query_type, other.query_type),
             mutation_type: exclude_operation_type(self.mutation_type, other.mutation_type),
             subscription_type: exclude_operation_type(
@@ -249,11 +245,7 @@ impl SetExclude for SetScalar {
                 self.definition.as_ref(),
                 !other.is_client_definition() || self.is_client_definition(),
             ),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
-            ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             name: self.name,
         }
     }
@@ -273,11 +265,8 @@ impl SetExclude for SetEnum {
             // Preserve items when:
             if let Some(other_value) = other.values.get(key) {
                 // - Other has the item but other's directives are not a superset
-                let included_directives = exclude_directives(
-                    &this_value.directives,
-                    &other_value.directives,
-                    &options.subset_directives,
-                );
+                let included_directives =
+                    exclude_directives(&this_value.directives, &other_value.directives, options);
 
                 // In practice adding a new enum value to an output enums is NOT a 100% safe operation,
                 // so if there is ANY difference between the two we need to preserve them.
@@ -308,11 +297,7 @@ impl SetExclude for SetEnum {
                 self.definition.as_ref(),
                 !other.is_client_definition() || self.is_client_definition(),
             ),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
-            ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             values,
             name: self.name,
         }
@@ -337,11 +322,7 @@ impl SetExclude for SetObject {
                 !other.is_client_definition() || self.is_client_definition(),
             ),
             interfaces: exclude_set_members(&self.interfaces, &other.interfaces),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
-            ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             fields: self.fields.exclude(&other.fields, options),
             name: self.name,
         }
@@ -366,11 +347,7 @@ impl SetExclude for SetInterface {
                 !other.is_client_definition() || self.is_client_definition(),
             ),
             interfaces: exclude_set_members(&self.interfaces, &other.interfaces),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
-            ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             fields: self.fields.exclude(&other.fields, options),
             name: self.name,
         }
@@ -392,11 +369,7 @@ impl SetExclude for SetUnion {
                 !other.is_client_definition() || self.is_client_definition(),
             ),
             members: exclude_set_members(&self.members, &other.members),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
-            ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             name: self.name,
         }
     }
@@ -416,11 +389,7 @@ impl SetExclude for SetInputObject {
                 self.definition.as_ref(),
                 !other.is_client_definition() || self.is_client_definition(),
             ),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
-            ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             fields: exclude_argument_definitions(&self.fields, &other.fields, options),
             name: self.name,
             // fully_recursively_visited is only a helper marker for collecting used sets,
@@ -446,11 +415,7 @@ impl SetExclude for SetField {
         Self {
             definition,
             arguments: exclude_argument_definitions(&self.arguments, &other.arguments, options),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
-            ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             name: self.name,
             type_: self.type_.clone(),
         }
@@ -467,11 +432,7 @@ impl CanBeEmpty for SetArgument {
 
 impl SetExclude for SetArgument {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
-        let directives = exclude_directives(
-            &self.directives,
-            &other.directives,
-            &options.subset_directives,
-        );
+        let directives = exclude_directives(&self.directives, &other.directives, options);
 
         let is_type_excluded = is_excluded_input_type(&self.type_, &other.type_, options);
 
@@ -678,8 +639,7 @@ fn exclude_argument(
         (None, Some(other_arg)) => {
             // If other is required, or if there are any non-excluded directive from other, then we need to
             // include other in what was failed to exclude.
-            let excluded_directives =
-                exclude_directives(&[], &other_arg.directives, &options.subset_directives);
+            let excluded_directives = exclude_directives(&[], &other_arg.directives, options);
             let is_other_arg_required =
                 other_arg.type_.is_non_null() && other_arg.default_value.is_none();
             if is_other_arg_required || !excluded_directives.is_empty() {
@@ -704,13 +664,13 @@ fn exclude_argument(
 fn exclude_directives(
     this: &[DirectiveValue],
     other: &[DirectiveValue],
-    subset_directives: &StringKeySet,
+    options: &SafeExclusionOptions,
 ) -> Vec<DirectiveValue> {
     let mut not_excluded = Vec::new();
 
     // Keep those directives NOT in the subset allowlist and NOT in other, or that are in other but is not a directive subset.
     for this_directive in this {
-        if !subset_directives.contains(&this_directive.name.0)
+        if !options.subset_directives.contains(&this_directive.name.0)
             && other
                 .named(this_directive.name)
                 .is_none_or(|other_directive| {
@@ -723,7 +683,7 @@ fn exclude_directives(
 
     // Now verify that all subset directives on other are contained in self with subset-equal definitions!
     for other_diretive in other {
-        if subset_directives.contains(&other_diretive.name.0)
+        if options.subset_directives.contains(&other_diretive.name.0)
             && this
                 .named(other_diretive.name)
                 .is_none_or(|this_directive| {

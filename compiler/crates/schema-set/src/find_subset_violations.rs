@@ -51,7 +51,7 @@ pub enum SubsetViolationType {
     DirectiveArgRemoved,
     RequiredDirectiveArgAdded,
     DirectiveLocationRemoved,
-    InconsistentTypeDirectiveUse,
+    InconsistentDirectiveUse,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -321,6 +321,8 @@ fn walk_field_violations(
                     &base_field.arguments,
                     subset_args,
                 );
+
+                walk_field_directive_violations(violations, type_name, *field_name, rem_field);
             }
         }
     }
@@ -574,12 +576,42 @@ fn walk_type_directive_violations(
 ) {
     for directive in rem_type.directives() {
         violations.push(SubsetViolation {
-            violation_type: SubsetViolationType::InconsistentTypeDirectiveUse,
+            violation_type: SubsetViolationType::InconsistentDirectiveUse,
             description: format!(
                 "{type_name} does not have {directive_definition} in the base schema.",
                 directive_definition = print_directive_value(directive),
             ),
             schema_coordinate: SchemaCoordinate::Type { name: type_name }.to_string(),
+            base: None,
+            subset: None,
+            base_locations: Vec::new(),
+            subset_locations: Vec::new(),
+        });
+    }
+}
+
+fn walk_field_directive_violations(
+    violations: &mut Vec<SubsetViolation>,
+    type_name: StringKey,
+    field_name: StringKey,
+    rem_field: &SetField,
+) {
+    for directive in &rem_field.directives {
+        // Skip synthetic markers injected by exclude_set
+        if directive.name.0.lookup() == "missing_required_directive" {
+            continue;
+        }
+        violations.push(SubsetViolation {
+            violation_type: SubsetViolationType::InconsistentDirectiveUse,
+            description: format!(
+                "{type_name}.{field_name} does not have {directive_definition} in the base schema.",
+                directive_definition = print_directive_value(directive),
+            ),
+            schema_coordinate: SchemaCoordinate::Member {
+                parent_name: type_name,
+                member_name: field_name,
+            }
+            .to_string(),
             base: None,
             subset: None,
             base_locations: Vec::new(),
@@ -1129,12 +1161,107 @@ mod tests {
         assert_eq!(v.len(), 1);
         assert_eq!(
             v[0].violation_type,
-            SubsetViolationType::InconsistentTypeDirectiveUse
+            SubsetViolationType::InconsistentDirectiveUse
         );
         assert!(
             v[0].description.contains("@strong(field: \"id\")"),
             "Expected description to contain full directive definition, got: {}",
             v[0].description
+        );
+    }
+
+    // ───────────────────────────────────────────────────────────────
+    // Field-level directive changes
+    // ───────────────────────────────────────────────────────────────
+
+    #[test]
+    fn test_field_directive_in_subset_not_in_base() {
+        let v = violations(
+            "type Query { myQ: String }",
+            r#"type Query { myQ: String @directive }"#,
+        );
+        assert!(
+            v.iter().any(
+                |v| v.violation_type == SubsetViolationType::InconsistentDirectiveUse
+                    && v.schema_coordinate == "Query.myQ"
+            ),
+            "Subset-only @directive on field should be flagged, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_field_directive_on_both_is_valid() {
+        let v = violations(
+            r#"type Query { myQ: String @directive }"#,
+            r#"type Query { myQ: String @directive }"#,
+        );
+        let directive_violations: Vec<_> = v
+            .iter()
+            .filter(|v| v.violation_type == SubsetViolationType::InconsistentDirectiveUse)
+            .collect();
+        assert!(
+            directive_violations.is_empty(),
+            "Both having @directive on field should not flag, got: {:?}",
+            directive_violations
+                .iter()
+                .map(|v| &v.description)
+                .collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_field_directive_in_base_not_in_subset_is_valid() {
+        let v = violations(
+            r#"type Query { myQ: String @directive }"#,
+            "type Query { myQ: String }",
+        );
+        let directive_violations: Vec<_> = v
+            .iter()
+            .filter(|v| v.violation_type == SubsetViolationType::InconsistentDirectiveUse)
+            .collect();
+        assert!(
+            directive_violations.is_empty(),
+            "Base-only @directive on field should not flag InconsistentDirectiveUse, got: {:?}",
+            directive_violations
+                .iter()
+                .map(|v| &v.description)
+                .collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_field_directive_violation_includes_full_definition() {
+        let v = violations(
+            "type Query { myQ: String }",
+            r#"type Query { myQ: String @directive(arg: "val") }"#,
+        );
+        let directive_violations: Vec<_> = v
+            .iter()
+            .filter(|v| v.violation_type == SubsetViolationType::InconsistentDirectiveUse)
+            .collect();
+        assert_eq!(directive_violations.len(), 1);
+        assert!(
+            directive_violations[0]
+                .description
+                .contains(r#"@directive(arg: "val")"#),
+            "Expected description to contain full directive definition, got: {}",
+            directive_violations[0].description
+        );
+    }
+
+    #[test]
+    fn test_interface_field_directive_in_subset_not_in_base() {
+        let v = violations(
+            "interface I { f: String } type Query { myQ: I }",
+            r#"interface I { f: String @directive } type Query { myQ: I }"#,
+        );
+        assert!(
+            v.iter().any(
+                |v| v.violation_type == SubsetViolationType::InconsistentDirectiveUse
+                    && v.schema_coordinate == "I.f"
+            ),
+            "Subset-only @directive on interface field should be flagged"
         );
     }
 

@@ -71,6 +71,11 @@ pub struct SafeExclusionOptions {
     /// so the resulting SchemaSet will not be empty.
     pub subset_directives: StringKeySet,
 
+    /// Directives that, when present on a type or field in the superset schema,
+    /// must also be present on the corresponding type or field in the subset schema.
+    /// Missing ones are flagged with `@missing_required_directive` markers.
+    pub base_restricted_directives: StringKeySet,
+
     /// Even though adding new enum values is a safe change *at runtime*, it *may not* be a safe change
     /// depending on the compilation and type checking options. For instance, if our compiler
     /// requires exhaustive switching, adding a new enum value may cause compilation failures.
@@ -652,15 +657,15 @@ fn exclude_argument(
     }
 }
 
-// Given a list of directives and a list of directives from the exclude source, PLUS the subset directives, give the
+// Given a list of directives and a list of directives from the exclude source, give the
 // directives that WERE NOT excluded.
 //
-// If any directives from other are subset directives, then insert an @missing_required_directive(name: "<>") (once per missing directive).
-// For example, if other has an @deprecated but this does not, we'll add @missing_required_directive(name: "deprecated") to indicate that
-// this parent definition is NOT a pure subset of the other parent definition
+// For base_restricted_directives: if a directive from other is in the restricted set and
+// this does not have it, insert a @missing_required_directive marker so the violation
+// walker can emit BaseDirectiveNotInSubset.
 //
 // We can't implement SetExclude for Vec<DirectiveValue>, because it's subtly NOT empty
-// if other has subset directives that this is missing
+// if other has base_restricted directives that this is missing
 fn exclude_directives(
     this: &[DirectiveValue],
     other: &[DirectiveValue],
@@ -681,16 +686,20 @@ fn exclude_directives(
         }
     }
 
-    // Now verify that all subset directives on other are contained in self with subset-equal definitions!
-    for other_diretive in other {
-        if options.subset_directives.contains(&other_diretive.name.0)
+    // For base_restricted_directives: if the directive is on the base but
+    // missing from the subset, insert a @missing_required_directive marker so
+    // the violation walker can emit BaseDirectiveNotInSubset.
+    for other_directive in other {
+        if options
+            .base_restricted_directives
+            .contains(&other_directive.name.0)
             && this
-                .named(other_diretive.name)
+                .named(other_directive.name)
                 .is_none_or(|this_directive| {
-                    !directive_value_is_subset_of(this_directive, other_diretive)
+                    !directive_value_is_subset_of(this_directive, other_directive)
                 })
         {
-            not_excluded.push(build_missing_required_directive(other_diretive))
+            not_excluded.push(build_missing_required_directive(other_directive))
         }
     }
 
@@ -942,7 +951,6 @@ pub mod tests {
         let expected = r#"
             type A implements Y {
               id: ID!
-              deprecated_exclude: B @missing_required_directive(name: "deprecated")
             }
 
             type B @strong(field: "id")
@@ -1255,21 +1263,9 @@ pub mod tests {
             "enum T { One } type Query { myQ(arg: X): T } input X { field: String }",
             "enum T @deprecated { One @deprecated } type Query { myQ(arg: X @deprecated): T @deprecated } input X @deprecated { field: String @deprecated }",
         );
-        // Valid in spec but could cause compilation issues
-        assert_base_exclude_expected!(
+        assert_base_exclude_empty!(
             "enum T { One } type Query { myQ(arg: X): T } input X { field: String }",
             "enum T @deprecated { One @deprecated } type Query { myQ(arg: X @deprecated): T @deprecated } input X @deprecated { field: String @deprecated }",
-            r#"
-            type Query {
-                myQ(arg: X @missing_required_directive(name: "deprecated")): T @missing_required_directive(name: "deprecated")
-            }
-            enum T @missing_required_directive(name: "deprecated") {
-                One
-            }
-            input X @missing_required_directive(name: "deprecated") {
-                field: String @missing_required_directive(name: "deprecated")
-            }
-            "#,
             SafeExclusionOptions {
                 subset_directives: ["deprecated".intern()].iter().cloned().collect(),
                 ..SafeExclusionOptions::default()
@@ -1511,7 +1507,7 @@ pub mod tests {
     }
 
     /// For subset_directives: a no-arg subset directive in base is a subset of
-    /// the with-arg version in exclude, so no @missing_required_directive is emitted.
+    /// the with-arg version in exclude — result is empty.
     #[test]
     fn subset_directive_no_args_base_with_args_exclude() {
         assert_base_exclude_empty!(
@@ -1528,19 +1524,17 @@ pub mod tests {
         );
     }
 
-    /// For subset_directives: with-arg version is NOT a subset of no-arg version,
-    /// so @missing_required_directive should be emitted.
+    /// For subset_directives: with-arg version on base, no-arg on exclude —
+    /// the subset directive is stripped from self in the forward pass, so the
+    /// result is empty.
     #[test]
     fn subset_directive_with_args_base_no_args_exclude() {
-        assert_base_exclude_expected!(
+        assert_base_exclude_empty!(
             r#"
             type Query { myQ: String @deprecated(reason: "old") }
             "#,
             r#"
             type Query { myQ: String @deprecated }
-            "#,
-            r#"
-            type Query { myQ: String @missing_required_directive(name: "deprecated") }
             "#,
             SafeExclusionOptions {
                 subset_directives: ["deprecated".intern()].iter().cloned().collect(),
@@ -1693,6 +1687,120 @@ pub mod tests {
             r#"
             scalar Foo
             "#,
+        );
+    }
+
+    #[test]
+    fn base_restricted_type_directive_missing_from_self() {
+        assert_base_exclude_expected!(
+            r#"type T { f: String } type Query { q: T }"#,
+            r#"type T @source(name: "x") { f: String } type Query { q: T }"#,
+            r#"type T @missing_required_directive(name: "source")"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_type_directive_present_on_both() {
+        assert_base_exclude_empty!(
+            r#"type T @source(name: "x") { f: String } type Query { q: T }"#,
+            r#"type T @source(name: "x") { f: String } type Query { q: T }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_field_directive_missing_from_self() {
+        assert_base_exclude_expected!(
+            r#"type Query { q: String }"#,
+            r#"type Query { q: String @source(name: "x") }"#,
+            r#"type Query { q: String @missing_required_directive(name: "source") }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_field_directive_present_on_both() {
+        assert_base_exclude_empty!(
+            r#"type Query { q: String @source(name: "x") }"#,
+            r#"type Query { q: String @source(name: "x") }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_does_not_affect_non_restricted_directives() {
+        assert_base_exclude_empty!(
+            r#"type T { f: String } type Query { q: T }"#,
+            r#"type T @other_directive { f: String } type Query { q: T }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_partial_field_coverage() {
+        assert_base_exclude_expected!(
+            r#"type T { a: String @source(name: "x"), b: Int } type Query { q: T }"#,
+            r#"type T { a: String @source(name: "x"), b: Int @source(name: "y") } type Query { q: T }"#,
+            r#"type T { b: Int @missing_required_directive(name: "source") }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_on_interface_field() {
+        assert_base_exclude_expected!(
+            r#"interface I { f: String } type Query { q: I }"#,
+            r#"interface I { f: String @source(name: "x") } type Query { q: I }"#,
+            r#"interface I { f: String @missing_required_directive(name: "source") }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_on_enum_type() {
+        assert_base_exclude_expected!(
+            r#"enum E { A, B } type Query { q: E }"#,
+            r#"enum E @source(name: "x") { A, B } type Query { q: E }"#,
+            r#"enum E @missing_required_directive(name: "source")"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_on_input_type() {
+        assert_base_exclude_expected!(
+            r#"input I { f: String } type Query { q(i: I): String }"#,
+            r#"input I @source(name: "x") { f: String } type Query { q(i: I): String }"#,
+            r#"input I @missing_required_directive(name: "source")"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
         );
     }
 }

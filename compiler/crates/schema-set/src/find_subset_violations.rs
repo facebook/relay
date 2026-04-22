@@ -5,17 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::NamedItem;
 use intern::Lookup;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
+use schema::DirectiveValue;
 use schema::TypeReference;
 use schema_coordinates::SchemaCoordinate;
 use serde::Serialize;
 
 use crate::OutputNonNull;
 use crate::print_schema_set::print_directive_value;
+use crate::set_exclude::MISSING_REQUIRED_DIRECTIVE;
+use crate::set_exclude::MISSING_REQUIRED_DIRECTIVE_NAME;
 
 /// A source file location for a schema coordinate.
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
@@ -52,6 +56,7 @@ pub enum SubsetViolationType {
     RequiredDirectiveArgAdded,
     DirectiveLocationRemoved,
     InconsistentDirectiveUse,
+    BaseDirectiveNotInSubset,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -81,12 +86,17 @@ pub struct SubsetViolation {
 /// even when the base does not. For example, `@deprecated` in this set means
 /// a subset field with `@deprecated` is still a valid subset of the same
 /// base field without it.
+///
+/// `base_restricted_directives` lists directives that, when present on a
+/// type or field in the base schema, must also be present on the corresponding
+/// type or field in the subset schema.
 pub fn find_subset_violations(
     base: &SchemaSet,
     subset: &SchemaSet,
     subset_directives: &StringKeySet,
+    base_restricted_directives: &StringKeySet,
 ) -> Vec<SubsetViolation> {
-    let remainder = subset.exclude_set(base, subset_directives);
+    let remainder = subset.exclude_set(base, subset_directives, base_restricted_directives);
     let mut violations = Vec::new();
 
     for (type_name, rem_type) in &remainder.types {
@@ -575,6 +585,10 @@ fn walk_type_directive_violations(
     rem_type: &SetType,
 ) {
     for directive in rem_type.directives() {
+        if let Some(v) = missing_directive_marker_to_violation(directive, type_name, None) {
+            violations.push(v);
+            continue;
+        }
         violations.push(SubsetViolation {
             violation_type: SubsetViolationType::InconsistentDirectiveUse,
             description: format!(
@@ -597,8 +611,10 @@ fn walk_field_directive_violations(
     rem_field: &SetField,
 ) {
     for directive in &rem_field.directives {
-        // Skip synthetic markers injected by exclude_set
-        if directive.name.0.lookup() == "missing_required_directive" {
+        if let Some(v) =
+            missing_directive_marker_to_violation(directive, type_name, Some(field_name))
+        {
+            violations.push(v);
             continue;
         }
         violations.push(SubsetViolation {
@@ -618,6 +634,55 @@ fn walk_field_directive_violations(
             subset_locations: Vec::new(),
         });
     }
+}
+
+/// If `directive` is a `@missing_required_directive` marker (injected by
+/// `exclude_directives` for base_restricted_directives), build and return
+/// the corresponding `BaseDirectiveNotInSubset` violation. Returns `None`
+/// for regular directives.
+fn missing_directive_marker_to_violation(
+    directive: &DirectiveValue,
+    type_name: StringKey,
+    field_name: Option<StringKey>,
+) -> Option<SubsetViolation> {
+    if directive.name != *MISSING_REQUIRED_DIRECTIVE {
+        return None;
+    }
+
+    let dir_name_value = directive
+        .arguments
+        .named(*MISSING_REQUIRED_DIRECTIVE_NAME)
+        .and_then(|a| a.get_string_literal())
+        .expect("missing_required_directive marker should always have a name argument");
+
+    let (schema_coordinate, description) = match field_name {
+        Some(field_name) => (
+            SchemaCoordinate::Member {
+                parent_name: type_name,
+                member_name: field_name,
+            }
+            .to_string(),
+            format!(
+                "{type_name}.{field_name} has @{dir_name_value} in the base schema but not in the subset schema.",
+            ),
+        ),
+        None => (
+            SchemaCoordinate::Type { name: type_name }.to_string(),
+            format!(
+                "{type_name} has @{dir_name_value} in the base schema but not in the subset schema.",
+            ),
+        ),
+    };
+
+    Some(SubsetViolation {
+        violation_type: SubsetViolationType::BaseDirectiveNotInSubset,
+        description,
+        schema_coordinate,
+        base: None,
+        subset: None,
+        base_locations: Vec::new(),
+        subset_locations: Vec::new(),
+    })
 }
 
 fn format_output_type_ref(type_ref: &OutputTypeReference<StringKey>) -> String {
@@ -686,7 +751,12 @@ mod tests {
     fn violations(base: &str, subset: &str) -> Vec<SubsetViolation> {
         let base_set = set_from_str(base);
         let subset_set = set_from_str(subset);
-        find_subset_violations(&base_set, &subset_set, &StringKeySet::default())
+        find_subset_violations(
+            &base_set,
+            &subset_set,
+            &StringKeySet::default(),
+            &StringKeySet::default(),
+        )
     }
 
     fn violations_with_subset_directives(
@@ -698,7 +768,28 @@ mod tests {
         let subset_set = set_from_str(subset);
         let subset_set_directives: StringKeySet =
             subset_directives.iter().map(|s| (*s).intern()).collect();
-        find_subset_violations(&base_set, &subset_set, &subset_set_directives)
+        find_subset_violations(
+            &base_set,
+            &subset_set,
+            &subset_set_directives,
+            &StringKeySet::default(),
+        )
+    }
+
+    fn violations_with_base_restricted_directives(
+        base: &str,
+        subset: &str,
+        base_restricted: &[&str],
+    ) -> Vec<SubsetViolation> {
+        let base_set = set_from_str(base);
+        let subset_set = set_from_str(subset);
+        let restricted_set: StringKeySet = base_restricted.iter().map(|s| (*s).intern()).collect();
+        find_subset_violations(
+            &base_set,
+            &subset_set,
+            &StringKeySet::default(),
+            &restricted_set,
+        )
     }
 
     #[allow(dead_code)]
@@ -1437,6 +1528,159 @@ mod tests {
         assert!(
             v.is_empty(),
             "Both having @deprecated with different args should be valid, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    // ───────────────────────────────────────────────────────────────
+    // @source: must match between base and subset (base_restricted)
+    // ───────────────────────────────────────────────────────────────
+
+    #[test]
+    fn test_source_on_base_type_not_in_subset() {
+        let v = violations_with_base_restricted_directives(
+            r#"type T @source(name: "x") { afield: String } type Query { myQ: T }"#,
+            "type T { afield: String } type Query { myQ: T }",
+            &["source"],
+        );
+        assert_eq!(v.len(), 1);
+        assert_eq!(
+            v[0].violation_type,
+            SubsetViolationType::BaseDirectiveNotInSubset
+        );
+        assert_eq!(v[0].schema_coordinate, "T");
+        assert!(v[0].description.contains("@source"));
+    }
+
+    #[test]
+    fn test_source_on_base_field_not_in_subset() {
+        let v = violations_with_base_restricted_directives(
+            r#"type Query { myQ: String @source(name: "x") }"#,
+            "type Query { myQ: String }",
+            &["source"],
+        );
+        assert_eq!(v.len(), 1);
+        assert_eq!(
+            v[0].violation_type,
+            SubsetViolationType::BaseDirectiveNotInSubset
+        );
+        assert_eq!(v[0].schema_coordinate, "Query.myQ");
+    }
+
+    #[test]
+    fn test_source_on_subset_type_not_in_base() {
+        let v = violations_with_base_restricted_directives(
+            "type T { afield: String } type Query { myQ: T }",
+            r#"type T @source(name: "x") { afield: String } type Query { myQ: T }"#,
+            &["source"],
+        );
+        assert!(
+            v.iter()
+                .any(|v| v.violation_type == SubsetViolationType::InconsistentDirectiveUse),
+            "Subset-only @source should be flagged as InconsistentDirectiveUse"
+        );
+    }
+
+    #[test]
+    fn test_source_on_both_type_is_valid() {
+        let v = violations_with_base_restricted_directives(
+            r#"type T @source(name: "x") { afield: String } type Query { myQ: T }"#,
+            r#"type T @source(name: "x") { afield: String } type Query { myQ: T }"#,
+            &["source"],
+        );
+        assert!(
+            v.is_empty(),
+            "Expected no violations when both have @source, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_source_on_both_field_is_valid() {
+        let v = violations_with_base_restricted_directives(
+            r#"type Query { myQ: String @source(name: "x") }"#,
+            r#"type Query { myQ: String @source(name: "x") }"#,
+            &["source"],
+        );
+        assert!(
+            v.is_empty(),
+            "Expected no violations when both have @source on field, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_source_on_base_interface_field_not_in_subset() {
+        let v = violations_with_base_restricted_directives(
+            r#"interface I { f: String @source(name: "x") } type Query { myQ: I }"#,
+            "interface I { f: String } type Query { myQ: I }",
+            &["source"],
+        );
+        assert_eq!(v.len(), 1);
+        assert_eq!(
+            v[0].violation_type,
+            SubsetViolationType::BaseDirectiveNotInSubset
+        );
+        assert_eq!(v[0].schema_coordinate, "I.f");
+    }
+
+    #[test]
+    fn test_source_on_base_type_missing_from_subset() {
+        let v = violations_with_base_restricted_directives(
+            r#"type T @source(name: "x") { afield: String } type Query { myQ: T }"#,
+            "type Query { myQ: String }",
+            &["source"],
+        );
+        assert!(
+            !v.iter()
+                .any(|v| v.violation_type == SubsetViolationType::BaseDirectiveNotInSubset),
+            "Should not flag base_restricted directives for types missing entirely from subset"
+        );
+    }
+
+    #[test]
+    fn test_source_partial_field_overlap() {
+        let v = violations_with_base_restricted_directives(
+            r#"type T { a: String @source(name: "x"), b: Int @source(name: "y") } type Query { myQ: T }"#,
+            r#"type T { a: String @source(name: "x"), b: Int } type Query { myQ: T }"#,
+            &["source"],
+        );
+        let base_directive_violations: Vec<_> = v
+            .iter()
+            .filter(|v| v.violation_type == SubsetViolationType::BaseDirectiveNotInSubset)
+            .collect();
+        assert_eq!(
+            base_directive_violations.len(),
+            1,
+            "Only field b should be flagged"
+        );
+        assert_eq!(base_directive_violations[0].schema_coordinate, "T.b");
+    }
+
+    #[test]
+    fn test_source_on_both_enum_is_valid() {
+        let v = violations_with_base_restricted_directives(
+            r#"enum E @source(name: "x") { A, B } type Query { myQ: E }"#,
+            r#"enum E @source(name: "x") { A, B } type Query { myQ: E }"#,
+            &["source"],
+        );
+        assert!(
+            v.is_empty(),
+            "Expected no violations when both have @source on enum, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_source_on_both_input_is_valid() {
+        let v = violations_with_base_restricted_directives(
+            r#"input I @source(name: "x") { f: String } type Query { myQ(i: I): String }"#,
+            r#"input I @source(name: "x") { f: String } type Query { myQ(i: I): String }"#,
+            &["source"],
+        );
+        assert!(
+            v.is_empty(),
+            "Expected no violations when both have @source on input type, got: {:?}",
             v.iter().map(|v| &v.description).collect::<Vec<_>>()
         );
     }

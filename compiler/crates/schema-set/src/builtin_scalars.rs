@@ -64,7 +64,11 @@ pub fn add_built_in_scalars(schema_set: &mut SchemaSet) -> DiagnosticsResult<()>
 ///
 /// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
 pub fn remove_built_in_scalars(schema_set: &SchemaSet) -> SchemaSet {
-    schema_set.exclude_set(&BUILTIN_SCALAR_SET, &StringKeySet::default())
+    schema_set.exclude_set(
+        &BUILTIN_SCALAR_SET,
+        &StringKeySet::default(),
+        &StringKeySet::default(),
+    )
 }
 
 #[cfg(test)]

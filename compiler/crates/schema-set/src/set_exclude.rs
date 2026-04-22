@@ -45,9 +45,9 @@ use crate::schema_set::CanBeClientDefinition;
 use crate::schema_set::SetRootSchema;
 
 lazy_static! {
-    static ref MISSING_REQUIRED_DIRECTIVE: DirectiveName =
+    pub static ref MISSING_REQUIRED_DIRECTIVE: DirectiveName =
         DirectiveName("missing_required_directive".intern());
-    static ref MISSING_REQUIRED_DIRECTIVE_NAME: ArgumentName = ArgumentName("name".intern());
+    pub static ref MISSING_REQUIRED_DIRECTIVE_NAME: ArgumentName = ArgumentName("name".intern());
 }
 
 /// These options can be used to describe changes that may not be "classically" GraphQL breaking changes:

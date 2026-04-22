@@ -102,11 +102,13 @@ impl SchemaSet {
         &self,
         to_exclude: &SchemaSet,
         subset_directives: &StringKeySet,
+        base_restricted_directives: &StringKeySet,
     ) -> SchemaSet {
         self.exclude(
             to_exclude,
             &SafeExclusionOptions {
                 subset_directives: subset_directives.clone(),
+                base_restricted_directives: base_restricted_directives.clone(),
                 ..Default::default()
             },
         )
@@ -130,15 +132,16 @@ impl SchemaSet {
         let a = self;
         let b = to_intersect;
 
-        let a_exclude_b = a.exclude_set(b, subset_directives);
-        let b_exclude_a = b.exclude_set(a, subset_directives);
+        let empty = StringKeySet::default();
+        let a_exclude_b = a.exclude_set(b, subset_directives, &empty);
+        let b_exclude_a = b.exclude_set(a, subset_directives, &empty);
 
         let everything_except_the_intersect =
             a_exclude_b.union_set(&b_exclude_a, subset_directives)?;
 
         // arbitrarily picking A, but could be B instead.
         // Exclude everything-except-the-intersect from A to get the intersect.
-        Ok(a.exclude_set(&everything_except_the_intersect, subset_directives))
+        Ok(a.exclude_set(&everything_except_the_intersect, subset_directives, &empty))
     }
 
     // We don't want to make custom logic for "expanding" the SchemaSet at IR collection time,

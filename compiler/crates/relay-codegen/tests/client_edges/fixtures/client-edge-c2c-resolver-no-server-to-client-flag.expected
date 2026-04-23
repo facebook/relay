@@ -1,0 +1,77 @@
+==================================== INPUT ====================================
+query FooC2C {
+  client_me {
+    pet {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+type Cat @__RelayResolverModel {
+  name: String
+    @relay_resolver(import_name: "name", import_path: "CatNameResolver")
+  __relay_model_instance: RelayResolverValue!
+    @relay_resolver(import_name: "Cat", import_path: "CatNameResolver")
+    @unselectable(
+      reason: "This field is intended only for Relay's internal use"
+    )
+}
+
+type ClientUser {
+  pet: Cat @relay_resolver(import_name: "Pet", import_path: "PetResolver")
+}
+
+extend type Query {
+  client_me: ClientUser
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "FooC2C",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "ClientUser",
+      "kind": "LinkedField",
+      "name": "client_me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ClientEdgeToClientObject",
+          "backingField": {
+            "name": "pet",
+            "args": null,
+            "fragment": null,
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
+          },
+          "linkedField": {
+            "alias": null,
+            "args": null,
+            "concreteType": "Cat",
+            "kind": "LinkedField",
+            "name": "pet",
+            "plural": false,
+            "selections": [
+              {
+                "name": "name",
+                "args": null,
+                "fragment": null,
+                "kind": "RelayResolver",
+                "storageKey": null,
+                "isOutputType": false
+              }
+            ],
+            "storageKey": null
+          }
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}

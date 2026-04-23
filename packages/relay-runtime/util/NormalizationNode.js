@@ -27,6 +27,7 @@ export type NormalizationOperation = {
   +clientAbstractTypes?: {
     +[string]: ReadonlyArray<string>,
   },
+  +has_server_to_client_resolvers?: boolean,
   +use_exec_time_resolvers?: boolean,
   +exec_time_resolvers_enabled_provider?: ProvidedVariableType,
   +use_experimental_provider?: ProvidedVariableType,

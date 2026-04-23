@@ -22,7 +22,6 @@ use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
 use schema::ArgumentValue;
-use schema::DirectiveValue;
 use schema::TypeReference;
 
 use crate::OutputNonNull;
@@ -31,6 +30,7 @@ use crate::SchemaDefinitionItem;
 use crate::SchemaSet;
 use crate::SetArgument;
 use crate::SetDirective;
+use crate::SetDirectiveValue;
 use crate::SetEnum;
 use crate::SetField;
 use crate::SetInputObject;
@@ -268,9 +268,20 @@ impl SetExclude for SetEnum {
         for (key, this_value) in &self.values {
             // Preserve items when:
             if let Some(other_value) = other.values.get(key) {
-                // - Other has the item but other's directives are not a superset
+                let this_converted: Vec<SetDirectiveValue> = this_value
+                    .directives
+                    .iter()
+                    .map(|dv| SetDirectiveValue::from_schema_value(dv, self.is_client_definition()))
+                    .collect();
+                let other_converted: Vec<SetDirectiveValue> = other_value
+                    .directives
+                    .iter()
+                    .map(|dv| {
+                        SetDirectiveValue::from_schema_value(dv, other.is_client_definition())
+                    })
+                    .collect();
                 let included_directives =
-                    exclude_directives(&this_value.directives, &other_value.directives, options);
+                    exclude_directives(&this_converted, &other_converted, options);
 
                 // In practice adding a new enum value to an output enums is NOT a 100% safe operation,
                 // so if there is ANY difference between the two we need to preserve them.
@@ -664,13 +675,13 @@ fn exclude_argument(
 // this does not have it, insert a @missing_required_directive marker so the violation
 // walker can emit BaseDirectiveNotInSubset.
 //
-// We can't implement SetExclude for Vec<DirectiveValue>, because it's subtly NOT empty
+// We can't implement SetExclude for Vec<SetDirectiveValue>, because it's subtly NOT empty
 // if other has base_restricted directives that this is missing
 fn exclude_directives(
-    this: &[DirectiveValue],
-    other: &[DirectiveValue],
+    this: &[SetDirectiveValue],
+    other: &[SetDirectiveValue],
     options: &SafeExclusionOptions,
-) -> Vec<DirectiveValue> {
+) -> Vec<SetDirectiveValue> {
     let mut not_excluded = Vec::new();
 
     // Keep those directives NOT in the subset allowlist and NOT in other, or that are in other but is not a directive subset.
@@ -679,7 +690,7 @@ fn exclude_directives(
             && other
                 .named(this_directive.name)
                 .is_none_or(|other_directive| {
-                    !directive_value_is_subset_of(this_directive, other_directive)
+                    !set_directive_value_is_subset_of(this_directive, other_directive)
                 })
         {
             not_excluded.push(this_directive.clone());
@@ -696,7 +707,7 @@ fn exclude_directives(
             && this
                 .named(other_directive.name)
                 .is_none_or(|this_directive| {
-                    !directive_value_is_subset_of(this_directive, other_directive)
+                    !set_directive_value_is_subset_of(this_directive, other_directive)
                 })
         {
             not_excluded.push(build_missing_required_directive(other_directive))
@@ -706,14 +717,14 @@ fn exclude_directives(
     not_excluded
 }
 
-/// Semantic subset for DirectiveValue, ignoring Token/Span source positions
+/// Semantic subset for SetDirectiveValue, ignoring Token/Span source positions
 /// in directive argument values. Checks that 'this' is a subset of 'other'.
 ///
 /// The derived PartialEq on DirectiveValue compares argument ConstantValues structurally,
 /// which includes Token (containing Span { start, end }). Two semantically identical directives
 /// parsed at different byte offsets compare as unequal. This function compares only the semantic
 /// content: directive name, argument names, and argument values (ignoring source positions).
-fn directive_value_is_subset_of(this: &DirectiveValue, other: &DirectiveValue) -> bool {
+fn set_directive_value_is_subset_of(this: &SetDirectiveValue, other: &SetDirectiveValue) -> bool {
     if this.name != other.name {
         return false;
     }
@@ -763,8 +774,9 @@ fn constant_value_semantically_eq(a: &ConstantValue, b: &ConstantValue) -> bool 
     }
 }
 
-fn build_missing_required_directive(directive_from_other: &DirectiveValue) -> DirectiveValue {
-    DirectiveValue {
+fn build_missing_required_directive(directive_from_other: &SetDirectiveValue) -> SetDirectiveValue {
+    SetDirectiveValue {
+        definition: None,
         name: *MISSING_REQUIRED_DIRECTIVE,
         arguments: vec![ArgumentValue {
             name: *MISSING_REQUIRED_DIRECTIVE_NAME,

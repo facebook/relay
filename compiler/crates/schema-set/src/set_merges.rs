@@ -11,7 +11,6 @@ use common::Location;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
-use schema::DirectiveValue;
 use schema::TypeReference;
 use serde::Serialize;
 use thiserror::Error;
@@ -19,6 +18,7 @@ use thiserror::Error;
 use crate::OutputNonNull;
 use crate::OutputTypeReference;
 use crate::SchemaSet;
+use crate::SetDirectiveValue;
 use crate::SetType;
 use crate::schema_set::CanBeClientDefinition;
 use crate::schema_set::CanHaveDirectives;
@@ -160,6 +160,8 @@ pub trait MergesFromAbstractDefinition<TAbstract> {
 
 impl Merges for SetRootSchema {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
+        merge_is_client_definition(self, other.is_client_definition());
+        merge_definition(&mut self.definition, &other.definition);
         merge_directive_values(self, other.directives);
         merge_root_operation_type(
             &mut self.query_type,
@@ -438,8 +440,8 @@ impl SetArgument {
     }
 }
 
-fn merge_directive_values<T: CanHaveDirectives>(existing: &mut T, other: Vec<DirectiveValue>) {
-    let existing_directives: &mut Vec<DirectiveValue> = existing.directives_mut();
+fn merge_directive_values<T: CanHaveDirectives>(existing: &mut T, other: Vec<SetDirectiveValue>) {
+    let existing_directives: &mut Vec<SetDirectiveValue> = existing.directives_mut();
     for value in other {
         let existing_pos = existing_directives
             .iter()

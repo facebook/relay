@@ -46,6 +46,7 @@ pub use crate::schema_set::SchemaDefinitionItem;
 pub use crate::schema_set::SchemaSet;
 pub use crate::schema_set::SetArgument;
 pub use crate::schema_set::SetDirective;
+pub use crate::schema_set::SetDirectiveValue;
 pub use crate::schema_set::SetEnum;
 pub use crate::schema_set::SetField;
 pub use crate::schema_set::SetInputObject;

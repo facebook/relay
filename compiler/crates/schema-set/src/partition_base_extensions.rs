@@ -175,3 +175,99 @@ impl PartitionsBaseExtension for SetDirective {
         (self.clone(), None)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use common::SourceLocationKey;
+    use graphql_syntax::parse_schema_document;
+
+    use super::*;
+    use crate::ToSDLDefinition;
+
+    fn set_from_sdl(sdl: &str) -> SchemaSet {
+        SchemaSet::from_schema_documents(&[parse_schema_document(
+            sdl,
+            SourceLocationKey::generated(),
+        )
+        .unwrap()])
+        .unwrap()
+    }
+
+    #[test]
+    fn test_server_directive_on_base_not_in_extensions() {
+        let original_base = set_from_sdl(
+            r#"
+                directive @serverDirective on OBJECT
+
+                type Query {
+                    viewer: Viewer
+                }
+
+                type Viewer @serverDirective {
+                    name: String
+                }
+            "#,
+        );
+        let original_extensions = set_from_sdl(
+            r#"
+                extend type Query {
+                    extensionField: ID
+                }
+            "#,
+        );
+
+        let merged = original_base
+            .union_set(&original_extensions, &Default::default())
+            .unwrap();
+
+        let (base, extensions) = partition_schema_set_base_and_extensions(&merged).unwrap();
+
+        assert_eq!(
+            format!("{}", base.to_sdl_definition()),
+            format!("{}", original_base.to_sdl_definition())
+        );
+        assert_eq!(
+            format!("{}", extensions.to_sdl_definition()),
+            format!("{}", original_extensions.to_sdl_definition())
+        );
+    }
+
+    #[test]
+    fn test_server_directive_on_extension_not_lost_by_partition() {
+        let original_base = set_from_sdl(
+            r#"
+                directive @serverDirective on OBJECT
+
+                type Query {
+                    viewer: Viewer
+                }
+
+                type Viewer {
+                    name: String
+                }
+            "#,
+        );
+        let original_extensions = set_from_sdl(
+            r#"
+                extend type Viewer @serverDirective {
+                    extensionField: ID
+                }
+            "#,
+        );
+
+        let merged = original_base
+            .union_set(&original_extensions, &Default::default())
+            .unwrap();
+
+        let (base, extensions) = partition_schema_set_base_and_extensions(&merged).unwrap();
+
+        assert_eq!(
+            format!("{}", base.to_sdl_definition()),
+            format!("{}", original_base.to_sdl_definition())
+        );
+        assert_eq!(
+            format!("{}", extensions.to_sdl_definition()),
+            format!("{}", original_extensions.to_sdl_definition())
+        );
+    }
+}

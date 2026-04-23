@@ -12,7 +12,6 @@ use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use schema::ArgumentValue;
-use schema::DirectiveValue;
 use schema::TypeReference;
 
 use crate::OutputTypeReference;
@@ -28,6 +27,7 @@ use crate::schema_set::HasInterfaces;
 use crate::schema_set::SchemaSet;
 use crate::schema_set::SetArgument;
 use crate::schema_set::SetDirective;
+use crate::schema_set::SetDirectiveValue;
 use crate::schema_set::SetEnum;
 use crate::schema_set::SetField;
 use crate::schema_set::SetInputObject;
@@ -293,7 +293,7 @@ fn print_enum_value(value: &schema::EnumValue) -> String {
         "{}{}{}",
         format_description_string(value.description, FIELD_INDENT),
         value.value.lookup(),
-        print_directive_value_items(&value.directives),
+        print_directive_value_items_from_schema(&value.directives),
     )
 }
 
@@ -595,28 +595,63 @@ fn print_argument_with_description(arg: &SetArgument, indent: &str) -> String {
         "{}{}{}",
         format_description_string(arg.description(), indent),
         arg.print_definition(),
-        print_directive_value_items(&arg.directives),
+        print_set_directive_value_items(&arg.directives),
     )
 }
 
 fn print_directive_values(item: &dyn CanHaveDirectives) -> String {
-    print_directive_value_items(item.directives())
+    print_set_directive_value_items(item.directives())
 }
 
-fn print_directive_value_items(directives: &[DirectiveValue]) -> String {
+fn print_set_directive_value_items(directives: &[SetDirectiveValue]) -> String {
     if directives.is_empty() {
         String::new()
     } else {
         let mut printed_directives = directives
             .iter()
-            .map(print_directive_value)
+            .map(print_set_directive_value)
             .collect::<Vec<_>>();
         printed_directives.sort();
         format!(" {}", printed_directives.join(" "))
     }
 }
 
-pub fn print_directive_value(directive: &DirectiveValue) -> String {
+pub fn print_directive_value_items_from_schema(directives: &[schema::DirectiveValue]) -> String {
+    if directives.is_empty() {
+        String::new()
+    } else {
+        format!(
+            " {}",
+            directives
+                .iter()
+                .map(print_schema_directive_value)
+                .collect::<Vec<_>>()
+                .join(" ")
+        )
+    }
+}
+
+pub fn print_set_directive_value(directive: &SetDirectiveValue) -> String {
+    let printed_args = if directive.arguments.is_empty() {
+        String::new()
+    } else {
+        let mut printed_values = directive
+            .arguments
+            .iter()
+            .map(print_argument_value)
+            .collect::<Vec<_>>();
+        printed_values.sort();
+        format!("({})", printed_values.join(", "))
+    };
+
+    format!(
+        "@{name}{args}",
+        name = directive.name.0,
+        args = printed_args
+    )
+}
+
+fn print_schema_directive_value(directive: &schema::DirectiveValue) -> String {
     let printed_args = if directive.arguments.is_empty() {
         String::new()
     } else {

@@ -42,7 +42,6 @@ use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use schema::ArgumentValue;
-use schema::DirectiveValue;
 use schema::EnumValue;
 use schema::TypeReference;
 
@@ -54,6 +53,7 @@ use crate::schema_set::FieldName;
 use crate::schema_set::SchemaDefinitionItem;
 use crate::schema_set::SetArgument;
 use crate::schema_set::SetDirective;
+use crate::schema_set::SetDirectiveValue;
 use crate::schema_set::SetEnum;
 use crate::schema_set::SetField;
 use crate::schema_set::SetInputObject;
@@ -121,18 +121,18 @@ where
 impl ToSetDefinition<SetRootSchema> for SchemaDefinition {
     fn to_set_definition(
         &self,
-        _source: SourceLocationKey,
-        _is_client_definition: bool,
+        source: SourceLocationKey,
+        is_client_definition: bool,
     ) -> SetRootSchema {
         let mut set_root_schema = SetRootSchema {
             definition: Some(SchemaDefinitionItem {
                 name: "schema".intern(),
-                locations: Vec::new(),
-                is_client_definition: false,
+                locations: vec![Location::new(source, self.span)],
+                is_client_definition,
                 description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
             ..Default::default()
         };
 
@@ -155,7 +155,7 @@ impl ToSetDefinition<SetRootSchema> for SchemaDefinition {
 
 impl ToSetDefinition<SetType> for EnumTypeDefinition {
     fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
-        let directives = build_directive_values(&self.directives);
+        let directives = build_directive_values(&self.directives, source, is_client_definition);
         let values = self.values.as_ref().map_or(BTreeMap::default(), |v| {
             v.items
                 .iter()
@@ -164,7 +164,14 @@ impl ToSetDefinition<SetType> for EnumTypeDefinition {
                         value.name.value,
                         EnumValue {
                             value: value.name.value,
-                            directives: build_directive_values(&value.directives),
+                            directives: build_directive_values(
+                                &value.directives,
+                                source,
+                                is_client_definition,
+                            )
+                            .into_iter()
+                            .map(|sdv| sdv.to_directive_value())
+                            .collect(),
                             description: value.description.as_ref().map(|d| d.value),
                         },
                     )
@@ -199,7 +206,7 @@ impl ToSetDefinition<SetType> for InterfaceTypeDefinition {
             name: InterfaceName(self.name.value),
             fields: build_fields(self.fields.as_ref(), source, is_client_definition),
             interfaces: build_members(&self.interfaces, is_client_definition),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
         })
     }
 }
@@ -217,7 +224,7 @@ impl ToSetDefinition<SetType> for ObjectTypeDefinition {
             name: ObjectName(self.name.value),
             fields: build_fields(self.fields.as_ref(), source, is_client_definition),
             interfaces: build_members(&self.interfaces, is_client_definition),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
         })
     }
 }
@@ -234,7 +241,7 @@ impl ToSetDefinition<SetType> for UnionTypeDefinition {
             }),
             members: build_members(&self.members, is_client_definition),
             name: UnionName(self.name.value),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
         })
     }
 }
@@ -249,9 +256,13 @@ impl ToSetDefinition<SetType> for InputObjectTypeDefinition {
                 description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
-            fields: build_argument_values(self.fields.as_ref(), source),
+            fields: build_argument_values(self.fields.as_ref(), source, is_client_definition),
             name: InputObjectName(self.name.value),
-            directives: build_directive_values(self.directives.as_ref()),
+            directives: build_directive_values(
+                self.directives.as_ref(),
+                source,
+                is_client_definition,
+            ),
             fully_recursively_visited: false,
         })
     }
@@ -268,7 +279,11 @@ impl ToSetDefinition<SetType> for ScalarTypeDefinition {
                 hack_source: None,
             }),
             name: ScalarName(self.name.value),
-            directives: build_directive_values(self.directives.as_ref()),
+            directives: build_directive_values(
+                self.directives.as_ref(),
+                source,
+                is_client_definition,
+            ),
         })
     }
 }
@@ -288,7 +303,7 @@ impl ToSetDefinition<SetDirective> for DirectiveDefinition {
                 hack_source: self.hack_source.as_ref().map(|h| h.value),
             }),
             name: DirectiveName(self.name.value),
-            arguments: build_argument_values(self.arguments.as_ref(), source),
+            arguments: build_argument_values(self.arguments.as_ref(), source, is_client_definition),
             locations: self.locations.clone(),
             repeatable: self.repeatable,
         }
@@ -306,9 +321,9 @@ impl ToSetDefinition<SetField> for FieldDefinition {
                 hack_source: self.hack_source.as_ref().map(|h| h.value),
             }),
             name: FieldName(self.name.value),
-            arguments: build_argument_values(self.arguments.as_ref(), source),
+            arguments: build_argument_values(self.arguments.as_ref(), source, is_client_definition),
             type_: build_output_type_reference(&self.type_, &self.directives),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
         }
     }
 }
@@ -333,34 +348,53 @@ impl ToSetDefinition<SetArgument> for InputValueDefinition {
                 .default_value
                 .as_ref()
                 .map(|default_value| default_value.value.clone()),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
+        }
+    }
+}
+
+impl ToSetDefinition<SetDirectiveValue> for ConstantDirective {
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+    ) -> SetDirectiveValue {
+        let arguments = if let Some(arguments) = &self.arguments {
+            arguments
+                .items
+                .iter()
+                .map(|argument| ArgumentValue {
+                    name: ArgumentName(argument.name.value),
+                    value: argument.value.clone(),
+                })
+                .collect()
+        } else {
+            Vec::new()
+        };
+        SetDirectiveValue {
+            definition: Some(SchemaDefinitionItem {
+                name: self.name.value,
+                locations: vec![Location::new(source, self.span)],
+                is_client_definition,
+                description: None,
+                hack_source: None,
+            }),
+            name: DirectiveName(self.name.value),
+            arguments,
         }
     }
 }
 
 // NOTE: copy-pasted this private fn from Relay's in_memory::mod crate.
-fn build_directive_values(directives: &[ConstantDirective]) -> Vec<DirectiveValue> {
+fn build_directive_values(
+    directives: &[ConstantDirective],
+    source: SourceLocationKey,
+    is_client_definition: bool,
+) -> Vec<SetDirectiveValue> {
     directives
         .iter()
         .filter(|d| d.name.value != SEMANTIC_NON_NULL.0)
-        .map(|directive| {
-            let arguments = if let Some(arguments) = &directive.arguments {
-                arguments
-                    .items
-                    .iter()
-                    .map(|argument| ArgumentValue {
-                        name: ArgumentName(argument.name.value),
-                        value: argument.value.clone(),
-                    })
-                    .collect()
-            } else {
-                Vec::new()
-            };
-            DirectiveValue {
-                name: DirectiveName(directive.name.value),
-                arguments,
-            }
-        })
+        .map(|directive| directive.to_set_definition(source, is_client_definition))
         .collect()
 }
 
@@ -397,6 +431,7 @@ fn build_fields(
 fn build_argument_values(
     arguments: Option<&List<InputValueDefinition>>,
     source: SourceLocationKey,
+    is_client_definition: bool,
 ) -> StringKeyIndexMap<SetArgument> {
     arguments.map_or(StringKeyIndexMap::default(), |args| {
         args.items
@@ -418,7 +453,11 @@ fn build_argument_values(
                             .default_value
                             .as_ref()
                             .map(|default_value| default_value.value.clone()),
-                        directives: build_directive_values(&arg.directives),
+                        directives: build_directive_values(
+                            &arg.directives,
+                            source,
+                            is_client_definition,
+                        ),
                     },
                 )
             })

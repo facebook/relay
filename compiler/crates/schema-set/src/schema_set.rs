@@ -33,6 +33,7 @@ use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
 use program_with_dependencies::ProgramWithDependencies;
+use schema::ArgumentValue;
 use schema::DirectiveValue;
 use schema::EnumValue;
 use schema::SDLSchema;
@@ -544,7 +545,7 @@ impl SetType {
 }
 
 impl CanHaveDirectives for SetType {
-    fn directives(&self) -> &Vec<DirectiveValue> {
+    fn directives(&self) -> &Vec<SetDirectiveValue> {
         match self {
             SetType::Scalar(t) => t.directives(),
             SetType::Enum(t) => t.directives(),
@@ -555,7 +556,7 @@ impl CanHaveDirectives for SetType {
         }
     }
 
-    fn directives_mut(&mut self) -> &mut Vec<DirectiveValue> {
+    fn directives_mut(&mut self) -> &mut Vec<SetDirectiveValue> {
         match self {
             SetType::Scalar(t) => t.directives_mut(),
             SetType::Enum(t) => t.directives_mut(),
@@ -566,7 +567,7 @@ impl CanHaveDirectives for SetType {
         }
     }
 
-    fn set_directives(&mut self, directives: Vec<DirectiveValue>) {
+    fn set_directives(&mut self, directives: Vec<SetDirectiveValue>) {
         match self {
             SetType::Scalar(t) => t.set_directives(directives),
             SetType::Enum(t) => t.set_directives(directives),
@@ -581,7 +582,7 @@ impl CanHaveDirectives for SetType {
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SetRootSchema {
     pub definition: Option<SchemaDefinitionItem>,
-    pub directives: Vec<DirectiveValue>,
+    pub directives: Vec<SetDirectiveValue>,
     pub query_type: Option<StringKey>,
     pub mutation_type: Option<StringKey>,
     pub subscription_type: Option<StringKey>,
@@ -600,12 +601,30 @@ impl_traits!(
     impl_can_have_directives,
     impl_has_description
 );
+impl CanBeClientDefinition for SetRootSchema {
+    fn is_client_definition(&self) -> bool {
+        self.definition.is_none() || self.definition.as_ref().unwrap().is_client_definition
+    }
+    fn set_is_client_definition(&mut self, is_client_definition: bool) {
+        if let Some(def) = &mut self.definition {
+            def.is_client_definition = is_client_definition;
+        } else {
+            self.definition = Some(SchemaDefinitionItem {
+                name: "schema".intern(),
+                locations: Vec::new(),
+                is_client_definition,
+                description: None,
+                hack_source: None,
+            });
+        }
+    }
+}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SetScalar {
     pub definition: Option<SchemaDefinitionItem>,
     pub name: ScalarName,
-    pub directives: Vec<DirectiveValue>,
+    pub directives: Vec<SetDirectiveValue>,
 }
 impl_traits!(
     SetScalar,
@@ -621,7 +640,7 @@ pub struct SetObject {
     pub definition: Option<SchemaDefinitionItem>,
     pub name: ObjectName,
     pub interfaces: StringKeyIndexMap<SetMemberType>,
-    pub directives: Vec<DirectiveValue>,
+    pub directives: Vec<SetDirectiveValue>,
     pub fields: StringKeyMap<SetField>,
 }
 impl_traits!(
@@ -650,7 +669,7 @@ pub struct SetInterface {
     pub definition: Option<SchemaDefinitionItem>,
     pub name: InterfaceName,
     pub interfaces: StringKeyIndexMap<SetMemberType>,
-    pub directives: Vec<DirectiveValue>,
+    pub directives: Vec<SetDirectiveValue>,
     pub fields: StringKeyMap<SetField>,
 }
 
@@ -668,7 +687,7 @@ impl_traits!(
 pub struct SetInputObject {
     pub definition: Option<SchemaDefinitionItem>,
     pub name: InputObjectName,
-    pub directives: Vec<DirectiveValue>,
+    pub directives: Vec<SetDirectiveValue>,
     pub fields: StringKeyIndexMap<SetArgument>,
 
     // Input objects may need to be fully visited, if used as a variable for instance.
@@ -697,7 +716,7 @@ impl HasArguments for SetInputObject {
 pub struct SetEnum {
     pub definition: Option<SchemaDefinitionItem>,
     pub name: EnumName,
-    pub directives: Vec<DirectiveValue>,
+    pub directives: Vec<SetDirectiveValue>,
     // If used as a const input value, the explicit values used.
     // Otherwise when used as an input variable or as an output,
     // all possible values.
@@ -717,7 +736,7 @@ impl_traits!(
 pub struct SetUnion {
     pub definition: Option<SchemaDefinitionItem>,
     pub name: UnionName,
-    pub directives: Vec<DirectiveValue>,
+    pub directives: Vec<SetDirectiveValue>,
     pub members: StringKeyIndexMap<SetMemberType>,
 }
 
@@ -746,7 +765,7 @@ pub struct SetField {
     pub name: FieldName,
     pub arguments: StringKeyIndexMap<SetArgument>,
     pub type_: OutputTypeReference<StringKey>,
-    pub directives: Vec<DirectiveValue>,
+    pub directives: Vec<SetDirectiveValue>,
 }
 impl_traits!(
     SetField,
@@ -793,7 +812,7 @@ pub struct SetArgument {
     pub name: StringKey,
     pub type_: TypeReference<StringKey>,
     pub default_value: Option<ConstantValue>,
-    pub directives: Vec<DirectiveValue>,
+    pub directives: Vec<SetDirectiveValue>,
 }
 impl_traits!(
     SetArgument,
@@ -801,6 +820,48 @@ impl_traits!(
     impl_can_have_directives,
     impl_has_description
 );
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SetDirectiveValue {
+    pub definition: Option<SchemaDefinitionItem>,
+    pub name: DirectiveName,
+    pub arguments: Vec<ArgumentValue>,
+}
+impl_traits!(
+    SetDirectiveValue,
+    impl_can_be_client_definition,
+    impl_string_key_named_with_location
+);
+
+impl common::Named for SetDirectiveValue {
+    type Name = DirectiveName;
+    fn name(&self) -> DirectiveName {
+        self.name
+    }
+}
+
+impl SetDirectiveValue {
+    pub fn to_directive_value(&self) -> DirectiveValue {
+        DirectiveValue {
+            name: self.name,
+            arguments: self.arguments.clone(),
+        }
+    }
+
+    pub fn from_schema_value(dv: &DirectiveValue, is_client_definition: bool) -> Self {
+        Self {
+            definition: Some(SchemaDefinitionItem {
+                name: dv.name.0,
+                locations: Vec::new(),
+                is_client_definition,
+                description: None,
+                hack_source: None,
+            }),
+            name: dv.name,
+            arguments: dv.arguments.clone(),
+        }
+    }
+}
 
 pub trait StringKeyNamed {
     fn string_key_name(&self) -> StringKey;
@@ -812,24 +873,25 @@ pub trait CanBeClientDefinition {
 }
 
 pub trait CanHaveDirectives {
-    fn directives(&self) -> &Vec<DirectiveValue>;
-    fn directives_mut(&mut self) -> &mut Vec<DirectiveValue>;
+    fn directives(&self) -> &Vec<SetDirectiveValue>;
+    fn directives_mut(&mut self) -> &mut Vec<SetDirectiveValue>;
 
-    fn set_directives(&mut self, directives: Vec<DirectiveValue>);
+    fn set_directives(&mut self, directives: Vec<SetDirectiveValue>);
 
     fn partition_extension_directives(
         &self,
         schema_set: &SchemaSet,
-    ) -> (Vec<DirectiveValue>, Vec<DirectiveValue>) {
+    ) -> (Vec<SetDirectiveValue>, Vec<SetDirectiveValue>) {
         self.directives()
             .iter()
             .cloned()
             .partition(|directive_value| {
-                schema_set
-                    .directives
-                    .get(&directive_value.name.0)
-                    // LHS is base, RHS is extensions
-                    .is_some_and(|directive| !directive.is_client_definition())
+                !directive_value.is_client_definition()
+                    && schema_set
+                        .directives
+                        .get(&directive_value.name.0)
+                        // LHS is base, RHS is extensions
+                        .is_some_and(|directive| !directive.is_client_definition())
             })
     }
 }

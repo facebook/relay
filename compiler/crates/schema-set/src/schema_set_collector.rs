@@ -37,6 +37,7 @@ use crate::schema_set::SchemaDefinitionItem;
 use crate::schema_set::SchemaSet;
 use crate::schema_set::SetArgument;
 use crate::schema_set::SetDirective;
+use crate::schema_set::SetDirectiveValue;
 use crate::schema_set::SetEnum;
 use crate::schema_set::SetField;
 use crate::schema_set::SetInputObject;
@@ -207,7 +208,11 @@ impl SchemaSet {
                     fields: StringKeyMap::default(),
                     interfaces: all_interfaces,
                     name: from_schema.name.item,
-                    directives: copy_sdl_directives(&from_schema.directives, options),
+                    directives: copy_sdl_directives(
+                        &from_schema.directives,
+                        options,
+                        from_schema.is_extension,
+                    ),
                 }));
             // Any schema-level directives must also be inserted
             self.touch_directive_values(schema, &from_schema.directives, options);
@@ -253,7 +258,11 @@ impl SchemaSet {
                     fields: StringKeyMap::default(),
                     interfaces: all_interfaces,
                     name: from_schema.name.item,
-                    directives: copy_sdl_directives(&from_schema.directives, options),
+                    directives: copy_sdl_directives(
+                        &from_schema.directives,
+                        options,
+                        from_schema.is_extension,
+                    ),
                 }));
             self.touch_directive_values(schema, &from_schema.directives, options);
         }
@@ -296,7 +305,11 @@ impl SchemaSet {
                     // to miss a member that is used in another library.
                     members,
                     name: from_schema.name.item,
-                    directives: copy_sdl_directives(&from_schema.directives, options),
+                    directives: copy_sdl_directives(
+                        &from_schema.directives,
+                        options,
+                        from_schema.is_extension,
+                    ),
                 })
             });
             self.touch_directive_values(schema, &from_schema.directives, options);
@@ -325,7 +338,11 @@ impl SchemaSet {
                 }),
                 fields: StringKeyIndexMap::default(),
                 name: schema_input.name.item,
-                directives: copy_sdl_directives(&schema_input.directives, options),
+                directives: copy_sdl_directives(
+                    &schema_input.directives,
+                    options,
+                    false, /* SDLSchema InputObject does not support extensions yet */
+                ),
                 fully_recursively_visited: false,
             }));
         if let SetType::InputObject(input_object) = self.types.get_mut(&name).unwrap() {
@@ -379,7 +396,11 @@ impl SchemaSet {
                                 options,
                             ),
                             name: FieldName(field_name),
-                            directives: copy_sdl_directives(&schema_field.directives, options),
+                            directives: copy_sdl_directives(
+                                &schema_field.directives,
+                                options,
+                                schema_field.is_extension,
+                            ),
                         });
                     }
                 }
@@ -404,7 +425,11 @@ impl SchemaSet {
                                 options,
                             ),
                             name: FieldName(field_name),
-                            directives: copy_sdl_directives(&schema_field.directives, options),
+                            directives: copy_sdl_directives(
+                                &schema_field.directives,
+                                options,
+                                schema_field.is_extension,
+                            ),
                         });
                     }
                 }
@@ -529,7 +554,11 @@ impl SchemaSet {
                             name: argument_name,
                             type_: stringkey_type_ref_from_schema_type(schema, &schema_arg.type_),
                             default_value: schema_arg.default_value.clone(),
-                            directives: copy_sdl_directives(&schema_arg.directives, options),
+                            directives: copy_sdl_directives(
+                                &schema_arg.directives,
+                                options,
+                                schema_field.is_extension,
+                            ),
                         });
                 }
             }
@@ -562,7 +591,11 @@ impl SchemaSet {
                     name: field_name,
                     type_: stringkey_type_ref_from_schema_type(schema, &schema_input_field.type_),
                     default_value: schema_input_field.default_value.clone(),
-                    directives: copy_sdl_directives(&schema_input_field.directives, options),
+                    directives: copy_sdl_directives(
+                        &schema_input_field.directives,
+                        options,
+                        false, /* SDLSchema InputObject does not support extensions yet */
+                    ),
                 });
             }
         }
@@ -597,7 +630,11 @@ impl SchemaSet {
                         name: argument_name,
                         type_: stringkey_type_ref_from_schema_type(schema, &schema_arg.type_),
                         default_value: schema_arg.default_value.clone(),
-                        directives: copy_sdl_directives(&schema_arg.directives, options),
+                        directives: copy_sdl_directives(
+                            &schema_arg.directives,
+                            options,
+                            schema_directive.is_extension,
+                        ),
                     });
             }
         }
@@ -623,7 +660,11 @@ impl SchemaSet {
                     hack_source: None,
                 }),
                 name: from_schema.name.item,
-                directives: copy_sdl_directives(&from_schema.directives, options),
+                directives: copy_sdl_directives(
+                    &from_schema.directives,
+                    options,
+                    from_schema.is_extension,
+                ),
             }));
     }
 
@@ -648,7 +689,11 @@ impl SchemaSet {
                 }),
                 values: BTreeMap::default(),
                 name: from_schema.name.item,
-                directives: copy_sdl_directives(&from_schema.directives, options),
+                directives: copy_sdl_directives(
+                    &from_schema.directives,
+                    options,
+                    from_schema.is_extension,
+                ),
             }));
     }
 
@@ -875,12 +920,13 @@ fn overlapping_types(schema: &SDLSchema, a: Type, b: Type) -> Vec<Type> {
 fn copy_sdl_directives(
     schema_directives: &[DirectiveValue],
     options: &UsedSchemaCollectionOptions,
-) -> Vec<DirectiveValue> {
+    is_client_definition: bool,
+) -> Vec<SetDirectiveValue> {
     if options.include_directives_on_schema_definitions {
         schema_directives
             .iter()
             .filter(|d| d.name != *SEMANTIC_NON_NULL)
-            .cloned()
+            .map(|dv| SetDirectiveValue::from_schema_value(dv, is_client_definition))
             .collect()
     } else {
         Vec::new()

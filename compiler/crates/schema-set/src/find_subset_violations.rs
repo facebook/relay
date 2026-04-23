@@ -11,13 +11,13 @@ use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
-use schema::DirectiveValue;
 use schema::TypeReference;
 use schema_coordinates::SchemaCoordinate;
 use serde::Serialize;
 
 use crate::OutputNonNull;
-use crate::print_schema_set::print_directive_value;
+use crate::SetDirectiveValue;
+use crate::print_schema_set::print_set_directive_value;
 use crate::set_exclude::MISSING_REQUIRED_DIRECTIVE;
 use crate::set_exclude::MISSING_REQUIRED_DIRECTIVE_NAME;
 
@@ -593,7 +593,7 @@ fn walk_type_directive_violations(
             violation_type: SubsetViolationType::InconsistentDirectiveUse,
             description: format!(
                 "{type_name} does not have {directive_definition} in the base schema.",
-                directive_definition = print_directive_value(directive),
+                directive_definition = print_set_directive_value(directive),
             ),
             schema_coordinate: SchemaCoordinate::Type { name: type_name }.to_string(),
             base: None,
@@ -621,7 +621,7 @@ fn walk_field_directive_violations(
             violation_type: SubsetViolationType::InconsistentDirectiveUse,
             description: format!(
                 "{type_name}.{field_name} does not have {directive_definition} in the base schema.",
-                directive_definition = print_directive_value(directive),
+                directive_definition = print_set_directive_value(directive),
             ),
             schema_coordinate: SchemaCoordinate::Member {
                 parent_name: type_name,
@@ -641,7 +641,7 @@ fn walk_field_directive_violations(
 /// the corresponding `BaseDirectiveNotInSubset` violation. Returns `None`
 /// for regular directives.
 fn missing_directive_marker_to_violation(
-    directive: &DirectiveValue,
+    directive: &SetDirectiveValue,
     type_name: StringKey,
     field_name: Option<StringKey>,
 ) -> Option<SubsetViolation> {

@@ -62,13 +62,13 @@ macro_rules! impl_can_be_client_definition {
 macro_rules! impl_can_have_directives {
     ($named:ident) => {
         impl CanHaveDirectives for $named {
-            fn directives(&self) -> &Vec<DirectiveValue> {
+            fn directives(&self) -> &Vec<SetDirectiveValue> {
                 &self.directives
             }
-            fn directives_mut(&mut self) -> &mut Vec<DirectiveValue> {
+            fn directives_mut(&mut self) -> &mut Vec<SetDirectiveValue> {
                 &mut self.directives
             }
-            fn set_directives(&mut self, directives: Vec<DirectiveValue>) {
+            fn set_directives(&mut self, directives: Vec<SetDirectiveValue>) {
                 self.directives = directives
             }
         }

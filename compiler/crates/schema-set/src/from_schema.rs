@@ -28,6 +28,7 @@ use crate::OutputTypeReference;
 use crate::SEMANTIC_NON_NULL;
 use crate::SEMANTIC_NON_NULL_LEVELS_ARG;
 use crate::SetDirective;
+use crate::SetDirectiveValue;
 use crate::schema_set::CanHaveDirectives;
 use crate::schema_set::FieldName;
 use crate::schema_set::HasArguments;
@@ -163,23 +164,32 @@ impl<T: HasArguments> SchemaInsertArgument for T {
 }
 
 pub trait SchemaInsertDirectiveValue {
-    fn directive_or_inserted(&mut self, directive: &DirectiveValue) -> &mut DirectiveValue;
+    fn directive_or_inserted(
+        &mut self,
+        directive: &DirectiveValue,
+        is_client_definition: bool,
+    ) -> &mut SetDirectiveValue;
 }
 
 impl<T: CanHaveDirectives> SchemaInsertDirectiveValue for T {
-    fn directive_or_inserted(&mut self, directive: &DirectiveValue) -> &mut DirectiveValue {
-        // Check if directive with same name already exists
+    fn directive_or_inserted(
+        &mut self,
+        directive: &DirectiveValue,
+        is_client_definition: bool,
+    ) -> &mut SetDirectiveValue {
         let existing_index = self
             .directives()
             .iter()
             .position(|d| d.name == directive.name);
 
         if let Some(index) = existing_index {
-            // Return reference to existing directive
             &mut self.directives_mut()[index]
         } else {
-            // Add new directive and return reference to it
-            self.directives_mut().push(directive.clone());
+            self.directives_mut()
+                .push(SetDirectiveValue::from_schema_value(
+                    directive,
+                    is_client_definition,
+                ));
             self.directives_mut()
                 .last_mut()
                 .expect("Just pushed directive")

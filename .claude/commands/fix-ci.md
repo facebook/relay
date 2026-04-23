@@ -40,7 +40,7 @@ You are a specialized skill for checking GitHub CI status and fixing failing tes
    - Commit with descriptive message about what was fixed
    - Push the branch: `git push -u origin HEAD`
    - Create PR using `gh pr create` with:
-     - Label: "Fix CI Skill"
+     - **IMPORTANT: Always include `--label "Fix CI Skill"` in the `gh pr create` command**
      - Title: "Fix CI failures - [Brief description]"
      - Body: Detailed explanation of:
        - Which jobs were failing

@@ -22,18 +22,41 @@ import type {
 
 const useFragment = require('../useFragment');
 const useLazyLoadQuery = require('../useLazyLoadQuery');
-const FragmentArtifact = require('./__generated__/useFragmentWithDeferAndLiveUpdateTestFragment.graphql');
-const QueryArtifact = require('./__generated__/useFragmentWithDeferAndLiveUpdateTestQuery.graphql');
 const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
 const {act} = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
-const {Environment, Network, RecordSource, Store} = require('relay-runtime');
+const {
+  Environment,
+  Network,
+  RecordSource,
+  Store,
+  graphql,
+} = require('relay-runtime');
 const RelayObservable = require('relay-runtime/network/RelayObservable');
 const RelayFeatureFlags = require('relay-runtime/util/RelayFeatureFlags');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
+
+const FragmentArtifact = graphql`
+  fragment useFragmentWithDeferAndLiveUpdateTestFragment on User
+  @throwOnFieldError {
+    name
+  }
+`;
+
+const QueryArtifact = graphql`
+  query useFragmentWithDeferAndLiveUpdateTestQuery($id: ID!) {
+    node(id: $id) {
+      __typename
+      id
+      ...useFragmentWithDeferAndLiveUpdateTestFragment
+        @defer
+        @dangerously_unaliased_fixme
+    }
+  }
+`;
 
 const DEFER_LABEL =
   'useFragmentWithDeferAndLiveUpdateTestQuery$defer$useFragmentWithDeferAndLiveUpdateTestFragment';

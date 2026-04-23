@@ -21,7 +21,6 @@ use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
-use schema::ArgumentValue;
 use schema::TypeReference;
 
 use crate::OutputNonNull;
@@ -29,6 +28,7 @@ use crate::OutputTypeReference;
 use crate::SchemaDefinitionItem;
 use crate::SchemaSet;
 use crate::SetArgument;
+use crate::SetArgumentValue;
 use crate::SetDirective;
 use crate::SetDirectiveValue;
 use crate::SetEnum;
@@ -268,20 +268,8 @@ impl SetExclude for SetEnum {
         for (key, this_value) in &self.values {
             // Preserve items when:
             if let Some(other_value) = other.values.get(key) {
-                let this_converted: Vec<SetDirectiveValue> = this_value
-                    .directives
-                    .iter()
-                    .map(|dv| SetDirectiveValue::from_schema_value(dv, self.is_client_definition()))
-                    .collect();
-                let other_converted: Vec<SetDirectiveValue> = other_value
-                    .directives
-                    .iter()
-                    .map(|dv| {
-                        SetDirectiveValue::from_schema_value(dv, other.is_client_definition())
-                    })
-                    .collect();
                 let included_directives =
-                    exclude_directives(&this_converted, &other_converted, options);
+                    exclude_directives(&this_value.directives, &other_value.directives, options);
 
                 // In practice adding a new enum value to an output enums is NOT a 100% safe operation,
                 // so if there is ANY difference between the two we need to preserve them.
@@ -778,7 +766,8 @@ fn build_missing_required_directive(directive_from_other: &SetDirectiveValue) ->
     SetDirectiveValue {
         definition: None,
         name: *MISSING_REQUIRED_DIRECTIVE,
-        arguments: vec![ArgumentValue {
+        arguments: vec![SetArgumentValue {
+            definition: None,
             name: *MISSING_REQUIRED_DIRECTIVE_NAME,
             value: ConstantValue::String(StringNode {
                 token: Token {

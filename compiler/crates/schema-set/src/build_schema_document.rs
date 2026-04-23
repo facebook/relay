@@ -51,6 +51,7 @@ use crate::SEMANTIC_NON_NULL_LEVELS_ARG;
 use crate::SchemaDefinitionItem;
 use crate::SchemaSet;
 use crate::SetArgument;
+use crate::SetArgumentValue;
 use crate::SetDirective;
 use crate::SetDirectiveValue;
 use crate::SetEnum;
@@ -214,7 +215,7 @@ impl ToSDLDefinition<EnumTypeDefinition> for SetEnum {
             .values()
             .map(|value| EnumValueDefinition {
                 name: build_name(value.value),
-                directives: build_directives_from_directive_values(&value.directives),
+                directives: build_directives(&value.directives),
                 description: value.description.map(build_string_node),
                 span: Span::empty(),
             })
@@ -493,6 +494,12 @@ impl ToSDLDefinition<Identifier> for DirectiveName {
     }
 }
 
+impl ToSDLDefinition<ConstantArgument> for SetArgumentValue {
+    fn to_sdl_definition(&self) -> ConstantArgument {
+        self.to_argument_value().to_sdl_definition()
+    }
+}
+
 impl ToSDLDefinition<ConstantArgument> for ArgumentValue {
     fn to_sdl_definition(&self) -> ConstantArgument {
         ConstantArgument {
@@ -557,16 +564,6 @@ fn build_directives(directives: &[SetDirectiveValue]) -> Vec<ConstantDirective> 
     let mut built: Vec<ConstantDirective> = directives
         .iter()
         .map(|directive| directive.to_directive_value().to_sdl_definition())
-        .collect();
-    built.sort_by(|a, b| a.name.cmp(&b.name));
-    built
-}
-
-/// Version of build_directives for DirectiveValue slices (e.g. from schema crate's EnumValue)
-fn build_directives_from_directive_values(directives: &[DirectiveValue]) -> Vec<ConstantDirective> {
-    let mut built: Vec<ConstantDirective> = directives
-        .iter()
-        .map(|directive| directive.to_sdl_definition())
         .collect();
     built.sort_by(|a, b| a.name.cmp(&b.name));
     built

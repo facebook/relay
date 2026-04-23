@@ -20,11 +20,11 @@ use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
-use schema::EnumValue;
 
 use crate::SchemaSet;
 use crate::SetDirective;
 use crate::SetEnum;
+use crate::SetEnumValue;
 use crate::SetInputObject;
 use crate::SetInterface;
 use crate::SetMemberType;
@@ -199,10 +199,10 @@ fn remove_directive_usages(
         .collect()
 }
 
-fn remove_enum_directive_usages(
-    directives: &[schema::DirectiveValue],
+fn remove_set_directive_usages(
+    directives: &[SetDirectiveValue],
     excluded_directive_names: &StringKeySet,
-) -> Vec<schema::DirectiveValue> {
+) -> Vec<SetDirectiveValue> {
     directives
         .iter()
         .filter(|d| !excluded_directive_names.contains(&d.name.0))
@@ -318,9 +318,10 @@ fn remove_references_from_enum(
             .map(|(name, value)| {
                 (
                     *name,
-                    EnumValue {
+                    SetEnumValue {
+                        definition: None,
                         value: value.value,
-                        directives: remove_enum_directive_usages(
+                        directives: remove_set_directive_usages(
                             &value.directives,
                             excluded_directive_names,
                         ),

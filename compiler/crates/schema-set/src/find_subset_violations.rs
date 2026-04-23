@@ -652,7 +652,7 @@ fn missing_directive_marker_to_violation(
     let dir_name_value = directive
         .arguments
         .named(*MISSING_REQUIRED_DIRECTIVE_NAME)
-        .and_then(|a| a.get_string_literal())
+        .and_then(|a| a.value.get_string_literal())
         .expect("missing_required_directive marker should always have a name argument");
 
     let (schema_coordinate, description) = match field_name {

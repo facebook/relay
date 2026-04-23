@@ -721,7 +721,7 @@ pub struct SetEnum {
     // Otherwise when used as an input variable or as an output,
     // all possible values.
     // We keep them sorted in their insertion order
-    pub values: BTreeMap<StringKey, EnumValue>,
+    pub values: BTreeMap<StringKey, SetEnumValue>,
 }
 impl_traits!(
     SetEnum,
@@ -825,7 +825,7 @@ impl_traits!(
 pub struct SetDirectiveValue {
     pub definition: Option<SchemaDefinitionItem>,
     pub name: DirectiveName,
-    pub arguments: Vec<ArgumentValue>,
+    pub arguments: Vec<SetArgumentValue>,
 }
 impl_traits!(
     SetDirectiveValue,
@@ -844,7 +844,11 @@ impl SetDirectiveValue {
     pub fn to_directive_value(&self) -> DirectiveValue {
         DirectiveValue {
             name: self.name,
-            arguments: self.arguments.clone(),
+            arguments: self
+                .arguments
+                .iter()
+                .map(|a| a.to_argument_value())
+                .collect(),
         }
     }
 
@@ -858,7 +862,94 @@ impl SetDirectiveValue {
                 hack_source: None,
             }),
             name: dv.name,
-            arguments: dv.arguments.clone(),
+            arguments: dv
+                .arguments
+                .iter()
+                .map(|a| SetArgumentValue::from_schema_value(a, is_client_definition))
+                .collect(),
+        }
+    }
+}
+
+/// A value for used, constant arguments.
+/// In example: `type X @foo(arg: "some_value")`
+/// This represents the `arg: "some_value"` part.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SetArgumentValue {
+    pub definition: Option<SchemaDefinitionItem>,
+    pub name: common::ArgumentName,
+    pub value: ConstantValue,
+}
+
+impl common::Named for SetArgumentValue {
+    type Name = common::ArgumentName;
+    fn name(&self) -> common::ArgumentName {
+        self.name
+    }
+}
+
+impl SetArgumentValue {
+    pub fn to_argument_value(&self) -> ArgumentValue {
+        ArgumentValue {
+            name: self.name,
+            value: self.value.clone(),
+        }
+    }
+
+    pub fn from_schema_value(av: &ArgumentValue, is_client_definition: bool) -> Self {
+        Self {
+            definition: Some(SchemaDefinitionItem {
+                name: av.name.0,
+                locations: Vec::new(),
+                is_client_definition,
+                description: None,
+                hack_source: None,
+            }),
+            name: av.name,
+            value: av.value.clone(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SetEnumValue {
+    pub definition: Option<SchemaDefinitionItem>,
+    pub value: StringKey,
+    pub directives: Vec<SetDirectiveValue>,
+    pub description: Option<StringKey>,
+}
+impl_traits!(SetEnumValue, impl_can_have_directives, impl_has_description);
+
+impl common::Named for SetEnumValue {
+    type Name = StringKey;
+    fn name(&self) -> StringKey {
+        self.value
+    }
+}
+
+impl SetEnumValue {
+    pub fn to_enum_value(&self) -> EnumValue {
+        EnumValue {
+            value: self.value,
+            directives: self
+                .directives
+                .iter()
+                .map(|d| d.to_directive_value())
+                .collect(),
+            description: self.description,
+        }
+    }
+
+    pub fn from_schema_value(ev: &EnumValue, is_client_definition: bool) -> Self {
+        Self {
+            definition: Some(SchemaDefinitionItem::default(ev.value)),
+            value: ev.value,
+            directives: ev
+                .directives
+                .iter()
+                .map(|dv| SetDirectiveValue::from_schema_value(dv, is_client_definition))
+                .collect(),
+            description: ev.description,
         }
     }
 }

@@ -16,7 +16,6 @@ use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use schema::DirectiveValue;
 use schema::EnumID;
-use schema::EnumValue;
 use schema::FieldID;
 use schema::InputObjectID;
 use schema::InterfaceID;
@@ -39,6 +38,7 @@ use crate::schema_set::SetArgument;
 use crate::schema_set::SetDirective;
 use crate::schema_set::SetDirectiveValue;
 use crate::schema_set::SetEnum;
+use crate::schema_set::SetEnumValue;
 use crate::schema_set::SetField;
 use crate::schema_set::SetInputObject;
 use crate::schema_set::SetInterface;
@@ -378,7 +378,8 @@ impl SchemaSet {
             self.touch_output_type(schema, &parent_type, options);
             match parent_type {
                 Type::Object(id) => {
-                    let object_name = schema.object(id).name.item.0;
+                    let schema_object = schema.object(id);
+                    let object_name = schema_object.name.item.0;
                     if let Some(SetType::Object(used_object)) = self.types.get_mut(&object_name) {
                         used_object.fields.entry(field_name).or_insert(SetField {
                             definition: Some(SchemaDefinitionItem {
@@ -405,7 +406,8 @@ impl SchemaSet {
                     }
                 }
                 Type::Interface(id) => {
-                    let interface_name = schema.interface(id).name.item.0;
+                    let schema_interface = schema.interface(id);
+                    let interface_name = schema_interface.name.item.0;
                     if let Some(SetType::Interface(used_interface)) =
                         self.types.get_mut(&interface_name)
                     {
@@ -710,9 +712,22 @@ impl SchemaSet {
             if let Some(SetType::Enum(used_enum)) = self.types.get_mut(&schema_enum.name.item.0) {
                 used_enum.values.entry(enum_value).or_insert_with(|| {
                     // Don't copy description - used schemas should be minimal
-                    EnumValue {
+                    SetEnumValue {
+                        definition: Some(SchemaDefinitionItem {
+                            name: schema_value.value,
+                            locations: Vec::new(),
+                            is_client_definition: schema_enum.is_extension,
+                            description: None,
+                            hack_source: None,
+                        }),
                         value: schema_value.value,
-                        directives: schema_value.directives.clone(),
+                        directives: schema_value
+                            .directives
+                            .iter()
+                            .map(|dv| {
+                                SetDirectiveValue::from_schema_value(dv, schema_enum.is_extension)
+                            })
+                            .collect(),
                         description: None,
                     }
                 });
@@ -726,9 +741,22 @@ impl SchemaSet {
             for value in schema_enum.values.iter() {
                 used_enum.values.entry(value.value).or_insert_with(|| {
                     // Don't copy description - used schemas should be minimal
-                    EnumValue {
+                    SetEnumValue {
+                        definition: Some(SchemaDefinitionItem {
+                            name: value.value,
+                            locations: Vec::new(),
+                            is_client_definition: schema_enum.is_extension,
+                            description: None,
+                            hack_source: None,
+                        }),
                         value: value.value,
-                        directives: value.directives.clone(),
+                        directives: value
+                            .directives
+                            .iter()
+                            .map(|dv| {
+                                SetDirectiveValue::from_schema_value(dv, schema_enum.is_extension)
+                            })
+                            .collect(),
                         description: None,
                     }
                 });

@@ -20,6 +20,7 @@ use common::ObjectName;
 use common::ScalarName;
 use common::SourceLocationKey;
 use common::UnionName;
+use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantDirective;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveDefinition;
@@ -41,8 +42,6 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
-use schema::ArgumentValue;
-use schema::EnumValue;
 use schema::TypeReference;
 
 use crate::OutputNonNull;
@@ -52,9 +51,11 @@ use crate::SEMANTIC_NON_NULL_LEVELS_ARG;
 use crate::schema_set::FieldName;
 use crate::schema_set::SchemaDefinitionItem;
 use crate::schema_set::SetArgument;
+use crate::schema_set::SetArgumentValue;
 use crate::schema_set::SetDirective;
 use crate::schema_set::SetDirectiveValue;
 use crate::schema_set::SetEnum;
+use crate::schema_set::SetEnumValue;
 use crate::schema_set::SetField;
 use crate::schema_set::SetInputObject;
 use crate::schema_set::SetInterface;
@@ -162,16 +163,20 @@ impl ToSetDefinition<SetType> for EnumTypeDefinition {
                 .map(|value| {
                     (
                         value.name.value,
-                        EnumValue {
+                        SetEnumValue {
+                            definition: Some(SchemaDefinitionItem {
+                                name: value.name.value,
+                                locations: vec![Location::new(source, value.span)],
+                                is_client_definition,
+                                description: value.description.as_ref().map(|d| d.value),
+                                hack_source: None,
+                            }),
                             value: value.name.value,
                             directives: build_directive_values(
                                 &value.directives,
                                 source,
                                 is_client_definition,
-                            )
-                            .into_iter()
-                            .map(|sdv| sdv.to_directive_value())
-                            .collect(),
+                            ),
                             description: value.description.as_ref().map(|d| d.value),
                         },
                     )
@@ -363,10 +368,7 @@ impl ToSetDefinition<SetDirectiveValue> for ConstantDirective {
             arguments
                 .items
                 .iter()
-                .map(|argument| ArgumentValue {
-                    name: ArgumentName(argument.name.value),
-                    value: argument.value.clone(),
-                })
+                .map(|argument| argument.to_set_definition(source, is_client_definition))
                 .collect()
         } else {
             Vec::new()
@@ -381,6 +383,26 @@ impl ToSetDefinition<SetDirectiveValue> for ConstantDirective {
             }),
             name: DirectiveName(self.name.value),
             arguments,
+        }
+    }
+}
+
+impl ToSetDefinition<SetArgumentValue> for ConstantArgument {
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+    ) -> SetArgumentValue {
+        SetArgumentValue {
+            definition: Some(SchemaDefinitionItem {
+                name: self.name.value,
+                locations: vec![Location::new(source, self.span)],
+                is_client_definition,
+                description: None,
+                hack_source: None,
+            }),
+            name: ArgumentName(self.name.value),
+            value: self.value.clone(),
         }
     }
 }

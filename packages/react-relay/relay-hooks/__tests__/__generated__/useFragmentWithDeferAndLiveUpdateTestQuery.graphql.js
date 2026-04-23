@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated
+ * @generated SignedSource<<bbbe662437b6742d4525f7b2b40f4c0b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -140,7 +140,7 @@ return {
     ]
   },
   "params": {
-    "cacheID": "use_fragment_defer_live_update_query",
+    "cacheID": "b4906d55de1832197f29cd7c87ca9788",
     "id": null,
     "metadata": {},
     "name": "useFragmentWithDeferAndLiveUpdateTestQuery",
@@ -151,7 +151,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*:: as any*/).hash = "use_fragment_defer_live_update_query_hash";
+  (node/*:: as any*/).hash = "2f1e35e18dce79d4884d6fe2b9bbe340";
 }
 
 module.exports = ((node/*:: as any*/)/*:: as Query<

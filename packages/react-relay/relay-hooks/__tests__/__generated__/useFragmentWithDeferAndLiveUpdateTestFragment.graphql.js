@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated
+ * @generated SignedSource<<4d09a55d9f42c9701c511b6d36b4a26f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -51,7 +51,7 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*:: as any*/).hash = "use_fragment_defer_live_update_fragment_hash";
+  (node/*:: as any*/).hash = "e94b5cf91e27dc387e221c16d5081f9a";
 }
 
 module.exports = ((node/*:: as any*/)/*:: as Fragment<

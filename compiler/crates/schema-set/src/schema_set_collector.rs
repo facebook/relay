@@ -10,7 +10,6 @@ use std::collections::VecDeque;
 
 use common::ArgumentName;
 use common::NamedItem;
-use common::WithLocation;
 use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
@@ -199,7 +198,8 @@ impl SchemaSet {
                 .entry(from_schema.name.item.0)
                 .or_insert(SetType::Object(SetObject {
                     definition: Some(SchemaDefinitionItem {
-                        name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+                        name: from_schema.name.item.0,
+                        locations: vec![from_schema.name.location],
                         is_client_definition: from_schema.is_extension,
                         description: None,
                         hack_source: None,
@@ -244,7 +244,8 @@ impl SchemaSet {
                 .entry(from_schema.name.item.0)
                 .or_insert(SetType::Interface(SetInterface {
                     definition: Some(SchemaDefinitionItem {
-                        name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+                        name: from_schema.name.item.0,
+                        locations: vec![from_schema.name.location],
                         is_client_definition: from_schema.is_extension,
                         description: None,
                         hack_source: None,
@@ -283,7 +284,8 @@ impl SchemaSet {
                     .collect();
                 SetType::Union(SetUnion {
                     definition: Some(SchemaDefinitionItem {
-                        name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+                        name: from_schema.name.item.0,
+                        locations: vec![from_schema.name.location],
                         is_client_definition: from_schema.is_extension,
                         description: None,
                         hack_source: None,
@@ -314,7 +316,8 @@ impl SchemaSet {
             .entry(name)
             .or_insert(SetType::InputObject(SetInputObject {
                 definition: Some(SchemaDefinitionItem {
-                    name: WithLocation::new(schema_input.name.location, schema_input.name.item.0),
+                    name: schema_input.name.item.0,
+                    locations: vec![schema_input.name.location],
                     // WTF schema does not allow input objects as extensions yet?
                     is_client_definition: false,
                     description: None,
@@ -362,10 +365,8 @@ impl SchemaSet {
                     if let Some(SetType::Object(used_object)) = self.types.get_mut(&object_name) {
                         used_object.fields.entry(field_name).or_insert(SetField {
                             definition: Some(SchemaDefinitionItem {
-                                name: WithLocation::new(
-                                    schema_field.name.location,
-                                    schema_field.name.item,
-                                ),
+                                name: schema_field.name.item,
+                                locations: vec![schema_field.name.location],
                                 is_client_definition: schema_field.is_extension,
                                 description: None,
                                 hack_source: None,
@@ -389,10 +390,8 @@ impl SchemaSet {
                     {
                         used_interface.fields.entry(field_name).or_insert(SetField {
                             definition: Some(SchemaDefinitionItem {
-                                name: WithLocation::new(
-                                    schema_field.name.location,
-                                    schema_field.name.item,
-                                ),
+                                name: schema_field.name.item,
+                                locations: vec![schema_field.name.location],
                                 is_client_definition: schema_field.is_extension,
                                 description: None,
                                 hack_source: None,
@@ -453,10 +452,8 @@ impl SchemaSet {
                     .entry(directive_name)
                     .or_insert(SetDirective {
                         definition: Some(SchemaDefinitionItem {
-                            name: WithLocation::new(
-                                schema_directive.name.location,
-                                schema_directive.name.item.0,
-                            ),
+                            name: schema_directive.name.item.0,
+                            locations: vec![schema_directive.name.location],
                             is_client_definition: schema_directive.is_extension,
                             description: None,
                             hack_source: None,
@@ -523,10 +520,8 @@ impl SchemaSet {
                         .entry(argument_name)
                         .or_insert(SetArgument {
                             definition: Some(SchemaDefinitionItem {
-                                name: WithLocation::new(
-                                    schema_arg.name.location,
-                                    schema_arg.name.item.0,
-                                ),
+                                name: schema_arg.name.item.0,
+                                locations: vec![schema_arg.name.location],
                                 is_client_definition: schema_field.is_extension,
                                 description: None,
                                 hack_source: None,
@@ -558,10 +553,8 @@ impl SchemaSet {
             {
                 used_input.fields.entry(field_name).or_insert(SetArgument {
                     definition: Some(SchemaDefinitionItem {
-                        name: WithLocation::new(
-                            schema_input.name.location,
-                            schema_input.name.item.0,
-                        ),
+                        name: schema_input.name.item.0,
+                        locations: vec![schema_input.name.location],
                         is_client_definition: false,
                         description: None,
                         hack_source: None,
@@ -595,10 +588,8 @@ impl SchemaSet {
                     .entry(argument_name)
                     .or_insert(SetArgument {
                         definition: Some(SchemaDefinitionItem {
-                            name: WithLocation::new(
-                                schema_arg.name.location,
-                                schema_arg.name.item.0,
-                            ),
+                            name: schema_arg.name.item.0,
+                            locations: vec![schema_arg.name.location],
                             is_client_definition: schema_directive.is_extension,
                             description: None,
                             hack_source: None,
@@ -625,7 +616,8 @@ impl SchemaSet {
             .entry(from_schema.name.item.0)
             .or_insert(SetType::Scalar(SetScalar {
                 definition: Some(SchemaDefinitionItem {
-                    name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+                    name: from_schema.name.item.0,
+                    locations: vec![from_schema.name.location],
                     is_client_definition: from_schema.is_extension,
                     description: None,
                     hack_source: None,
@@ -648,7 +640,8 @@ impl SchemaSet {
             .entry(from_schema.name.item.0)
             .or_insert(SetType::Enum(SetEnum {
                 definition: Some(SchemaDefinitionItem {
-                    name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+                    name: from_schema.name.item.0,
+                    locations: vec![from_schema.name.location],
                     is_client_definition: from_schema.is_extension,
                     description: None,
                     hack_source: None,

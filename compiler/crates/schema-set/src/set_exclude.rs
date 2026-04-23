@@ -11,7 +11,6 @@ use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
 use common::Span;
-use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::StringNode;
 use graphql_syntax::Token;
@@ -583,7 +582,8 @@ fn exclude_definition_if(
             original_definition
                 .cloned()
                 .unwrap_or_else(|| SchemaDefinitionItem {
-                    name: WithLocation::generated(name),
+                    name,
+                    locations: Vec::new(),
                     is_client_definition: false,
                     description: None,
                     hack_source: None,

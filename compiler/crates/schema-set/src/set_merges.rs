@@ -80,10 +80,11 @@ pub enum SetMergeError {
     },
 }
 
-fn definition_location(definition: &Option<SchemaDefinitionItem>) -> Location {
+fn first_definition_location(definition: &Option<SchemaDefinitionItem>) -> Location {
     definition
         .as_ref()
-        .map_or(Location::generated(), |def| def.name.location)
+        .and_then(|def| def.locations.first().cloned())
+        .unwrap_or(Location::generated())
 }
 
 fn set_type_definition(t: &SetType) -> &Option<SchemaDefinitionItem> {
@@ -94,6 +95,25 @@ fn set_type_definition(t: &SetType) -> &Option<SchemaDefinitionItem> {
         SetType::Interface(i) => &i.definition,
         SetType::Union(u) => &u.definition,
         SetType::InputObject(io) => &io.definition,
+    }
+}
+
+fn merge_definition(
+    target: &mut Option<SchemaDefinitionItem>,
+    source: &Option<SchemaDefinitionItem>,
+) {
+    match (target.as_mut(), source) {
+        (Some(existing), Some(incoming)) => {
+            for loc in &incoming.locations {
+                if !existing.locations.contains(loc) {
+                    existing.locations.push(*loc);
+                }
+            }
+        }
+        (None, Some(_)) => {
+            *target = source.clone();
+        }
+        _ => {}
     }
 }
 
@@ -176,8 +196,8 @@ impl Merges for SetType {
             (SetType::Union(s), SetType::Union(other)) => s.merge(other),
             (SetType::InputObject(s), SetType::InputObject(other)) => s.merge(other),
             (a, b) => {
-                let existing_location = definition_location(set_type_definition(a));
-                let other_location = definition_location(set_type_definition(&b));
+                let existing_location = first_definition_location(set_type_definition(a));
+                let other_location = first_definition_location(set_type_definition(&b));
                 let name = a.string_key_name().to_string();
                 Err(vec![
                     Diagnostic::error(
@@ -201,6 +221,7 @@ impl Merges for SetType {
 impl Merges for SetEnum {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         let is_other_client_definition = other.is_client_definition();
+        merge_definition(&mut self.definition, &other.definition);
         for (value_name, other_value) in other.values {
             self.values.entry(value_name).or_insert(other_value);
         }
@@ -213,6 +234,7 @@ impl Merges for SetEnum {
 impl Merges for SetInterface {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_is_client_definition(self, other.is_client_definition());
+        merge_definition(&mut self.definition, &other.definition);
         merge_directive_values(self, other.directives);
 
         merge_members(&mut self.interfaces, other.interfaces)?;
@@ -246,6 +268,7 @@ impl MergesFromAbstractDefinition<SetInterface> for SetInterface {
 impl Merges for SetObject {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_is_client_definition(self, other.is_client_definition());
+        merge_definition(&mut self.definition, &other.definition);
         merge_directive_values(self, other.directives);
 
         merge_members(&mut self.interfaces, other.interfaces)?;
@@ -278,6 +301,7 @@ impl MergesFromAbstractDefinition<SetInterface> for SetObject {
 impl Merges for SetUnion {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_is_client_definition(self, other.is_client_definition());
+        merge_definition(&mut self.definition, &other.definition);
         merge_directive_values(self, other.directives);
         merge_members(&mut self.members, other.members)?;
         Ok(())
@@ -287,6 +311,7 @@ impl Merges for SetUnion {
 impl Merges for SetInputObject {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_is_client_definition(self, other.is_client_definition());
+        merge_definition(&mut self.definition, &other.definition);
         // This merges the Input Object's fields
         merge_arguments(self, other.fields, &self.name.to_string())?;
         merge_directive_values(self, other.directives);
@@ -297,6 +322,7 @@ impl Merges for SetInputObject {
 impl Merges for SetScalar {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_is_client_definition(self, other.is_client_definition());
+        merge_definition(&mut self.definition, &other.definition);
         merge_directive_values(self, other.directives);
         Ok(())
     }
@@ -305,6 +331,7 @@ impl Merges for SetScalar {
 impl Merges for SetDirective {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_is_client_definition(self, other.is_client_definition());
+        merge_definition(&mut self.definition, &other.definition);
         merge_arguments(self, other.arguments, &self.name.to_string())?;
 
         // We CANNOT just use extend, as locations is a Vec<DirectiveLocation>
@@ -320,10 +347,11 @@ impl Merges for SetDirective {
 impl SetField {
     fn merge_with_parent(&mut self, other: Self, parent_type: &str) -> DiagnosticsResult<()> {
         merge_is_client_definition(self, other.is_client_definition());
+        merge_definition(&mut self.definition, &other.definition);
 
         if self.type_ != other.type_ {
-            let existing_location = definition_location(&self.definition);
-            let other_location = definition_location(&other.definition);
+            let existing_location = first_definition_location(&self.definition);
+            let other_location = first_definition_location(&other.definition);
             self.type_ =
                 merge_output_field_type(&self.type_, &other.type_, self.name.0, parent_type)
                     .map_err(|diagnostics| {
@@ -378,11 +406,13 @@ impl SetArgument {
     fn merge_with_parent(&mut self, other: Self, parent_type: &str) -> DiagnosticsResult<()> {
         if self.definition.is_none() {
             self.definition = other.definition.clone();
+        } else {
+            merge_definition(&mut self.definition, &other.definition);
         }
 
         if self.type_ != other.type_ {
-            let existing_location = definition_location(&self.definition);
-            let other_location = definition_location(&other.definition);
+            let existing_location = first_definition_location(&self.definition);
+            let other_location = first_definition_location(&other.definition);
             self.type_ =
                 merge_input_argument_type(&self.type_, &other.type_, self.name, parent_type)
                     .map_err(|diagnostics| {
@@ -583,11 +613,11 @@ fn merge_root_operation_type(
                         existing: existing_type,
                         other: other_type,
                     },
-                    definition_location(other_definition),
+                    first_definition_location(other_definition),
                 )
                 .annotate_if_location_exists(
                     "conflicts with existing schema definition here",
-                    definition_location(existing_definition),
+                    first_definition_location(existing_definition),
                 ),
             ]);
         }

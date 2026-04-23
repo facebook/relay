@@ -13,11 +13,11 @@ use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
 use common::InterfaceName;
+use common::Location;
 use common::ObjectName;
 use common::ScalarName;
 use common::SourceLocationKey;
 use common::UnionName;
-use common::WithLocation;
 use graphql_ir::Visitor;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
@@ -452,7 +452,8 @@ impl SchemaSet {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SchemaDefinitionItem {
-    pub name: WithLocation<StringKey>,
+    pub name: StringKey,
+    pub locations: Vec<Location>,
     pub is_client_definition: bool,
     pub description: Option<StringKey>,
     pub hack_source: Option<StringKey>,
@@ -460,7 +461,8 @@ pub struct SchemaDefinitionItem {
 impl SchemaDefinitionItem {
     pub fn default(name: StringKey) -> Self {
         Self {
-            name: WithLocation::generated(name),
+            name,
+            locations: Vec::new(),
             is_client_definition: false,
             description: None,
             hack_source: None,

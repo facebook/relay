@@ -46,7 +46,8 @@ macro_rules! impl_can_be_client_definition {
                     def.is_client_definition = is_client_definition;
                 } else {
                     self.definition = Some(SchemaDefinitionItem {
-                        name: WithLocation::generated(self.name.0),
+                        name: self.name.0,
+                        locations: Vec::new(),
                         is_client_definition,
                         description: None,
                         hack_source: None,

@@ -1509,8 +1509,10 @@ export type RelayResponsePayload = {
   +fieldPayloads: ?Array<HandleFieldPayload>,
   +incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
   +followupPayloads: ?Array<FollowupPayload>,
-  +source: MutableRecordSource,
   +isFinal: boolean,
+  +isPreNormalized?: boolean,
+  +source: MutableRecordSource,
+  +storeUpdater?: ?(store: RecordSourceProxy) => void,
 };
 
 /**

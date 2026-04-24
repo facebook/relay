@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a46aa27d3f655c22da74db1e9a82f6a8>>
+ * @generated SignedSource<<4df8517645c9600a04e89ad131562609>>
  */
 
 mod relay_compiler_integration;
@@ -192,6 +192,13 @@ async fn exec_time_resolver_mixed_interface_client_edge_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.expected");
     test_fixture(transform_fixture, file!(), "exec_time_resolver_mixed_interface_client_edge.invalid.input", "relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_resolver_server_to_client_has_flag() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_server_to_client_has_flag.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_server_to_client_has_flag.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_server_to_client_has_flag.input", "relay_compiler_integration/fixtures/exec_time_resolver_server_to_client_has_flag.expected", input, expected).await;
 }
 
 #[tokio::test]

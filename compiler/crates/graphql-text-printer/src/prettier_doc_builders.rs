@@ -20,7 +20,7 @@
 //! | `indent(contents)` | `doc.nest(INDENT_WIDTH)` |
 //! | `group(contents)` | `doc.group()` |
 //! | `ifBreak(break, flat)` | `if_break_doc(break_contents, flat_contents)` |
-//! | `join(sep, docs)` | `RcDoc::intersperse(docs, sep)` |
+//! | `join(sep, docs)` | `balanced_intersperse(docs, sep)` |
 
 #![allow(dead_code)]
 
@@ -35,6 +35,55 @@ pub const INDENT_WIDTH: isize = 2;
 
 /// Line width for prettier-graphql formatting decisions.
 pub const LINE_WIDTH: usize = 80;
+
+/// Like `RcDoc::intersperse`, but builds a balanced binary tree of `Append`
+/// nodes (depth O(log N)) instead of a linear chain (depth O(N)).
+///
+/// `RcDoc::intersperse` produces a left-nested `Append` chain. For large
+/// lists, the compiler-generated recursive `Drop` for `Rc<Doc>` overflows
+/// the stack. A balanced tree keeps the depth logarithmic.
+pub fn balanced_intersperse(
+    docs: Vec<RcDoc<'static, ()>>,
+    sep: RcDoc<'static, ()>,
+) -> RcDoc<'static, ()> {
+    if docs.is_empty() {
+        return RcDoc::nil();
+    }
+    if docs.len() == 1 {
+        return docs
+            .into_iter()
+            .next()
+            .expect("should have exactly one element after length check");
+    }
+
+    // Interleave separators: [a, sep, b, sep, c]
+    let mut items: Vec<RcDoc<'static, ()>> = Vec::with_capacity(docs.len() * 2 - 1);
+    for (i, doc) in docs.into_iter().enumerate() {
+        if i > 0 {
+            items.push(sep.clone());
+        }
+        items.push(doc);
+    }
+
+    // Pairwise-merge into a balanced binary tree of Append nodes
+    while items.len() > 1 {
+        let mut next = Vec::with_capacity(items.len().div_ceil(2));
+        let mut iter = items.into_iter();
+        while let Some(a) = iter.next() {
+            if let Some(b) = iter.next() {
+                next.push(a.append(b));
+            } else {
+                next.push(a);
+            }
+        }
+        items = next;
+    }
+
+    items
+        .into_iter()
+        .next()
+        .expect("should have exactly one element after pairwise merge")
+}
 
 /// Creates a document that renders differently when flat vs broken.
 ///
@@ -74,7 +123,7 @@ pub fn constant_value_doc(value: &ConstantValue) -> RcDoc<'static, ()> {
                 let items: Vec<RcDoc<'static, ()>> =
                     list.items.iter().map(constant_value_doc).collect();
                 RcDoc::text("[")
-                    .append(RcDoc::intersperse(items, RcDoc::text(", ")))
+                    .append(balanced_intersperse(items, RcDoc::text(", ")))
                     .append(RcDoc::text("]"))
             }
         }
@@ -85,7 +134,7 @@ pub fn constant_value_doc(value: &ConstantValue) -> RcDoc<'static, ()> {
                 let fields: Vec<RcDoc<'static, ()>> =
                     obj.items.iter().map(constant_argument_doc).collect();
                 RcDoc::text("{")
-                    .append(RcDoc::intersperse(fields, RcDoc::text(", ")))
+                    .append(balanced_intersperse(fields, RcDoc::text(", ")))
                     .append(RcDoc::text("}"))
             }
         }
@@ -128,7 +177,7 @@ pub fn constant_directive_doc(directive: &ConstantDirective) -> RcDoc<'static, (
                 arguments.items.iter().map(constant_argument_doc).collect();
             name_doc
                 .append(RcDoc::text("("))
-                .append(RcDoc::intersperse(args, RcDoc::text(", ")))
+                .append(balanced_intersperse(args, RcDoc::text(", ")))
                 .append(RcDoc::text(")"))
         }
     } else {
@@ -142,7 +191,7 @@ pub fn constant_directives_doc(directives: &[ConstantDirective]) -> RcDoc<'stati
         RcDoc::nil()
     } else {
         let docs: Vec<RcDoc<'static, ()>> = directives.iter().map(constant_directive_doc).collect();
-        RcDoc::intersperse(docs, RcDoc::text(" "))
+        balanced_intersperse(docs, RcDoc::text(" "))
     }
 }
 
@@ -161,6 +210,87 @@ mod tests {
     use graphql_syntax::parse_schema_document;
 
     use super::*;
+
+    #[test]
+    fn test_balanced_intersperse_empty() {
+        let result = render_doc(balanced_intersperse(vec![], RcDoc::text(", ")), LINE_WIDTH);
+        assert_eq!(result, "");
+    }
+
+    #[test]
+    fn test_balanced_intersperse_single() {
+        let docs = vec![RcDoc::text("a")];
+        let result = render_doc(balanced_intersperse(docs, RcDoc::text(", ")), LINE_WIDTH);
+        assert_eq!(result, "a");
+    }
+
+    #[test]
+    fn test_balanced_intersperse_two() {
+        let docs = vec![RcDoc::text("a"), RcDoc::text("b")];
+        let result = render_doc(balanced_intersperse(docs, RcDoc::text(", ")), LINE_WIDTH);
+        assert_eq!(result, "a, b");
+    }
+
+    #[test]
+    fn test_balanced_intersperse_multiple() {
+        let docs = vec![
+            RcDoc::text("a"),
+            RcDoc::text("b"),
+            RcDoc::text("c"),
+            RcDoc::text("d"),
+            RcDoc::text("e"),
+        ];
+        let result = render_doc(
+            balanced_intersperse(docs.clone(), RcDoc::text(", ")),
+            LINE_WIDTH,
+        );
+        let expected = render_doc(RcDoc::intersperse(docs, RcDoc::text(", ")), LINE_WIDTH);
+        assert_eq!(
+            result, expected,
+            "balanced_intersperse should produce the same output as RcDoc::intersperse"
+        );
+    }
+
+    #[test]
+    fn test_balanced_intersperse_odd_count() {
+        let docs = vec![RcDoc::text("x"), RcDoc::text("y"), RcDoc::text("z")];
+        let result = render_doc(
+            balanced_intersperse(docs.clone(), RcDoc::text(" | ")),
+            LINE_WIDTH,
+        );
+        let expected = render_doc(RcDoc::intersperse(docs, RcDoc::text(" | ")), LINE_WIDTH);
+        assert_eq!(result, expected);
+    }
+
+    /// Verifies that `balanced_intersperse` does not stack-overflow when
+    /// dropping a large tree on a 1 MB thread stack (the Windows default).
+    /// With the old `RcDoc::intersperse`, 5000 docs produce a linear Append
+    /// chain ~10000 deep, which overflows during `Rc<Doc>::drop`.
+    #[test]
+    fn test_balanced_intersperse_no_stack_overflow_1mb() {
+        let result = std::thread::Builder::new()
+            .name("1mb-stack-test".into())
+            .stack_size(1024 * 1024) // 1 MB — Windows default
+            .spawn(|| {
+                let n = 5000;
+                let docs: Vec<RcDoc<'static, ()>> = (0..n)
+                    .map(|i| RcDoc::text(format!("field_{}", i)))
+                    .collect();
+                let doc = balanced_intersperse(docs, RcDoc::hardline());
+                let output = render_doc(doc, LINE_WIDTH);
+                let lines: Vec<&str> = output.lines().collect();
+                assert_eq!(lines.len(), n, "should have {} lines", n);
+                assert_eq!(lines[0], "field_0");
+                assert_eq!(lines[n - 1], &format!("field_{}", n - 1));
+            })
+            .expect("should spawn thread")
+            .join();
+
+        assert!(
+            result.is_ok(),
+            "thread panicked or aborted (stack overflow?)"
+        );
+    }
 
     #[test]
     fn test_if_break_doc_flat() {

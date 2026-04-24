@@ -146,6 +146,12 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
     pub async fn watch(&self) -> Result<()> {
         'watch: loop {
+            // Clear any stale cached artifact operations from a previous watch
+            // loop iteration. After a source control update (rebase), the old
+            // cached operations are derived from the pre-rebase compiler state
+            // and may reference artifacts for files that no longer exist.
+            self.config.artifact_writer.reset();
+
             let setup_event = self.perf_logger.create_event("compiler_setup");
             let initial_watch_compile_timer = setup_event.start("initial_watch_compile");
             self.config.status_reporter.build_starts();
@@ -355,6 +361,14 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     incremental_build_event.stop(incremental_build_time);
                 }
                 incremental_build_event.complete();
+            } else {
+                // The notification resolved (possibly from a stored Notify
+                // permit) but all pending changes were already consumed by a
+                // prior iteration. Clear is_building so clients aren't blocked
+                // indefinitely in wait_for_idle().
+                if let Some(build_status) = &self.config.daemon_build_status {
+                    build_status.no_pending_changes();
+                }
             }
         }
     }

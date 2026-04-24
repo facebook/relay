@@ -71,6 +71,11 @@ const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 const warning = require('warning');
 
+// A network response OR a pre-normalized payload from the network layer.
+// RelayObservable<+T> is covariant, so Observable<GraphQLResponse> is
+// assignable to Observable<NetworkResponse> automatically.
+type NetworkResponse = GraphQLResponse | RelayResponsePayload;
+
 export type ExecuteConfig<TMutation extends MutationParameters> = {
   +actorIdentifier: ActorIdentifier,
   +getDataID: GetDataID,
@@ -86,7 +91,7 @@ export type ExecuteConfig<TMutation extends MutationParameters> = {
   +scheduler?: ?TaskScheduler,
   +shouldProcessClientComponents?: ?boolean,
   +sink: Sink<GraphQLResponse>,
-  +source: RelayObservable<GraphQLResponse>,
+  +source: RelayObservable<NetworkResponse>,
   +treatMissingFieldsAsNull: boolean,
   +deferDeduplicatedFields: boolean,
   +updater?: ?SelectorStoreUpdater<TMutation['response']>,
@@ -399,23 +404,41 @@ class Executor<TMutation extends MutationParameters> {
     this._updateActiveState();
   }
 
-  // Handle a raw GraphQL response.
-  _next(_id: number, response: GraphQLResponse): void {
+  // Handle a raw GraphQL response or a pre-normalized payload from the
+  // network layer. Pre-normalized payloads bypass the normal GraphQL pipeline.
+  _next(_id: number, response: NetworkResponse): void {
     const priority = this._state === 'loading_incremental' ? 'low' : 'default';
     this._schedule(() => {
+      // Pre-normalized payloads from the network layer have isPreNormalized
+      // set by NormalizationEngine. Route them to a dedicated handler that
+      // commits directly to the store, bypassing normalizeResponse().
+      if (
+        !Array.isArray(response) &&
+        // $FlowFixMe[prop-missing] isPreNormalized exists on RelayResponsePayload branch
+        response.isPreNormalized === true
+      ) {
+        // $FlowFixMe[incompatible-type] narrowed by isPreNormalized check
+        this._handlePreNormalizedPayload(response);
+        return;
+      }
+      // After the pre-normalized early return, response is a standard
+      // GraphQLResponse (Flow cannot narrow this automatically because
+      // isPreNormalized is optional, so we cast once here at the boundary).
+      // $FlowFixMe[incompatible-type] narrowed by isPreNormalized check above
+      const graphQLResponse: GraphQLResponse = response;
       this._log({
         executeId: this._executeId,
         name: 'execute.next.start',
         operation: this._operation,
-        response,
+        response: graphQLResponse,
       });
-      this._handleNext(response);
+      this._handleNext(graphQLResponse);
       this._maybeCompleteSubscriptionOperationTracking();
       this._log({
         executeId: this._executeId,
         name: 'execute.next.end',
         operation: this._operation,
-        response,
+        response: graphQLResponse,
       });
     }, priority);
   }
@@ -506,6 +529,39 @@ class Executor<TMutation extends MutationParameters> {
       return true;
     }
     return false;
+  }
+
+  _handlePreNormalizedPayload(payload: RelayResponsePayload): void {
+    // NOTE: This path intentionally skips _maybeCompleteSubscriptionOperationTracking
+    // and the execute.next.start/end log events. Pre-normalized payloads come from
+    // the network-normalization path (NormalizationEngine via executeWithNetwork),
+    // which is used only for live exec-time-resolver queries. Those queries never
+    // complete from the consumer's perspective — exec-time resolvers re-emit on
+    // updates indefinitely — so completion tracking would never fire and is not
+    // needed.
+    if (this._state === 'completed') {
+      return;
+    }
+    this._seenActors.clear();
+    if (this._optimisticUpdates !== null) {
+      this._optimisticUpdates.forEach(update =>
+        this._getPublishQueueAndSaveActor().revertUpdate(update),
+      );
+      this._optimisticUpdates = null;
+    }
+    this._getPublishQueueAndSaveActor().commitPayload(
+      this._operation,
+      payload,
+      payload.storeUpdater ?? this._updater,
+    );
+    if (payload.isFinal) {
+      this._state = 'loading_final';
+    } else if (this._state === 'started') {
+      this._state = 'loading_incremental';
+    }
+    const updatedOwners = this._runPublishQueue(this._operation);
+    this._updateActiveState();
+    this._updateOperationTracker(updatedOwners);
   }
 
   _handleNext(response: GraphQLResponse): void {

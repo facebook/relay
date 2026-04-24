@@ -47,6 +47,7 @@ const {
   isSuspenseSentinel,
   suspenseSentinel,
 } = require('./store/live-resolvers/LiveResolverSuspenseSentinel');
+const NormalizationEngine = require('./store/NormalizationEngine');
 const normalizeResponse = require('./store/normalizeResponse');
 const readInlineData = require('./store/readInlineData');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
@@ -335,6 +336,7 @@ const __internal = {
   getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
   getObservableForActiveRequest:
     fetchQueryInternal.getObservableForActiveRequest,
+  NormalizationEngine: NormalizationEngine,
   normalizeResponse: normalizeResponse,
   withProvidedVariables: withProvidedVariables,
 };

@@ -42,6 +42,7 @@ use pretty::RcDoc;
 
 use crate::prettier_doc_builders::INDENT_WIDTH;
 use crate::prettier_doc_builders::LINE_WIDTH;
+use crate::prettier_doc_builders::balanced_intersperse;
 use crate::prettier_doc_builders::constant_argument_doc;
 use crate::prettier_doc_builders::constant_directive_doc;
 use crate::prettier_doc_builders::constant_directives_doc;
@@ -151,7 +152,7 @@ fn operation_type_fields_doc(fields: &[OperationTypeDefinition]) -> RcDoc<'stati
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(field_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -353,7 +354,7 @@ fn union_members_doc(
 
         RcDoc::text(" =")
             .append(RcDoc::hardline())
-            .append(RcDoc::intersperse(member_docs, RcDoc::hardline()))
+            .append(balanced_intersperse(member_docs, RcDoc::hardline()))
     } else {
         RcDoc::text(single_line)
     }
@@ -415,7 +416,7 @@ fn enum_values_doc(values: &[EnumValueDefinition]) -> RcDoc<'static, ()> {
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(value_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(value_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -495,7 +496,7 @@ fn input_fields_doc(fields: &[InputValueDefinition]) -> RcDoc<'static, ()> {
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(field_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -588,7 +589,7 @@ fn directive_definition_doc(def: &DirectiveDefinition) -> RcDoc<'static, ()> {
             doc = doc
                 .append(RcDoc::text("("))
                 .append(RcDoc::hardline())
-                .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+                .append(balanced_intersperse(arg_docs, RcDoc::hardline()))
                 .append(RcDoc::hardline())
                 .append(RcDoc::text(")"));
         }
@@ -622,7 +623,7 @@ fn field_definitions_doc(fields: &[FieldDefinition]) -> RcDoc<'static, ()> {
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(field_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -703,7 +704,7 @@ fn arguments_definition_doc(
 
         RcDoc::text("(")
             .append(RcDoc::hardline())
-            .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+            .append(balanced_intersperse(arg_docs, RcDoc::hardline()))
             .append(RcDoc::hardline())
             .append(RcDoc::text("  )"))
     }
@@ -1451,6 +1452,44 @@ mod tests {
                 "    )",
                 "}",
             ]
+        );
+    }
+
+    /// End-to-end test: a type with 5000 fields must not stack-overflow when
+    /// printed on a 1 MB thread stack (Windows default). Before the
+    /// `balanced_intersperse` fix, `RcDoc::intersperse` built a linear chain
+    /// whose recursive `Drop` overflowed.
+    #[test]
+    fn test_large_type_no_stack_overflow_1mb() {
+        let result = std::thread::Builder::new()
+            .name("1mb-schema-test".into())
+            .stack_size(1024 * 1024) // 1 MB
+            .spawn(|| {
+                let n = 5000;
+                let fields: Vec<String> =
+                    (0..n).map(|i| format!("  field_{}: String", i)).collect();
+                let source = format!("type HugeType {{\n{}\n}}", fields.join("\n"));
+                let document = graphql_syntax::parse_schema_document(
+                    &source,
+                    common::SourceLocationKey::generated(),
+                )
+                .expect("should parse schema with 5000 fields");
+                let output = prettier_print_schema_document(&document);
+                assert!(
+                    output.contains("field_0: String"),
+                    "output should contain field_0"
+                );
+                assert!(
+                    output.contains(&format!("field_{}: String", n - 1)),
+                    "output should contain last field"
+                );
+            })
+            .expect("should spawn thread")
+            .join();
+
+        assert!(
+            result.is_ok(),
+            "thread panicked or aborted (stack overflow?)"
         );
     }
 

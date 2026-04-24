@@ -1,0 +1,72 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# Two fragments select a field (with `supported` arg) with @match
+# but with different @module type conditions. When composed in a
+# query, this produces conflicting supported arguments.
+query TestQuery {
+  me {
+    ...RowFragment
+  }
+}
+
+fragment RowFragment on User {
+  id
+  ...RootFragment
+  nameRenderer(supported: ["PlainUserNameRenderer"]) @match {
+    ...PlainUserNameRenderer_row @module(name: "PlainRow.react")
+  }
+}
+
+fragment RootFragment on User {
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) @match {
+    ...PlainUserNameRenderer_root @module(name: "PlainRoot.react")
+    ...MarkdownUserNameRenderer_root @module(name: "MarkdownRoot.react")
+  }
+}
+
+fragment PlainUserNameRenderer_row on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment PlainUserNameRenderer_root on PlainUserNameRenderer {
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_root on MarkdownUserNameRenderer {
+  markdown
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `nameRenderer` to have the same argument values after applying fragment arguments. This field has the applied argument values: (supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]). If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: nameRenderer(...)`.
+
+  same-field-with-different-match-across-fragments.invalid.graphql:20:3
+   19 │ fragment RootFragment on User {
+   20 │   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) @match {
+      │   ^^^^^^^^^^^^
+   21 │     ...PlainUserNameRenderer_root @module(name: "PlainRoot.react")
+
+  ℹ︎ which conflicts with this field with applied argument values (supported: ["PlainUserNameRenderer"])
+
+  same-field-with-different-match-across-fragments.invalid.graphql:14:3
+   13 │   ...RootFragment
+   14 │   nameRenderer(supported: ["PlainUserNameRenderer"]) @match {
+      │   ^^^^^^^^^^^^
+   15 │     ...PlainUserNameRenderer_row @module(name: "PlainRow.react")
+
+
+✖︎ Field 'nameRenderer' is marked with @match in multiple places. Please use an alias to distinguish them.
+
+  same-field-with-different-match-across-fragments.invalid.graphql:20:3
+   19 │ fragment RootFragment on User {
+   20 │   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) @match {
+      │   ^^^^^^^^^^^^
+   21 │     ...PlainUserNameRenderer_root @module(name: "PlainRoot.react")
+
+  ℹ︎ the other field
+
+  same-field-with-different-match-across-fragments.invalid.graphql:14:3
+   13 │   ...RootFragment
+   14 │   nameRenderer(supported: ["PlainUserNameRenderer"]) @match {
+      │   ^^^^^^^^^^^^
+   15 │     ...PlainUserNameRenderer_row @module(name: "PlainRow.react")

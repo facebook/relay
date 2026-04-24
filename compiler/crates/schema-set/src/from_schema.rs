@@ -8,7 +8,6 @@
 use std::collections::VecDeque;
 
 use common::NamedItem;
-use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use intern::string_key::StringKeyIndexMap;
 use schema::DirectiveValue;
@@ -29,6 +28,7 @@ use crate::OutputTypeReference;
 use crate::SEMANTIC_NON_NULL;
 use crate::SEMANTIC_NON_NULL_LEVELS_ARG;
 use crate::SetDirective;
+use crate::SetDirectiveValue;
 use crate::schema_set::CanHaveDirectives;
 use crate::schema_set::FieldName;
 use crate::schema_set::HasArguments;
@@ -143,7 +143,8 @@ impl<T: HasArguments> SchemaInsertArgument for T {
             .entry(argument_name)
             .or_insert_with(|| SetArgument {
                 definition: Some(SchemaDefinitionItem {
-                    name: WithLocation::new(argument.name.location, argument.name.item.0),
+                    name: argument.name.item.0,
+                    locations: vec![argument.name.location],
                     is_client_definition: false,
                     description: None,
                     hack_source: None,
@@ -163,23 +164,32 @@ impl<T: HasArguments> SchemaInsertArgument for T {
 }
 
 pub trait SchemaInsertDirectiveValue {
-    fn directive_or_inserted(&mut self, directive: &DirectiveValue) -> &mut DirectiveValue;
+    fn directive_or_inserted(
+        &mut self,
+        directive: &DirectiveValue,
+        is_client_definition: bool,
+    ) -> &mut SetDirectiveValue;
 }
 
 impl<T: CanHaveDirectives> SchemaInsertDirectiveValue for T {
-    fn directive_or_inserted(&mut self, directive: &DirectiveValue) -> &mut DirectiveValue {
-        // Check if directive with same name already exists
+    fn directive_or_inserted(
+        &mut self,
+        directive: &DirectiveValue,
+        is_client_definition: bool,
+    ) -> &mut SetDirectiveValue {
         let existing_index = self
             .directives()
             .iter()
             .position(|d| d.name == directive.name);
 
         if let Some(index) = existing_index {
-            // Return reference to existing directive
             &mut self.directives_mut()[index]
         } else {
-            // Add new directive and return reference to it
-            self.directives_mut().push(directive.clone());
+            self.directives_mut()
+                .push(SetDirectiveValue::from_schema_value(
+                    directive,
+                    is_client_definition,
+                ));
             self.directives_mut()
                 .last_mut()
                 .expect("Just pushed directive")
@@ -192,7 +202,8 @@ impl SchemaDefault<ScalarID> for SetScalar {
         let from_schema = schema.scalar(id);
         SetScalar {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+                name: from_schema.name.item.0,
+                locations: vec![from_schema.name.location],
                 is_client_definition: from_schema.is_extension,
                 description: None,
                 hack_source: None,
@@ -217,7 +228,8 @@ impl SchemaDefault<EnumID> for SetEnum {
         let from_schema = schema.enum_(id);
         SetEnum {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+                name: from_schema.name.item.0,
+                locations: vec![from_schema.name.location],
                 is_client_definition: from_schema.is_extension,
                 description: None,
                 hack_source: None,
@@ -244,7 +256,8 @@ impl SchemaDefault<ObjectID> for SetObject {
         let from_schema = schema.object(id);
         SetObject {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+                name: from_schema.name.item.0,
+                locations: vec![from_schema.name.location],
                 is_client_definition: from_schema.is_extension,
                 description: None,
                 hack_source: None,
@@ -273,7 +286,8 @@ impl SchemaDefault<InterfaceID> for SetInterface {
         let from_schema = schema.interface(id);
         SetInterface {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+                name: from_schema.name.item.0,
+                locations: vec![from_schema.name.location],
                 is_client_definition: from_schema.is_extension,
                 description: None,
                 hack_source: None,
@@ -302,7 +316,8 @@ impl SchemaDefault<UnionID> for SetUnion {
         let from_schema = schema.union(id);
         SetUnion {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+                name: from_schema.name.item.0,
+                locations: vec![from_schema.name.location],
                 is_client_definition: from_schema.is_extension,
                 description: None,
                 hack_source: None,
@@ -329,7 +344,8 @@ impl SchemaDefault<InputObjectID> for SetInputObject {
         let from_schema = schema.input_object(id);
         SetInputObject {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+                name: from_schema.name.item.0,
+                locations: vec![from_schema.name.location],
                 // Schema does not allow input objects as extensions yet
                 is_client_definition: false,
                 description: None,
@@ -360,7 +376,8 @@ impl SchemaDefault<FieldID> for SetField {
         let field_name = schema_field.name.item;
         Self {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(schema_field.name.location, schema_field.name.item),
+                name: schema_field.name.item,
+                locations: vec![schema_field.name.location],
                 is_client_definition: schema_field.is_extension,
                 description: None,
                 hack_source: None,

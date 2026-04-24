@@ -51,7 +51,9 @@ use crate::SEMANTIC_NON_NULL_LEVELS_ARG;
 use crate::SchemaDefinitionItem;
 use crate::SchemaSet;
 use crate::SetArgument;
+use crate::SetArgumentValue;
 use crate::SetDirective;
+use crate::SetDirectiveValue;
 use crate::SetEnum;
 use crate::SetField;
 use crate::SetInputObject;
@@ -492,6 +494,12 @@ impl ToSDLDefinition<Identifier> for DirectiveName {
     }
 }
 
+impl ToSDLDefinition<ConstantArgument> for SetArgumentValue {
+    fn to_sdl_definition(&self) -> ConstantArgument {
+        self.to_argument_value().to_sdl_definition()
+    }
+}
+
 impl ToSDLDefinition<ConstantArgument> for ArgumentValue {
     fn to_sdl_definition(&self) -> ConstantArgument {
         ConstantArgument {
@@ -552,10 +560,10 @@ fn build_arguments(arguments: &[ArgumentValue]) -> Option<List<ConstantArgument>
 }
 
 /// NOTE: we do NOT preserve the original order, instead sorting by directive name
-fn build_directives(directives: &[DirectiveValue]) -> Vec<ConstantDirective> {
+fn build_directives(directives: &[SetDirectiveValue]) -> Vec<ConstantDirective> {
     let mut built: Vec<ConstantDirective> = directives
         .iter()
-        .map(|directive| directive.to_sdl_definition())
+        .map(|directive| directive.to_directive_value().to_sdl_definition())
         .collect();
     built.sort_by(|a, b| a.name.cmp(&b.name));
     built

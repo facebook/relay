@@ -1,0 +1,132 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# Two independent @match conflicts exist in different fragment chains.
+# Both errors should be reported in a single compilation pass.
+query TestQuery {
+  me {
+    ...ContainerA
+    ...ContainerB
+  }
+}
+
+# First conflict: nameRenderer with different match type sets
+fragment MatchA1 on User {
+  nameRenderer(supported: ["PlainUserNameRenderer"]) @match {
+    ...PlainUserNameRenderer_a1 @module(name: "PlainA1.react")
+  }
+}
+
+fragment MatchA2 on User {
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) @match {
+    ...PlainUserNameRenderer_a2 @module(name: "PlainA2.react")
+    ...MarkdownUserNameRenderer_a2 @module(name: "MarkdownA2.react")
+  }
+}
+
+fragment ContainerA on User {
+  ...MatchA1
+  ...MatchA2
+}
+
+# Second conflict: nameRendererForB with different match type sets
+fragment MatchB1 on User {
+  nameRendererForB @match(key: "MatchB1_nameRendererForB") {
+    ...PlainUserNameRenderer_b1 @module(name: "PlainB1.react")
+  }
+}
+
+fragment MatchB2 on User {
+  nameRendererForB @match(key: "MatchB2_nameRendererForB") {
+    ...PlainUserNameRenderer_b2 @module(name: "PlainB2.react")
+    ...MarkdownUserNameRenderer_b2 @module(name: "MarkdownB2.react")
+  }
+}
+
+fragment ContainerB on User {
+  ...MatchB1
+  ...MatchB2
+}
+
+fragment PlainUserNameRenderer_a1 on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment PlainUserNameRenderer_a2 on PlainUserNameRenderer {
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_a2 on MarkdownUserNameRenderer {
+  markdown
+}
+
+fragment PlainUserNameRenderer_b1 on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment PlainUserNameRenderer_b2 on PlainUserNameRenderer {
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_b2 on MarkdownUserNameRenderer {
+  markdown
+}
+
+%extensions%
+
+extend type User {
+  nameRendererForB: UserNameRenderer
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `nameRenderer` to have the same argument values after applying fragment arguments. This field has the applied argument values: (supported: ["PlainUserNameRenderer"]). If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: nameRenderer(...)`.
+
+  multiple-match-conflicts-across-fragments.invalid.graphql:13:3
+   12 │ fragment MatchA1 on User {
+   13 │   nameRenderer(supported: ["PlainUserNameRenderer"]) @match {
+      │   ^^^^^^^^^^^^
+   14 │     ...PlainUserNameRenderer_a1 @module(name: "PlainA1.react")
+
+  ℹ︎ which conflicts with this field with applied argument values (supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"])
+
+  multiple-match-conflicts-across-fragments.invalid.graphql:19:3
+   18 │ fragment MatchA2 on User {
+   19 │   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) @match {
+      │   ^^^^^^^^^^^^
+   20 │     ...PlainUserNameRenderer_a2 @module(name: "PlainA2.react")
+
+
+✖︎ Field 'nameRenderer' is marked with @match in multiple places. Please use an alias to distinguish them.
+
+  multiple-match-conflicts-across-fragments.invalid.graphql:13:3
+   12 │ fragment MatchA1 on User {
+   13 │   nameRenderer(supported: ["PlainUserNameRenderer"]) @match {
+      │   ^^^^^^^^^^^^
+   14 │     ...PlainUserNameRenderer_a1 @module(name: "PlainA1.react")
+
+  ℹ︎ the other field
+
+  multiple-match-conflicts-across-fragments.invalid.graphql:19:3
+   18 │ fragment MatchA2 on User {
+   19 │   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) @match {
+      │   ^^^^^^^^^^^^
+   20 │     ...PlainUserNameRenderer_a2 @module(name: "PlainA2.react")
+
+
+✖︎ Field 'nameRendererForB' is marked with @match in multiple places. Please use an alias to distinguish them.
+
+  multiple-match-conflicts-across-fragments.invalid.graphql:32:3
+   31 │ fragment MatchB1 on User {
+   32 │   nameRendererForB @match(key: "MatchB1_nameRendererForB") {
+      │   ^^^^^^^^^^^^^^^^
+   33 │     ...PlainUserNameRenderer_b1 @module(name: "PlainB1.react")
+
+  ℹ︎ the other field
+
+  multiple-match-conflicts-across-fragments.invalid.graphql:38:3
+   37 │ fragment MatchB2 on User {
+   38 │   nameRendererForB @match(key: "MatchB2_nameRendererForB") {
+      │   ^^^^^^^^^^^^^^^^
+   39 │     ...PlainUserNameRenderer_b2 @module(name: "PlainB2.react")

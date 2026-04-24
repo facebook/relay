@@ -26,7 +26,6 @@ use std::sync::Arc;
 use std::sync::RwLock;
 use std::vec;
 
-use bincode::Options;
 use common::PerfLogEvent;
 use common::PerfLogger;
 use common::SourceLocationKey;
@@ -903,12 +902,14 @@ impl CompilerState {
             })?
             .auto_finish();
 
-        let writer =
+        let mut writer =
             BufWriter::with_capacity(ZstdEncoder::<FsFile>::recommended_input_size(), writer);
-        bincode::serialize_into(writer, self).map_err(|err| Error::SerializationError {
-            file: path.clone(),
-            source: err,
-        })
+        bincode::serde::encode_into_std_write(self, &mut writer, bincode::config::legacy())
+            .map(|_| ())
+            .map_err(|err| Error::SerializationError {
+                file: path.clone(),
+                source: err,
+            })
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
@@ -922,7 +923,7 @@ impl CompilerState {
             source: err,
         })?;
 
-        let reader: Box<dyn std::io::Read> = if is_already_decompressed {
+        let mut reader: Box<dyn std::io::Read> = if is_already_decompressed {
             Box::new(BufReader::new(file))
         } else {
             let zstd_decoder = ZstdDecoder::new(file).map_err(|err| Error::ReadFileError {
@@ -935,24 +936,12 @@ impl CompilerState {
             ))
         };
 
-        let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT").map_or_else(
-            |_| 10_u64.pow(10), /* 10GB */
-            |limit| {
-                limit.parse::<u64>().expect(
-                    "Expected RELAY_SAVED_STATE_MEMORY_LIMIT environment variable to be a number.",
-                )
-            },
-        );
-
-        bincode::DefaultOptions::new()
-            .with_fixint_encoding()
-            .allow_trailing_bytes()
-            .with_limit(memory_limit)
-            .deserialize_from(reader)
-            .map_err(|err| Error::DeserializationError {
+        bincode::serde::decode_from_std_read(&mut reader, bincode::config::legacy()).map_err(
+            |err| Error::DeserializationError {
                 file: path.clone(),
                 source: err,
-            })
+            },
+        )
     }
 
     pub fn has_pending_file_source_changes(&self) -> bool {

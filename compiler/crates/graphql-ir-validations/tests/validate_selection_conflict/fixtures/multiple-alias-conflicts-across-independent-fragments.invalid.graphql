@@ -1,0 +1,46 @@
+# expected-to-throw
+# Two independent fragment chains each have an ambiguous field alias
+# conflict. Both errors should be reported in a single compilation pass.
+query TestQuery {
+  me {
+    ...ContainerA
+    ...ContainerB
+  }
+}
+
+# First conflict: alias "myName" maps to different fields
+fragment AliasA1 on User {
+  myName: nameA
+}
+
+fragment AliasA2 on User {
+  myName: nameB
+}
+
+fragment ContainerA on User {
+  ...AliasA1
+  ...AliasA2
+}
+
+# Second conflict: alias "myLabel" maps to different fields
+fragment AliasB1 on User {
+  myLabel: labelA
+}
+
+fragment AliasB2 on User {
+  myLabel: labelB
+}
+
+fragment ContainerB on User {
+  ...AliasB1
+  ...AliasB2
+}
+
+%extensions%
+
+extend type User {
+  nameA: String
+  nameB: String
+  labelA: String
+  labelB: String
+}

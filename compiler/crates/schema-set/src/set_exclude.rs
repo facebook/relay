@@ -11,7 +11,6 @@ use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
 use common::Span;
-use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::StringNode;
 use graphql_syntax::Token;
@@ -22,8 +21,6 @@ use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
-use schema::ArgumentValue;
-use schema::DirectiveValue;
 use schema::TypeReference;
 
 use crate::OutputNonNull;
@@ -31,7 +28,9 @@ use crate::OutputTypeReference;
 use crate::SchemaDefinitionItem;
 use crate::SchemaSet;
 use crate::SetArgument;
+use crate::SetArgumentValue;
 use crate::SetDirective;
+use crate::SetDirectiveValue;
 use crate::SetEnum;
 use crate::SetField;
 use crate::SetInputObject;
@@ -41,12 +40,13 @@ use crate::SetObject;
 use crate::SetScalar;
 use crate::SetType;
 use crate::SetUnion;
+use crate::schema_set::CanBeClientDefinition;
 use crate::schema_set::SetRootSchema;
 
 lazy_static! {
-    static ref MISSING_REQUIRED_DIRECTIVE: DirectiveName =
+    pub static ref MISSING_REQUIRED_DIRECTIVE: DirectiveName =
         DirectiveName("missing_required_directive".intern());
-    static ref MISSING_REQUIRED_DIRECTIVE_NAME: ArgumentName = ArgumentName("name".intern());
+    pub static ref MISSING_REQUIRED_DIRECTIVE_NAME: ArgumentName = ArgumentName("name".intern());
 }
 
 /// These options can be used to describe changes that may not be "classically" GraphQL breaking changes:
@@ -63,12 +63,17 @@ pub struct SafeExclusionOptions {
     ///
     /// When the directive IS in the base schema, but NOT in the excluded schema,
     /// we will still remove the directive during exclude.
-    /// So SchemaSet(`my_field: Foo @deprecated`) exclude SchemSet(`my_field: Foo`) is an empty set.
+    /// So SchemaSet(`my_field: Foo @deprecated`) exclude SchemaSet(`my_field: Foo`) is an empty set.
     ///
     /// For *most* directives, if they are in the base schema but not in the to-exclude schema, they will be *left* in the
     /// base schema. For instance `type Foo @strong(field: "id")` exclude `type Foo` will leave `@strong(field: "id")`,
     /// so the resulting SchemaSet will not be empty.
     pub subset_directives: StringKeySet,
+
+    /// Directives that, when present on a type or field in the superset schema,
+    /// must also be present on the corresponding type or field in the subset schema.
+    /// Missing ones are flagged with `@missing_required_directive` markers.
+    pub base_restricted_directives: StringKeySet,
 
     /// Even though adding new enum values is a safe change *at runtime*, it *may not* be a safe change
     /// depending on the compilation and type checking options. For instance, if our compiler
@@ -138,11 +143,7 @@ impl SetExclude for SetRootSchema {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
             definition: self.definition.clone(),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
-            ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             query_type: exclude_operation_type(self.query_type, other.query_type),
             mutation_type: exclude_operation_type(self.mutation_type, other.mutation_type),
             subscription_type: exclude_operation_type(
@@ -243,12 +244,12 @@ impl CanBeEmpty for SetScalar {
 impl SetExclude for SetScalar {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
-            definition: None,
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
             ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             name: self.name,
         }
     }
@@ -267,12 +268,8 @@ impl SetExclude for SetEnum {
         for (key, this_value) in &self.values {
             // Preserve items when:
             if let Some(other_value) = other.values.get(key) {
-                // - Other has the item but other's directives are not a superset
-                let included_directives = exclude_directives(
-                    &this_value.directives,
-                    &other_value.directives,
-                    &options.subset_directives,
-                );
+                let included_directives =
+                    exclude_directives(&this_value.directives, &other_value.directives, options);
 
                 // In practice adding a new enum value to an output enums is NOT a 100% safe operation,
                 // so if there is ANY difference between the two we need to preserve them.
@@ -298,12 +295,12 @@ impl SetExclude for SetEnum {
         }
 
         Self {
-            definition: None,
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
             ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             values,
             name: self.name,
         }
@@ -322,13 +319,13 @@ impl CanBeEmpty for SetObject {
 impl SetExclude for SetObject {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
-            definition: None,
-            interfaces: exclude_set_members(&self.interfaces, &other.interfaces),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
             ),
+            interfaces: exclude_set_members(&self.interfaces, &other.interfaces),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             fields: self.fields.exclude(&other.fields, options),
             name: self.name,
         }
@@ -347,13 +344,13 @@ impl CanBeEmpty for SetInterface {
 impl SetExclude for SetInterface {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
-            definition: None,
-            interfaces: exclude_set_members(&self.interfaces, &other.interfaces),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
             ),
+            interfaces: exclude_set_members(&self.interfaces, &other.interfaces),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             fields: self.fields.exclude(&other.fields, options),
             name: self.name,
         }
@@ -369,13 +366,13 @@ impl CanBeEmpty for SetUnion {
 impl SetExclude for SetUnion {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
-            definition: None,
-            members: exclude_set_members(&self.members, &other.members),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
             ),
+            members: exclude_set_members(&self.members, &other.members),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             name: self.name,
         }
     }
@@ -390,12 +387,12 @@ impl CanBeEmpty for SetInputObject {
 impl SetExclude for SetInputObject {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
-            definition: None,
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
+            definition: exclude_definition_if(
+                self.name.0,
+                self.definition.as_ref(),
+                !other.is_client_definition() || self.is_client_definition(),
             ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             fields: exclude_argument_definitions(&self.fields, &other.fields, options),
             name: self.name,
             // fully_recursively_visited is only a helper marker for collecting used sets,
@@ -421,11 +418,7 @@ impl SetExclude for SetField {
         Self {
             definition,
             arguments: exclude_argument_definitions(&self.arguments, &other.arguments, options),
-            directives: exclude_directives(
-                &self.directives,
-                &other.directives,
-                &options.subset_directives,
-            ),
+            directives: exclude_directives(&self.directives, &other.directives, options),
             name: self.name,
             type_: self.type_.clone(),
         }
@@ -434,7 +427,7 @@ impl SetExclude for SetField {
 
 impl CanBeEmpty for SetArgument {
     fn is_set_empty(&self) -> bool {
-        // We don't need to check things liek the type or default value: if it HAS a definition, then it is NOT empty.
+        // We don't need to check things like the type or default value: if it HAS a definition, then it is NOT empty.
         // Likewise the definition cannot exist if its definition is empty, UNLESS there are just directives extending it
         self.definition.is_none() && self.directives.is_empty()
     }
@@ -442,11 +435,7 @@ impl CanBeEmpty for SetArgument {
 
 impl SetExclude for SetArgument {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
-        let directives = exclude_directives(
-            &self.directives,
-            &other.directives,
-            &options.subset_directives,
-        );
+        let directives = exclude_directives(&self.directives, &other.directives, options);
 
         let is_type_excluded = is_excluded_input_type(&self.type_, &other.type_, options);
 
@@ -562,7 +551,7 @@ fn is_excluded_output_type(
 /// This is not right because we are not handling *default* type exclusions: if one schema has NO defaults
 /// and the other only uses default types, they are actually identical and should be excluded!
 ///
-/// Th'is logical difficulty is desribed in the spec here: https://spec.graphql.org/September2025/#sec-Root-Operation-Types.Default-Root-Operation-Type-Names
+/// This logical difficulty is described in the spec here: https://spec.graphql.org/September2025/#sec-Root-Operation-Types.Default-Root-Operation-Type-Names
 fn exclude_operation_type(this: Option<StringKey>, other: Option<StringKey>) -> Option<StringKey> {
     match (this, other) {
         // Nothing to exclude away
@@ -592,7 +581,8 @@ fn exclude_definition_if(
             original_definition
                 .cloned()
                 .unwrap_or_else(|| SchemaDefinitionItem {
-                    name: WithLocation::generated(name),
+                    name,
+                    locations: Vec::new(),
                     is_client_definition: false,
                     description: None,
                     hack_source: None,
@@ -653,8 +643,7 @@ fn exclude_argument(
         (None, Some(other_arg)) => {
             // If other is required, or if there are any non-excluded directive from other, then we need to
             // include other in what was failed to exclude.
-            let excluded_directives =
-                exclude_directives(&[], &other_arg.directives, &options.subset_directives);
+            let excluded_directives = exclude_directives(&[], &other_arg.directives, options);
             let is_other_arg_required =
                 other_arg.type_.is_non_null() && other_arg.default_value.is_none();
             if is_other_arg_required || !excluded_directives.is_empty() {
@@ -667,59 +656,63 @@ fn exclude_argument(
     }
 }
 
-// Given a list of directives and a list of directives from the exclude source, PLUS the subset directives, give the
+// Given a list of directives and a list of directives from the exclude source, give the
 // directives that WERE NOT excluded.
 //
-// If any directives from other are subset directives, then insert an @missing_required_directive(name: "<>") (once per missing directive).
-// For example, if other has an @deprecated but this does not, we'll add @missing_required_directive(name: "deprecated") to indicate that
-// this parent definition is NOT a pure subset of the other parent definition
+// For base_restricted_directives: if a directive from other is in the restricted set and
+// this does not have it, insert a @missing_required_directive marker so the violation
+// walker can emit BaseDirectiveNotInSubset.
 //
-// We can't implement SetExclude for Vec<DirectiveValue>, because it's subtly NOT empty
-// if other has subset directives that this is missing
+// We can't implement SetExclude for Vec<SetDirectiveValue>, because it's subtly NOT empty
+// if other has base_restricted directives that this is missing
 fn exclude_directives(
-    this: &[DirectiveValue],
-    other: &[DirectiveValue],
-    subset_directives: &StringKeySet,
-) -> Vec<DirectiveValue> {
+    this: &[SetDirectiveValue],
+    other: &[SetDirectiveValue],
+    options: &SafeExclusionOptions,
+) -> Vec<SetDirectiveValue> {
     let mut not_excluded = Vec::new();
 
     // Keep those directives NOT in the subset allowlist and NOT in other, or that are in other but is not a directive subset.
     for this_directive in this {
-        if !subset_directives.contains(&this_directive.name.0)
+        if !options.subset_directives.contains(&this_directive.name.0)
             && other
                 .named(this_directive.name)
                 .is_none_or(|other_directive| {
-                    !directive_value_is_subset_of(this_directive, other_directive)
+                    !set_directive_value_is_subset_of(this_directive, other_directive)
                 })
         {
             not_excluded.push(this_directive.clone());
         }
     }
 
-    // Now verify that all subset directives on other are contained in self with subset-equal definitions!
-    for other_diretive in other {
-        if subset_directives.contains(&other_diretive.name.0)
+    // For base_restricted_directives: if the directive is on the base but
+    // missing from the subset, insert a @missing_required_directive marker so
+    // the violation walker can emit BaseDirectiveNotInSubset.
+    for other_directive in other {
+        if options
+            .base_restricted_directives
+            .contains(&other_directive.name.0)
             && this
-                .named(other_diretive.name)
+                .named(other_directive.name)
                 .is_none_or(|this_directive| {
-                    !directive_value_is_subset_of(this_directive, other_diretive)
+                    !set_directive_value_is_subset_of(this_directive, other_directive)
                 })
         {
-            not_excluded.push(build_missing_required_directive(other_diretive))
+            not_excluded.push(build_missing_required_directive(other_directive))
         }
     }
 
     not_excluded
 }
 
-/// Semantic subset for DirectiveValue, ignoring Token/Span source positions
+/// Semantic subset for SetDirectiveValue, ignoring Token/Span source positions
 /// in directive argument values. Checks that 'this' is a subset of 'other'.
 ///
 /// The derived PartialEq on DirectiveValue compares argument ConstantValues structurally,
 /// which includes Token (containing Span { start, end }). Two semantically identical directives
 /// parsed at different byte offsets compare as unequal. This function compares only the semantic
 /// content: directive name, argument names, and argument values (ignoring source positions).
-fn directive_value_is_subset_of(this: &DirectiveValue, other: &DirectiveValue) -> bool {
+fn set_directive_value_is_subset_of(this: &SetDirectiveValue, other: &SetDirectiveValue) -> bool {
     if this.name != other.name {
         return false;
     }
@@ -769,10 +762,12 @@ fn constant_value_semantically_eq(a: &ConstantValue, b: &ConstantValue) -> bool 
     }
 }
 
-fn build_missing_required_directive(directive_from_other: &DirectiveValue) -> DirectiveValue {
-    DirectiveValue {
+fn build_missing_required_directive(directive_from_other: &SetDirectiveValue) -> SetDirectiveValue {
+    SetDirectiveValue {
+        definition: None,
         name: *MISSING_REQUIRED_DIRECTIVE,
-        arguments: vec![ArgumentValue {
+        arguments: vec![SetArgumentValue {
+            definition: None,
             name: *MISSING_REQUIRED_DIRECTIVE_NAME,
             value: ConstantValue::String(StringNode {
                 token: Token {
@@ -787,7 +782,7 @@ fn build_missing_required_directive(directive_from_other: &DirectiveValue) -> Di
 
 impl<V: CanBeEmpty> CanBeEmpty for StringKeyMap<V> {
     fn is_set_empty(&self) -> bool {
-        // This is not *quite* the same  if there are no items in the set.
+        // This is not *quite* the same if there are no items in the set.
         // If each item ended up being empty (for instance via an exclude), then the set is empty
         self.values().all(|v| v.is_set_empty())
     }
@@ -795,7 +790,7 @@ impl<V: CanBeEmpty> CanBeEmpty for StringKeyMap<V> {
 
 impl<V: CanBeEmpty> CanBeEmpty for StringKeyIndexMap<V> {
     fn is_set_empty(&self) -> bool {
-        // This is not *quite* the same  if there are no items in the set.
+        // This is not *quite* the same if there are no items in the set.
         // If each item ended up being empty (for instance via an exclude), then the set is empty
         self.values().all(|v| v.is_set_empty())
     }
@@ -809,7 +804,7 @@ impl CanBeEmpty for StringKeySet {
 
 impl<K, V: CanBeEmpty> CanBeEmpty for BTreeMap<K, V> {
     fn is_set_empty(&self) -> bool {
-        // This is not *quite* the same  if there are no items in the set.
+        // This is not *quite* the same if there are no items in the set.
         // If each item ended up being empty (for instance via an exclude), then the set is empty
         self.values().all(|v| v.is_set_empty())
     }
@@ -817,7 +812,7 @@ impl<K, V: CanBeEmpty> CanBeEmpty for BTreeMap<K, V> {
 
 impl<V: CanBeEmpty> CanBeEmpty for Vec<V> {
     fn is_set_empty(&self) -> bool {
-        // This is not *quite* the same  if there are no items in the set.
+        // This is not *quite* the same if there are no items in the set.
         // If each item ended up being empty (for instance via an exclude), then the set is empty
         self.iter().all(|v| !v.is_set_empty())
     }
@@ -957,7 +952,6 @@ pub mod tests {
         let expected = r#"
             type A implements Y {
               id: ID!
-              deprecated_exclude: B @missing_required_directive(name: "deprecated")
             }
 
             type B @strong(field: "id")
@@ -1270,21 +1264,9 @@ pub mod tests {
             "enum T { One } type Query { myQ(arg: X): T } input X { field: String }",
             "enum T @deprecated { One @deprecated } type Query { myQ(arg: X @deprecated): T @deprecated } input X @deprecated { field: String @deprecated }",
         );
-        // Valid in spec but could cause compilation issues
-        assert_base_exclude_expected!(
+        assert_base_exclude_empty!(
             "enum T { One } type Query { myQ(arg: X): T } input X { field: String }",
             "enum T @deprecated { One @deprecated } type Query { myQ(arg: X @deprecated): T @deprecated } input X @deprecated { field: String @deprecated }",
-            r#"
-            type Query {
-                myQ(arg: X @missing_required_directive(name: "deprecated")): T @missing_required_directive(name: "deprecated")
-            }
-            enum T @missing_required_directive(name: "deprecated") {
-                One
-            }
-            input X @missing_required_directive(name: "deprecated") {
-                field: String @missing_required_directive(name: "deprecated")
-            }
-            "#,
             SafeExclusionOptions {
                 subset_directives: ["deprecated".intern()].iter().cloned().collect(),
                 ..SafeExclusionOptions::default()
@@ -1526,7 +1508,7 @@ pub mod tests {
     }
 
     /// For subset_directives: a no-arg subset directive in base is a subset of
-    /// the with-arg version in exclude, so no @missing_required_directive is emitted.
+    /// the with-arg version in exclude — result is empty.
     #[test]
     fn subset_directive_no_args_base_with_args_exclude() {
         assert_base_exclude_empty!(
@@ -1543,19 +1525,17 @@ pub mod tests {
         );
     }
 
-    /// For subset_directives: with-arg version is NOT a subset of no-arg version,
-    /// so @missing_required_directive should be emitted.
+    /// For subset_directives: with-arg version on base, no-arg on exclude —
+    /// the subset directive is stripped from self in the forward pass, so the
+    /// result is empty.
     #[test]
     fn subset_directive_with_args_base_no_args_exclude() {
-        assert_base_exclude_expected!(
+        assert_base_exclude_empty!(
             r#"
             type Query { myQ: String @deprecated(reason: "old") }
             "#,
             r#"
             type Query { myQ: String @deprecated }
-            "#,
-            r#"
-            type Query { myQ: String @missing_required_directive(name: "deprecated") }
             "#,
             SafeExclusionOptions {
                 subset_directives: ["deprecated".intern()].iter().cloned().collect(),
@@ -1586,6 +1566,242 @@ pub mod tests {
                 id: ID
             }
             "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_type_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            type Foo {
+                id: ID
+            }
+            type Bar {
+                name: String
+            }
+            "#,
+            r#"
+            extend type Foo {
+                id: ID
+            }
+            "#,
+            r#"
+            type Foo
+            type Bar {
+                name: String
+            }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_interface_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            interface Foo {
+                id: ID
+            }
+            "#,
+            r#"
+            extend interface Foo {
+                id: ID
+            }
+            "#,
+            r#"
+            interface Foo
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_enum_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            enum Foo {
+                A
+                B
+            }
+            "#,
+            r#"
+            extend enum Foo {
+                A
+                B
+            }
+            "#,
+            r#"
+            enum Foo
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_union_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            type A { id: ID }
+            type B { id: ID }
+            union Foo = A | B
+            "#,
+            r#"
+            extend union Foo = A | B
+            "#,
+            r#"
+            type A {
+                id: ID
+            }
+            type B {
+                id: ID
+            }
+            union Foo
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_input_object_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            input Foo {
+                id: ID
+            }
+            "#,
+            r#"
+            extend input Foo {
+                id: ID
+            }
+            "#,
+            r#"
+            input Foo
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_does_not_exclude_scalar_definition() {
+        assert_base_exclude_expected!(
+            r#"
+            scalar Foo @deprecated
+            "#,
+            r#"
+            extend scalar Foo @deprecated
+            "#,
+            r#"
+            scalar Foo
+            "#,
+        );
+    }
+
+    #[test]
+    fn base_restricted_type_directive_missing_from_self() {
+        assert_base_exclude_expected!(
+            r#"type T { f: String } type Query { q: T }"#,
+            r#"type T @source(name: "x") { f: String } type Query { q: T }"#,
+            r#"type T @missing_required_directive(name: "source")"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_type_directive_present_on_both() {
+        assert_base_exclude_empty!(
+            r#"type T @source(name: "x") { f: String } type Query { q: T }"#,
+            r#"type T @source(name: "x") { f: String } type Query { q: T }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_field_directive_missing_from_self() {
+        assert_base_exclude_expected!(
+            r#"type Query { q: String }"#,
+            r#"type Query { q: String @source(name: "x") }"#,
+            r#"type Query { q: String @missing_required_directive(name: "source") }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_field_directive_present_on_both() {
+        assert_base_exclude_empty!(
+            r#"type Query { q: String @source(name: "x") }"#,
+            r#"type Query { q: String @source(name: "x") }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_does_not_affect_non_restricted_directives() {
+        assert_base_exclude_empty!(
+            r#"type T { f: String } type Query { q: T }"#,
+            r#"type T @other_directive { f: String } type Query { q: T }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_partial_field_coverage() {
+        assert_base_exclude_expected!(
+            r#"type T { a: String @source(name: "x"), b: Int } type Query { q: T }"#,
+            r#"type T { a: String @source(name: "x"), b: Int @source(name: "y") } type Query { q: T }"#,
+            r#"type T { b: Int @missing_required_directive(name: "source") }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_on_interface_field() {
+        assert_base_exclude_expected!(
+            r#"interface I { f: String } type Query { q: I }"#,
+            r#"interface I { f: String @source(name: "x") } type Query { q: I }"#,
+            r#"interface I { f: String @missing_required_directive(name: "source") }"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_on_enum_type() {
+        assert_base_exclude_expected!(
+            r#"enum E { A, B } type Query { q: E }"#,
+            r#"enum E @source(name: "x") { A, B } type Query { q: E }"#,
+            r#"enum E @missing_required_directive(name: "source")"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
+        );
+    }
+
+    #[test]
+    fn base_restricted_on_input_type() {
+        assert_base_exclude_expected!(
+            r#"input I { f: String } type Query { q(i: I): String }"#,
+            r#"input I @source(name: "x") { f: String } type Query { q(i: I): String }"#,
+            r#"input I @missing_required_directive(name: "source")"#,
+            SafeExclusionOptions {
+                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                ..SafeExclusionOptions::default()
+            },
         );
     }
 }

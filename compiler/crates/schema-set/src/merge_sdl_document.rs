@@ -14,12 +14,13 @@ use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
 use common::InterfaceName;
+use common::Location;
 use common::NamedItem;
 use common::ObjectName;
 use common::ScalarName;
 use common::SourceLocationKey;
 use common::UnionName;
-use common::WithLocation;
+use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantDirective;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveDefinition;
@@ -41,9 +42,6 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
-use schema::ArgumentValue;
-use schema::DirectiveValue;
-use schema::EnumValue;
 use schema::TypeReference;
 
 use crate::OutputNonNull;
@@ -53,8 +51,11 @@ use crate::SEMANTIC_NON_NULL_LEVELS_ARG;
 use crate::schema_set::FieldName;
 use crate::schema_set::SchemaDefinitionItem;
 use crate::schema_set::SetArgument;
+use crate::schema_set::SetArgumentValue;
 use crate::schema_set::SetDirective;
+use crate::schema_set::SetDirectiveValue;
 use crate::schema_set::SetEnum;
+use crate::schema_set::SetEnumValue;
 use crate::schema_set::SetField;
 use crate::schema_set::SetInputObject;
 use crate::schema_set::SetInterface;
@@ -121,17 +122,18 @@ where
 impl ToSetDefinition<SetRootSchema> for SchemaDefinition {
     fn to_set_definition(
         &self,
-        _source: SourceLocationKey,
-        _is_client_definition: bool,
+        source: SourceLocationKey,
+        is_client_definition: bool,
     ) -> SetRootSchema {
         let mut set_root_schema = SetRootSchema {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::generated("schema".intern()),
-                is_client_definition: false,
+                name: "schema".intern(),
+                locations: vec![Location::new(source, self.span)],
+                is_client_definition,
                 description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
             ..Default::default()
         };
 
@@ -154,16 +156,27 @@ impl ToSetDefinition<SetRootSchema> for SchemaDefinition {
 
 impl ToSetDefinition<SetType> for EnumTypeDefinition {
     fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
-        let directives = build_directive_values(&self.directives);
+        let directives = build_directive_values(&self.directives, source, is_client_definition);
         let values = self.values.as_ref().map_or(BTreeMap::default(), |v| {
             v.items
                 .iter()
                 .map(|value| {
                     (
                         value.name.value,
-                        EnumValue {
+                        SetEnumValue {
+                            definition: Some(SchemaDefinitionItem {
+                                name: value.name.value,
+                                locations: vec![Location::new(source, value.span)],
+                                is_client_definition,
+                                description: value.description.as_ref().map(|d| d.value),
+                                hack_source: None,
+                            }),
                             value: value.name.value,
-                            directives: build_directive_values(&value.directives),
+                            directives: build_directive_values(
+                                &value.directives,
+                                source,
+                                is_client_definition,
+                            ),
                             description: value.description.as_ref().map(|d| d.value),
                         },
                     )
@@ -172,7 +185,8 @@ impl ToSetDefinition<SetType> for EnumTypeDefinition {
         });
         SetType::Enum(SetEnum {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::from_span(source, self.name.span, self.name.value),
+                name: self.name.value,
+                locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
                 description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
@@ -188,7 +202,8 @@ impl ToSetDefinition<SetType> for InterfaceTypeDefinition {
     fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
         SetType::Interface(SetInterface {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::from_span(source, self.name.span, self.name.value),
+                name: self.name.value,
+                locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
                 description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
@@ -196,7 +211,7 @@ impl ToSetDefinition<SetType> for InterfaceTypeDefinition {
             name: InterfaceName(self.name.value),
             fields: build_fields(self.fields.as_ref(), source, is_client_definition),
             interfaces: build_members(&self.interfaces, is_client_definition),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
         })
     }
 }
@@ -205,7 +220,8 @@ impl ToSetDefinition<SetType> for ObjectTypeDefinition {
     fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
         SetType::Object(SetObject {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::from_span(source, self.name.span, self.name.value),
+                name: self.name.value,
+                locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
                 description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
@@ -213,7 +229,7 @@ impl ToSetDefinition<SetType> for ObjectTypeDefinition {
             name: ObjectName(self.name.value),
             fields: build_fields(self.fields.as_ref(), source, is_client_definition),
             interfaces: build_members(&self.interfaces, is_client_definition),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
         })
     }
 }
@@ -222,14 +238,15 @@ impl ToSetDefinition<SetType> for UnionTypeDefinition {
     fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
         SetType::Union(SetUnion {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::from_span(source, self.name.span, self.name.value),
+                name: self.name.value,
+                locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
                 description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
             members: build_members(&self.members, is_client_definition),
             name: UnionName(self.name.value),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
         })
     }
 }
@@ -238,14 +255,19 @@ impl ToSetDefinition<SetType> for InputObjectTypeDefinition {
     fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
         SetType::InputObject(SetInputObject {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::from_span(source, self.name.span, self.name.value),
+                name: self.name.value,
+                locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
                 description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
-            fields: build_argument_values(self.fields.as_ref(), source),
+            fields: build_argument_values(self.fields.as_ref(), source, is_client_definition),
             name: InputObjectName(self.name.value),
-            directives: build_directive_values(self.directives.as_ref()),
+            directives: build_directive_values(
+                self.directives.as_ref(),
+                source,
+                is_client_definition,
+            ),
             fully_recursively_visited: false,
         })
     }
@@ -255,13 +277,18 @@ impl ToSetDefinition<SetType> for ScalarTypeDefinition {
     fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
         SetType::Scalar(SetScalar {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::from_span(source, self.name.span, self.name.value),
+                name: self.name.value,
+                locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
                 description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
             name: ScalarName(self.name.value),
-            directives: build_directive_values(self.directives.as_ref()),
+            directives: build_directive_values(
+                self.directives.as_ref(),
+                source,
+                is_client_definition,
+            ),
         })
     }
 }
@@ -274,13 +301,14 @@ impl ToSetDefinition<SetDirective> for DirectiveDefinition {
     ) -> SetDirective {
         SetDirective {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::from_span(source, self.name.span, self.name.value),
+                name: self.name.value,
+                locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
                 description: self.description.as_ref().map(|d| d.value),
                 hack_source: self.hack_source.as_ref().map(|h| h.value),
             }),
             name: DirectiveName(self.name.value),
-            arguments: build_argument_values(self.arguments.as_ref(), source),
+            arguments: build_argument_values(self.arguments.as_ref(), source, is_client_definition),
             locations: self.locations.clone(),
             repeatable: self.repeatable,
         }
@@ -291,15 +319,16 @@ impl ToSetDefinition<SetField> for FieldDefinition {
     fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetField {
         SetField {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::from_span(source, self.name.span, self.name.value),
+                name: self.name.value,
+                locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
                 description: self.description.as_ref().map(|d| d.value),
                 hack_source: self.hack_source.as_ref().map(|h| h.value),
             }),
             name: FieldName(self.name.value),
-            arguments: build_argument_values(self.arguments.as_ref(), source),
+            arguments: build_argument_values(self.arguments.as_ref(), source, is_client_definition),
             type_: build_output_type_reference(&self.type_, &self.directives),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
         }
     }
 }
@@ -312,7 +341,8 @@ impl ToSetDefinition<SetArgument> for InputValueDefinition {
     ) -> SetArgument {
         SetArgument {
             definition: Some(SchemaDefinitionItem {
-                name: WithLocation::from_span(source, self.name.span, self.name.value),
+                name: self.name.value,
+                locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
                 description: None,
                 hack_source: None,
@@ -323,34 +353,70 @@ impl ToSetDefinition<SetArgument> for InputValueDefinition {
                 .default_value
                 .as_ref()
                 .map(|default_value| default_value.value.clone()),
-            directives: build_directive_values(&self.directives),
+            directives: build_directive_values(&self.directives, source, is_client_definition),
+        }
+    }
+}
+
+impl ToSetDefinition<SetDirectiveValue> for ConstantDirective {
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+    ) -> SetDirectiveValue {
+        let arguments = if let Some(arguments) = &self.arguments {
+            arguments
+                .items
+                .iter()
+                .map(|argument| argument.to_set_definition(source, is_client_definition))
+                .collect()
+        } else {
+            Vec::new()
+        };
+        SetDirectiveValue {
+            definition: Some(SchemaDefinitionItem {
+                name: self.name.value,
+                locations: vec![Location::new(source, self.span)],
+                is_client_definition,
+                description: None,
+                hack_source: None,
+            }),
+            name: DirectiveName(self.name.value),
+            arguments,
+        }
+    }
+}
+
+impl ToSetDefinition<SetArgumentValue> for ConstantArgument {
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+    ) -> SetArgumentValue {
+        SetArgumentValue {
+            definition: Some(SchemaDefinitionItem {
+                name: self.name.value,
+                locations: vec![Location::new(source, self.span)],
+                is_client_definition,
+                description: None,
+                hack_source: None,
+            }),
+            name: ArgumentName(self.name.value),
+            value: self.value.clone(),
         }
     }
 }
 
 // NOTE: copy-pasted this private fn from Relay's in_memory::mod crate.
-fn build_directive_values(directives: &[ConstantDirective]) -> Vec<DirectiveValue> {
+fn build_directive_values(
+    directives: &[ConstantDirective],
+    source: SourceLocationKey,
+    is_client_definition: bool,
+) -> Vec<SetDirectiveValue> {
     directives
         .iter()
         .filter(|d| d.name.value != SEMANTIC_NON_NULL.0)
-        .map(|directive| {
-            let arguments = if let Some(arguments) = &directive.arguments {
-                arguments
-                    .items
-                    .iter()
-                    .map(|argument| ArgumentValue {
-                        name: ArgumentName(argument.name.value),
-                        value: argument.value.clone(),
-                    })
-                    .collect()
-            } else {
-                Vec::new()
-            };
-            DirectiveValue {
-                name: DirectiveName(directive.name.value),
-                arguments,
-            }
-        })
+        .map(|directive| directive.to_set_definition(source, is_client_definition))
         .collect()
 }
 
@@ -387,6 +453,7 @@ fn build_fields(
 fn build_argument_values(
     arguments: Option<&List<InputValueDefinition>>,
     source: SourceLocationKey,
+    is_client_definition: bool,
 ) -> StringKeyIndexMap<SetArgument> {
     arguments.map_or(StringKeyIndexMap::default(), |args| {
         args.items
@@ -396,7 +463,8 @@ fn build_argument_values(
                     arg.name.value,
                     SetArgument {
                         definition: Some(SchemaDefinitionItem {
-                            name: WithLocation::from_span(source, arg.name.span, arg.name.value),
+                            name: arg.name.value,
+                            locations: vec![Location::new(source, arg.name.span)],
                             is_client_definition: false,
                             description: arg.description.as_ref().map(|d| d.value),
                             hack_source: None,
@@ -407,7 +475,11 @@ fn build_argument_values(
                             .default_value
                             .as_ref()
                             .map(|default_value| default_value.value.clone()),
-                        directives: build_directive_values(&arg.directives),
+                        directives: build_directive_values(
+                            &arg.directives,
+                            source,
+                            is_client_definition,
+                        ),
                     },
                 )
             })

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<52305c15753efb60305d9e0b604d36f3>>
+ * @generated SignedSource<<aa16eb83ad5b453d68a681a1c54cd784>>
  */
 
 mod validate_selection_conflict;
@@ -17,6 +17,27 @@ async fn field_names_still_conflict_in_aliased_fragment() {
     let input = include_str!("validate_selection_conflict/fixtures/field_names_still_conflict_in_aliased_fragment.graphql");
     let expected = include_str!("validate_selection_conflict/fixtures/field_names_still_conflict_in_aliased_fragment.expected");
     test_fixture(transform_fixture, file!(), "field_names_still_conflict_in_aliased_fragment.graphql", "validate_selection_conflict/fixtures/field_names_still_conflict_in_aliased_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_alias_conflicts_across_independent_fragments_invalid() {
+    let input = include_str!("validate_selection_conflict/fixtures/multiple-alias-conflicts-across-independent-fragments.invalid.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/multiple-alias-conflicts-across-independent-fragments.invalid.expected");
+    test_fixture(transform_fixture, file!(), "multiple-alias-conflicts-across-independent-fragments.invalid.graphql", "validate_selection_conflict/fixtures/multiple-alias-conflicts-across-independent-fragments.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_conflicts_across_independent_fragments_invalid() {
+    let input = include_str!("validate_selection_conflict/fixtures/multiple-conflicts-across-independent-fragments.invalid.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/multiple-conflicts-across-independent-fragments.invalid.expected");
+    test_fixture(transform_fixture, file!(), "multiple-conflicts-across-independent-fragments.invalid.graphql", "validate_selection_conflict/fixtures/multiple-conflicts-across-independent-fragments.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_match_conflicts_across_fragments_invalid() {
+    let input = include_str!("validate_selection_conflict/fixtures/multiple-match-conflicts-across-fragments.invalid.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/multiple-match-conflicts-across-fragments.invalid.expected");
+    test_fixture(transform_fixture, file!(), "multiple-match-conflicts-across-fragments.invalid.graphql", "validate_selection_conflict/fixtures/multiple-match-conflicts-across-fragments.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -73,4 +94,32 @@ async fn same_alias_under_duplicated_linked_field() {
     let input = include_str!("validate_selection_conflict/fixtures/same-alias-under-duplicated-linked-field.graphql");
     let expected = include_str!("validate_selection_conflict/fixtures/same-alias-under-duplicated-linked-field.expected");
     test_fixture(transform_fixture, file!(), "same-alias-under-duplicated-linked-field.graphql", "validate_selection_conflict/fixtures/same-alias-under-duplicated-linked-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn same_field_with_different_match_across_fragments_invalid() {
+    let input = include_str!("validate_selection_conflict/fixtures/same-field-with-different-match-across-fragments.invalid.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/same-field-with-different-match-across-fragments.invalid.expected");
+    test_fixture(transform_fixture, file!(), "same-field-with-different-match-across-fragments.invalid.graphql", "validate_selection_conflict/fixtures/same-field-with-different-match-across-fragments.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn same_field_with_different_match_across_fragments_no_supported_invalid() {
+    let input = include_str!("validate_selection_conflict/fixtures/same-field-with-different-match-across-fragments-no-supported.invalid.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/same-field-with-different-match-across-fragments-no-supported.invalid.expected");
+    test_fixture(transform_fixture, file!(), "same-field-with-different-match-across-fragments-no-supported.invalid.graphql", "validate_selection_conflict/fixtures/same-field-with-different-match-across-fragments-no-supported.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn same_field_with_same_match_across_fragments() {
+    let input = include_str!("validate_selection_conflict/fixtures/same-field-with-same-match-across-fragments.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/same-field-with-same-match-across-fragments.expected");
+    test_fixture(transform_fixture, file!(), "same-field-with-same-match-across-fragments.graphql", "validate_selection_conflict/fixtures/same-field-with-same-match-across-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn same_field_with_same_match_across_fragments_no_supported() {
+    let input = include_str!("validate_selection_conflict/fixtures/same-field-with-same-match-across-fragments-no-supported.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/same-field-with-same-match-across-fragments-no-supported.expected");
+    test_fixture(transform_fixture, file!(), "same-field-with-same-match-across-fragments-no-supported.graphql", "validate_selection_conflict/fixtures/same-field-with-same-match-across-fragments-no-supported.expected", input, expected).await;
 }

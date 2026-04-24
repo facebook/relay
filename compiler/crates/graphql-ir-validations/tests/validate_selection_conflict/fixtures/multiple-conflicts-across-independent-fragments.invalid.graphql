@@ -1,0 +1,59 @@
+# expected-to-throw
+# Two independent fragment chains each have a field argument conflict.
+# Both errors should be reported in a single compilation pass.
+query TestQuery {
+  me {
+    ...ContainerA
+    ...ContainerB
+  }
+}
+
+# First conflict: nameRenderer with different `supported` arguments
+fragment ConflictA1 on User {
+  nameRenderer(supported: ["PlainUserNameRenderer"]) {
+    ... on PlainUserNameRenderer {
+      plaintext
+    }
+  }
+}
+
+fragment ConflictA2 on User {
+  nameRenderer(supported: ["MarkdownUserNameRenderer"]) {
+    ... on MarkdownUserNameRenderer {
+      markdown
+    }
+  }
+}
+
+fragment ContainerA on User {
+  ...ConflictA1
+  ...ConflictA2
+}
+
+# Second conflict: customRenderer with different `mode` arguments
+fragment ConflictB1 on User {
+  customRenderer(mode: "fast") {
+    value
+  }
+}
+
+fragment ConflictB2 on User {
+  customRenderer(mode: "slow") {
+    value
+  }
+}
+
+fragment ContainerB on User {
+  ...ConflictB1
+  ...ConflictB2
+}
+
+%extensions%
+
+type CustomRendererResult {
+  value: String
+}
+
+extend type User {
+  customRenderer(mode: String): CustomRendererResult
+}

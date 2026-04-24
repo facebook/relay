@@ -30,7 +30,7 @@ path = "tests/subschema_extraction_test.rs"
 
 [dependencies]
 async-trait = "0.1.86"
-bincode = "1.3.3"
+bincode = { version = "2", features = ["serde"] }
 common = { path = "../common" }
 common-path = "1.0.0"
 dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
@@ -81,7 +81,7 @@ sha1 = "0.10.5"
 sha2 = "0.10.6"
 signedsource = { path = "../signedsource" }
 thiserror = "2.0.18"
-tokio = { version = "1.50.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.52.1", features = ["full", "test-util", "tracing"] }
 walkdir = "2.3"
 watchman_client = "0.9.0"
 zstd = { version = "0.13.3", features = ["experimental", "zstdmt"] }

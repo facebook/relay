@@ -958,13 +958,15 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         resolver_metadata: &RelayResolverMetadata,
         inline_fragment: Option<Primitive>,
     ) -> Primitive {
-        // Detect S2C resolvers: client extension field on a server type with a
-        // rootFragment. Only relevant for exec-time resolver queries, where the
-        // runtime needs to know whether to enable network normalization for S2C.
+        // Detect S2C resolvers: client extension field on a non-Query server
+        // type with a rootFragment. Query-rooted resolvers don't traverse a
+        // server-to-client boundary, so they don't need network normalization.
+        // Only relevant for exec-time resolver queries.
         if !context.has_server_to_client_resolvers && context.has_exec_time_resolvers_directive {
             let field = resolver_metadata.field(self.schema);
             if let Some(parent_type) = field.parent_type
                 && !self.schema.is_extension_type(parent_type)
+                && Some(parent_type) != self.schema.query_type()
                 && get_resolver_fragment_dependency_name(field).is_some()
             {
                 context.has_server_to_client_resolvers = true;

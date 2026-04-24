@@ -14,7 +14,7 @@ fnv = "1.0"
 hashbrown = { version = "0.17", features = ["serde"] }
 indexmap = { version = "2.13.0", features = ["arbitrary", "rayon", "serde"] }
 once_cell = "1.21.4"
-parking_lot = { version = "0.12.1", features = ["send_guard"] }
+parking_lot = { version = "0.12.1", features = ["arc_lock", "send_guard"] }
 schemars = { version = "1.2.1", features = ["indexmap2"] }
 serde = { version = "1.0.219", features = ["derive", "rc"] }
 serde_bytes = "0.11"

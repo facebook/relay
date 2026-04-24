@@ -138,7 +138,7 @@ indexmap = { version = "2.13.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 itertools = "0.14.0"
 lazy_static = "1.5"
-parking_lot = { version = "0.12.1", features = ["send_guard"] }
+parking_lot = { version = "0.12.1", features = ["arc_lock", "send_guard"] }
 regex = "1.12.3"
 relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }

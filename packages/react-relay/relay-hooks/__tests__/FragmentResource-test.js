@@ -68,11 +68,7 @@ const {
   graphql,
 } = require('relay-runtime');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
-const {
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
+const {flushMicrotasks} = require('relay-test-utils-internal');
 
 describe('FragmentResource', () => {
   let environment;
@@ -664,7 +660,7 @@ describe('FragmentResource', () => {
       disposable.dispose();
     });
 
-    it('should not cache or throw an error if network request for parent query errored', () => {
+    it('should not cache or throw an error if network request for parent query errored', async () => {
       fetchQuery(environment, queryMissingData).subscribe({error: () => {}});
 
       const fragmentNode = getFragment(UserFragmentMissing);
@@ -689,7 +685,7 @@ describe('FragmentResource', () => {
 
       // Make the network request error
       environment.mock.reject(queryMissingData, new Error('Network Error'));
-      jest.runAllImmediates();
+      await flushMicrotasks();
 
       // Try reading a fragment a second time after the parent query errored
       let cached = null;

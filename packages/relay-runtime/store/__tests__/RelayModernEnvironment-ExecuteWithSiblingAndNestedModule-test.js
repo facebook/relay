@@ -37,10 +37,10 @@ const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
 const {
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushAsyncWork,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
@@ -193,7 +193,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           environment.subscribe(operationSnapshot, operationCallback);
         });
 
-        it('resolves sibling modules in one tick, and notifies once if the feature flag is on', () => {
+        it('resolves sibling modules in one tick, and notifies once if the feature flag is on', async () => {
           environment.execute({operation}).subscribe(callbacks);
           const payload = {
             data: {
@@ -232,7 +232,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             },
           };
           dataSource.next(payload);
-          jest.runAllTimers();
+          await flushAsyncWork();
           next.mockClear();
 
           expect(operationLoader.load).toBeCalledTimes(2);
@@ -274,7 +274,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           logger.mockClear();
           resolveFragments[0](markdownRendererNormalizationFragment);
           resolveFragments[1](plaintextRendererNormalizationFragment);
-          jest.runAllTimers();
+          await flushAsyncWork();
 
           expect(operationCallback).toBeCalledTimes(1);
           expect(next).toBeCalledTimes(0);
@@ -324,7 +324,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           });
         });
 
-        it('resolves sibling and nested modules in one tick, and notifies once if the feature flag is on', () => {
+        it('resolves sibling and nested modules in one tick, and notifies once if the feature flag is on', async () => {
           environment.execute({operation}).subscribe(callbacks);
           const payload = {
             data: {
@@ -377,7 +377,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             },
           };
           dataSource.next(payload);
-          jest.runAllTimers();
+          await flushAsyncWork();
           next.mockClear();
 
           expect(operationLoader.load).toBeCalledTimes(2);
@@ -419,9 +419,13 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           logger.mockClear();
           resolveFragments[0](markdownRendererNormalizationFragment);
           resolveFragments[1](plaintextRendererNormalizationFragment);
-          jest.runAllImmediates();
+          // Flush microtasks so the promise chains reach
+          // publishModuleImportPayload(), which discovers the nested @module.
+          await flushMicrotasks();
+          // resolveFragments[2] is now available (the nested inner module).
+          // Resolve it before flushing timers so it joins the same batch.
           resolveFragments[2](plaintextRendererNormalizationFragment);
-          jest.runAllTimers();
+          await flushAsyncWork();
 
           expect(operationCallback).toBeCalledTimes(1);
           expect(next).toBeCalledTimes(0);
@@ -496,7 +500,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           });
         });
 
-        it('calls complete only after modules are resolved and published', () => {
+        it('calls complete only after modules are resolved and published', async () => {
           environment.execute({operation}).subscribe(callbacks);
           const payload = {
             data: {
@@ -537,11 +541,11 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             },
           };
           dataSource.next(payload);
-          jest.runAllTimers();
+          await flushAsyncWork();
           next.mockClear();
 
           dataSource.complete();
-          jest.runAllImmediates();
+          await flushAsyncWork();
           expect(next).toBeCalledTimes(0);
           expect(error).toBeCalledTimes(0);
           expect(complete).toBeCalledTimes(0);
@@ -549,16 +553,17 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           resolveFragments[0](markdownRendererNormalizationFragment);
           resolveFragments[1](plaintextRendererNormalizationFragment);
           if (RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN != null) {
-            // Resolve fragments but not publish
-            jest.runAllImmediates();
+            // Flush microtasks to process promises (schedules the batch timer
+            // but doesn't fire it yet).
+            await flushMicrotasks();
             expect(
               environment
                 .getOperationTracker()
                 .getPendingOperationsAffectingOwner(operation.request),
             ).not.toBe(null);
             expect(complete).toBeCalledTimes(0);
-            // Publish to store
-            jest.runAllTimers();
+            // Now flush the batch timer and remaining work.
+            await flushAsyncWork();
             expect(complete).toBeCalledTimes(1);
             expect(
               environment
@@ -571,7 +576,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
                 .getOperationTracker()
                 .getPendingOperationsAffectingOwner(operation.request),
             ).not.toBe(null);
-            jest.runAllImmediates();
+            await flushAsyncWork();
             expect(complete).toBeCalledTimes(1);
             expect(
               environment
@@ -581,7 +586,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           }
         });
 
-        it('cancels @module processing if unsubscribed', () => {
+        it('cancels @module processing if unsubscribed', async () => {
           const subscription = environment
             .execute({operation})
             .subscribe(callbacks);
@@ -624,7 +629,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             },
           };
           dataSource.next(payload);
-          jest.runAllTimers();
+          await flushAsyncWork();
           const operationSnapshot = operationCallback.mock.calls[0][0];
           const outerRendererASelector = nullthrows(
             getSingularSelector(
@@ -641,7 +646,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
 
           next.mockClear();
           dataSource.complete();
-          jest.runAllImmediates();
+          await flushAsyncWork();
           expect(next).toBeCalledTimes(0);
           expect(error).toBeCalledTimes(0);
           expect(complete).toBeCalledTimes(0);
@@ -649,12 +654,14 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           resolveFragments[0](markdownRendererNormalizationFragment);
           resolveFragments[1](plaintextRendererNormalizationFragment);
           if (RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN != null) {
-            jest.runAllImmediates();
+            // Flush microtasks to process promises (schedules the batch timer),
+            // then unsubscribe before the batch timer fires.
+            await flushMicrotasks();
             subscription.unsubscribe();
-            jest.runAllTimers();
+            await flushAsyncWork();
           } else {
             subscription.unsubscribe();
-            jest.runAllImmediates();
+            await flushAsyncWork();
           }
           expect(outerRendererACallback).toBeCalledTimes(0);
         });

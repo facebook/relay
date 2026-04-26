@@ -11,11 +11,7 @@
 'use strict';
 
 const RelayObservable = require('../RelayObservable');
-const {
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
+const {flushAsyncWork, flushMicrotasks} = require('relay-test-utils-internal');
 
 jest.useFakeTimers({legacyFakeTimers: true});
 
@@ -1558,7 +1554,7 @@ describe('RelayObservable', () => {
   });
 
   describe('fromPromise', () => {
-    it('Cleans up when unsubscribed', () => {
+    it('Cleans up when unsubscribed', async () => {
       let resolve;
       const observer = {
         complete: jest.fn(),
@@ -1571,7 +1567,7 @@ describe('RelayObservable', () => {
       const subscription = RelayObservable.from(x).subscribe(observer);
       subscription.unsubscribe();
       resolve();
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(observer.complete).toBeCalledTimes(0);
       expect(observer.error).toBeCalledTimes(0);
       expect(observer.next).toBeCalledTimes(0);
@@ -1579,7 +1575,7 @@ describe('RelayObservable', () => {
       expect(observer.unsubscribe).toBeCalledTimes(1);
     });
 
-    it('Calls next and complete when the promise resolves', () => {
+    it('Calls next and complete when the promise resolves', async () => {
       const observer = {
         complete: jest.fn(),
         error: jest.fn(),
@@ -1589,7 +1585,7 @@ describe('RelayObservable', () => {
       };
       const value = {};
       RelayObservable.from(Promise.resolve(value)).subscribe(observer);
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(observer.complete).toBeCalledTimes(1);
       expect(observer.error).toBeCalledTimes(0);
       expect(observer.next).toBeCalledTimes(1);
@@ -1598,7 +1594,7 @@ describe('RelayObservable', () => {
       expect(observer.unsubscribe).toBeCalledTimes(0);
     });
 
-    it('Calls error when the promise rejects', () => {
+    it('Calls error when the promise rejects', async () => {
       const observer = {
         complete: jest.fn(),
         error: jest.fn(),
@@ -1608,7 +1604,7 @@ describe('RelayObservable', () => {
       };
       const error = new Error();
       RelayObservable.from(Promise.reject(error)).subscribe(observer);
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(observer.complete).toBeCalledTimes(0);
       expect(observer.error).toBeCalledTimes(1);
       expect(observer.error.mock.calls[0][0]).toBe(error);
@@ -1637,7 +1633,7 @@ describe('RelayObservable', () => {
       );
     });
 
-    it('Repeatedly observes and subscribes', () => {
+    it('Repeatedly observes and subscribes', async () => {
       let sink;
       const list = [];
       const obs = RelayObservable.create(_sink => {
@@ -1658,14 +1654,14 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['start', 'one', 'cleanup']);
 
       const sink1 = sink;
-      jest.runAllTimers(); // advance to next poll
+      await flushAsyncWork(); // advance poll timer
       expect(sink).not.toBe(sink1);
       expect(list).toEqual(['start', 'one', 'cleanup', 'start']);
 
       sink.next('again');
       expect(list).toEqual(['start', 'one', 'cleanup', 'start', 'again']);
 
-      jest.runAllTimers(); // does nothing since previous was not completed.
+      await flushAsyncWork(); // does nothing since previous was not completed.
       expect(list).toEqual(['start', 'one', 'cleanup', 'start', 'again']);
 
       sink.complete();
@@ -1688,7 +1684,7 @@ describe('RelayObservable', () => {
         'cleanup',
       ]);
 
-      jest.runAllTimers(); // does nothing since unsubscribed.
+      await flushMicrotasks(); // does nothing since unsubscribed.
       expect(list).toEqual([
         'start',
         'one',
@@ -1699,7 +1695,7 @@ describe('RelayObservable', () => {
       ]);
     });
 
-    it('Cleans up after unsubscribe', () => {
+    it('Cleans up after unsubscribe', async () => {
       let sink;
       const list = [];
       const obs = RelayObservable.create(_sink => {
@@ -1719,7 +1715,7 @@ describe('RelayObservable', () => {
       sub.unsubscribe(); // does not call cleanup twice.
       expect(list).toEqual(['start', 'one', 'cleanup']);
 
-      jest.runAllTimers(); // does nothing since unsubscribed.
+      await flushMicrotasks(); // does nothing since unsubscribed.
       expect(list).toEqual(['start', 'one', 'cleanup']);
     });
   });

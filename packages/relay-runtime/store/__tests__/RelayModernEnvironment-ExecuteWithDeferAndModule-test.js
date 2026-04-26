@@ -37,13 +37,13 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const QueryUserNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql');
 const {graphql} = require('relay-runtime');
-const {expectToWarn, expectToWarnMany} = require('relay-test-utils-internal');
 const {
-  disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  expectToWarn,
+  expectToWarnMany,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
@@ -153,7 +153,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(operationSnapshot, operationCallback);
       });
 
-      it('calls next() and publishes the initial payload to the store', () => {
+      it('calls next() and publishes the initial payload to the store', async () => {
         const initialSnapshot = environment.lookup(selector);
 
         const callback = jest.fn<[Snapshot], void>();
@@ -169,7 +169,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         };
 
         dataSource.next(payload);
-        jest.runAllTimers();
+        await flushMicrotasks();
 
         expect(next.mock.calls.length).toBe(1);
         expect(complete).not.toBeCalled();
@@ -183,7 +183,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('processes deferred payloads', () => {
+      it('processes deferred payloads', async () => {
         const initialSnapshot = environment.lookup(selector);
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
@@ -197,7 +197,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           },
         });
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(operationCallback).toBeCalledTimes(1);
         next.mockClear();
         callback.mockClear();
@@ -224,7 +224,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
 
         resolveFragment(QueryUserNormalizationFragment);
-        jest.runAllTimers();
+        await flushMicrotasks();
         operationCallback.mockClear();
 
         expect(complete).toBeCalledTimes(0);
@@ -239,7 +239,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('synchronously normalizes the deferred payload if the normalization fragment is available synchronously', () => {
+      it('synchronously normalizes the deferred payload if the normalization fragment is available synchronously', async () => {
         const initialSnapshot = environment.lookup(selector);
         const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(initialSnapshot, callback);
@@ -258,7 +258,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         });
 
-        jest.runAllTimers();
+        await flushMicrotasks();
         next.mockClear();
         callback.mockClear();
         expect(operationCallback).toBeCalledTimes(1);

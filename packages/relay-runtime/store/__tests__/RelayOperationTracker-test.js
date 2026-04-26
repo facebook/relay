@@ -17,11 +17,7 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const RelayOperationTracker = require('../RelayOperationTracker');
 const invariant = require('invariant');
-const {
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
+const {flushMicrotasks} = require('relay-test-utils-internal');
 
 describe('RelayOperationTracker', () => {
   let tracker;
@@ -175,7 +171,7 @@ describe('RelayOperationTracker', () => {
       ]);
     });
 
-    it('should resolve promise when pending operation is completed', () => {
+    it('should resolve promise when pending operation is completed', async () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
@@ -185,14 +181,14 @@ describe('RelayOperationTracker', () => {
       result.promise.then(callback);
       expect(callback).not.toBeCalled();
       tracker.complete(MutationOperation1);
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(callback).toBeCalled();
       expect(tracker.getPendingOperationsAffectingOwner(QueryOperation1)).toBe(
         null,
       );
     });
 
-    it('should resolve promise when new operation affected the owner', () => {
+    it('should resolve promise when new operation affected the owner', async () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
@@ -202,7 +198,7 @@ describe('RelayOperationTracker', () => {
       result.promise.then(callback);
       expect(callback).not.toBeCalled();
       tracker.update(MutationOperation2, new Set([QueryOperation1]));
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(callback).toBeCalled();
       // There is one more operation that is affecting the owner
       const updatedResult =
@@ -222,7 +218,7 @@ describe('RelayOperationTracker', () => {
       ]);
     });
 
-    it('should resolve promise when one of the pending operation is completed', () => {
+    it('should resolve promise when one of the pending operation is completed', async () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
       tracker.update(MutationOperation2, new Set([QueryOperation1]));
       const result =
@@ -233,7 +229,7 @@ describe('RelayOperationTracker', () => {
       result.promise.then(callback);
       expect(callback).not.toBeCalled();
       tracker.complete(MutationOperation1);
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(callback).toBeCalled();
       // But there still operations that may affect the owner
       const updatedResult =

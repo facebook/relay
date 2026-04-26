@@ -33,10 +33,8 @@ const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {
   disallowConsoleErrors,
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 disallowConsoleErrors();
 
@@ -113,7 +111,7 @@ describe.each([[true], [false]])(
       }
     `;
 
-    it('should fetch and render client-edge query', () => {
+    it('should fetch and render client-edge query', async () => {
       function TestComponent() {
         return (
           <RelayEnvironmentProvider environment={environment}>
@@ -145,7 +143,7 @@ describe.each([[true], [false]])(
       expect(fetchFn.mock.calls[0][1]).toEqual(variables);
       expect(renderer?.toJSON()).toBe('Loading');
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         // This should resolve client-edge query
         networkSink.next({
           data: {
@@ -156,7 +154,6 @@ describe.each([[true], [false]])(
             },
           },
         });
-        jest.runAllImmediates();
       });
       expect(renderer?.toJSON()).toBe('Alice');
     });
@@ -166,7 +163,7 @@ describe.each([[true], [false]])(
     // Instead, we just write that `node(id: 4): null` into the root record in the store.
     //
     // This is a general limitiaton of node fetches in Relay today.
-    it('should fetch and render `undefined` for client-edge to server query that returns `null`.', () => {
+    it('should fetch and render `undefined` for client-edge to server query that returns `null`.', async () => {
       function TestComponent() {
         return (
           <RelayEnvironmentProvider environment={environment}>
@@ -214,7 +211,7 @@ describe.each([[true], [false]])(
       expect(fetchFn.mock.calls[0][1]).toEqual(variables);
       expect(renderer?.toJSON()).toBe('Loading');
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         // This should resolve client-edge query
         networkSink.next({
           data: {
@@ -225,13 +222,12 @@ describe.each([[true], [false]])(
         // otherwise, client-edge query will think that the query is still in progress
         // and will show a suspense placeholder
         networkSink.complete();
-        jest.runAllImmediates();
       });
       expect(renderer?.toJSON()).toBe('client_node is undefined');
       expect(fetchFn.mock.calls.length).toBe(1);
     });
 
-    it('should throw for missing client-edge field data marked with @required', () => {
+    it('should throw for missing client-edge field data marked with @required', async () => {
       function TestComponent() {
         return (
           <RelayEnvironmentProvider environment={environment}>
@@ -276,24 +272,22 @@ describe.each([[true], [false]])(
       expect(fetchFn.mock.calls[0][1]).toEqual(variables);
       expect(renderer?.toJSON()).toBe('Loading');
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         networkSink.next({
           data: {
             node: null,
           },
         });
-        jest.runAllImmediates();
       });
       // Still waiting, maybe the data will be there
       expect(renderer?.toJSON()).toBe('Loading');
 
-      expect(() => {
-        TestRenderer.act(() => {
+      await expect(async () => {
+        await TestRenderer.act(async () => {
           // This should resolve client-edge query
           networkSink.complete();
-          jest.runAllImmediates();
         });
-      }).toThrow(
+      }).rejects.toThrow(
         "Relay: Missing @required value at path 'me.client_node' in 'ClientEdgesTest3Query'.",
       );
       expect(renderer?.toJSON()).toBe(null);
@@ -340,7 +334,7 @@ describe.each([[true], [false]])(
     // https://github.com/facebook/relay/issues/4882
     it.each([[true], [false]])(
       'should fetch data missing in fragment spread within `@waterfall` field. CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES = %s',
-      checkAllFragments => {
+      async checkAllFragments => {
         RelayFeatureFlags.CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES =
           checkAllFragments;
 
@@ -410,7 +404,7 @@ describe.each([[true], [false]])(
           // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
           expect(fetchFn.mock.calls[0][1]).toEqual({id: '1'});
           expect(renderer?.toJSON()).toBe('Loading');
-          TestRenderer.act(() => {
+          await TestRenderer.act(async () => {
             // This should resolve client-edge query
             networkSink.next({
               data: {
@@ -421,14 +415,13 @@ describe.each([[true], [false]])(
                 },
               },
             });
-            jest.runAllImmediates();
           });
           expect(renderer?.toJSON()).toBe('Alice');
         }
       },
     );
 
-    it('should fetch data missing client edge to server data in resolver @rootFragment', () => {
+    it('should fetch data missing client edge to server data in resolver @rootFragment', async () => {
       function TestComponent() {
         return (
           <RelayEnvironmentProvider environment={environment}>
@@ -482,7 +475,7 @@ describe.each([[true], [false]])(
       expect(fetchFn.mock.calls[0][1]).toEqual({id: '1'});
       expect(renderer?.toJSON()).toBe('Loading');
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         // This should resolve client-edge query
         networkSink.next({
           data: {
@@ -493,7 +486,6 @@ describe.each([[true], [false]])(
             },
           },
         });
-        jest.runAllImmediates();
       });
       expect(renderer?.toJSON()).toBe('ALICE');
     });

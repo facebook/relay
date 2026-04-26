@@ -47,10 +47,9 @@ const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 disallowConsoleErrors();
 
@@ -242,7 +241,7 @@ describe.each([['New', useFragment]])(
       expect(renderer?.toJSON()).toEqual('Test todo - red');
     });
 
-    test('read live @weak resolver field', () => {
+    test('read live @weak resolver field', async () => {
       function TodoComponentWithPluralResolverComponent(props: {
         todoID: string,
       }) {
@@ -278,15 +277,14 @@ describe.each([['New', useFragment]])(
       });
       expect(renderer?.toJSON()).toEqual('Test todo - red');
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         completeTodo('todo-1');
-        jest.runAllImmediates();
       });
       // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('Test todo - green');
     });
 
-    test('should correctly invalidate subscriptions on live fields when updating @weak models', () => {
+    test('should correctly invalidate subscriptions on live fields when updating @weak models', async () => {
       LiveColorSubscriptions.activeSubscriptions = [];
       function TodoComponentWithPluralResolverComponent(props: {
         todoID: string,
@@ -323,30 +321,28 @@ describe.each([['New', useFragment]])(
       expect(renderer?.toJSON()).toEqual('Test todo - red');
       expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(1);
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         completeTodo('todo-1');
-        jest.runAllImmediates();
       });
       expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(1);
 
       // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('Test todo - green');
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         removeTodo('todo-1');
-        jest.runAllImmediates();
       });
 
       // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual(null);
       // Run GC to will remove "orphan" records and unsubscribe if they have live resolver subscriptions
       store.scheduleGC();
-      jest.runAllImmediates();
+      await flushMicrotasks();
 
       expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(0);
     });
 
-    test('read a field with arguments', () => {
+    test('read a field with arguments', async () => {
       function TodoComponentWithFieldWithArgumentsComponent(props: {
         todoID: string,
       }) {
@@ -377,9 +373,8 @@ describe.each([['New', useFragment]])(
       });
       expect(renderer?.toJSON()).toEqual('[x] Test todo');
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         changeDescription('todo-1', 'Changed todo description text');
-        jest.runAllImmediates();
       });
       // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('[x] Changed todo description text');
@@ -563,7 +558,7 @@ describe.each([['New', useFragment]])(
       expect(renderer?.toJSON()).toEqual('TODO-1');
     });
 
-    test('read interface field', () => {
+    test('read interface field', async () => {
       function TodoComponentWithInterfaceComponent(props: {todoID: string}) {
         const data = useClientQuery(
           graphql`
@@ -619,7 +614,7 @@ describe.each([['New', useFragment]])(
       });
       // $FlowFixMe[incompatible-type] Yes, it is compatible...
       const response = JSON.parse(renderer?.toJSON() ?? '{}');
-      jest.runAllImmediates();
+      await flushMicrotasks();
 
       // This incorrectly currently reads out just the typename from resolvers which
       // return interface fields
@@ -645,7 +640,7 @@ describe.each([['New', useFragment]])(
         mutable_entity
       }
     `;
-    test('should not mutate complex resolver values', () => {
+    test('should not mutate complex resolver values', async () => {
       resetModels();
       // Do not deep freeze
       jest.mock('relay-runtime/util/deepFreeze');
@@ -671,17 +666,15 @@ describe.each([['New', useFragment]])(
       });
       expect(renderer?.toJSON()).toEqual('human:0');
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         setIsHuman(false);
-        jest.runAllImmediates();
       });
       // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('robot:0');
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         chargeBattery();
         setIsHuman(true);
-        jest.runAllImmediates();
       });
       // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('human:0');

@@ -35,10 +35,9 @@ const RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdat
 const RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferred_module_user$normalization = require('./__generated__/RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferred_module_user$normalization.graphql');
 const {
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 const observationFragment = graphql`
@@ -410,7 +409,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
       );
   });
 
-  it('should commit once, including data from both the outer and inner module fragments, after the outer module fragment normalization file is available', () => {
+  it('should commit once, including data from both the outer and inner module fragments, after the outer module fragment normalization file is available', async () => {
     environment.execute({operation}).subscribe(callbacks);
     dataSource.next({
       data: {
@@ -446,7 +445,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
     resolve(
       RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user$normalization,
     );
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     // Observe only a single commit
     expect(callback).toHaveBeenCalledTimes(1);

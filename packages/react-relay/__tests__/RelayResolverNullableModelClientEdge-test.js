@@ -29,11 +29,6 @@ const {
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {createMockEnvironment} = require('relay-test-utils');
-const {
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
 
 /**
  * CLIENT EDGE TO PLURAL LIVE STRONG CLIENT OBJECT
@@ -397,7 +392,7 @@ test('client edge to ID with no corresponding strong object', () => {
   expect(renderer?.toJSON()).toEqual('strong model was null');
 });
 
-test('client edge to server ID with no corresponding server object', () => {
+test('client edge to server ID with no corresponding server object', async () => {
   function NullServerObjectComponent() {
     const data = useClientQuery(
       graphql`
@@ -431,15 +426,14 @@ test('client edge to server ID with no corresponding server object', () => {
     );
   });
   expect(renderer?.toJSON()).toEqual('Loading...');
-  TestRenderer.act(() => {
+  await TestRenderer.act(async () => {
     mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
-    jest.runAllImmediates();
   });
   // TODO T169274655 should this be 'server object was null'?
   expect(renderer?.toJSON()).toEqual('server object was undefined');
 });
 
-test('client edge to server ID with no corresponding server object (read only id)', () => {
+test('client edge to server ID with no corresponding server object (read only id)', async () => {
   function NullServerObjectComponent() {
     const data = useClientQuery(
       graphql`
@@ -473,9 +467,8 @@ test('client edge to server ID with no corresponding server object (read only id
     );
   });
   expect(renderer?.toJSON()).toEqual('Loading...');
-  TestRenderer.act(() => {
+  await TestRenderer.act(async () => {
     mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
-    jest.runAllImmediates();
   });
   // TODO T169274655 should this be 'server object was null'?
   expect(renderer?.toJSON()).toEqual('server object was undefined');

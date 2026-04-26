@@ -39,10 +39,9 @@ const RelayRecordSource = require('../RelayRecordSource');
 const {
   disallowWarnings,
   expectToWarn,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 function createOperationLoader() {
@@ -227,7 +226,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(actorSnapshot, actorCallback);
       });
 
-      it('calls next() and publishes the initial payload to the store', () => {
+      it('calls next() and publishes the initial payload to the store', async () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -252,7 +251,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
         dataSource.next(payload);
-        jest.runAllTimers();
+        await flushMicrotasks();
 
         expect(operationLoader.load).toBeCalledTimes(2);
         expect(operationLoader.load.mock.calls[0][0]).toBe(
@@ -281,7 +280,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('does not process deferred payloads that arrive before their parent @module is processed', () => {
+      it('does not process deferred payloads that arrive before their parent @module is processed', async () => {
         environment.execute({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
@@ -305,7 +304,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           },
         });
-        jest.runAllTimers();
+        await flushMicrotasks();
         next.mockClear();
         userCallback.mockClear();
         actorCallback.mockClear();
@@ -350,7 +349,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(next).toBeCalledTimes(2);
 
         resolveFragment(userNormalizationFragment);
-        jest.runAllTimers();
+        await flushMicrotasks();
 
         expect(error.mock.calls.map(call => call[0])).toEqual([]);
         expect(userCallback).toBeCalledTimes(1);
@@ -364,7 +363,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         userCallback.mockClear();
 
         resolveFragment(actorNormalizationFragment);
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(error.mock.calls.map(call => call[0])).toEqual([]);
         expect(userCallback).toBeCalledTimes(0);
         expect(actorCallback).toBeCalledTimes(1);
@@ -376,7 +375,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('processes deferred payloads that arrive after the parent module has resolved', () => {
+      it('processes deferred payloads that arrive after the parent module has resolved', async () => {
         environment.execute({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
@@ -400,7 +399,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           },
         });
-        jest.runAllTimers();
+        await flushMicrotasks();
         next.mockClear();
         userCallback.mockClear();
         actorCallback.mockClear();
@@ -413,7 +412,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
 
         resolveFragment(userNormalizationFragment);
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(userCallback).toBeCalledTimes(0);
         expect(actorCallback).toBeCalledTimes(0);
 
@@ -443,7 +442,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         userCallback.mockClear();
 
         resolveFragment(actorNormalizationFragment);
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(userCallback).toBeCalledTimes(0);
         expect(actorCallback).toBeCalledTimes(0);
 
@@ -514,7 +513,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   scheduler,
                 });
         });
-        it('processes deferred payloads that had arrived before parent @module in a single scheduler step', () => {
+        it('processes deferred payloads that had arrived before parent @module in a single scheduler step', async () => {
           environment.execute({operation}).subscribe(callbacks);
           dataSource.next({
             data: {
@@ -538,7 +537,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               },
             },
           });
-          jest.runAllTimers();
+          await flushMicrotasks();
 
           expect(tasks.size).toBe(1);
           runTask();
@@ -567,7 +566,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
             path: ['viewer', 'actor'],
           });
-          jest.runAllTimers();
+          await flushMicrotasks();
 
           expect(tasks.size).toBe(2);
 
@@ -591,7 +590,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(next).toBeCalledTimes(2);
 
           resolveFragment(userNormalizationFragment);
-          jest.runAllTimers();
+          await flushMicrotasks();
 
           // Run scheduler task to process @module
           expect(tasks.size).toBe(1);
@@ -614,7 +613,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           userCallback.mockClear();
 
           resolveFragment(actorNormalizationFragment);
-          jest.runAllTimers();
+          await flushMicrotasks();
 
           // Run scheduler task to process @module
           expect(tasks.size).toBe(1);

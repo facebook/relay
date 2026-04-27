@@ -33,6 +33,7 @@ const useEntryPointLoader = require('./relay-hooks/useEntryPointLoader');
 const useFragment = require('./relay-hooks/useFragment');
 const useLazyLoadQuery = require('./relay-hooks/useLazyLoadQuery');
 const useMutation = require('./relay-hooks/useMutation');
+const useMutationAction_EXPERIMENTAL = require('./relay-hooks/useMutationAction_EXPERIMENTAL');
 const usePaginationFragment = require('./relay-hooks/usePaginationFragment');
 const usePrefetchableForwardPaginationFragment = require('./relay-hooks/usePrefetchableForwardPaginationFragment');
 const usePreloadedQuery = require('./relay-hooks/usePreloadedQuery');
@@ -147,6 +148,7 @@ module.exports = {
   useEntryPointLoader: useEntryPointLoader,
   useQueryLoader: useQueryLoader,
   useMutation: useMutation,
+  useMutationAction_EXPERIMENTAL: useMutationAction_EXPERIMENTAL,
   usePaginationFragment: usePaginationFragment,
   usePreloadedQuery: usePreloadedQuery,
   useRefetchableFragment: useRefetchableFragment,

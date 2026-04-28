@@ -40,6 +40,26 @@ pub enum TypeSystemDefinition {
 }
 
 impl TypeSystemDefinition {
+    pub fn directives(&self) -> &[ConstantDirective] {
+        match self {
+            TypeSystemDefinition::ObjectTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::ObjectTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::InterfaceTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::InterfaceTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::UnionTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::UnionTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::EnumTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::EnumTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::InputObjectTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::InputObjectTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::ScalarTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::ScalarTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::SchemaDefinition(d) => &d.directives,
+            TypeSystemDefinition::SchemaExtension(d) => &d.directives,
+            TypeSystemDefinition::DirectiveDefinition(_) => &[],
+        }
+    }
+
     pub fn span(&self) -> Span {
         match self {
             TypeSystemDefinition::SchemaDefinition(_extension) => Span::empty(), // Not implemented

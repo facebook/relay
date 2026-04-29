@@ -579,3 +579,245 @@ fn build_output_type_reference_with_semantic_nonnull_levels(
         )),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use common::SourceLocationKey;
+    use graphql_syntax::parse_schema_document;
+    use indoc::indoc;
+    use intern::string_key::Intern;
+
+    use super::*;
+    use crate::SchemaSet;
+
+    fn set_from_sdl(sdl: &str) -> SchemaSet {
+        SchemaSet::from_schema_documents(&[parse_schema_document(
+            sdl,
+            SourceLocationKey::generated(),
+        )
+        .unwrap()])
+        .unwrap()
+    }
+
+    // --- merge_def_into ---
+
+    #[test]
+    fn test_merge_def_into_new_type() {
+        let set = set_from_sdl("type Foo { id: ID! }");
+        assert!(set.types.contains_key(&"Foo".intern()));
+    }
+
+    #[test]
+    fn test_merge_def_into_duplicate_type_merges() {
+        let set = set_from_sdl(indoc! {r#"
+            type Foo { id: ID! }
+            type Foo { name: String }
+        "#});
+        if let SetType::Object(obj) = set.types.get(&"Foo".intern()).unwrap() {
+            assert!(obj.fields.contains_key(&"id".intern()));
+            assert!(obj.fields.contains_key(&"name".intern()));
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    // --- merge_ext_into ---
+
+    #[test]
+    fn test_merge_ext_into() {
+        let mut set = SchemaSet::new();
+        let base_doc =
+            parse_schema_document("type Foo { id: ID! }", SourceLocationKey::generated()).unwrap();
+        set.merge_sdl_document(&base_doc, false).unwrap();
+
+        let ext_doc = parse_schema_document(
+            "extend type Foo { name: String }",
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        set.merge_sdl_document(&ext_doc, true).unwrap();
+
+        if let SetType::Object(obj) = set.types.get(&"Foo".intern()).unwrap() {
+            assert!(obj.fields.contains_key(&"id".intern()));
+            assert!(obj.fields.contains_key(&"name".intern()));
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    // --- ToSetDefinition for each GraphQL type kind ---
+
+    #[test]
+    fn test_enum_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            enum Color {
+              RED
+              GREEN
+            }
+        "#});
+        if let SetType::Enum(e) = set.types.get(&"Color".intern()).unwrap() {
+            assert_eq!(e.name.0, "Color".intern());
+            assert!(e.values.contains_key(&"RED".intern()));
+            assert!(e.values.contains_key(&"GREEN".intern()));
+        } else {
+            panic!("Expected Enum type");
+        }
+    }
+
+    #[test]
+    fn test_object_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            type User {
+              id: ID!
+              name: String
+            }
+        "#});
+        if let SetType::Object(obj) = set.types.get(&"User".intern()).unwrap() {
+            assert_eq!(obj.name.0, "User".intern());
+            assert!(obj.fields.contains_key(&"id".intern()));
+            assert!(obj.fields.contains_key(&"name".intern()));
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    #[test]
+    fn test_interface_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            interface Node {
+              id: ID!
+            }
+        "#});
+        if let SetType::Interface(iface) = set.types.get(&"Node".intern()).unwrap() {
+            assert_eq!(iface.name.0, "Node".intern());
+            assert!(iface.fields.contains_key(&"id".intern()));
+        } else {
+            panic!("Expected Interface type");
+        }
+    }
+
+    #[test]
+    fn test_union_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            type Cat { name: String }
+            type Dog { name: String }
+            union Animal = Cat | Dog
+        "#});
+        if let SetType::Union(u) = set.types.get(&"Animal".intern()).unwrap() {
+            assert_eq!(u.name.0, "Animal".intern());
+            assert!(u.members.contains_key(&"Cat".intern()));
+            assert!(u.members.contains_key(&"Dog".intern()));
+        } else {
+            panic!("Expected Union type");
+        }
+    }
+
+    #[test]
+    fn test_input_object_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            input CreateInput {
+              name: String!
+            }
+        "#});
+        if let SetType::InputObject(input) = set.types.get(&"CreateInput".intern()).unwrap() {
+            assert_eq!(input.name.0, "CreateInput".intern());
+            assert!(input.fields.contains_key(&"name".intern()));
+        } else {
+            panic!("Expected InputObject type");
+        }
+    }
+
+    #[test]
+    fn test_scalar_to_set_definition() {
+        let set = set_from_sdl("scalar URL");
+        if let SetType::Scalar(s) = set.types.get(&"URL".intern()).unwrap() {
+            assert_eq!(s.name.0, "URL".intern());
+        } else {
+            panic!("Expected Scalar type");
+        }
+    }
+
+    #[test]
+    fn test_directive_to_set_definition() {
+        let set = set_from_sdl("directive @deprecated(reason: String) on FIELD_DEFINITION");
+        let dir = set.directives.get(&"deprecated".intern()).unwrap();
+        assert_eq!(dir.name.0, "deprecated".intern());
+        assert!(dir.arguments.contains_key(&"reason".intern()));
+    }
+
+    // --- Conflicting type kinds ---
+
+    #[test]
+    fn test_conflicting_type_kinds_error() {
+        let mut set = SchemaSet::new();
+        let doc1 =
+            parse_schema_document("type Foo { id: ID! }", SourceLocationKey::generated()).unwrap();
+        set.merge_sdl_document(&doc1, false).unwrap();
+
+        let doc2 =
+            parse_schema_document("enum Foo { A B }", SourceLocationKey::generated()).unwrap();
+        let result = set.merge_sdl_document(&doc2, false);
+        assert!(
+            result.is_err(),
+            "Merging conflicting type kinds should produce an error"
+        );
+    }
+
+    // --- Extension creates new type if not existing ---
+
+    #[test]
+    fn test_extension_creates_new_type() {
+        let mut set = SchemaSet::new();
+        let ext_doc = parse_schema_document(
+            "extend type NewType { field: String }",
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        set.merge_sdl_document(&ext_doc, true).unwrap();
+        assert!(set.types.contains_key(&"NewType".intern()));
+    }
+
+    // --- Object with interfaces ---
+
+    #[test]
+    fn test_object_with_interfaces_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            interface Node { id: ID! }
+            type User implements Node { id: ID! }
+        "#});
+        if let SetType::Object(obj) = set.types.get(&"User".intern()).unwrap() {
+            assert!(
+                obj.interfaces.contains_key(&"Node".intern()),
+                "User should implement Node"
+            );
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    // --- Extension adds interface ---
+
+    #[test]
+    fn test_extension_adds_interface() {
+        let mut set = SchemaSet::new();
+        let base =
+            parse_schema_document("type Foo { id: ID! }", SourceLocationKey::generated()).unwrap();
+        set.merge_sdl_document(&base, false).unwrap();
+
+        let ext = parse_schema_document(
+            "extend type Foo implements Bar",
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        set.merge_sdl_document(&ext, true).unwrap();
+
+        if let SetType::Object(obj) = set.types.get(&"Foo".intern()).unwrap() {
+            assert!(
+                obj.interfaces.contains_key(&"Bar".intern()),
+                "Extension should add Bar interface"
+            );
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+}

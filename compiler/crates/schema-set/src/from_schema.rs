@@ -510,3 +510,198 @@ fn convert_output_type_reference_with_semantic_nonnull(
         )),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use common::SourceLocationKey;
+    use graphql_syntax::parse_schema_document;
+    use indoc::indoc;
+    use intern::string_key::Intern;
+
+    use super::*;
+    use crate::SchemaSet;
+
+    fn set_from_sdl(sdl: &str) -> SchemaSet {
+        SchemaSet::from_schema_documents(&[parse_schema_document(
+            sdl,
+            SourceLocationKey::generated(),
+        )
+        .unwrap()])
+        .unwrap()
+    }
+
+    fn build_sdl_schema(sdl: &str) -> std::sync::Arc<SDLSchema> {
+        schema::build_schema(sdl).unwrap().into()
+    }
+
+    // --- SetEmptyClone ---
+
+    #[test]
+    fn test_empty_clone_scalar() {
+        let set = set_from_sdl("scalar URL @deprecated");
+        if let crate::SetType::Scalar(s) = set.types.values().next().unwrap() {
+            let cloned = s.empty_clone();
+            assert_eq!(cloned.name, s.name);
+            assert!(cloned.directives.is_empty());
+        } else {
+            panic!("Expected Scalar");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_enum() {
+        let set = set_from_sdl("enum Color { RED GREEN }");
+        if let crate::SetType::Enum(e) = set.types.values().next().unwrap() {
+            let cloned = e.empty_clone();
+            assert_eq!(cloned.name, e.name);
+            assert!(cloned.values.is_empty());
+            assert!(cloned.directives.is_empty());
+        } else {
+            panic!("Expected Enum");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_object() {
+        let set = set_from_sdl(indoc! {r#"
+            interface Node { id: ID! }
+            type User implements Node { id: ID! name: String }
+        "#});
+        if let crate::SetType::Object(obj) = set.types.get(&"User".intern()).unwrap() {
+            let cloned = obj.empty_clone();
+            assert_eq!(cloned.name, obj.name);
+            assert!(cloned.fields.is_empty());
+            assert!(cloned.interfaces.is_empty());
+            assert!(cloned.directives.is_empty());
+        } else {
+            panic!("Expected Object");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_interface() {
+        let set = set_from_sdl("interface Node { id: ID! }");
+        if let crate::SetType::Interface(iface) = set.types.values().next().unwrap() {
+            let cloned = iface.empty_clone();
+            assert_eq!(cloned.name, iface.name);
+            assert!(cloned.fields.is_empty());
+        } else {
+            panic!("Expected Interface");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_union() {
+        let set = set_from_sdl(indoc! {r#"
+            type A { id: ID! }
+            type B { id: ID! }
+            union AB = A | B
+        "#});
+        if let crate::SetType::Union(u) = set.types.get(&"AB".intern()).unwrap() {
+            let cloned = u.empty_clone();
+            assert_eq!(cloned.name, u.name);
+            assert!(cloned.members.is_empty());
+        } else {
+            panic!("Expected Union");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_input_object() {
+        let set = set_from_sdl("input Foo { name: String! }");
+        if let crate::SetType::InputObject(input) = set.types.values().next().unwrap() {
+            let cloned = input.empty_clone();
+            assert_eq!(cloned.name, input.name);
+            assert!(cloned.fields.is_empty());
+        } else {
+            panic!("Expected InputObject");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_field() {
+        let set = set_from_sdl("type Q { foo(a: Int): String @deprecated }");
+        if let crate::SetType::Object(obj) = set.types.values().next().unwrap() {
+            let field = obj.fields.values().next().unwrap();
+            let cloned = field.empty_clone();
+            assert_eq!(cloned.name, field.name);
+            assert!(cloned.arguments.is_empty());
+            assert!(cloned.directives.is_empty());
+        } else {
+            panic!("Expected Object");
+        }
+    }
+
+    // --- SchemaDefault ---
+
+    #[test]
+    fn test_schema_default_scalar() {
+        let sdl_schema = build_sdl_schema("type Query { id: ID } scalar URL");
+        let scalar_type = sdl_schema.get_type("URL".intern()).unwrap();
+        if let Type::Scalar(id) = scalar_type {
+            let set_scalar = SetScalar::schema_default(id, &sdl_schema);
+            assert_eq!(set_scalar.name.0, "URL".intern());
+        } else {
+            panic!("Expected Scalar type");
+        }
+    }
+
+    #[test]
+    fn test_schema_default_enum() {
+        let sdl_schema = build_sdl_schema("type Query { id: ID } enum Color { RED }");
+        let enum_type = sdl_schema.get_type("Color".intern()).unwrap();
+        if let Type::Enum(id) = enum_type {
+            let set_enum = SetEnum::schema_default(id, &sdl_schema);
+            assert_eq!(set_enum.name.0, "Color".intern());
+            // schema_default creates empty values
+            assert!(set_enum.values.is_empty());
+        } else {
+            panic!("Expected Enum type");
+        }
+    }
+
+    #[test]
+    fn test_schema_default_object() {
+        let sdl_schema = build_sdl_schema("type Query { id: ID } type User { name: String }");
+        let obj_type = sdl_schema.get_type("User".intern()).unwrap();
+        if let Type::Object(id) = obj_type {
+            let set_obj = SetObject::schema_default(id, &sdl_schema);
+            assert_eq!(set_obj.name.0, "User".intern());
+            assert!(set_obj.fields.is_empty());
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    // --- convert_schema_output_type_reference ---
+
+    #[test]
+    fn test_convert_output_type_reference_named() {
+        let sdl_schema = build_sdl_schema("type Query { name: String }");
+        let string_type = sdl_schema.get_type("String".intern()).unwrap();
+        let type_ref = TypeReference::Named(string_type);
+        let result = convert_schema_output_type_reference(&sdl_schema, &type_ref, &[]);
+        assert!(matches!(result, OutputTypeReference::Named(name) if name == "String".intern()));
+    }
+
+    #[test]
+    fn test_convert_output_type_reference_non_null() {
+        let sdl_schema = build_sdl_schema("type Query { name: String }");
+        let string_type = sdl_schema.get_type("String".intern()).unwrap();
+        let type_ref = TypeReference::NonNull(Box::new(TypeReference::Named(string_type)));
+        let result = convert_schema_output_type_reference(&sdl_schema, &type_ref, &[]);
+        assert!(matches!(
+            result,
+            OutputTypeReference::NonNull(OutputNonNull::KillsParent(_))
+        ));
+    }
+
+    #[test]
+    fn test_convert_output_type_reference_list() {
+        let sdl_schema = build_sdl_schema("type Query { name: String }");
+        let string_type = sdl_schema.get_type("String".intern()).unwrap();
+        let type_ref = TypeReference::List(Box::new(TypeReference::Named(string_type)));
+        let result = convert_schema_output_type_reference(&sdl_schema, &type_ref, &[]);
+        assert!(matches!(result, OutputTypeReference::List(_)));
+    }
+}

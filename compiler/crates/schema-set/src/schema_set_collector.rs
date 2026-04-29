@@ -985,15 +985,24 @@ fn copy_sdl_directives(
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use common::DirectiveName;
     use common::SourceLocationKey;
+    use graphql_syntax::OperationKind;
     use intern::string_key::Intern;
     use schema::DirectiveValue;
+    use schema::SDLSchema;
+    use schema::Schema;
     use schema::build_schema_with_extensions_parallel;
 
     use super::*;
     use crate::UsedSchemaCollectionOptions;
     use crate::schema_set::CanBeClientDefinition;
+
+    fn build_sdl_schema(sdl: &str) -> Arc<SDLSchema> {
+        schema::build_schema(sdl).unwrap().into()
+    }
 
     #[test]
     fn test_client_source_directive_always_marked_as_client_definition() {
@@ -1104,5 +1113,110 @@ mod tests {
             !result[2].is_client_definition(),
             "@oneOf is a built-in and should never be a client extension"
         );
+    }
+
+    #[test]
+    fn test_touch_operation_kind_query() {
+        let sdl_schema = build_sdl_schema("type Query { name: String }");
+        let mut set = SchemaSet::new();
+        set.touch_operation_kind(&sdl_schema, OperationKind::Query);
+        assert_eq!(set.root_schema.query_type, Some("Query".intern()));
+    }
+
+    #[test]
+    fn test_touch_operation_kind_mutation() {
+        let sdl_schema =
+            build_sdl_schema("type Query { id: ID } type Mutation { doThing: Boolean }");
+        let mut set = SchemaSet::new();
+        set.touch_operation_kind(&sdl_schema, OperationKind::Mutation);
+        assert_eq!(set.root_schema.mutation_type, Some("Mutation".intern()));
+    }
+
+    #[test]
+    fn test_touch_output_type_scalar() {
+        let sdl_schema = build_sdl_schema("type Query { name: String }");
+        let options =
+            UsedSchemaCollectionOptions::only_explicitly_used_without_directives_options();
+        let mut set = SchemaSet::new();
+        let string_type = sdl_schema.get_type("String".intern()).unwrap();
+        set.touch_output_type(&sdl_schema, &string_type, &options);
+        assert!(set.types.contains_key(&"String".intern()));
+    }
+
+    #[test]
+    fn test_touch_output_type_object() {
+        let sdl_schema = build_sdl_schema("type Query { id: ID } type User { name: String }");
+        let options =
+            UsedSchemaCollectionOptions::only_explicitly_used_without_directives_options();
+        let mut set = SchemaSet::new();
+        let user_type = sdl_schema.get_type("User".intern()).unwrap();
+        set.touch_output_type(&sdl_schema, &user_type, &options);
+        assert!(set.types.contains_key(&"User".intern()));
+    }
+
+    #[test]
+    fn test_touch_input_type() {
+        let sdl_schema =
+            build_sdl_schema("type Query { id: ID } input CreateInput { name: String! }");
+        let options =
+            UsedSchemaCollectionOptions::only_explicitly_used_without_directives_options();
+        let mut set = SchemaSet::new();
+        let input_type = sdl_schema.get_type("CreateInput".intern()).unwrap();
+        set.touch_input_type(&sdl_schema, &input_type, &options);
+        assert!(set.types.contains_key(&"CreateInput".intern()));
+    }
+
+    #[test]
+    fn test_touch_field() {
+        let sdl_schema = build_sdl_schema("type Query { name: String }");
+        let options =
+            UsedSchemaCollectionOptions::only_explicitly_used_without_directives_options();
+        let mut set = SchemaSet::new();
+
+        let query_type = sdl_schema.get_type("Query".intern()).unwrap();
+        // First touch the output type to create the entry
+        set.touch_output_type(&sdl_schema, &query_type, &options);
+
+        // Now touch a specific field
+        if let schema::Type::Object(obj_id) = query_type {
+            let obj = sdl_schema.object(obj_id);
+            let field_id = obj.fields[0];
+            set.touch_field(&sdl_schema, &field_id, &options);
+            if let SetType::Object(set_obj) = set.types.get(&"Query".intern()).unwrap() {
+                assert!(
+                    set_obj.fields.contains_key(&"name".intern()),
+                    "Should have 'name' field after touch_field"
+                );
+            } else {
+                panic!("Expected Object type");
+            }
+        } else {
+            panic!("Query should be Object type");
+        }
+    }
+
+    #[test]
+    fn test_touch_enum_value() {
+        let sdl_schema = build_sdl_schema("type Query { id: ID } enum Color { RED GREEN BLUE }");
+        let options =
+            UsedSchemaCollectionOptions::only_explicitly_used_without_directives_options();
+        let mut set = SchemaSet::new();
+
+        let color_type = sdl_schema.get_type("Color".intern()).unwrap();
+        set.touch_output_type(&sdl_schema, &color_type, &options);
+
+        if let schema::Type::Enum(enum_id) = color_type {
+            set.touch_enum_value(&sdl_schema, &enum_id, "RED".intern(), &options);
+            if let SetType::Enum(set_enum) = set.types.get(&"Color".intern()).unwrap() {
+                assert!(
+                    set_enum.values.contains_key(&"RED".intern()),
+                    "Should have RED value after touch_enum_value"
+                );
+            } else {
+                panic!("Expected Enum type");
+            }
+        } else {
+            panic!("Color should be Enum type");
+        }
     }
 }

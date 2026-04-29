@@ -636,6 +636,7 @@ fn build_string_node(value: StringKey) -> StringNode {
 mod tests {
     use common::SourceLocationKey;
     use graphql_syntax::parse_schema_document;
+    use indoc::indoc;
 
     use super::*;
 
@@ -648,10 +649,12 @@ mod tests {
         .unwrap()
     }
 
+    fn schema_sdl(sdl: &str) -> String {
+        format!("{}", set_from_str(sdl).to_sdl_definition())
+    }
+
     #[test]
     fn test_directive_locations_sorted_alphabetically() {
-        // Verify that to_sdl_definition() sorts directive locations by https://spec.graphql.org/draft/#DirectiveLocation,
-        // regardless of the input order.
         let schema = set_from_str("directive @x on SUBSCRIPTION | QUERY | FIELD | MUTATION");
         let sdl = format!("{}", schema.to_sdl_definition());
         assert!(
@@ -659,5 +662,336 @@ mod tests {
             "Expected directive locations to be sorted by location, got: {}",
             sdl,
         );
+    }
+
+    // --- Scalar ---
+
+    #[test]
+    fn test_scalar_simple() {
+        let sdl = schema_sdl("scalar URL");
+        assert!(sdl.contains("scalar URL"), "Got: {}", sdl);
+    }
+
+    #[test]
+    fn test_scalar_with_directive() {
+        let sdl = schema_sdl("scalar JSON @deprecated");
+        assert!(sdl.contains("scalar JSON @deprecated"), "Got: {}", sdl,);
+    }
+
+    // --- Enum ---
+
+    #[test]
+    fn test_enum_with_values() {
+        let sdl = schema_sdl(indoc! {r#"
+            enum Color {
+              RED
+              GREEN
+              BLUE
+            }
+        "#});
+        assert!(sdl.contains("enum Color"), "Got: {}", sdl);
+        assert!(sdl.contains("RED"), "Got: {}", sdl);
+        assert!(sdl.contains("GREEN"), "Got: {}", sdl);
+        assert!(sdl.contains("BLUE"), "Got: {}", sdl);
+    }
+
+    #[test]
+    fn test_enum_empty() {
+        let sdl = schema_sdl("enum EmptyEnum");
+        assert!(sdl.contains("enum EmptyEnum"), "Got: {}", sdl);
+        // No braces when values are empty
+        assert!(!sdl.contains('{'), "Got: {}", sdl);
+    }
+
+    #[test]
+    fn test_enum_with_directive() {
+        let sdl = schema_sdl(indoc! {r#"
+            enum Status @deprecated {
+              ACTIVE
+              INACTIVE
+            }
+        "#});
+        assert!(sdl.contains("@deprecated"), "Got: {}", sdl);
+    }
+
+    // --- Object ---
+
+    #[test]
+    fn test_object_with_fields() {
+        let sdl = schema_sdl(indoc! {r#"
+            type User {
+              id: ID!
+              name: String
+            }
+        "#});
+        assert!(sdl.contains("type User"), "Got: {}", sdl);
+        assert!(sdl.contains("id: ID!"), "Got: {}", sdl);
+        assert!(sdl.contains("name: String"), "Got: {}", sdl);
+    }
+
+    #[test]
+    fn test_object_with_interfaces() {
+        let sdl = schema_sdl(indoc! {r#"
+            interface Node {
+              id: ID!
+            }
+            type User implements Node {
+              id: ID!
+            }
+        "#});
+        assert!(sdl.contains("type User implements Node"), "Got: {}", sdl);
+    }
+
+    #[test]
+    fn test_object_with_directive() {
+        let sdl = schema_sdl(indoc! {r#"
+            type Foo @deprecated {
+              bar: String
+            }
+        "#});
+        assert!(sdl.contains("@deprecated"), "Got: {}", sdl);
+    }
+
+    #[test]
+    fn test_object_fields_sorted_alphabetically() {
+        let sdl = schema_sdl(indoc! {r#"
+            type Foo {
+              zebra: String
+              apple: Int
+              mango: Boolean
+            }
+        "#});
+        // Fields should be sorted alphabetically
+        let apple_pos = sdl.find("apple").expect("apple not found");
+        let mango_pos = sdl.find("mango").expect("mango not found");
+        let zebra_pos = sdl.find("zebra").expect("zebra not found");
+        assert!(
+            apple_pos < mango_pos && mango_pos < zebra_pos,
+            "Fields should be sorted: {}",
+            sdl,
+        );
+    }
+
+    // --- Interface ---
+
+    #[test]
+    fn test_interface_with_fields() {
+        let sdl = schema_sdl(indoc! {r#"
+            interface Node {
+              id: ID!
+            }
+        "#});
+        assert!(sdl.contains("interface Node"), "Got: {}", sdl);
+        assert!(sdl.contains("id: ID!"), "Got: {}", sdl);
+    }
+
+    #[test]
+    fn test_interface_implementing_interface() {
+        let sdl = schema_sdl(indoc! {r#"
+            interface Base {
+              id: ID!
+            }
+            interface Child implements Base {
+              id: ID!
+              name: String
+            }
+        "#});
+        assert!(
+            sdl.contains("interface Child implements Base"),
+            "Got: {}",
+            sdl,
+        );
+    }
+
+    // --- Union ---
+
+    #[test]
+    fn test_union_with_members() {
+        let sdl = schema_sdl(indoc! {r#"
+            type Dog {
+              name: String
+            }
+            type Cat {
+              name: String
+            }
+            union Animal = Cat | Dog
+        "#});
+        assert!(sdl.contains("union Animal = Cat | Dog"), "Got: {}", sdl,);
+    }
+
+    // --- InputObject ---
+
+    #[test]
+    fn test_input_object_with_fields() {
+        let sdl = schema_sdl(indoc! {r#"
+            input CreateUserInput {
+              name: String!
+              email: String
+            }
+        "#});
+        assert!(sdl.contains("input CreateUserInput"), "Got: {}", sdl);
+        assert!(sdl.contains("name: String!"), "Got: {}", sdl);
+        assert!(sdl.contains("email: String"), "Got: {}", sdl);
+    }
+
+    #[test]
+    fn test_input_object_fields_sorted() {
+        let sdl = schema_sdl(indoc! {r#"
+            input SearchInput {
+              query: String
+              limit: Int
+              offset: Int
+            }
+        "#});
+        let limit_pos = sdl.find("limit").expect("limit not found");
+        let offset_pos = sdl.find("offset").expect("offset not found");
+        let query_pos = sdl.find("query").expect("query not found");
+        assert!(
+            limit_pos < offset_pos && offset_pos < query_pos,
+            "Input fields should be sorted: {}",
+            sdl,
+        );
+    }
+
+    // --- Field with arguments ---
+
+    #[test]
+    fn test_field_with_arguments() {
+        let sdl = schema_sdl(indoc! {r#"
+            type Query {
+              user(id: ID!): String
+            }
+        "#});
+        assert!(sdl.contains("user(id: ID!)"), "Got: {}", sdl);
+    }
+
+    // --- Argument with default value ---
+
+    #[test]
+    fn test_argument_with_default_value() {
+        let sdl = schema_sdl(indoc! {r#"
+            type Query {
+              users(limit: Int = 10): String
+            }
+        "#});
+        assert!(sdl.contains("limit: Int = 10"), "Got: {}", sdl);
+    }
+
+    // --- output_type_ref_to_semantic_sdl_type ---
+
+    #[test]
+    fn test_output_type_ref_named_no_semantic() {
+        use intern::string_key::Intern;
+        let type_ref = OutputTypeReference::Named("String".intern());
+        let (annotation, directive) = output_type_ref_to_semantic_sdl_type(&type_ref);
+        assert!(
+            matches!(annotation, TypeAnnotation::Named(_)),
+            "Expected Named annotation"
+        );
+        assert!(directive.is_none(), "No @semanticNonNull for Named type");
+    }
+
+    #[test]
+    fn test_output_type_ref_kills_parent_non_null() {
+        use intern::string_key::Intern;
+        let type_ref = OutputTypeReference::NonNull(OutputNonNull::KillsParent(Box::new(
+            OutputTypeReference::Named("String".intern()),
+        )));
+        let (annotation, directive) = output_type_ref_to_semantic_sdl_type(&type_ref);
+        assert!(
+            matches!(annotation, TypeAnnotation::NonNull(_)),
+            "Expected NonNull annotation"
+        );
+        assert!(
+            directive.is_none(),
+            "KillsParent NonNull should not produce @semanticNonNull"
+        );
+    }
+
+    #[test]
+    fn test_output_type_ref_semantic_non_null() {
+        use intern::string_key::Intern;
+        let type_ref = OutputTypeReference::NonNull(OutputNonNull::Semantic(Box::new(
+            OutputTypeReference::Named("String".intern()),
+        )));
+        let (annotation, directive) = output_type_ref_to_semantic_sdl_type(&type_ref);
+        // Semantic non-null strips the non-null from the type annotation
+        assert!(
+            matches!(annotation, TypeAnnotation::Named(_)),
+            "Expected Named annotation (semantic non-null strips nullability)"
+        );
+        assert!(
+            directive.is_some(),
+            "Semantic NonNull should produce @semanticNonNull directive"
+        );
+        let dir = directive.unwrap();
+        assert_eq!(dir.name.value, SEMANTIC_NON_NULL.0);
+    }
+
+    // --- SchemaSet round-trip ---
+
+    #[test]
+    fn test_round_trip_schema() {
+        let input = indoc! {r#"
+            directive @deprecated on FIELD_DEFINITION
+
+            scalar URL
+
+            enum Status {
+              ACTIVE
+              INACTIVE
+            }
+
+            type Query {
+              user(id: ID!): User
+            }
+
+            type User {
+              id: ID!
+              name: String
+              status: Status
+            }
+
+            input CreateUserInput {
+              name: String!
+            }
+        "#};
+
+        let set = set_from_str(input);
+        let sdl_doc: SchemaDocument = set.to_sdl_definition();
+        let output = format!("{}", sdl_doc);
+
+        // Re-parse the output
+        let reparsed = parse_schema_document(&output, SourceLocationKey::generated());
+        assert!(
+            reparsed.is_ok(),
+            "Round-tripped SDL should be parseable, got error: {:?}",
+            reparsed.err()
+        );
+    }
+
+    // --- Directives sorted ---
+
+    #[test]
+    fn test_types_and_directives_sorted_in_output() {
+        let sdl = schema_sdl(indoc! {r#"
+            directive @z on OBJECT
+            directive @a on FIELD_DEFINITION
+            type Zebra { z: String }
+            type Apple { a: String }
+        "#});
+        let a_dir_pos = sdl.find("@a").expect("@a not found");
+        let z_dir_pos = sdl.find("@z").expect("@z not found");
+        // Directives should be sorted a before z
+        assert!(
+            a_dir_pos < z_dir_pos,
+            "Directives should be sorted: {}",
+            sdl
+        );
+
+        let apple_pos = sdl.find("type Apple").expect("type Apple not found");
+        let zebra_pos = sdl.find("type Zebra").expect("type Zebra not found");
+        // Types should be sorted alphabetically
+        assert!(apple_pos < zebra_pos, "Types should be sorted: {}", sdl);
     }
 }

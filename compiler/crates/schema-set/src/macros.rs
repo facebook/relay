@@ -157,9 +157,8 @@ macro_rules! clone_base {
 macro_rules! impl_partitions_only_directives {
     ($named:ident ) => {
         impl PartitionsBaseExtension for $named {
-            fn partition_base_extension(&self, schema_set: &SchemaSet) -> (Self, Option<Self>) {
-                let (base_directives, extension_directives) =
-                    self.partition_extension_directives(schema_set);
+            fn partition_base_extension(&self) -> (Self, Option<Self>) {
+                let (base_directives, extension_directives) = self.partition_extension_directives();
 
                 let base = Self {
                     directives: base_directives,

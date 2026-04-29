@@ -465,7 +465,7 @@ fn build_argument_values(
                         definition: Some(SchemaDefinitionItem {
                             name: arg.name.value,
                             locations: vec![Location::new(source, arg.name.span)],
-                            is_client_definition: false,
+                            is_client_definition,
                             description: arg.description.as_ref().map(|d| d.value),
                             hack_source: None,
                         }),

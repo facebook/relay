@@ -31,6 +31,7 @@ use crate::OutputNonNull;
 use crate::OutputTypeReference;
 use crate::SEMANTIC_NON_NULL;
 use crate::SEMANTIC_NON_NULL_LEVELS_ARG;
+use crate::is_graphql_builtin_directive;
 use crate::schema_set::FieldName;
 use crate::schema_set::SchemaDefinitionItem;
 use crate::schema_set::SchemaSet;
@@ -209,6 +210,7 @@ impl SchemaSet {
                     interfaces: all_interfaces,
                     name: from_schema.name.item,
                     directives: copy_sdl_directives(
+                        schema,
                         &from_schema.directives,
                         options,
                         from_schema.is_extension,
@@ -259,6 +261,7 @@ impl SchemaSet {
                     interfaces: all_interfaces,
                     name: from_schema.name.item,
                     directives: copy_sdl_directives(
+                        schema,
                         &from_schema.directives,
                         options,
                         from_schema.is_extension,
@@ -306,6 +309,7 @@ impl SchemaSet {
                     members,
                     name: from_schema.name.item,
                     directives: copy_sdl_directives(
+                        schema,
                         &from_schema.directives,
                         options,
                         from_schema.is_extension,
@@ -339,6 +343,7 @@ impl SchemaSet {
                 fields: StringKeyIndexMap::default(),
                 name: schema_input.name.item,
                 directives: copy_sdl_directives(
+                    schema,
                     &schema_input.directives,
                     options,
                     false, /* SDLSchema InputObject does not support extensions yet */
@@ -398,6 +403,7 @@ impl SchemaSet {
                             ),
                             name: FieldName(field_name),
                             directives: copy_sdl_directives(
+                                schema,
                                 &schema_field.directives,
                                 options,
                                 schema_field.is_extension,
@@ -428,6 +434,7 @@ impl SchemaSet {
                             ),
                             name: FieldName(field_name),
                             directives: copy_sdl_directives(
+                                schema,
                                 &schema_field.directives,
                                 options,
                                 schema_field.is_extension,
@@ -557,6 +564,7 @@ impl SchemaSet {
                             type_: stringkey_type_ref_from_schema_type(schema, &schema_arg.type_),
                             default_value: schema_arg.default_value.clone(),
                             directives: copy_sdl_directives(
+                                schema,
                                 &schema_arg.directives,
                                 options,
                                 schema_field.is_extension,
@@ -594,6 +602,7 @@ impl SchemaSet {
                     type_: stringkey_type_ref_from_schema_type(schema, &schema_input_field.type_),
                     default_value: schema_input_field.default_value.clone(),
                     directives: copy_sdl_directives(
+                        schema,
                         &schema_input_field.directives,
                         options,
                         false, /* SDLSchema InputObject does not support extensions yet */
@@ -633,6 +642,7 @@ impl SchemaSet {
                         type_: stringkey_type_ref_from_schema_type(schema, &schema_arg.type_),
                         default_value: schema_arg.default_value.clone(),
                         directives: copy_sdl_directives(
+                            schema,
                             &schema_arg.directives,
                             options,
                             schema_directive.is_extension,
@@ -663,6 +673,7 @@ impl SchemaSet {
                 }),
                 name: from_schema.name.item,
                 directives: copy_sdl_directives(
+                    schema,
                     &from_schema.directives,
                     options,
                     from_schema.is_extension,
@@ -692,6 +703,7 @@ impl SchemaSet {
                 values: BTreeMap::default(),
                 name: from_schema.name.item,
                 directives: copy_sdl_directives(
+                    schema,
                     &from_schema.directives,
                     options,
                     from_schema.is_extension,
@@ -946,6 +958,7 @@ fn overlapping_types(schema: &SDLSchema, a: Type, b: Type) -> Vec<Type> {
 }
 
 fn copy_sdl_directives(
+    schema: &SDLSchema,
     schema_directives: &[DirectiveValue],
     options: &UsedSchemaCollectionOptions,
     is_client_definition: bool,
@@ -954,9 +967,142 @@ fn copy_sdl_directives(
         schema_directives
             .iter()
             .filter(|d| d.name != *SEMANTIC_NON_NULL)
-            .map(|dv| SetDirectiveValue::from_schema_value(dv, is_client_definition))
+            .map(|dv| {
+                // If the directive definition can't be found, or is itself a client definition, then the directive is a client definition.
+                // Exception: GraphQL spec built-in directives (@deprecated, @specifiedBy, @oneOf) are never extensions.
+                let value_is_client_definition = !is_graphql_builtin_directive(dv.name)
+                    && schema
+                        .get_directive(dv.name)
+                        .is_none_or(|directive_value_def| directive_value_def.is_extension);
+                let is_client = is_client_definition || value_is_client_definition;
+                SetDirectiveValue::from_schema_value(dv, is_client)
+            })
             .collect()
     } else {
         Vec::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use common::DirectiveName;
+    use common::SourceLocationKey;
+    use intern::string_key::Intern;
+    use schema::DirectiveValue;
+    use schema::build_schema_with_extensions_parallel;
+
+    use super::*;
+    use crate::UsedSchemaCollectionOptions;
+    use crate::schema_set::CanBeClientDefinition;
+
+    #[test]
+    fn test_client_source_directive_always_marked_as_client_definition() {
+        // Build a schema where @base is a server directive and
+        // @extension is defined in the client extension schema.
+        let schema = build_schema_with_extensions_parallel(
+            &[(
+                r#"
+                    directive @base on ENUM
+                "#,
+                SourceLocationKey::generated(),
+            )],
+            &[(
+                r#"
+                    directive @extension on ENUM
+                "#,
+                SourceLocationKey::generated(),
+            )],
+        )
+        .unwrap();
+
+        let directives = vec![
+            DirectiveValue {
+                name: DirectiveName("base".intern()),
+                arguments: vec![],
+            },
+            DirectiveValue {
+                name: DirectiveName("extension".intern()),
+                arguments: vec![],
+            },
+        ];
+
+        let options = UsedSchemaCollectionOptions {
+            include_directives_on_schema_definitions: true,
+            include_implementations_when_typename_requested: None,
+            include_all_overlapping_concrete_types: false,
+            include_directive_definitions: false,
+            include_implicit_output_enum_values: false,
+            include_implicit_input_fields_and_enum_values: false,
+        };
+
+        // Even with is_client_definition=false (server-defined type),
+        // @extension should be marked as a client definition because
+        // its directive definition lives in the extension schema.
+        let result = copy_sdl_directives(&schema, &directives, &options, false);
+
+        assert_eq!(result.len(), 2);
+        assert!(!result[0].is_client_definition(), "@base should be base");
+        assert!(
+            result[1].is_client_definition(),
+            "@extension should be client even on a server type"
+        );
+    }
+
+    #[test]
+    fn test_graphql_builtin_directives_never_considered_extensions() {
+        // Build a minimal schema — built-in directives like @deprecated
+        // are NOT in builtins.graphql and may not be in the schema at all.
+        let schema = build_schema_with_extensions_parallel::<&str, &str>(
+            &[(
+                r#"
+                    type Query { id: ID }
+                "#,
+                SourceLocationKey::generated(),
+            )],
+            &[],
+        )
+        .unwrap();
+
+        let directives = vec![
+            DirectiveValue {
+                name: DirectiveName("deprecated".intern()),
+                arguments: vec![],
+            },
+            DirectiveValue {
+                name: DirectiveName("specifiedBy".intern()),
+                arguments: vec![],
+            },
+            DirectiveValue {
+                name: DirectiveName("oneOf".intern()),
+                arguments: vec![],
+            },
+        ];
+
+        let options = UsedSchemaCollectionOptions {
+            include_directives_on_schema_definitions: true,
+            include_implementations_when_typename_requested: None,
+            include_all_overlapping_concrete_types: false,
+            include_directive_definitions: false,
+            include_implicit_output_enum_values: false,
+            include_implicit_input_fields_and_enum_values: false,
+        };
+
+        // GraphQL spec built-in directives should never be client extensions,
+        // even if they're not found in the schema definition.
+        let result = copy_sdl_directives(&schema, &directives, &options, false);
+
+        assert_eq!(result.len(), 3);
+        assert!(
+            !result[0].is_client_definition(),
+            "@deprecated is a built-in and should never be a client extension"
+        );
+        assert!(
+            !result[1].is_client_definition(),
+            "@specifiedBy is a built-in and should never be a client extension"
+        );
+        assert!(
+            !result[2].is_client_definition(),
+            "@oneOf is a built-in and should never be a client extension"
+        );
     }
 }

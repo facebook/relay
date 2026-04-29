@@ -700,7 +700,6 @@ impl_traits!(
     impl_string_key_named_with_location,
     impl_can_be_client_definition,
     impl_can_have_directives,
-    impl_partitions_only_directives,
     impl_has_description
 );
 impl HasArguments for SetInputObject {
@@ -728,7 +727,6 @@ impl_traits!(
     impl_string_key_named_with_location,
     impl_can_be_client_definition,
     impl_can_have_directives,
-    impl_partitions_only_directives,
     impl_has_description
 );
 
@@ -821,6 +819,26 @@ impl_traits!(
     impl_has_description
 );
 
+impl CanBeClientDefinition for SetArgument {
+    fn is_client_definition(&self) -> bool {
+        self.definition.is_none() || self.definition.as_ref().unwrap().is_client_definition
+    }
+
+    fn set_is_client_definition(&mut self, is_client_definition: bool) {
+        if let Some(def) = &mut self.definition {
+            def.is_client_definition = is_client_definition;
+        } else {
+            self.definition = Some(SchemaDefinitionItem {
+                name: self.name,
+                locations: Vec::new(),
+                is_client_definition,
+                description: None,
+                hack_source: None,
+            });
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SetDirectiveValue {
     pub definition: Option<SchemaDefinitionItem>,
@@ -881,6 +899,8 @@ pub struct SetArgumentValue {
     pub value: ConstantValue,
 }
 
+impl_traits!(SetArgumentValue, impl_can_be_client_definition);
+
 impl common::Named for SetArgumentValue {
     type Name = common::ArgumentName;
     fn name(&self) -> common::ArgumentName {
@@ -919,6 +939,26 @@ pub struct SetEnumValue {
     pub description: Option<StringKey>,
 }
 impl_traits!(SetEnumValue, impl_can_have_directives, impl_has_description);
+
+impl CanBeClientDefinition for SetEnumValue {
+    fn is_client_definition(&self) -> bool {
+        self.definition.is_none() || self.definition.as_ref().unwrap().is_client_definition
+    }
+
+    fn set_is_client_definition(&mut self, is_client_definition: bool) {
+        if let Some(def) = &mut self.definition {
+            def.is_client_definition = is_client_definition;
+        } else {
+            self.definition = Some(SchemaDefinitionItem {
+                name: self.value,
+                locations: Vec::new(),
+                is_client_definition,
+                description: None,
+                hack_source: None,
+            });
+        }
+    }
+}
 
 impl common::Named for SetEnumValue {
     type Name = StringKey;
@@ -969,21 +1009,11 @@ pub trait CanHaveDirectives {
 
     fn set_directives(&mut self, directives: Vec<SetDirectiveValue>);
 
-    fn partition_extension_directives(
-        &self,
-        schema_set: &SchemaSet,
-    ) -> (Vec<SetDirectiveValue>, Vec<SetDirectiveValue>) {
+    fn partition_extension_directives(&self) -> (Vec<SetDirectiveValue>, Vec<SetDirectiveValue>) {
         self.directives()
             .iter()
             .cloned()
-            .partition(|directive_value| {
-                !directive_value.is_client_definition()
-                    && schema_set
-                        .directives
-                        .get(&directive_value.name.0)
-                        // LHS is base, RHS is extensions
-                        .is_some_and(|directive| !directive.is_client_definition())
-            })
+            .partition(|directive_value| !directive_value.is_client_definition())
     }
 }
 pub trait HasFields {
@@ -994,11 +1024,17 @@ pub trait HasFields {
     fn partition_extension_fields(&self) -> (StringKeyMap<SetField>, StringKeyMap<SetField>) {
         let mut base_fields = StringKeyMap::default();
         let mut extension_fields = StringKeyMap::default();
+
         for (field_name, field_value) in self.fields() {
             if field_value.is_client_definition() {
+                // The whole thing is an extension so insert it
                 extension_fields.insert(*field_name, field_value.clone());
             } else {
-                base_fields.insert(*field_name, field_value.clone());
+                let (base_field, extension_field) = field_value.partition_base_extension();
+                base_fields.insert(*field_name, base_field);
+                if let Some(extension_field) = extension_field {
+                    extension_fields.insert(*field_name, extension_field);
+                }
             }
         }
         (base_fields, extension_fields)
@@ -1008,6 +1044,24 @@ pub trait HasFields {
 pub trait HasArguments {
     fn arguments(&self) -> &StringKeyIndexMap<SetArgument>;
     fn arguments_mut(&mut self) -> &mut StringKeyIndexMap<SetArgument>;
+
+    fn partition_extension_arguments(
+        &self,
+    ) -> (
+        StringKeyIndexMap<SetArgument>,
+        StringKeyIndexMap<SetArgument>,
+    ) {
+        let mut base_arguments = StringKeyIndexMap::default();
+        let mut extension_arguments = StringKeyIndexMap::default();
+        for (arg_name, arg_value) in self.arguments() {
+            if arg_value.is_client_definition() {
+                extension_arguments.insert(*arg_name, arg_value.clone());
+            } else {
+                base_arguments.insert(*arg_name, arg_value.clone());
+            }
+        }
+        (base_arguments, extension_arguments)
+    }
 }
 pub trait HasInterfaces {
     fn interfaces(&self) -> &StringKeyIndexMap<SetMemberType>;

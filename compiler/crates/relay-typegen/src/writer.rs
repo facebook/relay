@@ -370,9 +370,15 @@ pub trait Writer: Write {
         name: &str,
         import_as: Option<&str>,
         from: &str,
+        ignore_use_import_type_syntax: bool,
     ) -> FmtResult;
 
-    fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult;
+    fn write_import_type(
+        &mut self,
+        types: &[&str],
+        from: &str,
+        ignore_use_import_type_syntax: bool,
+    ) -> FmtResult;
 
     fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> FmtResult;
 

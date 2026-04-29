@@ -106,6 +106,7 @@ impl Writer for FlowPrinter {
         name: &str,
         import_as: Option<&str>,
         from: &str,
+        _ignore_use_import_type_syntax: bool,
     ) -> FmtResult {
         let local_name = if let Some(import_as) = import_as {
             format!("{{{name} as {import_as}}}")
@@ -115,7 +116,12 @@ impl Writer for FlowPrinter {
         self.write_import_module_default(&local_name, from)
     }
 
-    fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {
+    fn write_import_type(
+        &mut self,
+        types: &[&str],
+        from: &str,
+        _ignore_use_import_type_syntax: bool,
+    ) -> FmtResult {
         writeln!(
             &mut self.result,
             "import type {{ {} }} from \"{}\";",
@@ -125,7 +131,7 @@ impl Writer for FlowPrinter {
     }
 
     fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> FmtResult {
-        self.write_import_type(types, from)
+        self.write_import_type(types, from, false)
     }
 
     fn write_export_fragment_type(&mut self, name: &str) -> FmtResult {

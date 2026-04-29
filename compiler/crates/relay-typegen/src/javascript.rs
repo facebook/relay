@@ -52,11 +52,17 @@ impl Writer for JavaScriptPrinter {
         _name: &str,
         _alias: Option<&str>,
         _from: &str,
+        _ignore_use_import_type_syntax: bool,
     ) -> FmtResult {
         Ok(())
     }
 
-    fn write_import_type(&mut self, _types: &[&str], _from: &str) -> FmtResult {
+    fn write_import_type(
+        &mut self,
+        _types: &[&str],
+        _from: &str,
+        _ignore_use_import_type_syntax: bool,
+    ) -> FmtResult {
         Ok(())
     }
 

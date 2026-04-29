@@ -294,10 +294,10 @@ mod tests {
                 directive @serverDirective on OBJECT
 
                 type Query {
-                    viewer: Viewer
+                    frog: Frog
                 }
 
-                type Viewer @serverDirective {
+                type Frog @serverDirective {
                     name: String
                 }
             "#,
@@ -333,17 +333,17 @@ mod tests {
                 directive @serverDirective on OBJECT
 
                 type Query {
-                    viewer: Viewer
+                    frog: Frog
                 }
 
-                type Viewer {
+                type Frog {
                     name: String
                 }
             "#,
         );
         let original_extensions = set_from_sdl(
             r#"
-                extend type Viewer @serverDirective {
+                extend type Frog @serverDirective {
                     extensionField: ID
                 }
             "#,
@@ -499,5 +499,242 @@ mod tests {
             format!("{}", extensions.to_sdl_definition()),
             format!("{}", original_extensions.to_sdl_definition())
         );
+    }
+
+    #[test]
+    fn test_multi_part_merge_with_base_and_client_partitioning() {
+        let mut schema = SchemaSet::new();
+
+        // Part 1 - Base: Query, enum, and a type implementing an interface
+        schema
+            .merge_sdl_document(
+                &parse_schema_document(
+                    r#"
+                        type Query {
+                            name: String
+                        }
+
+                        enum ThingsToCount {
+                            ONE
+                            THREE
+                            EIGHT
+                        }
+
+                        type Name implements HasShortName {
+                            shortName: String
+                        }
+                    "#,
+                    SourceLocationKey::generated(),
+                )
+                .unwrap(),
+                false,
+            )
+            .unwrap();
+
+        // Part 1 - Client: extend Query + extend Frog with interface impls
+        schema
+            .merge_sdl_document(
+                &parse_schema_document(
+                    r#"
+                        extend type Query {
+                            extension: Int
+                        }
+
+                        extend type Frog implements HasShortName & Bug
+                    "#,
+                    SourceLocationKey::generated(),
+                )
+                .unwrap(),
+                true,
+            )
+            .unwrap();
+
+        // Part 2 - Base: Frog with directive, Toad, HasShortName interface,
+        // overlapping Name, scalar, empty enum, directive definition
+        schema
+            .merge_sdl_document(
+                &parse_schema_document(
+                    r#"
+                        type Frog implements HasShortName @someDirective {
+                            frogName: Name
+                            shortName: String!
+                        }
+
+                        type Toad implements HasShortName
+
+                        interface HasShortName {
+                            shortName: String
+                        }
+
+                        type Name implements HasShortName {
+                            shortName: String!
+                        }
+                        scalar Point
+
+                        enum ThingsToCount
+
+                        directive @someDirective(x: String) on OBJECT
+                    "#,
+                    SourceLocationKey::generated(),
+                )
+                .unwrap(),
+                false,
+            )
+            .unwrap();
+
+        // Part 3 - Base: Frog implements Amphibian, union, Amphibian interface,
+        // scalar with directive, more enum values, Bug interface, directive extension
+        schema
+            .merge_sdl_document(
+                &parse_schema_document(
+                    r#"
+                        type Frog implements Amphibian
+
+                        union Many = Name | Query
+
+                        interface Amphibian {
+                            name: Name
+                        }
+
+                        scalar Point @someDirective(y: 3)
+
+                        enum ThingsToCount {
+                            TWO
+                            THREE
+                            SEVEN
+                        }
+
+                        interface Bug @someDirective {
+                            name: Name
+                            bugId: ID!
+                        }
+
+                        directive @someDirective(y: Int) on INTERFACE
+                    "#,
+                    SourceLocationKey::generated(),
+                )
+                .unwrap(),
+                false,
+            )
+            .unwrap();
+
+        // Part 3 - Client: client directive, extend Bug, extend Toad, extend Frog
+        schema
+            .merge_sdl_document(
+                &parse_schema_document(
+                    r#"
+                        directive @someClientDirective on INTERFACE
+
+                        extend interface Bug @someClientDirective {
+                            bugId: ID!
+                        }
+
+                        extend type Toad implements Bug {
+                            bugId: ID!
+                        }
+
+                        extend type Frog {
+                            otherName: String
+                        }
+                    "#,
+                    SourceLocationKey::generated(),
+                )
+                .unwrap(),
+                true,
+            )
+            .unwrap();
+
+        // Part 4 - Base: Amphibian also implements HasShortName
+        schema
+            .merge_sdl_document(
+                &parse_schema_document(
+                    r#"
+                        interface Amphibian implements HasShortName {
+                            shortName: String!
+                        }
+                    "#,
+                    SourceLocationKey::generated(),
+                )
+                .unwrap(),
+                false,
+            )
+            .unwrap();
+
+        schema.fix_all_types().unwrap();
+
+        let (base, client) = schema.printed_base_and_client_schema().unwrap();
+
+        let expected_base = indoc::indoc! {r#"
+            directive @someDirective(x: String, y: Int) on OBJECT | INTERFACE
+
+            scalar Point @someDirective(y: 3)
+
+            enum ThingsToCount {
+              EIGHT
+              ONE
+              SEVEN
+              THREE
+              TWO
+            }
+
+            type Frog implements Amphibian & HasShortName @someDirective {
+              bugId: ID!
+              frogName: Name
+              name: Name
+              shortName: String!
+            }
+
+            type Name implements HasShortName {
+              shortName: String
+            }
+
+            type Query {
+              name: String
+            }
+
+            type Toad implements HasShortName {
+              name: Name
+              shortName: String
+            }
+
+            interface Amphibian implements HasShortName {
+              name: Name
+              shortName: String!
+            }
+
+            interface Bug @someDirective {
+              bugId: ID!
+              name: Name
+            }
+
+            interface HasShortName {
+              shortName: String
+            }
+
+            union Many =
+              | Name
+              | Query
+        "#};
+
+        let expected_client = indoc::indoc! {r#"
+            directive @someClientDirective on INTERFACE
+
+            extend type Frog implements Bug {
+              otherName: String
+            }
+
+            extend type Query {
+              extension: Int
+            }
+
+            extend type Toad implements Bug {
+              bugId: ID!
+            }
+
+            extend interface Bug @someClientDirective
+        "#};
+
+        assert_eq!(base, expected_base);
+        assert_eq!(client, expected_client);
     }
 }

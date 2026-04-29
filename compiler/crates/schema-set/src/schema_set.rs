@@ -1089,6 +1089,12 @@ pub trait HasDescription {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::VecDeque;
+
+    use common::SourceLocationKey;
+    use graphql_syntax::parse_schema_document;
+    use indoc::indoc;
+
     use super::*;
 
     // Testing fix_all_types
@@ -1098,5 +1104,524 @@ mod tests {
         schema.fix_all_types().unwrap();
         assert!(schema.root_schema.is_empty());
         assert!(schema.types.is_empty());
+    }
+
+    /// Ported from graphql_build_infra/schema_set/tests/merge_schemas/
+    /// Tests merge_sdl_document, fix_all_types, and printed_base_and_client_schema
+    /// across multiple schema parts with both base and client schemas.
+    #[test]
+    fn test_merge_schemas() {
+        let fixture_content = indoc! {r#"
+            # Schema-Part
+            # PART 1
+
+            type Query {
+              name: String
+            }
+
+            enum ThingsToCount {
+              ONE
+              THREE
+              EIGHT
+            }
+
+            type Name implements HasShortName {
+              short_name: String
+            }
+
+            # Client-Schema
+
+            extend type Query {
+              extension: Int
+            }
+
+            extend type Frog implements HasShortName & Bug
+
+            # Schema-Part
+            # PART 2
+
+            type Frog implements HasShortName @some_directive {
+              frog_name: Name
+              short_name: String!
+            }
+
+            type Toad implements HasShortName
+
+            interface HasShortName {
+              short_name: String
+            }
+
+            type Name implements HasShortName {
+              short_name: String!
+            }
+            scalar Point
+
+            enum ThingsToCount
+
+            directive @some_directive(x: String) on OBJECT
+
+            # Schema-Part
+            # PART 3
+
+            type Frog implements Amphibian
+
+            union Many = Name | Query
+
+            interface Amphibian {
+              name: Name
+            }
+
+            scalar Point @some_directive(y: 3)
+
+            enum ThingsToCount {
+              TWO
+              THREE
+              SEVEN
+            }
+
+            interface Bug implements INotPresent @some_directive {
+              name: Name
+              bug_id: ID!
+            }
+
+            directive @some_directive(y: Int) on INTERFACE
+
+            # Client-Schema
+
+            directive @some_client_directive on INTERFACE
+
+            extend interface Bug @some_client_directive {
+              bug_id: ID!
+            }
+
+            extend type Toad implements Bug {
+              bug_id: ID!
+            }
+
+            extend type Frog {
+              other_name: String
+            }
+
+            # Schema-Part
+            # PART 4
+
+            interface Amphibian implements HasShortName {
+              short_name: String!
+            }
+        "#};
+
+        let mut merging_schema = SchemaSet::new();
+
+        let library_schemas = fixture_content
+            .split("# Schema-Part")
+            .filter(|x| !x.trim().is_empty())
+            .collect::<Vec<_>>();
+
+        let mut part_number = 1;
+        for both_schemas in library_schemas {
+            let mut split_schemas = both_schemas
+                .split("# Client-Schema")
+                .collect::<VecDeque<_>>();
+            if let Some(base_schema) = split_schemas.pop_front() {
+                if !base_schema.trim().is_empty() {
+                    let base_source_location = SourceLocationKey::standalone(&format!(
+                        "merge-schemas_Part-{}_base",
+                        part_number
+                    ));
+                    let base_document =
+                        parse_schema_document(base_schema, base_source_location).unwrap();
+                    merging_schema
+                        .merge_sdl_document(&base_document, false)
+                        .unwrap();
+                }
+            }
+            if let Some(client_schema) = split_schemas.pop_front() {
+                if !client_schema.trim().is_empty() {
+                    let client_source_location = SourceLocationKey::standalone(&format!(
+                        "merge-schemas_Part-{}_client",
+                        part_number
+                    ));
+                    let client_document =
+                        parse_schema_document(client_schema, client_source_location).unwrap();
+                    merging_schema
+                        .merge_sdl_document(&client_document, true)
+                        .unwrap();
+                }
+            }
+            part_number += 1;
+        }
+
+        merging_schema.fix_all_types().unwrap();
+
+        let (printed_base_schema, printed_client_schema) =
+            merging_schema.printed_base_and_client_schema().unwrap();
+
+        // Verify the result can be parsed back as a valid schema
+        schema::build_schema_with_extensions_parallel(
+            &[(&printed_base_schema, SourceLocationKey::generated())],
+            &[(&printed_client_schema, SourceLocationKey::generated())],
+        )
+        .expect("Merged schema should be parseable");
+
+        // Verify expected base schema output
+        let expected_base = indoc! {r#"
+            directive @some_directive(x: String, y: Int) on OBJECT | INTERFACE
+
+            scalar Point @some_directive(y: 3)
+
+            enum ThingsToCount {
+              EIGHT
+              ONE
+              SEVEN
+              THREE
+              TWO
+            }
+
+            type Frog implements Amphibian & HasShortName @some_directive {
+              bug_id: ID!
+              frog_name: Name
+              name: Name
+              short_name: String!
+            }
+
+            type Name implements HasShortName {
+              short_name: String
+            }
+
+            type Query {
+              name: String
+            }
+
+            type Toad implements HasShortName {
+              name: Name
+              short_name: String
+            }
+
+            interface Amphibian implements HasShortName {
+              name: Name
+              short_name: String!
+            }
+
+            interface Bug @some_directive {
+              bug_id: ID!
+              name: Name
+            }
+
+            interface HasShortName {
+              short_name: String
+            }
+
+            union Many =
+              | Name
+              | Query
+        "#};
+
+        let expected_client = indoc! {r#"
+            directive @some_client_directive on INTERFACE
+
+            extend type Frog implements Bug {
+              other_name: String
+            }
+
+            extend type Query {
+              extension: Int
+            }
+
+            extend type Toad implements Bug {
+              bug_id: ID!
+            }
+
+            extend interface Bug @some_client_directive
+        "#};
+
+        assert_eq!(
+            printed_base_schema.trim(),
+            expected_base.trim(),
+            "Base schema mismatch.\nActual:\n{}\nExpected:\n{}",
+            printed_base_schema,
+            expected_base,
+        );
+
+        assert_eq!(
+            printed_client_schema.trim(),
+            expected_client.trim(),
+            "Client schema mismatch.\nActual:\n{}\nExpected:\n{}",
+            printed_client_schema,
+            expected_client,
+        );
+    }
+
+    fn set_from_sdl(sdl: &str) -> SchemaSet {
+        SchemaSet::from_schema_documents(&[parse_schema_document(
+            sdl,
+            SourceLocationKey::generated(),
+        )
+        .unwrap()])
+        .unwrap()
+    }
+
+    // --- is_empty ---
+
+    #[test]
+    fn test_is_empty_new() {
+        assert!(SchemaSet::new().is_empty());
+    }
+
+    #[test]
+    fn test_is_empty_with_type() {
+        let set = set_from_sdl("type Foo { id: ID! }");
+        assert!(!set.is_empty());
+    }
+
+    // --- from_schema_documents ---
+
+    #[test]
+    fn test_from_schema_documents_single() {
+        let doc = parse_schema_document(
+            "type Query { name: String }",
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        let set = SchemaSet::from_schema_documents(&[doc]).unwrap();
+        assert!(!set.is_empty());
+        assert!(set.types.contains_key(&"Query".intern()));
+    }
+
+    #[test]
+    fn test_from_schema_documents_multiple() {
+        let doc1 = parse_schema_document(
+            "type Query { name: String }",
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        let doc2 =
+            parse_schema_document("type User { id: ID! }", SourceLocationKey::generated()).unwrap();
+        let set = SchemaSet::from_schema_documents(&[doc1, doc2]).unwrap();
+        assert!(set.types.contains_key(&"Query".intern()));
+        assert!(set.types.contains_key(&"User".intern()));
+    }
+
+    // --- union_set ---
+
+    #[test]
+    fn test_union_set() {
+        let a = set_from_sdl("type Foo { id: ID! }");
+        let b = set_from_sdl("type Bar { name: String }");
+        let empty_directives = intern::string_key::StringKeySet::default();
+        let union = a.union_set(&b, &empty_directives).unwrap();
+        assert!(union.types.contains_key(&"Foo".intern()));
+        assert!(union.types.contains_key(&"Bar".intern()));
+    }
+
+    #[test]
+    fn test_union_set_with_overlapping_types() {
+        let a = set_from_sdl("type Foo { id: ID! }");
+        let b = set_from_sdl("type Foo { name: String }");
+        let empty_directives = intern::string_key::StringKeySet::default();
+        let union = a.union_set(&b, &empty_directives).unwrap();
+        // Foo should be merged with both fields
+        assert!(union.types.contains_key(&"Foo".intern()));
+        if let SetType::Object(obj) = union.types.get(&"Foo".intern()).unwrap() {
+            assert!(
+                obj.fields.contains_key(&"id".intern()),
+                "Should contain id field"
+            );
+            assert!(
+                obj.fields.contains_key(&"name".intern()),
+                "Should contain name field"
+            );
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    // --- exclude_set ---
+
+    #[test]
+    fn test_exclude_set() {
+        let a = set_from_sdl("type Foo { id: ID! } type Bar { name: String }");
+        let b = set_from_sdl("type Foo { id: ID! }");
+        let empty_directives = intern::string_key::StringKeySet::default();
+        let excluded = a.exclude_set(&b, &empty_directives, &empty_directives);
+        // Foo should be excluded, Bar should remain
+        assert!(!excluded.types.contains_key(&"Foo".intern()));
+        assert!(excluded.types.contains_key(&"Bar".intern()));
+    }
+
+    // --- intersect_set ---
+
+    #[test]
+    fn test_intersect_set() {
+        let a = set_from_sdl("type Foo { id: ID! } type Bar { name: String }");
+        let b = set_from_sdl("type Foo { id: ID! } type Baz { age: Int }");
+        let empty_directives = intern::string_key::StringKeySet::default();
+        let intersected = a.intersect_set(&b, &empty_directives).unwrap();
+        // Only Foo should be in the intersection
+        assert!(
+            intersected.types.contains_key(&"Foo".intern()),
+            "Foo should be in intersection"
+        );
+        assert!(
+            !intersected.types.contains_key(&"Bar".intern()),
+            "Bar should not be in intersection"
+        );
+        assert!(
+            !intersected.types.contains_key(&"Baz".intern()),
+            "Baz should not be in intersection"
+        );
+    }
+
+    // --- add_or_merge_type ---
+
+    #[test]
+    fn test_add_or_merge_type_new() {
+        let mut set = SchemaSet::new();
+        let obj = SetType::Object(SetObject::default("Foo".intern()));
+        set.add_or_merge_type(obj).unwrap();
+        assert!(set.types.contains_key(&"Foo".intern()));
+    }
+
+    #[test]
+    fn test_add_or_merge_type_existing() {
+        let mut set = set_from_sdl("type Foo { id: ID! }");
+        let additional = set_from_sdl("type Foo { name: String }");
+        let foo_type = additional.types.get(&"Foo".intern()).unwrap().clone();
+        set.add_or_merge_type(foo_type).unwrap();
+        if let SetType::Object(obj) = set.types.get(&"Foo".intern()).unwrap() {
+            assert!(obj.fields.contains_key(&"id".intern()));
+            assert!(obj.fields.contains_key(&"name".intern()));
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    // --- merge_type_system_definition ---
+
+    #[test]
+    fn test_merge_type_system_definition_object() {
+        let mut set = SchemaSet::new();
+        let doc = parse_schema_document(
+            "type Query { name: String }",
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        for def in &doc.definitions {
+            set.merge_type_system_definition(def, SourceLocationKey::generated(), false)
+                .unwrap();
+        }
+        assert!(set.types.contains_key(&"Query".intern()));
+    }
+
+    #[test]
+    fn test_merge_type_system_definition_directive() {
+        let mut set = SchemaSet::new();
+        let doc = parse_schema_document("directive @foo on OBJECT", SourceLocationKey::generated())
+            .unwrap();
+        for def in &doc.definitions {
+            set.merge_type_system_definition(def, SourceLocationKey::generated(), false)
+                .unwrap();
+        }
+        assert!(set.directives.contains_key(&"foo".intern()));
+    }
+
+    // --- fix_all_types ---
+
+    #[test]
+    fn test_fix_all_types_sets_default_query() {
+        let mut set = set_from_sdl("type Query { name: String }");
+        set.fix_all_types().unwrap();
+        assert_eq!(set.root_schema.query_type, Some("Query".intern()));
+    }
+
+    #[test]
+    fn test_fix_all_types_removes_unknown_interfaces() {
+        let mut set = set_from_sdl(indoc! {r#"
+            type Foo implements UnknownInterface {
+              id: ID!
+            }
+        "#});
+        set.fix_all_types().unwrap();
+        if let SetType::Object(obj) = set.types.get(&"Foo".intern()).unwrap() {
+            assert!(
+                obj.interfaces.is_empty(),
+                "Unknown interface should be removed"
+            );
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    #[test]
+    fn test_fix_all_types_propagates_interface_fields() {
+        let mut set = set_from_sdl(indoc! {r#"
+            interface HasName {
+              name: String
+            }
+            type User implements HasName {
+              id: ID!
+            }
+        "#});
+        set.fix_all_types().unwrap();
+        if let SetType::Object(obj) = set.types.get(&"User".intern()).unwrap() {
+            assert!(
+                obj.fields.contains_key(&"name".intern()),
+                "Interface field 'name' should be propagated to User. Fields: {:?}",
+                obj.fields.keys().collect::<Vec<_>>()
+            );
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    #[test]
+    fn test_fix_all_types_removes_unknown_union_members() {
+        let mut set = set_from_sdl(indoc! {r#"
+            type Cat { name: String }
+            union Animal = Cat | NonExistent
+        "#});
+        set.fix_all_types().unwrap();
+        if let SetType::Union(u) = set.types.get(&"Animal".intern()).unwrap() {
+            assert!(u.members.contains_key(&"Cat".intern()));
+            assert!(
+                !u.members.contains_key(&"NonExistent".intern()),
+                "Non-existent members should be removed"
+            );
+        } else {
+            panic!("Expected Union type");
+        }
+    }
+
+    // --- fix_all_types_with_schema ---
+
+    #[test]
+    fn test_fix_all_types_with_schema() {
+        let original = set_from_sdl(indoc! {r#"
+            interface HasName {
+              name: String
+            }
+            type User implements HasName {
+              id: ID!
+              name: String
+            }
+        "#});
+
+        let mut subset = set_from_sdl(indoc! {r#"
+            interface HasName {
+              name: String
+            }
+            type User implements HasName {
+              id: ID!
+            }
+        "#});
+
+        subset.fix_all_types_with_schema(&original).unwrap();
+        if let SetType::Object(obj) = subset.types.get(&"User".intern()).unwrap() {
+            assert!(
+                obj.fields.contains_key(&"name".intern()),
+                "Interface field 'name' should be added from HasName"
+            );
+        } else {
+            panic!("Expected Object type");
+        }
     }
 }

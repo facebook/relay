@@ -1894,6 +1894,36 @@ query RelayMockPayloadGeneratorTest40Query {
 }
 `;
 
+exports[`with @relay_test_operation generate mock for enum in arrays with default values 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest70Query {
+  node(id: "my-id") {
+    __typename
+    ... on User {
+      id
+      traits
+    }
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "traits": [
+        "CHEERFUL",
+        "DERISIVE",
+        "HELPFUL",
+        "SNARKY"
+      ]
+    }
+  }
+}
+`;
+
 exports[`with @relay_test_operation generate mock for enum with different case should be OK 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest39Query {

@@ -136,7 +136,7 @@ Finally we can start defining the data we want to fetch and build our UI. Our ap
 ```tsx title="src/App.tsx"
 import { AppQuery } from "./__generated__/AppQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
-import Film from "./Film";
+import Film from "./Film.tsx";
 
 export default function App() {
   const data = useLazyLoadQuery<AppQuery>(

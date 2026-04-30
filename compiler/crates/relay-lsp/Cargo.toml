@@ -19,7 +19,7 @@ path = "tests/type_information_test.rs"
 [dependencies]
 common = { path = "../common" }
 crossbeam = "0.8"
-dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
+dashmap = { version = "6.1.0", features = ["rayon", "serde"] }
 docblock-shared = { path = "../docblock-shared" }
 docblock-syntax = { path = "../docblock-syntax" }
 dunce = "1.0.5"

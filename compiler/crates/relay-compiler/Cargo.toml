@@ -33,7 +33,7 @@ async-trait = "0.1.86"
 bincode = { version = "2", features = ["serde"] }
 common = { path = "../common" }
 common-path = "1.0.0"
-dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
+dashmap = { version = "6.1.0", features = ["rayon", "serde"] }
 dependency-analyzer = { path = "../dependency-analyzer" }
 docblock-shared = { path = "../docblock-shared" }
 docblock-syntax = { path = "../docblock-syntax" }

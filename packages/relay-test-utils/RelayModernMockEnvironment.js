@@ -90,6 +90,27 @@ type OperationMockResolver = (
   operation: OperationDescriptor,
 ) => ?GraphQLSingularResponse | ?Error;
 
+type PersistentOperationMockResolver = {
+  +resolver: OperationMockResolver,
+  +persistent: true,
+};
+
+type OperationMockResolverInput =
+  | OperationMockResolver
+  | PersistentOperationMockResolver;
+
+type NormalizedOperationMockResolver = {
+  +resolver: OperationMockResolver,
+  +persistent: boolean,
+};
+
+type MockEnvironmentConfig = {
+  ...Partial<EnvironmentConfig>,
+  +mockConfig?: {
+    +defaultPersistentResolvers?: boolean,
+  },
+};
+
 type MockFunctions = {
   +clearCache: () => void,
   +cachePayload: (
@@ -132,7 +153,8 @@ type MockFunctions = {
   +rejectMostRecentOperation: (
     error: Error | ((operation: OperationDescriptor) => Error),
   ) => void,
-  +queueOperationResolver: (resolver: OperationMockResolver) => void,
+  +queueOperationResolver: (resolver: OperationMockResolverInput) => void,
+  +clearOperationResolvers: () => void,
 };
 
 interface MockEnvironment {
@@ -179,13 +201,17 @@ export interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}
  *   with a specific error
  */
 function createMockEnvironment(
-  config?: Partial<EnvironmentConfig>,
+  config?: MockEnvironmentConfig,
 ): RelayMockEnvironment {
   const store = config?.store ?? new Store(new RecordSource());
   const cache = new QueryResponseCache({
     size: MAX_SIZE,
     ttl: MAX_TTL,
   });
+
+  const mockConfig = config?.mockConfig;
+  const defaultPersistentResolvers =
+    mockConfig?.defaultPersistentResolvers ?? false;
 
   let pendingRequests: ReadonlyArray<PendingRequest> = [];
   let pendingOperations: ReadonlyArray<OperationDescriptor> = [];
@@ -199,10 +225,18 @@ function createMockEnvironment(
     );
     pendingOperations = pendingOperations.concat([operationDescriptor]);
   };
-  let resolversQueue: ReadonlyArray<OperationMockResolver> = [];
+  let resolversQueue: ReadonlyArray<NormalizedOperationMockResolver> = [];
 
-  const queueOperationResolver = (resolver: OperationMockResolver): void => {
-    resolversQueue = resolversQueue.concat([resolver]);
+  const queueOperationResolver = (input: OperationMockResolverInput): void => {
+    const normalized: NormalizedOperationMockResolver =
+      typeof input === 'function'
+        ? {resolver: input, persistent: defaultPersistentResolvers}
+        : {resolver: input.resolver, persistent: input.persistent};
+    resolversQueue = resolversQueue.concat([normalized]);
+  };
+
+  const clearOperationResolvers = (): void => {
+    resolversQueue = [];
   };
 
   // Mock the network layer
@@ -234,10 +268,15 @@ function createMockEnvironment(
 
     // Handle network responses added by
     if (currentOperation != null && resolversQueue.length > 0) {
-      const currentResolver = resolversQueue[0];
-      const result = currentResolver(currentOperation);
+      const currentResolverEntry = resolversQueue[0];
+      const result = currentResolverEntry.resolver(currentOperation);
       if (result != null) {
-        resolversQueue = resolversQueue.filter(res => res !== currentResolver);
+        // Only remove if not persistent
+        if (!currentResolverEntry.persistent) {
+          resolversQueue = resolversQueue.filter(
+            res => res !== currentResolverEntry,
+          );
+        }
         pendingOperations = pendingOperations.filter(
           op => op !== currentOperation,
         );
@@ -546,6 +585,7 @@ function createMockEnvironment(
       return pendingOperations;
     },
     queueOperationResolver,
+    clearOperationResolvers,
   };
 
   // $FlowExpectedError[cannot-write]
@@ -593,6 +633,7 @@ function createMockEnvironment(
     cache.clear();
     pendingOperations = [];
     pendingRequests = [];
+    resolversQueue = [];
   };
 
   return environment;

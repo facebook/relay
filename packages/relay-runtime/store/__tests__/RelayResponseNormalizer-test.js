@@ -2696,13 +2696,13 @@ describe('RelayResponseNormalizer', () => {
     // because both fields traverse the same scalar-field warning path in
     // _normalizeField (no abstract-type discrimination is involved when
     // the parent is a concrete User), so the bug surface is identical.
-    const SkipFragment = graphql`
+    graphql`
       fragment RelayResponseNormalizerTest5119SkipFragment on User
       @argumentDefinitions(skip: {type: "Boolean!"}) {
         firstName @skip(if: $skip)
       }
     `;
-    const NoSkipFragment = graphql`
+    graphql`
       fragment RelayResponseNormalizerTest5119NoSkipFragment on User {
         firstName
       }

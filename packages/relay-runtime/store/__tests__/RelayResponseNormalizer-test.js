@@ -2681,6 +2681,74 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
+  it('warns without identifying source query when @skip omits a field selected by a sibling fragment (#5119)', () => {
+    // Regression test for facebook/relay#5119 — currently demonstrates
+    // buggy behavior; flip assertion when the underlying bug is fixed.
+    //
+    // Scenario from the issue: when two fragments in the same query
+    // select the same field but only one of them gates the selection
+    // with @skip(if: $skip), and the response payload omits that field
+    // (because it was generated against the @skip path), the normalizer
+    // emits a Warning that does not identify the originating query.
+    //
+    // The reporter notes this is "especially difficult to debug" when
+    // the skipped field is __typename. This test uses `firstName` instead
+    // because both fields traverse the same scalar-field warning path in
+    // _normalizeField (no abstract-type discrimination is involved when
+    // the parent is a concrete User), so the bug surface is identical.
+    const SkipFragment = graphql`
+      fragment RelayResponseNormalizerTest5119SkipFragment on User
+      @argumentDefinitions(skip: {type: "Boolean!"}) {
+        firstName @skip(if: $skip)
+      }
+    `;
+    const NoSkipFragment = graphql`
+      fragment RelayResponseNormalizerTest5119NoSkipFragment on User {
+        firstName
+      }
+    `;
+    const Query = graphql`
+      query RelayResponseNormalizerTest5119Query($id: ID, $skip: Boolean!) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            ...RelayResponseNormalizerTest5119SkipFragment
+              @arguments(skip: $skip)
+              @dangerously_unaliased_fixme
+            ...RelayResponseNormalizerTest5119NoSkipFragment
+              @dangerously_unaliased_fixme
+          }
+        }
+      }
+    `;
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        // firstName intentionally omitted to simulate the @skip-path response
+      },
+    };
+    const recordSource = new RelayRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    expectToWarn(
+      'RelayResponseNormalizer: Payload did not contain a value for ' +
+        'field `firstName: firstName`. Check that you are parsing with the same query that ' +
+        'was used to fetch the payload.',
+      () => {
+        normalize(
+          recordSource,
+          createNormalizationSelector(Query.operation, ROOT_ID, {
+            id: '1',
+            skip: true,
+          }),
+          payload,
+          defaultOptions,
+        );
+      },
+    );
+  });
+
   it('does not warn in __DEV__ if payload data is missing for an abstract field', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest21Query {

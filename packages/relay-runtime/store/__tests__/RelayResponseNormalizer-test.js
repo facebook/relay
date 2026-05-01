@@ -2554,35 +2554,6 @@ describe('RelayResponseNormalizer', () => {
           },
         });
       });
-
-      // Regression test for facebook/relay#5056 — currently demonstrates
-      // buggy behavior; flip assertion when the underlying bug is fixed.
-      // The reported schema shape is `[[MyType!]!]!` where the inner type is
-      // an abstract (interface/union). The test schema does not model nested
-      // lists, so this test instead sends a doubly-nested payload to a plain
-      // plural-of-abstract field (`User.actors: [Actor]`). That exercises the
-      // same `_normalizePluralLink` → `_getRecordType` runtime path described
-      // in #5056: the inner "item" is itself an array, so `_getRecordType`
-      // receives an array and fails with an unhelpful Invariant Violation.
-      it('throws when a plural-of-abstract field receives a nested-array payload (#5056)', () => {
-        const malformedPayload = {
-          node: {
-            id: '1',
-            __typename: 'User',
-            actors: [[{id: '2', __typename: 'Page'}]],
-          },
-        };
-        const recordSource = new RelayRecordSource();
-        recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-        expect(() =>
-          normalize(
-            recordSource,
-            createNormalizationSelector(BarQuery.operation, ROOT_ID, {id: '1'}),
-            malformedPayload,
-            defaultOptions,
-          ),
-        ).toThrow(/Expected a typename for record `\[/);
-      });
     });
   });
 
@@ -2664,6 +2635,49 @@ describe('RelayResponseNormalizer', () => {
         'node(id:"4")': {__ref: '4'},
       },
     });
+  });
+
+  // Regression test for facebook/relay#5056 — currently demonstrates
+  // buggy behavior; flip assertion when the underlying bug is fixed.
+  // The reported schema shape is `[[MyType!]!]!` where the inner type is
+  // an abstract (interface/union). The test schema does not model nested
+  // lists, so this test instead sends a doubly-nested payload to a plain
+  // plural-of-abstract field (`User.actors: [Actor]`). That exercises the
+  // same `_normalizePluralLink` → `_getRecordType` runtime path described
+  // in #5056: the inner "item" is itself an array, so `_getRecordType`
+  // receives an array and fails with an unhelpful Invariant Violation.
+  it('throws when a plural-of-abstract field receives a nested-array payload (#5056)', () => {
+    const Query = graphql`
+      query RelayResponseNormalizerTest5056Query($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            actors {
+              id
+              __typename
+            }
+          }
+        }
+      }
+    `;
+    const malformedPayload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        actors: [[{id: '2', __typename: 'Page'}]],
+      },
+    };
+    const recordSource = new RelayRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    expect(() =>
+      normalize(
+        recordSource,
+        createNormalizationSelector(Query.operation, ROOT_ID, {id: '1'}),
+        malformedPayload,
+        defaultOptions,
+      ),
+    ).toThrow(/Expected a typename for record `\[/);
   });
 
   it('warns in __DEV__ if payload data is missing an expected field', () => {

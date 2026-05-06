@@ -2380,6 +2380,7 @@ name = "schema-set"
 version = "0.0.0"
 dependencies = [
  "common",
+ "errors",
  "graphql-ir",
  "graphql-syntax",
  "indoc",

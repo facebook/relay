@@ -2222,16 +2222,25 @@ describe('Plural linked field selected on both a concrete selection and an abstr
   // `generateMockList`. The result is `[[e1,e2,e3], [e1,e2,e3], ...]`
   // instead of `[e1, e2, e3]`.
   //
+  // Scope: this test only covers the array-shape symptom. The related
+  // `mockData[TYPENAME_KEY] = selection.type` symptom from the issue's
+  // "Root Cause Analysis" (point #3 — abstract type forced onto already-
+  // generated concrete data) is a separate symptom and is not asserted
+  // here.
+  //
   // The OSS test schema does not naturally model a concrete-vs-abstract
   // return-type divergence on the same field name (every plural field
   // returning an interface returns the same `[Actor]` from both the
-  // interface and its implementers, so the compiler dedupes them). To
-  // mirror the issue's "Standalone Reproduction Script" exactly, this
-  // test hand-constructs a `ConcreteRequest` matching the AST shape from
-  // the issue body. `MockPayloadGenerator.generate` walks the AST and
-  // does not consult a schema, so the type names below need not exist in
-  // the test schema.
-  test('produces nested-array shape instead of a flat array', () => {
+  // interface and its implementers, so the compiler dedupes them — a
+  // schema-extension prototype with a divergent `[ConcreteEdge]` vs
+  // `[AbstractEdge]` interface implementation was tried and the compiler
+  // still folded the InlineFragment because the parent field's static
+  // type pinned the abstract narrowing). To mirror the issue's
+  // "Standalone Reproduction Script" exactly, this test hand-constructs
+  // a `ConcreteRequest` matching the AST shape from the issue body.
+  // `MockPayloadGenerator.generate` walks the AST and does not consult a
+  // schema, so the type names below need not exist in the test schema.
+  test('BUG: produces nested-array shape instead of a flat array (#5258)', () => {
     const request: $FlowFixMe = {
       kind: 'Request',
       fragment: {
@@ -2370,14 +2379,32 @@ describe('Plural linked field selected on both a concrete selection and an abstr
     const edges = (payload.data: any).items.edges;
     expect(Array.isArray(edges)).toBe(true);
     expect(edges).toHaveLength(3);
-    // BUG: each entry is the entire previous array instead of a single
-    // edge object. When the bug is fixed, replace the three assertions
-    // below with:
+    // BUG: each entry is the entire previous edges array (with extra
+    // `__typename`/`cursor` properties bolted onto the Array instance
+    // from the abstract InlineFragment pass) instead of a single edge
+    // object. The exact buggy shape is asserted with a strict structural
+    // match so any "improvement" (nested arrays collapsing partially,
+    // elements becoming single edges wrapped in an array, missing
+    // properties, etc.) breaks this test loudly. When the bug is fixed,
+    // replace the three deep assertions with the flat shape:
     //   expect(edges[0]).toEqual({__typename: 'ConcreteEdge', cursor: 'a'});
     //   expect(edges[1]).toEqual({__typename: 'ConcreteEdge', cursor: 'b'});
     //   expect(edges[2]).toEqual({__typename: 'ConcreteEdge', cursor: 'c'});
-    expect(Array.isArray(edges[0])).toBe(true);
-    expect(Array.isArray(edges[1])).toBe(true);
-    expect(Array.isArray(edges[2])).toBe(true);
+    const expectedBuggyEdges = [
+      {__typename: 'ConcreteEdge', cursor: 'a'},
+      {__typename: 'ConcreteEdge', cursor: 'b'},
+      {__typename: 'ConcreteEdge', cursor: 'c'},
+    ];
+    for (let i = 0; i < 3; i++) {
+      expect(Array.isArray(edges[i])).toBe(true);
+      expect(edges[i]).toHaveLength(3);
+      // The whole edges array gets repeated as each element.
+      expect(Array.from(edges[i])).toEqual(expectedBuggyEdges);
+      // Buggy second-pass also bolts the abstract path's own scalar
+      // fields onto the Array instance (taking the first generated
+      // edge's values).
+      expect(edges[i].__typename).toBe('ConcreteEdge');
+      expect(edges[i].cursor).toBe('a');
+    }
   });
 });

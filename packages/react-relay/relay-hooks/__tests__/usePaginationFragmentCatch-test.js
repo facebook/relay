@@ -108,3 +108,94 @@ test('@catch does not interfere with the hasNext value returned by usePagination
 
   expect(container?.container.textContent).toBe('Connection has more items');
 });
+
+test('@catch on the root of the fragment does not interfere with the hasNext value returned by usePaginationFragment', async () => {
+  const QUERY = graphql`
+    query usePaginationFragmentCatchTestRootCatchQuery(
+      $first: Int
+      $after: ID
+    ) {
+      me {
+        ...usePaginationFragmentCatchTestRootCatchFragment
+      }
+    }
+  `;
+
+  function MyComponent() {
+    const query = useLazyLoadQuery(QUERY, {});
+
+    const {hasNext} = usePaginationFragment(
+      graphql`
+        fragment usePaginationFragmentCatchTestRootCatchFragment on User
+        @catch
+        @refetchable(
+          queryName: "usePaginationFragmentCatchTestRootCatchRefetchableFragmentQuery"
+        ) {
+          friends(after: $after, first: $first)
+            @connection(
+              key: "usePaginationFragmentCatchTestRootCatchFragment__friends"
+            ) {
+            edges {
+              node {
+                __typename
+              }
+            }
+          }
+        }
+      `,
+      query.me,
+    );
+
+    return hasNext
+      ? 'Connection has more items'
+      : 'Connection has NO more items';
+  }
+
+  const environment = createMockEnvironment({});
+  function App() {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <Suspense fallback="Loading...">
+          <MyComponent />
+        </Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  let container = null;
+  await act(async () => {
+    container = ReactTestingLibrary.render(<App />);
+  });
+
+  expect(container?.container.textContent).toEqual('Loading...');
+
+  await act(async () => {
+    environment.mock.resolveMostRecentOperation({
+      data: {
+        me: {
+          id: '4',
+          __typename: 'User',
+          name: 'Christian',
+          friends: {
+            edges: [
+              {
+                __typename: 'FiendEdge',
+                cursor: 'cursor:0',
+                node: {
+                  id: '8',
+                  __typename: 'User',
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:1',
+              hasNextPage: true,
+            },
+          },
+        },
+      },
+    });
+  });
+
+  expect(container?.container.textContent).toBe('Connection has more items');
+});

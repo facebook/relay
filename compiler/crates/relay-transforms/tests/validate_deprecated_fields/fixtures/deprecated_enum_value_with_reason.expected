@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+fragment Foo on MyNewType {
+  some_field(status: LEGACY)
+}
+%extensions%
+enum Status {
+  ACTIVE
+  LEGACY @deprecated(reason: "Use ACTIVE instead.")
+}
+type MyNewType {
+  some_field(status: Status): String
+}
+==================================== OUTPUT ===================================
+ℹ The enum value `LEGACY` of type `Status` is deprecated. Deprecation reason: "Use ACTIVE instead."
+
+  deprecated_enum_value_with_reason.graphql:2:22
+    1 │ fragment Foo on MyNewType {
+    2 │   some_field(status: LEGACY)
+      │                      ^^^^^^
+    3 │ }

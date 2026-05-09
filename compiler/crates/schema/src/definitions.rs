@@ -695,6 +695,19 @@ pub struct EnumValue {
     pub description: Option<StringKey>,
 }
 
+impl EnumValue {
+    pub fn deprecated(&self) -> Option<Deprecation> {
+        self.directives
+            .named(*DIRECTIVE_DEPRECATED)
+            .map(|directive| Deprecation {
+                reason: directive
+                    .arguments
+                    .named(*ARGUMENT_REASON)
+                    .and_then(|reason| reason.value.get_string_literal()),
+            })
+    }
+}
+
 #[derive(
     Clone,
     Eq,

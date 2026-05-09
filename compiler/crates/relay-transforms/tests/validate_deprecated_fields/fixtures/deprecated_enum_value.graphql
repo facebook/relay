@@ -1,0 +1,11 @@
+fragment Foo on MyNewType {
+  some_field(status: LEGACY)
+}
+%extensions%
+enum Status {
+  ACTIVE
+  LEGACY @deprecated
+}
+type MyNewType {
+  some_field(status: Status): String
+}

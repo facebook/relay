@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type { GraphQLTaggedNode } from "../query/GraphQLTag";
-import type { ArrayKeyType, ArrayKeyTypeData, FragmentType, KeyType, KeyTypeData, SingularReaderSelector } from "./RelayStoreTypes";
+import type { GraphQLTaggedNode } from '../query/GraphQLTag';
+import type {ArrayKeyType, ArrayKeyTypeData, FragmentType, KeyType, KeyTypeData, SingularReaderSelector} from './RelayStoreTypes';
 
 export interface ResolverContext {
     getDataForResolverFragment: (

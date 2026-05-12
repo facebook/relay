@@ -10,6 +10,7 @@ license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
+errors = { path = "../errors" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 indoc = "2.0.2"

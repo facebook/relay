@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type { Handler } from "../../store/RelayStoreTypes";
+import type { Handler } from '../../store/RelayStoreTypes';
 
 export const MutationHandlers: {
     DeleteRecordHandler: Handler;

@@ -5,24 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { MutationParameters } from "../mutations/commitMutation";
-import { GraphQLResponse, PayloadData } from "../network/RelayNetworkTypes";
-import { RelayObservable } from "../network/RelayObservable";
+import { MutationParameters } from '../mutations/commitMutation';
+import {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
+import { RelayObservable } from '../network/RelayObservable';
 import {
-    Environment as IEnvironment,
-    ExecuteMutationConfig,
-    OperationAvailability,
-    OperationDescriptor,
-    OptimisticResponseConfig,
-    OptimisticUpdateFunction,
-    RecordSourceProxy,
-    SelectorStoreUpdater,
-    SingularReaderSelector,
-    Snapshot,
-    StoreUpdater,
-} from "../store/RelayStoreTypes";
-import { Disposable } from "../util/RelayRuntimeTypes";
-import { ActorIdentifier } from "./ActorIdentifier";
+  Environment as IEnvironment,
+  ExecuteMutationConfig,
+  OperationAvailability,
+  OperationDescriptor,
+  OptimisticResponseConfig,
+  OptimisticUpdateFunction,
+  RecordSourceProxy,
+  SelectorStoreUpdater,
+  SingularReaderSelector,
+  Snapshot,
+  StoreUpdater,
+} from '../store/RelayStoreTypes';
+import { Disposable } from '../util/RelayRuntimeTypes';
+import { ActorIdentifier } from './ActorIdentifier';
 
 export type MultiActorStoreUpdater = (
     actorIdentifier: ActorIdentifier,
@@ -173,7 +173,7 @@ export interface MultiActorEnvironment {
         actorEnvironment: ActorEnvironment,
         config: {
             operation: OperationDescriptor;
-            updater?: SelectorStoreUpdater<MutationParameters["response"]> | null;
+            updater?: SelectorStoreUpdater<MutationParameters['response']> | null;
         },
     ): RelayObservable<GraphQLResponse>;
 

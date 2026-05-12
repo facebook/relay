@@ -126,7 +126,7 @@ path = "tests/validate_static_args_test.rs"
 
 [dependencies]
 common = { path = "../common" }
-dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
+dashmap = { version = "6.1.0", features = ["rayon", "serde"] }
 docblock-shared = { path = "../docblock-shared" }
 errors = { path = "../errors" }
 fnv = "1.0"
@@ -134,7 +134,7 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-ir-validations = { path = "../graphql-ir-validations" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
-indexmap = { version = "2.13.0", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.14.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 itertools = "0.14.0"
 lazy_static = "1.5"

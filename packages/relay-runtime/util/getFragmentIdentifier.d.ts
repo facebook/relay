@@ -5,6 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ReaderFragment } from "./ReaderNode";
+import { ReaderFragment } from './ReaderNode';
 
 export default function getFragmentIdentifier(fragmentNode: ReaderFragment, fragmentRef: any): string;

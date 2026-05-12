@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { DataID } from "./util/RelayRuntimeTypes";
+import { DataID } from './util/RelayRuntimeTypes';
 
-export { resolverDataInjector } from "./store/live-resolvers/resolverDataInjector";
-export { observeFragment } from "./store/observeFragmentExperimental";
-export { observeQuery } from "./store/observeQueryExperimental";
-export { waitForFragmentData } from "./store/waitForFragmentExperimental";
+export { resolverDataInjector } from './store/live-resolvers/resolverDataInjector';
+export { observeFragment } from './store/observeFragmentExperimental';
+export { observeQuery } from './store/observeQueryExperimental';
+export { waitForFragmentData } from './store/waitForFragmentExperimental';
 
 export type IdOf<_A extends string, Typename extends undefined | string = undefined> = Typename extends undefined
     ? { id: DataID }

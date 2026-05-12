@@ -40,11 +40,13 @@ describe('NormalizationEngine', () => {
   function createEngine(
     query: ConcreteRequest,
     variables?: {[string]: unknown} = {},
+    config?: {operationLoader?: $FlowFixMe},
   ): NormalizationEngine {
     const operation = createOperationDescriptor(query, variables);
     return new NormalizationEngine({
       normalizeResponse,
       operation: operation.request.node.operation,
+      operationLoader: config?.operationLoader,
       variables: operation.request.variables,
     });
   }
@@ -65,14 +67,14 @@ describe('NormalizationEngine', () => {
       },
     });
 
-    expect(result.isPreNormalized).toBe(true);
-    expect(result.source).toBeDefined();
+    expect(result.payloads[0].isPreNormalized).toBe(true);
+    expect(result.payloads[0].source).toBeDefined();
 
     // Verify the source contains flat normalized records
-    const rootRecord = result.source.get('client:root');
+    const rootRecord = result.payloads[0].source.get('client:root');
     expect(rootRecord).toBeDefined();
 
-    const userRecord = result.source.get('1');
+    const userRecord = result.payloads[0].source.get('1');
     expect(userRecord).toBeDefined();
     // $FlowFixMe[prop-missing] - test internal record shape
     // $FlowFixMe[incompatible-use] - userRecord is checked above with toBeDefined
@@ -90,7 +92,7 @@ describe('NormalizationEngine', () => {
         me: {__typename: 'User', id: '1', name: 'Zuck'},
       },
     });
-    expect(resultNotFinal.isFinal).toBe(false);
+    expect(resultNotFinal.payloads[0].isFinal).toBe(false);
 
     const resultFinal = engine.processResponse({
       data: {
@@ -98,7 +100,7 @@ describe('NormalizationEngine', () => {
       },
       extensions: {is_final: true},
     });
-    expect(resultFinal.isFinal).toBe(true);
+    expect(resultFinal.payloads[0].isFinal).toBe(true);
   });
 
   // --------------------------------------------------------------------------
@@ -117,8 +119,8 @@ describe('NormalizationEngine', () => {
     // followupPayloads and incrementalPlaceholders are consumed by the
     // NormalizationEngine (for future @defer/@stream/@module handling)
     // and should be null on the output.
-    expect(result.followupPayloads).toBeNull();
-    expect(result.incrementalPlaceholders).toBeNull();
+    expect(result.payloads[0].followupPayloads).toBeNull();
+    expect(result.payloads[0].incrementalPlaceholders).toBeNull();
   });
 
   // --------------------------------------------------------------------------
@@ -141,9 +143,9 @@ describe('NormalizationEngine', () => {
       ],
     });
 
-    expect(result.isPreNormalized).toBe(true);
-    expect(result.errors).toBeDefined();
-    expect(result.errors?.length).toBeGreaterThan(0);
+    expect(result.payloads[0].isPreNormalized).toBe(true);
+    expect(result.payloads[0].errors).toBeDefined();
+    expect(result.payloads[0].errors?.length).toBeGreaterThan(0);
   });
 
   // --------------------------------------------------------------------------
@@ -161,6 +163,6 @@ describe('NormalizationEngine', () => {
     // fieldPayloads should be present (may be empty array for simple queries)
     // but should NOT be null — the NormalizationEngine passes them through
     // so OperationExecutor/PublishQueue can process handle fields.
-    expect(result.fieldPayloads).toBeDefined();
+    expect(result.payloads[0].fieldPayloads).toBeDefined();
   });
 });

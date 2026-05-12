@@ -5,4 +5,4 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export * from "./multi-actor-environment";
+export * from './multi-actor-environment';

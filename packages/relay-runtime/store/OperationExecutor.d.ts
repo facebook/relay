@@ -5,21 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { GraphQLResponse } from "../network/RelayNetworkTypes";
-import { RelayObservable, Sink } from "../network/RelayObservable";
-import { GetDataID } from "./RelayResponseNormalizer";
+import { GraphQLResponse } from '../network/RelayNetworkTypes';
+import {RelayObservable, Sink} from '../network/RelayObservable';
+import { GetDataID } from './RelayResponseNormalizer';
 import {
-    OperationDescriptor,
-    OperationLoader,
-    OperationTracker,
-    OptimisticResponseConfig,
-    PublishQueue,
-    ReactFlightPayloadDeserializer,
-    SelectorStoreUpdater,
-    Store,
-} from "./RelayStoreTypes";
+  OperationDescriptor,
+  OperationLoader,
+  OperationTracker,
+  OptimisticResponseConfig,
+  PublishQueue,
+  ReactFlightPayloadDeserializer,
+  SelectorStoreUpdater,
+  Store,
+} from './RelayStoreTypes';
 
-export type ActiveState = "active" | "inactive";
+export type ActiveState = 'active' | 'inactive';
 
 export interface ExecuteConfig {
     readonly getDataID: GetDataID;

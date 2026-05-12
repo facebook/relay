@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { RequestParameters } from "./RelayConcreteNode";
-import { Variables } from "./RelayRuntimeTypes";
+import { RequestParameters } from './RelayConcreteNode';
+import { Variables } from './RelayRuntimeTypes';
 
 export type RequestIdentifier = string;
 

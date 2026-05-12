@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { GraphQLTaggedNode, OperationType } from "relay-runtime";
-import { KeyType, KeyTypeData, RefetchFnDynamic } from "../ReactRelayTypes";
-import { LoadMoreFn } from "./useLoadMoreFunction";
+import {KeyType, KeyTypeData, RefetchFnDynamic} from '../ReactRelayTypes';
+import { LoadMoreFn } from './useLoadMoreFunction';
+import {GraphQLTaggedNode, OperationType} from 'relay-runtime';
 
 export interface usePaginationFragmentHookType<
     TQuery extends OperationType,
@@ -23,12 +23,10 @@ export interface usePaginationFragmentHookType<
     isLoadingPrevious: boolean;
     refetch: RefetchFnDynamic<TQuery, TKey>;
 }
-// eslint-disable-next-line @definitelytyped/no-unnecessary-generics
 export function usePaginationFragment<TQuery extends OperationType, TKey extends KeyType>(
     fragmentInput: GraphQLTaggedNode,
     parentFragmentRef: TKey,
 ): usePaginationFragmentHookType<TQuery, TKey, KeyTypeData<TKey>>;
-// eslint-disable-next-line @definitelytyped/no-unnecessary-generics
 export function usePaginationFragment<TQuery extends OperationType, TKey extends KeyType>(
     fragmentInput: GraphQLTaggedNode,
     parentFragmentRef: TKey | null | undefined,

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { DataID } from "../../util/RelayRuntimeTypes";
+import { DataID } from '../../util/RelayRuntimeTypes';
 
 export interface EdgeRecord extends Record<string, unknown> {
     cursor: unknown;

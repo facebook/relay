@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ReaderFragment, ReaderPaginationMetadata } from "./ReaderNode";
-import { ConcreteRequest } from "./RelayConcreteNode";
+import {ReaderFragment, ReaderPaginationMetadata} from './ReaderNode';
+import { ConcreteRequest } from './RelayConcreteNode';
 
 export default function getPaginationMetadata(
     fragmentNode: ReaderFragment,

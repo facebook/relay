@@ -5,16 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { NormalizationSelectableNode } from "../util/NormalizationNode";
-import { ReaderFragment } from "../util/ReaderNode";
-import { DataID, Variables } from "../util/RelayRuntimeTypes";
+import { NormalizationSelectableNode } from '../util/NormalizationNode';
+import { ReaderFragment } from '../util/ReaderNode';
+import {DataID, Variables} from '../util/RelayRuntimeTypes';
 import {
-    NormalizationSelector,
-    PluralReaderSelector,
-    ReaderSelector,
-    RequestDescriptor,
-    SingularReaderSelector,
-} from "./RelayStoreTypes";
+  NormalizationSelector,
+  PluralReaderSelector,
+  ReaderSelector,
+  RequestDescriptor,
+  SingularReaderSelector,
+} from './RelayStoreTypes';
 
 /**
  * Given the result `item` from a parent that fetched `fragment`, creates a

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Disposable } from "./RelayRuntimeTypes";
+import { Disposable } from './RelayRuntimeTypes';
 
 export interface FeatureFlags {
     ENABLE_VARIABLE_CONNECTION_KEY: boolean;

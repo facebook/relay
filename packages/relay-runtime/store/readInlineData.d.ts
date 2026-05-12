@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type { GraphQLTaggedNode } from "../query/GraphQLTag";
-import type { KeyType, KeyTypeData } from "./RelayStoreTypes";
+import type { GraphQLTaggedNode } from '../query/GraphQLTag';
+import type {KeyType, KeyTypeData} from './RelayStoreTypes';
 
 export function readInlineData<TKey extends KeyType>(
     fragmentInput: GraphQLTaggedNode,

@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type { GraphQLTaggedNode } from "../../query/GraphQLTag";
-import type { FragmentType } from "../RelayStoreTypes";
+import type { GraphQLTaggedNode } from '../../query/GraphQLTag';
+import type { FragmentType } from '../RelayStoreTypes';
 
 /**
  * This a higher order function that returns a relay resolver that can read the data for

@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { DisposeFn } from "relay-runtime";
-import { EnvironmentProviderOptions, GetEntryPointComponentFromEntryPoint, GetEntryPointParamsFromEntryPoint, IEnvironmentProvider, PreloadedEntryPoint } from "../ReactRelayTypes";
+import {EnvironmentProviderOptions, GetEntryPointComponentFromEntryPoint, GetEntryPointParamsFromEntryPoint, IEnvironmentProvider, PreloadedEntryPoint} from '../ReactRelayTypes';
+import { DisposeFn } from 'relay-runtime';
 
 export type UseEntryPointLoaderHookType<TEntryPoint> = [
     PreloadedEntryPoint<GetEntryPointComponentFromEntryPoint<TEntryPoint>> | null | undefined,

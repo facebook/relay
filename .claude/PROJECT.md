@@ -54,3 +54,7 @@ yarn lint                     # ESLint
 yarn prettier                 # Format code
 ./scripts/compile-test.js     # Update generated Relay artifacts for test files
 ```
+
+## Related LLM Resources (Relay Compiler / fbsource)
+
+For the Rust compiler and Meta-internal infrastructure, see `fbcode/relay/.claude/CLAUDE.md`. That directory also contains skills for debugging compiler builds, Meerkat, schema sync, and other oncall/infrastructure issues.

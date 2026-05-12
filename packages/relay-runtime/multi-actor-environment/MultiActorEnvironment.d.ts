@@ -5,35 +5,35 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { HandlerProvider } from "../handlers/RelayDefaultHandlerProvider";
-import { MutationParameters } from "../mutations/commitMutation";
-import { GraphQLResponse, Network, PayloadData } from "../network/RelayNetworkTypes";
-import { RelayObservable as Observable } from "../network/RelayObservable";
-import { TaskScheduler } from "../store/OperationExecutor";
-import { GetDataID } from "../store/RelayResponseNormalizer";
+import { HandlerProvider } from '../handlers/RelayDefaultHandlerProvider';
+import { MutationParameters } from '../mutations/commitMutation';
+import {GraphQLResponse, Network, PayloadData} from '../network/RelayNetworkTypes';
+import { RelayObservable as Observable } from '../network/RelayObservable';
+import { TaskScheduler } from '../store/OperationExecutor';
+import { GetDataID } from '../store/RelayResponseNormalizer';
 import {
-    ExecuteMutationConfig,
-    LogFunction,
-    MissingFieldHandler,
-    OperationAvailability,
-    OperationDescriptor,
-    OperationLoader,
-    OptimisticResponseConfig,
-    OptimisticUpdateFunction,
-    RelayFieldLogger,
-    SelectorStoreUpdater,
-    SingularReaderSelector,
-    Snapshot,
-    Store,
-    StoreUpdater,
-} from "../store/RelayStoreTypes";
-import { Disposable, RenderPolicy } from "../util/RelayRuntimeTypes";
-import { ActorIdentifier } from "./ActorIdentifier";
+  ExecuteMutationConfig,
+  LogFunction,
+  MissingFieldHandler,
+  OperationAvailability,
+  OperationDescriptor,
+  OperationLoader,
+  OptimisticResponseConfig,
+  OptimisticUpdateFunction,
+  RelayFieldLogger,
+  SelectorStoreUpdater,
+  SingularReaderSelector,
+  Snapshot,
+  Store,
+  StoreUpdater,
+} from '../store/RelayStoreTypes';
+import {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
+import { ActorIdentifier } from './ActorIdentifier';
 import {
-    ActorEnvironment,
-    MultiActorEnvironment as IMultiActorEnvironment,
-    MultiActorStoreUpdater,
-} from "./MultiActorEnvironmentTypes";
+  ActorEnvironment,
+  MultiActorEnvironment as IMultiActorEnvironment,
+  MultiActorStoreUpdater,
+} from './MultiActorEnvironmentTypes';
 
 export type MultiActorEnvironmentConfig = Readonly<{
     createConfigNameForActor?: ((actorIdentifier: ActorIdentifier) => string) | null;
@@ -103,7 +103,7 @@ export class MultiActorEnvironment implements IMultiActorEnvironment {
         actorEnvironment: ActorEnvironment,
         config: {
             operation: OperationDescriptor;
-            updater?: SelectorStoreUpdater<MutationParameters["response"]> | null | undefined;
+            updater?: SelectorStoreUpdater<MutationParameters['response']> | null | undefined;
         },
     ): Observable<GraphQLResponse>;
 

@@ -6,12 +6,12 @@
  */
 
 import {
-    HandleFieldPayload,
-    ReadOnlyRecordProxy,
-    RecordProxy,
-    RecordSourceProxy,
-} from "../../store/RelayStoreTypes";
-import { DataID, Variables } from "../../util/RelayRuntimeTypes";
+  HandleFieldPayload,
+  ReadOnlyRecordProxy,
+  RecordProxy,
+  RecordSourceProxy,
+} from '../../store/RelayStoreTypes';
+import {DataID, Variables} from '../../util/RelayRuntimeTypes';
 
 export interface ConnectionMetadata {
     path: readonly string[] | null | undefined;

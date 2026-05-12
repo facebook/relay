@@ -5,22 +5,30 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ConnectionInterface from "./handlers/connection/ConnectionInterface";
+import * as ConnectionHandler from './handlers/connection/ConnectionHandler';
+import ConnectionInterface from './handlers/connection/ConnectionInterface';
+// Extensions
+import RelayDefaultHandlerProvider from './handlers/RelayDefaultHandlerProvider';
+import QueryResponseCache from './network/RelayQueryResponseCache';
+import * as fetchQueryInternal from './query/fetchQueryInternal';
+import * as RelayResolverFragments from './store/ResolverFragments';
+import withProvidedVariables from './util/withProvidedVariables';
+
 export { ConnectionInterface };
-export { ConnectionMetadata } from "./handlers/connection/ConnectionHandler";
-export { EdgeRecord, PageInfo } from "./handlers/connection/ConnectionInterface";
-export { OptimisticMutationConfig } from "./mutations/applyOptimisticMutation";
-export { MutationConfig, MutationParameters } from "./mutations/commitMutation";
+export { ConnectionMetadata } from './handlers/connection/ConnectionHandler';
+export { EdgeRecord, PageInfo } from './handlers/connection/ConnectionInterface';
+export { OptimisticMutationConfig } from './mutations/applyOptimisticMutation';
+export { MutationConfig, MutationParameters } from './mutations/commitMutation';
 export {
     DeclarativeMutationConfig,
     MutationTypes,
     RangeBehaviors,
     RangeOperations,
-} from "./mutations/RelayDeclarativeMutationConfig";
+} from './mutations/RelayDeclarativeMutationConfig';
 export {
     MutationTypes as MutationType,
     RangeOperations as RangeOperation,
-} from "./mutations/RelayDeclarativeMutationConfig";
+} from './mutations/RelayDeclarativeMutationConfig';
 export {
     ExecuteFunction,
     FetchFunction,
@@ -38,8 +46,8 @@ export {
     SubscribeFunction,
     Uploadable,
     UploadableMap,
-} from "./network/RelayNetworkTypes";
-export { ObservableFromValue, Observer, Subscribable, Subscription } from "./network/RelayObservable";
+} from './network/RelayNetworkTypes';
+export { ObservableFromValue, Observer, Subscribable, Subscription } from './network/RelayObservable';
 export {
     getFragment,
     getInlineDataFragment,
@@ -52,10 +60,10 @@ export {
     isFragment,
     isInlineDataFragment,
     isRequest,
-} from "./query/GraphQLTag";
-export { generateClientID, generateUniqueClientID, isClientID } from "./store/ClientID";
-export { TaskScheduler } from "./store/OperationExecutor";
-export { RecordState } from "./store/RelayRecordState";
+} from './query/GraphQLTag';
+export { generateClientID, generateUniqueClientID, isClientID } from './store/ClientID';
+export { TaskScheduler } from './store/OperationExecutor';
+export { RecordState } from './store/RelayRecordState';
 export {
     Environment as IEnvironment,
     FragmentMap,
@@ -102,8 +110,8 @@ export {
     suspenseSentinel,
     UpdatableFragmentData,
     UpdatableQueryData,
-} from "./store/RelayStoreTypes";
-export { GraphQLSubscriptionConfig } from "./subscription/requestSubscription";
+} from './store/RelayStoreTypes';
+export { GraphQLSubscriptionConfig } from './subscription/requestSubscription';
 export {
     NormalizationArgument,
     NormalizationDefer,
@@ -120,7 +128,7 @@ export {
     NormalizationSplitOperation,
     NormalizationStream,
     NormalizationTypeDiscriminator,
-} from "./util/NormalizationNode";
+} from './util/NormalizationNode';
 export {
     ReaderArgument,
     ReaderArgumentDefinition,
@@ -140,31 +148,28 @@ export {
     ReaderScalarField,
     ReaderSelection,
     RequiredFieldAction,
-} from "./util/ReaderNode";
+} from './util/ReaderNode';
 export {
     ConcreteRequest,
     ConcreteUpdatableQuery,
     GeneratedNode,
     PreloadableConcreteRequest,
     RequestParameters,
-} from "./util/RelayConcreteNode";
-export { RelayReplaySubject as ReplaySubject } from "./util/RelayReplaySubject";
-export * from "./util/RelayRuntimeTypes";
-
+} from './util/RelayConcreteNode';
+export { RelayReplaySubject as ReplaySubject } from './util/RelayReplaySubject';
+export * from './util/RelayRuntimeTypes';
 // Core API
-export { RelayNetwork as Network } from "./network/RelayNetwork";
-export { RelayObservable as Observable } from "./network/RelayObservable";
-export { default as Environment, EnvironmentConfig } from "./store/RelayModernEnvironment";
-import QueryResponseCache from "./network/RelayQueryResponseCache";
+export { RelayNetwork as Network } from './network/RelayNetwork';
+export { RelayObservable as Observable } from './network/RelayObservable';
+export { default as Environment, EnvironmentConfig } from './store/RelayModernEnvironment';
 export { QueryResponseCache };
-export { RelayModernRecord as Record } from "./store/RelayModernRecord";
-export { default as Store } from "./store/RelayModernStore";
-export { RelayRecordSource as RecordSource } from "./store/RelayRecordSource";
-
-export { type IdOf, isErrorResult, isValueResult, type Result } from "./experimental";
-export { createFragmentSpecResolver } from "./store/createFragmentSpecResolver";
-export { readInlineData } from "./store/readInlineData";
-export { createOperationDescriptor, createRequestDescriptor } from "./store/RelayModernOperationDescriptor";
+export { RelayModernRecord as Record } from './store/RelayModernRecord';
+export { default as Store } from './store/RelayModernStore';
+export { RelayRecordSource as RecordSource } from './store/RelayRecordSource';
+export { type IdOf, isErrorResult, isValueResult, type Result } from './experimental';
+export { createFragmentSpecResolver } from './store/createFragmentSpecResolver';
+export { readInlineData } from './store/readInlineData';
+export { createOperationDescriptor, createRequestDescriptor } from './store/RelayModernOperationDescriptor';
 export {
     areEqualSelectors,
     createNormalizationSelector,
@@ -179,7 +184,7 @@ export {
     getVariablesFromObject,
     getVariablesFromPluralFragment,
     getVariablesFromSingularFragment,
-} from "./store/RelayModernSelector";
+} from './store/RelayModernSelector';
 export {
     FRAGMENT_OWNER_KEY,
     FRAGMENTS_KEY,
@@ -192,63 +197,50 @@ export {
     ROOT_ID,
     ROOT_TYPE,
     TYPENAME_KEY,
-} from "./store/RelayStoreUtils";
-export { readFragment } from "./store/ResolverFragments";
-
-// Extensions
-import RelayDefaultHandlerProvider from "./handlers/RelayDefaultHandlerProvider";
+} from './store/RelayStoreUtils';
+export { readFragment } from './store/ResolverFragments';
 export { RelayDefaultHandlerProvider as DefaultHandlerProvider };
-
-export declare function getDefaultMissingFieldHandlers(): import("./store/RelayStoreTypes").MissingFieldHandler[];
-import * as ConnectionHandler from "./handlers/connection/ConnectionHandler";
+export declare function getDefaultMissingFieldHandlers(): import('./store/RelayStoreTypes').MissingFieldHandler[];
 export { ConnectionHandler };
-export { MutationHandlers } from "./handlers/connection/MutationHandlers";
-export { VIEWER_ID, VIEWER_TYPE } from "./store/ViewerPattern";
-
+export { MutationHandlers } from './handlers/connection/MutationHandlers';
+export { VIEWER_ID, VIEWER_TYPE } from './store/ViewerPattern';
 // Helpers (can be implemented via the above API)
-export { applyOptimisticMutation } from "./mutations/applyOptimisticMutation";
-export { commitLocalUpdate } from "./mutations/commitLocalUpdate";
-export { commitMutation } from "./mutations/commitMutation";
-export { fetchQuery } from "./query/fetchQuery";
-export { fetchQuery_DEPRECATED } from "./query/fetchQuery_DEPRECATED";
-export { isRelayModernEnvironment } from "./store/isRelayModernEnvironment";
-export { requestSubscription } from "./subscription/requestSubscription";
-
+export { applyOptimisticMutation } from './mutations/applyOptimisticMutation';
+export { commitLocalUpdate } from './mutations/commitLocalUpdate';
+export { commitMutation } from './mutations/commitMutation';
+export { fetchQuery } from './query/fetchQuery';
+export { fetchQuery_DEPRECATED } from './query/fetchQuery_DEPRECATED';
+export { isRelayModernEnvironment } from './store/isRelayModernEnvironment';
+export { requestSubscription } from './subscription/requestSubscription';
 // Utilities
-export { default as createPayloadFor3DField } from "./util/createPayloadFor3DField";
-export { default as getFragmentIdentifier } from "./util/getFragmentIdentifier";
-export { default as getPaginationMetadata } from "./util/getPaginationMetadata";
-export { default as getPaginationVariables } from "./util/getPaginationVariables";
-export { Direction } from "./util/getPaginationVariables";
-export { default as getRefetchMetadata } from "./util/getRefetchMetadata";
-export { default as getRelayHandleKey } from "./util/getRelayHandleKey";
-export { default as getRequestIdentifier } from "./util/getRequestIdentifier";
-export { default as getValueAtPath } from "./util/getValueAtPath";
-export { default as handlePotentialSnapshotErrors } from "./util/handlePotentialSnapshotErrors";
+export { default as createPayloadFor3DField } from './util/createPayloadFor3DField';
+export { default as getFragmentIdentifier } from './util/getFragmentIdentifier';
+export { default as getPaginationMetadata } from './util/getPaginationMetadata';
+export { default as getPaginationVariables } from './util/getPaginationVariables';
+export { Direction } from './util/getPaginationVariables';
+export { default as getRefetchMetadata } from './util/getRefetchMetadata';
+export { default as getRelayHandleKey } from './util/getRelayHandleKey';
+export { default as getRequestIdentifier } from './util/getRequestIdentifier';
+export { default as getValueAtPath } from './util/getValueAtPath';
+export { default as handlePotentialSnapshotErrors } from './util/handlePotentialSnapshotErrors';
 export declare const PreloadableQueryRegistry: {
-    set(key: string, value: import("./util/RelayConcreteNode").ConcreteRequest): void;
-    get(key: string): import("./util/RelayConcreteNode").ConcreteRequest | null | undefined;
-    onLoad(key: string, callback: (concreteRequest: import("./util/RelayConcreteNode").ConcreteRequest) => void): import("./util/RelayRuntimeTypes").Disposable;
+    set(key: string, value: import('./util/RelayConcreteNode').ConcreteRequest): void;
+    get(key: string): import('./util/RelayConcreteNode').ConcreteRequest | null | undefined;
+    onLoad(key: string, callback: (concreteRequest: import('./util/RelayConcreteNode').ConcreteRequest) => void): import('./util/RelayRuntimeTypes').Disposable;
     clear(): void;
 };
-export { RelayProfiler } from "./util/RelayProfiler";
-
+export { RelayProfiler } from './util/RelayProfiler';
 // INTERNAL-ONLY
-export { RelayConcreteNode } from "./util/RelayConcreteNode";
-export { default as RelayError } from "./util/RelayError";
-export { RelayFeatureFlags } from "./util/RelayFeatureFlags";
-export const DEFAULT_HANDLE_KEY = "";
-export { default as deepFreeze } from "./util/deepFreeze";
-export { default as getPendingOperationsForFragment } from "./util/getPendingOperationsForFragment";
-export { default as isPromise } from "./util/isPromise";
-export { default as isScalarAndEqual } from "./util/isScalarAndEqual";
-export { default as recycleNodesInto } from "./util/recycleNodesInto";
-export { default as stableCopy } from "./util/stableCopy";
-
-import * as fetchQueryInternal from "./query/fetchQueryInternal";
-import withProvidedVariables from "./util/withProvidedVariables";
-
-import * as RelayResolverFragments from "./store/ResolverFragments";
+export { RelayConcreteNode } from './util/RelayConcreteNode';
+export { default as RelayError } from './util/RelayError';
+export { RelayFeatureFlags } from './util/RelayFeatureFlags';
+export const DEFAULT_HANDLE_KEY = '';
+export { default as deepFreeze } from './util/deepFreeze';
+export { default as getPendingOperationsForFragment } from './util/getPendingOperationsForFragment';
+export { default as isPromise } from './util/isPromise';
+export { default as isScalarAndEqual } from './util/isScalarAndEqual';
+export { default as recycleNodesInto } from './util/recycleNodesInto';
+export { default as stableCopy } from './util/stableCopy';
 
 interface Internal {
     fetchQuery: typeof fetchQueryInternal.fetchQuery;
@@ -266,11 +258,11 @@ export const __internal: Internal;
  */
 
 export interface _RefType<Ref extends string> {
-    " $fragmentType": Ref;
+    ' $fragmentType': Ref;
 }
 
 export interface _FragmentRefs<Refs extends string> {
-    " $fragmentSpreads": FragmentRefs<Refs>;
+    ' $fragmentSpreads': FragmentRefs<Refs>;
 }
 
 // This is used in the actual artifacts to define the various fragment references a container holds.

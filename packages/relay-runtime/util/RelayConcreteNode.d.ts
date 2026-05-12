@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { NormalizationOperation, NormalizationSplitOperation } from "./NormalizationNode";
-import { ReaderFragment, ReaderInlineDataFragment } from "./ReaderNode";
-import { OperationType } from "./RelayRuntimeTypes";
+import {NormalizationOperation, NormalizationSplitOperation} from './NormalizationNode';
+import {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
+import { OperationType } from './RelayRuntimeTypes';
 
 /**
  * Represents a common GraphQL request that can be executed, an `operation`
@@ -16,7 +16,7 @@ import { OperationType } from "./RelayRuntimeTypes";
  * fragments).
  */
 export interface ConcreteRequest {
-    readonly kind: "Request";
+    readonly kind: 'Request';
     readonly fragment: ReaderFragment;
     readonly operation: NormalizationOperation;
     readonly params: RequestParameters;
@@ -28,13 +28,13 @@ export interface ConcreteRequest {
  */
 // Note: the phantom type parameter here helps ensures that the
 // $Parameters.js value matches the type param provided to preloadQuery.
-export interface PreloadableConcreteRequest<TQuery extends OperationType> {
-    readonly kind: "PreloadableConcreteRequest";
+export interface PreloadableConcreteRequest<_TQuery extends OperationType> {
+    readonly kind: 'PreloadableConcreteRequest';
     readonly params: RequestParameters;
 }
 
 export interface ConcreteUpdatableQuery {
-    readonly kind: "UpdatableQuery";
+    readonly kind: 'UpdatableQuery';
     readonly fragment: ReaderFragment;
 }
 
@@ -50,7 +50,7 @@ export type RequestParameters =
         readonly text: null;
         // common fields
         readonly name: string;
-        readonly operationKind: "mutation" | "query" | "subscription";
+        readonly operationKind: 'mutation' | 'query' | 'subscription';
         readonly providedVariables?: ProvidedVariablesType;
         readonly metadata: { [key: string]: unknown };
     }
@@ -60,7 +60,7 @@ export type RequestParameters =
         readonly text: string | null;
         // common fields
         readonly name: string;
-        readonly operationKind: "mutation" | "query" | "subscription";
+        readonly operationKind: 'mutation' | 'query' | 'subscription';
         readonly providedVariables?: ProvidedVariablesType;
         readonly metadata: { [key: string]: unknown };
     };
@@ -73,42 +73,42 @@ export type GeneratedNode =
     | ConcreteUpdatableQuery;
 
 export const RelayConcreteNode: {
-    ACTOR_CHANGE: "ActorChange";
-    CONDITION: "Condition";
-    CLIENT_COMPONENT: "ClientComponent";
-    CLIENT_EDGE_TO_SERVER_OBJECT: "ClientEdgeToServerObject";
-    CLIENT_EDGE_TO_CLIENT_OBJECT: "ClientEdgeToClientObject";
-    CLIENT_EXTENSION: "ClientExtension";
-    DEFER: "Defer";
-    CONNECTION: "Connection";
-    FLIGHT_FIELD: "FlightField";
-    FRAGMENT: "Fragment";
-    FRAGMENT_SPREAD: "FragmentSpread";
-    INLINE_DATA_FRAGMENT_SPREAD: "InlineDataFragmentSpread";
-    INLINE_DATA_FRAGMENT: "InlineDataFragment";
-    INLINE_FRAGMENT: "InlineFragment";
-    LINKED_FIELD: "LinkedField";
-    LINKED_HANDLE: "LinkedHandle";
-    LITERAL: "Literal";
-    LIST_VALUE: "ListValue";
-    LOCAL_ARGUMENT: "LocalArgument";
-    MODULE_IMPORT: "ModuleImport";
-    ALIASED_FRAGMENT_SPREAD: "AliasedFragmentSpread";
-    ALIASED_INLINE_FRAGMENT_SPREAD: "AliasedInlineFragmentSpread";
-    RELAY_RESOLVER: "RelayResolver";
-    RELAY_LIVE_RESOLVER: "RelayLiveResolver";
-    REQUIRED_FIELD: "RequiredField";
-    OBJECT_VALUE: "ObjectValue";
-    OPERATION: "Operation";
-    REQUEST: "Request";
-    ROOT_ARGUMENT: "RootArgument";
-    SCALAR_FIELD: "ScalarField";
-    SCALAR_HANDLE: "ScalarHandle";
-    SPLIT_OPERATION: "SplitOperation";
-    STREAM: "Stream";
-    TYPE_DISCRIMINATOR: "TypeDiscriminator";
-    UPDATABLE_QUERY: "UpdatableQuery";
-    VARIABLE: "Variable";
+    ACTOR_CHANGE: 'ActorChange';
+    CONDITION: 'Condition';
+    CLIENT_COMPONENT: 'ClientComponent';
+    CLIENT_EDGE_TO_SERVER_OBJECT: 'ClientEdgeToServerObject';
+    CLIENT_EDGE_TO_CLIENT_OBJECT: 'ClientEdgeToClientObject';
+    CLIENT_EXTENSION: 'ClientExtension';
+    DEFER: 'Defer';
+    CONNECTION: 'Connection';
+    FLIGHT_FIELD: 'FlightField';
+    FRAGMENT: 'Fragment';
+    FRAGMENT_SPREAD: 'FragmentSpread';
+    INLINE_DATA_FRAGMENT_SPREAD: 'InlineDataFragmentSpread';
+    INLINE_DATA_FRAGMENT: 'InlineDataFragment';
+    INLINE_FRAGMENT: 'InlineFragment';
+    LINKED_FIELD: 'LinkedField';
+    LINKED_HANDLE: 'LinkedHandle';
+    LITERAL: 'Literal';
+    LIST_VALUE: 'ListValue';
+    LOCAL_ARGUMENT: 'LocalArgument';
+    MODULE_IMPORT: 'ModuleImport';
+    ALIASED_FRAGMENT_SPREAD: 'AliasedFragmentSpread';
+    ALIASED_INLINE_FRAGMENT_SPREAD: 'AliasedInlineFragmentSpread';
+    RELAY_RESOLVER: 'RelayResolver';
+    RELAY_LIVE_RESOLVER: 'RelayLiveResolver';
+    REQUIRED_FIELD: 'RequiredField';
+    OBJECT_VALUE: 'ObjectValue';
+    OPERATION: 'Operation';
+    REQUEST: 'Request';
+    ROOT_ARGUMENT: 'RootArgument';
+    SCALAR_FIELD: 'ScalarField';
+    SCALAR_HANDLE: 'ScalarHandle';
+    SPLIT_OPERATION: 'SplitOperation';
+    STREAM: 'Stream';
+    TYPE_DISCRIMINATOR: 'TypeDiscriminator';
+    UPDATABLE_QUERY: 'UpdatableQuery';
+    VARIABLE: 'Variable';
 };
 
 export interface ProvidedVariablesType {

@@ -112,7 +112,7 @@ impl SchemaChange {
 
                                 let interfaces_changed: Vec<StringKey> = interfaces_added
                                     .into_iter()
-                                    .chain(interfaces_removed.into_iter())
+                                    .chain(interfaces_removed)
                                     .collect();
                                 add_interfaces_for_incremental_build(
                                     schema,

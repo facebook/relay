@@ -878,10 +878,8 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 )]);
             }
 
-            let directives = self.build_directives(
-                other_directives.into_iter(),
-                DirectiveLocation::FragmentSpread,
-            )?;
+            let directives =
+                self.build_directives(other_directives, DirectiveLocation::FragmentSpread)?;
             let spread_arguments = self.build_fragment_spread_arguments(
                 signature,
                 explicit_arguments,

@@ -1,4 +1,4 @@
 [toolchain]
 # Should stay in sync with fbcode/buck2/rust-toolchain
 # And references in .github/workflows/ci.yml and docusaurus.yml
-channel = "nightly-2026-01-18"
+channel = "nightly-2026-02-28"

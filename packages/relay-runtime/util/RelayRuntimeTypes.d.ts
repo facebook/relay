@@ -26,7 +26,7 @@ export interface OperationType {
     readonly rawResponse?: unknown | undefined;
 }
 
-export type VariablesOf<TQuery extends OperationType> = TQuery["variables"];
+export type VariablesOf<TQuery extends OperationType> = TQuery['variables'];
 
 export type DisposeFn = () => void;
 
@@ -54,6 +54,6 @@ export interface CacheConfig {
 /**
  * Experimental
  */
-export type FetchQueryFetchPolicy = "store-or-network" | "network-only";
-export type FetchPolicy = FetchQueryFetchPolicy | "store-and-network" | "store-only";
-export type RenderPolicy = "full" | "partial";
+export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';
+export type FetchPolicy = FetchQueryFetchPolicy | 'store-and-network' | 'store-only';
+export type RenderPolicy = 'full' | 'partial';

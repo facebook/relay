@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { ActorIdentifier, getActorIdentifier } from "./ActorIdentifier";
+export { ActorIdentifier, getActorIdentifier } from './ActorIdentifier';
 
-export { MultiActorEnvironment } from "./MultiActorEnvironment";
+export { MultiActorEnvironment } from './MultiActorEnvironment';
 export {
     ActorEnvironment as IActorEnvironment,
     MultiActorEnvironment as IMultiActorEnvironment,
-} from "./MultiActorEnvironmentTypes";
+} from './MultiActorEnvironmentTypes';

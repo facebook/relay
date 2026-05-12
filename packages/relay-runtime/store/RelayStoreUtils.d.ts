@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { NormalizationArgument, NormalizationField, NormalizationHandle } from "../util/NormalizationNode";
-import { ReaderArgument, ReaderField } from "../util/ReaderNode";
-import { Variables } from "../util/RelayRuntimeTypes";
+import {NormalizationArgument, NormalizationField, NormalizationHandle} from '../util/NormalizationNode';
+import {ReaderArgument, ReaderField} from '../util/ReaderNode';
+import { Variables } from '../util/RelayRuntimeTypes';
 
 export interface Arguments {
     [key: string]: any;

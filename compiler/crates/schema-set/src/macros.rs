@@ -35,24 +35,19 @@ macro_rules! impl_string_key_named_raw {
 }
 
 #[macro_export]
-macro_rules! impl_can_be_client_definition {
+macro_rules! impl_has_definition_item {
     ($named:ident) => {
-        impl CanBeClientDefinition for $named {
+        impl HasDefinitionItem for $named {
+            fn definition_item(&self) -> Option<&SchemaDefinitionItem> {
+                self.definition.as_ref()
+            }
+
             fn is_client_definition(&self) -> bool {
                 self.definition.is_none() || self.definition.as_ref().unwrap().is_client_definition
             }
-            fn set_is_client_definition(&mut self, is_client_definition: bool) {
-                if let Some(def) = &mut self.definition {
-                    def.is_client_definition = is_client_definition;
-                } else {
-                    self.definition = Some(SchemaDefinitionItem {
-                        name: self.name.0,
-                        locations: Vec::new(),
-                        is_client_definition,
-                        description: None,
-                        hack_source: None,
-                    });
-                }
+
+            fn remove_definition_item(&mut self) {
+                self.definition = None
             }
         }
     };
@@ -151,31 +146,4 @@ macro_rules! clone_base {
             ..self.clone()
         };
     }
-}
-
-#[macro_export]
-macro_rules! impl_partitions_only_directives {
-    ($named:ident ) => {
-        impl PartitionsBaseExtension for $named {
-            fn partition_base_extension(&self, schema_set: &SchemaSet) -> (Self, Option<Self>) {
-                let (base_directives, extension_directives) =
-                    self.partition_extension_directives(schema_set);
-
-                let base = Self {
-                    directives: base_directives,
-                    ..self.clone()
-                };
-
-                let extension = if extension_directives.is_empty() {
-                    None
-                } else {
-                    Some(Self {
-                        directives: extension_directives,
-                        ..self.clone()
-                    })
-                };
-                (base, extension)
-            }
-        }
-    };
 }

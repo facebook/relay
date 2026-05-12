@@ -795,8 +795,18 @@ impl CompilerState {
                     }
                     FileSourceIntermediateResult::Generated(project_name, files) => {
                         if should_collect_changed_artifacts {
-                            self.dirty_artifact_paths
-                                .insert(project_name, files.into_iter().collect());
+                            let dirty_files: DashSet<PathBuf, FnvBuildHasher> = files
+                                .into_iter()
+                                .filter(|path| {
+                                    !config
+                                        .artifact_writer
+                                        .content_matches_last_write(&config.root_dir.join(path))
+                                })
+                                .collect();
+
+                            if !dirty_files.is_empty() {
+                                self.dirty_artifact_paths.insert(project_name, dirty_files);
+                            }
                         }
                     }
                     FileSourceIntermediateResult::Ignore => {}

@@ -371,12 +371,82 @@ async fn query_file_result(
     debug_query_results(&query_result, "graphql");
 
     let files = query_result.files.ok_or(Error::EmptyQueryResult)?;
-    Ok(FileSourceResult::Watchman(WatchmanFileSourceResult {
+    Ok(FileSourceResult::Watchman(Box::new(
+        WatchmanFileSourceResult {
+            files,
+            resolved_root: resolved_root.clone(),
+            clock: query_result.clock,
+            saved_state_info: query_result.saved_state_info,
+        },
+    )))
+}
+
+/// Raw result of a Watchman `since` query against the compiler's expression.
+///
+/// Callers interpret these fields to decide what to do:
+/// - `is_fresh_instance == true` means the incremental answer is untrustworthy
+///   and the caller must reset state.
+/// - `files == Some(..)` carries the changed files for an incremental build.
+/// - `files == None` means no relevant files changed.
+#[derive(Debug)]
+pub struct ChangesSinceQuery {
+    pub files: Option<FileSourceResult>,
+    pub clock: Clock,
+    pub is_fresh_instance: bool,
+}
+
+/// Query watchman for file changes since the given clock.
+///
+/// Opens a short-lived watchman connection and checks if any files
+/// matching the compiler's watchman expression have changed since
+/// `since_clock`. Returns the raw [`ChangesSinceQuery`] for the caller
+/// to interpret.
+pub async fn query_changes_since(
+    config: &Arc<Config>,
+    since_clock: Clock,
+) -> Result<ChangesSinceQuery> {
+    let client = Connector::new().connect().await?;
+    let canonical_root =
+        CanonicalPath::canonicalize(&config.root_dir).map_err(|err| Error::CanonicalizeRoot {
+            root: config.root_dir.clone(),
+            source: err,
+        })?;
+    let resolved_root = client.resolve_root(canonical_root).await?;
+
+    let expression = get_watchman_expr(config);
+
+    let request = QueryRequestCommon {
+        expression: Some(expression),
+        since: Some(since_clock),
+        ..Default::default()
+    };
+
+    let query_result = client
+        .query::<WatchmanFile>(&resolved_root, request)
+        .await?;
+
+    let clock = query_result.clock;
+    let is_fresh_instance = query_result.is_fresh_instance;
+
+    let files = query_result.files.unwrap_or_default();
+    let files = if files.is_empty() {
+        None
+    } else {
+        Some(FileSourceResult::Watchman(Box::new(
+            WatchmanFileSourceResult {
+                files,
+                resolved_root,
+                clock: clock.clone(),
+                saved_state_info: query_result.saved_state_info,
+            },
+        )))
+    };
+
+    Ok(ChangesSinceQuery {
         files,
-        resolved_root: resolved_root.clone(),
-        clock: query_result.clock,
-        saved_state_info: query_result.saved_state_info,
-    }))
+        clock,
+        is_fresh_instance,
+    })
 }
 
 fn debug_query_results(query_result: &QueryResult<WatchmanFile>, extension_filter: &str) {

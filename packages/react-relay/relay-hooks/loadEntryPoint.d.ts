@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { EnvironmentProviderOptions, GetEntryPointComponentFromEntryPoint, GetEntryPointParamsFromEntryPoint, IEnvironmentProvider, PreloadedEntryPoint } from "../ReactRelayTypes";
+import {EnvironmentProviderOptions, GetEntryPointComponentFromEntryPoint, GetEntryPointParamsFromEntryPoint, IEnvironmentProvider, PreloadedEntryPoint} from '../ReactRelayTypes';
 
 export function loadEntryPoint<TEntryPoint>(
     environmentProvider: IEnvironmentProvider<EnvironmentProviderOptions>,

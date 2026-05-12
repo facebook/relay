@@ -1,0 +1,98 @@
+//- PersonComponent.js
+// Test: Nested object type not refined on mixed interface.
+// IPerson has pet: IAnimal. DogPerson (server) has pet: Dog,
+// CatPerson (client) has pet: Cat. Both Dog and Cat implement IAnimal.
+// Inside the DogPerson branch, pet always returns Dog, so
+// ... on Cat refinements are unreachable. This test captures whether
+// the compiler refines the nested object type based on the parent type.
+graphql`query PersonComponentQuery {
+  person @waterfall {
+    pet {
+      name
+    }
+  }
+}`
+
+//- PersonResolver.js
+/**
+ * @relayField Query.person: IPerson
+ */
+export function person() {}
+
+//- CatPersonResolver.js
+/**
+ * @relayType CatPerson implements IPerson
+ */
+export function CatPerson() {}
+
+//- CatPersonNameResolver.js
+/**
+ * @relayField CatPerson.name: String
+ */
+export function name() {}
+
+//- CatPersonPetResolver.js
+/**
+ * @relayField CatPerson.pet: Cat
+ */
+export function pet() {}
+
+//- CatResolver.js
+/**
+ * @relayType Cat implements IAnimal
+ */
+export function Cat() {}
+
+//- CatNameResolver.js
+/**
+ * @relayField Cat.name: String
+ */
+export function cat_name() {}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query {
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type Dog implements Node {
+  id: ID!
+  name: String
+}
+
+type DogPerson implements Node {
+  id: ID!
+  name: String
+  pet: Dog
+}
+
+//- schema-extensions/extension.graphql
+interface IAnimal {
+  id: ID!
+  name: String
+}
+
+interface IPerson {
+  id: ID!
+  name: String
+  pet: IAnimal
+}
+
+extend type Dog implements IAnimal
+extend type DogPerson implements IPerson

@@ -33,7 +33,7 @@ async-trait = "0.1.86"
 bincode = { version = "2", features = ["serde"] }
 common = { path = "../common" }
 common-path = "1.0.0"
-dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
+dashmap = { version = "6.1.0", features = ["rayon", "serde"] }
 dependency-analyzer = { path = "../dependency-analyzer" }
 docblock-shared = { path = "../docblock-shared" }
 docblock-syntax = { path = "../docblock-syntax" }
@@ -50,7 +50,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
 hex = { version = "0.4.3", features = ["alloc"] }
-indexmap = { version = "2.13.0", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.14.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 js-config-loader = { path = "../js-config-loader" }
 lazy_static = "1.5"

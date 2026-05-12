@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ReactElement } from "react";
-import { EntryPointComponent, PreloadedEntryPoint } from "../ReactRelayTypes";
+import {EntryPointComponent, PreloadedEntryPoint} from '../ReactRelayTypes';
+import { ReactElement } from 'react';
 
 type GetComponentFromPreloadedEntryPoint<T> = T extends PreloadedEntryPoint<infer C> ? C : never;
 type GetRuntimePropsFromComponent<T> = T extends EntryPointComponent<any, any, infer R, any> ? R : never;

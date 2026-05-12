@@ -32,7 +32,7 @@ use crate::SetObject;
 use crate::SetScalar;
 use crate::SetType;
 use crate::SetUnion;
-use crate::schema_set::CanBeClientDefinition;
+use crate::schema_set::HasDefinitionItem;
 use crate::schema_set::SetDirectiveValue;
 use crate::schema_set::SetRootSchema;
 use crate::schema_set::StringKeyNamed;
@@ -504,7 +504,7 @@ mod tests {
     use super::*;
 
     fn set_from_str(sdl: &str) -> SchemaSet {
-        SchemaSet::from_schema_documents(&[parse_schema_document(
+        SchemaSet::from_base_schema_documents(&[parse_schema_document(
             sdl,
             SourceLocationKey::generated(),
         )

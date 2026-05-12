@@ -5,15 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import {LoadQueryOptions, PreloadedQuery} from '../ReactRelayTypes';
 import {
-    DisposeFn,
-    GraphQLTaggedNode,
-    IEnvironment,
-    OperationType,
-    PreloadableConcreteRequest,
-    VariablesOf,
-} from "relay-runtime";
-import { LoadQueryOptions, PreloadedQuery } from "../ReactRelayTypes";
+  DisposeFn,
+  GraphQLTaggedNode,
+  IEnvironment,
+  OperationType,
+  PreloadableConcreteRequest,
+  VariablesOf,
+} from 'relay-runtime';
 
 export type useQueryLoaderHookType<TQuery extends OperationType> = [
     PreloadedQuery<TQuery> | null | undefined,

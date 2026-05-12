@@ -28,6 +28,7 @@ use intern::string_key::Intern;
 use lazy_static::lazy_static;
 
 pub use crate::build_schema_document::ToSDLDefinition;
+pub use crate::build_schema_document::ToTypeSystemDefinition;
 pub use crate::builtin_scalars::add_built_in_scalars;
 pub use crate::builtin_scalars::remove_built_in_scalars;
 pub use crate::from_schema::SchemaDefault;
@@ -66,4 +67,13 @@ pub use crate::set_type_reference::OutputTypeReference;
 lazy_static! {
     static ref SEMANTIC_NON_NULL: DirectiveName = DirectiveName("semanticNonNull".intern());
     static ref SEMANTIC_NON_NULL_LEVELS_ARG: ArgumentName = ArgumentName("levels".intern());
+
+    // GraphQL Spec built-in directives (https://spec.graphql.org/draft/#sec-Type-System.Directives.Built-in-Directives)
+    static ref DEPRECATED: DirectiveName = DirectiveName("deprecated".intern());
+    static ref SPECIFIED_BY: DirectiveName = DirectiveName("specifiedBy".intern());
+    static ref ONE_OF: DirectiveName = DirectiveName("oneOf".intern());
+}
+
+fn is_graphql_builtin_directive(name: DirectiveName) -> bool {
+    name == *DEPRECATED || name == *SPECIFIED_BY || name == *ONE_OF
 }

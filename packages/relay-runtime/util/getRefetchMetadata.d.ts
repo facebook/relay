@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ReaderFragment, ReaderRefetchMetadata, RefetchableIdentifierInfo } from "./ReaderNode";
-import { ConcreteRequest } from "./RelayConcreteNode";
+import {ReaderFragment, ReaderRefetchMetadata, RefetchableIdentifierInfo} from './ReaderNode';
+import { ConcreteRequest } from './RelayConcreteNode';
 
 export default function getRefetchMetadata(
     fragmentNode: ReaderFragment,

@@ -5,22 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { DataID, Disposable } from "../util/RelayRuntimeTypes";
+import {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import {
-    CheckOptions,
-    LogFunction,
-    MutableRecordSource,
-    OperationAvailability,
-    OperationDescriptor,
-    OperationLoader,
-    RecordSource,
-    RequestDescriptor,
-    ResolverContext,
-    Scheduler,
-    SingularReaderSelector,
-    Snapshot,
-    Store,
-} from "./RelayStoreTypes";
+  CheckOptions,
+  LogFunction,
+  MutableRecordSource,
+  OperationAvailability,
+  OperationDescriptor,
+  OperationLoader,
+  RecordSource,
+  RequestDescriptor,
+  ResolverContext,
+  Scheduler,
+  SingularReaderSelector,
+  Snapshot,
+  Store,
+} from './RelayStoreTypes';
 
 export interface InvalidationState {
     dataIDs: readonly DataID[];

@@ -5,30 +5,31 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { HandlerProvider } from "../handlers/RelayDefaultHandlerProvider";
-import { GraphQLResponse, Network, PayloadData, UploadableMap } from "../network/RelayNetworkTypes";
-import { RelayObservable } from "../network/RelayObservable";
-import { Disposable, RenderPolicy } from "../util/RelayRuntimeTypes";
-import { TaskScheduler } from "./OperationExecutor";
-import { RelayOperationTracker } from "./RelayOperationTracker";
-import type { GetDataID } from "./RelayResponseNormalizer";
+import type { GetDataID } from './RelayResponseNormalizer';
+
+import { HandlerProvider } from '../handlers/RelayDefaultHandlerProvider';
+import {GraphQLResponse, Network, PayloadData, UploadableMap} from '../network/RelayNetworkTypes';
+import { RelayObservable } from '../network/RelayObservable';
+import {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
+import { TaskScheduler } from './OperationExecutor';
+import { RelayOperationTracker } from './RelayOperationTracker';
 import {
-    Environment,
-    LogFunction,
-    MissingFieldHandler,
-    OperationAvailability,
-    OperationDescriptor,
-    OperationLoader,
-    OperationTracker,
-    OptimisticResponseConfig,
-    OptimisticUpdateFunction,
-    RelayFieldLogger,
-    SelectorStoreUpdater,
-    SingularReaderSelector,
-    Snapshot,
-    Store,
-    StoreUpdater,
-} from "./RelayStoreTypes";
+  Environment,
+  LogFunction,
+  MissingFieldHandler,
+  OperationAvailability,
+  OperationDescriptor,
+  OperationLoader,
+  OperationTracker,
+  OptimisticResponseConfig,
+  OptimisticUpdateFunction,
+  RelayFieldLogger,
+  SelectorStoreUpdater,
+  SingularReaderSelector,
+  Snapshot,
+  Store,
+  StoreUpdater,
+} from './RelayStoreTypes';
 
 export interface EnvironmentConfig {
     readonly configName?: string | undefined;

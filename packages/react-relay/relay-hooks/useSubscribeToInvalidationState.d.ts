@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { DataID, Disposable } from "relay-runtime";
+import {DataID, Disposable} from 'relay-runtime';
 
 /**
  * This hook subscribes a callback to the invalidation state of the given data

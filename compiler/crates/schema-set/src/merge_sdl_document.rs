@@ -69,7 +69,29 @@ use crate::schema_set::StringKeyNamed;
 use crate::set_merges::Merges;
 
 pub trait ToSetDefinition<T> {
-    fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> T;
+    /// Build a `T` "set definition" from a parsed GraphQL syntax node.
+    ///
+    /// `is_extends` indicates that this conversion is happening on behalf of
+    /// an `extend X { ... }` SDL node rather than a fresh `X { ... }`
+    /// definition. For top-level type kinds (`SetObject`, `SetInterface`,
+    /// `SetUnion`, `SetScalar`, `SetEnum`, `SetInputObject`) this controls
+    /// whether the resulting `definition: Option<SchemaDefinitionItem>` field
+    /// is populated (`is_extends = false`) or left as `None`
+    /// (`is_extends = true`). The presence/absence of that field is what
+    /// `to_sdl_definition` later uses to decide whether to emit the entry as
+    /// a `*TypeDefinition` or a `*TypeExtension`. (This is hacky: ideally
+    /// `is_extends` would be its own field on `SchemaDefinitionItem`, but
+    /// today the absence of `definition` is the only signal we have.)
+    ///
+    /// Sub-element impls (`SetField`, `SetArgument`, `SetDirectiveValue`,
+    /// `SetArgumentValue`) ignore `is_extends` because their `definition`
+    /// field always tracks the field/argument's own declaration site.
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+        is_extends: bool,
+    ) -> T;
 }
 
 pub fn merge_def_into<
@@ -81,7 +103,7 @@ pub fn merge_def_into<
     source: SourceLocationKey,
     is_client_definition: bool,
 ) -> DiagnosticsResult<()> {
-    let merge_type = type_def.to_set_definition(source, is_client_definition);
+    let merge_type = type_def.to_set_definition(source, is_client_definition, false);
     let name = merge_type.string_key_name();
     if let Some(exists) = merge_map.get_mut(&name) {
         exists.merge(merge_type)?;
@@ -109,7 +131,14 @@ where
         // this will be a no-op.
         // However, any *fields* we merge in from an extension need to be annotated as being
         // an extension field.
-        .to_set_definition(source, true);
+        //
+        // `is_extends = true` ensures the resulting `SetType` has
+        // `definition: None`, so `Merges::merge` correctly treats this entry
+        // as extension-only when there's no pre-existing base entry, and so
+        // `to_sdl_definition` round-trips it back as `extend X { ... }`
+        // rather than `X { ... }` (which would conflict with the base on
+        // re-import via `SDLSchema::build`).
+        .to_set_definition(source, true, true);
     let name = set_type.string_key_name();
     if let Some(exists) = used_map.get_mut(&name) {
         exists.merge(set_type)?;
@@ -124,9 +153,10 @@ impl ToSetDefinition<SetRootSchema> for SchemaDefinition {
         &self,
         source: SourceLocationKey,
         is_client_definition: bool,
+        is_extends: bool,
     ) -> SetRootSchema {
         let mut set_root_schema = SetRootSchema {
-            definition: Some(SchemaDefinitionItem {
+            definition: (!is_extends).then(|| SchemaDefinitionItem {
                 name: "schema".intern(),
                 locations: vec![Location::new(source, self.span)],
                 is_client_definition,
@@ -155,7 +185,12 @@ impl ToSetDefinition<SetRootSchema> for SchemaDefinition {
 }
 
 impl ToSetDefinition<SetType> for EnumTypeDefinition {
-    fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+        is_extends: bool,
+    ) -> SetType {
         let directives = build_directive_values(&self.directives, source, is_client_definition);
         let values = self.values.as_ref().map_or(BTreeMap::default(), |v| {
             v.items
@@ -184,7 +219,7 @@ impl ToSetDefinition<SetType> for EnumTypeDefinition {
                 .collect()
         });
         SetType::Enum(SetEnum {
-            definition: Some(SchemaDefinitionItem {
+            definition: (!is_extends).then(|| SchemaDefinitionItem {
                 name: self.name.value,
                 locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
@@ -199,9 +234,14 @@ impl ToSetDefinition<SetType> for EnumTypeDefinition {
 }
 
 impl ToSetDefinition<SetType> for InterfaceTypeDefinition {
-    fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+        is_extends: bool,
+    ) -> SetType {
         SetType::Interface(SetInterface {
-            definition: Some(SchemaDefinitionItem {
+            definition: (!is_extends).then(|| SchemaDefinitionItem {
                 name: self.name.value,
                 locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
@@ -217,9 +257,14 @@ impl ToSetDefinition<SetType> for InterfaceTypeDefinition {
 }
 
 impl ToSetDefinition<SetType> for ObjectTypeDefinition {
-    fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+        is_extends: bool,
+    ) -> SetType {
         SetType::Object(SetObject {
-            definition: Some(SchemaDefinitionItem {
+            definition: (!is_extends).then(|| SchemaDefinitionItem {
                 name: self.name.value,
                 locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
@@ -235,9 +280,14 @@ impl ToSetDefinition<SetType> for ObjectTypeDefinition {
 }
 
 impl ToSetDefinition<SetType> for UnionTypeDefinition {
-    fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+        is_extends: bool,
+    ) -> SetType {
         SetType::Union(SetUnion {
-            definition: Some(SchemaDefinitionItem {
+            definition: (!is_extends).then(|| SchemaDefinitionItem {
                 name: self.name.value,
                 locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
@@ -252,9 +302,14 @@ impl ToSetDefinition<SetType> for UnionTypeDefinition {
 }
 
 impl ToSetDefinition<SetType> for InputObjectTypeDefinition {
-    fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+        is_extends: bool,
+    ) -> SetType {
         SetType::InputObject(SetInputObject {
-            definition: Some(SchemaDefinitionItem {
+            definition: (!is_extends).then(|| SchemaDefinitionItem {
                 name: self.name.value,
                 locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
@@ -274,9 +329,14 @@ impl ToSetDefinition<SetType> for InputObjectTypeDefinition {
 }
 
 impl ToSetDefinition<SetType> for ScalarTypeDefinition {
-    fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetType {
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+        is_extends: bool,
+    ) -> SetType {
         SetType::Scalar(SetScalar {
-            definition: Some(SchemaDefinitionItem {
+            definition: (!is_extends).then(|| SchemaDefinitionItem {
                 name: self.name.value,
                 locations: vec![Location::new(source, self.name.span)],
                 is_client_definition,
@@ -298,6 +358,9 @@ impl ToSetDefinition<SetDirective> for DirectiveDefinition {
         &self,
         source: SourceLocationKey,
         is_client_definition: bool,
+        // GraphQL has no `extend directive`; this is unused but required by
+        // the trait signature.
+        _is_extends: bool,
     ) -> SetDirective {
         SetDirective {
             definition: Some(SchemaDefinitionItem {
@@ -316,7 +379,14 @@ impl ToSetDefinition<SetDirective> for DirectiveDefinition {
 }
 
 impl ToSetDefinition<SetField> for FieldDefinition {
-    fn to_set_definition(&self, source: SourceLocationKey, is_client_definition: bool) -> SetField {
+    fn to_set_definition(
+        &self,
+        source: SourceLocationKey,
+        is_client_definition: bool,
+        // Field-level definitions always carry their own `definition` field;
+        // top-level extension semantics don't apply.
+        _is_extends: bool,
+    ) -> SetField {
         SetField {
             definition: Some(SchemaDefinitionItem {
                 name: self.name.value,
@@ -338,6 +408,9 @@ impl ToSetDefinition<SetArgument> for InputValueDefinition {
         &self,
         source: SourceLocationKey,
         is_client_definition: bool,
+        // Input-value definitions always carry their own `definition` field;
+        // top-level extension semantics don't apply.
+        _is_extends: bool,
     ) -> SetArgument {
         SetArgument {
             definition: Some(SchemaDefinitionItem {
@@ -363,12 +436,14 @@ impl ToSetDefinition<SetDirectiveValue> for ConstantDirective {
         &self,
         source: SourceLocationKey,
         is_client_definition: bool,
+        // Directive-application sites are not themselves extensions.
+        _is_extends: bool,
     ) -> SetDirectiveValue {
         let arguments = if let Some(arguments) = &self.arguments {
             arguments
                 .items
                 .iter()
-                .map(|argument| argument.to_set_definition(source, is_client_definition))
+                .map(|argument| argument.to_set_definition(source, is_client_definition, false))
                 .collect()
         } else {
             Vec::new()
@@ -392,6 +467,8 @@ impl ToSetDefinition<SetArgumentValue> for ConstantArgument {
         &self,
         source: SourceLocationKey,
         is_client_definition: bool,
+        // Argument-application sites are not themselves extensions.
+        _is_extends: bool,
     ) -> SetArgumentValue {
         SetArgumentValue {
             definition: Some(SchemaDefinitionItem {
@@ -416,7 +493,7 @@ fn build_directive_values(
     directives
         .iter()
         .filter(|d| d.name.value != SEMANTIC_NON_NULL.0)
-        .map(|directive| directive.to_set_definition(source, is_client_definition))
+        .map(|directive| directive.to_set_definition(source, is_client_definition, false))
         .collect()
 }
 
@@ -445,7 +522,10 @@ fn build_fields(
         .iter()
         .map(|field| {
             let name = field.name.value;
-            (name, field.to_set_definition(source, is_client_definition))
+            (
+                name,
+                field.to_set_definition(source, is_client_definition, false),
+            )
         })
         .collect()
 }
@@ -465,7 +545,7 @@ fn build_argument_values(
                         definition: Some(SchemaDefinitionItem {
                             name: arg.name.value,
                             locations: vec![Location::new(source, arg.name.span)],
-                            is_client_definition: false,
+                            is_client_definition,
                             description: arg.description.as_ref().map(|d| d.value),
                             hack_source: None,
                         }),
@@ -577,5 +657,247 @@ fn build_output_type_reference_with_semantic_nonnull_levels(
                 semantic_non_null_levels,
             ),
         )),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use common::SourceLocationKey;
+    use graphql_syntax::parse_schema_document;
+    use indoc::indoc;
+    use intern::string_key::Intern;
+
+    use super::*;
+    use crate::SchemaSet;
+
+    fn set_from_sdl(sdl: &str) -> SchemaSet {
+        SchemaSet::from_base_schema_documents(&[parse_schema_document(
+            sdl,
+            SourceLocationKey::generated(),
+        )
+        .unwrap()])
+        .unwrap()
+    }
+
+    // --- merge_def_into ---
+
+    #[test]
+    fn test_merge_def_into_new_type() {
+        let set = set_from_sdl("type Foo { id: ID! }");
+        assert!(set.types.contains_key(&"Foo".intern()));
+    }
+
+    #[test]
+    fn test_merge_def_into_duplicate_type_merges() {
+        let set = set_from_sdl(indoc! {r#"
+            type Foo { id: ID! }
+            type Foo { name: String }
+        "#});
+        if let SetType::Object(obj) = set.types.get(&"Foo".intern()).unwrap() {
+            assert!(obj.fields.contains_key(&"id".intern()));
+            assert!(obj.fields.contains_key(&"name".intern()));
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    // --- merge_ext_into ---
+
+    #[test]
+    fn test_merge_ext_into() {
+        let mut set = SchemaSet::new();
+        let base_doc =
+            parse_schema_document("type Foo { id: ID! }", SourceLocationKey::generated()).unwrap();
+        set.merge_sdl_document(&base_doc, false).unwrap();
+
+        let ext_doc = parse_schema_document(
+            "extend type Foo { name: String }",
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        set.merge_sdl_document(&ext_doc, true).unwrap();
+
+        if let SetType::Object(obj) = set.types.get(&"Foo".intern()).unwrap() {
+            assert!(obj.fields.contains_key(&"id".intern()));
+            assert!(obj.fields.contains_key(&"name".intern()));
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    // --- ToSetDefinition for each GraphQL type kind ---
+
+    #[test]
+    fn test_enum_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            enum Color {
+              RED
+              GREEN
+            }
+        "#});
+        if let SetType::Enum(e) = set.types.get(&"Color".intern()).unwrap() {
+            assert_eq!(e.name.0, "Color".intern());
+            assert!(e.values.contains_key(&"RED".intern()));
+            assert!(e.values.contains_key(&"GREEN".intern()));
+        } else {
+            panic!("Expected Enum type");
+        }
+    }
+
+    #[test]
+    fn test_object_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            type User {
+              id: ID!
+              name: String
+            }
+        "#});
+        if let SetType::Object(obj) = set.types.get(&"User".intern()).unwrap() {
+            assert_eq!(obj.name.0, "User".intern());
+            assert!(obj.fields.contains_key(&"id".intern()));
+            assert!(obj.fields.contains_key(&"name".intern()));
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    #[test]
+    fn test_interface_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            interface Node {
+              id: ID!
+            }
+        "#});
+        if let SetType::Interface(iface) = set.types.get(&"Node".intern()).unwrap() {
+            assert_eq!(iface.name.0, "Node".intern());
+            assert!(iface.fields.contains_key(&"id".intern()));
+        } else {
+            panic!("Expected Interface type");
+        }
+    }
+
+    #[test]
+    fn test_union_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            type Cat { name: String }
+            type Dog { name: String }
+            union Animal = Cat | Dog
+        "#});
+        if let SetType::Union(u) = set.types.get(&"Animal".intern()).unwrap() {
+            assert_eq!(u.name.0, "Animal".intern());
+            assert!(u.members.contains_key(&"Cat".intern()));
+            assert!(u.members.contains_key(&"Dog".intern()));
+        } else {
+            panic!("Expected Union type");
+        }
+    }
+
+    #[test]
+    fn test_input_object_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            input CreateInput {
+              name: String!
+            }
+        "#});
+        if let SetType::InputObject(input) = set.types.get(&"CreateInput".intern()).unwrap() {
+            assert_eq!(input.name.0, "CreateInput".intern());
+            assert!(input.fields.contains_key(&"name".intern()));
+        } else {
+            panic!("Expected InputObject type");
+        }
+    }
+
+    #[test]
+    fn test_scalar_to_set_definition() {
+        let set = set_from_sdl("scalar URL");
+        if let SetType::Scalar(s) = set.types.get(&"URL".intern()).unwrap() {
+            assert_eq!(s.name.0, "URL".intern());
+        } else {
+            panic!("Expected Scalar type");
+        }
+    }
+
+    #[test]
+    fn test_directive_to_set_definition() {
+        let set = set_from_sdl("directive @deprecated(reason: String) on FIELD_DEFINITION");
+        let dir = set.directives.get(&"deprecated".intern()).unwrap();
+        assert_eq!(dir.name.0, "deprecated".intern());
+        assert!(dir.arguments.contains_key(&"reason".intern()));
+    }
+
+    // --- Conflicting type kinds ---
+
+    #[test]
+    fn test_conflicting_type_kinds_error() {
+        let mut set = SchemaSet::new();
+        let doc1 =
+            parse_schema_document("type Foo { id: ID! }", SourceLocationKey::generated()).unwrap();
+        set.merge_sdl_document(&doc1, false).unwrap();
+
+        let doc2 =
+            parse_schema_document("enum Foo { A B }", SourceLocationKey::generated()).unwrap();
+        let result = set.merge_sdl_document(&doc2, false);
+        assert!(
+            result.is_err(),
+            "Merging conflicting type kinds should produce an error"
+        );
+    }
+
+    // --- Extension creates new type if not existing ---
+
+    #[test]
+    fn test_extension_creates_new_type() {
+        let mut set = SchemaSet::new();
+        let ext_doc = parse_schema_document(
+            "extend type NewType { field: String }",
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        set.merge_sdl_document(&ext_doc, true).unwrap();
+        assert!(set.types.contains_key(&"NewType".intern()));
+    }
+
+    // --- Object with interfaces ---
+
+    #[test]
+    fn test_object_with_interfaces_to_set_definition() {
+        let set = set_from_sdl(indoc! {r#"
+            interface Node { id: ID! }
+            type User implements Node { id: ID! }
+        "#});
+        if let SetType::Object(obj) = set.types.get(&"User".intern()).unwrap() {
+            assert!(
+                obj.interfaces.contains_key(&"Node".intern()),
+                "User should implement Node"
+            );
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    // --- Extension adds interface ---
+
+    #[test]
+    fn test_extension_adds_interface() {
+        let mut set = SchemaSet::new();
+        let base =
+            parse_schema_document("type Foo { id: ID! }", SourceLocationKey::generated()).unwrap();
+        set.merge_sdl_document(&base, false).unwrap();
+
+        let ext = parse_schema_document(
+            "extend type Foo implements Bar",
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        set.merge_sdl_document(&ext, true).unwrap();
+
+        if let SetType::Object(obj) = set.types.get(&"Foo".intern()).unwrap() {
+            assert!(
+                obj.interfaces.contains_key(&"Bar".intern()),
+                "Extension should add Bar interface"
+            );
+        } else {
+            panic!("Expected Object type");
+        }
     }
 }

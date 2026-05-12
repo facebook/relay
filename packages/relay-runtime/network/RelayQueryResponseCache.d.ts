@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { GraphQLResponse } from "../network/RelayNetworkTypes";
-import { Variables } from "../util/RelayRuntimeTypes";
+import { GraphQLResponse } from '../network/RelayNetworkTypes';
+import { Variables } from '../util/RelayRuntimeTypes';
 
 export default class RelayQueryResponseCache {
     constructor(config: { size: number; ttl: number });

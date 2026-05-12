@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { GraphQLTaggedNode } from "relay-runtime";
-
-import { ArrayKeyType, ArrayKeyTypeData, KeyType, KeyTypeData } from "../ReactRelayTypes";
+import {ArrayKeyType, ArrayKeyTypeData, KeyType, KeyTypeData} from '../ReactRelayTypes';
+import { GraphQLTaggedNode } from 'relay-runtime';
 
 // NOTE: These declares ensure that the type of the returned data is:
 //   - non-nullable if the provided ref type is non-nullable

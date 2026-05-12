@@ -81,7 +81,7 @@ mod tests {
     use crate::ToSDLDefinition;
 
     fn set_from_str(sdl: &str) -> SchemaSet {
-        SchemaSet::from_schema_documents(&[parse_schema_document(
+        SchemaSet::from_base_schema_documents(&[parse_schema_document(
             sdl,
             SourceLocationKey::generated(),
         )

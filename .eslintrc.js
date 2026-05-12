@@ -95,6 +95,22 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['**/*.d.ts'],
+      extends: ['plugin:@typescript-eslint/recommended'],
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-unused-vars': [
+          'warn',
+          {
+            args: 'none',
+            varsIgnorePattern: '^_',
+            argsIgnorePattern: '^_',
+            ignoreRestSiblings: true,
+          },
+        ],
+      },
+    },
+    {
       files: ['packages/relay-runtime/**/*.js', 'packages/react-relay/**/*.js'],
       excludedFiles: [
         '**/__tests__/**',

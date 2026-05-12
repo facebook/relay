@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { PayloadData } from "../network/RelayNetworkTypes";
-import { MutableRecordSource, NormalizationSelector, RelayResponsePayload, RequestDescriptor } from "./RelayStoreTypes";
+import { PayloadData } from '../network/RelayNetworkTypes';
+import {MutableRecordSource, NormalizationSelector, RelayResponsePayload, RequestDescriptor} from './RelayStoreTypes';
 
 export type GetDataID = (fieldValue: { [key: string]: any }, typeName: string) => any;
 

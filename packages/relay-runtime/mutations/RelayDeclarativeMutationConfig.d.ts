@@ -5,13 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { SelectorStoreUpdater } from "../store/RelayStoreTypes";
-import { ConcreteRequest } from "../util/RelayConcreteNode";
-import { Variables } from "../util/RelayRuntimeTypes";
+import { SelectorStoreUpdater } from '../store/RelayStoreTypes';
+import { ConcreteRequest } from '../util/RelayConcreteNode';
+import { Variables } from '../util/RelayRuntimeTypes';
 
-export type MutationTypes = "RANGE_ADD" | "RANGE_DELETE" | "NODE_DELETE";
+export type MutationTypes = 'RANGE_ADD' | 'RANGE_DELETE' | 'NODE_DELETE';
 
-export type RangeOperations = "append" | "prepend";
+export type RangeOperations = 'append' | 'prepend';
 export type RangeBehaviorsFunction = (connectionArgs: { [name: string]: unknown }) => RangeOperations;
 export interface RangeBehaviorsObject {
     [key: string]: RangeOperations;
@@ -19,7 +19,7 @@ export interface RangeBehaviorsObject {
 export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 
 export interface RangeAddConfig {
-    type: "RANGE_ADD";
+    type: 'RANGE_ADD';
     parentName?: string | undefined;
     parentID?: string | undefined;
     connectionInfo?:
@@ -35,7 +35,7 @@ export interface RangeAddConfig {
 }
 
 export interface RangeDeleteConfig {
-    type: "RANGE_DELETE";
+    type: 'RANGE_DELETE';
     parentName?: string | undefined;
     parentID?: string | undefined;
     connectionKeys?:
@@ -50,7 +50,7 @@ export interface RangeDeleteConfig {
 }
 
 export interface NodeDeleteConfig {
-    type: "NODE_DELETE";
+    type: 'NODE_DELETE';
     parentName?: string | undefined;
     parentID?: string | undefined;
     connectionName?: string | undefined;

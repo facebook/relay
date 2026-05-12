@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { GraphQLTaggedNode, OperationType, RenderPolicy } from "relay-runtime";
-
-import { PreloadedQuery } from "../ReactRelayTypes";
+import { PreloadedQuery } from '../ReactRelayTypes';
+import {GraphQLTaggedNode, OperationType, RenderPolicy} from 'relay-runtime';
 
 export function usePreloadedQuery<TQuery extends OperationType>(
     gqlQuery: GraphQLTaggedNode,
@@ -15,4 +14,4 @@ export function usePreloadedQuery<TQuery extends OperationType>(
     options?: {
         UNSTABLE_renderPolicy?: RenderPolicy | undefined;
     },
-): TQuery["response"];
+): TQuery['response'];

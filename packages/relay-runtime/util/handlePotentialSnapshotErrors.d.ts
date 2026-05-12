@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Environment, MissingRequiredFields, RelayResolverErrors } from "../store/RelayStoreTypes";
+import {Environment, MissingRequiredFields, RelayResolverErrors} from '../store/RelayStoreTypes';
 
 export default function handlePotentialSnapshotErrors(
     environment: Environment,

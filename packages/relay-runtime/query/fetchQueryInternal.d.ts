@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { GraphQLResponse } from "../network/RelayNetworkTypes";
-import { RelayObservable as Observable } from "../network/RelayObservable";
-import { Environment, OperationDescriptor, RequestDescriptor } from "../store/RelayStoreTypes";
-import { RequestIdentifier } from "../util/getRequestIdentifier";
+import { GraphQLResponse } from '../network/RelayNetworkTypes';
+import { RelayObservable as Observable } from '../network/RelayObservable';
+import {Environment, OperationDescriptor, RequestDescriptor} from '../store/RelayStoreTypes';
+import { RequestIdentifier } from '../util/getRequestIdentifier';
 
 export function fetchQuery(environment: Environment, operation: OperationDescriptor): Observable<GraphQLResponse>;
 

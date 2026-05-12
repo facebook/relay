@@ -19,6 +19,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::sync::RwLock;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering::SeqCst;
 
@@ -29,11 +30,15 @@ use log::error;
 use log::info;
 use log::warn;
 use tokio::sync::Notify;
+use watchman_client::prelude::Clock;
 
+use crate::FileSourceResult;
 use crate::FsSourceReader;
 use crate::SourceReader;
+use crate::config::Config;
 use crate::errors::BuildProjectError;
 use crate::errors::Error;
+use crate::file_source::query_changes_since;
 use crate::source_for_location;
 
 pub trait StatusReporter {
@@ -58,6 +63,21 @@ pub enum BuildResult {
     Success(Vec<(DiagnosticSeverity, String)>),
     /// Failed build with pre-formatted error messages and their severities.
     Errors(Vec<(DiagnosticSeverity, String)>),
+}
+
+/// Outcome of a Watchman sync — what the caller should do next.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WatchmanSyncOutcome {
+    /// Watchman confirmed no relevant files changed since the last clock.
+    NoChanges,
+    /// New file changes were enqueued into the compiler's pending-changes
+    /// queue; caller should drive an incremental build.
+    Changes,
+    /// Watchman couldn't give a trustworthy incremental answer (the query
+    /// failed or returned a fresh instance). Caller must request a reset
+    /// so the daemon reinitializes from saved state — falling back to a
+    /// full build if saved state is unavailable.
+    NeedsReset,
 }
 
 /// Tracks build status to coordinate between the compiler daemon and clients.
@@ -85,6 +105,32 @@ pub struct BuildStatus {
     /// When set, the file is truncated after each build if it exceeds
     /// [`Self::MAX_LOG_BYTES`].
     log_path: Option<PathBuf>,
+    /// Synchronized Watchman state for coordinating the build loop and write handler.
+    ///
+    /// Both paths query Watchman through [`Self::sync_file_changes`], which holds
+    /// this lock across the async query. This ensures a single authoritative clock
+    /// and prevents the two consumers from racing.
+    watchman_sync: tokio::sync::Mutex<WatchmanSyncState>,
+    /// Set when the build loop must abort, drop the current compiler state,
+    /// and let `watch()` reinitialize from saved state (or a full build).
+    /// Read-and-cleared by the build loop via [`Self::take_reset_requested`].
+    needs_reset: AtomicBool,
+}
+
+/// State guarded by the `watchman_sync` mutex in [`BuildStatus`].
+///
+/// The clock is only advanced inside [`BuildStatus::sync_file_changes`], never
+/// read from the subscription directly. The subscription merely signals the
+/// build loop to call `sync_file_changes`.
+struct WatchmanSyncState {
+    /// Current Watchman clock — advanced only when changes are queried.
+    clock: Option<Clock>,
+    /// Handle to push file changes into the compiler's pending-changes queue.
+    /// Set during [`BuildStatus::init_watchman_sync`].
+    pending_file_source_changes: Option<Arc<RwLock<Vec<FileSourceResult>>>>,
+    /// Notify handle to wake the build loop.
+    /// Set during [`BuildStatus::init_watchman_sync`].
+    build_notify: Option<Arc<Notify>>,
 }
 
 impl BuildStatus {
@@ -109,6 +155,12 @@ impl BuildStatus {
             root_dir,
             is_multi_project,
             log_path: None,
+            watchman_sync: tokio::sync::Mutex::new(WatchmanSyncState {
+                clock: None,
+                pending_file_source_changes: None,
+                build_notify: None,
+            }),
+            needs_reset: AtomicBool::new(false),
         }
     }
 
@@ -119,10 +171,116 @@ impl BuildStatus {
         self.log_path = Some(path);
     }
 
+    /// Initialize the Watchman sync state with the compiler's pending-changes
+    /// queue and build-loop notify handle.
+    ///
+    /// Must be called once during `watch()` setup, before the subscription or
+    /// write handler attempts to sync.
+    pub async fn init_watchman_sync(
+        &self,
+        clock: Option<Clock>,
+        pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
+        build_notify: Arc<Notify>,
+    ) {
+        let mut state = self.watchman_sync.lock().await;
+        state.clock = clock;
+        state.pending_file_source_changes = Some(pending_file_source_changes);
+        state.build_notify = Some(build_notify);
+    }
+
+    /// Query Watchman for file changes since the last known clock, push any
+    /// discovered changes into the compiler's pending-changes queue, and
+    /// advance the clock.
+    ///
+    /// This is the **single authoritative path** for detecting file changes.
+    /// Both the incremental build loop and the write handler call this method,
+    /// serialized by the internal tokio mutex.
+    ///
+    /// Returns [`WatchmanSyncOutcome::NeedsReset`] when Watchman cannot give a
+    /// trustworthy incremental answer (query error or fresh instance). In
+    /// that case the caller should call [`Self::request_reset`] and wake
+    /// the build loop so the daemon reinitializes.
+    pub async fn sync_file_changes(&self, config: &Arc<Config>) -> WatchmanSyncOutcome {
+        let mut state = self.watchman_sync.lock().await;
+
+        let Some(clock) = state.clock.take() else {
+            // No clock means init_watchman_sync hasn't run (or was called
+            // with no clock). We have no trustworthy baseline to query
+            // against, so the only honest answer is to request a reset.
+            warn!("Watchman sync called with no clock available. Requesting compiler reset.");
+            return WatchmanSyncOutcome::NeedsReset;
+        };
+
+        let query = match query_changes_since(config, clock.clone()).await {
+            Ok(q) => q,
+            Err(e) => {
+                warn!("Watchman sync query failed: {e}. Requesting compiler reset.");
+                // Restore clock so a successful retry path can recover.
+                state.clock = Some(clock);
+                return WatchmanSyncOutcome::NeedsReset;
+            }
+        };
+
+        if query.is_fresh_instance {
+            warn!(
+                "Watchman returned a fresh instance — incremental state is no \
+                 longer trustworthy. Requesting compiler reset."
+            );
+            // Don't advance the clock; watch() will pick up its own
+            // fresh clock when it reinitializes.
+            state.clock = Some(clock);
+            return WatchmanSyncOutcome::NeedsReset;
+        }
+
+        state.clock = Some(query.clock);
+        match query.files {
+            Some(changes) => {
+                if let Some(ref pending) = state.pending_file_source_changes {
+                    pending.write().unwrap().push(changes);
+                }
+                WatchmanSyncOutcome::Changes
+            }
+            None => WatchmanSyncOutcome::NoChanges,
+        }
+    }
+
+    /// Wake the build loop so it picks up changes enqueued by
+    /// [`Self::sync_file_changes`] or honors a pending reset request.
+    pub async fn notify_build_loop(&self) {
+        let state = self.watchman_sync.lock().await;
+        if let Some(ref notify) = state.build_notify {
+            notify.notify_one();
+        }
+    }
+
+    /// Request that the build loop drop its current compiler state and let
+    /// `watch()` reinitialize from saved state (or fall back to a full build).
+    /// Caller should also call [`Self::notify_build_loop`] to wake the loop.
+    pub fn request_reset(&self) {
+        self.needs_reset.store(true, SeqCst);
+    }
+
+    /// Atomically read and clear the reset flag.
+    pub fn take_reset_requested(&self) -> bool {
+        self.needs_reset.swap(false, SeqCst)
+    }
+
     /// Called when pending changes were determined to not require a build.
     pub fn no_pending_changes(&self) {
         self.is_building.store(false, SeqCst);
         self.build_complete_notify.notify_waiters();
+    }
+
+    /// Signal that the compiler task has crashed (panicked or exited unexpectedly).
+    ///
+    /// Stores an error build result and unblocks any pending `wait_for_idle()`
+    /// calls so clients receive the error instead of hanging forever.
+    pub fn compiler_crashed(&self, message: String) {
+        self.set_build_result(BuildResult::Errors(vec![(
+            DiagnosticSeverity::ERROR,
+            message,
+        )]));
+        self.build_completed();
     }
 
     /// Wait until no build is in progress

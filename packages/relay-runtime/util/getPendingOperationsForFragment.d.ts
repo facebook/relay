@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type { Environment, RequestDescriptor } from "../store/RelayStoreTypes";
-import type { ReaderFragment } from "./ReaderNode";
+import type {Environment, RequestDescriptor} from '../store/RelayStoreTypes';
+import type { ReaderFragment } from './ReaderNode';
 
 export default function getPendingOperationsForFragment(
     environment: Environment,

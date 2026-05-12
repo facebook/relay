@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ConcreteRequest } from "../util/RelayConcreteNode";
-import { CacheConfig, DataID, Variables } from "../util/RelayRuntimeTypes";
-import { OperationDescriptor, RequestDescriptor } from "./RelayStoreTypes";
+import { ConcreteRequest } from '../util/RelayConcreteNode';
+import {CacheConfig, DataID, Variables} from '../util/RelayRuntimeTypes';
+import {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
 /**
  * Creates an instance of the `OperationDescriptor` type defined in
  * `RelayStoreTypes` given an operation and some variables. The input variables

@@ -5,4 +5,4 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export default function stableCopy<T extends unknown>(value: T): T;
+export default function stableCopy<T>(value: T): T;

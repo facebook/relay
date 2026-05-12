@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type { GraphQLTaggedNode } from "../query/GraphQLTag";
-import type { RelayObservable as Observable } from "../network/RelayObservable";
-import type { OperationType } from "../util/RelayRuntimeTypes";
-import type { Environment as IEnvironment, FragmentState } from "./RelayStoreTypes";
+import type { RelayObservable as Observable } from '../network/RelayObservable';
+import type { GraphQLTaggedNode } from '../query/GraphQLTag';
+import type { OperationType } from '../util/RelayRuntimeTypes';
+import type {Environment as IEnvironment, FragmentState} from './RelayStoreTypes';
 
 /**
  * This function returns an observable that can be used to subscribe to the data
@@ -26,5 +26,5 @@ import type { Environment as IEnvironment, FragmentState } from "./RelayStoreTyp
 export function observeQuery<T extends OperationType>(
     environment: IEnvironment,
     gqlQuery: GraphQLTaggedNode,
-    variables: T["variables"],
-): Observable<FragmentState<T["response"]>>;
+    variables: T['variables'],
+): Observable<FragmentState<T['response']>>;

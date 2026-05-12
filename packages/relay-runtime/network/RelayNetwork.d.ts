@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { FetchFunction, Network, SubscribeFunction } from "./RelayNetworkTypes";
+import {FetchFunction, Network, SubscribeFunction} from './RelayNetworkTypes';
 
 export const RelayNetwork: {
     create(fetchFn: FetchFunction, subscribeFn?: SubscribeFunction): Network;

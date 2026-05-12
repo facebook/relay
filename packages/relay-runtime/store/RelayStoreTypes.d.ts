@@ -5,39 +5,38 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { MutationParameters } from "../mutations/commitMutation";
+import { MutationParameters } from '../mutations/commitMutation';
 import {
-    GraphQLResponse,
-    Network,
-    PayloadData,
-    PayloadError,
-    ReactFlightServerTree,
-    UploadableMap,
-} from "../network/RelayNetworkTypes";
-import { RelayObservable } from "../network/RelayObservable";
-import { GraphQLTaggedNode } from "../query/GraphQLTag";
-import { RequestIdentifier } from "../util/getRequestIdentifier";
+  GraphQLResponse,
+  Network,
+  PayloadData,
+  PayloadError,
+  ReactFlightServerTree,
+  UploadableMap,
+} from '../network/RelayNetworkTypes';
+import { RelayObservable } from '../network/RelayObservable';
+import { GraphQLTaggedNode } from '../query/GraphQLTag';
+import { RequestIdentifier } from '../util/getRequestIdentifier';
 import {
-    NormalizationLinkedField,
-    NormalizationScalarField,
-    NormalizationSelectableNode,
-    NormalizationSplitOperation,
-} from "../util/NormalizationNode";
-import { ReaderFragment, ReaderLinkedField } from "../util/ReaderNode";
-import { ConcreteRequest, RequestParameters } from "../util/RelayConcreteNode";
+  NormalizationLinkedField,
+  NormalizationScalarField,
+  NormalizationSelectableNode,
+  NormalizationSplitOperation,
+} from '../util/NormalizationNode';
+import {ReaderFragment, ReaderLinkedField} from '../util/ReaderNode';
+import {ConcreteRequest, RequestParameters} from '../util/RelayConcreteNode';
 import {
-    CacheConfig,
-    DataID,
-    Disposable,
-    FetchPolicy,
-    OperationType,
-    RenderPolicy,
-    Variables,
-    VariablesOf,
-} from "../util/RelayRuntimeTypes";
-import { InvalidationState } from "./RelayModernStore";
-import { RelayOperationTracker } from "./RelayOperationTracker";
-import { RecordState } from "./RelayRecordState";
+  CacheConfig,
+  DataID,
+  Disposable,
+  OperationType,
+  RenderPolicy,
+  Variables,
+  VariablesOf,
+} from '../util/RelayRuntimeTypes';
+import { InvalidationState } from './RelayModernStore';
+import { RelayOperationTracker } from './RelayOperationTracker';
+import { RecordState } from './RelayRecordState';
 
 export type FragmentType = unknown;
 export type OperationTracker = RelayOperationTracker;
@@ -45,7 +44,7 @@ export type OperationTracker = RelayOperationTracker;
 /*
  * An individual cached graph object.
  */
-export interface Record<T extends object = {}> {
+export interface Record<T extends object = Record<string, unknown>> {
     [key: string]: T;
 }
 
@@ -69,7 +68,7 @@ export interface SelectorData {
 }
 
 export interface SingularReaderSelector {
-    readonly kind: "SingularReaderSelector";
+    readonly kind: 'SingularReaderSelector';
     readonly dataID: DataID;
     readonly isWithinUnmatchedTypeRefinement: boolean;
     readonly node: ReaderFragment;
@@ -80,7 +79,7 @@ export interface SingularReaderSelector {
 export type ReaderSelector = SingularReaderSelector | PluralReaderSelector;
 
 export interface PluralReaderSelector {
-    readonly kind: "PluralReaderSelector";
+    readonly kind: 'PluralReaderSelector';
     readonly selectors: readonly SingularReaderSelector[];
 }
 
@@ -195,8 +194,7 @@ export interface FragmentSpecResolver {
  * A read-only interface for accessing cached graph data.
  */
 export interface RecordSource {
-    // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-    get<T extends object = {}>(dataID: DataID): Record<T> | null | undefined;
+    get<T extends object = Record<string, unknown>>(dataID: DataID): Record<T> | null | undefined;
     getRecordIDs(): DataID[];
     getStatus(dataID: DataID): RecordState;
     has(dataID: DataID): boolean;
@@ -221,13 +219,13 @@ export interface CheckOptions {
 
 export type OperationAvailability =
     | {
-        status: "available";
+        status: 'available';
         fetchTime: number | null | undefined;
     }
-    | { status: "stale" }
-    | { status: "missing" };
+    | { status: 'stale' }
+    | { status: 'missing' };
 
-export { InvalidationState } from "./RelayModernStore";
+export { InvalidationState } from './RelayModernStore';
 
 /**
  * An interface for keeping multiple views of data consistent across an
@@ -341,7 +339,7 @@ export type Scheduler = (callback: () => void) => void;
 export type Unarray<T> = T extends Array<infer U> | ReadonlyArray<infer U> ? U : T;
 export type Primitive = string | number | boolean | null | undefined;
 
-export interface RecordProxy<T = {}> {
+export interface RecordProxy<T = Record<string, unknown>> {
     copyFieldsFrom(source: RecordProxy): void;
     getDataID(): DataID;
     // If a parent type is provided, provide the child type
@@ -409,8 +407,7 @@ export interface ReadOnlyRecordProxy {
 export interface RecordSourceProxy {
     create(dataID: DataID, typeName: string): RecordProxy;
     delete(dataID: DataID): void;
-    // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-    get<T = {}>(dataID: DataID): RecordProxy<T> | null | undefined;
+    get<T = Record<string, unknown>>(dataID: DataID): RecordProxy<T> | null | undefined;
     getRoot(): RecordProxy;
 }
 
@@ -424,7 +421,7 @@ export interface ReadOnlyRecordSourceProxy {
  * fields of a Selector.
  */
 
-export interface RecordSourceSelectorProxy<T = {}> extends RecordSourceProxy {
+export interface RecordSourceSelectorProxy<T = Record<string, unknown>> extends RecordSourceProxy {
     getRootField<K extends keyof T>(fieldName: K): RecordProxy<NonNullable<T[K]>>;
     getRootField(fieldName: string): RecordProxy | null;
     getPluralRootField(fieldName: string): Array<RecordProxy<T> | null> | null;
@@ -441,7 +438,7 @@ export interface RecordSourceSelectorProxy<T = {}> extends RecordSourceProxy {
 
 export type LogEvent =
     | Readonly<{
-        name: "suspense.fragment";
+        name: 'suspense.fragment';
         data: unknown;
         fragment: ReaderFragment;
         isRelayHooks: boolean;
@@ -450,7 +447,7 @@ export type LogEvent =
         pendingOperations: readonly RequestDescriptor[];
     }>
     | Readonly<{
-        name: "suspense.query";
+        name: 'suspense.query';
         fetchPolicy: string;
         isPromiseCached: boolean;
         operation: OperationDescriptor;
@@ -458,7 +455,7 @@ export type LogEvent =
         renderPolicy: RenderPolicy;
     }>
     | Readonly<{
-        name: "queryresource.fetch";
+        name: 'queryresource.fetch';
         /**
          * ID of this query resource request and will be the same if there is an associated queryresource.retain event.
          */
@@ -474,14 +471,14 @@ export type LogEvent =
         shouldFetch: boolean;
     }>
     | Readonly<{
-        name: "queryresource.retain";
+        name: 'queryresource.retain';
         resourceID: number;
         // value from ProfilerContext
         profilerContext: unknown;
     }>
     | Readonly<{
         // Indicates FragmentResource is going to return a result that is missing data.
-        name: "fragmentresource.missing_data";
+        name: 'fragmentresource.missing_data';
         data: unknown;
         fragment: ReaderFragment;
         isRelayHooks: boolean;
@@ -493,126 +490,126 @@ export type LogEvent =
          * Indicates getPendingOperationForFragment identified a pending operation.
          * Useful for measuring how frequently RelayOperationTracker identifies a related operation on which to suspend.
          */
-        name: "pendingoperation.found";
+        name: 'pendingoperation.found';
         fragment: ReaderFragment;
         fragmentOwner: RequestDescriptor;
         pendingOperations: ReadonlyArray<RequestDescriptor>;
     }>
     | Readonly<{
-        name: "network.info";
+        name: 'network.info';
         networkRequestId: number;
         info: unknown;
     }>
     | Readonly<{
-        name: "network.start";
+        name: 'network.start';
         networkRequestId: number;
         params: RequestParameters;
         variables: Variables;
         cacheConfig: CacheConfig;
     }>
     | Readonly<{
-        name: "network.next";
+        name: 'network.next';
         networkRequestId: number;
         response: GraphQLResponse;
     }>
     | Readonly<{
-        name: "network.error";
+        name: 'network.error';
         networkRequestId: number;
         error: Error;
     }>
     | Readonly<{
-        name: "network.complete";
+        name: 'network.complete';
         networkRequestId: number;
     }>
     | Readonly<{
-        name: "network.unsubscribe";
+        name: 'network.unsubscribe';
         networkRequestId: number;
     }>
     | Readonly<{
-        name: "execute.start";
+        name: 'execute.start';
         executeId: number;
         params: RequestParameters;
         variables: Variables;
         cacheConfig: CacheConfig;
     }>
     | Readonly<{
-        name: "execute.next.start";
+        name: 'execute.next.start';
         executeId: number;
         response: GraphQLResponse;
         operation: OperationDescriptor;
     }>
     | Readonly<{
-        name: "execute.next.end";
+        name: 'execute.next.end';
         executeId: number;
         response: GraphQLResponse;
         operation: OperationDescriptor;
     }>
     | Readonly<{
-        name: "execute.async.module";
+        name: 'execute.async.module';
         executeId: number;
         operationName: string;
         duration: number;
     }>
     | Readonly<{
-        name: "execute.error";
+        name: 'execute.error';
         executeId: number;
         error: Error;
     }>
     | Readonly<{
-        name: "execute.complete";
+        name: 'execute.complete';
         executeId: number;
     }>
     | Readonly<{
-        name: "execute.normalize.start";
+        name: 'execute.normalize.start';
         operation: OperationDescriptor;
     }>
     | Readonly<{
-        name: "execute.normalize.end";
+        name: 'execute.normalize.end';
         operation: OperationDescriptor;
     }>
     | Readonly<{
-        name: "store.datachecker.start";
+        name: 'store.datachecker.start';
         selector: NormalizationSelector;
     }>
     | Readonly<{
-        name: "store.datachecker.end";
+        name: 'store.datachecker.end';
         selector: NormalizationSelector;
     }>
     | Readonly<{
-        name: "store.publish";
+        name: 'store.publish';
         source: RecordSource;
         optimistic: boolean;
     }>
     | Readonly<{
-        name: "store.snapshot";
+        name: 'store.snapshot';
     }>
     | Readonly<{
-        name: "store.lookup.start";
+        name: 'store.lookup.start';
         selector: SingularReaderSelector;
     }>
     | Readonly<{
-        name: "store.lookup.end";
+        name: 'store.lookup.end';
         selector: SingularReaderSelector;
     }>
     | Readonly<{
-        name: "store.restore";
+        name: 'store.restore';
     }>
     | Readonly<{
-        name: "store.gc.start";
+        name: 'store.gc.start';
     }>
     | Readonly<{
-        name: "store.gc.interrupted";
+        name: 'store.gc.interrupted';
     }>
     | Readonly<{
-        name: "store.gc.end";
+        name: 'store.gc.end';
         references: DataIDSet;
     }>
     | Readonly<{
-        name: "store.notify.start";
+        name: 'store.notify.start';
         sourceOperation?: OperationDescriptor | undefined;
     }>
     | Readonly<{
-        name: "store.notify.complete";
+        name: 'store.notify.complete';
         sourceOperation?: OperationDescriptor | undefined;
         updatedRecordIDs: DataIDSet;
         invalidatedRecordIDs: DataIDSet;
@@ -620,24 +617,24 @@ export type LogEvent =
         updatedOwners: Array<RequestDescriptor>;
     }>
     | Readonly<{
-        name: "store.notify.subscription";
+        name: 'store.notify.subscription';
         sourceOperation?: OperationDescriptor | undefined;
         snapshot: Snapshot;
         nextSnapshot: Snapshot;
     }>
     | Readonly<{
-        name: "entrypoint.root.consume";
+        name: 'entrypoint.root.consume';
         profilerContext: unknown;
         rootModuleID: string;
     }>
     | Readonly<{
-        name: "liveresolver.batch.start";
+        name: 'liveresolver.batch.start';
     }>
     | Readonly<{
-        name: "liveresolver.batch.end";
+        name: 'liveresolver.batch.end';
     }>
     | Readonly<{
-        name: "useFragment.subscription.missedUpdates";
+        name: 'useFragment.subscription.missedUpdates';
         hasDataChanges: boolean;
     }>;
 
@@ -830,7 +827,7 @@ export interface ModuleImportPointer {
  */
 export type AsyncLoadCallback = (loadingState: LoadingState) => void;
 export interface LoadingState {
-    status: "aborted" | "complete" | "error" | "missing";
+    status: 'aborted' | 'complete' | 'error' | 'missing';
     error?: Error | undefined;
 }
 
@@ -891,7 +888,7 @@ export interface ModuleImportPayload {
  * arrives.
  */
 export interface DeferPlaceholder {
-    readonly kind: "defer";
+    readonly kind: 'defer';
     readonly data: PayloadData;
     readonly label: string;
     readonly path: readonly string[];
@@ -899,7 +896,7 @@ export interface DeferPlaceholder {
     readonly typeName: string;
 }
 export interface StreamPlaceholder {
-    readonly kind: "stream";
+    readonly kind: 'stream';
     readonly label: string;
     readonly path: readonly string[];
     readonly parentID: DataID;
@@ -971,7 +968,7 @@ export interface OptimisticResponseConfig<TMutation extends MutationParameters =
  */
 export type MissingFieldHandler =
     | {
-        kind: "scalar";
+        kind: 'scalar';
         handle: (
             field: NormalizationScalarField,
             parentRecord: ReadOnlyRecordProxy | null | undefined,
@@ -980,7 +977,7 @@ export type MissingFieldHandler =
         ) => unknown;
     }
     | {
-        kind: "linked";
+        kind: 'linked';
         handle: (
             field: NormalizationLinkedField | ReaderLinkedField,
             parentRecord: ReadOnlyRecordProxy | null | undefined,
@@ -989,7 +986,7 @@ export type MissingFieldHandler =
         ) => DataID | null | undefined;
     }
     | {
-        kind: "pluralLinked";
+        kind: 'pluralLinked';
         handle: (
             field: NormalizationLinkedField | ReaderLinkedField,
             parentRecord: ReadOnlyRecordProxy | null | undefined,
@@ -1000,7 +997,7 @@ export type MissingFieldHandler =
 
 type TRelayFieldErrorForDisplay = Readonly<{
     path?: ReadonlyArray<string | number>;
-    severity?: "CRITICAL" | "ERROR" | "WARNING";
+    severity?: 'CRITICAL' | 'ERROR' | 'WARNING';
 }>;
 
 export type TRelayFieldError =
@@ -1027,7 +1024,7 @@ export type TRelayFieldError =
  * https://relay.dev/docs/next/guides/throw-on-field-error-directive/
  */
 type MissingExpectedDataLogEvent = Readonly<{
-    kind: "missing_expected_data.log";
+    kind: 'missing_expected_data.log';
     owner: string;
     fieldPath: string;
 }>;
@@ -1053,7 +1050,7 @@ type MissingExpectedDataLogEvent = Readonly<{
  * `handled: true` and should not trigger a throw.
  */
 type MissingExpectedDataThrowEvent = Readonly<{
-    kind: "missing_expected_data.throw";
+    kind: 'missing_expected_data.throw';
     owner: string;
     fieldPath: string;
     handled: boolean;
@@ -1064,7 +1061,7 @@ type MissingExpectedDataThrowEvent = Readonly<{
  * store.
  */
 type MissingRequiredFieldLogEvent = Readonly<{
-    kind: "missing_required_field.log";
+    kind: 'missing_required_field.log';
     owner: string;
     fieldPath: string;
 }>;
@@ -1081,7 +1078,7 @@ type MissingRequiredFieldLogEvent = Readonly<{
  * `handled: true` and should not trigger a throw.
  */
 type MissingRequiredFieldThrowEvent = Readonly<{
-    kind: "missing_required_field.throw";
+    kind: 'missing_required_field.throw';
     owner: string;
     fieldPath: string;
     handled: boolean;
@@ -1100,7 +1097,7 @@ type MissingRequiredFieldThrowEvent = Readonly<{
  * `handled: true` and should not trigger a throw.
  */
 type RelayResolverErrorEvent = Readonly<{
-    kind: "relay_resolver.error";
+    kind: 'relay_resolver.error';
     owner: string;
     fieldPath: string;
     error: Error;
@@ -1126,7 +1123,7 @@ type RelayResolverErrorEvent = Readonly<{
  * `handled: true` and should not trigger a throw.
  */
 type RelayFieldPayloadErrorEvent = Readonly<{
-    kind: "relay_field_payload.error";
+    kind: 'relay_field_payload.error';
     owner: string;
     fieldPath: string;
     error: TRelayFieldError;
@@ -1167,9 +1164,9 @@ export interface RelayResponsePayload {
  */
 export interface ExecuteMutationConfig<TMutation extends MutationParameters> {
     operation: OperationDescriptor;
-    optimisticUpdater?: SelectorStoreUpdater<TMutation["response"]> | null;
+    optimisticUpdater?: SelectorStoreUpdater<TMutation['response']> | null;
     optimisticResponse?: { [key: string]: any } | null;
-    updater?: SelectorStoreUpdater<TMutation["response"]> | null;
+    updater?: SelectorStoreUpdater<TMutation['response']> | null;
     uploadables?: UploadableMap | null;
 }
 
@@ -1241,8 +1238,8 @@ interface FieldLocation {
 }
 
 export type MissingRequiredFields =
-    | Readonly<{ action: "THROW"; field: FieldLocation }>
-    | Readonly<{ action: "LOG"; fields: FieldLocation[] }>;
+    | Readonly<{ action: 'THROW'; field: FieldLocation }>
+    | Readonly<{ action: 'LOG'; fields: FieldLocation[] }>;
 
 export interface RelayResolverError {
     field: FieldLocation;
@@ -1255,14 +1252,14 @@ export type RelayResolverErrors = RelayResolverError[];
  * The return type of calls to store.readUpdatableFragment.
  */
 export interface UpdatableFragmentData<TKey extends HasUpdatableSpread<TData>, TData = unknown> {
-    readonly updatableData: Required<TKey>[" $data"];
+    readonly updatableData: Required<TKey>[' $data'];
 }
 
 /**
  * The return type of calls to store.readUpdatableQuery.
  */
 export interface UpdatableQueryData<TQuery extends OperationType> {
-    readonly updatableData: TQuery["response"];
+    readonly updatableData: TQuery['response'];
 }
 
 /**
@@ -1271,7 +1268,7 @@ export interface UpdatableQueryData<TQuery extends OperationType> {
  * This type is expected by store.readUpdatableFragment.
  */
 export type HasUpdatableSpread<TData = unknown> = Readonly<{
-    " $data"?: TData | undefined;
+    ' $data'?: TData | undefined;
     $updatableFragmentSpreads: FragmentType;
 }>;
 
@@ -1313,11 +1310,11 @@ export function suspenseSentinel(): never;
 export type ResolverContext = unknown;
 
 export type KeyType<TData = unknown> = Readonly<{
-    " $data"?: TData | undefined;
-    " $fragmentSpreads": FragmentType;
+    ' $data'?: TData | undefined;
+    ' $fragmentSpreads': FragmentType;
 }>;
 
-export type KeyTypeData<TKey extends KeyType<TData>, TData = unknown> = Required<TKey>[" $data"];
+export type KeyTypeData<TKey extends KeyType<TData>, TData = unknown> = Required<TKey>[' $data'];
 
 export type ArrayKeyType<TData = unknown> = ReadonlyArray<KeyType<readonly TData[]> | null | undefined>;
 export type ArrayKeyTypeData<TKey extends ArrayKeyType<TData>, TData = unknown> = KeyTypeData<
@@ -1325,6 +1322,6 @@ export type ArrayKeyTypeData<TKey extends ArrayKeyType<TData>, TData = unknown> 
 >;
 
 export type FragmentState<T> =
-    | { state: "ok"; value: T }
-    | { state: "error"; error: Error }
-    | { state: "loading" };
+    | { state: 'ok'; value: T }
+    | { state: 'error'; error: Error }
+    | { state: 'loading' };

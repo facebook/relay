@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { RequestParameters } from "../util/RelayConcreteNode";
-import { CacheConfig, Disposable, Variables } from "../util/RelayRuntimeTypes";
-import { ObservableFromValue, RelayObservable } from "./RelayObservable";
+import { RequestParameters } from '../util/RelayConcreteNode';
+import {CacheConfig, Disposable, Variables} from '../util/RelayRuntimeTypes';
+import {ObservableFromValue, RelayObservable} from './RelayObservable';
 
 /**
  * An interface for fetching the data for one or more (possibly interdependent)
@@ -31,7 +31,7 @@ export interface PayloadError {
         }>
         | undefined;
     path?: Array<string | number>;
-    severity?: "CRITICAL" | "ERROR" | "WARNING" | undefined; // Not officially part of the spec, but used at Facebook
+    severity?: 'CRITICAL' | 'ERROR' | 'WARNING' | undefined; // Not officially part of the spec, but used at Facebook
 }
 
 export interface PayloadExtensions {

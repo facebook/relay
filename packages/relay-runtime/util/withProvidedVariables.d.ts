@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ProvidedVariablesType } from "./RelayConcreteNode";
-import { Variables } from "./RelayRuntimeTypes";
+import { ProvidedVariablesType } from './RelayConcreteNode';
+import { Variables } from './RelayRuntimeTypes';
 
 interface WithProvidedVariablesFn {
     (

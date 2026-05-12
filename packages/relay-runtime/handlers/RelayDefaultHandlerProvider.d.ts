@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Handler } from "../store/RelayStoreTypes";
+import { Handler } from '../store/RelayStoreTypes';
 
 export type HandlerProvider = (handle: string) => Handler | undefined;
 

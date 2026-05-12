@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { GraphQLTaggedNode } from "../query/GraphQLTag";
-import { Environment, SelectorStoreUpdater } from "../store/RelayStoreTypes";
-import { Disposable, Variables } from "../util/RelayRuntimeTypes";
-import { DeclarativeMutationConfig } from "./RelayDeclarativeMutationConfig";
+import { GraphQLTaggedNode } from '../query/GraphQLTag';
+import {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
+import {Disposable, Variables} from '../util/RelayRuntimeTypes';
+import { DeclarativeMutationConfig } from './RelayDeclarativeMutationConfig';
 
 export interface OptimisticMutationConfig {
     configs?: readonly DeclarativeMutationConfig[] | null | undefined;

@@ -40,7 +40,7 @@ use crate::SetObject;
 use crate::SetScalar;
 use crate::SetType;
 use crate::SetUnion;
-use crate::schema_set::CanBeClientDefinition;
+use crate::schema_set::HasDefinitionItem;
 use crate::schema_set::SetRootSchema;
 
 lazy_static! {
@@ -870,7 +870,7 @@ pub mod tests {
     use crate::ToSDLDefinition;
 
     fn set_from_str(sdl: &str) -> SchemaSet {
-        SchemaSet::from_schema_documents(&[parse_schema_document(
+        SchemaSet::from_base_schema_documents(&[parse_schema_document(
             sdl,
             SourceLocationKey::generated(),
         )
@@ -893,8 +893,8 @@ pub mod tests {
         ($original:expr, $excluded:expr, $expected:expr, $options:expr $(,)?) => {
             let after_exclusion =
                 set_from_str($original).exclude(&set_from_str($excluded), &$options);
-            let expected_doc = format!("{}", set_from_str($expected).to_sdl_definition());
-            let excluded_doc = format!("{}", after_exclusion.to_sdl_definition());
+            let expected_doc = &format!("{}", set_from_str($expected).to_sdl_definition());
+            let excluded_doc = &format!("{}", after_exclusion.to_sdl_definition());
             assert_eq!(excluded_doc, expected_doc);
         };
     }
@@ -950,11 +950,11 @@ pub mod tests {
         "#;
 
         let expected = r#"
-            type A implements Y {
+            extend type A implements Y {
               id: ID!
             }
 
-            type B @strong(field: "id")
+            extend type B @strong(field: "id")
         "#;
 
         assert_base_exclude_expected!(
@@ -981,7 +981,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ(a: Int!): String }",
             "type Query { myQ: String }",
-            "type Query { myQ(a: Int!): String }",
+            "extend type Query { myQ(a: Int!): String }",
         );
     }
 
@@ -990,7 +990,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ: String }",
             "type Query { myQ(a: Int!): String }",
-            "type Query { myQ(a: Int!): String }",
+            "extend type Query { myQ(a: Int!): String }",
         );
     }
 
@@ -1007,7 +1007,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ(a: Int): String }",
             "type Query { myQ: String }",
-            "type Query { myQ(a: Int): String }",
+            "extend type Query { myQ(a: Int): String }",
         );
     }
 
@@ -1024,7 +1024,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ(a: Int): String }",
             "type Query { myQ(a: Int!): String }",
-            "type Query { myQ(a: Int): String }",
+            "extend type Query { myQ(a: Int): String }",
         );
     }
 
@@ -1038,7 +1038,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ(a: Int): String }",
             "type Query { myQ(a: Int! = 7): String }",
-            "type Query { myQ(a: Int): String }",
+            "extend type Query { myQ(a: Int): String }",
         );
     }
 
@@ -1060,7 +1060,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ(a: Int): String }",
             "type Query { myQ(a: [Int]): String }",
-            "type Query { myQ(a: Int): String }",
+            "extend type Query { myQ(a: Int): String }",
             SafeExclusionOptions {
                 input_plurality_must_match: true,
                 ..SafeExclusionOptions::default()
@@ -1073,7 +1073,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ(a: Int!): String }",
             "type Query { myQ(a: String!): String }",
-            "type Query { myQ(a: Int!): String }",
+            "extend type Query { myQ(a: Int!): String }",
         );
     }
 
@@ -1098,7 +1098,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type root1 {f: String} type Query {q1: root1, q2: String}",
             "type root1 {f: String} type Query {q1: root1}",
-            "type Query {q2: String}",
+            "extend type Query {q2: String}",
         );
     }
 
@@ -1107,7 +1107,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ: String! }",
             "type Query { myQ: String }",
-            "type Query { myQ: String! }",
+            "extend type Query { myQ: String! }",
         );
     }
 
@@ -1116,7 +1116,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ: String @semanticNonNull }",
             "type Query { myQ: String }",
-            "type Query { myQ: String @semanticNonNull }",
+            "extend type Query { myQ: String @semanticNonNull }",
         );
     }
 
@@ -1127,7 +1127,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ: String }",
             "type Query { myQ: String! }",
-            "type Query { myQ: String }",
+            "extend type Query { myQ: String }",
             SafeExclusionOptions {
                 output_nullability_must_match: true,
                 ..SafeExclusionOptions::default()
@@ -1145,7 +1145,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ: String }",
             "type Query { myQ: String @semanticNonNull }",
-            "type Query { myQ: String }",
+            "extend type Query { myQ: String }",
             SafeExclusionOptions {
                 output_nullability_must_match: true,
                 ..SafeExclusionOptions::default()
@@ -1158,7 +1158,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ: String! }",
             "type Query { myQ: String @semanticNonNull }",
-            "type Query { myQ: String! }",
+            "extend type Query { myQ: String! }",
         );
     }
 
@@ -1172,7 +1172,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Query { myQ: String @semanticNonNull }",
             "type Query { myQ: String! }",
-            "type Query { myQ: String @semanticNonNull }",
+            "extend type Query { myQ: String @semanticNonNull }",
             SafeExclusionOptions {
                 output_nullability_must_match: true,
                 ..SafeExclusionOptions::default()
@@ -1185,7 +1185,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type T { name1: String } type Query { myQ: T }",
             "type T { name2: String } type Query { myQ: T }",
-            "type T { name1: String }",
+            "extend type T { name1: String }",
         );
     }
 
@@ -1194,7 +1194,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "type Concrete implements Inf { n: String! } interface Inf { n: String! } type Query { myQ: Concrete }",
             "type Concrete { n: String! } interface Inf { n: String! } type Query { myQ: Concrete }",
-            "type Concrete implements Inf",
+            "extend type Concrete implements Inf",
         );
     }
 
@@ -1208,7 +1208,7 @@ pub mod tests {
 
     #[test]
     fn test_union_item_removed() {
-        assert_base_exclude_expected!("union U = T | T2", "union U = T", "union U = T2");
+        assert_base_exclude_expected!("union U = T | T2", "union U = T", "extend union U = T2");
     }
 
     #[test]
@@ -1221,7 +1221,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "enum T { One, Two, Three }",
             "enum T { One, Two }",
-            "enum T { Three }",
+            "extend enum T { Three }",
         );
     }
 
@@ -1232,7 +1232,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "enum T { One, Two }",
             "enum T { One, Two, Three }",
-            "enum T { Three }",
+            "extend enum T { Three }",
             SafeExclusionOptions {
                 output_enum_values_must_match: true,
                 ..SafeExclusionOptions::default()
@@ -1279,7 +1279,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             "enum T @deprecated { One @deprecated } type Query { myQ(arg: X @deprecated): T @deprecated } input X @deprecated { field: String @deprecated }",
             "enum T { One } type Query { myQ(arg: X): T } input X { field: String }",
-            "enum T @deprecated { One @deprecated } type Query { myQ(arg: X @deprecated): T @deprecated } input X @deprecated { field: String @deprecated }",
+            "extend enum T @deprecated { One @deprecated } extend type Query { myQ(arg: X @deprecated): T @deprecated } extend input X @deprecated { field: String @deprecated }",
         );
         assert_base_exclude_empty!(
             "enum T @deprecated { One @deprecated } type Query { myQ(arg: X @deprecated): T @deprecated } input X @deprecated { field: String @deprecated }",
@@ -1383,7 +1383,7 @@ pub mod tests {
             type Padding {
                 id: ID
             }
-            type MyType @strong(field: "id")
+            extend type MyType @strong(field: "id")
             "#,
         );
     }
@@ -1459,7 +1459,7 @@ pub mod tests {
             type Padding {
                 id: ID
             }
-            type MyType @strong(field: "id")
+            extend type MyType @strong(field: "id")
             "#,
         );
     }
@@ -1502,7 +1502,7 @@ pub mod tests {
             }
             "#,
             r#"
-            type MyType @strong(field: "id")
+            extend type MyType @strong(field: "id")
             "#,
         );
     }
@@ -1691,12 +1691,277 @@ pub mod tests {
         );
     }
 
+    // --- self=extend (definition None) excluding other=full (definition Some) tests ---
+    //
+    // These exercise the case where the base SchemaSet has only an `extend X`
+    // (definition is None) and we exclude a full `type X` definition. The
+    // result should keep `definition = None`, so any leftover fields/values
+    // render as `extend X { ... }` rather than the full form.
+
+    #[test]
+    fn test_extend_type_minus_full_type_with_extra_field() {
+        // self has `extend type Foo` with two fields; other is the full type
+        // with only one field. Definition stays None (already None on self),
+        // and the leftover `b` field renders inside `extend type Foo`.
+        assert_base_exclude_expected!(
+            r#"
+            extend type Foo {
+                a: ID
+                b: String
+            }
+            "#,
+            r#"
+            type Foo {
+                a: ID
+            }
+            "#,
+            r#"
+            extend type Foo {
+                b: String
+            }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_interface_minus_full_interface_with_extra_field() {
+        assert_base_exclude_expected!(
+            r#"
+            extend interface Foo {
+                a: ID
+                b: String
+            }
+            "#,
+            r#"
+            interface Foo {
+                a: ID
+            }
+            "#,
+            r#"
+            extend interface Foo {
+                b: String
+            }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_enum_minus_full_enum_with_extra_value() {
+        assert_base_exclude_expected!(
+            r#"
+            extend enum Foo {
+                A
+                B
+            }
+            "#,
+            r#"
+            enum Foo {
+                A
+            }
+            "#,
+            r#"
+            extend enum Foo {
+                B
+            }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_union_minus_full_union_with_extra_member() {
+        assert_base_exclude_expected!(
+            r#"
+            type A { id: ID }
+            type B { id: ID }
+            extend union Foo = A | B
+            "#,
+            r#"
+            type A { id: ID }
+            type B { id: ID }
+            union Foo = A
+            "#,
+            r#"
+            extend union Foo = B
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_input_object_minus_full_input_object_with_extra_field() {
+        assert_base_exclude_expected!(
+            r#"
+            extend input Foo {
+                a: ID
+                b: String
+            }
+            "#,
+            r#"
+            input Foo {
+                a: ID
+            }
+            "#,
+            r#"
+            extend input Foo {
+                b: String
+            }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_extend_scalar_minus_full_scalar_with_extra_directive() {
+        // self has `extend scalar Foo @deprecated @other`; other is the full
+        // `scalar Foo @deprecated`. The leftover `@other` directive renders as
+        // `extend scalar Foo @other`.
+        assert_base_exclude_expected!(
+            r#"
+            extend scalar Foo @deprecated @other
+            "#,
+            r#"
+            scalar Foo @deprecated
+            "#,
+            r#"
+            extend scalar Foo @other
+            "#,
+        );
+    }
+
+    // --- self=full (definition Some) excluding other=extend (definition None) tests ---
+    //
+    // The existing `test_extend_does_not_exclude_*_definition` tests cover the
+    // case where self and other have the same fields (resulting in just the
+    // bare `type Foo`). These tests cover the case where self has additional
+    // fields beyond what other excludes — the leftover should stay inside the
+    // full type definition, not become a separate `extend`.
+
+    #[test]
+    fn test_full_type_minus_extend_type_with_extra_field() {
+        assert_base_exclude_expected!(
+            r#"
+            type Foo {
+                a: ID
+                b: String
+            }
+            "#,
+            r#"
+            extend type Foo {
+                a: ID
+            }
+            "#,
+            r#"
+            type Foo {
+                b: String
+            }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_full_interface_minus_extend_interface_with_extra_field() {
+        assert_base_exclude_expected!(
+            r#"
+            interface Foo {
+                a: ID
+                b: String
+            }
+            "#,
+            r#"
+            extend interface Foo {
+                a: ID
+            }
+            "#,
+            r#"
+            interface Foo {
+                b: String
+            }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_full_enum_minus_extend_enum_with_extra_value() {
+        assert_base_exclude_expected!(
+            r#"
+            enum Foo {
+                A
+                B
+            }
+            "#,
+            r#"
+            extend enum Foo {
+                A
+            }
+            "#,
+            r#"
+            enum Foo {
+                B
+            }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_full_union_minus_extend_union_with_extra_member() {
+        assert_base_exclude_expected!(
+            r#"
+            type A { id: ID }
+            type B { id: ID }
+            union Foo = A | B
+            "#,
+            r#"
+            type A { id: ID }
+            type B { id: ID }
+            extend union Foo = A
+            "#,
+            r#"
+            union Foo = B
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_full_input_object_minus_extend_input_object_with_extra_field() {
+        assert_base_exclude_expected!(
+            r#"
+            input Foo {
+                a: ID
+                b: String
+            }
+            "#,
+            r#"
+            extend input Foo {
+                a: ID
+            }
+            "#,
+            r#"
+            input Foo {
+                b: String
+            }
+            "#,
+        );
+    }
+
+    #[test]
+    fn test_full_scalar_minus_extend_scalar_with_extra_directive() {
+        assert_base_exclude_expected!(
+            r#"
+            scalar Foo @deprecated @other
+            "#,
+            r#"
+            extend scalar Foo @deprecated
+            "#,
+            r#"
+            scalar Foo @other
+            "#,
+        );
+    }
+
     #[test]
     fn base_restricted_type_directive_missing_from_self() {
         assert_base_exclude_expected!(
             r#"type T { f: String } type Query { q: T }"#,
             r#"type T @source(name: "x") { f: String } type Query { q: T }"#,
-            r#"type T @missing_required_directive(name: "source")"#,
+            r#"extend type T @missing_required_directive(name: "source")"#,
             SafeExclusionOptions {
                 base_restricted_directives: ["source".intern()].iter().cloned().collect(),
                 ..SafeExclusionOptions::default()
@@ -1721,7 +1986,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             r#"type Query { q: String }"#,
             r#"type Query { q: String @source(name: "x") }"#,
-            r#"type Query { q: String @missing_required_directive(name: "source") }"#,
+            r#"extend type Query { q: String @missing_required_directive(name: "source") }"#,
             SafeExclusionOptions {
                 base_restricted_directives: ["source".intern()].iter().cloned().collect(),
                 ..SafeExclusionOptions::default()
@@ -1758,7 +2023,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             r#"type T { a: String @source(name: "x"), b: Int } type Query { q: T }"#,
             r#"type T { a: String @source(name: "x"), b: Int @source(name: "y") } type Query { q: T }"#,
-            r#"type T { b: Int @missing_required_directive(name: "source") }"#,
+            r#"extend type T { b: Int @missing_required_directive(name: "source") }"#,
             SafeExclusionOptions {
                 base_restricted_directives: ["source".intern()].iter().cloned().collect(),
                 ..SafeExclusionOptions::default()
@@ -1771,7 +2036,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             r#"interface I { f: String } type Query { q: I }"#,
             r#"interface I { f: String @source(name: "x") } type Query { q: I }"#,
-            r#"interface I { f: String @missing_required_directive(name: "source") }"#,
+            r#"extend interface I { f: String @missing_required_directive(name: "source") }"#,
             SafeExclusionOptions {
                 base_restricted_directives: ["source".intern()].iter().cloned().collect(),
                 ..SafeExclusionOptions::default()
@@ -1784,7 +2049,7 @@ pub mod tests {
         assert_base_exclude_expected!(
             r#"enum E { A, B } type Query { q: E }"#,
             r#"enum E @source(name: "x") { A, B } type Query { q: E }"#,
-            r#"enum E @missing_required_directive(name: "source")"#,
+            r#"extend enum E @missing_required_directive(name: "source")"#,
             SafeExclusionOptions {
                 base_restricted_directives: ["source".intern()].iter().cloned().collect(),
                 ..SafeExclusionOptions::default()
@@ -1797,11 +2062,76 @@ pub mod tests {
         assert_base_exclude_expected!(
             r#"input I { f: String } type Query { q(i: I): String }"#,
             r#"input I @source(name: "x") { f: String } type Query { q(i: I): String }"#,
-            r#"input I @missing_required_directive(name: "source")"#,
+            r#"extend input I @missing_required_directive(name: "source")"#,
             SafeExclusionOptions {
                 base_restricted_directives: ["source".intern()].iter().cloned().collect(),
                 ..SafeExclusionOptions::default()
             },
+        );
+    }
+
+    // --- Base + extension tests ---
+
+    fn set_from_base_and_extensions(base_sdl: &str, ext_sdl: &str) -> SchemaSet {
+        let base_doc = parse_schema_document(base_sdl, SourceLocationKey::generated()).unwrap();
+        let ext_doc = parse_schema_document(ext_sdl, SourceLocationKey::generated()).unwrap();
+        SchemaSet::from_schema_documents_with_extensions(&[base_doc], &[ext_doc]).unwrap()
+    }
+
+    /// Asserts the base/client printed output of `actual_set` equals what you
+    /// would get by parsing `expected_base_sdl` + `expected_ext_sdl` through
+    /// `from_schema_documents_with_extensions` and printing it.
+    macro_rules! assert_base_and_extensions_eq {
+        ($actual_set:expr, $expected_base:expr, $expected_ext:expr $(,)?) => {
+            let (actual_base_defs, actual_client_defs) =
+                $actual_set.print_base_and_client_definitions().unwrap();
+            let expected = set_from_base_and_extensions($expected_base, $expected_ext);
+            let (expected_base_defs, expected_client_defs) =
+                expected.print_base_and_client_definitions().unwrap();
+            assert_eq!(
+                actual_base_defs.join("\n\n"),
+                expected_base_defs.join("\n\n"),
+                "base printed schema does not match expected"
+            );
+            assert_eq!(
+                actual_client_defs.join("\n\n"),
+                expected_client_defs.join("\n\n"),
+                "extensions printed schema does not match expected"
+            );
+        };
+    }
+
+    #[test]
+    fn test_exclude_extension_field_only_keeps_base_field() {
+        // Original has both a base field and a client-extension field on Query.
+        // We exclude only the extension-tagged field; the base field must remain
+        // and the extensions half should now be empty.
+        let original = set_from_base_and_extensions(
+            "type Query { name: String }",
+            "extend type Query { client_field: Int }",
+        );
+        let to_exclude =
+            set_from_base_and_extensions("", "extend type Query { client_field: Int }");
+        let after = original.exclude(&to_exclude, &SafeExclusionOptions::default());
+
+        assert_base_and_extensions_eq!(after, "type Query { name: String }", "");
+    }
+
+    #[test]
+    fn test_exclude_one_extension_field_keeps_other_extension_fields() {
+        // Excluding a single extension-tagged field should leave both the base
+        // half and the other extension field untouched.
+        let original = set_from_base_and_extensions(
+            "type Query { name: String age: Int }",
+            "extend type Query { c1: Int c2: String }",
+        );
+        let to_exclude = set_from_base_and_extensions("", "extend type Query { c1: Int }");
+        let after = original.exclude(&to_exclude, &SafeExclusionOptions::default());
+
+        assert_base_and_extensions_eq!(
+            after,
+            "type Query { name: String age: Int }",
+            "extend type Query { c2: String }",
         );
     }
 }

@@ -6,12 +6,12 @@
  */
 
 import {
-    ReaderFragment,
-    ReaderInlineDataFragment,
-    ReaderPaginationFragment,
-    ReaderRefetchableFragment,
-} from "../util/ReaderNode";
-import { ConcreteRequest } from "../util/RelayConcreteNode";
+  ReaderFragment,
+  ReaderInlineDataFragment,
+  ReaderPaginationFragment,
+  ReaderRefetchableFragment,
+} from '../util/ReaderNode';
+import { ConcreteRequest } from '../util/RelayConcreteNode';
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =

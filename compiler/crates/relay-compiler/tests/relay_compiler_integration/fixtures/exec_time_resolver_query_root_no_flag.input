@@ -1,0 +1,26 @@
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  greeting
+}`
+
+//- Query_greeting.js
+/**
+ * @relayField Query.greeting: RelayResolverValue
+ * @rootFragment QueryGreetingFragment
+ */
+graphql`fragment QueryGreetingFragment on Query {
+  hello
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { hello: String }

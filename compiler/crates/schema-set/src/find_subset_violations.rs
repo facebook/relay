@@ -544,7 +544,7 @@ fn walk_directive_def_violations(
                         violations.push(SubsetViolation {
                             violation_type: SubsetViolationType::RequiredDirectiveArgAdded,
                             description: format!(
-                                "A required arg {arg_name} on directive @{directive_name} is not defined in base schema.",
+                                "A required arg {arg_name} on directive @{directive_name} is in base but missing from subset.",
                             ),
                             schema_coordinate: SchemaCoordinate::Directive { name: directive_name }
                                 .to_string(),
@@ -740,7 +740,7 @@ mod tests {
     use super::*;
 
     fn set_from_str(sdl: &str) -> SchemaSet {
-        SchemaSet::from_schema_documents(&[parse_schema_document(
+        SchemaSet::from_base_schema_documents(&[parse_schema_document(
             sdl,
             SourceLocationKey::generated(),
         )

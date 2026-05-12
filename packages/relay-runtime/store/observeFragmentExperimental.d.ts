@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type { GraphQLTaggedNode } from "../query/GraphQLTag";
-import type { RelayObservable as Observable } from "../network/RelayObservable";
-import type { ArrayKeyType, ArrayKeyTypeData, Environment as IEnvironment, FragmentState, KeyType, KeyTypeData } from "./RelayStoreTypes";
+import type { RelayObservable as Observable } from '../network/RelayObservable';
+import type { GraphQLTaggedNode } from '../query/GraphQLTag';
+import type {ArrayKeyType, ArrayKeyTypeData, Environment as IEnvironment, FragmentState, KeyType, KeyTypeData} from './RelayStoreTypes';
 
 /**
  * EXPERIMENTAL: This API is experimental and does not yet support all Relay

@@ -593,7 +593,16 @@ pub async fn commit_project(
     log_event.string("project", project_config.name.to_string());
     let commit_time = log_event.start("commit_project_time");
 
-    let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
+    // Combine fragments from `source` (retains base-project fragments that
+    // `remove_base_fragments` strips from `typegen`) with fragments from
+    // `typegen` (contains synthesized fragments such as resolver model
+    // fragments that are not present in the raw source program).
+    let fragment_locations = FragmentLocations::new(
+        programs
+            .source
+            .fragments()
+            .chain(programs.typegen.fragments()),
+    );
     if source_control_update_status.is_started() {
         debug!("commit_project cancelled before persisting due to source control updates");
         return Err(BuildProjectFailure::Cancelled);

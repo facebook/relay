@@ -148,8 +148,7 @@ hook useLoadMoreFunction_CURRENT<TVariables extends Variables>(
     };
   }, [disposeFetch]);
 
-  const isRequestInvalid =
-    internalFragmentData == null || isParentQueryActive;
+  const isRequestInvalid = internalFragmentData == null || isParentQueryActive;
 
   const loadMore = useCallback(
     (

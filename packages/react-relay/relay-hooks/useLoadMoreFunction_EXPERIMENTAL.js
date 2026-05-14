@@ -142,8 +142,7 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables extends Variables>(
     connectionPathInFragmentData,
   );
 
-  const isRequestInvalid =
-    internalFragmentData == null || isParentQueryActive;
+  const isRequestInvalid = internalFragmentData == null || isParentQueryActive;
 
   const isMountedRef = useIsMountedRef();
   const loadMore = useCallback(

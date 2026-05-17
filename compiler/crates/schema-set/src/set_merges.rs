@@ -392,8 +392,23 @@ impl MergesFromAbstractDefinition<Self> for SetField {
             merge_directive_values(self, original.directives.clone());
             merge_arguments(self, abstract_field.arguments, parent_type)?;
         } else {
+            // Do not carry over the abstract definition's coordinate: this
+            // esentially turns this into an argument extension!
+            let abstract_arguments_without_coordinates = abstract_field
+                .arguments
+                .iter()
+                .map(|(name, arg)| {
+                    (
+                        *name,
+                        SetArgument {
+                            coordinate: None,
+                            ..arg.clone()
+                        },
+                    )
+                })
+                .collect();
             merge_directive_values(self, abstract_field.directives);
-            merge_arguments(self, abstract_field.arguments, parent_type)?;
+            merge_arguments(self, abstract_arguments_without_coordinates, parent_type)?;
         }
         Ok(())
     }
@@ -687,7 +702,12 @@ pub(crate) fn merge_fields_from_abstract_parent<T: HasFields>(
                 |original| original.definition.clone(),
             ),
             coordinate: original_field.map_or_else(
-                || other_field.coordinate.clone(),
+                // We should NOT take the coordinate of the original interface:
+                // we don't know that this field has a real definition, and we do NOT
+                // want to take the interface field's definition over a true original definition.
+                // We essentially turn this field into a field extension `type Concrete { extend field: String }`
+                // (and yes, that syntax does not exist in the SDL, but we do support the semantic representation!).
+                || None,
                 |original| original.coordinate.clone(),
             ),
             name: other_field.name,
@@ -742,6 +762,7 @@ pub mod tests {
 
     use common::SourceLocationKey;
     use graphql_syntax::parse_schema_document;
+    use intern::string_key::Intern;
 
     use super::*;
     use crate::ToSDLDefinition;
@@ -1107,6 +1128,95 @@ pub mod tests {
                   field: String @deprecated
                 }
             "#,
+        );
+    }
+
+    #[test]
+    fn test_merge_interface_field_argument_coordinate_mismatch() {
+        // When the same field (with arguments) is reachable via both a concrete type and
+        // the interface it implements, AND the concrete type was previously
+        // fixed using `.fix_all_types()` the argument's schema coordinate is stamped with
+        // the original Interface's coordinate. Merging two shard sets where one
+        // shard touched the field via the concrete type and another via the interface
+        // must not panic.
+
+        let mut fixed_set = set_from_str(
+            r#"
+                interface Inf {
+                  field(first: Int): String
+                }
+                type Concrete implements Inf
+            "#,
+        );
+        // After fixing, the Concrete type looks like:
+        fixed_set.fix_all_types().unwrap();
+
+        let expected_fixed_doc = set_from_str(
+            r#"
+                interface Inf {
+                    field(first: Int): String
+                }
+                type Concrete implements Inf {
+                    field(first: Int): String
+                }
+            "#,
+        )
+        .to_sdl_definition();
+        let SetType::Object(fixed_type) = fixed_set.types.get(&"Concrete".intern()).unwrap() else {
+            panic!("Expected Concrete type to be an object");
+        };
+        let fixed_field = fixed_type.fields.get(&"field".intern()).unwrap();
+
+        // The coordinate is empty: the interface is essentially *forcing a field-level extension* on the
+        // concrete type. If we ever merge with a real concrete field definition, we should prioritize that one!
+        // Likewise, if we were to *exclude* this Inf.field from a set with Concrete.field, we should NOT
+        // remove Concrete.field, because it was not *explicitly* defined in the to_exclude set!
+        assert!(
+            fixed_field.coordinate.is_none(),
+            "The fixed field Concrete.field is a field-level extension, should not have a coordinate"
+        );
+        let fixed_arg = fixed_field.arguments.get(&"first".intern()).unwrap();
+        assert!(
+            fixed_arg.coordinate.is_none(),
+            "The fixed arg Concrete.field(arg:) is an arg-level extension, should not have a coordinate"
+        );
+
+        assert_eq!(
+            format!("{}", fixed_set.to_sdl_definition()),
+            format!("{}", expected_fixed_doc),
+            "Actual (left) and expected (right) SDLs don't match"
+        );
+
+        let to_merge_set = set_from_str(
+            r#"
+                type Concrete {
+                  field(first: Int): String
+                }
+            "#,
+        );
+
+        fixed_set.merge(to_merge_set).unwrap();
+        let SetType::Object(merged_type) = fixed_set.types.get(&"Concrete".intern()).unwrap()
+        else {
+            panic!("Expected merged Concrete type to be an object");
+        };
+        let merged_field = merged_type.fields.get(&"field".intern()).unwrap();
+        assert!(merged_field.coordinate.is_some());
+        assert_eq!(
+            format!("{}", merged_field.coordinate.as_ref().unwrap()),
+            "Concrete.field"
+        );
+        let merged_arg = merged_field.arguments.get(&"first".intern()).unwrap();
+        assert!(merged_arg.coordinate.is_some());
+        assert_eq!(
+            format!("{}", merged_arg.coordinate.as_ref().unwrap()),
+            "Concrete.field(first:)"
+        );
+
+        // The actual merged set should look the same, though the coordinates are now different.
+        assert_eq!(
+            format!("{}", fixed_set.to_sdl_definition()),
+            format!("{}", expected_fixed_doc)
         );
     }
 

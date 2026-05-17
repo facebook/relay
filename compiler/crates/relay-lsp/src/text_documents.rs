@@ -28,7 +28,7 @@ pub fn on_did_open_text_document(
     let DidOpenTextDocumentParams { text_document } = params;
     let TextDocumentItem { text, uri, .. } = text_document;
 
-    if !is_file_uri_in_dir(lsp_state.root_dir(), &uri) {
+    if !is_file_uri_in_dir(&lsp_state.root_dir(), &uri) {
         return Ok(());
     }
 
@@ -42,7 +42,7 @@ pub fn on_did_close_text_document(
 ) -> LSPRuntimeResult<()> {
     let uri = params.text_document.uri;
 
-    if !is_file_uri_in_dir(lsp_state.root_dir(), &uri) {
+    if !is_file_uri_in_dir(&lsp_state.root_dir(), &uri) {
         return Ok(());
     }
 
@@ -59,7 +59,7 @@ pub fn on_did_change_text_document(
     } = params;
     let uri = text_document.uri;
 
-    if !is_file_uri_in_dir(lsp_state.root_dir(), &uri) {
+    if !is_file_uri_in_dir(&lsp_state.root_dir(), &uri) {
         return Ok(());
     }
 

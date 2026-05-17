@@ -25,7 +25,7 @@ use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use graphql_text_printer::print_full_operation;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lsp_types::Url;
+use lsp_types::Uri;
 use lsp_types::request::Request;
 use relay_compiler::ProjectName;
 use relay_compiler::config::ProjectConfig;
@@ -54,9 +54,9 @@ pub(crate) struct GraphQLExecuteQueryParams {
 }
 
 impl GraphQLExecuteQueryParams {
-    fn get_url(&self) -> Option<Url> {
+    fn get_uri(&self) -> Option<Uri> {
         if let Some(path) = &self.document_path {
-            Url::parse(&format!("file://{path}")).ok()
+            format!("file://{path}").parse::<Uri>().ok()
         } else {
             None
         }
@@ -283,9 +283,9 @@ pub(crate) fn on_graphql_execute_query(
     state: &impl GlobalState,
     params: GraphQLExecuteQueryParams,
 ) -> LSPRuntimeResult<<GraphQLExecuteQuery as Request>::Result> {
-    let project_name = if let Some(url) = &params.get_url() {
+    let project_name = if let Some(uri) = &params.get_uri() {
         state
-            .extract_project_name_from_url(url)
+            .extract_project_name_from_uri(uri)
             .unwrap_or_else(|_| params.get_schema_name())
     } else {
         params.get_schema_name()

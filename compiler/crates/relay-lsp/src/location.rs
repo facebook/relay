@@ -16,7 +16,7 @@ use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::GraphQLSource;
 use intern::Lookup;
 use lsp_types::Range;
-use lsp_types::Url;
+use lsp_types::Uri;
 
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -33,8 +33,8 @@ pub fn transform_relay_location_on_disk_to_lsp_location(
 pub fn transform_relay_location_to_lsp_location_with_cache(
     root_dir: &Path,
     location: Location,
-    source_feature_cache: Option<&DashMap<Url, Vec<JavaScriptSourceFeature>>>,
-    synced_schema_sources: Option<&DashMap<Url, GraphQLSource>>,
+    source_feature_cache: Option<&DashMap<Uri, Vec<JavaScriptSourceFeature>>>,
+    synced_schema_sources: Option<&DashMap<Uri, GraphQLSource>>,
 ) -> LSPRuntimeResult<lsp_types::Location> {
     match location.source_location() {
         SourceLocationKey::Standalone { path } => {
@@ -105,13 +105,14 @@ fn get_file_contents(path: &Path) -> LSPRuntimeResult<String> {
     String::from_utf8(file).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))
 }
 
-fn get_uri(path: &PathBuf) -> LSPRuntimeResult<Url> {
-    Url::parse(&format!(
+fn get_uri(path: &PathBuf) -> LSPRuntimeResult<Uri> {
+    format!(
         "file://{}",
         path.to_str()
             .ok_or_else(|| LSPRuntimeError::UnexpectedError(format!(
                 "Could not cast path {path:?} as string"
             )))?
-    ))
+    )
+    .parse::<Uri>()
     .map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))
 }

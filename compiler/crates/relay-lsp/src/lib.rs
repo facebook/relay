@@ -6,6 +6,7 @@
  */
 
 #![deny(clippy::all)]
+#![allow(clippy::mutable_key_type)] // lsp_types::Uri
 
 mod client;
 pub mod code_action;
@@ -145,6 +146,7 @@ mod tests {
     use lsp_server::Connection;
     use lsp_types::ClientCapabilities;
     use lsp_types::InitializeParams;
+    use lsp_types::WorkDoneProgressParams;
 
     use super::client;
     use super::lsp_process_error::LSPProcessResult;
@@ -166,6 +168,9 @@ mod tests {
             workspace_folders: None,
             client_info: None,
             locale: None,
+            work_done_progress_params: WorkDoneProgressParams {
+                work_done_token: None,
+            },
         };
         client::initialize(&client, &init_params, 0);
         server::initialize(&connection)?;

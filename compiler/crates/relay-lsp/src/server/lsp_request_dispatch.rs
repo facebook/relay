@@ -122,7 +122,7 @@ mod test {
     use lsp_types::Position;
     use lsp_types::TextDocumentIdentifier;
     use lsp_types::TextDocumentPositionParams;
-    use lsp_types::Url;
+    use lsp_types::Uri;
     use lsp_types::request::GotoDefinition;
     use lsp_types::request::HoverRequest;
     use lsp_types::request::Request;
@@ -139,7 +139,7 @@ mod test {
                 method: "textDocument/definition".to_string(),
                 params: serde_json::to_value(TextDocumentPositionParams {
                     text_document: TextDocumentIdentifier {
-                        uri: Url::parse("https://example.net").unwrap(),
+                        uri: "https://example.net".parse::<Uri>().unwrap(),
                     },
                     position: Position {
                         line: 0,

@@ -95,7 +95,7 @@ pub(crate) fn on_search_schema_items(
         .chain(scalars)
         .collect::<Vec<_>>();
 
-    items.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+    items.sort_by_key(|item| item.name.to_lowercase());
 
     let skip = *params.skip.as_ref().unwrap_or(&0);
     let take = *params.take.as_ref().unwrap_or(&500);

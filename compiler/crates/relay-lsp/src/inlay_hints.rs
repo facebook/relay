@@ -36,11 +36,11 @@ pub fn on_inlay_hint_request(
     let uri = params.text_document.uri.clone();
     let root_dir = state.root_dir();
 
-    if !is_file_uri_in_dir(root_dir, &uri) {
+    if !is_file_uri_in_dir(&root_dir, &uri) {
         return Err(LSPRuntimeError::ExpectedError);
     }
 
-    let project_name = state.extract_project_name_from_url(&uri)?;
+    let project_name = state.extract_project_name_from_uri(&uri)?;
     let schema = state.get_schema(&project_name)?;
     let program = state.get_program(&project_name)?;
     let asts = state.resolve_executable_definitions(&uri)?;

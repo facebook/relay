@@ -9,7 +9,7 @@
 
 mod goto_docblock_definition;
 mod goto_graphql_definition;
-use std::str;
+
 use std::sync::Arc;
 
 use common::ArgumentName;
@@ -20,7 +20,7 @@ use intern::string_key::StringKey;
 use log::error;
 use log::info;
 use lsp_types::GotoDefinitionResponse;
-use lsp_types::Url;
+use lsp_types::Uri;
 use lsp_types::request::GotoDefinition;
 use lsp_types::request::Request;
 use schema::SDLSchema;
@@ -75,7 +75,7 @@ pub fn on_goto_definition(
         state.extract_feature_from_text(&params.text_document_position_params, 1)?;
 
     let project_name = state
-        .extract_project_name_from_url(&params.text_document_position_params.text_document.uri)?;
+        .extract_project_name_from_uri(&params.text_document_position_params.text_document.uri)?;
     let schema = state.get_schema(&project_name)?;
     let program = state.get_program(&project_name)?;
     let position_span = location.span();
@@ -352,7 +352,7 @@ fn get_location(
     };
     let range = lsp_types::Range { start, end: start };
 
-    let uri = Url::parse(&format!("file://{path}")).map_err(|e| {
+    let uri = format!("file://{path}").parse::<Uri>().map_err(|e| {
         LSPRuntimeError::UnexpectedError(format!("Could not parse path as URL: {e}"))
     })?;
 

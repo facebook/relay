@@ -26,7 +26,7 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use lsp_types::PrepareRenameResponse;
 use lsp_types::TextEdit;
-use lsp_types::Url;
+use lsp_types::Uri;
 use lsp_types::WorkspaceEdit;
 use lsp_types::request::PrepareRenameRequest;
 use lsp_types::request::Rename;
@@ -69,7 +69,7 @@ pub fn on_rename(
     let uri = &params.text_document_position.text_document.uri;
     let (feature, location) = state.extract_feature_from_text(&params.text_document_position, 1)?;
 
-    let program = &state.get_program(&state.extract_project_name_from_url(uri)?)?;
+    let program = &state.get_program(&state.extract_project_name_from_uri(uri)?)?;
     let root_dir = &state.root_dir();
 
     let rename_request = create_rename_request(feature, location)?;
@@ -395,8 +395,8 @@ fn map_locations_to_text_edits(
     locations: Vec<IRLocation>,
     new_text: String,
     root_dir: &Path,
-) -> HashMap<Url, Vec<TextEdit>> {
-    let vec_res: Vec<(Url, TextEdit)> = locations
+) -> HashMap<Uri, Vec<TextEdit>> {
+    let vec_res: Vec<(Uri, TextEdit)> = locations
         .par_iter()
         .flat_map(|location| {
             let transformed = transform_relay_location_on_disk_to_lsp_location(root_dir, *location);
@@ -410,7 +410,7 @@ fn map_locations_to_text_edits(
         })
         .collect();
 
-    let mut changes: HashMap<Url, Vec<TextEdit>> = HashMap::new();
+    let mut changes: HashMap<Uri, Vec<TextEdit>> = HashMap::new();
     for (uri, text_edit) in vec_res {
         changes.entry(uri).or_default().push(text_edit);
     }

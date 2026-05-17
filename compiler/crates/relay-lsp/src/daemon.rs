@@ -19,7 +19,7 @@ use std::sync::Arc;
 use log::debug;
 use log::error;
 use log::warn;
-use lsp_types::Url;
+use lsp_types::Uri;
 use serde::Deserialize;
 use serde::Serialize;
 use tokio::io::AsyncReadExt;
@@ -62,7 +62,7 @@ impl fmt::Debug for DeamonRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub enum DeamonRequestMessage {
     TypeInformation {
-        file_uri: Url,
+        file_uri: Uri,
         type_name: String,
         string_filter: Option<String>,
     },

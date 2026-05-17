@@ -29,7 +29,7 @@ use lsp_types::Location as LspLocation;
 use lsp_types::Position;
 use lsp_types::PublishDiagnosticsParams;
 use lsp_types::Range;
-use lsp_types::Url;
+use lsp_types::Uri;
 use lsp_types::notification::Notification;
 use lsp_types::notification::PublishDiagnostics;
 use relay_compiler::FsSourceReader;
@@ -40,12 +40,14 @@ use relay_compiler::source_for_location;
 
 use crate::lsp_process_error::LSPProcessResult;
 
-/// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
+/// Converts a Location to a Uri pointing to the canonical path based on the root_dir provided.
 /// Returns None if we are unable to do the conversion
-fn url_from_location(location: Location, root_dir: &Path) -> Option<Url> {
+fn url_from_location(location: Location, root_dir: &Path) -> Option<Uri> {
     let file_path = location.source_location().path();
     let canonical_path = canonicalize(root_dir.join(file_path)).ok()?;
-    Url::from_file_path(canonical_path).ok()
+    format!("file://{}", canonical_path.to_str()?)
+        .parse::<Uri>()
+        .ok()
 }
 
 #[derive(Default, Clone)]
@@ -57,7 +59,7 @@ struct DiagnosticSet {
 }
 
 pub struct DiagnosticReporter {
-    active_diagnostics: DashMap<Url, DiagnosticSet>,
+    active_diagnostics: DashMap<Uri, DiagnosticSet>,
     sender: Option<Sender<Message>>,
     root_dir: PathBuf,
     source_reader: Box<dyn SourceReader + Send + Sync>,
@@ -75,9 +77,9 @@ impl DiagnosticReporter {
 
     pub fn clear_regular_diagnostics(&self) {
         for mut r in self.active_diagnostics.iter_mut() {
-            let (url, diagnostics) = r.pair_mut();
+            let (uri, diagnostics) = r.pair_mut();
             diagnostics.regular_diagnostics.clear();
-            self.publish_diagnostics_set(url, diagnostics);
+            self.publish_diagnostics_set(uri, diagnostics);
         }
         self.active_diagnostics.retain(|_, diagnostics| {
             !diagnostics.regular_diagnostics.is_empty() || !diagnostics.quick_diagnostics.is_empty()
@@ -113,26 +115,26 @@ impl DiagnosticReporter {
 
     pub fn commit_diagnostics(&self) {
         for r in self.active_diagnostics.iter() {
-            let (url, diagnostics) = r.pair();
-            self.publish_diagnostics_set(url, diagnostics)
+            let (uri, diagnostics) = r.pair();
+            self.publish_diagnostics_set(uri, diagnostics)
         }
     }
 
-    fn add_diagnostic(&self, url: Url, diagnostic: Diagnostic) {
+    fn add_diagnostic(&self, uri: Uri, diagnostic: Diagnostic) {
         self.active_diagnostics
-            .entry(url)
+            .entry(uri)
             .or_default()
             .regular_diagnostics
             .push(diagnostic);
     }
 
-    pub fn update_quick_diagnostics_for_url(&self, url: &Url, diagnostics: Vec<Diagnostic>) {
-        match self.active_diagnostics.entry(url.clone()) {
+    pub fn update_quick_diagnostics_for_uri(&self, uri: &Uri, diagnostics: Vec<Diagnostic>) {
+        match self.active_diagnostics.entry(uri.clone()) {
             Entry::Occupied(mut e) => {
                 let data = e.get_mut();
                 if data.quick_diagnostics != diagnostics {
                     data.quick_diagnostics = diagnostics;
-                    self.publish_diagnostics_set(url, data);
+                    self.publish_diagnostics_set(uri, data);
                 }
             }
             Entry::Vacant(e) => {
@@ -141,23 +143,23 @@ impl DiagnosticReporter {
                         regular_diagnostics: vec![],
                         quick_diagnostics: diagnostics,
                     };
-                    self.publish_diagnostics_set(url, &data);
+                    self.publish_diagnostics_set(uri, &data);
                     e.insert(data);
                 }
             }
         }
     }
 
-    pub fn clear_quick_diagnostics_for_url(&self, url: &Url) {
-        if let Some(mut diagnostics) = self.active_diagnostics.get_mut(url)
+    pub fn clear_quick_diagnostics_for_uri(&self, uri: &Uri) {
+        if let Some(mut diagnostics) = self.active_diagnostics.get_mut(uri)
             && !diagnostics.quick_diagnostics.is_empty()
         {
             diagnostics.quick_diagnostics.clear();
-            self.publish_diagnostics_set(url, &diagnostics)
+            self.publish_diagnostics_set(uri, &diagnostics)
         }
     }
 
-    fn publish_diagnostics_set(&self, url: &Url, diagnostics: &DiagnosticSet) {
+    fn publish_diagnostics_set(&self, uri: &Uri, diagnostics: &DiagnosticSet) {
         let mut next_diagnostics = diagnostics.quick_diagnostics.clone();
         for diagnostic in &diagnostics.regular_diagnostics {
             if !next_diagnostics
@@ -169,7 +171,7 @@ impl DiagnosticReporter {
         }
         let params = PublishDiagnosticsParams {
             diagnostics: next_diagnostics,
-            uri: url.clone(),
+            uri: uri.clone(),
             version: None,
         };
         publish_diagnostic(params, &self.sender).ok();
@@ -183,8 +185,8 @@ impl DiagnosticReporter {
     fn report_diagnostic(&self, diagnostic: &CompilerDiagnostic) {
         let location = diagnostic.location();
 
-        let url = match self.url_from_location(location) {
-            Some(url) => url,
+        let uri = match self.url_from_location(location) {
+            Some(uri) => uri,
             None => return,
         };
         let source = match self.source_from_location(location) {
@@ -193,7 +195,7 @@ impl DiagnosticReporter {
         };
 
         let diagnostic = self.convert_diagnostic(source.text_source(), diagnostic);
-        self.add_diagnostic(url, diagnostic);
+        self.add_diagnostic(uri, diagnostic);
     }
 
     pub fn convert_diagnostic(
@@ -242,10 +244,12 @@ impl DiagnosticReporter {
         })
     }
 
-    pub fn url_from_location(&self, location: Location) -> Option<Url> {
+    pub fn url_from_location(&self, location: Location) -> Option<Uri> {
         url_from_location(location, &self.root_dir).or_else(|| {
-            // TODO(brandondail) we should always be able to parse as a Url, so log here when we don't
-            Url::from_directory_path(&self.root_dir).ok()
+            // TODO(brandondail) we should always be able to parse as a Uri, so log here when we don't
+            format!("file://{}/", self.root_dir.to_str()?)
+                .parse::<Uri>()
+                .ok()
         })
     }
 
@@ -286,13 +290,14 @@ impl DiagnosticReporter {
             tags: None,
             ..Default::default()
         };
-        let url = Url::from_directory_path(&self.root_dir)
-            .expect("print_generic_error: Could not convert self.root_dir to Url");
-        self.add_diagnostic(url, diagnostic);
+        let uri = format!("file://{}/", self.root_dir.to_str().unwrap())
+            .parse::<Uri>()
+            .expect("print_generic_error: Could not convert self.root_dir to Uri");
+        self.add_diagnostic(uri, diagnostic);
     }
 
-    pub fn get_diagnostics_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
-        let diagnostic_set = self.active_diagnostics.get(url)?;
+    pub fn get_diagnostics_for_range(&self, uri: &Uri, range: Range) -> Option<Diagnostic> {
+        let diagnostic_set = self.active_diagnostics.get(uri)?;
         diagnostic_set
             .quick_diagnostics
             .iter()
@@ -309,7 +314,7 @@ impl DiagnosticReporter {
     pub fn get_published_diagnostics(&self) -> Vec<PublishDiagnosticsParams> {
         let mut result = Vec::new();
         for r in self.active_diagnostics.iter() {
-            let (url, diagnostics) = r.pair();
+            let (uri, diagnostics) = r.pair();
             let mut next_diagnostics = diagnostics.quick_diagnostics.clone();
             for diagnostic in &diagnostics.regular_diagnostics {
                 if !next_diagnostics
@@ -321,7 +326,7 @@ impl DiagnosticReporter {
             }
             result.push(PublishDiagnosticsParams {
                 diagnostics: next_diagnostics,
-                uri: url.clone(),
+                uri: uri.clone(),
                 version: None,
             });
         }
@@ -396,7 +401,7 @@ mod tests {
         assert_eq!(reporter.active_diagnostics.len(), 1);
     }
 
-    /// This test will assert that the message without URL (with generated source) won't be reported by LSPStatusReporter
+    /// This test will assert that the message without URI (with generated source) won't be reported by LSPStatusReporter
     /// I'm not sure if this is the right behavior, but lets capture it here.
     #[test]
     fn do_not_report_diagnostic_without_url_test() {

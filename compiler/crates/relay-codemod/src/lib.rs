@@ -8,6 +8,7 @@
 #![deny(warnings)]
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
+#![allow(clippy::mutable_key_type)] // lsp_types::Uri
 
 mod codemod;
 

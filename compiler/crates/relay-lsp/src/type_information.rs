@@ -12,7 +12,7 @@ use std::sync::Arc;
 use intern::Lookup;
 use intern::string_key::Intern;
 use itertools::Itertools;
-use lsp_types::Url;
+use lsp_types::Uri;
 use schema::DirectiveValue;
 use schema::FieldID;
 use schema::InterfaceID;
@@ -29,11 +29,11 @@ const MAX_FIELDS: usize = 200;
 /// Implementation of the `relay type-information` CLI command.
 pub(crate) fn get_type_information(
     lsp_state: &impl GlobalState,
-    uri: Url,
+    uri: Uri,
     type_name: String,
     string_filter: Option<String>,
 ) -> Result<String, String> {
-    let Ok(project_name) = lsp_state.extract_project_name_from_url(&uri) else {
+    let Ok(project_name) = lsp_state.extract_project_name_from_uri(&uri) else {
         return Err(format!(
             "Unable to extract Relay GraphQL project from uri: {uri:?}"
         ));

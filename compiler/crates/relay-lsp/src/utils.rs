@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::path::PathBuf;
+use std::path::Path;
 
 use common::Location;
 use common::SourceLocationKey;
@@ -22,7 +22,7 @@ use intern::string_key::StringKey;
 use log::debug;
 use lsp_types::Position;
 use lsp_types::TextDocumentPositionParams;
-use lsp_types::Url;
+use lsp_types::Uri;
 use relay_compiler::FileCategorizer;
 use relay_compiler::FileGroup;
 use relay_compiler::ProjectConfig;
@@ -35,18 +35,16 @@ use crate::Feature;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 
-pub fn is_file_uri_in_dir(root_dir: PathBuf, file_uri: &Url) -> bool {
-    let file_path_result = file_uri.to_file_path();
-
-    match file_path_result {
-        Ok(file_path) => file_path.starts_with(root_dir),
-        Err(()) => false,
-    }
+pub fn is_file_uri_in_dir(root_dir: &Path, file_uri: &Uri) -> bool {
+    file_uri
+        .scheme()
+        .is_some_and(|scheme| scheme.eq_lowercase("file"))
+        && Path::new(file_uri.path().as_str()).starts_with(root_dir)
 }
 
 pub fn extract_executable_definitions_from_text_document(
-    text_document_uri: &Url,
-    source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
+    text_document_uri: &Uri,
+    source_feature_cache: &DashMap<Uri, Vec<JavaScriptSourceFeature>>,
     parser_features: ParserFeatures,
 ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
     let source_features = source_feature_cache
@@ -67,7 +65,7 @@ pub fn extract_executable_definitions_from_text_document(
         .flat_map(|(i, graphql_source)| {
             let document = parse_executable_with_error_recovery_and_parser_features(
                 &graphql_source.text_source().text,
-                SourceLocationKey::embedded(path, i),
+                SourceLocationKey::embedded(path.as_str(), i),
                 parser_features,
             )
             .item;
@@ -81,13 +79,16 @@ pub fn extract_executable_definitions_from_text_document(
 
 pub fn get_file_group_from_uri(
     file_categorizer: &FileCategorizer,
-    url: &Url,
-    root_dir: &PathBuf,
+    uri: &Uri,
+    root_dir: &Path,
     config: &Config,
 ) -> LSPRuntimeResult<FileGroup> {
-    let absolute_file_path = url.to_file_path().map_err(|_| {
-        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {url:?}"))
-    })?;
+    let absolute_file_path = Path::new(uri.path().as_str());
+    if !absolute_file_path.is_absolute() {
+        return Err(LSPRuntimeError::UnexpectedError(format!(
+            "Unable to convert URI to file path: {uri:?}",
+        )));
+    }
 
     let file_path = absolute_file_path.strip_prefix(root_dir).map_err(|_e| {
         LSPRuntimeError::UnexpectedError(format!(
@@ -122,8 +123,8 @@ pub fn get_project_name_from_file_group(file_group: &FileGroup) -> Result<String
 /// request, only if the request occurs within a GraphQL document or Docblock.
 pub fn extract_feature_from_text(
     project_config: &ProjectConfig,
-    js_source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
-    schema_source_cache: &DashMap<Url, GraphQLSource>,
+    js_source_feature_cache: &DashMap<Uri, Vec<JavaScriptSourceFeature>>,
+    schema_source_cache: &DashMap<Uri, GraphQLSource>,
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
 ) -> LSPRuntimeResult<(Feature, Location)> {
@@ -131,7 +132,7 @@ pub fn extract_feature_from_text(
     let position = text_document_position.position;
 
     if let Some(schema_source) = schema_source_cache.get(uri) {
-        let source_location_key = SourceLocationKey::standalone(uri.as_ref());
+        let source_location_key = SourceLocationKey::standalone(uri.as_str());
         let schema_document = graphql_syntax::parse_schema_document(
             &schema_source.text_source().text,
             source_location_key,
@@ -162,7 +163,7 @@ pub fn extract_feature_from_text(
         })
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let source_location_key = SourceLocationKey::embedded(uri.path(), index);
+    let source_location_key = SourceLocationKey::embedded(uri.path().as_str(), index);
 
     let parser_features = get_parser_features(project_config);
 

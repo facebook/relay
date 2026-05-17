@@ -34,7 +34,7 @@ itertools = "0.14.0"
 lazy_static = "1.5"
 log = { version = "0.4.29", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-server = "0.7.9"
-lsp-types = "0.94.1"
+lsp-types = "0.97"
 percent-encoding = "2.1"
 rand = "0.10.1"
 rayon = "1.11.0"

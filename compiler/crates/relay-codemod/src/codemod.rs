@@ -21,7 +21,7 @@ use common::RolloutRange;
 use log::info;
 use lsp_types::CodeActionOrCommand;
 use lsp_types::TextEdit;
-use lsp_types::Url;
+use lsp_types::Uri;
 use relay_compiler::errors::BuildProjectError;
 use relay_compiler::errors::Error as CompilerError;
 use relay_compiler::errors::Result as CompilerResult;
@@ -162,7 +162,7 @@ fn apply_actions(actions: Vec<CodeActionOrCommand>) -> Result<(), std::io::Error
         sort_changes(&file, &mut changes)?;
 
         // Read file into memory and apply changes
-        let file_contents: String = fs::read_to_string(file.path())?;
+        let file_contents: String = fs::read_to_string(file.path().as_str())?;
         let mut lines: Vec<String> = file_contents.lines().map(|s| s.to_string()).collect();
         for change in &changes {
             let line = change.range.start.line as usize;
@@ -175,17 +175,17 @@ fn apply_actions(actions: Vec<CodeActionOrCommand>) -> Result<(), std::io::Error
 
         // Write file back out
         let new_file_contents = lines.join("\n");
-        fs::write(file.path(), new_file_contents)?;
+        fs::write(file.path().as_str(), new_file_contents)?;
 
         info!("Applied {} changes to {}", changes.len(), file.path());
     }
     Ok(())
 }
 
-fn sort_changes(url: &Url, changes: &mut Vec<TextEdit>) -> Result<(), std::io::Error> {
+fn sort_changes(uri: &Uri, changes: &mut Vec<TextEdit>) -> Result<(), std::io::Error> {
     // Now we have all the changes for this file. Sort them by position within the file, end of file first
     // This way the changes are applied in reverse order, so we don't have to worry about altering the positions of the remaining changes
-    changes.sort_by(|a, b| b.range.start.cmp(&a.range.start));
+    changes.sort_by_key(|change| change.range.start);
 
     // Verify none of the changes overlap
     let mut prev_change: Option<&TextEdit> = None;
@@ -197,7 +197,7 @@ fn sort_changes(url: &Url, changes: &mut Vec<TextEdit>) -> Result<(), std::io::E
         {
             return Err(std::io::Error::other(format!(
                 "Codemod produced changes that overlap: File {}, changes: {:?} vs {:?}",
-                url.path(),
+                uri.path(),
                 change,
                 prev_change
             )));

@@ -8,7 +8,7 @@
 use lsp_types::Position;
 use lsp_types::TextDocumentIdentifier;
 use lsp_types::TextDocumentPositionParams;
-use lsp_types::Url;
+use lsp_types::Uri;
 use lsp_types::request::Request;
 use schema::Schema;
 use serde::Deserialize;
@@ -32,7 +32,10 @@ impl ResolvedTypesAtLocationParams {
     fn to_text_document_position_params(&self) -> LSPRuntimeResult<TextDocumentPositionParams> {
         Ok(TextDocumentPositionParams {
             text_document: TextDocumentIdentifier {
-                uri: Url::parse(&self.file_name).map_err(|_| LSPRuntimeError::ExpectedError)?,
+                uri: self
+                    .file_name
+                    .parse::<Uri>()
+                    .map_err(|_| LSPRuntimeError::ExpectedError)?,
             },
             position: Position {
                 character: self.character,
@@ -66,7 +69,7 @@ pub(crate) fn on_get_resolved_types_at_location(
     params: <ResolvedTypesAtLocation as Request>::Params,
 ) -> LSPRuntimeResult<<ResolvedTypesAtLocation as Request>::Result> {
     let params = params.to_text_document_position_params()?;
-    let project_name = state.extract_project_name_from_url(&params.text_document.uri)?;
+    let project_name = state.extract_project_name_from_uri(&params.text_document.uri)?;
     let schema = state.get_schema(&project_name)?;
     let schema_name = project_name.to_string();
 

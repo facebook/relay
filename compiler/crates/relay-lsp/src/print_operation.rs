@@ -25,7 +25,7 @@ pub(crate) fn on_print_operation(
         .uri
         .clone();
 
-    let project_name = state.extract_project_name_from_url(&text_document_uri)?;
+    let project_name = state.extract_project_name_from_uri(&text_document_uri)?;
     let executable_document_under_cursor =
         state.extract_executable_document_from_text(&params.text_document_position_params, 1);
 

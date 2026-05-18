@@ -351,10 +351,9 @@ fn get_location(
     };
     let range = lsp_types::Range { start, end: start };
 
-    let uri =
-        crate::utils::path_to_file_uri(std::path::Path::new(path)).ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError(format!("Could not convert path to URI: {path}"))
-        })?;
+    let uri = crate::utils::path_to_file_uri(std::path::Path::new(path)).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!("Could not convert path to URI: {path}"))
+    })?;
 
     Ok(lsp_types::Location { uri, range })
 }

@@ -20,7 +20,6 @@ use intern::string_key::StringKey;
 use log::error;
 use log::info;
 use lsp_types::GotoDefinitionResponse;
-use lsp_types::Uri;
 use lsp_types::request::GotoDefinition;
 use lsp_types::request::Request;
 use schema::SDLSchema;
@@ -352,9 +351,10 @@ fn get_location(
     };
     let range = lsp_types::Range { start, end: start };
 
-    let uri = format!("file://{path}").parse::<Uri>().map_err(|e| {
-        LSPRuntimeError::UnexpectedError(format!("Could not parse path as URL: {e}"))
-    })?;
+    let uri =
+        crate::utils::path_to_file_uri(std::path::Path::new(path)).ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!("Could not convert path to URI: {path}"))
+        })?;
 
     Ok(lsp_types::Location { uri, range })
 }

@@ -56,7 +56,7 @@ pub(crate) struct GraphQLExecuteQueryParams {
 impl GraphQLExecuteQueryParams {
     fn get_uri(&self) -> Option<Uri> {
         if let Some(path) = &self.document_path {
-            format!("file://{path}").parse::<Uri>().ok()
+            crate::utils::path_to_file_uri(std::path::Path::new(path))
         } else {
             None
         }

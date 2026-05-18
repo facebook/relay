@@ -904,4 +904,114 @@ describe('RelayReader @catch', () => {
       },
     ]);
   });
+
+  it('nested @catch(to: RESULT): server error on inner field should be handled by the inner @catch, not bubble to the outer @catch', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestNestedResultQuery {
+        me @catch(to: RESULT) {
+          lastName @catch(to: RESULT)
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        ok: true,
+        value: {
+          lastName: {
+            ok: false,
+            errors: [
+              {
+                path: ['me', 'lastName'],
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    expect(fieldErrors).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        handled: true,
+        kind: 'relay_field_payload.error',
+        owner: 'RelayReaderCatchFieldsTestNestedResultQuery',
+        shouldThrow: false,
+      },
+    ]);
+  });
+
+  it('nested @catch(to: NULL): server error on inner field should be nulled by the inner @catch, leaving the outer field intact', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestNestedNullQuery {
+        me @catch(to: NULL) {
+          lastName @catch(to: NULL)
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        lastName: null,
+      },
+    });
+
+    expect(fieldErrors).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        handled: true,
+        kind: 'relay_field_payload.error',
+        owner: 'RelayReaderCatchFieldsTestNestedNullQuery',
+        shouldThrow: false,
+      },
+    ]);
+  });
 });

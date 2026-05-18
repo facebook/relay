@@ -2411,7 +2411,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             ));
         }
 
-        var_defs.sort_unstable_by(|(name_a, _), (name_b, _)| name_a.cmp(name_b));
+        var_defs.sort_unstable_by_key(|(name_a, _)| *name_a);
         let mut sorted_var_defs = Vec::with_capacity(var_defs.len());
 
         for (_, var_def) in var_defs {

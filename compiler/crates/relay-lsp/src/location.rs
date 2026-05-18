@@ -106,13 +106,7 @@ fn get_file_contents(path: &Path) -> LSPRuntimeResult<String> {
 }
 
 fn get_uri(path: &PathBuf) -> LSPRuntimeResult<Uri> {
-    format!(
-        "file://{}",
-        path.to_str()
-            .ok_or_else(|| LSPRuntimeError::UnexpectedError(format!(
-                "Could not cast path {path:?} as string"
-            )))?
-    )
-    .parse::<Uri>()
-    .map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))
+    crate::utils::path_to_file_uri(path).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!("Could not convert path {path:?} to URI"))
+    })
 }

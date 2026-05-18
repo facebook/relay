@@ -295,3 +295,26 @@ pub fn position_to_offset(
     }
     None
 }
+
+/// Converts a filesystem path to a `file://` URI, handling both Unix and Windows paths.
+pub fn path_to_file_uri(path: &Path) -> Option<Uri> {
+    let path_str = path.to_str()?;
+    str_path_to_file_uri(path_str)
+}
+
+/// Converts a directory path to a `file://` URI with a trailing slash.
+pub fn dir_to_file_uri(path: &Path) -> Option<Uri> {
+    let path_str = path.to_str()?;
+    let with_slash = format!("{path_str}/");
+    str_path_to_file_uri(&with_slash)
+}
+
+fn str_path_to_file_uri(path: &str) -> Option<Uri> {
+    let normalized = path.replace('\\', "/");
+    let uri_str = if normalized.starts_with('/') {
+        format!("file://{normalized}")
+    } else {
+        format!("file:///{normalized}")
+    };
+    uri_str.parse::<Uri>().ok()
+}

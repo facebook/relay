@@ -45,9 +45,7 @@ use crate::lsp_process_error::LSPProcessResult;
 fn url_from_location(location: Location, root_dir: &Path) -> Option<Uri> {
     let file_path = location.source_location().path();
     let canonical_path = canonicalize(root_dir.join(file_path)).ok()?;
-    format!("file://{}", canonical_path.to_str()?)
-        .parse::<Uri>()
-        .ok()
+    crate::utils::path_to_file_uri(&canonical_path)
 }
 
 #[derive(Default, Clone)]
@@ -247,9 +245,7 @@ impl DiagnosticReporter {
     pub fn url_from_location(&self, location: Location) -> Option<Uri> {
         url_from_location(location, &self.root_dir).or_else(|| {
             // TODO(brandondail) we should always be able to parse as a Uri, so log here when we don't
-            format!("file://{}/", self.root_dir.to_str()?)
-                .parse::<Uri>()
-                .ok()
+            crate::utils::dir_to_file_uri(&self.root_dir)
         })
     }
 
@@ -290,8 +286,7 @@ impl DiagnosticReporter {
             tags: None,
             ..Default::default()
         };
-        let uri = format!("file://{}/", self.root_dir.to_str().unwrap())
-            .parse::<Uri>()
+        let uri = crate::utils::dir_to_file_uri(&self.root_dir)
             .expect("print_generic_error: Could not convert self.root_dir to Uri");
         self.add_diagnostic(uri, diagnostic);
     }

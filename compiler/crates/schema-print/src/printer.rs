@@ -262,7 +262,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
         let mut first = true;
         write!(self.writer(), "(")?;
         let mut sorted_args: Vec<_> = args.iter().collect();
-        sorted_args.sort_by(|a, b| a.name.item.cmp(&b.name.item));
+        sorted_args.sort_by_key(|a| a.name.item);
         for arg in sorted_args {
             if first {
                 first = false;
@@ -317,7 +317,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
             return Ok(());
         }
         let mut sorted_directives: Vec<_> = directives.iter().collect();
-        sorted_directives.sort_by(|a, b| a.name.cmp(&b.name));
+        sorted_directives.sort_by_key(|a| a.name);
         for directive in sorted_directives {
             write!(self.writer(), " @{}", directive.name)?;
             self.print_directive_argument_values(&directive.arguments)?;
@@ -333,7 +333,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
         let mut first = true;
         write!(self.writer(), "(")?;
         let mut sorted_values: Vec<_> = values.iter().collect();
-        sorted_values.sort_by(|a, b| a.name.cmp(&b.name));
+        sorted_values.sort_by_key(|a| a.name);
         for value in sorted_values {
             if first {
                 first = false;

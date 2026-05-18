@@ -161,7 +161,17 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             }
 
             let result: Result<(CompilerState, Arc<Notify>, JoinHandle<()>)> = async {
-                if let Some(initialize_resources) = &self.config.initialize_resources {
+                // In daemon mode, skip `initialize_resources` (e.g. dumping
+                // GraphQL schemas via `phps GraphQLDumpSchemas`). The client is
+                // responsible for re-dumping schemas before each operation, and
+                // re-dumping here causes a feedback loop: the dump rewrites
+                // many files, Watchman returns a fresh-instance result on the
+                // next subscription, that triggers a reset, and the outer loop
+                // re-dumps again. The initial schema load happens once at
+                // server startup before `Compiler::watch()` is entered.
+                if self.config.daemon_build_status.is_none()
+                    && let Some(initialize_resources) = &self.config.initialize_resources
+                {
                     let timer = setup_event.start("load_resources");
                     initialize_resources();
                     setup_event.stop(timer);

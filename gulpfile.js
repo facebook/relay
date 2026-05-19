@@ -139,6 +139,22 @@ const flowDefs = gulp.parallel(
   ),
 );
 
+const typeDefs = gulp.parallel(
+  ...builds.map(
+    build =>
+      function typeDefsTask() {
+        return gulp
+          .src(
+            ['**/*.d.ts', '!**/__tests__/**/*.d.ts', '!**/__mocks__/**/*.d.ts'],
+            {
+              cwd: PACKAGES + '/' + build.package,
+            },
+          )
+          .pipe(gulp.dest(path.join(DIST, build.package)));
+      },
+  ),
+);
+
 const copyFilesTasks = [];
 builds.forEach(build => {
   copyFilesTasks.push(
@@ -174,7 +190,7 @@ const copyFiles = gulp.parallel(copyFilesTasks);
 
 const exportsFiles = gulp.series(
   copyFiles,
-  flowDefs,
+  gulp.parallel(flowDefs, typeDefs),
   modules,
   gulp.parallel(
     ...builds.map(

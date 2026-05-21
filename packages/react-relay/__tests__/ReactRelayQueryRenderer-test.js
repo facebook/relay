@@ -1381,6 +1381,70 @@ describe('ReactRelayQueryRenderer', () => {
     });
   });
 
+  describe('when two constructors fire with different environments', () => {
+    it('fetches the first query only, when `configName`s are the same', () => {
+      const environmentA = createMockEnvironment();
+      const environmentB = createMockEnvironment();
+      class Example extends React.Component {
+        render() {
+          return (
+            <React.Fragment>
+              <ReactRelayQueryRenderer
+                query={TestQuery}
+                cacheConfig={cacheConfig}
+                environment={environmentA}
+                render={render}
+                variables={variables}
+              />
+              <ReactRelayQueryRenderer
+                query={TestQuery}
+                cacheConfig={cacheConfig}
+                environment={environmentB}
+                render={render}
+                variables={variables}
+              />
+            </React.Fragment>
+          );
+        }
+      }
+      ReactTestRenderer.create(<Example />);
+      expect.assertions(2);
+      expect(environmentA.execute).toBeCalledTimes(1);
+      expect(environmentB.execute).toBeCalledTimes(0);
+    });
+
+    it('fetches both queries, when `configName`s are different', () => {
+      const environmentA = createMockEnvironment({configName: 'A'});
+      const environmentB = createMockEnvironment({configName: 'B'});
+      class Example extends React.Component {
+        render() {
+          return (
+            <React.Fragment>
+              <ReactRelayQueryRenderer
+                query={TestQuery}
+                cacheConfig={cacheConfig}
+                environment={environmentA}
+                render={render}
+                variables={variables}
+              />
+              <ReactRelayQueryRenderer
+                query={TestQuery}
+                cacheConfig={cacheConfig}
+                environment={environmentB}
+                render={render}
+                variables={variables}
+              />
+            </React.Fragment>
+          );
+        }
+      }
+      ReactTestRenderer.create(<Example />);
+      expect.assertions(2);
+      expect(environmentA.execute).toBeCalledTimes(1);
+      expect(environmentB.execute).toBeCalledTimes(1);
+    });
+  });
+
   describe('when the fetch succeeds', () => {
     beforeEach(() => {
       ReactTestRenderer.act(() => {

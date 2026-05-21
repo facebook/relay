@@ -57,12 +57,6 @@ export interface IActorEnvironment extends IEnvironment {
    * TODO: this needs to move the the MultiActorEnvironment with different API.
    */
   getPublishQueue(): RelayPublishQueue;
-
-  /**
-   * Optional. A human-readable identifier of the environment.
-   * This value should be visible in the dev tools.
-   */
-  +configName: ?string;
 }
 
 /**

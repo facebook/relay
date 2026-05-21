@@ -163,7 +163,7 @@ impl WatchmanFileSource {
         perf_logger: &impl PerfLogger,
     ) -> Result<(CompilerState, WatchmanFileSourceSubscription)> {
         let timer = perf_logger_event.start("file_source_subscribe_time");
-        let compiler_state = self.query(perf_logger_event, perf_logger).await?;
+        let mut compiler_state = self.query(perf_logger_event, perf_logger).await?;
 
         let expression = get_watchman_expr(&self.config);
 
@@ -177,6 +177,7 @@ impl WatchmanFileSource {
         )
         .await?;
         perf_logger_event.stop(query_timer);
+        compiler_state.clock = file_source_result.clock();
 
         let query_timer = perf_logger_event.start("watchman_query_time_subscribe");
         let (subscription, _initial) = self

@@ -11,7 +11,10 @@
 
 'use strict';
 
-import type {PayloadError, PayloadExtensions} from '../network/RelayNetworkTypes';
+import type {
+  PayloadError,
+  PayloadExtensions,
+} from '../network/RelayNetworkTypes';
 
 // $FlowFixMe[recursive-definition]
 const SELF: Self = Symbol('$SELF');

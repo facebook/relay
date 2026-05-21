@@ -35,11 +35,13 @@ use schema::Schema;
 use super::ASSIGNABLE_DIRECTIVE;
 use super::UPDATABLE_DIRECTIVE;
 use super::ValidationMessage;
+use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 lazy_static! {
     static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
         *UPDATABLE_DIRECTIVE,
+        *FRAGMENT_ALIAS_DIRECTIVE_NAME,
         *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME,
         // TODO have a global list of directives...?
         DirectiveName("fb_owner".intern()),

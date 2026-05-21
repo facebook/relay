@@ -22,6 +22,7 @@ use schema::TypeReference;
 use super::ValidationMessage;
 use super::ensure_discriminated_union_is_created;
 use crate::UPDATABLE_DIRECTIVE;
+use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 pub fn validate_updatable_fragment_spread(program: &Program) -> DiagnosticsResult<()> {
@@ -34,7 +35,6 @@ pub fn validate_updatable_fragment_spread(program: &Program) -> DiagnosticsResul
 
 /// An enum that keeps track of the path we have taken to get to a given
 /// updatable fragment spread. We then iterate this path in reverse and check things like:
-/// * is this fragment spread top level?
 /// * is there a condition between the fragment spread and a linked field?
 /// * are there multiple inline fragments between the fragment spread and the linked field?
 ///
@@ -59,9 +59,8 @@ struct UpdatableFragmentSpread<'a> {
 
 impl UpdatableFragmentSpread<'_> {
     /// Validate many conditions for spreads of updatable fragments:
-    /// * the fragment spread contains no directives
+    /// * the fragment spread contains no directives (except @alias and @dangerously_unaliased_fixme)
     /// * there is no @if or @skip between the linked field and the fragment spread
-    /// * the fragment spread is not at the top level
     /// * the fragment's type is a superset or equal to the outer type
     ///   * this ensures that if we read this fragment with readUpdatableFragment,
     ///     the result is guaranteed to be valid, i.e. the concrete type is guaranteed
@@ -89,10 +88,10 @@ impl UpdatableFragmentSpread<'_> {
     ) -> DiagnosticsResult<()> {
         let mut errors = vec![];
 
-        let invalid_directive = fragment_spread
-            .directives
-            .iter()
-            .find(|directive| directive.name.item != *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME);
+        let invalid_directive = fragment_spread.directives.iter().find(|directive| {
+            directive.name.item != *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME
+                && directive.name.item != *FRAGMENT_ALIAS_DIRECTIVE_NAME
+        });
 
         if let Some(directive) = invalid_directive {
             errors.push(Diagnostic::error(
@@ -102,7 +101,6 @@ impl UpdatableFragmentSpread<'_> {
         }
 
         let mut encountered_inline_fragment = false;
-        let mut encountered_linked_field = false;
         for mut item in self.path.iter_mut().rev() {
             match &mut item {
                 PathItem::InlineFragment => {
@@ -115,8 +113,6 @@ impl UpdatableFragmentSpread<'_> {
                     encountered_inline_fragment = true;
                 }
                 PathItem::LinkedField(linked_field_path_item) => {
-                    encountered_linked_field = true;
-
                     if !encountered_inline_fragment {
                         // The fragment definition's type must be a superset or equal to the linked field's type.
                         // In other words, in `foo { ...Fragment_Y }`, foo must always be a Y.
@@ -172,13 +168,6 @@ impl UpdatableFragmentSpread<'_> {
                     fragment_spread.fragment.location,
                 )),
             }
-        }
-
-        if !encountered_linked_field {
-            errors.push(Diagnostic::error(
-                ValidationMessage::UpdatableFragmentTopLevel,
-                fragment_spread.fragment.location,
-            ));
         }
 
         if !errors.is_empty() {

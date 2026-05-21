@@ -120,9 +120,6 @@ pub enum ValidationMessage {
     #[error("Directives are not allowed on spreads of updatable fragments.")]
     UpdatableFragmentSpreadNoDirectives,
 
-    #[error("Updatable fragments cannot be spread at the top level.")]
-    UpdatableFragmentTopLevel,
-
     #[error("Updatable fragments cannot be contained in @skip or @if.")]
     UpdatableFragmentSpreadNoCondition,
 

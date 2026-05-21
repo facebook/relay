@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment Foo on Node {
+  ... on User {
+    ...Updatable_user
+  }
+}
+
+fragment Updatable_user on User @updatable {
+  __typename
+}

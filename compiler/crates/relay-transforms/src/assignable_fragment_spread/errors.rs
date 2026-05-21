@@ -120,23 +120,26 @@ pub enum ValidationMessage {
     #[error("Directives are not allowed on spreads of updatable fragments.")]
     UpdatableFragmentSpreadNoDirectives,
 
-    #[error("Updatable fragments cannot be spread at the top level.")]
-    UpdatableFragmentTopLevel,
+    #[error(
+        "The type of this updatable fragment is `{updatable_fragment_type}`, but the enclosing selection has type `{enclosing_type}`. A `{enclosing_type}` is not guaranteed to be a `{updatable_fragment_type}`. Try adding `@alias` to the fragment spread."
+    )]
+    UpdatableFragmentSpreadTypeMismatch {
+        updatable_fragment_type: StringKey,
+        enclosing_type: StringKey,
+    },
+
+    #[error(
+        "Updatable fragments cannot be spread inside an inline fragment at the top level without an enclosing linked field. Try adding `@alias` to the fragment spread."
+    )]
+    UpdatableFragmentTopLevelInlineFragment,
 
     #[error("Updatable fragments cannot be contained in @skip or @if.")]
     UpdatableFragmentSpreadNoCondition,
 
-    #[error("Updatable fragments can only be nested within at most a single inline fragment.")]
-    UpdatableFragmentSpreadContainingInlineFragmentSingleNesting,
-
     #[error(
-        "This updatable fragment has type `{updatable_fragment_type}`, and is found within a linked field with type `{linked_field_type}`. However, if a record has the type `{linked_field_inner_type}`, it does not necessarily have the type `{updatable_fragment_type}`."
+        "Updatable fragments can only be nested within at most a single inline fragment. Try adding `@alias` to the inline fragments."
     )]
-    UpdatableFragmentSpreadSubtypeOrEqualLinkedField {
-        updatable_fragment_type: StringKey,
-        linked_field_type: String,
-        linked_field_inner_type: StringKey,
-    },
+    UpdatableFragmentSpreadContainingInlineFragmentSingleNesting,
 
     #[error(
         "Because {reason_message}, this linked field must have an abstract type, meaning its type must be an Interface or a Union. However, `{linked_field_type}` is a `{linked_field_type_variant}`."

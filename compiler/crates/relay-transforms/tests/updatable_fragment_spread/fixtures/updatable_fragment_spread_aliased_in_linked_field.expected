@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+fragment Foo on Query {
+  node(id: "4") {
+    ...Updatable_user @alias
+  }
+}
+
+fragment Updatable_user on User @updatable {
+  __typename
+}
+==================================== OUTPUT ===================================
+OK

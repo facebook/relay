@@ -1,0 +1,7 @@
+fragment Foo on User {
+  ...Updatable_node
+}
+
+fragment Updatable_node on Node @updatable {
+  __id
+}

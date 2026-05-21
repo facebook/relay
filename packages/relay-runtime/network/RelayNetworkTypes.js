@@ -36,6 +36,7 @@ export type PayloadError = interface {
     ...
   }>,
   path?: Array<string | number>,
+  extensions?: PayloadExtensions,
   // Not officially part of the spec, but used at Facebook
   severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
 };

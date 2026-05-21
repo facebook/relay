@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {PayloadError} from '../network/RelayNetworkTypes';
+import type {PayloadError, PayloadExtensions} from '../network/RelayNetworkTypes';
 
 // $FlowFixMe[recursive-definition]
 const SELF: Self = Symbol('$SELF');
@@ -27,6 +27,7 @@ export type TRelayFieldErrorForDisplay = Readonly<{
 export type TRelayFieldError = Readonly<{
   ...TRelayFieldErrorForDisplay,
   message: string,
+  extensions?: PayloadExtensions,
 }>;
 
 /**
@@ -108,26 +109,14 @@ function getErrorsByKey(
   if (Array.isArray(value)) {
     return value;
   }
-  const errors: Array<
-    Readonly<{
-      message: string,
-      path?: Array<string | number>,
-      severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
-    }>,
-  > = [];
+  const errors: Array<TRelayFieldError> = [];
   recursivelyCopyErrorsIntoArray(value, errors);
   return errors;
 }
 
 function recursivelyCopyErrorsIntoArray(
   trieOrSet: RelayErrorTrie,
-  errors: Array<
-    Readonly<{
-      message: string,
-      path?: Array<string | number>,
-      severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
-    }>,
-  >,
+  errors: Array<TRelayFieldError>,
 ): void {
   for (const [childKey, value] of trieOrSet) {
     const oldLength = errors.length;
@@ -142,14 +131,10 @@ function recursivelyCopyErrorsIntoArray(
     const newLength = errors.length;
     for (let index = oldLength; index < newLength; index++) {
       const error = errors[index];
-      if (error.path == null) {
-        errors[index] = {
-          ...error,
-          path: [childKey],
-        };
-      } else {
-        error.path.unshift(childKey);
-      }
+      errors[index] = {
+        ...error,
+        path: error.path == null ? [childKey] : [childKey, ...error.path],
+      };
     }
   }
 }

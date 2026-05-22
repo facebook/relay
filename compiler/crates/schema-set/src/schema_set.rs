@@ -123,28 +123,20 @@ impl SchemaSet {
         subset_directives: &StringKeySet,
     ) -> DiagnosticsResult<SchemaSet> {
         // An intersect is the same as:
-        //  A.exclude( A.exclude(B).union(B.exclude(A)) )
+        //  A.intersect(B) = A.exclude( A.exclude(B) )
         //
-        // Is this algorithm more expensive than a purpose-written intersect? Definitely!
-        // We end up fully visiting each element in A ~2 times and B ~1 times,
-        // instead of only visting the elements in both ~1 time. Plus we ~2x the memory,
-        // as we hold in place a full second set of A+B (the exclude + intersect).
+        // https://en.wikipedia.org/wiki/Algebra_of_sets#Some_additional_laws_for_unions_and_intersections
+        //
+        // Is this algorithm more expensive than a purpose-written intersect? Maybe!
         //
         // But it's much less work to write and probably is fast enough for what we need.
-        // Plus it'll reduces total bugs, as testing intersect tests both exclude.
+        // Plus it'll reduces total bugs, as testing intersect tests exclude composition.
         let a = self;
         let b = to_intersect;
 
         let empty = StringKeySet::default();
         let a_exclude_b = a.exclude_set(b, subset_directives, &empty);
-        let b_exclude_a = b.exclude_set(a, subset_directives, &empty);
-
-        let everything_except_the_intersect =
-            a_exclude_b.union_set(&b_exclude_a, subset_directives)?;
-
-        // arbitrarily picking A, but could be B instead.
-        // Exclude everything-except-the-intersect from A to get the intersect.
-        Ok(a.exclude_set(&everything_except_the_intersect, subset_directives, &empty))
+        Ok(a.exclude_set(&a_exclude_b, subset_directives, &empty))
     }
 
     // We don't want to make custom logic for "expanding" the SchemaSet at IR collection time,

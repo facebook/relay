@@ -1,0 +1,16 @@
+query TestQuery($showUser: Boolean!, $showViewer: Boolean!) {
+  me @include(if: $showUser) {
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  name
+  __query @skip(if: $showViewer) {
+    viewer {
+      actor {
+        name
+      }
+    }
+  }
+}

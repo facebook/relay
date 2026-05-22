@@ -1,0 +1,12 @@
+query TestQuery($hide: Boolean!) {
+  me {
+    name
+    __query @skip(if: $hide) {
+      viewer {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}

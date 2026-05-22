@@ -46,6 +46,34 @@ async fn no_query_selections() {
 }
 
 #[tokio::test]
+async fn skip_on_query_field() {
+    let input = include_str!("hoist_query_selections/fixtures/skip_on_query_field.graphql");
+    let expected = include_str!("hoist_query_selections/fixtures/skip_on_query_field.expected");
+    test_fixture(transform_fixture, file!(), "skip_on_query_field.graphql", "hoist_query_selections/fixtures/skip_on_query_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn nested_conditions() {
+    let input = include_str!("hoist_query_selections/fixtures/nested_conditions.graphql");
+    let expected = include_str!("hoist_query_selections/fixtures/nested_conditions.expected");
+    test_fixture(transform_fixture, file!(), "nested_conditions.graphql", "hoist_query_selections/fixtures/nested_conditions.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn conditional_fragment_with_query_field() {
+    let input = include_str!("hoist_query_selections/fixtures/conditional_fragment_with_query_field.graphql");
+    let expected = include_str!("hoist_query_selections/fixtures/conditional_fragment_with_query_field.expected");
+    test_fixture(transform_fixture, file!(), "conditional_fragment_with_query_field.graphql", "hoist_query_selections/fixtures/conditional_fragment_with_query_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn conditional_inside_query_field() {
+    let input = include_str!("hoist_query_selections/fixtures/conditional_inside_query_field.graphql");
+    let expected = include_str!("hoist_query_selections/fixtures/conditional_inside_query_field.expected");
+    test_fixture(transform_fixture, file!(), "conditional_inside_query_field.graphql", "hoist_query_selections/fixtures/conditional_inside_query_field.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn mutation_error() {
     let input = include_str!("hoist_query_selections/fixtures/mutation_error.graphql");
     let expected = include_str!("hoist_query_selections/fixtures/mutation_error.expected");

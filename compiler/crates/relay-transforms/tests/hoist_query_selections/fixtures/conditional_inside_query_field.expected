@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+query TestQuery($showActor: Boolean!) {
+  me {
+    name
+    __query {
+      viewer {
+        actor @include(if: $showActor) {
+          name
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $showActor: Boolean!
+) {
+  me {
+    name
+  }
+  viewer {
+    actor @include(if: $showActor) {
+      name
+    }
+  }
+}

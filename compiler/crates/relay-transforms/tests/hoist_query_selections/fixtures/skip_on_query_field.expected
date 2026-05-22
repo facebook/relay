@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+query TestQuery($hide: Boolean!) {
+  me {
+    name
+    __query @skip(if: $hide) {
+      viewer {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $hide: Boolean!
+) {
+  me {
+    name
+  }
+  viewer @skip(if: $hide) {
+    actor {
+      name
+    }
+  }
+}

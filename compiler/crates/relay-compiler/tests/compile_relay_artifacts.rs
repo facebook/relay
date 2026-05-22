@@ -123,9 +123,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         prefer_fetchable_in_refetch_queries: fixture
             .content
             .contains("# prefer_fetchable_in_refetch_queries"),
-        enable_query_root_selection: fixture
-            .content
-            .contains("# enable_query_root_selection"),
+        enable_query_root_selection: fixture.content.contains("# enable_query_root_selection"),
         ..Default::default()
     };
 

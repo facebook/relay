@@ -108,17 +108,12 @@ impl<'s> HoistQuerySelections<'s> {
 
         // Phase 1a: Process each fragment exactly once — extract direct __query
         // selections and collect spreads with their condition context.
-        let fragment_names: Vec<_> = self
-            .program
-            .fragments()
-            .map(|f| f.name.item)
-            .collect();
+        let fragment_names: Vec<_> = self.program.fragments().map(|f| f.name.item).collect();
 
         for &name in &fragment_names {
             let fragment = self.program.fragment(name).unwrap();
             let mut condition_stack = Vec::new();
-            let result =
-                self.extract_from_selections(&fragment.selections, &mut condition_stack);
+            let result = self.extract_from_selections(&fragment.selections, &mut condition_stack);
             self.fragment_info.insert(
                 name,
                 FragmentExtraction {
@@ -144,17 +139,14 @@ impl<'s> HoistQuerySelections<'s> {
         // cached transitive hoisted from all spread fragments.
         for operation in self.program.operations() {
             let mut condition_stack = Vec::new();
-            let result =
-                self.extract_from_selections(&operation.selections, &mut condition_stack);
+            let result = self.extract_from_selections(&operation.selections, &mut condition_stack);
 
             let mut all_hoisted = result.hoisted;
 
             let mut seen_fragments = FxHashSet::default();
             for spread in &result.spreads {
                 if seen_fragments.insert(spread.name) {
-                    if let Some(transitive) =
-                        self.fragment_transitive_hoisted.get(&spread.name)
-                    {
+                    if let Some(transitive) = self.fragment_transitive_hoisted.get(&spread.name) {
                         all_hoisted
                             .extend(wrap_in_conditions(transitive.clone(), &spread.conditions));
                     }
@@ -190,10 +182,7 @@ impl<'s> HoistQuerySelections<'s> {
     /// Compute transitive hoisted selections for a fragment via DFS.
     /// Each fragment is resolved exactly once. Cycles are broken by
     /// returning empty when a fragment is encountered in "Visiting" state.
-    fn resolve_transitive_hoisted(
-        &mut self,
-        name: FragmentDefinitionName,
-    ) -> Vec<Selection> {
+    fn resolve_transitive_hoisted(&mut self, name: FragmentDefinitionName) -> Vec<Selection> {
         match self.fragment_resolve_state.get(&name) {
             Some(ResolveState::Visited) => {
                 return self
@@ -248,9 +237,7 @@ impl<'s> HoistQuerySelections<'s> {
 
         for selection in selections {
             match selection {
-                Selection::LinkedField(field)
-                    if field.definition.item == self.query_field_id =>
-                {
+                Selection::LinkedField(field) if field.definition.item == self.query_field_id => {
                     changed = true;
                     hoisted.extend(wrap_in_conditions(
                         field.selections.clone(),
@@ -258,27 +245,23 @@ impl<'s> HoistQuerySelections<'s> {
                     ));
                 }
                 Selection::LinkedField(field) => {
-                    let inner =
-                        self.extract_from_selections(&field.selections, condition_stack);
+                    let inner = self.extract_from_selections(&field.selections, condition_stack);
                     hoisted.extend(inner.hoisted);
                     spreads.extend(inner.spreads);
                     if inner.changed {
                         changed = true;
                         if !inner.selections.is_empty() {
-                            result_selections.push(Selection::LinkedField(Arc::new(
-                                LinkedField {
-                                    selections: inner.selections,
-                                    ..field.as_ref().clone()
-                                },
-                            )));
+                            result_selections.push(Selection::LinkedField(Arc::new(LinkedField {
+                                selections: inner.selections,
+                                ..field.as_ref().clone()
+                            })));
                         }
                     } else {
                         result_selections.push(selection.clone());
                     }
                 }
                 Selection::InlineFragment(fragment) => {
-                    let inner =
-                        self.extract_from_selections(&fragment.selections, condition_stack);
+                    let inner = self.extract_from_selections(&fragment.selections, condition_stack);
                     hoisted.extend(inner.hoisted);
                     spreads.extend(inner.spreads);
                     if inner.changed {

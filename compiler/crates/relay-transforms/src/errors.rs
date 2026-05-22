@@ -30,10 +30,10 @@ use thiserror::Error;
 )]
 #[serde(tag = "type")]
 pub enum ValidationMessage {
-    #[error("`__query` is not allowed in {operation_kind} operations. `__query` can only be used in queries.")]
-    QueryFieldNotAllowedInOperation {
-        operation_kind: OperationKind,
-    },
+    #[error(
+        "`__query` is not allowed in {operation_kind} operations. `__query` can only be used in queries."
+    )]
+    QueryFieldNotAllowedInOperation { operation_kind: OperationKind },
 
     #[error("This fragment spread already has a split normalization file generated.")]
     DuplicateRelayClientComponentSplitOperation,

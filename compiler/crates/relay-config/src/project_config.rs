@@ -447,6 +447,50 @@ impl ProjectConfig {
         }
     }
 
+    /// Gets the path for a generated *extra* artifact based on its
+    /// originating source file's location and the project's configuration.
+    ///
+    /// Mirrors [`Self::create_path_for_artifact`], except the output root is
+    /// `extra_artifacts_output`. Sharding is opt-in via `should_shard` —
+    /// callers gate this on a feature flag while the new behavior is rolled
+    /// out, so that passing `should_shard = false` reproduces the legacy
+    /// flat layout (`extra_artifacts_output.join(file_name)`).
+    ///
+    /// When `should_shard` is true but the project does not set
+    /// `shardOutput`, the call silently falls back to the flat layout. This
+    /// is intentional: the feature flag may be enabled across many projects
+    /// during rollout, but only those that already opt into `shardOutput`
+    /// get the new sharded layout.
+    ///
+    /// Panics if `extra_artifacts_output` is unset; only projects that
+    /// configure `extraArtifactsOutput` produce extra artifacts, so reaching
+    /// this with no output configured indicates an internal invariant
+    /// violation rather than user misconfiguration.
+    pub fn create_path_for_extra_artifact(
+        &self,
+        source_file: SourceLocationKey,
+        artifact_file_name: String,
+        should_shard: bool,
+    ) -> PathBuf {
+        let output = self.extra_artifacts_output.as_ref().expect(
+            "create_path_for_extra_artifact called without `extraArtifactsOutput` set on the project config",
+        );
+        if should_shard && self.shard_output {
+            if let Some(ref regex) = self.shard_strip_regex {
+                let full_source_path = regex.replace_all(source_file.path(), "");
+                let mut path = output.join(full_source_path.to_string());
+                // `full_source_path` still includes the source file name; pop it to get the directory.
+                path.pop();
+                path
+            } else {
+                output.join(source_file.get_dir())
+            }
+            .join(artifact_file_name)
+        } else {
+            output.join(artifact_file_name)
+        }
+    }
+
     /// Generates a path for an artifact file based on a definition name and its location.
     pub fn artifact_path_for_definition(
         &self,
@@ -532,4 +576,88 @@ fn format_normalized_path(path: &Path) -> String {
     path.to_string_lossy()
         .to_string()
         .replace(MAIN_SEPARATOR, "/")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn project_with_extra(
+        extra_artifacts_output: Option<&str>,
+        shard_output: bool,
+        shard_strip_regex: Option<&str>,
+    ) -> ProjectConfig {
+        ProjectConfig {
+            extra_artifacts_output: extra_artifacts_output.map(PathBuf::from),
+            shard_output,
+            shard_strip_regex: shard_strip_regex.map(|r| Regex::new(r).unwrap()),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn extra_artifact_path_unsharded_keeps_legacy_flat_layout() {
+        let config = project_with_extra(Some("out/extra"), true, Some("^src/"));
+        let path = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("src/components/foo/Bar.js"),
+            "BarOperation.graphql.js".to_owned(),
+            false,
+        );
+        assert_eq!(
+            path,
+            PathBuf::from("out/extra/BarOperation.graphql.js"),
+            "shard=false should produce the same flat path as the legacy call site"
+        );
+    }
+
+    #[test]
+    fn extra_artifact_path_sharded_with_regex_mirrors_normal_artifact_layout() {
+        let config = project_with_extra(Some("out/extra"), true, Some("^src/"));
+        let path = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("src/components/foo/Bar.js"),
+            "BarOperation.graphql.js".to_owned(),
+            true,
+        );
+        assert_eq!(
+            path,
+            PathBuf::from("out/extra/components/foo/BarOperation.graphql.js"),
+            "Source 'src/components/foo/Bar.js' with regex '^src/' should shard under 'components/foo/'"
+        );
+    }
+
+    #[test]
+    fn extra_artifact_path_sharded_without_regex_uses_full_source_dir() {
+        let config = project_with_extra(Some("out/extra"), true, None);
+        let path = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("a/b/c/Bar.js"),
+            "BarOperation.graphql.js".to_owned(),
+            true,
+        );
+        assert_eq!(
+            path,
+            PathBuf::from("out/extra/a/b/c/BarOperation.graphql.js"),
+        );
+    }
+
+    #[test]
+    fn extra_artifact_path_shard_arg_ignored_when_project_does_not_shard() {
+        let config = project_with_extra(Some("out/extra"), false, Some("^src/"));
+        let path = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("src/components/foo/Bar.js"),
+            "BarOperation.graphql.js".to_owned(),
+            true,
+        );
+        assert_eq!(path, PathBuf::from("out/extra/BarOperation.graphql.js"),);
+    }
+
+    #[test]
+    #[should_panic(expected = "extraArtifactsOutput")]
+    fn extra_artifact_path_panics_without_extra_artifacts_output() {
+        let config = project_with_extra(None, true, Some("^src/"));
+        let _ = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("src/components/foo/Bar.js"),
+            "Bar.graphql.js".to_owned(),
+            true,
+        );
+    }
 }

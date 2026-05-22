@@ -54,6 +54,12 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub text_artifacts: FeatureFlag,
 
+    /// Shard generated extra artifacts into subdirectories under
+    /// `extraArtifactsOutput` that mirror the source file's relative path,
+    /// honoring `shardOutput` / `shardStripRegex`.
+    #[serde(default)]
+    pub shard_extra_artifacts: FeatureFlag,
+
     #[serde(default)]
     pub skip_printing_nulls: FeatureFlag,
 
@@ -223,6 +229,7 @@ impl Default for FeatureFlags {
             no_inline: Default::default(),
             enable_3d_branch_arg_generation: Default::default(),
             text_artifacts: Default::default(),
+            shard_extra_artifacts: Default::default(),
             skip_printing_nulls: Default::default(),
             compact_query_text: Default::default(),
             enable_resolver_normalization_ast: Default::default(),

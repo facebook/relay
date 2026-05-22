@@ -65,6 +65,19 @@ test("...", () => {
 });
 ```
 
+:::tip Persistent Resolvers for Repeated Queries
+If your component may trigger the same query multiple times (due to refetching, multiple component instances, or re-renders), consider using persistent resolvers. Instead of the function form, pass an object with `persistent: true`:
+
+```javascript
+environment.mock.queueOperationResolver({
+  resolver: operation => MockPayloadGenerator.generate(operation, { /* ... */ }),
+  persistent: true,
+});
+```
+
+This prevents the resolver from being consumed after the first use. See the [persistent resolvers section](../testing-relay-components/#persistent-resolvers) for more details.
+:::
+
 ### Configure the query resolver to generate the response
 
 This is done via `environment.mock.queueOperationResolver(operation)` call, but getting it right might be tricky.

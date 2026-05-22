@@ -48,7 +48,7 @@ export type LoadQueryOptions = {
   +__nameForWarning?: ?string,
 };
 
-export type PreloadableConcreteRequest<+TQuery extends OperationType> = {
+export type PreloadableConcreteRequest<out TQuery extends OperationType> = {
   kind: 'PreloadableConcreteRequest',
   params: RequestParameters,
   // Note: the phantom type parameter here helps ensures that the
@@ -62,14 +62,14 @@ export type PreloadableConcreteRequest<+TQuery extends OperationType> = {
 export type EnvironmentProviderOptions = {+[string]: unknown, ...};
 
 export type PreloadedQuery<
-  +TQuery extends OperationType,
+  out TQuery extends OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > =
   | PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions>
   | PreloadedQueryInner<TQuery, TEnvironmentProviderOptions>;
 
 export type PreloadedQueryInner_DEPRECATED<
-  +TQuery extends OperationType,
+  out TQuery extends OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
   +kind: 'PreloadedQuery_DEPRECATED',
@@ -86,7 +86,7 @@ export type PreloadedQueryInner_DEPRECATED<
 };
 
 export type PreloadedQueryInner<
-  +TQuery extends OperationType,
+  out TQuery extends OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
   // Releases query data and cancels network request if still in flight
@@ -129,9 +129,9 @@ the preloaders (routeParams, query variables)
 TEntryPointComponent -  the root components
 */
 export type EntryPoint<
-  -TEntryPointParams,
+  in TEntryPointParams,
   // $FlowExpectedError[unclear-type] accepts any root component
-  +TEntryPointComponent extends EntryPointComponent<any, any, any, any, any>,
+  out TEntryPointComponent extends EntryPointComponent<any, any, any, any, any>,
 > = Readonly<{
   getPreloadProps: (
     entryPointParams: TEntryPointParams,
@@ -178,7 +178,7 @@ export type EntryPointComponent<
   TPreloadedEntryPoints = {},
   TRuntimeProps = {},
   TExtraProps = null,
-  +TRenders extends React.Node = React.Node,
+  out TRenders extends React.Node = React.Node,
 > = component(
   ...EntryPointProps<
     TPreloadedQueries,
@@ -215,7 +215,7 @@ export type PreloadedEntryPoint<TEntryPointComponent> = Readonly<{
 }>;
 
 export type EntryPointElementConfig<
-  +TEntryPoint extends EntryPoint<
+  out TEntryPoint extends EntryPoint<
     // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
     any,
     // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
@@ -230,7 +230,7 @@ export type EntryPointElementConfig<
     : empty;
 
 export type ThinQueryParams<
-  +TQuery extends OperationType,
+  out TQuery extends OperationType,
   TEnvironmentProviderOptions,
 > = Readonly<{
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
@@ -281,7 +281,7 @@ export type ExtractQueryTypes<
 };
 
 // $FlowFixMe[unclear-type]: we don't care about the props
-export type RootComponentRenders<+C extends component(...any)> =
+export type RootComponentRenders<out C extends component(...any)> =
   // $FlowFixMe[unclear-type]: we don't care about the props
   C extends component(...any) renders infer R extends React.Node ? R : empty;
 

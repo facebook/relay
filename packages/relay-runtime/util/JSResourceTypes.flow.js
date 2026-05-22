@@ -11,7 +11,7 @@
 
 'use strict';
 
-export interface JSResourceReference<+T> {
+export interface JSResourceReference<out T> {
   +getModuleId: () => string;
   +getModuleIfRequired: () => ?T;
   +load: () => Promise<T>;

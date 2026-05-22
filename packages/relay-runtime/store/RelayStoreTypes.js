@@ -1286,7 +1286,7 @@ export type StoreUpdater = (store: RecordSourceProxy) => void;
  * order to easily access the root fields of a query/mutation as well as a
  * second argument of the response object of the mutation.
  */
-export type SelectorStoreUpdater<-TMutationResponse> = (
+export type SelectorStoreUpdater<in TMutationResponse> = (
   store: RecordSourceSelectorProxy,
   data: ?TMutationResponse,
 ) => void;
@@ -1604,7 +1604,7 @@ export type ConcreteClientEdgeResolverReturnType<T = any> = {
  * that the provider of the LiveState value confirms that the value has indeed
  * change before notifying Relay of the change.
  */
-export type LiveState<+T> = {
+export type LiveState<out T> = {
   /**
    * Returns the current value of the live state.
    */

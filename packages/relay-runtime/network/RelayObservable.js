@@ -33,7 +33,7 @@ type SubscriptionFn = {
  * An Observer is an object of optional callback functions provided to
  * .subscribe(). Each callback function is invoked when that event occurs.
  */
-export type Observer<-T> = {
+export type Observer<in T> = {
   +start?: ?(Subscription) => unknown,
   +next?: ?(T) => unknown,
   +error?: ?(Error) => unknown,
@@ -46,7 +46,7 @@ export type Observer<-T> = {
  * The methods are to be called to trigger each event. It also contains a closed
  * field to see if the resulting subscription has closed.
  */
-export type Sink<-T> = {
+export type Sink<in T> = {
   +next: T => void,
   +error: (Error, isUncaughtThrownError?: boolean) => void,
   +complete: () => void,
@@ -59,7 +59,7 @@ export type Sink<-T> = {
  * and may return either a cleanup function or a Subscription instance (for use
  * when composing Observables).
  */
-export type Source<+T> = (Sink<T>) => void | Subscription | SubscriptionFn;
+export type Source<out T> = (Sink<T>) => void | Subscription | SubscriptionFn;
 
 /**
  * A Subscribable is an interface describing any object which can be subscribed.
@@ -67,11 +67,11 @@ export type Source<+T> = (Sink<T>) => void | Subscription | SubscriptionFn;
  * Note: A sink may be passed directly to .subscribe() as its observer,
  * allowing for easily composing Subscribables.
  */
-export interface Subscribable<+T> {
+export interface Subscribable<out T> {
   subscribe(observer: Observer<T> | Sink<T>): Subscription;
 }
 
-export type ObservableFromValue<+T> = Subscribable<T> | Promise<T> | T;
+export type ObservableFromValue<out T> = Subscribable<T> | Promise<T> | T;
 
 let hostReportError:
   | ((Error, isUncaughtThrownError: boolean) => unknown)
@@ -88,7 +88,7 @@ let hostReportError:
  *
  * ESObservable: https://github.com/tc39/proposal-observable
  */
-class RelayObservable<+T> implements Subscribable<T> {
+class RelayObservable<out T> implements Subscribable<T> {
   +_source: Source<T>;
 
   static create<V>(source: Source<V>): RelayObservable<V> {

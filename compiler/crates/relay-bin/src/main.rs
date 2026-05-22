@@ -114,6 +114,11 @@ struct CompileCommand {
     #[clap(long)]
     repersist: bool,
 
+    /// Disable watchman and use directory traversal to find source files.
+    /// Watch mode is not supported without watchman.
+    #[clap(long, conflicts_with = "watch")]
+    no_watchman: bool,
+
     /// Verbosity level
     #[clap(long, value_enum, default_value = "verbose")]
     output: OutputKind,
@@ -418,7 +423,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
         )
     }));
 
-    config.file_source_config = if should_use_watchman() {
+    config.file_source_config = if should_use_watchman(command.no_watchman) {
         FileSourceKind::Watchman
     } else {
         FileSourceKind::WalkDir
@@ -426,9 +431,9 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     config.repersist_operations = command.repersist;
 
     if command.watch && !matches!(&config.file_source_config, FileSourceKind::Watchman) {
-        panic!(
-            "Cannot run relay in watch mode if `watchman` is not available (or explicitly disabled)."
-        );
+        return Err(Error::CompilerError {
+            details: "Cannot run relay in watch mode if `watchman` is not available. Install watchman or remove the --watch flag.".to_string(),
+        });
     }
 
     config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
@@ -538,11 +543,11 @@ async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
 }
 
 /// Check if `watchman` is available.
-/// Additionally, this method is checking for an existence of `FORCE_NO_WATCHMAN`
-/// environment variable. If this `FORCE_NO_WATCHMAN` is set, this method will return `false`
-/// and compiler will use non-watchman file finder.
-fn should_use_watchman() -> bool {
-    if env::var("FORCE_NO_WATCHMAN").is_ok() {
+/// Returns `false` if `no_watchman_flag` is set (via `--noWatchman` CLI flag),
+/// or if the `FORCE_NO_WATCHMAN` environment variable is set,
+/// or if the `watchman` binary is not found on `$PATH`.
+fn should_use_watchman(no_watchman_flag: bool) -> bool {
+    if no_watchman_flag || env::var("FORCE_NO_WATCHMAN").is_ok() {
         return false;
     }
     Command::new("watchman")

@@ -66,6 +66,7 @@ use crate::Union;
 use crate::UnionID;
 use crate::errors::SchemaError;
 use crate::field_descriptions::CLIENT_ID_DESCRIPTION;
+use crate::field_descriptions::QUERY_SELECTION_DESCRIPTION;
 
 #[self_referencing]
 struct OwnedFlatBufferSchema {
@@ -277,7 +278,7 @@ impl SchemaWrapper {
             type_: TypeReference::Named(query_selection_type),
             directives: Vec::new(),
             parent_type: None,
-            description: None,
+            description: Some(*QUERY_SELECTION_DESCRIPTION),
             hack_source: None,
         });
 

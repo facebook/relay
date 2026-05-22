@@ -34,6 +34,7 @@ use crate::definitions::Directive;
 use crate::definitions::*;
 use crate::errors::SchemaError;
 use crate::field_descriptions::CLIENT_ID_DESCRIPTION;
+use crate::field_descriptions::QUERY_SELECTION_DESCRIPTION;
 use crate::field_descriptions::TYPENAME_DESCRIPTION;
 use crate::graphql_schema::Schema;
 
@@ -1178,7 +1179,7 @@ impl InMemorySchema {
             type_,
             directives: Vec::new(),
             parent_type: None,
-            description: None,
+            description: Some(*QUERY_SELECTION_DESCRIPTION),
             hack_source: None,
         });
     }

@@ -74,6 +74,13 @@ async fn conditional_inside_query_field() {
 }
 
 #[tokio::test]
+async fn duplicate_root_field() {
+    let input = include_str!("hoist_query_selections/fixtures/duplicate_root_field.graphql");
+    let expected = include_str!("hoist_query_selections/fixtures/duplicate_root_field.expected");
+    test_fixture(transform_fixture, file!(), "duplicate_root_field.graphql", "hoist_query_selections/fixtures/duplicate_root_field.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn mutation_error() {
     let input = include_str!("hoist_query_selections/fixtures/mutation_error.graphql");
     let expected = include_str!("hoist_query_selections/fixtures/mutation_error.expected");

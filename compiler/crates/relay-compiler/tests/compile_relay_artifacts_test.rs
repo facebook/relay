@@ -1147,6 +1147,13 @@ async fn query_selection_hoist_duplicate() {
 }
 
 #[tokio::test]
+async fn query_selection_hoist_duplicate_conditional() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-selection-hoist-duplicate-conditional.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-selection-hoist-duplicate-conditional.expected");
+    test_fixture(transform_fixture, file!(), "query-selection-hoist-duplicate-conditional.graphql", "compile_relay_artifacts/fixtures/query-selection-hoist-duplicate-conditional.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn query_with_and_without_module_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/query-with-and-without-module-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/query-with-and-without-module-directive.expected");

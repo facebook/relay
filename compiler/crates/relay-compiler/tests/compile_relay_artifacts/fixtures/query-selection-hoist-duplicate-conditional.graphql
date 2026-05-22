@@ -1,0 +1,23 @@
+# enable_query_root_selection
+
+query querySelectionHoistDuplicateConditionalQuery($skip: Boolean!) {
+  viewer @skip(if: $skip) {
+    actor {
+      id
+    }
+  }
+  me {
+    ...querySelectionHoistDuplicateConditionalFragment
+  }
+}
+
+fragment querySelectionHoistDuplicateConditionalFragment on User {
+  name
+  __query {
+    viewer {
+      actor {
+        name
+      }
+    }
+  }
+}

@@ -656,6 +656,22 @@ class RelayReader {
           }
           break;
         }
+        case 'QueryRootSelection': {
+          const rootRecord = this._recordSource.get(ROOT_ID);
+          if (rootRecord == null) {
+            this._isMissingData = true;
+          } else {
+            const hasExpectedData = this._traverseSelections(
+              selection.selections,
+              rootRecord,
+              data,
+            );
+            if (!hasExpectedData) {
+              return false;
+            }
+          }
+          break;
+        }
         case 'Stream': {
           const hasExpectedData = this._traverseSelections(
             selection.selections,

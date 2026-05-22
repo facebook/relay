@@ -326,6 +326,10 @@ fn apply_reader_transforms(
         hash_supported_argument(&program)
     })?;
 
+    program = log_event.time("query_root_selection_reader_transform", || {
+        query_root_selection_reader_transform(&program)
+    });
+
     program = apply_after_custom_transforms(
         &program,
         custom_transforms,

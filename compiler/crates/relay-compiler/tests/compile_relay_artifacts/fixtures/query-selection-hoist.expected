@@ -167,12 +167,7 @@ fragment querySelectionHoistFragment on User {
       "kind": "ClientExtension",
       "selections": [
         {
-          "alias": null,
-          "args": null,
-          "concreteType": "Query",
-          "kind": "LinkedField",
-          "name": "__query",
-          "plural": false,
+          "kind": "QueryRootSelection",
           "selections": [
             {
               "alias": null,
@@ -203,8 +198,7 @@ fragment querySelectionHoistFragment on User {
               ],
               "storageKey": null
             }
-          ],
-          "storageKey": null
+          ]
         }
       ]
     }

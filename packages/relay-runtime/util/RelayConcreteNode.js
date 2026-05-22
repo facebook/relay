@@ -123,6 +123,7 @@ const RelayConcreteNode = {
   REQUIRED_FIELD: 'RequiredField',
   OBJECT_VALUE: 'ObjectValue',
   OPERATION: 'Operation',
+  QUERY_ROOT_SELECTION: 'QueryRootSelection',
   REQUEST: 'Request',
   ROOT_ARGUMENT: 'RootArgument',
   SCALAR_FIELD: 'ScalarField',

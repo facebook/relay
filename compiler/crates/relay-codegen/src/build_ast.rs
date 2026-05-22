@@ -44,6 +44,7 @@ use relay_config::ProjectConfig;
 use relay_config::Surface;
 use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use relay_transforms::CatchMetadataDirective;
+use relay_transforms::QUERY_ROOT_SELECTION_DIRECTIVE_NAME;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::ClientEdgeMetadataDirective;
 use relay_transforms::ClientEdgeModelResolver;
@@ -2208,6 +2209,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             }
                         }
                     }
+                } else if inline_frag
+                    .directives
+                    .iter()
+                    .any(|d| d.name.item == *QUERY_ROOT_SELECTION_DIRECTIVE_NAME)
+                {
+                    let selections = self.build_selections(context, inline_frag.selections.iter());
+                    Primitive::Key(self.object(object! {
+                        kind: Primitive::String(CODEGEN_CONSTANTS.query_root_selection),
+                        selections: selections,
+                    }))
                 } else if
                 // TODO(T63388023): Use typed custom directives
                 inline_frag.directives.len() == 1

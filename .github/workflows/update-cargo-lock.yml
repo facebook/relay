@@ -12,6 +12,9 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+permissions:
+  contents: read
+
 jobs:
   update-cargo-lock:
     name: Update Cargo.lock file

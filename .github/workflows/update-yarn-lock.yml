@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   update-yarn-lock:
     name: Update yarn.lock file

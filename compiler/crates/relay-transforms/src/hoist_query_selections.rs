@@ -27,10 +27,8 @@ pub fn hoist_query_selections(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = HoistQuerySelections {
         program,
         query_field_id,
-        // Phase 1a results: direct __query extractions per fragment
         fragment_direct_hoisted: FxHashMap::default(),
         fragment_direct_spreads: FxHashMap::default(),
-        // Phase 1b result: transitive __query selections per fragment (cached)
         fragment_transitive_hoisted: FxHashMap::default(),
         fragment_resolve_state: FxHashMap::default(),
         errors: Vec::new(),
@@ -49,11 +47,36 @@ enum ResolveState {
     Visited,
 }
 
+/// A fragment spread with the conditions that were on the path to reach it.
+#[derive(Clone)]
+struct ConditionalSpread {
+    name: FragmentDefinitionName,
+    conditions: Vec<OwnedCondition>,
+}
+
+/// An owned copy of a Condition's data (without the selections).
+#[derive(Clone)]
+struct OwnedCondition {
+    value: graphql_ir::ConditionValue,
+    passing_value: bool,
+    location: common::Location,
+}
+
+impl OwnedCondition {
+    fn from_condition(c: &Condition) -> Self {
+        OwnedCondition {
+            value: c.value.clone(),
+            passing_value: c.passing_value,
+            location: c.location,
+        }
+    }
+}
+
 struct HoistQuerySelections<'s> {
     program: &'s Program,
     query_field_id: FieldID,
     fragment_direct_hoisted: FxHashMap<FragmentDefinitionName, Vec<Selection>>,
-    fragment_direct_spreads: FxHashMap<FragmentDefinitionName, Vec<FragmentDefinitionName>>,
+    fragment_direct_spreads: FxHashMap<FragmentDefinitionName, Vec<ConditionalSpread>>,
     fragment_transitive_hoisted: FxHashMap<FragmentDefinitionName, Vec<Selection>>,
     fragment_resolve_state: FxHashMap<FragmentDefinitionName, ResolveState>,
     errors: Vec<Diagnostic>,
@@ -62,7 +85,7 @@ struct HoistQuerySelections<'s> {
 struct ExtractResult {
     selections: Vec<Selection>,
     hoisted: Vec<Selection>,
-    spread_names: Vec<FragmentDefinitionName>,
+    spreads: Vec<ConditionalSpread>,
     changed: bool,
 }
 
@@ -71,7 +94,8 @@ impl<'s> HoistQuerySelections<'s> {
         let mut next_program = Program::new(Arc::clone(&self.program.schema));
 
         // Phase 1a: Process each fragment exactly once — extract direct __query
-        // selections and collect the set of directly spread fragment names.
+        // selections and collect the set of directly spread fragment names
+        // along with the conditions on the path to each spread.
         let fragment_names: Vec<_> = self
             .program
             .fragments()
@@ -84,7 +108,7 @@ impl<'s> HoistQuerySelections<'s> {
             self.fragment_direct_hoisted
                 .insert(name, result.hoisted);
             self.fragment_direct_spreads
-                .insert(name, result.spread_names);
+                .insert(name, result.spreads);
             if result.changed {
                 let mut next_fragment = fragment.as_ref().clone();
                 next_fragment.selections = result.selections;
@@ -95,26 +119,27 @@ impl<'s> HoistQuerySelections<'s> {
         }
 
         // Phase 1b: Resolve transitive hoisted selections per fragment.
-        // Each fragment is visited exactly once via DFS with cycle detection.
         for &name in &fragment_names {
             self.resolve_transitive_hoisted(name);
         }
 
         // Phase 2: Process operations — extract direct __query, then look up
-        // cached transitive hoisted from all spread fragments.
+        // cached transitive hoisted from all spread fragments, wrapping each
+        // fragment's hoisted selections in the conditions on the path to the spread.
         for operation in self.program.operations() {
             let result = self.extract_from_selections(&operation.selections, &[]);
 
             let mut all_hoisted = result.hoisted;
 
-            // Look up cached transitive hoisted for each spread fragment
             let mut seen_fragments = FxHashSet::default();
-            for spread_name in &result.spread_names {
-                if seen_fragments.insert(*spread_name) {
+            for spread in &result.spreads {
+                if seen_fragments.insert(spread.name) {
                     if let Some(transitive) =
-                        self.fragment_transitive_hoisted.get(spread_name)
+                        self.fragment_transitive_hoisted.get(&spread.name)
                     {
-                        all_hoisted.extend(transitive.clone());
+                        let wrapped =
+                            wrap_in_owned_conditions(transitive.clone(), &spread.conditions);
+                        all_hoisted.extend(wrapped);
                     }
                 }
             }
@@ -148,6 +173,11 @@ impl<'s> HoistQuerySelections<'s> {
     /// Compute transitive hoisted selections for a fragment via DFS.
     /// Each fragment is resolved exactly once. Cycles are broken by
     /// returning empty when a fragment is encountered in "Visiting" state.
+    ///
+    /// The transitive hoisted selections include the fragment's own direct
+    /// hoisted selections, plus those from transitively spread fragments,
+    /// with each spread's hoisted selections wrapped in whatever conditions
+    /// were on the path to that spread within this fragment.
     fn resolve_transitive_hoisted(
         &mut self,
         name: FragmentDefinitionName,
@@ -161,7 +191,6 @@ impl<'s> HoistQuerySelections<'s> {
                     .unwrap_or_default();
             }
             Some(ResolveState::Visiting) => {
-                // Cycle detected — don't include this fragment's hoisted selections
                 return Vec::new();
             }
             None => {}
@@ -170,22 +199,23 @@ impl<'s> HoistQuerySelections<'s> {
         self.fragment_resolve_state
             .insert(name, ResolveState::Visiting);
 
-        // Start with this fragment's direct hoisted selections
         let mut result = self
             .fragment_direct_hoisted
             .get(&name)
             .cloned()
             .unwrap_or_default();
 
-        // Add transitive hoisted from all directly spread fragments
         let spreads = self
             .fragment_direct_spreads
             .get(&name)
             .cloned()
             .unwrap_or_default();
-        for spread_name in spreads {
-            let transitive = self.resolve_transitive_hoisted(spread_name);
-            result.extend(transitive);
+        for spread in spreads {
+            let transitive = self.resolve_transitive_hoisted(spread.name);
+            if !transitive.is_empty() {
+                let wrapped = wrap_in_owned_conditions(transitive, &spread.conditions);
+                result.extend(wrapped);
+            }
         }
 
         self.fragment_resolve_state
@@ -196,8 +226,7 @@ impl<'s> HoistQuerySelections<'s> {
     }
 
     /// Walk selections, extracting __query LinkedFields and collecting
-    /// spread fragment names. Returns modified selections, hoisted selections,
-    /// spread names, and whether any changes were made.
+    /// spread fragment names with their condition context.
     fn extract_from_selections(
         &self,
         selections: &[Selection],
@@ -205,7 +234,7 @@ impl<'s> HoistQuerySelections<'s> {
     ) -> ExtractResult {
         let mut result_selections = Vec::with_capacity(selections.len());
         let mut hoisted = Vec::new();
-        let mut spread_names = Vec::new();
+        let mut spreads = Vec::new();
         let mut changed = false;
 
         for selection in selections {
@@ -221,7 +250,7 @@ impl<'s> HoistQuerySelections<'s> {
                     let inner_result =
                         self.extract_from_selections(&field.selections, condition_stack);
                     hoisted.extend(inner_result.hoisted);
-                    spread_names.extend(inner_result.spread_names);
+                    spreads.extend(inner_result.spreads);
                     if inner_result.changed {
                         changed = true;
                         if !inner_result.selections.is_empty() {
@@ -240,7 +269,7 @@ impl<'s> HoistQuerySelections<'s> {
                     let inner_result =
                         self.extract_from_selections(&fragment.selections, condition_stack);
                     hoisted.extend(inner_result.hoisted);
-                    spread_names.extend(inner_result.spread_names);
+                    spreads.extend(inner_result.spreads);
                     if inner_result.changed {
                         changed = true;
                         if !inner_result.selections.is_empty() {
@@ -262,7 +291,7 @@ impl<'s> HoistQuerySelections<'s> {
                     let inner_result =
                         self.extract_from_selections(&condition.selections, &new_stack);
                     hoisted.extend(inner_result.hoisted);
-                    spread_names.extend(inner_result.spread_names);
+                    spreads.extend(inner_result.spreads);
                     if inner_result.changed {
                         changed = true;
                         if inner_result.selections.is_empty() {
@@ -278,7 +307,13 @@ impl<'s> HoistQuerySelections<'s> {
                     }
                 }
                 Selection::FragmentSpread(spread) => {
-                    spread_names.push(spread.fragment.item);
+                    spreads.push(ConditionalSpread {
+                        name: spread.fragment.item,
+                        conditions: condition_stack
+                            .iter()
+                            .map(|c| OwnedCondition::from_condition(c))
+                            .collect(),
+                    });
                     result_selections.push(selection.clone());
                 }
                 Selection::ScalarField(_) => {
@@ -290,13 +325,32 @@ impl<'s> HoistQuerySelections<'s> {
         ExtractResult {
             selections: result_selections,
             hoisted,
-            spread_names,
+            spreads,
             changed,
         }
     }
 }
 
 fn wrap_in_conditions(selections: Vec<Selection>, conditions: &[&Condition]) -> Vec<Selection> {
+    if conditions.is_empty() {
+        return selections;
+    }
+    let mut result = selections;
+    for condition in conditions.iter().rev() {
+        result = vec![Selection::Condition(Arc::new(Condition {
+            selections: result,
+            value: condition.value.clone(),
+            passing_value: condition.passing_value,
+            location: condition.location,
+        }))];
+    }
+    result
+}
+
+fn wrap_in_owned_conditions(
+    selections: Vec<Selection>,
+    conditions: &[OwnedCondition],
+) -> Vec<Selection> {
     if conditions.is_empty() {
         return selections;
     }

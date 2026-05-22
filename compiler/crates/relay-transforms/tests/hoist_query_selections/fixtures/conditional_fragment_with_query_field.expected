@@ -23,7 +23,7 @@ query TestQuery(
   me @include(if: $showUser) {
     ...UserFragment
   }
-  viewer @skip(if: $showViewer) {
+  viewer @skip(if: $showViewer) @include(if: $showUser) {
     actor {
       name
     }

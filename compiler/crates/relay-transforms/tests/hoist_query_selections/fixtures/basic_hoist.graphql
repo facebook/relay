@@ -1,0 +1,12 @@
+query TestQuery {
+  me {
+    name
+    __query {
+      viewer {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}

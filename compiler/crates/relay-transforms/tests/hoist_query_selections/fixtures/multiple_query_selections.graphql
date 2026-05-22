@@ -1,0 +1,19 @@
+query TestQuery {
+  me {
+    name
+    __query {
+      viewer {
+        actor {
+          name
+        }
+      }
+    }
+  }
+  story {
+    __query {
+      node(id: "123") {
+        id
+      }
+    }
+  }
+}

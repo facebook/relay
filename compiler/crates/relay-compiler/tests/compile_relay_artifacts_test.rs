@@ -1133,6 +1133,13 @@ async fn provided_variable_split_operation() {
 }
 
 #[tokio::test]
+async fn query_selection_hoist() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-selection-hoist.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-selection-hoist.expected");
+    test_fixture(transform_fixture, file!(), "query-selection-hoist.graphql", "compile_relay_artifacts/fixtures/query-selection-hoist.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn query_with_and_without_module_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/query-with-and-without-module-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/query-with-and-without-module-directive.expected");

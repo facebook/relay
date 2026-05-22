@@ -501,6 +501,13 @@ fn apply_normalization_transforms(
         print_stats("inline_fragments", &program);
     }
 
+    program = log_event.time("hoist_query_selections", || {
+        hoist_query_selections(&program)
+    })?;
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("hoist_query_selections", &program);
+    }
+
     program = log_event.time("client_extensions", || client_extensions(&program));
     if let Some(print_stats) = maybe_print_stats {
         print_stats("client_extensions", &program);
@@ -579,6 +586,10 @@ fn apply_operation_text_transforms(
             &project_config.feature_flags.no_inline,
             &base_fragment_names,
         )
+    })?;
+
+    program = log_event.time("hoist_query_selections", || {
+        hoist_query_selections(&program)
     })?;
 
     log_event.time("validate_global_variables", || {

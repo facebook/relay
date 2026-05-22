@@ -82,6 +82,7 @@ const TYPENAME_FIELD_ID: FieldID = FieldID(10_000_001);
 const FETCH_TOKEN_FIELD_ID: FieldID = FieldID(10_000_002);
 const STRONGID_FIELD_ID: FieldID = FieldID(10_000_003);
 const IS_FULFILLED_FIELD_ID: FieldID = FieldID(10_000_004);
+const QUERY_SELECTION_FIELD_ID: FieldID = FieldID(10_000_005);
 
 fn extend_without_duplicates<T: Eq + Hash>(vec: &mut Vec<T>, items: Vec<T>) {
     let existing: HashSet<&T> = vec.iter().collect();
@@ -102,6 +103,7 @@ pub struct SchemaWrapper {
     typename_field_name: StringKey,
     fetch_token_field_name: StringKey,
     is_fulfilled_field_name: StringKey,
+    query_selection_field_name: StringKey,
     unchecked_argument_type_sentinel: Option<TypeReference<Type>>,
 
     directives: Cache<DirectiveName, Option<Directive>>,
@@ -172,6 +174,7 @@ impl SchemaWrapper {
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
             is_fulfilled_field_name: "is_fulfilled__".intern(),
+            query_selection_field_name: "__query".intern(),
             unchecked_argument_type_sentinel: None,
             directives: Cache::new(),
             unions: Cache::new(),
@@ -258,6 +261,20 @@ impl SchemaWrapper {
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
                 result.get_type("Boolean".intern()).unwrap(),
             ))),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
+            hack_source: None,
+        });
+
+        let query_selection_type = result
+            .query_type()
+            .unwrap_or_else(|| result.get_type("String".intern()).unwrap());
+        result.fields.get(QUERY_SELECTION_FIELD_ID, || Field {
+            name: WithLocation::generated(result.query_selection_field_name),
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::Named(query_selection_type),
             directives: Vec::new(),
             parent_type: None,
             description: None,
@@ -819,6 +836,10 @@ impl Schema for SchemaWrapper {
 
     fn is_fulfilled_field(&self) -> FieldID {
         IS_FULFILLED_FIELD_ID
+    }
+
+    fn query_selection_field(&self) -> FieldID {
+        QUERY_SELECTION_FIELD_ID
     }
 
     fn get_type(&self, type_name: StringKey) -> Option<Type> {

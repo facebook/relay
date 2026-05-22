@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+query TestQuery {
+  me {
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  name
+  __query {
+    viewer {
+      actor {
+        name
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery {
+  me {
+    ...UserFragment
+  }
+  viewer {
+    actor {
+      name
+    }
+  }
+}
+
+fragment UserFragment on User {
+  name
+}

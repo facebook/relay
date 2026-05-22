@@ -1,0 +1,16 @@
+query querySelectionHoistQuery {
+  me {
+    ...querySelectionHoistFragment
+  }
+}
+
+fragment querySelectionHoistFragment on User {
+  name
+  __query {
+    viewer {
+      actor {
+        name
+      }
+    }
+  }
+}

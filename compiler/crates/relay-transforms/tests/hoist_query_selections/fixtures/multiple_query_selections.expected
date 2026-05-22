@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+query TestQuery {
+  me {
+    name
+    __query {
+      viewer {
+        actor {
+          name
+        }
+      }
+    }
+  }
+  story {
+    __query {
+      node(id: "123") {
+        id
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery {
+  me {
+    name
+  }
+  viewer {
+    actor {
+      name
+    }
+  }
+  node(id: "123") {
+    id
+  }
+}

@@ -53,12 +53,14 @@ pub struct InMemorySchema {
     typename_field: FieldID,
     fetch_token_field: FieldID,
     is_fulfilled_field: FieldID,
+    query_selection_field: FieldID,
 
     clientid_field_name: StringKey,
     strongid_field_name: StringKey,
     typename_field_name: StringKey,
     fetch_token_field_name: StringKey,
     is_fulfilled_field_name: StringKey,
+    query_selection_field_name: StringKey,
 
     string_type: Option<ScalarID>,
     id_type: Option<ScalarID>,
@@ -107,6 +109,10 @@ impl Schema for InMemorySchema {
 
     fn is_fulfilled_field(&self) -> FieldID {
         self.is_fulfilled_field
+    }
+
+    fn query_selection_field(&self) -> FieldID {
+        self.query_selection_field
     }
 
     fn get_type(&self, type_name: StringKey) -> Option<Type> {
@@ -247,11 +253,13 @@ impl Schema for InMemorySchema {
             typename_field: _typename_field,
             fetch_token_field: _fetch_token_field,
             is_fulfilled_field: _is_fulfilled_field,
+            query_selection_field: _query_selection_field,
             clientid_field_name: _clientid_field_name,
             strongid_field_name: _strongid_field_name,
             typename_field_name: _typename_field_name,
             fetch_token_field_name: _fetch_token_field_name,
             is_fulfilled_field_name: _is_fulfilled_field_name,
+            query_selection_field_name: _query_selection_field_name,
             string_type: _string_type,
             id_type: _id_type,
             unchecked_argument_type_sentinel: _unchecked_argument_type_sentinel,
@@ -730,11 +738,13 @@ impl InMemorySchema {
             typename_field: FieldID(0),
             fetch_token_field: FieldID(0),
             is_fulfilled_field: FieldID(0),
+            query_selection_field: FieldID(0),
             clientid_field_name: "__id".intern(),
             strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
             is_fulfilled_field_name: "is_fulfilled__".intern(),
+            query_selection_field_name: "__query".intern(),
             string_type: None,
             id_type: None,
             unchecked_argument_type_sentinel: None,
@@ -918,11 +928,13 @@ impl InMemorySchema {
             typename_field: FieldID(0), // dummy value, overwritten later
             fetch_token_field: FieldID(0), // dummy value, overwritten later
             is_fulfilled_field: FieldID(0), // dummy value, overwritten later
+            query_selection_field: FieldID(0), // dummy value, overwritten later
             clientid_field_name: "__id".intern(),
             strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
             is_fulfilled_field_name: "is_fulfilled__".intern(),
+            query_selection_field_name: "__query".intern(),
             string_type: Some(string_type),
             id_type: Some(id_type),
             unchecked_argument_type_sentinel,
@@ -1024,6 +1036,7 @@ impl InMemorySchema {
         self.load_default_clientid_field();
         self.load_default_strongid_field();
         self.load_default_is_fulfilled_field();
+        self.load_default_query_selection_field();
     }
 
     // In case the schema doesn't define a query, mutation or subscription
@@ -1134,6 +1147,30 @@ impl InMemorySchema {
                 directives: Default::default(),
             }]),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
+            hack_source: None,
+        });
+    }
+
+    fn load_default_query_selection_field(&mut self) {
+        let query_selection_field_id = self.fields.len();
+        self.query_selection_field = FieldID(query_selection_field_id.try_into().unwrap());
+        let type_ = if let Some(query_type_id) = self.query_type {
+            TypeReference::Named(Type::Object(query_type_id))
+        } else {
+            let string_type = *self
+                .type_map
+                .get(&"String".intern())
+                .expect("Missing String type");
+            TypeReference::Named(string_type)
+        };
+        self.fields.push(Field {
+            name: WithLocation::generated(self.query_selection_field_name),
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_,
             directives: Vec::new(),
             parent_type: None,
             description: None,

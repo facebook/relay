@@ -1,0 +1,12 @@
+# expected-to-throw
+mutation TestMutation($input: CommentCreateInput!) {
+  commentCreate(input: $input) {
+    __query {
+      viewer {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}

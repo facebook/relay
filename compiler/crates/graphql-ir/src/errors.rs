@@ -218,6 +218,15 @@ pub enum ValidationMessage {
     #[error("Unexpected arguments on '__token' field")]
     InvalidArgumentsOnFetchTokenField,
 
+    #[error("`__query` cannot be aliased")]
+    QueryFieldCannotBeAliased,
+
+    #[error("Unexpected arguments on `__query` field")]
+    QueryFieldCannotHaveArguments,
+
+    #[error("`__query` requires a query type to be defined in the schema")]
+    QueryFieldRequiresQueryType,
+
     #[error(
         "Invalid type `{id_type_string}` of field `{id_field_name}` on parent type `{parent_type_name}`. Fields named `{id_field_name}` can only have `ID` or `String`-like types (e.g. custom scalars or enums)."
     )]

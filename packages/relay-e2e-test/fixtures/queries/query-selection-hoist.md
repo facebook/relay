@@ -73,7 +73,7 @@ function UserProfile({ userRef }: { userRef: UserProfile_user$key }) {
   return (
     <div>
       <p>Name: {data.name}</p>
-      <p>Greeting: {data.greeting}</p>
+      <p>Greeting: {data.__query.greeting}</p>
     </div>
   );
 }

@@ -65,7 +65,6 @@ lazy_static! {
 
     /// Relay extension field that's available on all types.
     static ref CLIENT_ID_FIELD_NAME: StringKey = "__id".intern();
-    static ref QUERY_FIELD_NAME: StringKey = "__query".intern();
     static ref MATCH_NAME: DirectiveName = DirectiveName("match".intern());
     static ref SUPPORTED_NAME: StringKey = "supported".intern();
 
@@ -1047,9 +1046,6 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         field: &graphql_syntax::LinkedField,
         parent_type: &TypeReference<Type>,
     ) -> DiagnosticsResult<LinkedField> {
-        if field.name.value == *QUERY_FIELD_NAME {
-            return self.build_query_field(field);
-        }
         let span = field.name.span;
         let field_id = match self.lookup_field(
             parent_type.inner(),
@@ -1278,51 +1274,6 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             ),
             arguments: Default::default(),
             directives,
-        })
-    }
-
-    fn build_query_field(
-        &mut self,
-        field: &graphql_syntax::LinkedField,
-    ) -> DiagnosticsResult<LinkedField> {
-        let span = field.name.span;
-
-        if field.alias.is_some() {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::QueryFieldCannotBeAliased,
-                self.location.with_span(span),
-            )]);
-        }
-
-        if let Some(arguments) = &field.arguments {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::QueryFieldCannotHaveArguments,
-                self.location.with_span(arguments.span),
-            )]);
-        }
-
-        let query_type = self.schema.query_type().ok_or_else(|| {
-            vec![Diagnostic::error(
-                ValidationMessage::QueryFieldRequiresQueryType,
-                self.location.with_span(span),
-            )]
-        })?;
-        let query_type_ref = TypeReference::Named(query_type);
-
-        let selections = self.build_selections(
-            &field.selections.items,
-            std::slice::from_ref(&query_type_ref),
-        );
-        let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
-        let (selections, directives) = try2(selections, directives)?;
-
-        let field_id = self.schema.query_selection_field();
-        Ok(LinkedField {
-            alias: None,
-            definition: WithLocation::from_span(self.location.source_location(), span, field_id),
-            arguments: Default::default(),
-            directives,
-            selections,
         })
     }
 

@@ -205,6 +205,9 @@ impl Schema for InMemorySchema {
             if name == self.is_fulfilled_field_name {
                 return Some(self.is_fulfilled_field);
             }
+            if name == self.query_selection_field_name {
+                return Some(self.query_selection_field);
+            }
         }
 
         let fields = match parent_type {

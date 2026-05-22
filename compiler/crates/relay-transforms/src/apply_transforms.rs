@@ -326,9 +326,11 @@ fn apply_reader_transforms(
         hash_supported_argument(&program)
     })?;
 
-    program = log_event.time("query_root_selection_reader_transform", || {
-        query_root_selection_reader_transform(&program)
-    });
+    if project_config.feature_flags.enable_query_root_selection {
+        program = log_event.time("query_root_selection_reader_transform", || {
+            query_root_selection_reader_transform(&program)
+        });
+    }
 
     program = apply_after_custom_transforms(
         &program,
@@ -505,11 +507,13 @@ fn apply_normalization_transforms(
         print_stats("inline_fragments", &program);
     }
 
-    program = log_event.time("hoist_query_selections", || {
-        hoist_query_selections(&program)
-    })?;
-    if let Some(print_stats) = maybe_print_stats {
-        print_stats("hoist_query_selections", &program);
+    if project_config.feature_flags.enable_query_root_selection {
+        program = log_event.time("hoist_query_selections", || {
+            hoist_query_selections(&program)
+        })?;
+        if let Some(print_stats) = maybe_print_stats {
+            print_stats("hoist_query_selections", &program);
+        }
     }
 
     program = log_event.time("client_extensions", || client_extensions(&program));
@@ -592,9 +596,11 @@ fn apply_operation_text_transforms(
         )
     })?;
 
-    program = log_event.time("hoist_query_selections", || {
-        hoist_query_selections(&program)
-    })?;
+    if project_config.feature_flags.enable_query_root_selection {
+        program = log_event.time("hoist_query_selections", || {
+            hoist_query_selections(&program)
+        })?;
+    }
 
     log_event.time("validate_global_variables", || {
         validate_global_variables(&program)

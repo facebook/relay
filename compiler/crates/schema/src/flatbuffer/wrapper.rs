@@ -969,6 +969,9 @@ impl Schema for SchemaWrapper {
             if name == self.is_fulfilled_field_name {
                 return Some(IS_FULFILLED_FIELD_ID);
             }
+            if name == self.query_selection_field_name {
+                return Some(QUERY_SELECTION_FIELD_ID);
+            }
         }
 
         let fields = match parent_type {

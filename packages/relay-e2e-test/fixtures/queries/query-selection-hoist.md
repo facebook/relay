@@ -11,7 +11,10 @@ the query root in the operation text sent to the server, and the reader uses a
 {
   "src": "./",
   "schema": "./schema.graphql",
-  "language": "typescript"
+  "language": "typescript",
+  "featureFlags": {
+    "enable_query_root_selection": true
+  }
 }
 ```
 

@@ -1,3 +1,5 @@
+# enable_query_root_selection
+
 query querySelectionHoistQuery {
   me {
     ...querySelectionHoistFragment

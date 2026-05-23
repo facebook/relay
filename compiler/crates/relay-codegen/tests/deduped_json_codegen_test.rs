@@ -16,44 +16,19 @@ use fixture_tests::test_fixture;
 async fn kitchen_sink() {
     let input = include_str!("deduped_json_codegen/fixtures/kitchen-sink.graphql");
     let expected = include_str!("deduped_json_codegen/fixtures/kitchen-sink.expected");
-    test_fixture(
-        transform_fixture,
-        file!(),
-        "kitchen-sink.graphql",
-        "deduped_json_codegen/fixtures/kitchen-sink.expected",
-        input,
-        expected,
-    )
-    .await;
+    test_fixture(transform_fixture, file!(), "kitchen-sink.graphql", "deduped_json_codegen/fixtures/kitchen-sink.expected", input, expected).await;
 }
 
 #[tokio::test]
 async fn stable_literals() {
     let input = include_str!("deduped_json_codegen/fixtures/stable-literals.graphql");
     let expected = include_str!("deduped_json_codegen/fixtures/stable-literals.expected");
-    test_fixture(
-        transform_fixture,
-        file!(),
-        "stable-literals.graphql",
-        "deduped_json_codegen/fixtures/stable-literals.expected",
-        input,
-        expected,
-    )
-    .await;
+    test_fixture(transform_fixture, file!(), "stable-literals.graphql", "deduped_json_codegen/fixtures/stable-literals.expected", input, expected).await;
 }
 
 #[tokio::test]
 async fn stable_literals_duplicates() {
     let input = include_str!("deduped_json_codegen/fixtures/stable-literals-duplicates.graphql");
-    let expected =
-        include_str!("deduped_json_codegen/fixtures/stable-literals-duplicates.expected");
-    test_fixture(
-        transform_fixture,
-        file!(),
-        "stable-literals-duplicates.graphql",
-        "deduped_json_codegen/fixtures/stable-literals-duplicates.expected",
-        input,
-        expected,
-    )
-    .await;
+    let expected = include_str!("deduped_json_codegen/fixtures/stable-literals-duplicates.expected");
+    test_fixture(transform_fixture, file!(), "stable-literals-duplicates.graphql", "deduped_json_codegen/fixtures/stable-literals-duplicates.expected", input, expected).await;
 }

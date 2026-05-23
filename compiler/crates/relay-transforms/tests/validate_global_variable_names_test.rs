@@ -9,24 +9,12 @@
 
 mod validate_global_variable_names;
 
-use fixture_tests::test_fixture;
 use validate_global_variable_names::transform_fixture;
+use fixture_tests::test_fixture;
 
 #[tokio::test]
 async fn relayinternal_prefix_invalid() {
-    let input = include_str!(
-        "validate_global_variable_names/fixtures/relayinternal_prefix_invalid.graphql"
-    );
-    let expected = include_str!(
-        "validate_global_variable_names/fixtures/relayinternal_prefix_invalid.expected"
-    );
-    test_fixture(
-        transform_fixture,
-        file!(),
-        "relayinternal_prefix_invalid.graphql",
-        "validate_global_variable_names/fixtures/relayinternal_prefix_invalid.expected",
-        input,
-        expected,
-    )
-    .await;
+    let input = include_str!("validate_global_variable_names/fixtures/relayinternal_prefix_invalid.graphql");
+    let expected = include_str!("validate_global_variable_names/fixtures/relayinternal_prefix_invalid.expected");
+    test_fixture(transform_fixture, file!(), "relayinternal_prefix_invalid.graphql", "validate_global_variable_names/fixtures/relayinternal_prefix_invalid.expected", input, expected).await;
 }

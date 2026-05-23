@@ -9,20 +9,12 @@
 
 mod skip_printing_nulls;
 
-use fixture_tests::test_fixture;
 use skip_printing_nulls::transform_fixture;
+use fixture_tests::test_fixture;
 
 #[tokio::test]
 async fn kitchen_sink() {
     let input = include_str!("skip_printing_nulls/fixtures/kitchen-sink.graphql");
     let expected = include_str!("skip_printing_nulls/fixtures/kitchen-sink.expected");
-    test_fixture(
-        transform_fixture,
-        file!(),
-        "kitchen-sink.graphql",
-        "skip_printing_nulls/fixtures/kitchen-sink.expected",
-        input,
-        expected,
-    )
-    .await;
+    test_fixture(transform_fixture, file!(), "kitchen-sink.graphql", "skip_printing_nulls/fixtures/kitchen-sink.expected", input, expected).await;
 }

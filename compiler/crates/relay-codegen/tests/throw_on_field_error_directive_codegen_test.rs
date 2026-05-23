@@ -9,38 +9,26 @@
 
 mod throw_on_field_error_directive_codegen;
 
-use fixture_tests::test_fixture;
 use throw_on_field_error_directive_codegen::transform_fixture;
+use fixture_tests::test_fixture;
 
 #[tokio::test]
 async fn throw_on_field_error_fragment_directive() {
-    let input = include_str!(
-        "throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_fragment_directive.graphql"
-    );
-    let expected = include_str!(
-        "throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_fragment_directive.expected"
-    );
+    let input = include_str!("throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_fragment_directive.graphql");
+    let expected = include_str!("throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_fragment_directive.expected");
     test_fixture(transform_fixture, file!(), "throw_on_field_error_fragment_directive.graphql", "throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_fragment_directive.expected", input, expected).await;
 }
 
 #[tokio::test]
 async fn throw_on_field_error_mutation_directive() {
-    let input = include_str!(
-        "throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_mutation_directive.graphql"
-    );
-    let expected = include_str!(
-        "throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_mutation_directive.expected"
-    );
+    let input = include_str!("throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_mutation_directive.graphql");
+    let expected = include_str!("throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_mutation_directive.expected");
     test_fixture(transform_fixture, file!(), "throw_on_field_error_mutation_directive.graphql", "throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_mutation_directive.expected", input, expected).await;
 }
 
 #[tokio::test]
 async fn throw_on_field_error_query_directive() {
-    let input = include_str!(
-        "throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_query_directive.graphql"
-    );
-    let expected = include_str!(
-        "throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_query_directive.expected"
-    );
+    let input = include_str!("throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_query_directive.graphql");
+    let expected = include_str!("throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_query_directive.expected");
     test_fixture(transform_fixture, file!(), "throw_on_field_error_query_directive.graphql", "throw_on_field_error_directive_codegen/fixtures/throw_on_field_error_query_directive.expected", input, expected).await;
 }

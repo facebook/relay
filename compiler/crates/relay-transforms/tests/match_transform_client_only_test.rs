@@ -9,38 +9,19 @@
 
 mod match_transform_client_only;
 
-use fixture_tests::test_fixture;
 use match_transform_client_only::transform_fixture;
+use fixture_tests::test_fixture;
 
 #[tokio::test]
 async fn module_on_field_without_js() {
-    let input =
-        include_str!("match_transform_client_only/fixtures/module-on-field-without-js.graphql");
-    let expected =
-        include_str!("match_transform_client_only/fixtures/module-on-field-without-js.expected");
-    test_fixture(
-        transform_fixture,
-        file!(),
-        "module-on-field-without-js.graphql",
-        "match_transform_client_only/fixtures/module-on-field-without-js.expected",
-        input,
-        expected,
-    )
-    .await;
+    let input = include_str!("match_transform_client_only/fixtures/module-on-field-without-js.graphql");
+    let expected = include_str!("match_transform_client_only/fixtures/module-on-field-without-js.expected");
+    test_fixture(transform_fixture, file!(), "module-on-field-without-js.graphql", "match_transform_client_only/fixtures/module-on-field-without-js.expected", input, expected).await;
 }
 
 #[tokio::test]
 async fn module_without_match() {
     let input = include_str!("match_transform_client_only/fixtures/module-without-match.graphql");
-    let expected =
-        include_str!("match_transform_client_only/fixtures/module-without-match.expected");
-    test_fixture(
-        transform_fixture,
-        file!(),
-        "module-without-match.graphql",
-        "match_transform_client_only/fixtures/module-without-match.expected",
-        input,
-        expected,
-    )
-    .await;
+    let expected = include_str!("match_transform_client_only/fixtures/module-without-match.expected");
+    test_fixture(transform_fixture, file!(), "module-without-match.graphql", "match_transform_client_only/fixtures/module-without-match.expected", input, expected).await;
 }

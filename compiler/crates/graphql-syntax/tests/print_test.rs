@@ -9,20 +9,12 @@
 
 mod print;
 
-use fixture_tests::test_fixture;
 use print::transform_fixture;
+use fixture_tests::test_fixture;
 
 #[tokio::test]
 async fn schema() {
     let input = include_str!("print/fixtures/schema.graphql");
     let expected = include_str!("print/fixtures/schema.expected");
-    test_fixture(
-        transform_fixture,
-        file!(),
-        "schema.graphql",
-        "print/fixtures/schema.expected",
-        input,
-        expected,
-    )
-    .await;
+    test_fixture(transform_fixture, file!(), "schema.graphql", "print/fixtures/schema.expected", input, expected).await;
 }

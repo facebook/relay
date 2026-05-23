@@ -9,20 +9,12 @@
 
 mod sort_selections;
 
-use fixture_tests::test_fixture;
 use sort_selections::transform_fixture;
+use fixture_tests::test_fixture;
 
 #[tokio::test]
 async fn sort_selections_transform() {
     let input = include_str!("sort_selections/fixtures/sort-selections-transform.graphql");
     let expected = include_str!("sort_selections/fixtures/sort-selections-transform.expected");
-    test_fixture(
-        transform_fixture,
-        file!(),
-        "sort-selections-transform.graphql",
-        "sort_selections/fixtures/sort-selections-transform.expected",
-        input,
-        expected,
-    )
-    .await;
+    test_fixture(transform_fixture, file!(), "sort-selections-transform.graphql", "sort_selections/fixtures/sort-selections-transform.expected", input, expected).await;
 }

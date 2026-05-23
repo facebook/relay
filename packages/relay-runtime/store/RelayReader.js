@@ -661,8 +661,7 @@ class RelayReader {
           if (rootRecord == null) {
             this._isMissingData = true;
           } else {
-            const queryData: SelectorData =
-              data.__query != null ? (data.__query: any) : {};
+            const queryData: SelectorData = {};
             const hasExpectedData = this._traverseSelections(
               selection.selections,
               rootRecord,

@@ -498,6 +498,17 @@ pub enum ValidationMessage {
         deprecation_reason: Option<StringKey>,
     },
 
+    #[error("The enum value `{enum_value}` of type `{enum_name}` is deprecated.{}",
+    match deprecation_reason {
+        Some(reason) => format!(" Deprecation reason: \"{reason}\""),
+        None => "".to_string()
+    })]
+    DeprecatedEnumValue {
+        enum_value: StringKey,
+        enum_name: StringKey,
+        deprecation_reason: Option<StringKey>,
+    },
+
     #[error("Missing required {}: `{}`",
         if missing_arg_names.len() > 1 { "arguments" } else { "argument" },
         missing_arg_names

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<523e6262355cff63df80d9ea70e0d2ef>>
+ * @generated SignedSource<<617806504dd54b22a1692ec28a9db160>>
  */
 
 mod validate_deprecated_fields;
@@ -24,6 +24,20 @@ async fn deprecated_directive_arg_with_reason() {
     let input = include_str!("validate_deprecated_fields/fixtures/deprecated_directive_arg_with_reason.graphql");
     let expected = include_str!("validate_deprecated_fields/fixtures/deprecated_directive_arg_with_reason.expected");
     test_fixture(transform_fixture, file!(), "deprecated_directive_arg_with_reason.graphql", "validate_deprecated_fields/fixtures/deprecated_directive_arg_with_reason.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn deprecated_enum_value() {
+    let input = include_str!("validate_deprecated_fields/fixtures/deprecated_enum_value.graphql");
+    let expected = include_str!("validate_deprecated_fields/fixtures/deprecated_enum_value.expected");
+    test_fixture(transform_fixture, file!(), "deprecated_enum_value.graphql", "validate_deprecated_fields/fixtures/deprecated_enum_value.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn deprecated_enum_value_with_reason() {
+    let input = include_str!("validate_deprecated_fields/fixtures/deprecated_enum_value_with_reason.graphql");
+    let expected = include_str!("validate_deprecated_fields/fixtures/deprecated_enum_value_with_reason.expected");
+    test_fixture(transform_fixture, file!(), "deprecated_enum_value_with_reason.graphql", "validate_deprecated_fields/fixtures/deprecated_enum_value_with_reason.expected", input, expected).await;
 }
 
 #[tokio::test]

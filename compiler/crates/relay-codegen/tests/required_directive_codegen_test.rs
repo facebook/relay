@@ -9,19 +9,36 @@
 
 mod required_directive_codegen;
 
-use required_directive_codegen::transform_fixture;
 use fixture_tests::test_fixture;
+use required_directive_codegen::transform_fixture;
 
 #[tokio::test]
 async fn required_directive() {
     let input = include_str!("required_directive_codegen/fixtures/required_directive.graphql");
     let expected = include_str!("required_directive_codegen/fixtures/required_directive.expected");
-    test_fixture(transform_fixture, file!(), "required_directive.graphql", "required_directive_codegen/fixtures/required_directive.expected", input, expected).await;
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "required_directive.graphql",
+        "required_directive_codegen/fixtures/required_directive.expected",
+        input,
+        expected,
+    )
+    .await;
 }
 
 #[tokio::test]
 async fn required_linked_field() {
     let input = include_str!("required_directive_codegen/fixtures/required_linked_field.graphql");
-    let expected = include_str!("required_directive_codegen/fixtures/required_linked_field.expected");
-    test_fixture(transform_fixture, file!(), "required_linked_field.graphql", "required_directive_codegen/fixtures/required_linked_field.expected", input, expected).await;
+    let expected =
+        include_str!("required_directive_codegen/fixtures/required_linked_field.expected");
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "required_linked_field.graphql",
+        "required_directive_codegen/fixtures/required_linked_field.expected",
+        input,
+        expected,
+    )
+    .await;
 }

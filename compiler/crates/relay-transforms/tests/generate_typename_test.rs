@@ -9,19 +9,35 @@
 
 mod generate_typename;
 
-use generate_typename::transform_fixture;
 use fixture_tests::test_fixture;
+use generate_typename::transform_fixture;
 
 #[tokio::test]
 async fn type_name_does_not_exist() {
     let input = include_str!("generate_typename/fixtures/type-name-does-not-exist.graphql");
     let expected = include_str!("generate_typename/fixtures/type-name-does-not-exist.expected");
-    test_fixture(transform_fixture, file!(), "type-name-does-not-exist.graphql", "generate_typename/fixtures/type-name-does-not-exist.expected", input, expected).await;
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "type-name-does-not-exist.graphql",
+        "generate_typename/fixtures/type-name-does-not-exist.expected",
+        input,
+        expected,
+    )
+    .await;
 }
 
 #[tokio::test]
 async fn type_name_exists() {
     let input = include_str!("generate_typename/fixtures/type-name-exists.graphql");
     let expected = include_str!("generate_typename/fixtures/type-name-exists.expected");
-    test_fixture(transform_fixture, file!(), "type-name-exists.graphql", "generate_typename/fixtures/type-name-exists.expected", input, expected).await;
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "type-name-exists.graphql",
+        "generate_typename/fixtures/type-name-exists.expected",
+        input,
+        expected,
+    )
+    .await;
 }

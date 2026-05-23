@@ -16,19 +16,45 @@ use fixture_tests::test_fixture;
 async fn schema_kitchen_sink() {
     let input = include_str!("advance_schema_document/fixtures/schema_kitchen_sink.graphql");
     let expected = include_str!("advance_schema_document/fixtures/schema_kitchen_sink.expected");
-    test_fixture(transform_fixture, file!(), "schema_kitchen_sink.graphql", "advance_schema_document/fixtures/schema_kitchen_sink.expected", input, expected).await;
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "schema_kitchen_sink.graphql",
+        "advance_schema_document/fixtures/schema_kitchen_sink.expected",
+        input,
+        expected,
+    )
+    .await;
 }
 
 #[tokio::test]
 async fn schema_with_leading_comment() {
-    let input = include_str!("advance_schema_document/fixtures/schema_with_leading_comment.graphql");
-    let expected = include_str!("advance_schema_document/fixtures/schema_with_leading_comment.expected");
-    test_fixture(transform_fixture, file!(), "schema_with_leading_comment.graphql", "advance_schema_document/fixtures/schema_with_leading_comment.expected", input, expected).await;
+    let input =
+        include_str!("advance_schema_document/fixtures/schema_with_leading_comment.graphql");
+    let expected =
+        include_str!("advance_schema_document/fixtures/schema_with_leading_comment.expected");
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "schema_with_leading_comment.graphql",
+        "advance_schema_document/fixtures/schema_with_leading_comment.expected",
+        input,
+        expected,
+    )
+    .await;
 }
 
 #[tokio::test]
 async fn type_definition() {
     let input = include_str!("advance_schema_document/fixtures/type_definition.graphql");
     let expected = include_str!("advance_schema_document/fixtures/type_definition.expected");
-    test_fixture(transform_fixture, file!(), "type_definition.graphql", "advance_schema_document/fixtures/type_definition.expected", input, expected).await;
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "type_definition.graphql",
+        "advance_schema_document/fixtures/type_definition.expected",
+        input,
+        expected,
+    )
+    .await;
 }

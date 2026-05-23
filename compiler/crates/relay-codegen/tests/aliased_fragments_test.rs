@@ -14,21 +14,48 @@ use fixture_tests::test_fixture;
 
 #[tokio::test]
 async fn aliased_fragment_on_abstract_type() {
-    let input = include_str!("aliased_fragments/fixtures/aliased_fragment_on_abstract_type.graphql");
-    let expected = include_str!("aliased_fragments/fixtures/aliased_fragment_on_abstract_type.expected");
-    test_fixture(transform_fixture, file!(), "aliased_fragment_on_abstract_type.graphql", "aliased_fragments/fixtures/aliased_fragment_on_abstract_type.expected", input, expected).await;
+    let input =
+        include_str!("aliased_fragments/fixtures/aliased_fragment_on_abstract_type.graphql");
+    let expected =
+        include_str!("aliased_fragments/fixtures/aliased_fragment_on_abstract_type.expected");
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "aliased_fragment_on_abstract_type.graphql",
+        "aliased_fragments/fixtures/aliased_fragment_on_abstract_type.expected",
+        input,
+        expected,
+    )
+    .await;
 }
 
 #[tokio::test]
 async fn aliased_fragment_spread() {
     let input = include_str!("aliased_fragments/fixtures/aliased_fragment_spread.graphql");
     let expected = include_str!("aliased_fragments/fixtures/aliased_fragment_spread.expected");
-    test_fixture(transform_fixture, file!(), "aliased_fragment_spread.graphql", "aliased_fragments/fixtures/aliased_fragment_spread.expected", input, expected).await;
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "aliased_fragment_spread.graphql",
+        "aliased_fragments/fixtures/aliased_fragment_spread.expected",
+        input,
+        expected,
+    )
+    .await;
 }
 
 #[tokio::test]
 async fn aliased_inline_fragment_spread() {
     let input = include_str!("aliased_fragments/fixtures/aliased_inline_fragment_spread.graphql");
-    let expected = include_str!("aliased_fragments/fixtures/aliased_inline_fragment_spread.expected");
-    test_fixture(transform_fixture, file!(), "aliased_inline_fragment_spread.graphql", "aliased_fragments/fixtures/aliased_inline_fragment_spread.expected", input, expected).await;
+    let expected =
+        include_str!("aliased_fragments/fixtures/aliased_inline_fragment_spread.expected");
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "aliased_inline_fragment_spread.graphql",
+        "aliased_fragments/fixtures/aliased_inline_fragment_spread.expected",
+        input,
+        expected,
+    )
+    .await;
 }

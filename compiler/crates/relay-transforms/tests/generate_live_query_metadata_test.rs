@@ -9,19 +9,37 @@
 
 mod generate_live_query_metadata;
 
-use generate_live_query_metadata::transform_fixture;
 use fixture_tests::test_fixture;
+use generate_live_query_metadata::transform_fixture;
 
 #[tokio::test]
 async fn live_by_at_live() {
     let input = include_str!("generate_live_query_metadata/fixtures/live_by_at_live.graphql");
     let expected = include_str!("generate_live_query_metadata/fixtures/live_by_at_live.expected");
-    test_fixture(transform_fixture, file!(), "live_by_at_live.graphql", "generate_live_query_metadata/fixtures/live_by_at_live.expected", input, expected).await;
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "live_by_at_live.graphql",
+        "generate_live_query_metadata/fixtures/live_by_at_live.expected",
+        input,
+        expected,
+    )
+    .await;
 }
 
 #[tokio::test]
 async fn live_by_polling_interval() {
-    let input = include_str!("generate_live_query_metadata/fixtures/live_by_polling_interval.graphql");
-    let expected = include_str!("generate_live_query_metadata/fixtures/live_by_polling_interval.expected");
-    test_fixture(transform_fixture, file!(), "live_by_polling_interval.graphql", "generate_live_query_metadata/fixtures/live_by_polling_interval.expected", input, expected).await;
+    let input =
+        include_str!("generate_live_query_metadata/fixtures/live_by_polling_interval.graphql");
+    let expected =
+        include_str!("generate_live_query_metadata/fixtures/live_by_polling_interval.expected");
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "live_by_polling_interval.graphql",
+        "generate_live_query_metadata/fixtures/live_by_polling_interval.expected",
+        input,
+        expected,
+    )
+    .await;
 }

@@ -18,14 +18,14 @@ const isPromise = require('../util/isPromise');
  * unsubscribed or checked to see if the resulting subscription has closed.
  */
 export type Subscription = {
-  +unsubscribe: () => void,
-  +closed: boolean,
+  readonly unsubscribe: () => void,
+  readonly closed: boolean,
 };
 
 type SubscriptionFn = {
   (): unknown,
-  +unsubscribe?: void,
-  +closed?: void,
+  readonly unsubscribe?: void,
+  readonly closed?: void,
   ...
 };
 
@@ -34,11 +34,11 @@ type SubscriptionFn = {
  * .subscribe(). Each callback function is invoked when that event occurs.
  */
 export type Observer<in T> = {
-  +start?: ?(Subscription) => unknown,
-  +next?: ?(T) => unknown,
-  +error?: ?(Error) => unknown,
-  +complete?: ?() => unknown,
-  +unsubscribe?: ?(Subscription) => unknown,
+  readonly start?: ?(Subscription) => unknown,
+  readonly next?: ?(T) => unknown,
+  readonly error?: ?(Error) => unknown,
+  readonly complete?: ?() => unknown,
+  readonly unsubscribe?: ?(Subscription) => unknown,
 };
 
 /**
@@ -47,10 +47,10 @@ export type Observer<in T> = {
  * field to see if the resulting subscription has closed.
  */
 export type Sink<in T> = {
-  +next: T => void,
-  +error: (Error, isUncaughtThrownError?: boolean) => void,
-  +complete: () => void,
-  +closed: boolean,
+  readonly next: T => void,
+  readonly error: (Error, isUncaughtThrownError?: boolean) => void,
+  readonly complete: () => void,
+  readonly closed: boolean,
 };
 
 /**
@@ -89,7 +89,7 @@ let hostReportError:
  * ESObservable: https://github.com/tc39/proposal-observable
  */
 class RelayObservable<out T> implements Subscribable<T> {
-  +_source: Source<T>;
+  readonly _source: Source<T>;
 
   static create<V>(source: Source<V>): RelayObservable<V> {
     return new RelayObservable(source as any);
@@ -491,7 +491,7 @@ function subscribe<T>(
   // Subscription objects below, however not all flow environments we expect
   // Relay to be used within will support property getters, and many minifier
   // tools still do not support ES5 syntax. Instead, we can use defineProperty.
-  const withClosed: <O>(obj: O) => {...O, +closed: boolean} = (obj =>
+  const withClosed: <O>(obj: O) => {...O, readonly closed: boolean} = (obj =>
     Object.defineProperty(obj, 'closed', {get: () => closed} as any)) as any;
 
   function doCleanup() {

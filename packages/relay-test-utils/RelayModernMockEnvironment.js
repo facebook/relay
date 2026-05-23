@@ -40,10 +40,10 @@ const {
 } = require('relay-runtime');
 
 type PendingRequest = {
-  +request: RequestParameters,
-  +variables: Variables,
-  +cacheConfig: CacheConfig,
-  +sink: Sink<GraphQLSingularResponse>,
+  readonly request: RequestParameters,
+  readonly variables: Variables,
+  readonly cacheConfig: CacheConfig,
+  readonly sink: Sink<GraphQLSingularResponse>,
 };
 
 const MAX_SIZE = 10;
@@ -91,53 +91,53 @@ type OperationMockResolver = (
 ) => ?GraphQLSingularResponse | ?Error;
 
 type MockFunctions = {
-  +clearCache: () => void,
-  +cachePayload: (
+  readonly clearCache: () => void,
+  readonly cachePayload: (
     request: ConcreteRequest | OperationDescriptor,
     variables: Variables,
     payload: GraphQLSingularResponse,
   ) => void,
-  +isLoading: (
+  readonly isLoading: (
     request: ConcreteRequest | OperationDescriptor,
     variables: Variables,
     cacheConfig?: CacheConfig,
   ) => boolean,
-  +reject: (
+  readonly reject: (
     request: ConcreteRequest | OperationDescriptor,
     error: Error | string,
   ) => void,
-  +nextValue: (
+  readonly nextValue: (
     request: ConcreteRequest | OperationDescriptor,
     payload: GraphQLSingularResponse,
   ) => void,
-  +complete: (request: ConcreteRequest | OperationDescriptor) => void,
-  +resolve: (
+  readonly complete: (request: ConcreteRequest | OperationDescriptor) => void,
+  readonly resolve: (
     request: ConcreteRequest | OperationDescriptor,
     payload: ReadonlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
   ) => void,
-  +getAllOperations: () => ReadonlyArray<OperationDescriptor>,
-  +findOperation: (
+  readonly getAllOperations: () => ReadonlyArray<OperationDescriptor>,
+  readonly findOperation: (
     findFn: (operation: OperationDescriptor) => boolean,
   ) => OperationDescriptor,
-  +queuePendingOperation: (
+  readonly queuePendingOperation: (
     query: GraphQLTaggedNode,
     variables: Variables,
   ) => void,
-  +getMostRecentOperation: () => OperationDescriptor,
-  +resolveMostRecentOperation: (
+  readonly getMostRecentOperation: () => OperationDescriptor,
+  readonly resolveMostRecentOperation: (
     payload:
       | GraphQLSingularResponse
       | ((operation: OperationDescriptor) => GraphQLSingularResponse),
   ) => void,
-  +rejectMostRecentOperation: (
+  readonly rejectMostRecentOperation: (
     error: Error | ((operation: OperationDescriptor) => Error),
   ) => void,
-  +queueOperationResolver: (resolver: OperationMockResolver) => void,
+  readonly queueOperationResolver: (resolver: OperationMockResolver) => void,
 };
 
 interface MockEnvironment {
-  +mock: MockFunctions;
-  +mockClear: () => void;
+  readonly mock: MockFunctions;
+  readonly mockClear: () => void;
 }
 
 export interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}

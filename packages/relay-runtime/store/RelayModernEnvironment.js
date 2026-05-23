@@ -64,29 +64,29 @@ const RelayRecordSource = require('./RelayRecordSource');
 const invariant = require('invariant');
 
 export type EnvironmentConfig = {
-  +configName?: string,
-  +handlerProvider?: ?HandlerProvider,
-  +treatMissingFieldsAsNull?: boolean,
-  +deferDeduplicatedFields?: boolean,
-  +log?: ?LogFunction,
-  +operationLoader?: ?OperationLoader,
-  +network: INetwork,
-  +normalizeResponse?: ?NormalizeResponseFunction,
-  +scheduler?: ?TaskScheduler,
-  +store?: Store,
-  +missingFieldHandlers?: ?ReadonlyArray<MissingFieldHandler>,
-  +operationTracker?: ?OperationTracker,
-  +getDataID?: ?GetDataID,
-  +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
-  +options?: unknown,
-  +isServer?: boolean,
-  +relayFieldLogger?: ?RelayFieldLogger,
-  +shouldProcessClientComponents?: ?boolean,
+  readonly configName?: string,
+  readonly handlerProvider?: ?HandlerProvider,
+  readonly treatMissingFieldsAsNull?: boolean,
+  readonly deferDeduplicatedFields?: boolean,
+  readonly log?: ?LogFunction,
+  readonly operationLoader?: ?OperationLoader,
+  readonly network: INetwork,
+  readonly normalizeResponse?: ?NormalizeResponseFunction,
+  readonly scheduler?: ?TaskScheduler,
+  readonly store?: Store,
+  readonly missingFieldHandlers?: ?ReadonlyArray<MissingFieldHandler>,
+  readonly operationTracker?: ?OperationTracker,
+  readonly getDataID?: ?GetDataID,
+  readonly UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
+  readonly options?: unknown,
+  readonly isServer?: boolean,
+  readonly relayFieldLogger?: ?RelayFieldLogger,
+  readonly shouldProcessClientComponents?: ?boolean,
 };
 
 class RelayModernEnvironment implements IEnvironment {
   __log: LogFunction;
-  +_defaultRenderPolicy: RenderPolicy;
+  readonly _defaultRenderPolicy: RenderPolicy;
   _operationLoader: ?OperationLoader;
   _shouldProcessClientComponents: ?boolean;
   _network: INetwork;
@@ -100,8 +100,8 @@ class RelayModernEnvironment implements IEnvironment {
   _treatMissingFieldsAsNull: boolean;
   _deferDeduplicatedFields: boolean;
   _operationExecutions: Map<string, ActiveState>;
-  +options: unknown;
-  +_isServer: boolean;
+  readonly options: unknown;
+  readonly _isServer: boolean;
   relayFieldLogger: RelayFieldLogger;
   _normalizeResponse: NormalizeResponseFunction;
 

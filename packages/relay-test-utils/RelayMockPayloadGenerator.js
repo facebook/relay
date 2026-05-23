@@ -63,33 +63,33 @@ type ValueResolver = (
   defaultValue?: unknown,
 ) => unknown;
 type Traversable = {
-  +selections: ReadonlyArray<NormalizationSelection>,
-  +typeName: ?string,
-  +isAbstractType: ?boolean,
-  +name: ?string,
-  +alias: ?string,
-  +args: ?{[string]: unknown, ...},
+  readonly selections: ReadonlyArray<NormalizationSelection>,
+  readonly typeName: ?string,
+  readonly isAbstractType: ?boolean,
+  readonly name: ?string,
+  readonly alias: ?string,
+  readonly args: ?{[string]: unknown, ...},
 };
 type MockData = {[string]: unknown, ...};
 export type MockResolverContext = {
-  +parentType: ?string,
-  +name: ?string,
-  +alias: ?string,
-  +path: ?ReadonlyArray<string>,
-  +args: ?{[string]: unknown, ...},
+  readonly parentType: ?string,
+  readonly name: ?string,
+  readonly alias: ?string,
+  readonly path: ?ReadonlyArray<string>,
+  readonly args: ?{[string]: unknown, ...},
 };
 type MockResolver = (
   context: MockResolverContext,
   generateId: () => number,
 ) => unknown;
-export type MockResolvers = {+[typeName: string]: MockResolver, ...};
+export type MockResolvers = {readonly [typeName: string]: MockResolver, ...};
 
 type SelectionMetadata = {
   [selectionPath: string]: {
-    +type: string,
-    +plural: boolean,
-    +nullable: boolean,
-    +enumValues: ReadonlyArray<string> | null,
+    readonly type: string,
+    readonly plural: boolean,
+    readonly nullable: boolean,
+    readonly enumValues: ReadonlyArray<string> | null,
   },
   ...
 };
@@ -188,11 +188,11 @@ class RelayMockPayloadGenerator {
   _deferredPayloads: Array<GraphQLResponseWithData>;
 
   constructor(options: {
-    +variables: Variables,
-    +mockResolvers: MockResolvers | null,
-    +selectionMetadata: SelectionMetadata | null,
-    +mockClientData: ?boolean,
-    +generateDeferredPayload: ?boolean,
+    readonly variables: Variables,
+    readonly mockResolvers: MockResolvers | null,
+    readonly selectionMetadata: SelectionMetadata | null,
+    readonly mockClientData: ?boolean,
+    readonly generateDeferredPayload: ?boolean,
   }) {
     this._variables = options.variables;
     this._mockResolvers = {
@@ -924,10 +924,10 @@ class RelayMockPayloadGenerator {
     typeName: ?string,
     selectionPath: ReadonlyArray<string>,
   ): {
-    +type: string,
-    +plural: boolean,
-    +enumValues: ReadonlyArray<string> | null,
-    +nullable: boolean,
+    readonly type: string,
+    readonly plural: boolean,
+    readonly enumValues: ReadonlyArray<string> | null,
+    readonly nullable: boolean,
   } {
     return (
       this._getTypeDetailsForPath(selectionPath) ?? {

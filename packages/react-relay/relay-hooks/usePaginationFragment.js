@@ -34,12 +34,14 @@ const {
 
 type RefetchVariables<
   TVariables,
-  TKey extends ?{+$fragmentSpreads: unknown, ...},
+  TKey extends ?{readonly $fragmentSpreads: unknown, ...},
 > =
   // NOTE: This type ensures that the type of the returned variables is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
+  [readonly key: TKey] extends [
+    readonly key: {readonly $fragmentSpreads: unknown, ...},
+  ]
     ? Partial<TVariables>
     : TVariables;
 
@@ -57,7 +59,9 @@ export type ReturnType<TVariables, TData, TKey> = {
   // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
+  data: [readonly key: TKey] extends [
+    readonly key: {readonly $fragmentSpreads: unknown, ...},
+  ]
     ? TData
     : ?TData,
   loadNext: LoadMoreFn<TVariables>,
@@ -76,7 +80,7 @@ export type UsePaginationFragmentType = <
   TFragmentType extends FragmentType,
   TVariables extends Variables,
   TData,
-  TKey extends ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{readonly $fragmentSpreads: TFragmentType, ...},
 >(
   fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   parentFragmentRef: TKey,
@@ -86,7 +90,7 @@ hook usePaginationFragment<
   TFragmentType extends FragmentType,
   TVariables extends Variables,
   TData,
-  TKey extends ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{readonly $fragmentSpreads: TFragmentType, ...},
 >(
   fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   parentFragmentRef: TKey,

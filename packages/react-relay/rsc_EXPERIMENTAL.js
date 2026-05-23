@@ -28,19 +28,19 @@ const React = require('react');
 
 export type {PreloadedQueryRef};
 
-type HasSpread<TFragmentType> = {+$fragmentSpreads: TFragmentType, ...};
+type HasSpread<TFragmentType> = {readonly $fragmentSpreads: TFragmentType, ...};
 
 export type ServerEnvironment = {
-  +getEnvironment: () => IEnvironment,
-  +serverFetchQuery: <TVariables extends Variables, TData>(
+  readonly getEnvironment: () => IEnvironment,
+  readonly serverFetchQuery: <TVariables extends Variables, TData>(
     query: Query<TVariables, TData>,
     variables: TVariables,
   ) => Promise<TData>,
-  +serverPreloadQuery: <TVariables extends Variables, TData>(
+  readonly serverPreloadQuery: <TVariables extends Variables, TData>(
     query: Query<TVariables, TData>,
     variables: TVariables,
   ) => PreloadedQueryRef<TVariables, TData>,
-  +serverReadFragment: <TFragmentType extends FragmentType, TData>(
+  readonly serverReadFragment: <TFragmentType extends FragmentType, TData>(
     fragment: Fragment<TFragmentType, TData>,
     fragmentRef:
       | HasSpread<TFragmentType>

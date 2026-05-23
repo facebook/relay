@@ -50,7 +50,7 @@ export type QueryType<T> =
         response: D,
         rawResponse?: NonNullable<RR>,
       }
-    : [+t: T] extends [+t: PreloadableConcreteRequest<infer V>]
+    : [readonly t: T] extends [readonly t: PreloadableConcreteRequest<infer V>]
       ? V
       : empty;
 

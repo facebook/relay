@@ -24,15 +24,15 @@ import type {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
  * fragments).
  */
 export type ConcreteRequest = {
-  +kind: 'Request',
-  +fragment: ReaderFragment,
-  +operation: NormalizationOperation,
-  +params: RequestParameters,
+  readonly kind: 'Request',
+  readonly fragment: ReaderFragment,
+  readonly operation: NormalizationOperation,
+  readonly params: RequestParameters,
 };
 
 export type ConcreteUpdatableQuery = {
-  +kind: 'UpdatableQuery',
-  +fragment: ReaderFragment,
+  readonly kind: 'UpdatableQuery',
+  readonly fragment: ReaderFragment,
 };
 
 export type NormalizationRootNode =
@@ -41,7 +41,7 @@ export type NormalizationRootNode =
 
 export type ProvidedVariableType = {get(): unknown};
 
-export type ProvidedVariablesType = {+[key: string]: {get(): unknown}};
+export type ProvidedVariablesType = {readonly [key: string]: {get(): unknown}};
 
 /**
  * Contains the parameters required for executing a GraphQL request.
@@ -51,41 +51,41 @@ export type ProvidedVariablesType = {+[key: string]: {get(): unknown}};
  */
 export type RequestParameters =
   | {
-      +id: string,
-      +text: string | null,
+      readonly id: string,
+      readonly text: string | null,
       // common fields
-      +name: string,
-      +operationKind: 'mutation' | 'query' | 'subscription',
-      +providedVariables?: ProvidedVariablesType,
-      +metadata: {[key: string]: unknown, ...},
+      readonly name: string,
+      readonly operationKind: 'mutation' | 'query' | 'subscription',
+      readonly providedVariables?: ProvidedVariablesType,
+      readonly metadata: {[key: string]: unknown, ...},
     }
   | {
-      +cacheID: string,
-      +id: null,
-      +text: string | null,
+      readonly cacheID: string,
+      readonly id: null,
+      readonly text: string | null,
       // common fields
-      +name: string,
-      +operationKind: 'mutation' | 'query' | 'subscription',
-      +providedVariables?: ProvidedVariablesType,
-      +metadata: {[key: string]: unknown, ...},
+      readonly name: string,
+      readonly operationKind: 'mutation' | 'query' | 'subscription',
+      readonly providedVariables?: ProvidedVariablesType,
+      readonly metadata: {[key: string]: unknown, ...},
     };
 
 export type ClientRequestParameters = {
-  +cacheID: string,
-  +id: null,
-  +text: null,
+  readonly cacheID: string,
+  readonly id: null,
+  readonly text: null,
   // common fields
-  +name: string,
-  +operationKind: 'query' | 'mutation',
-  +providedVariables?: ProvidedVariablesType,
-  +metadata: {[key: string]: unknown, ...},
+  readonly name: string,
+  readonly operationKind: 'query' | 'mutation',
+  readonly providedVariables?: ProvidedVariablesType,
+  readonly metadata: {[key: string]: unknown, ...},
 };
 
 export type ClientRequest = {
-  +kind: 'Request',
-  +fragment: ReaderFragment,
-  +operation: NormalizationOperation,
-  +params: ClientRequestParameters,
+  readonly kind: 'Request',
+  readonly fragment: ReaderFragment,
+  readonly operation: NormalizationOperation,
+  readonly params: ClientRequestParameters,
 };
 
 export type GeneratedNode =

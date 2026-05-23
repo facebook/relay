@@ -70,18 +70,18 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 export type GetDataID = (
-  fieldValue: {+[string]: unknown},
+  fieldValue: {readonly [string]: unknown},
   typeName: string,
 ) => unknown;
 
 export type NormalizationOptions = {
-  +getDataID: GetDataID,
-  +treatMissingFieldsAsNull: boolean,
-  +deferDeduplicatedFields: boolean,
-  +log: ?LogFunction,
-  +path?: ReadonlyArray<string>,
-  +shouldProcessClientComponents?: ?boolean,
-  +actorIdentifier?: ?ActorIdentifier,
+  readonly getDataID: GetDataID,
+  readonly treatMissingFieldsAsNull: boolean,
+  readonly deferDeduplicatedFields: boolean,
+  readonly log: ?LogFunction,
+  readonly path?: ReadonlyArray<string>,
+  readonly shouldProcessClientComponents?: ?boolean,
+  readonly actorIdentifier?: ?ActorIdentifier,
 };
 
 /**

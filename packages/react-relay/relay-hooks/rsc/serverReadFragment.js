@@ -16,7 +16,7 @@ import type {Fragment, FragmentType, IEnvironment} from 'relay-runtime';
 const {waitForFragmentData} = require('relay-runtime/experimental');
 
 type HasSpread<TFragmentType> = {
-  +$fragmentSpreads: TFragmentType,
+  readonly $fragmentSpreads: TFragmentType,
   ...
 };
 

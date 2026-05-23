@@ -21,12 +21,12 @@ import type RelayObservable, {ObservableFromValue} from './RelayObservable';
  * queries.
  */
 export interface INetwork {
-  +execute: ExecuteFunction;
+  readonly execute: ExecuteFunction;
 }
 
 export type LogRequestInfoFunction = unknown => void;
 
-export type PayloadData = {+[key: string]: unknown};
+export type PayloadData = {readonly [key: string]: unknown};
 
 export type PayloadError = interface {
   message: string,
@@ -47,19 +47,19 @@ export type PayloadExtensions = {[key: string]: unknown, ...};
  * [spec](https://spec.graphql.org/June2018/#sec-Response-Format).
  */
 export type GraphQLResponseWithData = {
-  +data: PayloadData,
-  +errors?: Array<PayloadError>,
-  +extensions?: PayloadExtensions,
-  +label?: string,
-  +path?: Array<string | number>,
+  readonly data: PayloadData,
+  readonly errors?: Array<PayloadError>,
+  readonly extensions?: PayloadExtensions,
+  readonly label?: string,
+  readonly path?: Array<string | number>,
 };
 
 export type GraphQLResponseWithoutData = {
-  +data?: ?PayloadData,
-  +errors: Array<PayloadError>,
-  +extensions?: PayloadExtensions,
-  +label?: string,
-  +path?: Array<string | number>,
+  readonly data?: ?PayloadData,
+  readonly errors: Array<PayloadError>,
+  readonly extensions?: PayloadExtensions,
+  readonly label?: string,
+  readonly path?: Array<string | number>,
 };
 
 export type GraphQLResponseWithExtensionsOnly = {
@@ -71,8 +71,8 @@ export type GraphQLResponseWithExtensionsOnly = {
   // since `data: null` is a *required* output if there was an error during
   // execution, but the inverse is not described in the sepc: `data: null`
   // does not necessarily indicate that there was an error.
-  +data: null,
-  +extensions: PayloadExtensions,
+  readonly data: null,
+  readonly extensions: PayloadExtensions,
 };
 
 export type GraphQLSingularResponse =
@@ -134,4 +134,4 @@ export type SubscribeFunction = (
 ) => RelayObservable<GraphQLResponse>;
 
 export type Uploadable = File | Blob;
-export type UploadableMap = {+[key: string]: Uploadable};
+export type UploadableMap = {readonly [key: string]: Uploadable};

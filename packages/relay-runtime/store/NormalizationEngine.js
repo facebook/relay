@@ -62,7 +62,10 @@ export type NormalizationResult = Readonly<{
 }>;
 
 type Config = Readonly<{
-  getDataID?: (fieldValue: {+[string]: unknown}, typeName: string) => unknown,
+  getDataID?: (
+    fieldValue: {readonly [string]: unknown},
+    typeName: string,
+  ) => unknown,
   normalizeResponse: NormalizeResponseFunction,
   operation: NormalizationOperation,
   operationLoader?: ?OperationLoader,

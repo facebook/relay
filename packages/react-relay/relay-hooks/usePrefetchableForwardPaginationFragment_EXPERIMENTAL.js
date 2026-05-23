@@ -55,7 +55,9 @@ export type ReturnType<TVariables, TData, TEdgeData, TKey> = {
   // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
+  data: [readonly key: TKey] extends [
+    readonly key: {readonly $fragmentSpreads: unknown, ...},
+  ]
     ? TData
     : ?TData,
   loadNext: LoadMoreFn<TVariables>,
@@ -72,7 +74,9 @@ type LoadMoreOptions<TVariables> = {
 
 export type GetExtraVariablesFn<TEdgeData, TData, TVariables, TKey> = ({
   hasNext: boolean,
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
+  data: [readonly key: TKey] extends [
+    readonly key: {readonly $fragmentSpreads: unknown, ...},
+  ]
     ? TData
     : ?TData,
   getServerEdges: () => TEdgeData,
@@ -83,7 +87,7 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
   TVariables extends Variables,
   TData,
   TEdgeData,
-  TKey extends ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{readonly $fragmentSpreads: TFragmentType, ...},
 >(
   fragmentInput: PrefetchableRefetchableFragment<
     TFragmentType,

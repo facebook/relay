@@ -46,12 +46,12 @@ export interface IActorEnvironment extends IEnvironment {
    * Reference to the main MultiActorEnvironment that handles
    * the network execution/and responsible for network integration
    */
-  +multiActorEnvironment: IMultiActorEnvironment;
+  readonly multiActorEnvironment: IMultiActorEnvironment;
 
   /**
    * Identifier of the actor for the current active environment
    */
-  +actorIdentifier: ActorIdentifier;
+  readonly actorIdentifier: ActorIdentifier;
 
   /**
    * TODO: this needs to move the the MultiActorEnvironment with different API.
@@ -62,7 +62,7 @@ export interface IActorEnvironment extends IEnvironment {
    * Optional. A human-readable identifier of the environment.
    * This value should be visible in the dev tools.
    */
-  +configName: ?string;
+  readonly configName: ?string;
 }
 
 /**

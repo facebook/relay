@@ -44,13 +44,13 @@ export type IdOf<A extends string, Typename extends void | string = void> = [
 export type RelayResolverValue<A> = NonNullable<A>;
 
 type ErrorResult<Error> = {
-  +ok: false,
-  +errors: ReadonlyArray<Error>,
+  readonly ok: false,
+  readonly errors: ReadonlyArray<Error>,
 };
 
 type OkayResult<T> = {
-  +ok: true,
-  +value: T,
+  readonly ok: true,
+  readonly value: T,
 };
 
 export type Result<T, Error> = OkayResult<T> | ErrorResult<Error>;

@@ -77,25 +77,25 @@ const warning = require('warning');
 type NetworkResponse = GraphQLResponse | RelayResponsePayload;
 
 export type ExecuteConfig<TMutation extends MutationParameters> = {
-  +actorIdentifier: ActorIdentifier,
-  +getDataID: GetDataID,
-  +getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue,
-  +getStore: (actorIdentifier: ActorIdentifier) => Store,
-  +normalizeResponse: NormalizeResponseFunction,
-  +isClientPayload?: boolean,
-  +operation: OperationDescriptor,
-  +operationExecutions: Map<string, ActiveState>,
-  +operationLoader: ?OperationLoader,
-  +operationTracker: OperationTracker,
-  +optimisticConfig: ?OptimisticResponseConfig<TMutation>,
-  +scheduler?: ?TaskScheduler,
-  +shouldProcessClientComponents?: ?boolean,
-  +sink: Sink<GraphQLResponse>,
-  +source: RelayObservable<NetworkResponse>,
-  +treatMissingFieldsAsNull: boolean,
-  +deferDeduplicatedFields: boolean,
-  +updater?: ?SelectorStoreUpdater<TMutation['response']>,
-  +log: LogFunction,
+  readonly actorIdentifier: ActorIdentifier,
+  readonly getDataID: GetDataID,
+  readonly getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue,
+  readonly getStore: (actorIdentifier: ActorIdentifier) => Store,
+  readonly normalizeResponse: NormalizeResponseFunction,
+  readonly isClientPayload?: boolean,
+  readonly operation: OperationDescriptor,
+  readonly operationExecutions: Map<string, ActiveState>,
+  readonly operationLoader: ?OperationLoader,
+  readonly operationTracker: OperationTracker,
+  readonly optimisticConfig: ?OptimisticResponseConfig<TMutation>,
+  readonly scheduler?: ?TaskScheduler,
+  readonly shouldProcessClientComponents?: ?boolean,
+  readonly sink: Sink<GraphQLResponse>,
+  readonly source: RelayObservable<NetworkResponse>,
+  readonly treatMissingFieldsAsNull: boolean,
+  readonly deferDeduplicatedFields: boolean,
+  readonly updater?: ?SelectorStoreUpdater<TMutation['response']>,
+  readonly log: LogFunction,
 };
 
 export type ActiveState = 'active' | 'inactive';
@@ -104,12 +104,12 @@ type Label = string;
 type PathKey = string;
 type IncrementalResults =
   | {
-      +kind: 'placeholder',
-      +placeholder: IncrementalDataPlaceholder,
+      readonly kind: 'placeholder',
+      readonly placeholder: IncrementalDataPlaceholder,
     }
   | {
-      +kind: 'response',
-      +responses: Array<IncrementalGraphQLResponse>,
+      readonly kind: 'response',
+      readonly responses: Array<IncrementalGraphQLResponse>,
     };
 
 type IncrementalGraphQLResponse = {
@@ -147,24 +147,27 @@ class Executor<TMutation extends MutationParameters> {
   _optimisticUpdates: null | Array<OptimisticUpdate<TMutation>>;
   _useExecTimeResolvers: boolean;
   _pendingModulePayloadsCount: number;
-  +_getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue;
+  readonly _getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue;
   _shouldProcessClientComponents: ?boolean;
   _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
   _source: Map<
     string,
-    {+record: Record, +fieldPayloads: Array<HandleFieldPayload>},
+    {
+      readonly record: Record,
+      readonly fieldPayloads: Array<HandleFieldPayload>,
+    },
   >;
   _state: 'started' | 'loading_incremental' | 'loading_final' | 'completed';
-  +_getStore: (actorIdentifier: ActorIdentifier) => Store;
+  readonly _getStore: (actorIdentifier: ActorIdentifier) => Store;
   _subscriptions: Map<number, Subscription>;
   _updater: ?SelectorStoreUpdater<TMutation['response']>;
   _asyncStoreUpdateDisposable: ?Disposable;
   _completeFns: Array<() => void>;
-  +_retainDisposables: Map<ActorIdentifier, Disposable>;
-  +_isClientPayload: boolean;
-  +_isSubscriptionOperation: boolean;
-  +_seenActors: Set<ActorIdentifier>;
+  readonly _retainDisposables: Map<ActorIdentifier, Disposable>;
+  readonly _isClientPayload: boolean;
+  readonly _isSubscriptionOperation: boolean;
+  readonly _seenActors: Set<ActorIdentifier>;
   _normalizeResponse: NormalizeResponseFunction;
   _execTimeResolverResponseComplete: boolean;
   _isClientQuery: boolean;

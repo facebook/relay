@@ -35,8 +35,8 @@ const {stableCopy} = require('../util/stableCopy');
 const invariant = require('invariant');
 
 export type Arguments = {
-  +FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT?: boolean,
-  +[string]: unknown,
+  readonly FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT?: boolean,
+  readonly [string]: unknown,
 };
 
 const {VARIABLE, LITERAL, OBJECT_VALUE, LIST_VALUE} = RelayConcreteNode;

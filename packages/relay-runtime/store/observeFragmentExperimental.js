@@ -45,7 +45,7 @@ export type FragmentState<T> =
   | {state: 'loading'};
 
 export type HasSpread<TFragmentType> = {
-  +$fragmentSpreads: TFragmentType,
+  readonly $fragmentSpreads: TFragmentType,
   ...
 };
 

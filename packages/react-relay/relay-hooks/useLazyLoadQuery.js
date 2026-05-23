@@ -47,19 +47,19 @@ type Options = {
    *      * "network-only": *will* *not* reuse locally cached data, and will *always* send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
    *      * "store-only": *will* *only* reuse locally cached data, and will *never* send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate on data that is entirely [local](../../guided-tour/updating-data/local-data-updates).
    */
-  +fetchPolicy?: FetchPolicy,
+  readonly fetchPolicy?: FetchPolicy,
   /**
    * A `fetchKey` can be passed to force a re-evaluation of the current query and variables when the component re-renders, even if the variables didn't change, or even if the component isn't remounted (similarly to how passing a different `key` to a React component will cause it to remount). If the `fetchKey` is different from the one used in the previous render, the current query will be re-evaluated against the store, and it might be refetched depending on the current `fetchPolicy` and the state of the cache.
    */
-  +fetchKey?: string | number,
+  readonly fetchKey?: string | number,
   /**
    * Default value: `{force: true}`. Object containing cache config options for the *network layer*. Note that the network layer may contain an *additional* query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely (which is the default behavior), pass `{force: true}` as the value for this option.
    */
-  +networkCacheConfig?: CacheConfig,
+  readonly networkCacheConfig?: CacheConfig,
   /**
    * Undocumented option.
    */
-  +UNSTABLE_renderPolicy?: RenderPolicy,
+  readonly UNSTABLE_renderPolicy?: RenderPolicy,
 };
 
 /**

@@ -31,7 +31,9 @@ type RefetchVariables<TVariables, TKey> =
   // NOTE: This type ensures that the type of the variables is either:
   //   - nullable if the provided ref type is non-nullable
   //   - non-nullable if the provided ref type is nullable, and the caller need to provide the full set of variables
-  [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
+  [readonly key: TKey] extends [
+    readonly key: {readonly $fragmentSpreads: unknown, ...},
+  ]
     ? Partial<TVariables>
     : TVariables;
 
@@ -49,7 +51,9 @@ type ReturnType<TVariables, TData, TKey> = {
   // NOTE: This rtpw ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
+  data: [readonly key: TKey] extends [
+    readonly key: {readonly $fragmentSpreads: unknown, ...},
+  ]
     ? TData
     : ?TData,
   loadNext: LoadMoreFn<TVariables>,
@@ -63,7 +67,7 @@ hook useBlockingPaginationFragment<
   TFragmentType extends FragmentType,
   TVariables extends Variables,
   TData,
-  TKey extends ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{readonly $fragmentSpreads: TFragmentType, ...},
 >(
   fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   parentFragmentRef: TKey,
@@ -99,7 +103,7 @@ hook useBlockingPaginationFragment<
       variables: TVariables,
     },
     {
-      +$data: unknown,
+      readonly $data: unknown,
       ...
     },
   >(fragmentNode, parentFragmentRef, componentDisplayName);

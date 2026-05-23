@@ -46,8 +46,8 @@ const {TYPE_SCHEMA_TYPE, generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
 
 export type Availability = {
-  +status: 'available' | 'missing',
-  +mostRecentlyInvalidatedAt: ?number,
+  readonly status: 'available' | 'missing',
+  readonly mostRecentlyInvalidatedAt: ?number,
 };
 
 const {getModuleOperationKey, getStorageKey, getArgumentValues} =
@@ -118,12 +118,14 @@ class DataChecker {
   _useExecTimeResolvers: boolean;
   _variables: Variables;
   _shouldProcessClientComponents: ?boolean;
-  +_getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource;
-  +_getTargetForActor: (
+  readonly _getSourceForActor: (
+    actorIdentifier: ActorIdentifier,
+  ) => RecordSource;
+  readonly _getTargetForActor: (
     actorIdentifier: ActorIdentifier,
   ) => MutableRecordSource;
-  +_getDataID: GetDataID;
-  +_mutatorRecordSourceProxyCache: Map<
+  readonly _getDataID: GetDataID;
+  readonly _mutatorRecordSourceProxyCache: Map<
     ActorIdentifier,
     [RelayRecordSourceMutator, RelayRecordSourceProxy],
   >;

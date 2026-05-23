@@ -20,7 +20,7 @@ const {FRAGMENTS_KEY} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 
 type HasSpread<TFragmentType> = {
-  +$fragmentSpreads: TFragmentType,
+  readonly $fragmentSpreads: TFragmentType,
   ...
 };
 

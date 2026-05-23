@@ -157,8 +157,8 @@ function readFragmentInternal(
   queryOptions?: FragmentQueryOptions,
   fragmentKey?: string,
 ): {
-  +data: ?SelectorData | Array<?SelectorData>,
-  +clientEdgeQueries: ?Array<QueryResult>,
+  readonly data: ?SelectorData | Array<?SelectorData>,
+  readonly clientEdgeQueries: ?Array<QueryResult>,
 } {
   const fragmentSelector = getSelector(fragmentNode, fragmentRef);
   const isPlural = fragmentNode?.metadata?.plural === true;

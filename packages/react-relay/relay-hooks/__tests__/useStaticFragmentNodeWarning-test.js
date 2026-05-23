@@ -26,7 +26,10 @@ const warningMessage =
 const notWarned = [true, warningMessage, 'fragment input'];
 const warned = [false, warningMessage, 'fragment input'];
 
-function Example(props: {+foo: {+name: string}, +bar: string}) {
+function Example(props: {
+  readonly foo: {readonly name: string},
+  readonly bar: string,
+}) {
   // $FlowFixMe[incompatible-type]
   useStaticFragmentNodeWarning(props.foo, 'fragment input');
   return null;

@@ -34,18 +34,18 @@ export type PreloadFetchPolicy =
   | 'network-only';
 
 export type PreloadOptions = {
-  +fetchKey?: string | number,
-  +fetchPolicy?: ?PreloadFetchPolicy,
-  +includeIf?: ?boolean,
-  +enableForOfflineCacheJob?: ?boolean,
-  +prefetchExpiryInHours?: ?number,
-  +networkCacheConfig?: ?CacheConfig,
+  readonly fetchKey?: string | number,
+  readonly fetchPolicy?: ?PreloadFetchPolicy,
+  readonly includeIf?: ?boolean,
+  readonly enableForOfflineCacheJob?: ?boolean,
+  readonly prefetchExpiryInHours?: ?number,
+  readonly networkCacheConfig?: ?CacheConfig,
 };
 
 export type LoadQueryOptions = {
-  +fetchPolicy?: ?FetchPolicy,
-  +networkCacheConfig?: ?CacheConfig,
-  +__nameForWarning?: ?string,
+  readonly fetchPolicy?: ?FetchPolicy,
+  readonly networkCacheConfig?: ?CacheConfig,
+  readonly __nameForWarning?: ?string,
 };
 
 export type PreloadableConcreteRequest<out TQuery extends OperationType> = {
@@ -56,10 +56,10 @@ export type PreloadableConcreteRequest<out TQuery extends OperationType> = {
   // We also need to add usage of this generic here,
   // becuase not using the generic in the definition makes it
   // unconstrained in the call to a function that accepts PreloadableConcreteRequest<T>
-  +__phantom__?: ?TQuery,
+  readonly __phantom__?: ?TQuery,
 };
 
-export type EnvironmentProviderOptions = {+[string]: unknown, ...};
+export type EnvironmentProviderOptions = {readonly [string]: unknown, ...};
 
 export type PreloadedQuery<
   out TQuery extends OperationType,
@@ -72,17 +72,17 @@ export type PreloadedQueryInner_DEPRECATED<
   out TQuery extends OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
-  +kind: 'PreloadedQuery_DEPRECATED',
-  +environment: IEnvironment,
-  +environmentProviderOptions: ?TEnvironmentProviderOptions,
-  +fetchKey: ?string | ?number,
-  +fetchPolicy: FetchPolicy,
-  +networkCacheConfig?: ?CacheConfig,
-  +id: ?string,
-  +name: string,
-  +source: ?Observable<GraphQLResponse>,
-  +variables: TQuery['variables'],
-  +status: PreloadQueryStatus,
+  readonly kind: 'PreloadedQuery_DEPRECATED',
+  readonly environment: IEnvironment,
+  readonly environmentProviderOptions: ?TEnvironmentProviderOptions,
+  readonly fetchKey: ?string | ?number,
+  readonly fetchPolicy: FetchPolicy,
+  readonly networkCacheConfig?: ?CacheConfig,
+  readonly id: ?string,
+  readonly name: string,
+  readonly source: ?Observable<GraphQLResponse>,
+  readonly variables: TQuery['variables'],
+  readonly status: PreloadQueryStatus,
 };
 
 export type PreloadedQueryInner<
@@ -90,29 +90,29 @@ export type PreloadedQueryInner<
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
   // Releases query data and cancels network request if still in flight
-  +dispose: () => void,
+  readonly dispose: () => void,
   // Releases query data
-  +releaseQuery: () => void,
+  readonly releaseQuery: () => void,
   // Cancels network request if still in flight
-  +cancelNetworkRequest: () => void,
-  +environment: IEnvironment,
-  +environmentProviderOptions: ?TEnvironmentProviderOptions,
-  +fetchKey: string | number,
-  +fetchPolicy: FetchPolicy,
-  +id: ?string,
-  +isDisposed: boolean,
-  +networkError: ?Error,
-  +name: string,
-  +networkCacheConfig: ?CacheConfig,
-  +source: ?Observable<GraphQLResponse>,
-  +kind: 'PreloadedQuery',
-  +variables: TQuery['variables'],
+  readonly cancelNetworkRequest: () => void,
+  readonly environment: IEnvironment,
+  readonly environmentProviderOptions: ?TEnvironmentProviderOptions,
+  readonly fetchKey: string | number,
+  readonly fetchPolicy: FetchPolicy,
+  readonly id: ?string,
+  readonly isDisposed: boolean,
+  readonly networkError: ?Error,
+  readonly name: string,
+  readonly networkCacheConfig: ?CacheConfig,
+  readonly source: ?Observable<GraphQLResponse>,
+  readonly kind: 'PreloadedQuery',
+  readonly variables: TQuery['variables'],
 };
 
 export type PreloadQueryStatus = {
-  +cacheConfig: ?CacheConfig,
-  +source: 'cache' | 'network',
-  +fetchTime: ?number,
+  readonly cacheConfig: ?CacheConfig,
+  readonly source: 'cache' | 'network',
+  readonly fetchTime: ?number,
 };
 
 /**
@@ -191,7 +191,7 @@ export type EntryPointComponent<
 // Return type of the `getPreloadProps(...)` of the entry point
 export type PreloadProps<
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  TPreloadedQueries extends {+[string]: ?PreloadedQuery<any>},
+  TPreloadedQueries extends {readonly [string]: ?PreloadedQuery<any>},
   TPreloadedEntryPoints extends {...},
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
@@ -254,17 +254,21 @@ export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
 // We need to match both cases without using distributive conditional types,
 // because PreloadedQuery's TQuery parameter is almost phantom, and breaking
 // up the union type would cause us to lose track of TQuery.
-type ExtractThinQueryParams<T, TEnvironmentProviderOptions> = [+t: T] extends [
+type ExtractThinQueryParams<T, TEnvironmentProviderOptions> = [
+  readonly t: T,
+] extends [
   // $FlowFixMe[incompatible-type]
-  +t: PreloadedQuery<infer TQuery extends OperationType>,
+  readonly t: PreloadedQuery<infer TQuery extends OperationType>,
 ]
   ? ThinQueryParams<TQuery, TEnvironmentProviderOptions>
-  : [+t: T] extends [
-        +t: PreloadedQuery<infer TQuery extends OperationType> | void,
+  : [readonly t: T] extends [
+        readonly t: PreloadedQuery<infer TQuery extends OperationType> | void,
       ]
     ? ThinQueryParams<TQuery, TEnvironmentProviderOptions> | void
-    : [+t: T] extends [
-          +t: PreloadedQuery<infer TQuery extends OperationType> | null | void,
+    : [readonly t: T] extends [
+          readonly t: PreloadedQuery<
+            infer TQuery extends OperationType,
+          > | null | void,
         ]
       ? ThinQueryParams<TQuery, TEnvironmentProviderOptions> | null | void
       : empty;
@@ -272,7 +276,7 @@ type ExtractThinQueryParams<T, TEnvironmentProviderOptions> = [+t: T] extends [
 export type ExtractQueryTypes<
   TEnvironmentProviderOptions,
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  PreloadedQueries extends {+[string]: ?PreloadedQuery<any>} | void,
+  PreloadedQueries extends {readonly [string]: ?PreloadedQuery<any>} | void,
 > = {
   [K in keyof PreloadedQueries]: ExtractThinQueryParams<
     PreloadedQueries[K],

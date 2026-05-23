@@ -85,11 +85,11 @@ const {useMemo} = React;
 
 // Note: this type is intentionally non-exact, it is expected that the
 // object may contain sibling fields.
-type TypenameOnlyPointer = {+__typename: string};
+type TypenameOnlyPointer = {readonly __typename: string};
 export type MatchPointer = {
-  +__fragmentPropName?: ?string,
-  +__module_component?: unknown,
-  +$fragmentSpreads: unknown,
+  readonly __fragmentPropName?: ?string,
+  readonly __module_component?: unknown,
+  readonly $fragmentSpreads: unknown,
   ...
 };
 
@@ -97,10 +97,10 @@ export type MatchContainerProps<
   TProps extends {...},
   TFallback extends React.Node,
 > = {
-  +fallback?: ?TFallback,
-  +loader: (module: unknown) => component(...TProps),
-  +match: ?MatchPointer | ?TypenameOnlyPointer,
-  +props?: TProps,
+  readonly fallback?: ?TFallback,
+  readonly loader: (module: unknown) => component(...TProps),
+  readonly match: ?MatchPointer | ?TypenameOnlyPointer,
+  readonly props?: TProps,
 };
 
 function MatchContainer<

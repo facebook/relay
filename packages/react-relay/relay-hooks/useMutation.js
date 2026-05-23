@@ -40,7 +40,7 @@ export type UseMutationConfig<TMutation extends MutationParameters> = {
   onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
   optimisticResponse?: {
-    +rawResponse?: {...},
+    readonly rawResponse?: {...},
     ...TMutation,
     ...
   }['rawResponse'],

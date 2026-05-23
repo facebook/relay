@@ -37,7 +37,7 @@ export type LoaderFn<TQuery extends OperationType> = (
 
 export type UseQueryLoaderLoadQueryOptions = Readonly<{
   ...LoadQueryOptions,
-  +__environment?: ?IEnvironment,
+  readonly __environment?: ?IEnvironment,
 }>;
 
 // NullQueryReference needs to implement referential equality,

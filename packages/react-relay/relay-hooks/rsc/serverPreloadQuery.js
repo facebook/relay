@@ -17,16 +17,16 @@ const invariant = require('invariant');
 const {createOperationDescriptor, getRequest} = require('relay-runtime');
 
 export type PreloadedQueryResponse<TData> = {
-  +data: TData,
-  +errors?: ReadonlyArray<PayloadError>,
+  readonly data: TData,
+  readonly errors?: ReadonlyArray<PayloadError>,
 };
 
 export type PreloadedQueryRef<TVariables, TData> = {
-  +kind: 'PreloadedQueryRef',
-  +queryId: string,
-  +variables: TVariables,
-  +_response: Promise<PreloadedQueryResponse<TData>>,
-  +fetchedAt: number,
+  readonly kind: 'PreloadedQueryRef',
+  readonly queryId: string,
+  readonly variables: TVariables,
+  readonly _response: Promise<PreloadedQueryResponse<TData>>,
+  readonly fetchedAt: number,
 };
 
 function serverPreloadQuery<TVariables extends Variables, TData>(

@@ -19,7 +19,7 @@ const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 
 type HasSpread<TFragmentType> = {
-  +$fragmentSpreads: TFragmentType,
+  readonly $fragmentSpreads: TFragmentType,
   ...
 };
 

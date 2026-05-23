@@ -49,11 +49,11 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
     environmentType => {
       describe(environmentType, () => {
         let callbacks: {
-          +complete: JestMockFn<ReadonlyArray<unknown>, unknown>,
-          +error: JestMockFn<ReadonlyArray<Error>, unknown>,
-          +next: JestMockFn<ReadonlyArray<unknown>, unknown>,
-          +start?: JestMockFn<ReadonlyArray<unknown>, unknown>,
-          +unsubscribe?: JestMockFn<ReadonlyArray<unknown>, unknown>,
+          readonly complete: JestMockFn<ReadonlyArray<unknown>, unknown>,
+          readonly error: JestMockFn<ReadonlyArray<Error>, unknown>,
+          readonly next: JestMockFn<ReadonlyArray<unknown>, unknown>,
+          readonly start?: JestMockFn<ReadonlyArray<unknown>, unknown>,
+          readonly unsubscribe?: JestMockFn<ReadonlyArray<unknown>, unknown>,
         };
         let complete;
         let dataSource;

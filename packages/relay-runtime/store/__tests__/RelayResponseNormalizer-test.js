@@ -1846,8 +1846,8 @@ describe('RelayResponseNormalizer', () => {
 
     const getDataID = jest.fn(
       (
-        fieldValue: string | {+[string]: unknown},
-        typename: string | {+[string]: unknown},
+        fieldValue: string | {readonly [string]: unknown},
+        typename: string | {readonly [string]: unknown},
       ) => {
         return `${
           typeof fieldValue === 'string' ? fieldValue : String(fieldValue.id)
@@ -1857,8 +1857,8 @@ describe('RelayResponseNormalizer', () => {
 
     const getNullAsDataID = jest.fn(
       (
-        fieldValue: string | {+[string]: unknown},
-        typename: string | {+[string]: unknown},
+        fieldValue: string | {readonly [string]: unknown},
+        typename: string | {readonly [string]: unknown},
       ) => {
         return null;
       },

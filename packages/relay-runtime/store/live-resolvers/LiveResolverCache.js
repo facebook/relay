@@ -772,7 +772,7 @@ class LiveResolverCache implements ResolverCache {
   // containing only "weak" records.
   _normalizeOutputTypeValue(
     outputTypeDataID: DataID,
-    value: {+[key: string]: unknown},
+    value: {readonly [key: string]: unknown},
     variables: Variables,
     normalizationInfo: ResolverNormalizationInfo,
     fieldPath: Array<string>,

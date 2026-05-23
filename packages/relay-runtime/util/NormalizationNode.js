@@ -20,17 +20,17 @@ import type {JSResourceReference} from 'JSResourceReference';
  * request results.
  */
 export type NormalizationOperation = {
-  +kind: 'Operation',
-  +name: string,
-  +argumentDefinitions: ReadonlyArray<NormalizationLocalArgumentDefinition>,
-  +selections: ReadonlyArray<NormalizationSelection>,
-  +clientAbstractTypes?: {
-    +[string]: ReadonlyArray<string>,
+  readonly kind: 'Operation',
+  readonly name: string,
+  readonly argumentDefinitions: ReadonlyArray<NormalizationLocalArgumentDefinition>,
+  readonly selections: ReadonlyArray<NormalizationSelection>,
+  readonly clientAbstractTypes?: {
+    readonly [string]: ReadonlyArray<string>,
   },
-  +has_server_to_client_resolvers?: boolean,
-  +use_exec_time_resolvers?: boolean,
-  +exec_time_resolvers_enabled_provider?: ProvidedVariableType,
-  +use_experimental_provider?: ProvidedVariableType,
+  readonly has_server_to_client_resolvers?: boolean,
+  readonly use_exec_time_resolvers?: boolean,
+  readonly exec_time_resolvers_enabled_provider?: ProvidedVariableType,
+  readonly use_experimental_provider?: ProvidedVariableType,
 };
 
 export type NormalizationHandle =
@@ -38,29 +38,29 @@ export type NormalizationHandle =
   | NormalizationLinkedHandle;
 
 export type NormalizationLinkedHandle = {
-  +kind: 'LinkedHandle',
-  +alias?: ?string,
-  +name: string,
-  +args?: ?ReadonlyArray<NormalizationArgument>,
-  +handle: string,
-  +key: string,
+  readonly kind: 'LinkedHandle',
+  readonly alias?: ?string,
+  readonly name: string,
+  readonly args?: ?ReadonlyArray<NormalizationArgument>,
+  readonly handle: string,
+  readonly key: string,
   // NOTE: this property is optional because it's expected to be rarely used
-  +dynamicKey?: ?NormalizationArgument,
-  +filters?: ?ReadonlyArray<string>,
-  +handleArgs?: ReadonlyArray<NormalizationArgument>,
+  readonly dynamicKey?: ?NormalizationArgument,
+  readonly filters?: ?ReadonlyArray<string>,
+  readonly handleArgs?: ReadonlyArray<NormalizationArgument>,
 };
 
 export type NormalizationScalarHandle = {
-  +kind: 'ScalarHandle',
-  +alias?: ?string,
-  +name: string,
-  +args?: ?ReadonlyArray<NormalizationArgument>,
-  +handle: string,
-  +key: string,
+  readonly kind: 'ScalarHandle',
+  readonly alias?: ?string,
+  readonly name: string,
+  readonly args?: ?ReadonlyArray<NormalizationArgument>,
+  readonly handle: string,
+  readonly key: string,
   // NOTE: this property is optional because it's expected to be rarely used
-  +dynamicKey?: ?NormalizationArgument,
-  +filters?: ?ReadonlyArray<string>,
-  +handleArgs?: ReadonlyArray<NormalizationArgument>,
+  readonly dynamicKey?: ?NormalizationArgument,
+  readonly filters?: ?ReadonlyArray<string>,
+  readonly handleArgs?: ReadonlyArray<NormalizationArgument>,
 };
 
 export type NormalizationArgument =
@@ -70,15 +70,15 @@ export type NormalizationArgument =
   | NormalizationVariableArgument;
 
 export type NormalizationCondition = {
-  +kind: 'Condition',
-  +passingValue: boolean,
-  +condition: string,
-  +selections: ReadonlyArray<NormalizationSelection>,
+  readonly kind: 'Condition',
+  readonly passingValue: boolean,
+  readonly condition: string,
+  readonly selections: ReadonlyArray<NormalizationSelection>,
 };
 
 export type NormalizationClientExtension = {
-  +kind: 'ClientExtension',
-  +selections: ReadonlyArray<NormalizationSelection>,
+  readonly kind: 'ClientExtension',
+  readonly selections: ReadonlyArray<NormalizationSelection>,
 };
 
 export type NormalizationField =
@@ -88,67 +88,67 @@ export type NormalizationField =
   | NormalizationLinkedField;
 
 export type NormalizationInlineFragment = {
-  +kind: 'InlineFragment',
-  +selections: ReadonlyArray<NormalizationSelection>,
-  +type: string,
-  +abstractKey?: ?string,
+  readonly kind: 'InlineFragment',
+  readonly selections: ReadonlyArray<NormalizationSelection>,
+  readonly type: string,
+  readonly abstractKey?: ?string,
 };
 
 export type NormalizationFragmentSpread = {
-  +kind: 'FragmentSpread',
-  +fragment: NormalizationSplitOperation,
-  +args?: ?ReadonlyArray<NormalizationArgument>,
+  readonly kind: 'FragmentSpread',
+  readonly fragment: NormalizationSplitOperation,
+  readonly args?: ?ReadonlyArray<NormalizationArgument>,
 };
 
 export type NormalizationLinkedField = {
-  +kind: 'LinkedField',
-  +alias?: ?string,
-  +name: string,
-  +storageKey?: ?string,
-  +args?: ?ReadonlyArray<NormalizationArgument>,
-  +concreteType?: ?string,
-  +plural: boolean,
-  +selections: ReadonlyArray<NormalizationSelection>,
+  readonly kind: 'LinkedField',
+  readonly alias?: ?string,
+  readonly name: string,
+  readonly storageKey?: ?string,
+  readonly args?: ?ReadonlyArray<NormalizationArgument>,
+  readonly concreteType?: ?string,
+  readonly plural: boolean,
+  readonly selections: ReadonlyArray<NormalizationSelection>,
 };
 
 export type NormalizationActorChange = {
-  +kind: 'ActorChange',
-  +linkedField: NormalizationLinkedField,
+  readonly kind: 'ActorChange',
+  readonly linkedField: NormalizationLinkedField,
 };
 
 export type NormalizationModuleImport = {
-  +args?: ?ReadonlyArray<NormalizationArgument>,
-  +kind: 'ModuleImport',
-  +documentName: string,
-  +fragmentPropName: string,
-  +fragmentName: string,
-  +componentModuleProvider?: () =>
+  readonly args?: ?ReadonlyArray<NormalizationArgument>,
+  readonly kind: 'ModuleImport',
+  readonly documentName: string,
+  readonly fragmentPropName: string,
+  readonly fragmentName: string,
+  readonly componentModuleProvider?: () =>
     | unknown
     | Promise<unknown>
     | JSResourceReference<unknown>,
-  +operationModuleProvider?: () =>
+  readonly operationModuleProvider?: () =>
     | NormalizationRootNode
     | Promise<NormalizationRootNode>
     | JSResourceReference<NormalizationRootNode>,
 };
 
 export type NormalizationListValueArgument = {
-  +kind: 'ListValue',
-  +name: string,
-  +items: ReadonlyArray<NormalizationArgument | null>,
+  readonly kind: 'ListValue',
+  readonly name: string,
+  readonly items: ReadonlyArray<NormalizationArgument | null>,
 };
 
 export type NormalizationLiteralArgument = {
-  +kind: 'Literal',
-  +name: string,
-  +type?: ?string,
-  +value: unknown,
+  readonly kind: 'Literal',
+  readonly name: string,
+  readonly type?: ?string,
+  readonly value: unknown,
 };
 
 export type NormalizationLocalArgumentDefinition = {
-  +kind: 'LocalArgument',
-  +name: string,
-  +defaultValue: unknown,
+  readonly kind: 'LocalArgument',
+  readonly name: string,
+  readonly defaultValue: unknown,
 };
 
 export type NormalizationNode =
@@ -162,70 +162,72 @@ export type NormalizationNode =
   | NormalizationStream;
 
 export type NormalizationScalarField = {
-  +kind: 'ScalarField',
-  +alias?: ?string,
-  +name: string,
-  +args?: ?ReadonlyArray<NormalizationArgument>,
-  +storageKey?: ?string,
+  readonly kind: 'ScalarField',
+  readonly alias?: ?string,
+  readonly name: string,
+  readonly args?: ?ReadonlyArray<NormalizationArgument>,
+  readonly storageKey?: ?string,
 };
 
 export type ResolverReference = {
-  +fieldType: string,
-  +resolverFunctionName: string,
+  readonly fieldType: string,
+  readonly resolverFunctionName: string,
 };
 
 export type ResolverInfo = {
-  +resolverFunction: ResolverFunction,
-  +rootFragment?: ?NormalizationSplitOperation,
+  readonly resolverFunction: ResolverFunction,
+  readonly rootFragment?: ?NormalizationSplitOperation,
 };
 
 type ResolverData =
-  | {+resolverModule?: ResolverModule}
-  | {+resolverReference?: ResolverReference}
-  | {+resolverInfo?: ResolverInfo};
+  | {readonly resolverModule?: ResolverModule}
+  | {readonly resolverReference?: ResolverReference}
+  | {readonly resolverInfo?: ResolverInfo};
 
 export type NormalizationResolverField = {
-  +kind: 'RelayResolver',
-  +name: string,
-  +args?: ?ReadonlyArray<NormalizationArgument>,
-  +fragment?: ?NormalizationInlineFragment,
-  +storageKey?: ?string,
-  +isOutputType: boolean,
+  readonly kind: 'RelayResolver',
+  readonly name: string,
+  readonly args?: ?ReadonlyArray<NormalizationArgument>,
+  readonly fragment?: ?NormalizationInlineFragment,
+  readonly storageKey?: ?string,
+  readonly isOutputType: boolean,
   ...ResolverData,
 };
 
 export type NormalizationLiveResolverField = {
-  +kind: 'RelayLiveResolver',
-  +name: string,
-  +args?: ?ReadonlyArray<NormalizationArgument>,
-  +fragment?: ?NormalizationInlineFragment,
-  +storageKey?: ?string,
-  +isOutputType: boolean,
+  readonly kind: 'RelayLiveResolver',
+  readonly name: string,
+  readonly args?: ?ReadonlyArray<NormalizationArgument>,
+  readonly fragment?: ?NormalizationInlineFragment,
+  readonly storageKey?: ?string,
+  readonly isOutputType: boolean,
   ...ResolverData,
 };
 
 export type NormalizationModelResolvers = {
   [string]: {
-    +resolverModule: ResolverModule,
+    readonly resolverModule: ResolverModule,
   },
 };
 
 export type NormalizationClientEdgeToClientObject = {
-  +kind: 'ClientEdgeToClientObject',
-  +linkedField: NormalizationLinkedField,
-  +backingField: NormalizationResolverField | NormalizationLiveResolverField,
-  +modelResolvers?: NormalizationModelResolvers | null,
+  readonly kind: 'ClientEdgeToClientObject',
+  readonly linkedField: NormalizationLinkedField,
+  readonly backingField:
+    | NormalizationResolverField
+    | NormalizationLiveResolverField,
+  readonly modelResolvers?: NormalizationModelResolvers | null,
 };
 
 export type NormalizationClientComponent = {
-  +args?: ?ReadonlyArray<NormalizationArgument>,
-  +kind: 'ClientComponent',
-  +fragment: NormalizationNode,
+  readonly args?: ?ReadonlyArray<NormalizationArgument>,
+  readonly kind: 'ClientComponent',
+  readonly fragment: NormalizationNode,
 };
 
 export type NormalizationTypeDiscriminator = {
-  +kind: 'TypeDiscriminator',
-  +abstractKey: string,
+  readonly kind: 'TypeDiscriminator',
+  readonly abstractKey: string,
 };
 
 export type NormalizationSelection =
@@ -244,38 +246,38 @@ export type NormalizationSelection =
   | NormalizationTypeDiscriminator;
 
 export type NormalizationSplitOperation = {
-  +argumentDefinitions?: ReadonlyArray<NormalizationLocalArgumentDefinition>,
-  +kind: 'SplitOperation',
-  +name: string,
-  +metadata?: ?{+[key: string]: unknown, ...},
-  +selections: ReadonlyArray<NormalizationSelection>,
+  readonly argumentDefinitions?: ReadonlyArray<NormalizationLocalArgumentDefinition>,
+  readonly kind: 'SplitOperation',
+  readonly name: string,
+  readonly metadata?: ?{readonly [key: string]: unknown, ...},
+  readonly selections: ReadonlyArray<NormalizationSelection>,
 };
 
 export type NormalizationStream = {
-  +if: string | null,
-  +kind: 'Stream',
-  +label: string,
-  +selections: ReadonlyArray<NormalizationSelection>,
+  readonly if: string | null,
+  readonly kind: 'Stream',
+  readonly label: string,
+  readonly selections: ReadonlyArray<NormalizationSelection>,
 };
 
 export type NormalizationDefer = {
-  +if: string | null,
-  +kind: 'Defer',
-  +label: string,
-  +selections: ReadonlyArray<NormalizationSelection>,
+  readonly if: string | null,
+  readonly kind: 'Defer',
+  readonly label: string,
+  readonly selections: ReadonlyArray<NormalizationSelection>,
 };
 
 export type NormalizationVariableArgument = {
-  +kind: 'Variable',
-  +name: string,
-  +type?: ?string,
-  +variableName: string,
+  readonly kind: 'Variable',
+  readonly name: string,
+  readonly type?: ?string,
+  readonly variableName: string,
 };
 
 export type NormalizationObjectValueArgument = {
-  +kind: 'ObjectValue',
-  +name: string,
-  +fields: ReadonlyArray<NormalizationArgument>,
+  readonly kind: 'ObjectValue',
+  readonly name: string,
+  readonly fields: ReadonlyArray<NormalizationArgument>,
 };
 
 export type NormalizationSelectableNode =

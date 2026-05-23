@@ -64,7 +64,7 @@ function stableStringify(value: unknown): string {
 function prepareEntryPoint<
   TEntryPointParams extends {...},
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  TPreloadedQueries extends {+[string]: PreloadedQuery<any>},
+  TPreloadedQueries extends {readonly [string]: PreloadedQuery<any>},
   TPreloadedEntryPoints extends {...},
   TRuntimeProps extends {...},
   TExtraProps,
@@ -157,7 +157,7 @@ function prepareEntryPoint<
 function LazyLoadEntryPointContainer_DEPRECATED<
   TEntryPointParams extends {...},
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  TPreloadedQueries extends {+[string]: PreloadedQuery<any>},
+  TPreloadedQueries extends {readonly [string]: PreloadedQuery<any>},
   TPreloadedEntryPoints extends {...},
   TRuntimeProps extends {...},
   TExtraProps,

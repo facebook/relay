@@ -32,16 +32,16 @@ export type Disposable = interface {dispose(): void};
 export type DataID = string;
 
 // Variables
-export type Variables = {+[string]: $FlowFixMe};
+export type Variables = {readonly [string]: $FlowFixMe};
 
 /**
  * Generated operation flow types are subtypes of this.
  */
 export type OperationType = {
   // TODO(T33395812) Make this an open object type
-  +variables: Variables,
-  +response: unknown,
-  +rawResponse?: {...},
+  readonly variables: Variables,
+  readonly response: unknown,
+  readonly rawResponse?: {...},
 };
 
 export type VariablesOf<T extends OperationType> = T['variables'];
@@ -62,14 +62,17 @@ export type VariablesOf<T extends OperationType> = T['variables'];
  *   a given instance of executing an operation.
  */
 export type CacheConfig = {
-  +force?: ?boolean,
-  +poll?: ?number,
-  +liveConfigId?: ?string,
-  +onSubscribe?: () => void,
-  +onResume?: (pauseTimeMs: number) => void,
-  +onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
-  +metadata?: {+[key: string]: unknown, ...},
-  +transactionId?: ?string,
+  readonly force?: ?boolean,
+  readonly poll?: ?number,
+  readonly liveConfigId?: ?string,
+  readonly onSubscribe?: () => void,
+  readonly onResume?: (pauseTimeMs: number) => void,
+  readonly onPause?: (
+    mqttConnectionIsOk: boolean,
+    internetIsOk: boolean,
+  ) => void,
+  readonly metadata?: {readonly [key: string]: unknown, ...},
+  readonly transactionId?: ?string,
 };
 
 export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';

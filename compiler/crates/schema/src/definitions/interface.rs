@@ -133,6 +133,10 @@ mod test {
             unimplemented!()
         }
 
+        fn query_selection_field(&self) -> crate::FieldID {
+            unimplemented!()
+        }
+
         fn get_type(&self, type_name: intern::string_key::StringKey) -> Option<crate::Type> {
             unimplemented!()
         }

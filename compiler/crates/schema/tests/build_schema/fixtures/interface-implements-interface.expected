@@ -386,6 +386,23 @@ Text Schema:Schema {
         description: None,
         hack_source: None,
     },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__query",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Object(0),
+        ),
+        directives: [],
+        parent_type: None,
+        description: Some(
+            "Relay extension: select fields from the query root within any fragment. Selections inside `__query { ... }` are hoisted to the query root at compile time, letting a fragment declare its dependency on root-level data without threading it through every parent component. Access the data via `data.__query`.",
+        ),
+        hack_source: None,
+    },
 ]
   input_objects: []
   interfaces: [

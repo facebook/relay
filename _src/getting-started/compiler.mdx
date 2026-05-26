@@ -62,7 +62,22 @@ npm run relay
 If you have [watchman](https://facebook.github.io/watchman) installed you can pass `--watch` to the Relay compiler to have it continue running and automatically update generated files as you edit your product code:
 
 ```sh
-npm run relay --watch
+relay-compiler --watch
+```
+
+### Validate mode
+
+Pass `--validate` to check whether any generated artifacts are out of date without writing anything to disk. The compiler exits with a non-zero code if any artifacts need to be updated. This is useful in CI to assert that generated files are committed and current:
+
+```sh
+relay-compiler --validate
+```
+### Disabling watchman
+
+By default, Relay uses [watchman](https://facebook.github.io/watchman), if installed, for fast file discovery. To fall back to directory traversal instead, pass `--no-watchman`:
+
+```sh
+relay-compiler --no-watchman
 ```
 
 ### Codemods
@@ -75,8 +90,9 @@ The Relay compiler can compare two GraphQL documents to determine if one is a su
 
 ### Help
 
-To learn about the other capabilities of the Relay compiler see its extensive `--help` output:
+To see the full command-line reference run:
 
 ```sh
-npm run relay --help
+relay-compiler --help
+relay-compiler <subcommand> --help
 ```

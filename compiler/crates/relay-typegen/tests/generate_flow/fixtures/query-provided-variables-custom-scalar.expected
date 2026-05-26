@@ -16,36 +16,36 @@ fragment FragmentWithJSONProvidedVar on User
 ==================================== OUTPUT ===================================
 import type { FragmentWithJSONProvidedVar$fragmentType } from "FragmentWithJSONProvidedVar.graphql";
 import type { JSON } from "TypeDefsFile";
-export type testQuery$variables = {||};
-export type testQuery$data = {|
-  +node: ?{|
-    +FragmentWithJSONProvidedVar: ?{|
-      +$fragmentSpreads: FragmentWithJSONProvidedVar$fragmentType,
-    |},
-  |},
-|};
-export type testQuery = {|
+export type testQuery$variables = {};
+export type testQuery$data = {
+  readonly node: ?{
+    readonly FragmentWithJSONProvidedVar: ?{
+      readonly $fragmentSpreads: FragmentWithJSONProvidedVar$fragmentType,
+    },
+  },
+};
+export type testQuery = {
   response: testQuery$data,
   variables: testQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__includeNameProvider": require('includeNameProvider')
-} as {|
-  +__relay_internal__pv__includeNameProvider: {|
-    +get: () => ?JSON,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__includeNameProvider: {
+    readonly get: () => ?JSON,
+  },
+});
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentWithJSONProvidedVar$fragmentType: FragmentType;
-export type FragmentWithJSONProvidedVar$data = {|
-  +profilePicture2: ?{|
-    +__typename: "Image",
-  |},
-  +$fragmentType: FragmentWithJSONProvidedVar$fragmentType,
-|};
+export type FragmentWithJSONProvidedVar$data = {
+  readonly profilePicture2: ?{
+    readonly __typename: "Image",
+  },
+  readonly $fragmentType: FragmentWithJSONProvidedVar$fragmentType,
+};
 export type FragmentWithJSONProvidedVar$key = {
-  +$data?: FragmentWithJSONProvidedVar$data,
-  +$fragmentSpreads: FragmentWithJSONProvidedVar$fragmentType,
+  readonly $data?: FragmentWithJSONProvidedVar$data,
+  readonly $fragmentSpreads: FragmentWithJSONProvidedVar$fragmentType,
   ...
 };

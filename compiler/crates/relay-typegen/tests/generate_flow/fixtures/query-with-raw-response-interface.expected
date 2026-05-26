@@ -11,30 +11,30 @@ query ExampleQuery @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type ExampleQuery$variables = {||};
-export type ExampleQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +body?: ?{|
-      +text: ?string,
-    |},
-    +id: string,
-  |},
-|};
-export type ExampleQuery$rawResponse = {|
-  +node: ?({|
-    +__typename: "Story",
-    +body: ?{|
-      +text: ?string,
-    |},
-    +id: string,
-  |} | {|
-    +__typename: string,
-    +id: string,
-  |}),
-|};
-export type ExampleQuery = {|
+export type ExampleQuery$variables = {};
+export type ExampleQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly body?: ?{
+      readonly text: ?string,
+    },
+    readonly id: string,
+  },
+};
+export type ExampleQuery$rawResponse = {
+  readonly node: ?({
+    readonly __typename: "Story",
+    readonly body: ?{
+      readonly text: ?string,
+    },
+    readonly id: string,
+  } | {
+    readonly __typename: string,
+    readonly id: string,
+  }),
+};
+export type ExampleQuery = {
   rawResponse: ExampleQuery$rawResponse,
   response: ExampleQuery$data,
   variables: ExampleQuery$variables,
-|};
+};

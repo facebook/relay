@@ -23,48 +23,48 @@ query ExampleQuery @raw_response_type {
 
 extend union MaybeNode = NonNodeNoID
 ==================================== OUTPUT ===================================
-export type ExampleQuery$variables = {||};
-export type ExampleQuery$data = {|
-  +maybeNode: ?{|
-    +__typename: string,
-    +body?: ?{|
-      +text: ?string,
-    |},
-    +name?: ?string,
-    +tracking?: ?string,
-  |},
-|};
-export type ExampleQuery$rawResponse = {|
-  +maybeNode: ?({|
-    +__typename: "FakeNode",
-    +id: string,
-  |} | {|
-    +__typename: "NonNodeNoID",
-    +__isMaybeNodeInterface: "NonNodeNoID",
-    +name: ?string,
-  |} | {|
-    +__typename: "Story",
-    +__isFeedUnit: "Story",
-    +__isMaybeNodeInterface: "Story",
-    +__isNode: "Story",
-    +body: ?{|
-      +text: ?string,
-    |},
-    +id: string,
-    +name: ?string,
-    +tracking: ?string,
-  |} | {|
-    +__typename: string,
-    +__isFeedUnit?: string,
-    +__isMaybeNodeInterface?: string,
-    +__isNode?: string,
-    +id?: string,
-    +name?: ?string,
-    +tracking?: ?string,
-  |}),
-|};
-export type ExampleQuery = {|
+export type ExampleQuery$variables = {};
+export type ExampleQuery$data = {
+  readonly maybeNode: ?{
+    readonly __typename: string,
+    readonly body?: ?{
+      readonly text: ?string,
+    },
+    readonly name?: ?string,
+    readonly tracking?: ?string,
+  },
+};
+export type ExampleQuery$rawResponse = {
+  readonly maybeNode: ?({
+    readonly __typename: "FakeNode",
+    readonly id: string,
+  } | {
+    readonly __typename: "NonNodeNoID",
+    readonly __isMaybeNodeInterface: "NonNodeNoID",
+    readonly name: ?string,
+  } | {
+    readonly __typename: "Story",
+    readonly __isFeedUnit: "Story",
+    readonly __isMaybeNodeInterface: "Story",
+    readonly __isNode: "Story",
+    readonly body: ?{
+      readonly text: ?string,
+    },
+    readonly id: string,
+    readonly name: ?string,
+    readonly tracking: ?string,
+  } | {
+    readonly __typename: string,
+    readonly __isFeedUnit?: string,
+    readonly __isMaybeNodeInterface?: string,
+    readonly __isNode?: string,
+    readonly id?: string,
+    readonly name?: ?string,
+    readonly tracking?: ?string,
+  }),
+};
+export type ExampleQuery = {
   rawResponse: ExampleQuery$rawResponse,
   response: ExampleQuery$data,
   variables: ExampleQuery$variables,
-|};
+};

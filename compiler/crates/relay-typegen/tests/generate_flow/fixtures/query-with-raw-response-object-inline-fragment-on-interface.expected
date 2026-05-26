@@ -9,24 +9,24 @@ query ExampleQuery @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type ExampleQuery$variables = {||};
-export type ExampleQuery$data = {|
-  +story: ?{|
-    +__typename: "Story",
-    +id?: string,
-    +url: ?string,
-  |},
-|};
-export type ExampleQuery$rawResponse = {|
-  +story: ?{|
-    +__typename: "Story",
-    +__isNode: "Story",
-    +id: string,
-    +url: ?string,
-  |},
-|};
-export type ExampleQuery = {|
+export type ExampleQuery$variables = {};
+export type ExampleQuery$data = {
+  readonly story: ?{
+    readonly __typename: "Story",
+    readonly id?: string,
+    readonly url: ?string,
+  },
+};
+export type ExampleQuery$rawResponse = {
+  readonly story: ?{
+    readonly __typename: "Story",
+    readonly __isNode: "Story",
+    readonly id: string,
+    readonly url: ?string,
+  },
+};
+export type ExampleQuery = {
   rawResponse: ExampleQuery$rawResponse,
   response: ExampleQuery$data,
   variables: ExampleQuery$variables,
-|};
+};

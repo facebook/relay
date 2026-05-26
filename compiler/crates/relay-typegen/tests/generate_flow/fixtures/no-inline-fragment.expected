@@ -27,54 +27,54 @@ import type { noInlineFragment_address$fragmentType } from "noInlineFragment_add
 import type { noInlineFragment_user$fragmentType } from "noInlineFragment_user.graphql";
 import type { noInlineFragment_address$normalization } from "noInlineFragment_address$normalization.graphql";
 import type { noInlineFragment_user$normalization } from "noInlineFragment_user$normalization.graphql";
-export type noInlineFragmentQuery$variables = {|
+export type noInlineFragmentQuery$variables = {
   global?: ?number,
   global_from_parent?: ?number,
   shadowed_global?: ?number,
-|};
-export type noInlineFragmentQuery$data = {|
-  +me: ?{|
-    +address: ?{|
-      +$fragmentSpreads: noInlineFragment_address$fragmentType,
-    |},
-    +$fragmentSpreads: noInlineFragment_user$fragmentType,
-  |},
-|};
-export type noInlineFragmentQuery$rawResponse = {|
-  +me: ?{|
-    +address: ?{|
+};
+export type noInlineFragmentQuery$data = {
+  readonly me: ?{
+    readonly address: ?{
+      readonly $fragmentSpreads: noInlineFragment_address$fragmentType,
+    },
+    readonly $fragmentSpreads: noInlineFragment_user$fragmentType,
+  },
+};
+export type noInlineFragmentQuery$rawResponse = {
+  readonly me: ?{
+    readonly address: ?{
       ...noInlineFragment_address$normalization,
-    |},
-    +id: string,
+    },
+    readonly id: string,
     ...noInlineFragment_user$normalization,
-  |},
-|};
-export type noInlineFragmentQuery = {|
+  },
+};
+export type noInlineFragmentQuery = {
   rawResponse: noInlineFragmentQuery$rawResponse,
   response: noInlineFragmentQuery$data,
   variables: noInlineFragmentQuery$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type noInlineFragment_address$fragmentType: FragmentType;
-export type noInlineFragment_address$data = {|
-  +city: ?string,
-  +$fragmentType: noInlineFragment_address$fragmentType,
-|};
+export type noInlineFragment_address$data = {
+  readonly city: ?string,
+  readonly $fragmentType: noInlineFragment_address$fragmentType,
+};
 export type noInlineFragment_address$key = {
-  +$data?: noInlineFragment_address$data,
-  +$fragmentSpreads: noInlineFragment_address$fragmentType,
+  readonly $data?: noInlineFragment_address$data,
+  readonly $fragmentSpreads: noInlineFragment_address$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type noInlineFragment_user$fragmentType: FragmentType;
-export type noInlineFragment_user$data = {|
-  +name: ?string,
-  +$fragmentType: noInlineFragment_user$fragmentType,
-|};
+export type noInlineFragment_user$data = {
+  readonly name: ?string,
+  readonly $fragmentType: noInlineFragment_user$fragmentType,
+};
 export type noInlineFragment_user$key = {
-  +$data?: noInlineFragment_user$data,
-  +$fragmentSpreads: noInlineFragment_user$fragmentType,
+  readonly $data?: noInlineFragment_user$data,
+  readonly $fragmentSpreads: noInlineFragment_user$fragmentType,
   ...
 };

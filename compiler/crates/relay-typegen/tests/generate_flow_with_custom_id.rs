@@ -55,6 +55,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     });
     let feature_flags = FeatureFlags {
         no_inline: FeatureFlag::Enabled,
+        flow_modern_syntax: FeatureFlag::Enabled,
         ..Default::default()
     };
     let ir =

@@ -19,33 +19,33 @@ type Foo {
   bar: String
 }
 ==================================== OUTPUT ===================================
-export type UpdateAllSeenStateInput = {|
+export type UpdateAllSeenStateInput = {
   storyIds?: ?ReadonlyArray<?string>,
-|};
-export type Test$variables = {|
+};
+export type Test$variables = {
   input?: ?UpdateAllSeenStateInput,
-|};
-export type Test$data = {|
-  +viewerNotificationsUpdateAllSeenState: ?{|
-    +stories: ?ReadonlyArray<?{|
-      +foos: ?ReadonlyArray<?{|
-        +bar: ?string,
-      |}>,
-    |}>,
-  |},
-|};
-export type Test$rawResponse = {|
-  +viewerNotificationsUpdateAllSeenState: ?{|
-    +stories: ?ReadonlyArray<?{|
-      +foos?: ?ReadonlyArray<?{|
-        +bar: ?string,
-      |}>,
-      +id: string,
-    |}>,
-  |},
-|};
-export type Test = {|
+};
+export type Test$data = {
+  readonly viewerNotificationsUpdateAllSeenState: ?{
+    readonly stories: ?ReadonlyArray<?{
+      readonly foos: ?ReadonlyArray<?{
+        readonly bar: ?string,
+      }>,
+    }>,
+  },
+};
+export type Test$rawResponse = {
+  readonly viewerNotificationsUpdateAllSeenState: ?{
+    readonly stories: ?ReadonlyArray<?{
+      readonly foos?: ?ReadonlyArray<?{
+        readonly bar: ?string,
+      }>,
+      readonly id: string,
+    }>,
+  },
+};
+export type Test = {
   rawResponse: Test$rawResponse,
   response: Test$data,
   variables: Test$variables,
-|};
+};

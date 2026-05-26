@@ -15,28 +15,28 @@ fragment Assignable_user on User @assignable {
 }
 ==================================== OUTPUT ===================================
 import type { Assignable_user$fragmentType } from "Assignable_user.graphql";
-export type UpdatableQuery$variables = {||};
-export type UpdatableQuery$data = {|
-  get node(): ?({|
-    +__typename: "User",
-    get parents(): ReadonlyArray<{||}>,
+export type UpdatableQuery$variables = {};
+export type UpdatableQuery$data = {
+  get node(): ?({
+    readonly __typename: "User",
+    get parents(): ReadonlyArray<{}>,
     set parents(value: ReadonlyArray<{
-      +__typename: "User",
-      +__id: string,
-      +$fragmentSpreads: Assignable_user$fragmentType,
+      readonly __typename: "User",
+      readonly __id: string,
+      readonly $fragmentSpreads: Assignable_user$fragmentType,
       ...
     }>): void,
-  |} | {|
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+    readonly __typename: "%other",
+  }),
   set node(value: null | void): void,
-|};
-export type UpdatableQuery = {|
+};
+export type UpdatableQuery = {
   response: UpdatableQuery$data,
   variables: UpdatableQuery$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_user$fragmentType: FragmentType;

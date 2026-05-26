@@ -7,14 +7,14 @@ query FooQuery {
 }
 ==================================== OUTPUT ===================================
 import type { Result } from "relay-runtime";
-export type FooQuery$variables = {||};
-export type FooQuery$data = {|
-  +me: ?{|
-    +firstName: ?string,
-    +lastName: Result<?string, unknown>,
-  |},
-|};
-export type FooQuery = {|
+export type FooQuery$variables = {};
+export type FooQuery$data = {
+  readonly me: ?{
+    readonly firstName: ?string,
+    readonly lastName: Result<?string, unknown>,
+  },
+};
+export type FooQuery = {
   response: FooQuery$data,
   variables: FooQuery$variables,
-|};
+};

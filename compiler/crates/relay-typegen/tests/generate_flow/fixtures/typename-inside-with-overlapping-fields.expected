@@ -18,27 +18,27 @@ fragment TypenameInsideWithOverlappingFields on Viewer {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameInsideWithOverlappingFields$fragmentType: FragmentType;
-export type TypenameInsideWithOverlappingFields$data = {|
-  +actor: ?({|
-    +__typename: "Page",
-    +id: string,
-    +name: ?string,
-  |} | {|
-    +__typename: "User",
-    +id: string,
-    +name: ?string,
-    +profile_picture: ?{|
-      +uri: ?string,
-    |},
-  |} | {|
+export type TypenameInsideWithOverlappingFields$data = {
+  readonly actor: ?({
+    readonly __typename: "Page",
+    readonly id: string,
+    readonly name: ?string,
+  } | {
+    readonly __typename: "User",
+    readonly id: string,
+    readonly name: ?string,
+    readonly profile_picture: ?{
+      readonly uri: ?string,
+    },
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: TypenameInsideWithOverlappingFields$fragmentType,
-|};
+    readonly __typename: "%other",
+  }),
+  readonly $fragmentType: TypenameInsideWithOverlappingFields$fragmentType,
+};
 export type TypenameInsideWithOverlappingFields$key = {
-  +$data?: TypenameInsideWithOverlappingFields$data,
-  +$fragmentSpreads: TypenameInsideWithOverlappingFields$fragmentType,
+  readonly $data?: TypenameInsideWithOverlappingFields$data,
+  readonly $fragmentSpreads: TypenameInsideWithOverlappingFields$fragmentType,
   ...
 };

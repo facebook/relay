@@ -10,19 +10,19 @@ query UpdatableQuery @updatable {
   }
 }
 ==================================== OUTPUT ===================================
-export type UpdatableQuery$variables = {||};
-export type UpdatableQuery$data = {|
-  get me(): ?{|
-    +__typename: "User",
-    +__id: string,
-    +aliased_double_under_id: string,
-    +aliased_id: string,
-    +aliased_typename: "User",
-    +id: string,
-  |},
+export type UpdatableQuery$variables = {};
+export type UpdatableQuery$data = {
+  get me(): ?{
+    readonly __typename: "User",
+    readonly __id: string,
+    readonly aliased_double_under_id: string,
+    readonly aliased_id: string,
+    readonly aliased_typename: "User",
+    readonly id: string,
+  },
   set me(value: null | void): void,
-|};
-export type UpdatableQuery = {|
+};
+export type UpdatableQuery = {
   response: UpdatableQuery$data,
   variables: UpdatableQuery$variables,
-|};
+};

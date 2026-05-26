@@ -7,28 +7,28 @@ mutation CommentCreateMutation($input: CommentCreateInput!) {
   }
 }
 ==================================== OUTPUT ===================================
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   client_mutation_id: string,
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type CommentCreateMutation$variables = {|
+};
+export type CommentCreateMutation$variables = {
   input: CommentCreateInput,
-|};
-export type CommentCreateMutation$data = ?{|
-  +commentCreate: {|
-    +comment: {|
-      +id: string,
-    |},
-  |},
-|};
-export type CommentCreateMutation = {|
+};
+export type CommentCreateMutation$data = ?{
+  readonly commentCreate: {
+    readonly comment: {
+      readonly id: string,
+    },
+  },
+};
+export type CommentCreateMutation = {
   response: CommentCreateMutation$data,
   variables: CommentCreateMutation$variables,
-|};
+};

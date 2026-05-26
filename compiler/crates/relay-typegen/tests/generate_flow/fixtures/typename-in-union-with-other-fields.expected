@@ -8,13 +8,13 @@ fragment Foo on Node {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Foo$fragmentType: FragmentType;
-export type Foo$data = {|
-  +__typename: "User",
-  +id: string,
-  +$fragmentType: Foo$fragmentType,
-|};
+export type Foo$data = {
+  readonly __typename: "User",
+  readonly id: string,
+  readonly $fragmentType: Foo$fragmentType,
+};
 export type Foo$key = {
-  +$data?: Foo$data,
-  +$fragmentSpreads: Foo$fragmentType,
+  readonly $data?: Foo$data,
+  readonly $fragmentSpreads: Foo$fragmentType,
   ...
 };

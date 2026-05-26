@@ -13,37 +13,37 @@ fragment MyUserFragment on User {
 }
 ==================================== OUTPUT ===================================
 import type { MyUserFragment$fragmentType } from "MyUserFragment.graphql";
-export type MyQuery$variables = {||};
-export type MyQuery$data = {|
-  +me: ?{|
-    +my_inline_fragment: {|
-      +name: ?string,
-    |},
-    +my_user: {|
-      +$fragmentSpreads: MyUserFragment$fragmentType,
-    |},
-  |},
-|};
-export type MyQuery$rawResponse = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-|};
-export type MyQuery = {|
+export type MyQuery$variables = {};
+export type MyQuery$data = {
+  readonly me: ?{
+    readonly my_inline_fragment: {
+      readonly name: ?string,
+    },
+    readonly my_user: {
+      readonly $fragmentSpreads: MyUserFragment$fragmentType,
+    },
+  },
+};
+export type MyQuery$rawResponse = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+};
+export type MyQuery = {
   rawResponse: MyQuery$rawResponse,
   response: MyQuery$data,
   variables: MyQuery$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type MyUserFragment$fragmentType: FragmentType;
-export type MyUserFragment$data = {|
-  +name: ?string,
-  +$fragmentType: MyUserFragment$fragmentType,
-|};
+export type MyUserFragment$data = {
+  readonly name: ?string,
+  readonly $fragmentType: MyUserFragment$fragmentType,
+};
 export type MyUserFragment$key = {
-  +$data?: MyUserFragment$data,
-  +$fragmentSpreads: MyUserFragment$fragmentType,
+  readonly $data?: MyUserFragment$data,
+  readonly $fragmentSpreads: MyUserFragment$fragmentType,
   ...
 };

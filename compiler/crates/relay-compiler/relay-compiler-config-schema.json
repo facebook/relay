@@ -706,6 +706,13 @@
           "type": "boolean",
           "default": false
         },
+        "flow_modern_syntax": {
+          "description": "Use modern Flow syntax for generated object types.\nThis enables gradual rollout of exact object type syntax and readonly\nproperties across files.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "legacy_include_path_in_required_reader_nodes": {
           "description": "The `path` field in `@required` Reader AST nodes is no longer used. But\nremoving them in one diff is too large of a change to ship at once.\n\nThis flag will allow us to use the rollout FeatureFlag to remove them\nacross a number of diffs.",
           "$ref": "#/$defs/FeatureFlag",
@@ -734,6 +741,13 @@
         },
         "relay_resolver_enable_interface_output_type": {
           "description": "Enable returning interfaces from Relay Resolvers without @outputType",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
+        "shard_extra_artifacts": {
+          "description": "Shard generated extra artifacts into subdirectories under\n`extraArtifactsOutput` that mirror the source file's relative path,\nhonoring `shardOutput` / `shardStripRegex`.",
           "$ref": "#/$defs/FeatureFlag",
           "default": {
             "kind": "disabled"
@@ -968,6 +982,9 @@
               "kind": "enabled"
             },
             "enforce_module_name_prefix_for_non_haste": false,
+            "flow_modern_syntax": {
+              "kind": "disabled"
+            },
             "legacy_include_path_in_required_reader_nodes": {
               "kind": "disabled"
             },
@@ -979,6 +996,9 @@
             },
             "prefer_fetchable_in_refetch_queries": false,
             "relay_resolver_enable_interface_output_type": {
+              "kind": "disabled"
+            },
+            "shard_extra_artifacts": {
               "kind": "disabled"
             },
             "skip_printing_nulls": {

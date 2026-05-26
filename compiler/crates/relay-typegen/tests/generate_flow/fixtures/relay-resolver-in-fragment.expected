@@ -19,13 +19,13 @@ extend type User {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type relayResolver_PopStarNameResolverFragment_name$fragmentType: FragmentType;
-export type relayResolver_PopStarNameResolverFragment_name$data = {|
-  +name: ?string,
-  +$fragmentType: relayResolver_PopStarNameResolverFragment_name$fragmentType,
-|};
+export type relayResolver_PopStarNameResolverFragment_name$data = {
+  readonly name: ?string,
+  readonly $fragmentType: relayResolver_PopStarNameResolverFragment_name$fragmentType,
+};
 export type relayResolver_PopStarNameResolverFragment_name$key = {
-  +$data?: relayResolver_PopStarNameResolverFragment_name$data,
-  +$fragmentSpreads: relayResolver_PopStarNameResolverFragment_name$fragmentType,
+  readonly $data?: relayResolver_PopStarNameResolverFragment_name$data,
+  readonly $fragmentSpreads: relayResolver_PopStarNameResolverFragment_name$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
@@ -38,12 +38,12 @@ import userPopStarNameResolverType from "PopStarNameResolver";
   rootKey: relayResolver_PopStarNameResolverFragment_name$key,
 ) => ?unknown);
 declare export opaque type relayResolver_consumer$fragmentType: FragmentType;
-export type relayResolver_consumer$data = {|
-  +pop_star_name: ?ReturnType<typeof userPopStarNameResolverType>,
-  +$fragmentType: relayResolver_consumer$fragmentType,
-|};
+export type relayResolver_consumer$data = {
+  readonly pop_star_name: ?ReturnType<typeof userPopStarNameResolverType>,
+  readonly $fragmentType: relayResolver_consumer$fragmentType,
+};
 export type relayResolver_consumer$key = {
-  +$data?: relayResolver_consumer$data,
-  +$fragmentSpreads: relayResolver_consumer$fragmentType,
+  readonly $data?: relayResolver_consumer$data,
+  readonly $fragmentSpreads: relayResolver_consumer$fragmentType,
   ...
 };

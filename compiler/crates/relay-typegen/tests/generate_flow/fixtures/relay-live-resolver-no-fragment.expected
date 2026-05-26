@@ -20,13 +20,13 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 // Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType as () => LiveState<?unknown>);
-export type relayResolver_Query$variables = {||};
-export type relayResolver_Query$data = {|
-  +me: ?{|
-    +pop_star_name: ?ReturnType<ReturnType<typeof userPopStarNameResolverType>["read"]>,
-  |},
-|};
-export type relayResolver_Query = {|
+export type relayResolver_Query$variables = {};
+export type relayResolver_Query$data = {
+  readonly me: ?{
+    readonly pop_star_name: ?ReturnType<ReturnType<typeof userPopStarNameResolverType>["read"]>,
+  },
+};
+export type relayResolver_Query = {
   response: relayResolver_Query$data,
   variables: relayResolver_Query$variables,
-|};
+};

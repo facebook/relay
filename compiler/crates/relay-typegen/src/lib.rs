@@ -158,7 +158,10 @@ fn generate_fragment_type_exports_section_impl(
             is_extra_artifact_branch_module,
         },
     );
-    let mut writer = new_writer_from_config(&project_config.typegen_config);
+    let mut writer = new_writer_from_config(
+        &project_config.typegen_config,
+        use_flow_modern_syntax(project_config, fragment_definition.name.item.0),
+    );
     write_fragment_type_exports_section(&typegen_context, fragment_definition, &mut writer)
         .unwrap();
     writer.into_string()
@@ -184,7 +187,10 @@ pub fn generate_named_validator_export(
             is_extra_artifact_branch_module: false,
         },
     );
-    let mut writer = new_writer_from_config(&project_config.typegen_config);
+    let mut writer = new_writer_from_config(
+        &project_config.typegen_config,
+        use_flow_modern_syntax(project_config, fragment_definition.name.item.0),
+    );
     write_validator_function(&typegen_context, fragment_definition, &mut writer).unwrap();
     let validator_function_body = writer.into_string();
 
@@ -220,7 +226,10 @@ pub fn generate_operation_type_exports_section(
             is_extra_artifact_branch_module: false,
         },
     );
-    let mut writer = new_writer_from_config(&project_config.typegen_config);
+    let mut writer = new_writer_from_config(
+        &project_config.typegen_config,
+        use_flow_modern_syntax(project_config, typegen_operation.name.item.0),
+    );
     write_operation_type_exports_section(
         &typegen_context,
         typegen_operation,
@@ -257,7 +266,10 @@ pub fn generate_split_operation_type_exports_section(
             is_extra_artifact_branch_module: false,
         },
     );
-    let mut writer = new_writer_from_config(&project_config.typegen_config);
+    let mut writer = new_writer_from_config(
+        &project_config.typegen_config,
+        use_flow_modern_syntax(project_config, typegen_operation.name.item.0),
+    );
 
     write_split_operation_type_exports_section(
         &typegen_context,
@@ -267,6 +279,13 @@ pub fn generate_split_operation_type_exports_section(
     )
     .unwrap();
     writer.into_string()
+}
+
+fn use_flow_modern_syntax(project_config: &ProjectConfig, artifact_name: StringKey) -> bool {
+    project_config
+        .feature_flags
+        .flow_modern_syntax
+        .is_enabled_for(artifact_name)
 }
 
 /// An immutable grab bag of configuration, etc. for type generation.

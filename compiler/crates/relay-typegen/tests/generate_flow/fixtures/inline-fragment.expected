@@ -66,84 +66,84 @@ fragment SomeFragment on User {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragment$fragmentType: FragmentType;
-export type InlineFragment$data = {|
-  +id: string,
-  +message?: ?{|
-    +text: ?string,
-  |},
-  +name?: ?string,
-  +$fragmentType: InlineFragment$fragmentType,
-|};
+export type InlineFragment$data = {
+  readonly id: string,
+  readonly message?: ?{
+    readonly text: ?string,
+  },
+  readonly name?: ?string,
+  readonly $fragmentType: InlineFragment$fragmentType,
+};
 export type InlineFragment$key = {
-  +$data?: InlineFragment$data,
-  +$fragmentSpreads: InlineFragment$fragmentType,
+  readonly $data?: InlineFragment$data,
+  readonly $fragmentSpreads: InlineFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragmentConditionalID$fragmentType: FragmentType;
-export type InlineFragmentConditionalID$data = {|
-  +id?: string,
-  +name?: ?string,
-  +$fragmentType: InlineFragmentConditionalID$fragmentType,
-|};
+export type InlineFragmentConditionalID$data = {
+  readonly id?: string,
+  readonly name?: ?string,
+  readonly $fragmentType: InlineFragmentConditionalID$fragmentType,
+};
 export type InlineFragmentConditionalID$key = {
-  +$data?: InlineFragmentConditionalID$data,
-  +$fragmentSpreads: InlineFragmentConditionalID$fragmentType,
+  readonly $data?: InlineFragmentConditionalID$data,
+  readonly $fragmentSpreads: InlineFragmentConditionalID$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { SomeFragment$fragmentType } from "SomeFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragmentKitchenSink$fragmentType: FragmentType;
-export type InlineFragmentKitchenSink$data = {|
-  +actor: ?{|
-    +SomeFragment?: ?{|
-      +$fragmentSpreads: SomeFragment$fragmentType,
-    |},
-    +id: string,
-    +name?: ?string,
-    +profilePicture: ?{|
-      +height?: ?number,
-      +uri: ?string,
-      +width?: ?number,
-    |},
-  |},
-  +$fragmentType: InlineFragmentKitchenSink$fragmentType,
-|};
+export type InlineFragmentKitchenSink$data = {
+  readonly actor: ?{
+    readonly SomeFragment?: ?{
+      readonly $fragmentSpreads: SomeFragment$fragmentType,
+    },
+    readonly id: string,
+    readonly name?: ?string,
+    readonly profilePicture: ?{
+      readonly height?: ?number,
+      readonly uri: ?string,
+      readonly width?: ?number,
+    },
+  },
+  readonly $fragmentType: InlineFragmentKitchenSink$fragmentType,
+};
 export type InlineFragmentKitchenSink$key = {
-  +$data?: InlineFragmentKitchenSink$data,
-  +$fragmentSpreads: InlineFragmentKitchenSink$fragmentType,
+  readonly $data?: InlineFragmentKitchenSink$data,
+  readonly $fragmentSpreads: InlineFragmentKitchenSink$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragmentWithOverlappingFields$fragmentType: FragmentType;
-export type InlineFragmentWithOverlappingFields$data = {|
-  +hometown?: ?{|
-    +id: string,
-    +message?: ?{|
-      +text: ?string,
-    |},
-    +name: ?string,
-  |},
-  +name?: ?string,
-  +$fragmentType: InlineFragmentWithOverlappingFields$fragmentType,
-|};
+export type InlineFragmentWithOverlappingFields$data = {
+  readonly hometown?: ?{
+    readonly id: string,
+    readonly message?: ?{
+      readonly text: ?string,
+    },
+    readonly name: ?string,
+  },
+  readonly name?: ?string,
+  readonly $fragmentType: InlineFragmentWithOverlappingFields$fragmentType,
+};
 export type InlineFragmentWithOverlappingFields$key = {
-  +$data?: InlineFragmentWithOverlappingFields$data,
-  +$fragmentSpreads: InlineFragmentWithOverlappingFields$fragmentType,
+  readonly $data?: InlineFragmentWithOverlappingFields$data,
+  readonly $fragmentSpreads: InlineFragmentWithOverlappingFields$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type SomeFragment$fragmentType: FragmentType;
-export type SomeFragment$data = {|
-  +__typename: "User",
-  +$fragmentType: SomeFragment$fragmentType,
-|};
+export type SomeFragment$data = {
+  readonly __typename: "User",
+  readonly $fragmentType: SomeFragment$fragmentType,
+};
 export type SomeFragment$key = {
-  +$data?: SomeFragment$data,
-  +$fragmentSpreads: SomeFragment$fragmentType,
+  readonly $data?: SomeFragment$data,
+  readonly $fragmentSpreads: SomeFragment$fragmentType,
   ...
 };

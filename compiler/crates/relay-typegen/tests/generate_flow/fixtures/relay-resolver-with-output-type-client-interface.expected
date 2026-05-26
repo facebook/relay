@@ -47,35 +47,35 @@ extend type User {
     )
 }
 ==================================== OUTPUT ===================================
-export type User__pop_star_game$normalization$variables = {||};
-export type User__pop_star_game$normalization$data = {|
-  +client_interface: {|
-    +__typename: "ClientType",
-    +name: ?string,
-  |} | {|
+export type User__pop_star_game$normalization$variables = {};
+export type User__pop_star_game$normalization$data = {
+  readonly client_interface: {
+    readonly __typename: "ClientType",
+    readonly name: ?string,
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |},
-|};
-export type User__pop_star_game$normalization = {|
+    readonly __typename: "%other",
+  },
+};
+export type User__pop_star_game$normalization = {
   response: User__pop_star_game$normalization$data,
   variables: User__pop_star_game$normalization$variables,
-|};
+};
 -------------------------------------------------------------------------------
-export type User__pop_star_name$normalization$variables = {||};
-export type User__pop_star_name$normalization$data = {|
-  +__typename: "ClientType",
-  +name: ?string,
-|} | {|
+export type User__pop_star_name$normalization$variables = {};
+export type User__pop_star_name$normalization$data = {
+  readonly __typename: "ClientType",
+  readonly name: ?string,
+} | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other",
-|};
-export type User__pop_star_name$normalization = {|
+  readonly __typename: "%other",
+};
+export type User__pop_star_name$normalization = {
   response: User__pop_star_name$normalization$data,
   variables: User__pop_star_name$normalization$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { PopStarNameResolverFragment_name$key } from "PopStarNameResolverFragment_name.graphql";
 import type { User__pop_star_name$normalization } from "User__pop_star_name$normalization.graphql";
@@ -87,32 +87,32 @@ import userPopStarNameResolverType from "PopStarNameResolver";
   rootKey: PopStarNameResolverFragment_name$key,
 ) => ?User__pop_star_name$normalization);
 declare export opaque type Foo_user$fragmentType: FragmentType;
-export type Foo_user$data = {|
-  +poppy: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: Foo_user$fragmentType,
-|};
+export type Foo_user$data = {
+  readonly poppy: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: Foo_user$fragmentType,
+};
 export type Foo_user$key = {
-  +$data?: Foo_user$data,
-  +$fragmentSpreads: Foo_user$fragmentType,
+  readonly $data?: Foo_user$data,
+  readonly $fragmentSpreads: Foo_user$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type PopStarNameResolverFragment_name$fragmentType: FragmentType;
-export type PopStarNameResolverFragment_name$data = {|
-  +address: ?{|
-    +street: ?string,
-  |},
-  +name: ?string,
-  +parents: ReadonlyArray<{|
-    +lastName: ?string,
-  |}>,
-  +$fragmentType: PopStarNameResolverFragment_name$fragmentType,
-|};
+export type PopStarNameResolverFragment_name$data = {
+  readonly address: ?{
+    readonly street: ?string,
+  },
+  readonly name: ?string,
+  readonly parents: ReadonlyArray<{
+    readonly lastName: ?string,
+  }>,
+  readonly $fragmentType: PopStarNameResolverFragment_name$fragmentType,
+};
 export type PopStarNameResolverFragment_name$key = {
-  +$data?: PopStarNameResolverFragment_name$data,
-  +$fragmentSpreads: PopStarNameResolverFragment_name$fragmentType,
+  readonly $data?: PopStarNameResolverFragment_name$data,
+  readonly $fragmentSpreads: PopStarNameResolverFragment_name$fragmentType,
   ...
 };

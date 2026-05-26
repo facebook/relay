@@ -7,22 +7,22 @@ mutation SetCommentBodyMutation(
   }
 }
 ==================================== OUTPUT ===================================
-export type CommentBodyInput = {|
+export type CommentBodyInput = {
   markdown?: empty,
   plain: string,
-|} | {|
+} | {
   markdown: string,
   plain?: empty,
-|};
-export type SetCommentBodyMutation$variables = {|
+};
+export type SetCommentBodyMutation$variables = {
   body?: ?CommentBodyInput,
-|};
-export type SetCommentBodyMutation$data = {|
-  +setCommentBody: ?{|
-    +id: string,
-  |},
-|};
-export type SetCommentBodyMutation = {|
+};
+export type SetCommentBodyMutation$data = {
+  readonly setCommentBody: ?{
+    readonly id: string,
+  },
+};
+export type SetCommentBodyMutation = {
   response: SetCommentBodyMutation$data,
   variables: SetCommentBodyMutation$variables,
-|};
+};

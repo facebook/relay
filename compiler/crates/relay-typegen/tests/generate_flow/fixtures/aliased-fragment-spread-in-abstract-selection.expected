@@ -10,27 +10,27 @@ query RelayReaderNamedFragmentsTest2Query {
 }
 ==================================== OUTPUT ===================================
 import type { RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType } from "RelayReaderNamedFragmentsTest_maybe_node_interface.graphql";
-export type RelayReaderNamedFragmentsTest2Query$variables = {||};
-export type RelayReaderNamedFragmentsTest2Query$data = {|
-  +node: ?{|
-    +aliased_fragment: ?{|
-      +$fragmentSpreads: RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderNamedFragmentsTest2Query = {|
+export type RelayReaderNamedFragmentsTest2Query$variables = {};
+export type RelayReaderNamedFragmentsTest2Query$data = {
+  readonly node: ?{
+    readonly aliased_fragment: ?{
+      readonly $fragmentSpreads: RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType,
+    },
+  },
+};
+export type RelayReaderNamedFragmentsTest2Query = {
   response: RelayReaderNamedFragmentsTest2Query$data,
   variables: RelayReaderNamedFragmentsTest2Query$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType: FragmentType;
-export type RelayReaderNamedFragmentsTest_maybe_node_interface$data = {|
-  +name: ?string,
-  +$fragmentType: RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType,
-|};
+export type RelayReaderNamedFragmentsTest_maybe_node_interface$data = {
+  readonly name: ?string,
+  readonly $fragmentType: RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType,
+};
 export type RelayReaderNamedFragmentsTest_maybe_node_interface$key = {
-  +$data?: RelayReaderNamedFragmentsTest_maybe_node_interface$data,
-  +$fragmentSpreads: RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType,
+  readonly $data?: RelayReaderNamedFragmentsTest_maybe_node_interface$data,
+  readonly $fragmentSpreads: RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType,
   ...
 };

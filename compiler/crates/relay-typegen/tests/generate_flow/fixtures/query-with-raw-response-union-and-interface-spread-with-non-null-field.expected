@@ -12,27 +12,27 @@ query ExampleQuery @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type ExampleQuery$variables = {||};
-export type ExampleQuery$data = {|
-  +maybeNode: ?{|
-    +__typename: string,
-    +name?: ?string,
-  |},
-|};
-export type ExampleQuery$rawResponse = {|
-  +maybeNode: ?({|
-    +__typename: "FakeNode",
-    +id: string,
-  |} | {|
-    +__typename: string,
-    +__isMaybeNodeInterface?: string,
-    +__isNode?: string,
-    +id?: string,
-    +name?: ?string,
-  |}),
-|};
-export type ExampleQuery = {|
+export type ExampleQuery$variables = {};
+export type ExampleQuery$data = {
+  readonly maybeNode: ?{
+    readonly __typename: string,
+    readonly name?: ?string,
+  },
+};
+export type ExampleQuery$rawResponse = {
+  readonly maybeNode: ?({
+    readonly __typename: "FakeNode",
+    readonly id: string,
+  } | {
+    readonly __typename: string,
+    readonly __isMaybeNodeInterface?: string,
+    readonly __isNode?: string,
+    readonly id?: string,
+    readonly name?: ?string,
+  }),
+};
+export type ExampleQuery = {
   rawResponse: ExampleQuery$rawResponse,
   response: ExampleQuery$data,
   variables: ExampleQuery$variables,
-|};
+};

@@ -13,29 +13,29 @@ fragment Foo on Node {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Foo$fragmentType: FragmentType;
-export type Foo$data = {|
-  +__typename: "User",
-  +$fragmentType: Foo$fragmentType,
-|} | {|
+export type Foo$data = {
+  readonly __typename: "User",
+  readonly $fragmentType: Foo$fragmentType,
+} | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other",
+  readonly __typename: "%other",
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +alias: "%other",
+  readonly alias: "%other",
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +foo: "%other",
-  +$fragmentType: Foo$fragmentType,
-|} | {|
-  +alias: "Comment",
-  +$fragmentType: Foo$fragmentType,
-|} | {|
-  +foo: "Feedback",
-  +$fragmentType: Foo$fragmentType,
-|};
+  readonly foo: "%other",
+  readonly $fragmentType: Foo$fragmentType,
+} | {
+  readonly alias: "Comment",
+  readonly $fragmentType: Foo$fragmentType,
+} | {
+  readonly foo: "Feedback",
+  readonly $fragmentType: Foo$fragmentType,
+};
 export type Foo$key = {
-  +$data?: Foo$data,
-  +$fragmentSpreads: Foo$fragmentType,
+  readonly $data?: Foo$data,
+  readonly $fragmentSpreads: Foo$fragmentType,
   ...
 };

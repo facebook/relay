@@ -29,12 +29,12 @@ import catDescriptionResolverType from "CatResolver";
   model: Persian____relay_model_instance$data['__relay_model_instance'] | Tabby____relay_model_instance$data['__relay_model_instance'],
 ) => ?unknown);
 declare export opaque type resolverOnInterfaceOfAllWeakModelTypeFragment$fragmentType: FragmentType;
-export type resolverOnInterfaceOfAllWeakModelTypeFragment$data = {|
-  +description: ?ReturnType<typeof catDescriptionResolverType>,
-  +$fragmentType: resolverOnInterfaceOfAllWeakModelTypeFragment$fragmentType,
-|};
+export type resolverOnInterfaceOfAllWeakModelTypeFragment$data = {
+  readonly description: ?ReturnType<typeof catDescriptionResolverType>,
+  readonly $fragmentType: resolverOnInterfaceOfAllWeakModelTypeFragment$fragmentType,
+};
 export type resolverOnInterfaceOfAllWeakModelTypeFragment$key = {
-  +$data?: resolverOnInterfaceOfAllWeakModelTypeFragment$data,
-  +$fragmentSpreads: resolverOnInterfaceOfAllWeakModelTypeFragment$fragmentType,
+  readonly $data?: resolverOnInterfaceOfAllWeakModelTypeFragment$data,
+  readonly $fragmentSpreads: resolverOnInterfaceOfAllWeakModelTypeFragment$fragmentType,
   ...
 };

@@ -32,30 +32,30 @@ import userBestFriendsResolverType from "BestFriendResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userBestFriendsResolverType as (
   rootKey: relayResolver_BestFriendResolverFragment_name$key,
-) => ReadonlyArray<?{|
-  +id: DataID,
-|}>);
-export type relayResolver_Query$variables = {||};
-export type relayResolver_Query$data = {|
-  +me: ?{|
-    +best_friends: ReadonlyArray<?{|
-      +name: ?string,
-    |}>,
-  |},
-|};
-export type relayResolver_Query = {|
+) => ReadonlyArray<?{
+  readonly id: DataID,
+}>);
+export type relayResolver_Query$variables = {};
+export type relayResolver_Query$data = {
+  readonly me: ?{
+    readonly best_friends: ReadonlyArray<?{
+      readonly name: ?string,
+    }>,
+  },
+};
+export type relayResolver_Query = {
   response: relayResolver_Query$data,
   variables: relayResolver_Query$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type relayResolver_BestFriendResolverFragment_name$fragmentType: FragmentType;
-export type relayResolver_BestFriendResolverFragment_name$data = {|
-  +name: ?string,
-  +$fragmentType: relayResolver_BestFriendResolverFragment_name$fragmentType,
-|};
+export type relayResolver_BestFriendResolverFragment_name$data = {
+  readonly name: ?string,
+  readonly $fragmentType: relayResolver_BestFriendResolverFragment_name$fragmentType,
+};
 export type relayResolver_BestFriendResolverFragment_name$key = {
-  +$data?: relayResolver_BestFriendResolverFragment_name$data,
-  +$fragmentSpreads: relayResolver_BestFriendResolverFragment_name$fragmentType,
+  readonly $data?: relayResolver_BestFriendResolverFragment_name$data,
+  readonly $fragmentSpreads: relayResolver_BestFriendResolverFragment_name$fragmentType,
   ...
 };

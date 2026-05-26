@@ -69,6 +69,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             .collect(),
         },
         relay_resolver_enable_interface_output_type: FeatureFlag::Enabled,
+        flow_modern_syntax: if fixture
+            .content
+            .contains("# feature_flags.flow_modern_syntax = false")
+        {
+            FeatureFlag::Disabled
+        } else {
+            FeatureFlag::Enabled
+        },
         ..Default::default()
     };
     let ir = build_ir_in_relay_mode(&schema, &ast.definitions, &feature_flags)

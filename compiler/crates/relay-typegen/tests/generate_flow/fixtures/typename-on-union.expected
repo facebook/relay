@@ -82,153 +82,153 @@ fragment TypenameAliases on Actor {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameAlias$fragmentType: FragmentType;
-export type TypenameAlias$data = {|
-  +_typeAlias: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameAlias$fragmentType,
-|} | {|
-  +_typeAlias: "Page",
-  +username: ?string,
-  +$fragmentType: TypenameAlias$fragmentType,
-|} | {|
+export type TypenameAlias$data = {
+  readonly _typeAlias: "User",
+  readonly firstName: ?string,
+  readonly $fragmentType: TypenameAlias$fragmentType,
+} | {
+  readonly _typeAlias: "Page",
+  readonly username: ?string,
+  readonly $fragmentType: TypenameAlias$fragmentType,
+} | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +_typeAlias: "%other",
-  +$fragmentType: TypenameAlias$fragmentType,
-|};
+  readonly _typeAlias: "%other",
+  readonly $fragmentType: TypenameAlias$fragmentType,
+};
 export type TypenameAlias$key = {
-  +$data?: TypenameAlias$data,
-  +$fragmentSpreads: TypenameAlias$fragmentType,
+  readonly $data?: TypenameAlias$data,
+  readonly $fragmentSpreads: TypenameAlias$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameAliases$fragmentType: FragmentType;
-export type TypenameAliases$data = {|
-  +_typeAlias1: "User",
-  +_typeAlias2: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameAliases$fragmentType,
-|} | {|
-  +_typeAlias1: "Page",
-  +_typeAlias2: "Page",
-  +username: ?string,
-  +$fragmentType: TypenameAliases$fragmentType,
-|} | {|
+export type TypenameAliases$data = {
+  readonly _typeAlias1: "User",
+  readonly _typeAlias2: "User",
+  readonly firstName: ?string,
+  readonly $fragmentType: TypenameAliases$fragmentType,
+} | {
+  readonly _typeAlias1: "Page",
+  readonly _typeAlias2: "Page",
+  readonly username: ?string,
+  readonly $fragmentType: TypenameAliases$fragmentType,
+} | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +_typeAlias1: "%other",
+  readonly _typeAlias1: "%other",
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +_typeAlias2: "%other",
-  +$fragmentType: TypenameAliases$fragmentType,
-|};
+  readonly _typeAlias2: "%other",
+  readonly $fragmentType: TypenameAliases$fragmentType,
+};
 export type TypenameAliases$key = {
-  +$data?: TypenameAliases$data,
-  +$fragmentSpreads: TypenameAliases$fragmentType,
+  readonly $data?: TypenameAliases$data,
+  readonly $fragmentSpreads: TypenameAliases$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameInside$fragmentType: FragmentType;
-export type TypenameInside$data = {|
-  +__typename: "Page",
-  +username: ?string,
-  +$fragmentType: TypenameInside$fragmentType,
-|} | {|
-  +__typename: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameInside$fragmentType,
-|} | {|
+export type TypenameInside$data = {
+  readonly __typename: "Page",
+  readonly username: ?string,
+  readonly $fragmentType: TypenameInside$fragmentType,
+} | {
+  readonly __typename: "User",
+  readonly firstName: ?string,
+  readonly $fragmentType: TypenameInside$fragmentType,
+} | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: TypenameInside$fragmentType,
-|};
+  readonly __typename: "%other",
+  readonly $fragmentType: TypenameInside$fragmentType,
+};
 export type TypenameInside$key = {
-  +$data?: TypenameInside$data,
-  +$fragmentSpreads: TypenameInside$fragmentType,
+  readonly $data?: TypenameInside$data,
+  readonly $fragmentSpreads: TypenameInside$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutside$fragmentType: FragmentType;
-export type TypenameOutside$data = {|
-  +__typename: "Page",
-  +username: ?string,
-  +$fragmentType: TypenameOutside$fragmentType,
-|} | {|
-  +__typename: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameOutside$fragmentType,
-|} | {|
+export type TypenameOutside$data = {
+  readonly __typename: "Page",
+  readonly username: ?string,
+  readonly $fragmentType: TypenameOutside$fragmentType,
+} | {
+  readonly __typename: "User",
+  readonly firstName: ?string,
+  readonly $fragmentType: TypenameOutside$fragmentType,
+} | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: TypenameOutside$fragmentType,
-|};
+  readonly __typename: "%other",
+  readonly $fragmentType: TypenameOutside$fragmentType,
+};
 export type TypenameOutside$key = {
-  +$data?: TypenameOutside$data,
-  +$fragmentSpreads: TypenameOutside$fragmentType,
+  readonly $data?: TypenameOutside$data,
+  readonly $fragmentSpreads: TypenameOutside$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutsideWithAbstractType$fragmentType: FragmentType;
-export type TypenameOutsideWithAbstractType$data = {|
-  +__typename: string,
-  +address?: ?{|
-    +city: ?string,
-    +country: ?string,
-    +street?: ?string,
-  |},
-  +firstName?: ?string,
-  +username?: ?string,
-  +$fragmentType: TypenameOutsideWithAbstractType$fragmentType,
-|};
+export type TypenameOutsideWithAbstractType$data = {
+  readonly __typename: string,
+  readonly address?: ?{
+    readonly city: ?string,
+    readonly country: ?string,
+    readonly street?: ?string,
+  },
+  readonly firstName?: ?string,
+  readonly username?: ?string,
+  readonly $fragmentType: TypenameOutsideWithAbstractType$fragmentType,
+};
 export type TypenameOutsideWithAbstractType$key = {
-  +$data?: TypenameOutsideWithAbstractType$data,
-  +$fragmentSpreads: TypenameOutsideWithAbstractType$fragmentType,
+  readonly $data?: TypenameOutsideWithAbstractType$data,
+  readonly $fragmentSpreads: TypenameOutsideWithAbstractType$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithCommonSelections$fragmentType: FragmentType;
-export type TypenameWithCommonSelections$data = {|
-  +__typename: string,
-  +firstName?: ?string,
-  +name: ?string,
-  +username?: ?string,
-  +$fragmentType: TypenameWithCommonSelections$fragmentType,
-|};
+export type TypenameWithCommonSelections$data = {
+  readonly __typename: string,
+  readonly firstName?: ?string,
+  readonly name: ?string,
+  readonly username?: ?string,
+  readonly $fragmentType: TypenameWithCommonSelections$fragmentType,
+};
 export type TypenameWithCommonSelections$key = {
-  +$data?: TypenameWithCommonSelections$data,
-  +$fragmentSpreads: TypenameWithCommonSelections$fragmentType,
+  readonly $data?: TypenameWithCommonSelections$data,
+  readonly $fragmentSpreads: TypenameWithCommonSelections$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithoutSpreads$fragmentType: FragmentType;
-export type TypenameWithoutSpreads$data = {|
-  +__typename: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameWithoutSpreads$fragmentType,
-|};
+export type TypenameWithoutSpreads$data = {
+  readonly __typename: "User",
+  readonly firstName: ?string,
+  readonly $fragmentType: TypenameWithoutSpreads$fragmentType,
+};
 export type TypenameWithoutSpreads$key = {
-  +$data?: TypenameWithoutSpreads$data,
-  +$fragmentSpreads: TypenameWithoutSpreads$fragmentType,
+  readonly $data?: TypenameWithoutSpreads$data,
+  readonly $fragmentSpreads: TypenameWithoutSpreads$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithoutSpreadsAbstractType$fragmentType: FragmentType;
-export type TypenameWithoutSpreadsAbstractType$data = {|
-  +__typename: string,
-  +id: string,
-  +$fragmentType: TypenameWithoutSpreadsAbstractType$fragmentType,
-|};
+export type TypenameWithoutSpreadsAbstractType$data = {
+  readonly __typename: string,
+  readonly id: string,
+  readonly $fragmentType: TypenameWithoutSpreadsAbstractType$fragmentType,
+};
 export type TypenameWithoutSpreadsAbstractType$key = {
-  +$data?: TypenameWithoutSpreadsAbstractType$data,
-  +$fragmentSpreads: TypenameWithoutSpreadsAbstractType$fragmentType,
+  readonly $data?: TypenameWithoutSpreadsAbstractType$data,
+  readonly $fragmentSpreads: TypenameWithoutSpreadsAbstractType$fragmentType,
   ...
 };

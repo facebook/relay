@@ -7,15 +7,15 @@ query TestQuery {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestQuery$variables = {||};
-export type TestQuery$data = {|
-  +me: ?{|
-    +neighbors: ReadonlyArray<?{|
-      +name: string,
-    |}>,
-  |},
-|};
-export type TestQuery = {|
+export type TestQuery$variables = {};
+export type TestQuery$data = {
+  readonly me: ?{
+    readonly neighbors: ReadonlyArray<?{
+      readonly name: string,
+    }>,
+  },
+};
+export type TestQuery = {
   response: TestQuery$data,
   variables: TestQuery$variables,
-|};
+};

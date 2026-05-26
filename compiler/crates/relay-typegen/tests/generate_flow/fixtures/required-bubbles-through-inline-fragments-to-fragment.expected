@@ -10,18 +10,18 @@ fragment Foo on Node {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Foo$fragmentType: FragmentType;
-export type Foo$data = ?({|
-  +__typename: "User",
-  +name: string,
-  +$fragmentType: Foo$fragmentType,
-|} | {|
+export type Foo$data = ?({
+  readonly __typename: "User",
+  readonly name: string,
+  readonly $fragmentType: Foo$fragmentType,
+} | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: Foo$fragmentType,
-|});
+  readonly __typename: "%other",
+  readonly $fragmentType: Foo$fragmentType,
+});
 export type Foo$key = {
-  +$data?: Foo$data,
-  +$fragmentSpreads: Foo$fragmentType,
+  readonly $data?: Foo$data,
+  readonly $fragmentSpreads: Foo$fragmentType,
   ...
 };

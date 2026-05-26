@@ -388,10 +388,13 @@ pub trait Writer: Write {
     fn write_any_type_definition(&mut self, name: &str) -> FmtResult;
 }
 
-pub(crate) fn new_writer_from_config(config: &TypegenConfig) -> Box<dyn Writer> {
+pub(crate) fn new_writer_from_config(
+    config: &TypegenConfig,
+    use_flow_modern_syntax: bool,
+) -> Box<dyn Writer> {
     match config.language {
         TypegenLanguage::JavaScript => Box::<JavaScriptPrinter>::default(),
-        TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
+        TypegenLanguage::Flow => Box::new(FlowPrinter::new(use_flow_modern_syntax)),
         TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(config)),
     }
 }

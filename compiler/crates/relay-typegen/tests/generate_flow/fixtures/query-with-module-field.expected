@@ -20,66 +20,66 @@ fragment Test_userRenderer on PlainUserRenderer {
 import type { Local3DPayload } from "relay-runtime";
 import type { Test_user$fragmentType } from "Test_user.graphql";
 import type { Test_userRenderer$normalization } from "Test_userRenderer$normalization.graphql";
-export type Test$variables = {||};
-export type Test$data = {|
-  +node: ?{|
-    +Test_user: ?{|
-      +$fragmentSpreads: Test_user$fragmentType,
-    |},
-  |},
-|};
-export type Test_userRenderer = {|
+export type Test$variables = {};
+export type Test$data = {
+  readonly node: ?{
+    readonly Test_user: ?{
+      readonly $fragmentSpreads: Test_user$fragmentType,
+    },
+  },
+};
+export type Test_userRenderer = {
   ...Test_userRenderer$normalization,
-|};
-export type Test$rawResponse = {|
-  +node: ?({|
-    +__typename: "User",
-    +id: string,
-    +plainUserRenderer: ?(Local3DPayload<"Test_user", {|
+};
+export type Test$rawResponse = {
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly id: string,
+    readonly plainUserRenderer: ?(Local3DPayload<"Test_user", {
       ...Test_userRenderer,
-    |}> | {|
-      +__module_component_Test_user: ?any,
-      +__module_operation_Test_user: ?any,
+    }> | {
+      readonly __module_component_Test_user: ?any,
+      readonly __module_operation_Test_user: ?any,
       ...Test_userRenderer,
-    |}),
-  |} | {|
-    +__typename: string,
-    +id: string,
-  |}),
-|};
-export type Test = {|
+    }),
+  } | {
+    readonly __typename: string,
+    readonly id: string,
+  }),
+};
+export type Test = {
   rawResponse: Test$rawResponse,
   response: Test$data,
   variables: Test$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { Test_userRenderer$fragmentType } from "Test_userRenderer.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Test_user$fragmentType: FragmentType;
-export type Test_user$data = {|
-  +plainUserRenderer: ?{|
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: Test_userRenderer$fragmentType,
-  |},
-  +$fragmentType: Test_user$fragmentType,
-|};
+export type Test_user$data = {
+  readonly plainUserRenderer: ?{
+    readonly __fragmentPropName: ?string,
+    readonly __module_component: ?string,
+    readonly $fragmentSpreads: Test_userRenderer$fragmentType,
+  },
+  readonly $fragmentType: Test_user$fragmentType,
+};
 export type Test_user$key = {
-  +$data?: Test_user$data,
-  +$fragmentSpreads: Test_user$fragmentType,
+  readonly $data?: Test_user$data,
+  readonly $fragmentSpreads: Test_user$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Test_userRenderer$fragmentType: FragmentType;
-export type Test_userRenderer$data = {|
-  +user: ?{|
-    +username: ?string,
-  |},
-  +$fragmentType: Test_userRenderer$fragmentType,
-|};
+export type Test_userRenderer$data = {
+  readonly user: ?{
+    readonly username: ?string,
+  },
+  readonly $fragmentType: Test_userRenderer$fragmentType,
+};
 export type Test_userRenderer$key = {
-  +$data?: Test_userRenderer$data,
-  +$fragmentSpreads: Test_userRenderer$fragmentType,
+  readonly $data?: Test_userRenderer$data,
+  readonly $fragmentSpreads: Test_userRenderer$fragmentType,
   ...
 };

@@ -33,30 +33,30 @@ import userPopStarNamesResolverType from "PopStarNameResolver";
   rootKey: PopStarNameResolverFragment_name$key,
 ) => ?ReadonlyArray<?unknown>);
 declare export opaque type Foo_user$fragmentType: FragmentType;
-export type Foo_user$data = {|
-  +poppy: ?ReturnType<typeof userPopStarNamesResolverType>,
-  +$fragmentType: Foo_user$fragmentType,
-|};
+export type Foo_user$data = {
+  readonly poppy: ?ReturnType<typeof userPopStarNamesResolverType>,
+  readonly $fragmentType: Foo_user$fragmentType,
+};
 export type Foo_user$key = {
-  +$data?: Foo_user$data,
-  +$fragmentSpreads: Foo_user$fragmentType,
+  readonly $data?: Foo_user$data,
+  readonly $fragmentSpreads: Foo_user$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type PopStarNameResolverFragment_name$fragmentType: FragmentType;
-export type PopStarNameResolverFragment_name$data = {|
-  +address: ?{|
-    +street: ?string,
-  |},
-  +name: ?string,
-  +parents: ReadonlyArray<{|
-    +lastName: ?string,
-  |}>,
-  +$fragmentType: PopStarNameResolverFragment_name$fragmentType,
-|};
+export type PopStarNameResolverFragment_name$data = {
+  readonly address: ?{
+    readonly street: ?string,
+  },
+  readonly name: ?string,
+  readonly parents: ReadonlyArray<{
+    readonly lastName: ?string,
+  }>,
+  readonly $fragmentType: PopStarNameResolverFragment_name$fragmentType,
+};
 export type PopStarNameResolverFragment_name$key = {
-  +$data?: PopStarNameResolverFragment_name$data,
-  +$fragmentSpreads: PopStarNameResolverFragment_name$fragmentType,
+  readonly $data?: PopStarNameResolverFragment_name$data,
+  readonly $fragmentSpreads: PopStarNameResolverFragment_name$fragmentType,
   ...
 };

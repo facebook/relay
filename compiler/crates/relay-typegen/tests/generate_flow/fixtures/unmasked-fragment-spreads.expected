@@ -28,57 +28,57 @@ fragment AnotherRecursiveFragment on Image {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type AnotherRecursiveFragment$fragmentType: FragmentType;
-export type AnotherRecursiveFragment$data = {|
-  +height: ?number,
-  +uri: ?string,
-  +$fragmentType: AnotherRecursiveFragment$fragmentType,
-|};
+export type AnotherRecursiveFragment$data = {
+  readonly height: ?number,
+  readonly uri: ?string,
+  readonly $fragmentType: AnotherRecursiveFragment$fragmentType,
+};
 export type AnotherRecursiveFragment$key = {
-  +$data?: AnotherRecursiveFragment$data,
-  +$fragmentSpreads: AnotherRecursiveFragment$fragmentType,
+  readonly $data?: AnotherRecursiveFragment$data,
+  readonly $fragmentSpreads: AnotherRecursiveFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type PhotoFragment$fragmentType: FragmentType;
-export type PhotoFragment$data = {|
-  +uri: ?string,
-  +width: ?number,
-  +$fragmentType: PhotoFragment$fragmentType,
-|};
+export type PhotoFragment$data = {
+  readonly uri: ?string,
+  readonly width: ?number,
+  readonly $fragmentType: PhotoFragment$fragmentType,
+};
 export type PhotoFragment$key = {
-  +$data?: PhotoFragment$data,
-  +$fragmentSpreads: PhotoFragment$fragmentType,
+  readonly $data?: PhotoFragment$data,
+  readonly $fragmentSpreads: PhotoFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RecursiveFragment$fragmentType: FragmentType;
 export type RecursiveFragment$data = {
-  +uri: ?string,
-  +width: ?number,
+  readonly uri: ?string,
+  readonly width: ?number,
   ...
 };
 export type RecursiveFragment$key = {
-  +$data?: RecursiveFragment$data,
-  +$fragmentSpreads: RecursiveFragment$fragmentType,
+  readonly $data?: RecursiveFragment$data,
+  readonly $fragmentSpreads: RecursiveFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { PhotoFragment$fragmentType } from "PhotoFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserProfile$fragmentType: FragmentType;
-export type UserProfile$data = {|
-  +profilePicture: ?{|
-    +height: ?number,
-    +uri: ?string,
-    +width: ?number,
-    +$fragmentSpreads: PhotoFragment$fragmentType,
-  |},
-  +$fragmentType: UserProfile$fragmentType,
-|};
+export type UserProfile$data = {
+  readonly profilePicture: ?{
+    readonly height: ?number,
+    readonly uri: ?string,
+    readonly width: ?number,
+    readonly $fragmentSpreads: PhotoFragment$fragmentType,
+  },
+  readonly $fragmentType: UserProfile$fragmentType,
+};
 export type UserProfile$key = {
-  +$data?: UserProfile$data,
-  +$fragmentSpreads: UserProfile$fragmentType,
+  readonly $data?: UserProfile$data,
+  readonly $fragmentSpreads: UserProfile$fragmentType,
   ...
 };

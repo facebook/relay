@@ -9,16 +9,16 @@ fragment SomeFragment on User {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type SomeFragment$fragmentType: FragmentType;
-export type SomeFragment$data = {|
-  +nearest_neighbor: ?{|
-    +profile_picture: {|
-      +uri: string,
-    |},
-  |},
-  +$fragmentType: SomeFragment$fragmentType,
-|};
+export type SomeFragment$data = {
+  readonly nearest_neighbor: ?{
+    readonly profile_picture: {
+      readonly uri: string,
+    },
+  },
+  readonly $fragmentType: SomeFragment$fragmentType,
+};
 export type SomeFragment$key = {
-  +$data?: SomeFragment$data,
-  +$fragmentSpreads: SomeFragment$fragmentType,
+  readonly $data?: SomeFragment$data,
+  readonly $fragmentSpreads: SomeFragment$fragmentType,
   ...
 };

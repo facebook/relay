@@ -10,20 +10,20 @@ fragment Assignable_viewer on Viewer @assignable {
 }
 ==================================== OUTPUT ===================================
 import type { Assignable_viewer$fragmentType } from "Assignable_viewer.graphql";
-export type UpdatableQuery$variables = {||};
-export type UpdatableQuery$data = {|
-  get viewer(): ?{||},
+export type UpdatableQuery$variables = {};
+export type UpdatableQuery$data = {
+  get viewer(): ?{},
   set viewer(value: ?{
-    +__typename: "Viewer",
-    +__id: string,
-    +$fragmentSpreads: Assignable_viewer$fragmentType,
+    readonly __typename: "Viewer",
+    readonly __id: string,
+    readonly $fragmentSpreads: Assignable_viewer$fragmentType,
     ...
   }): void,
-|};
-export type UpdatableQuery = {|
+};
+export type UpdatableQuery = {
   response: UpdatableQuery$data,
   variables: UpdatableQuery$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_viewer$fragmentType: FragmentType;

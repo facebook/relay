@@ -20,6 +20,7 @@ use crate::writer::Writer;
 pub struct FlowPrinter {
     result: String,
     indentation: usize,
+    use_flow_modern_syntax: bool,
 }
 
 impl Write for FlowPrinter {
@@ -152,10 +153,11 @@ impl Writer for FlowPrinter {
 }
 
 impl FlowPrinter {
-    pub fn new() -> Self {
+    pub fn new(use_flow_modern_syntax: bool) -> Self {
         Self {
             result: String::new(),
             indentation: 0,
+            use_flow_modern_syntax,
         }
     }
 
@@ -226,11 +228,15 @@ impl FlowPrinter {
 
     fn write_object(&mut self, props: &[Prop], exact: bool) -> FmtResult {
         if props.is_empty() && exact {
-            write!(&mut self.result, "{{||}}")?;
+            if self.use_flow_modern_syntax {
+                write!(&mut self.result, "{{}}")?;
+            } else {
+                write!(&mut self.result, "{{||}}")?;
+            }
             return Ok(());
         }
 
-        if exact {
+        if exact && !self.use_flow_modern_syntax {
             writeln!(&mut self.result, "{{|")?;
         } else {
             writeln!(&mut self.result, "{{")?;
@@ -259,7 +265,9 @@ impl FlowPrinter {
                         )?;
                         self.write_indentation()?;
                     }
-                    if key_value_pair.read_only {
+                    if key_value_pair.read_only && self.use_flow_modern_syntax {
+                        write!(&mut self.result, "readonly ")?;
+                    } else if key_value_pair.read_only {
                         write!(&mut self.result, "+")?;
                     }
                     write!(&mut self.result, "{}", key_value_pair.key)?;
@@ -294,7 +302,7 @@ impl FlowPrinter {
         }
         self.indentation -= 1;
         self.write_indentation()?;
-        if exact {
+        if exact && !self.use_flow_modern_syntax {
             write!(&mut self.result, "|}}")?;
         } else {
             write!(&mut self.result, "}}")?;
@@ -386,7 +394,11 @@ mod tests {
     use crate::writer::SortedASTList;
 
     fn print_type(ast: &AST) -> String {
-        let mut printer = Box::new(FlowPrinter::new());
+        print_type_with_flow_modern_syntax(ast, false)
+    }
+
+    fn print_type_with_flow_modern_syntax(ast: &AST, use_flow_modern_syntax: bool) -> String {
+        let mut printer = Box::new(FlowPrinter::new(use_flow_modern_syntax));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -518,6 +530,58 @@ mod tests {
     }
 
     #[test]
+    fn flow_modern_exact_object() {
+        assert_eq!(
+            print_type_with_flow_modern_syntax(
+                &AST::ExactObject(ExactObject::new(Vec::new())),
+                true,
+            ),
+            r"{}".to_string()
+        );
+
+        assert_eq!(
+            print_type_with_flow_modern_syntax(
+                &AST::ExactObject(ExactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("foo"),
+                        optional: true,
+                        read_only: false,
+                        value: AST::ExactObject(ExactObject::new(vec![
+                            Prop::KeyValuePair(KeyValuePairProp {
+                                key: intern!("nested_foo"),
+                                optional: true,
+                                read_only: false,
+                                value: AST::String,
+                            }),
+                            Prop::KeyValuePair(KeyValuePairProp {
+                                key: intern!("nested_foo2"),
+                                optional: false,
+                                read_only: true,
+                                value: AST::Number,
+                            }),
+                        ],)),
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("bar"),
+                        optional: false,
+                        read_only: true,
+                        value: AST::Number,
+                    }),
+                ],)),
+                true,
+            ),
+            r"{
+  readonly bar: number,
+  foo?: {
+    nested_foo?: string,
+    readonly nested_foo2: number,
+  },
+}"
+            .to_string()
+        );
+    }
+
+    #[test]
     fn inexact_object() {
         assert_eq!(
             print_type(&AST::InexactObject(InexactObject::new(Vec::new()))),
@@ -560,6 +624,35 @@ mod tests {
             ]))),
             r"{
   +bar?: number,
+  foo: string,
+  ...
+}"
+            .to_string()
+        );
+    }
+
+    #[test]
+    fn flow_modern_inexact_object_preserves_spread() {
+        assert_eq!(
+            print_type_with_flow_modern_syntax(
+                &AST::InexactObject(InexactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("foo"),
+                        optional: false,
+                        read_only: false,
+                        value: AST::String,
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("bar"),
+                        optional: true,
+                        read_only: true,
+                        value: AST::Number,
+                    })
+                ])),
+                true,
+            ),
+            r"{
+  readonly bar?: number,
   foo: string,
   ...
 }"
@@ -632,7 +725,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(false));
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(
             printer.into_string(),
@@ -642,7 +735,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(false));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

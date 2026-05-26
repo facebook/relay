@@ -51,26 +51,26 @@ fragment UserFrag2 on User {
 import type { PageFragment$fragmentType } from "PageFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ConcreateTypes$fragmentType: FragmentType;
-export type ConcreateTypes$data = {|
-  +actor: ?({|
-    +__typename: "Page",
-    +PageFragment: ?{|
-      +$fragmentSpreads: PageFragment$fragmentType,
-    |},
-    +id: string,
-  |} | {|
-    +__typename: "User",
-    +name: ?string,
-  |} | {|
+export type ConcreateTypes$data = {
+  readonly actor: ?({
+    readonly __typename: "Page",
+    readonly PageFragment: ?{
+      readonly $fragmentSpreads: PageFragment$fragmentType,
+    },
+    readonly id: string,
+  } | {
+    readonly __typename: "User",
+    readonly name: ?string,
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: ConcreateTypes$fragmentType,
-|};
+    readonly __typename: "%other",
+  }),
+  readonly $fragmentType: ConcreateTypes$fragmentType,
+};
 export type ConcreateTypes$key = {
-  +$data?: ConcreateTypes$data,
-  +$fragmentSpreads: ConcreateTypes$fragmentType,
+  readonly $data?: ConcreateTypes$data,
+  readonly $fragmentSpreads: ConcreateTypes$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
@@ -80,86 +80,86 @@ import type { UserFrag1$fragmentType } from "UserFrag1.graphql";
 import type { UserFrag2$fragmentType } from "UserFrag2.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentSpread$fragmentType: FragmentType;
-export type FragmentSpread$data = {|
-  +UserFrag1?: ?{|
-    +$fragmentSpreads: UserFrag1$fragmentType,
-  |},
-  +UserFrag2?: ?{|
-    +$fragmentSpreads: UserFrag2$fragmentType,
-  |},
-  +fragAndField: ?{|
-    +uri: ?string,
-    +$fragmentSpreads: PictureFragment$fragmentType,
-  |},
-  +id: string,
-  +justFrag: ?{|
-    +$fragmentSpreads: PictureFragment$fragmentType,
-  |},
-  +$fragmentSpreads: OtherFragment$fragmentType,
-  +$fragmentType: FragmentSpread$fragmentType,
-|};
+export type FragmentSpread$data = {
+  readonly UserFrag1?: ?{
+    readonly $fragmentSpreads: UserFrag1$fragmentType,
+  },
+  readonly UserFrag2?: ?{
+    readonly $fragmentSpreads: UserFrag2$fragmentType,
+  },
+  readonly fragAndField: ?{
+    readonly uri: ?string,
+    readonly $fragmentSpreads: PictureFragment$fragmentType,
+  },
+  readonly id: string,
+  readonly justFrag: ?{
+    readonly $fragmentSpreads: PictureFragment$fragmentType,
+  },
+  readonly $fragmentSpreads: OtherFragment$fragmentType,
+  readonly $fragmentType: FragmentSpread$fragmentType,
+};
 export type FragmentSpread$key = {
-  +$data?: FragmentSpread$data,
-  +$fragmentSpreads: FragmentSpread$fragmentType,
+  readonly $data?: FragmentSpread$data,
+  readonly $fragmentSpreads: FragmentSpread$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type OtherFragment$fragmentType: FragmentType;
-export type OtherFragment$data = {|
-  +__typename: string,
-  +$fragmentType: OtherFragment$fragmentType,
-|};
+export type OtherFragment$data = {
+  readonly __typename: string,
+  readonly $fragmentType: OtherFragment$fragmentType,
+};
 export type OtherFragment$key = {
-  +$data?: OtherFragment$data,
-  +$fragmentSpreads: OtherFragment$fragmentType,
+  readonly $data?: OtherFragment$data,
+  readonly $fragmentSpreads: OtherFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type PageFragment$fragmentType: FragmentType;
-export type PageFragment$data = {|
-  +__typename: "Page",
-  +$fragmentType: PageFragment$fragmentType,
-|};
+export type PageFragment$data = {
+  readonly __typename: "Page",
+  readonly $fragmentType: PageFragment$fragmentType,
+};
 export type PageFragment$key = {
-  +$data?: PageFragment$data,
-  +$fragmentSpreads: PageFragment$fragmentType,
+  readonly $data?: PageFragment$data,
+  readonly $fragmentSpreads: PageFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type PictureFragment$fragmentType: FragmentType;
-export type PictureFragment$data = {|
-  +__typename: "Image",
-  +$fragmentType: PictureFragment$fragmentType,
-|};
+export type PictureFragment$data = {
+  readonly __typename: "Image",
+  readonly $fragmentType: PictureFragment$fragmentType,
+};
 export type PictureFragment$key = {
-  +$data?: PictureFragment$data,
-  +$fragmentSpreads: PictureFragment$fragmentType,
+  readonly $data?: PictureFragment$data,
+  readonly $fragmentSpreads: PictureFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserFrag1$fragmentType: FragmentType;
-export type UserFrag1$data = {|
-  +__typename: "User",
-  +$fragmentType: UserFrag1$fragmentType,
-|};
+export type UserFrag1$data = {
+  readonly __typename: "User",
+  readonly $fragmentType: UserFrag1$fragmentType,
+};
 export type UserFrag1$key = {
-  +$data?: UserFrag1$data,
-  +$fragmentSpreads: UserFrag1$fragmentType,
+  readonly $data?: UserFrag1$data,
+  readonly $fragmentSpreads: UserFrag1$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserFrag2$fragmentType: FragmentType;
-export type UserFrag2$data = {|
-  +__typename: "User",
-  +$fragmentType: UserFrag2$fragmentType,
-|};
+export type UserFrag2$data = {
+  readonly __typename: "User",
+  readonly $fragmentType: UserFrag2$fragmentType,
+};
 export type UserFrag2$key = {
-  +$data?: UserFrag2$data,
-  +$fragmentSpreads: UserFrag2$fragmentType,
+  readonly $data?: UserFrag2$data,
+  readonly $fragmentSpreads: UserFrag2$fragmentType,
   ...
 };

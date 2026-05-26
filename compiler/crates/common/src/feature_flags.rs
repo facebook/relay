@@ -208,6 +208,12 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enforce_module_name_prefix_for_non_haste: bool,
 
+    /// Use modern Flow syntax for generated object types.
+    /// This enables gradual rollout of exact object type syntax and readonly
+    /// properties across files.
+    #[serde(default)]
+    pub flow_modern_syntax: FeatureFlag,
+
     /// When enabled, the `@nogrep` annotation is included in the docblock
     /// header of generated artifacts. This annotation was historically always
     /// emitted but is no longer needed. This flag allows incremental removal
@@ -254,6 +260,7 @@ impl Default for FeatureFlags {
             enable_shadow_resolvers: Default::default(),
             allow_legacy_relay_resolver_tag: Default::default(),
             enforce_module_name_prefix_for_non_haste: Default::default(),
+            flow_modern_syntax: Default::default(),
             emit_nogrep_annotation: Default::default(),
             disable_more_precise_abstract_selection_raw_response_type: Default::default(),
 

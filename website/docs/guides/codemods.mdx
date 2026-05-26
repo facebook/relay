@@ -24,6 +24,8 @@ Usage: relay codemod [OPTIONS] [CONFIG] <COMMAND>
 
 Commands:
   mark-dangerous-conditional-fragment-spreads  Marks unaliased conditional fragment spreads as @dangerously_unaliased_fixme
+  remove-unnecessary-required-directives       Removes @required directives from non-null fields within @throwOnFieldError fragments and operations.
+  fix-all                                      Runs all Relay compiler transforms and fixes all fixable diagnostics
   help                                         Print this message or the help of the given subcommand(s)
 
 Arguments:
@@ -52,7 +54,7 @@ can be enabled, which will ensure any future ambiguous fragment spreads must be
 aliased.
 
 Since this codemod can potentially modify many files, there is an optional
-`--rollout` parameter which, if used alongside the
+`--rollout-percentage` parameter (shorthand: `-r`) which, if used alongside the
 `enforce_fragment_alias_where_ambiguous` feature flag in rollout mode, allows
 progressive codemod and enforcement of this validation.
 
@@ -64,3 +66,14 @@ directives from non-null fields within
 fragments and operations, or linked fields with
 [`@catch`](../guides/catch-directive.mdx), where the compiler is certain that the
 directive does not change the generated types for the data being fetched.
+
+### fix-all
+
+Runs all Relay compiler transforms and automatically applies fixes for every
+fixable diagnostic. This is a convenient catch-all codemod to apply when
+upgrading Relay versions — run it after updating the package to repair any
+issues the compiler now flags:
+
+```sh
+relay codemod fix-all
+```

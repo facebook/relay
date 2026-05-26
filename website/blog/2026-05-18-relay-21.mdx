@@ -18,11 +18,11 @@ Relay v21.0.0 brings first-party TypeScript support, modernized Flow type genera
 
 **Relay Resolvers -- new syntax required:** The `enable_legacy_verbose_resolver_syntax` flag has been removed. The legacy verbose docblock syntax (`@onType`, `@onInterface`, `@fieldName`, `@edgeTo`) no longer works. In addition, we've replaced the generic `@RelayResolver` tag with more specific `@relayField` and `@relayType` tags. The Relay compiler can automatically migrate you to this new syntax via the `relay-compiler codemod fix-all` command. If you're not ready to migrate, you can enable the `allow_legacy_relay_resolver_tag` feature flag in your [compiler config file](https://relay.dev/docs/next/getting-started/compiler-config/).
 
-
-
 **`@oneOf` inputs:** `@oneOf` input types now generate a stricter discriminated union type that only permits one property at a time, instead of an object with all optional fields. This catches bugs at compile time where multiple fields were incorrectly set simultaneously. You can opt out via `oneOfType: "relaxed"` in compiler config if needed.
 
 ### New Features
+
+**Filename prefix no longer required:** Relay no longer requires fragment, query, and mutation names to be prefixed with the name of the file in which they appear. Historically Relay was designed around Meta's internal module resolution system "Haste" which required all modules to have a globally unique filename. Relay required all fragments, queries, and mutations to be prefixed with that filename to make finding definitions easier. However, this requirement provided little value to our open source users and added significant friction, and so the restriction has been removed for non-Haste projects.
 
 **`@catch` expansion:** `@catch` now works on `@connection` fields and client edge fields, letting you gracefully handle field errors in pagination and client-edge scenarios instead of throwing.
 

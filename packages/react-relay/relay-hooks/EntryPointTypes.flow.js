@@ -197,7 +197,7 @@ export type PreloadProps<
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = Readonly<{
   entryPoints?: {
-    +[K in keyof TPreloadedEntryPoints]?: ?ThinNestedEntryPointParams,
+    readonly [K in keyof TPreloadedEntryPoints]?: ?ThinNestedEntryPointParams,
   },
   extraProps?: TExtraProps,
   queries?: ExtractQueryTypes<TEnvironmentProviderOptions, TPreloadedQueries>,

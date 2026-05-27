@@ -208,6 +208,10 @@ impl<'program> SubscriptionTransform<'program> {
                             .unwrap()
                             .name
                             .location,
+                        module_source_location: fragment_spread
+                            .fragment
+                            .location
+                            .source_location(),
                         location: name_location,
                         no_inline: false,
                     }

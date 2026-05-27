@@ -1,0 +1,13 @@
+# Organizing GraphQL Operations
+
+In Relay, GraphQL operation and fragment names must be globally unique and must end with the GraphQL operation type (e.g. `Query`, `Mutation`, `Subscription`).
+
+### Recommended Organization For Mutations and Subscriptions
+
+Put Mutations in their own hook module so the name is closer to _what the mutation does_ rather than _which component invokes it_. If the module name is correctly descriptive, it is fine to declare it in the same file.
+
+If you are adding a Mutation for `Post`, like adding a comment to a post, you may create a new file titled `useAddPostComment.js`. Your mutation (in this file) will then be named `useAddPostCommentMutation`, which is a perfectly descriptive name.
+
+### Recommended Organization for Queries and Fragments
+
+Root components should have a single query that is tightly coupled to a component, since it describes that component's data dependencies. Queries and fragments should co-locate with their data-use code.

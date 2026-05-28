@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f4ae16968134971fac3e74162e89c4af>>
+ * @generated SignedSource<<10a2029a049cf1343dff5548cc6e61b2>>
  */
 
 mod relay_compiler_integration;
@@ -353,6 +353,13 @@ async fn mixed_interface_nested_object_type_not_refined() {
     let input = include_str!("relay_compiler_integration/fixtures/mixed_interface_nested_object_type_not_refined.input");
     let expected = include_str!("relay_compiler_integration/fixtures/mixed_interface_nested_object_type_not_refined.expected");
     test_fixture(transform_fixture, file!(), "mixed_interface_nested_object_type_not_refined.input", "relay_compiler_integration/fixtures/mixed_interface_nested_object_type_not_refined.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn mixed_interface_nested_two_levels() {
+    let input = include_str!("relay_compiler_integration/fixtures/mixed_interface_nested_two_levels.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/mixed_interface_nested_two_levels.expected");
+    test_fixture(transform_fixture, file!(), "mixed_interface_nested_two_levels.input", "relay_compiler_integration/fixtures/mixed_interface_nested_two_levels.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -587,6 +587,25 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 .transform_selections(&field.selections)
                 .replace_or_else(|| field.selections.clone());
 
+            // When the interface is mixed (server + client resolver implementors),
+            // relay_resolvers_abstract_types has already expanded the selections into
+            // per-concrete-type inline fragments — including fragments for client types
+            // (e.g. `... on BestFriend { wheels @resolver }`). These client-type
+            // fragments must not appear in the server refetch query for a server
+            // implementor (e.g. Bicycle), so strip them before generating each query.
+            let server_selections = new_selections
+                .iter()
+                .filter(|selection| {
+                    if let Selection::InlineFragment(fragment) = selection
+                        && let Some(type_condition) = fragment.type_condition
+                    {
+                        return !self.program.schema.is_extension_type(type_condition);
+                    }
+                    true
+                })
+                .cloned()
+                .collect::<Vec<_>>();
+
             let mut ops: Vec<ClientEdgeServerObjectOperation> = Vec::new();
             for object_id in &server_type_object_ids {
                 let object = self.program.schema.object(*object_id);
@@ -595,7 +614,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     self.generate_client_edge_query(
                         query_name,
                         Type::Object(*object_id),
-                        new_selections.clone(),
+                        server_selections.clone(),
                         {
                             let schema_field =
                                 self.program.schema.field(field.definition.item);

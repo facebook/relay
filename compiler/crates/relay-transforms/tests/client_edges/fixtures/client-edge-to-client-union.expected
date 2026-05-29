@@ -155,9 +155,6 @@ fragment RefetchableClientEdgeQuery_FeedbackFragmentType_feedback_as_union on Co
 #     is_prefetchable_pagination: false,
 # }
  {
-  ... on Like {
-    __typename
-  }
   id
 }
 

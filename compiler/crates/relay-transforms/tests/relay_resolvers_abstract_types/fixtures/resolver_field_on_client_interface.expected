@@ -20,21 +20,10 @@ type Persian implements Cat {
 }
 ==================================== OUTPUT ===================================
 fragment resolverFieldOnClientInterfaceFragment on Cat {
-  __id @__RelayResolverMetadata
-  # RelayResolverMetadata {
-  #     field_id: FieldID(530),
-  #     import_path: "CatResolver",
-  #     import_name: None,
-  #     field_alias: None,
-  #     field_path: "description",
-  #     field_arguments: [],
-  #     fragment_arguments: [],
-  #     live: false,
-  #     output_type_info: Legacy,
-  #     fragment_data_injection_mode: None,
-  #     type_confirmed: false,
-  #     resolver_type: ResolverModule,
-  #     return_fragment: None,
-  # }
-  
+  ... on Tabby {
+    description
+  }
+  ... on Persian {
+    description
+  }
 }

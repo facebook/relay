@@ -33,7 +33,6 @@ extend type Query {
 ==================================== OUTPUT ===================================
 query edgeToAbstractTypeWithInlineFragmentOnAbstractTypeQuery {
   cat {
-    name
     ... on Cat {
       ... on Tabby {
         __id @__RelayResolverMetadata
@@ -57,6 +56,12 @@ query edgeToAbstractTypeWithInlineFragmentOnAbstractTypeQuery {
       ... on Persian {
         description
       }
+    }
+    ... on Tabby {
+      name
+    }
+    ... on Persian {
+      name
     }
   }
 }

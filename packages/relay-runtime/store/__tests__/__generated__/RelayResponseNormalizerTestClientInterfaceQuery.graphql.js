@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f53248a59d09b5e43300286dd55670fb>>
+ * @generated SignedSource<<3bf5cbcd402cdd5525979bf6ba35b917>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -52,7 +52,16 @@ v1 = {
     (v0/*:: as any*/)
   ],
   "storageKey": null
-};
+},
+v2 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
+  }
+];
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -105,11 +114,16 @@ return {
             "selections": [
               (v0/*:: as any*/),
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "description",
-                "storageKey": null
+                "kind": "InlineFragment",
+                "selections": (v2/*:: as any*/),
+                "type": "ClientTypeImplementingClientInterface",
+                "abstractKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": (v2/*:: as any*/),
+                "type": "OtherClientTypeImplementingClientInterface",
+                "abstractKey": null
               }
             ],
             "storageKey": null

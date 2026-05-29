@@ -38,8 +38,8 @@ extend type Query {
 query edgeToAbstractTypeWithInlineFragmentQuery {
   cat {
     ... {
-      name
       ... on Tabby {
+        name
         __id @__RelayResolverMetadata
         # RelayResolverMetadata {
         #     field_id: FieldID(532),
@@ -59,6 +59,7 @@ query edgeToAbstractTypeWithInlineFragmentQuery {
         
       }
       ... on Persian {
+        name
         description
       }
     }

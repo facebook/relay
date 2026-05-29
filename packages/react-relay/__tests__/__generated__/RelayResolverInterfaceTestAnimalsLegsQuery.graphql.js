@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2f253172de1b684a7721e669b9e7501b>>
+ * @generated SignedSource<<e0f2f76a2cd8022c8c38670b5ec7e577>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -75,7 +75,19 @@ v2 = {
 },
 v3 = [
   (v2/*:: as any*/)
-];
+],
+v4 = {
+  "kind": "InlineFragment",
+  "selections": (v3/*:: as any*/),
+  "type": "Cat",
+  "abstractKey": null
+},
+v5 = {
+  "kind": "InlineFragment",
+  "selections": (v3/*:: as any*/),
+  "type": "Fish",
+  "abstractKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*:: as any*/),
@@ -134,12 +146,19 @@ return {
           "name": "animals",
           "plural": true,
           "selections": [
-            (v2/*:: as any*/),
             {
               "args": null,
               "kind": "FragmentSpread",
               "name": "RelayResolverInterfaceTestAnimalLegsFragment"
-            }
+            },
+            {
+              "kind": "InlineFragment",
+              "selections": (v3/*:: as any*/),
+              "type": "Chicken",
+              "abstractKey": null
+            },
+            (v4/*:: as any*/),
+            (v5/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -206,12 +225,7 @@ return {
                       {
                         "name": "__relay_model_instance",
                         "args": null,
-                        "fragment": {
-                          "kind": "InlineFragment",
-                          "selections": (v3/*:: as any*/),
-                          "type": "Cat",
-                          "abstractKey": null
-                        },
+                        "fragment": (v4/*:: as any*/),
                         "kind": "RelayResolver",
                         "storageKey": null,
                         "isOutputType": false
@@ -240,12 +254,7 @@ return {
                       {
                         "name": "__relay_model_instance",
                         "args": null,
-                        "fragment": {
-                          "kind": "InlineFragment",
-                          "selections": (v3/*:: as any*/),
-                          "type": "Fish",
-                          "abstractKey": null
-                        },
+                        "fragment": (v5/*:: as any*/),
                         "kind": "RelayResolver",
                         "storageKey": null,
                         "isOutputType": false

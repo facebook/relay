@@ -31,7 +31,6 @@ extend type Query {
 ==================================== OUTPUT ===================================
 fragment inlineFragmentWithoutTypeConditionOnInterfaceFragment on Cat {
   ... {
-    name
     ... on Tabby {
       __id @__RelayResolverMetadata
       # RelayResolverMetadata {
@@ -50,9 +49,11 @@ fragment inlineFragmentWithoutTypeConditionOnInterfaceFragment on Cat {
       #     return_fragment: None,
       # }
       
+      name
     }
     ... on Persian {
       description
+      name
     }
   }
 }

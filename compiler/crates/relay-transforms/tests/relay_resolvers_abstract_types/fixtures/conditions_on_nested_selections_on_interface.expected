@@ -42,7 +42,12 @@ type Ball implements Toy {
 }
 ==================================== OUTPUT ===================================
 fragment conditionsOnNestedSelectionsOnInterfaceFragment on Cat {
-  name @include(if: $has_owner)
+  ... on Tabby @include(if: $has_owner) {
+    name
+  }
+  ... on Persian @include(if: $has_owner) {
+    name
+  }
   ... on Tabby @include(if: $has_owner) {
     __id @__RelayResolverMetadata
     # RelayResolverMetadata {
@@ -65,28 +70,56 @@ fragment conditionsOnNestedSelectionsOnInterfaceFragment on Cat {
   ... on Persian @include(if: $has_owner) {
     description
   }
-  favorite_toy {
-    ... on Yarn @include(if: $happy_cat) {
-      __id @__RelayResolverMetadata
-      # RelayResolverMetadata {
-      #     field_id: FieldID(540),
-      #     import_path: "YarnResolver",
-      #     import_name: None,
-      #     field_alias: None,
-      #     field_path: "favorite_toy.brand",
-      #     field_arguments: [],
-      #     fragment_arguments: [],
-      #     live: false,
-      #     output_type_info: Legacy,
-      #     fragment_data_injection_mode: None,
-      #     type_confirmed: false,
-      #     resolver_type: ResolverModule,
-      #     return_fragment: None,
-      # }
-      
+  ... on Tabby {
+    favorite_toy {
+      ... on Yarn @include(if: $happy_cat) {
+        __id @__RelayResolverMetadata
+        # RelayResolverMetadata {
+        #     field_id: FieldID(540),
+        #     import_path: "YarnResolver",
+        #     import_name: None,
+        #     field_alias: None,
+        #     field_path: "favorite_toy.brand",
+        #     field_arguments: [],
+        #     fragment_arguments: [],
+        #     live: false,
+        #     output_type_info: Legacy,
+        #     fragment_data_injection_mode: None,
+        #     type_confirmed: false,
+        #     resolver_type: ResolverModule,
+        #     return_fragment: None,
+        # }
+        
+      }
+      ... on Ball @include(if: $happy_cat) {
+        brand
+      }
     }
-    ... on Ball @include(if: $happy_cat) {
-      brand
+  }
+  ... on Persian {
+    favorite_toy {
+      ... on Yarn @include(if: $happy_cat) {
+        __id @__RelayResolverMetadata
+        # RelayResolverMetadata {
+        #     field_id: FieldID(540),
+        #     import_path: "YarnResolver",
+        #     import_name: None,
+        #     field_alias: None,
+        #     field_path: "favorite_toy.brand",
+        #     field_arguments: [],
+        #     fragment_arguments: [],
+        #     live: false,
+        #     output_type_info: Legacy,
+        #     fragment_data_injection_mode: None,
+        #     type_confirmed: false,
+        #     resolver_type: ResolverModule,
+        #     return_fragment: None,
+        # }
+        
+      }
+      ... on Ball @include(if: $happy_cat) {
+        brand
+      }
     }
   }
 }

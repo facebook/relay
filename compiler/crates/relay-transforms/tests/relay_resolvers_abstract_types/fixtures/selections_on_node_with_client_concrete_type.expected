@@ -17,6 +17,32 @@ type ClientType implements Node {
 query selectionsOnNodeQuery {
   node(id: 4) {
     __typename
-    id
+    ... on Bicycle {
+      id
+    }
+    ... on Comment {
+      id
+    }
+    ... on Feedback {
+      id
+    }
+    ... on Page {
+      id
+    }
+    ... on PhotoStory {
+      id
+    }
+    ... on Story {
+      id
+    }
+    ... on User {
+      id
+    }
+    ... on FetchableType {
+      id
+    }
+    ... on ClientType {
+      id
+    }
   }
 }

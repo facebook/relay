@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f85d249d1cb6bc6d2c6c06614ac7508b>>
+ * @generated SignedSource<<fda4162276cdf260560c34014447097c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -86,15 +86,29 @@ v4 = [
     "alias": null,
     "args": null,
     "kind": "ScalarField",
-    "name": "__typename",
+    "name": "description",
     "storageKey": null
-  },
+  }
+],
+v5 = [
   {
     "alias": null,
     "args": null,
     "kind": "ScalarField",
-    "name": "description",
+    "name": "__typename",
     "storageKey": null
+  },
+  {
+    "kind": "InlineFragment",
+    "selections": (v4/*:: as any*/),
+    "type": "ClientTypeImplementingClientInterface",
+    "abstractKey": null
+  },
+  {
+    "kind": "InlineFragment",
+    "selections": (v4/*:: as any*/),
+    "type": "OtherClientTypeImplementingClientInterface",
+    "abstractKey": null
   }
 ];
 return {
@@ -235,7 +249,7 @@ return {
                       "kind": "LinkedField",
                       "name": "some_interface",
                       "plural": false,
-                      "selections": (v4/*:: as any*/),
+                      "selections": (v5/*:: as any*/),
                       "storageKey": null
                     }
                   },
@@ -264,7 +278,7 @@ return {
                           "kind": "LinkedField",
                           "name": "client_interface",
                           "plural": false,
-                          "selections": (v4/*:: as any*/),
+                          "selections": (v5/*:: as any*/),
                           "storageKey": null
                         }
                       ],

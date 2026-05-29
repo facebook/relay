@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d7283d9ea54226a3a78903eca9f75fb4>>
+ * @generated SignedSource<<fe9a43fa799fa0643a638d2fd2d29e0b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -30,7 +30,17 @@ export type DataCheckerTestClient2Interface$key = {
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
+  }
+];
+return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
@@ -40,11 +50,16 @@ var node/*: ReaderFragment*/ = {
       "kind": "ClientExtension",
       "selections": [
         {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "description",
-          "storageKey": null
+          "kind": "InlineFragment",
+          "selections": (v0/*:: as any*/),
+          "type": "ClientTypeImplementingClientInterface",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": (v0/*:: as any*/),
+          "type": "OtherClientTypeImplementingClientInterface",
+          "abstractKey": null
         }
       ]
     }
@@ -52,6 +67,7 @@ var node/*: ReaderFragment*/ = {
   "type": "ClientInterface",
   "abstractKey": "__isClientInterface"
 };
+})();
 
 if (__DEV__) {
   (node/*:: as any*/).hash = "9650b9ade2708e969935ffb73b26a4c8";

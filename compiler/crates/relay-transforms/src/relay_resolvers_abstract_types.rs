@@ -152,10 +152,15 @@ impl RelayResolverAbstractTypesTransform<'_> {
                 .named_field(Type::Object(*object_id), selection_name)
                 .expect("Expected field to be defined on concrete type");
             let concrete_field = self.program.schema.field(concrete_field_id);
-            concrete_field
-                .directives
-                .iter()
-                .any(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
+            // A field is a "different implementation" if it's either an explicit
+            // resolver or any extension field (e.g. a synthetic ID field on a
+            // client model type that has no @relay_resolver directive but is still
+            // client-only and must be fanned out per concrete type).
+            concrete_field.is_extension
+                || concrete_field
+                    .directives
+                    .iter()
+                    .any(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
         })
     }
 

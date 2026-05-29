@@ -31,7 +31,12 @@ extend type Query {
 ==================================== OUTPUT ===================================
 fragment nestedConditionOnInlineFragmentOnInterfaceFragment on Cat {
   ... @include(if: $has_owner) {
-    name @include(if: $has_name)
+    ... on Tabby @include(if: $has_name) {
+      name
+    }
+    ... on Persian @include(if: $has_name) {
+      name
+    }
     ... on Tabby {
       __id @__RelayResolverMetadata
       # RelayResolverMetadata {

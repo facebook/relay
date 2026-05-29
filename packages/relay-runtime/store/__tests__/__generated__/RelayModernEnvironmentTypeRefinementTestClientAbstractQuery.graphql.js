@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c50f7b5b77179939c08871624389b7a6>>
+ * @generated SignedSource<<7161069d8034ae7e1528b39c02830f49>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -30,7 +30,17 @@ export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery = {|
 |};
 */
 
-var node/*: ClientRequest*/ = {
+var node/*: ClientRequest*/ = (function(){
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
+  }
+];
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -87,11 +97,16 @@ var node/*: ClientRequest*/ = {
                 "storageKey": null
               },
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "description",
-                "storageKey": null
+                "kind": "InlineFragment",
+                "selections": (v0/*:: as any*/),
+                "type": "ClientTypeImplementingClientInterface",
+                "abstractKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": (v0/*:: as any*/),
+                "type": "OtherClientTypeImplementingClientInterface",
+                "abstractKey": null
               }
             ],
             "storageKey": null
@@ -115,6 +130,7 @@ var node/*: ClientRequest*/ = {
     "text": null
   }
 };
+})();
 
 if (__DEV__) {
   (node/*:: as any*/).hash = "f6eba7c5be21b5bc892e69ffa6f017d6";

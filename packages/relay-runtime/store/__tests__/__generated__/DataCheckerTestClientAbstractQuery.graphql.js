@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6179679d630cf4e74b9f00017850fb99>>
+ * @generated SignedSource<<2332f2bd66e2df2f67e50ca131a94013>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -30,7 +30,17 @@ export type DataCheckerTestClientAbstractQuery = {|
 |};
 */
 
-var node/*: ClientRequest*/ = {
+var node/*: ClientRequest*/ = (function(){
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
+  }
+];
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -87,11 +97,16 @@ var node/*: ClientRequest*/ = {
                 "storageKey": null
               },
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "description",
-                "storageKey": null
+                "kind": "InlineFragment",
+                "selections": (v0/*:: as any*/),
+                "type": "ClientTypeImplementingClientInterface",
+                "abstractKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": (v0/*:: as any*/),
+                "type": "OtherClientTypeImplementingClientInterface",
+                "abstractKey": null
               }
             ],
             "storageKey": null
@@ -115,6 +130,7 @@ var node/*: ClientRequest*/ = {
     "text": null
   }
 };
+})();
 
 if (__DEV__) {
   (node/*:: as any*/).hash = "621e19afb09991109622110ee40f5f61";

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2203425d80706e29795c81001fb37e5f>>
+ * @generated SignedSource<<5a779ca6064a10abafccc00f0e029c61>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -30,7 +30,17 @@ export type RelayResponseNormalizerTestClientInterfaceFragment$key = {
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
+  }
+];
+return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
@@ -40,11 +50,16 @@ var node/*: ReaderFragment*/ = {
       "kind": "ClientExtension",
       "selections": [
         {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "description",
-          "storageKey": null
+          "kind": "InlineFragment",
+          "selections": (v0/*:: as any*/),
+          "type": "ClientTypeImplementingClientInterface",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": (v0/*:: as any*/),
+          "type": "OtherClientTypeImplementingClientInterface",
+          "abstractKey": null
         }
       ]
     }
@@ -52,6 +67,7 @@ var node/*: ReaderFragment*/ = {
   "type": "ClientInterface",
   "abstractKey": "__isClientInterface"
 };
+})();
 
 if (__DEV__) {
   (node/*:: as any*/).hash = "8750bf96f36b4fbad1dd3506ec7d4c1d";

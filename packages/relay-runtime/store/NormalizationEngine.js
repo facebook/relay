@@ -38,6 +38,7 @@ import type {
 const {stableCopy} = require('../util/stableCopy');
 const {generateClientID} = require('./ClientID');
 const defaultGetDataID = require('./defaultGetDataID');
+const {getLocalVariables} = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {ROOT_ID, ROOT_TYPE, getStorageKey} = require('./RelayStoreUtils');
@@ -693,17 +694,24 @@ class NormalizationEngine {
   ): NormalizationResult {
     const operationNode =
       node.kind === 'SplitOperation' ? node : node.operation;
-    // TODO(skyyao): for SplitOperation followups, bind variables via
-    // getLocalVariables(followup.variables, operationNode.argumentDefinitions,
-    // followup.args) like OperationExecutor._normalizeFollowupPayload — current
-    // pass-through breaks @module argument binding.
     // TODO(skyyao): propagate is_final extension on the synthetic response when
     // in loading_final state, to enable nested defer/3D processing on
     // non-streaming server mode (see OperationExecutor.js:864-870).
+    // For SplitOperation followups, resolve the operation's argumentDefinitions
+    // against the call-site args so $arg references inside the SplitOperation
+    // bind correctly. Mirrors OperationExecutor._normalizeFollowupPayload.
+    const variables =
+      operationNode.kind === 'SplitOperation'
+        ? getLocalVariables(
+            followup.variables,
+            operationNode.argumentDefinitions,
+            followup.args,
+          )
+        : followup.variables;
     const selector = createNormalizationSelector(
       operationNode,
       followup.dataID,
-      followup.variables,
+      variables,
     );
 
     const payload = this._normalizeResponse(

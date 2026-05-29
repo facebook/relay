@@ -428,38 +428,35 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         // `exec_time_resolvers_enabled_provider` make the query use exec time resolvers, for a query with
         //  @exec_time_resolvers but without the exec time provider argument, exec time is enabled by default.
         // `use_experimental_provider` make the exec time query use the experimental exec time exeuctor in runtime
-        let (exec_time_resolvers_enabled_provider, use_experimental_provider) = if let Some(
-            directive,
-        ) =
-            operation.directives.named(*EXEC_TIME_RESOLVERS)
-        {
-            (directive
+        // `use_network_normalization_provider` make the query opt in to the executeWithNetwork coordinated
+        //  publish path at runtime. Used to explicitly route variable-gated S2C queries.
+        let (
+            exec_time_resolvers_enabled_provider,
+            use_experimental_provider,
+            use_network_normalization_provider,
+        ) = if let Some(directive) = operation.directives.named(*EXEC_TIME_RESOLVERS) {
+            let parse_provider_arg = |arg_name: ArgumentName| {
+                directive
                     .arguments
-                    .named(*EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT)
+                    .named(arg_name)
                     .map(|arg| match &arg.value.item {
                         Value::Constant(ConstantValue::String(cons)) => WithLocation {
                             item: *cons,
                             location: arg.value.location,
                         },
                         _ => panic!(
-                            "The enabled argument in exec_time_resolvers directive should be the string name of your provider file."
+                            "The {} argument in exec_time_resolvers directive should be the string name of your provider file.",
+                            arg_name.0.lookup()
                         ),
-                    }),
-                    directive
-                    .arguments
-                    .named(ArgumentName(intern!("useExperimentalProvider")))
-                    .map(|arg| match &arg.value.item {
-                        Value::Constant(ConstantValue::String(cons)) => WithLocation {
-                            item: *cons,
-                            location: arg.value.location,
-                        },
-                        _ => panic!(
-                            "The enabled argument in exec_time_resolvers directive should be the string name of your provider file."
-                        ),
-                    }),
-                )
+                    })
+            };
+            (
+                parse_provider_arg(*EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT),
+                parse_provider_arg(ArgumentName(intern!("useExperimentalProvider"))),
+                parse_provider_arg(ArgumentName(intern!("useNetworkNormalizationProvider"))),
+            )
         } else {
-            (None, None)
+            (None, None, None)
         };
 
         let mut context = ContextualMetadata {
@@ -538,6 +535,24 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                                 import_name: ModuleImportName::Default(
                                     use_experimental_provider.item,
                                 ),
+                            }),
+                        })
+                    }
+                    if let Some(provider) = use_network_normalization_provider {
+                        let mut provider_path =
+                            PathBuf::from(provider.location.source_location().path());
+                        provider_path.pop();
+                        provider_path.push(PathBuf::from(provider.item.lookup()));
+                        let artifact_path = self
+                            .project_config
+                            .artifact_path_for_definition(self.definition_source_location);
+                        fields.push(ObjectEntry {
+                            key: "use_network_normalization_provider".intern(),
+                            value: Primitive::JSModuleDependency(JSModuleDependency {
+                                path: self
+                                    .project_config
+                                    .js_module_import_identifier(&artifact_path, &provider_path),
+                                import_name: ModuleImportName::Default(provider.item),
                             }),
                         })
                     }

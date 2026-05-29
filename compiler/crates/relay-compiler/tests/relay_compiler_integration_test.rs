@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<10a2029a049cf1343dff5548cc6e61b2>>
+ * @generated SignedSource<<663cc1a70c8cd4c80da35f4823b6df51>>
  */
 
 mod relay_compiler_integration;
@@ -206,6 +206,13 @@ async fn exec_time_resolver_server_to_client_has_flag() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_server_to_client_has_flag.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_server_to_client_has_flag.expected");
     test_fixture(transform_fixture, file!(), "exec_time_resolver_server_to_client_has_flag.input", "relay_compiler_integration/fixtures/exec_time_resolver_server_to_client_has_flag.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_resolver_use_network_normalization_provider() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_use_network_normalization_provider.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_use_network_normalization_provider.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_use_network_normalization_provider.input", "relay_compiler_integration/fixtures/exec_time_resolver_use_network_normalization_provider.expected", input, expected).await;
 }
 
 #[tokio::test]

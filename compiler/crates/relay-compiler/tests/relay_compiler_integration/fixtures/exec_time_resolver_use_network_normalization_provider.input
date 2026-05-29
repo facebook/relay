@@ -1,0 +1,35 @@
+//- FooQuery.js
+graphql`query FooQuery
+  @exec_time_resolvers(
+    useNetworkNormalizationProvider: "FooNetworkNormalization.relayprovider"
+  ) {
+  me {
+    name
+  }
+}`
+
+//- FooNetworkNormalization.relayprovider.js
+/**
+ * @RelayProvider as: FooNetworkNormalizationProvider
+ */
+const FooNetworkNormalizationProvider = {
+  get(): boolean {
+    return false;
+  },
+};
+
+module.exports = FooNetworkNormalizationProvider;
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { id: ID!, name: String }

@@ -31,6 +31,13 @@ export type NormalizationOperation = {
   readonly use_exec_time_resolvers?: boolean,
   readonly exec_time_resolvers_enabled_provider?: ProvidedVariableType,
   readonly use_experimental_provider?: ProvidedVariableType,
+  /**
+   * When present, calling `.get()` returns whether the executeWithNetwork
+   * coordinated-publish path should be used for this query. Lets engineers
+   * opt into network normalization explicitly (e.g., for queries that select
+   * S2C resolver fields under a rollout-gated `@include`).
+   */
+  readonly use_network_normalization_provider?: ProvidedVariableType,
 };
 
 export type NormalizationHandle =

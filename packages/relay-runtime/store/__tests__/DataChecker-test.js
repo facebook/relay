@@ -1,62 +1,88 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {NormalizationLinkedField} from '../../util/NormalizationNode';
+import type {ReaderLinkedField} from '../../util/ReaderNode';
+import type {Variables} from '../../util/RelayRuntimeTypes';
+import type {ReadOnlyRecordProxy, RecordSourceJSON} from '../RelayStoreTypes';
+import type {
+  DataCheckerTest6Query$data,
+  DataCheckerTest6Query$variables,
+} from './__generated__/DataCheckerTest6Query.graphql';
+import type {
+  DataCheckerTest9Query$data,
+  DataCheckerTest9Query$variables,
+} from './__generated__/DataCheckerTest9Query.graphql';
+import type {
+  DataCheckerTestQuery$data,
+  DataCheckerTestQuery$variables,
+} from './__generated__/DataCheckerTestQuery.graphql';
+import type {Query as $IMPORTED_TYPE$_Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernRecord = require('../RelayModernRecord');
+const {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+} = require('../../multi-actor-environment/ActorIdentifier');
+const {getRequest, graphql} = require('../../query/GraphQLTag');
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
+const {check} = require('../DataChecker');
+const defaultGetDataID = require('../defaultGetDataID');
+const {createNormalizationSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
-
-const defaultGetDataID = require('../defaultGetDataID');
-const getRelayHandleKey = require('../../util/getRelayHandleKey');
-
-const {graphql, getRequest} = require('../../query/GraphQLTag');
-const {check} = require('../DataChecker');
-const {createNormalizationSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateTypeID, TYPE_SCHEMA_TYPE} = require('../TypeID');
+const {TYPE_SCHEMA_TYPE, generateTypeID} = require('../TypeID');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 // TODO:
 // You may see some of the "__FlowFixMe__" in the calls to `createNormalizationSelector`.
 // This is because in this test we're relying on similarities between Reader and Normalization nodes during runtime.
-// This is not correct, and Flow is reporting these errors correctly. We need to prioritze fixing this.
+// This is not correct, and Flow is reporting these errors correctly. We need to prioritize fixing this.
 
 describe('check()', () => {
-  let Query;
-  let sampleData;
+  let Query:
+    | $IMPORTED_TYPE$_Query<
+        DataCheckerTest6Query$variables,
+        DataCheckerTest6Query$data,
+      >
+    | $IMPORTED_TYPE$_Query<
+        DataCheckerTest9Query$variables,
+        DataCheckerTest9Query$data,
+      >
+    | $IMPORTED_TYPE$_Query<
+        DataCheckerTestQuery$variables,
+        DataCheckerTestQuery$data,
+      >;
+  let sampleData: RecordSourceJSON;
   beforeEach(() => {
     sampleData = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
         firstName: 'Alice',
         'friends(first:3)': {__ref: 'client:1'},
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:4'},
       },
       '2': {
         __id: '2',
         __typename: 'User',
-        id: '2',
         firstName: 'Bob',
+        id: '2',
       },
       '3': {
         __id: '3',
         __typename: 'User',
-        id: '3',
         firstName: 'Claire',
+        id: '3',
       },
       'client:1': {
         __id: 'client:1',
@@ -122,8 +148,9 @@ describe('check()', () => {
     const source = RelayRecordSource.create(sampleData);
     const target = RelayRecordSource.create();
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
         id: '1',
         size: 32,
@@ -133,27 +160,27 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'available',
       mostRecentlyInvalidatedAt: null,
+      status: 'available',
     });
     expect(target.size()).toBe(0);
   });
 
   it('reads fragment data', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
         firstName: 'Alice',
         'friends(first:1)': {__ref: 'client:1'},
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:3'},
       },
       '2': {
         __id: '2',
         __typename: 'User',
-        id: '2',
         firstName: 'Bob',
+        id: '2',
       },
       'client:1': {
         __id: 'client:1',
@@ -178,7 +205,7 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     const BarFragment = graphql`
       fragment DataCheckerTestFragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+      @argumentDefinitions(size: {type: "[Int]"}) {
         id
         firstName
         friends(first: 1) {
@@ -196,9 +223,10 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
-      createNormalizationSelector((BarFragment: $FlowFixMe), '1', {
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(BarFragment as $FlowFixMe, '1', {
         size: 32,
       }),
       [],
@@ -206,21 +234,22 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'available',
       mostRecentlyInvalidatedAt: null,
+      status: 'available',
     });
     expect(target.size()).toBe(0);
   });
 
   it('reads handle fields in fragment', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
-        'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
+        id: '1',
+        'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
         __id: 'client:2',
@@ -243,26 +272,27 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
-      createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(Fragment as $FlowFixMe, '1', {}),
       [],
       null,
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'available',
       mostRecentlyInvalidatedAt: null,
+      status: 'available',
     });
     expect(target.size()).toBe(0);
   });
 
   it('reads handle fields in fragment and checks missing', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:1'},
         // missing [handleKey] field
       },
@@ -287,29 +317,31 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
-      createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(Fragment as $FlowFixMe, '1', {}),
       [],
       null,
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
 
   it('reads handle fields in fragment and checks missing sub field', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
-        'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
+        id: '1',
+        'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
         __id: 'client:2',
@@ -332,34 +364,31 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
-      createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(Fragment as $FlowFixMe, '1', {}),
       [],
       null,
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
 
   it('reads handle fields in operation', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
-    const data = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
-        'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
+        id: '1',
+        'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
         __id: 'client:2',
@@ -370,6 +399,11 @@ describe('check()', () => {
         __id: 'client:2',
         __typename: 'Photo',
         uri: 'https://...',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     };
     const source = RelayRecordSource.create(data);
@@ -387,8 +421,9 @@ describe('check()', () => {
     `;
 
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -399,23 +434,18 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'available',
       mostRecentlyInvalidatedAt: null,
+      status: 'available',
     });
     expect(target.size()).toBe(0);
   });
 
   it('reads handle fields in operation and checks missing', () => {
-    const data = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:1'},
         // missing [handleKey] field
       },
@@ -428,6 +458,11 @@ describe('check()', () => {
         __id: 'client:2',
         __typename: 'Photo',
         uri: 'https://...',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     };
     const source = RelayRecordSource.create(data);
@@ -444,8 +479,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -456,26 +492,22 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
 
   it('reads handle fields in operation and checks missing sub field', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
-    const data = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
-        'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
+        id: '1',
+        'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
         __id: 'client:2',
@@ -486,6 +518,11 @@ describe('check()', () => {
         __id: 'client:2',
         __typename: 'Photo',
         // uri field is missing
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     };
     const source = RelayRecordSource.create(data);
@@ -502,8 +539,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -514,31 +552,32 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
 
   it('reads scalar handle fields in operation and checks presence', () => {
     const handleKey = getRelayHandleKey('test', null, 'uri');
-    const data = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
         __id: 'client:2',
         __typename: 'Photo',
-        uri: 'https://...',
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: 'https://...',
+        uri: 'https://...',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     };
     const source = RelayRecordSource.create(data);
@@ -555,8 +594,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -567,23 +607,18 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'available',
       mostRecentlyInvalidatedAt: null,
+      status: 'available',
     });
     expect(target.size()).toBe(0);
   });
 
   it('reads scalar handle fields in operation and checks missing', () => {
-    const data = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
@@ -591,6 +626,11 @@ describe('check()', () => {
         __typename: 'Photo',
         uri: 'https://...',
         // [handleKey] field is missing
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     };
     const source = RelayRecordSource.create(data);
@@ -608,8 +648,9 @@ describe('check()', () => {
     `;
 
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -620,8 +661,8 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
@@ -663,20 +704,23 @@ describe('check()', () => {
       BarQuery = graphql`
         query DataCheckerTest4Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest4Fragment
+            ...DataCheckerTest4Fragment @dangerously_unaliased_fixme
           }
         }
       `;
       const nodes = {
-        DataCheckerTestPlainUserNameRenderer_nameFragment,
         DataCheckerTestMarkdownUserNameRenderer_nameFragment,
+        DataCheckerTestPlainUserNameRenderer_nameFragment,
       };
 
       loader = {
         get: jest.fn(
-          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: unknown) =>
+            // $FlowFixMe[invalid-computed-prop]
+            nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn(moduleName =>
+        load: jest.fn((moduleName: unknown) =>
+          // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -684,26 +728,24 @@ describe('check()', () => {
 
     it('returns true when the match field/record exist and match a supported type (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          id: '1',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
         },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'PlainUserNameRenderer',
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
           __module_component_DataCheckerTest4Fragment:
             'PlainUserNameRenderer.react',
           __module_operation_DataCheckerTest4Fragment:
             'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
-          plaintext: 'plain name',
+          __typename: 'PlainUserNameRenderer',
           data: {__ref: 'data'},
+          plaintext: 'plain name',
         },
         'client:root': {
           __id: 'client:root',
@@ -720,8 +762,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -734,39 +777,36 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
-      // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
         'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns true when the match field/record exist and match a supported type (markdown)', () => {
       // When the type matches MarkdownUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          id: '1',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
         },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
           __module_component_DataCheckerTest4Fragment:
             'MarkdownUserNameRenderer.react',
           __module_operation_DataCheckerTest4Fragment:
             'DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql',
-          markdown: 'markdown payload',
+          __typename: 'MarkdownUserNameRenderer',
           data: {__ref: 'data'},
+          markdown: 'markdown payload',
         },
         'client:root': {
           __id: 'client:root',
@@ -783,8 +823,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -797,8 +838,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -807,19 +848,17 @@ describe('check()', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          id: '1',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
         },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
           __typename: 'MarkdownUserNameRenderer',
           // NOTE: markdown/data fields are missing, data not processed.
         },
@@ -832,8 +871,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -851,27 +891,25 @@ describe('check()', () => {
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns false when the match field/record exist but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          id: '1',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
         },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
           __typename: 'MarkdownUserNameRenderer',
           // NOTE: 'markdown' field missing
           data: {__ref: 'data'},
@@ -891,8 +929,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -906,27 +945,25 @@ describe('check()', () => {
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns false when the match field/record exist but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          id: '1',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
         },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
           __typename: 'MarkdownUserNameRenderer',
           markdown: 'markdown text',
           // NOTE: 'data' field missing
@@ -940,8 +977,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -955,26 +993,24 @@ describe('check()', () => {
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns true when the match field/record exist but do not match a supported type', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          id: '1',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
         },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
           __typename: 'CustomNameRenderer',
           customField: 'custom value',
         },
@@ -987,8 +1023,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1001,19 +1038,19 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns true when the match field is non-existent (null)', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
+          id: '1',
+          'nameRenderer(supported:"34hjiS")': null,
         },
         'client:root': {
           __id: 'client:root',
@@ -1024,8 +1061,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1038,18 +1076,18 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns false when the match field is not fetched (undefined)', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
         },
         'client:root': {
           __id: 'client:root',
@@ -1060,8 +1098,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1074,8 +1113,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -1118,20 +1157,23 @@ describe('check()', () => {
       BarQuery = graphql`
         query DataCheckerTest5Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest5Fragment
+            ...DataCheckerTest5Fragment @dangerously_unaliased_fixme
           }
         }
       `;
       const nodes = {
-        DataCheckerTest5PlainUserNameRenderer_name,
         DataCheckerTest5MarkdownUserNameRenderer_name,
+        DataCheckerTest5PlainUserNameRenderer_name,
       };
 
       loader = {
         get: jest.fn(
-          moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: unknown) =>
+            // $FlowFixMe[invalid-computed-prop]
+            nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn(moduleName =>
+        load: jest.fn((moduleName: unknown) =>
+          // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
@@ -1139,24 +1181,24 @@ describe('check()', () => {
 
     it('returns true when the field/record exists and matches the @module type (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
         },
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
-          __typename: 'PlainUserNameRenderer',
           __module_component_DataCheckerTest5Fragment:
             'PlainUserNameRenderer.react',
           __module_operation_DataCheckerTest5Fragment:
             'DataCheckerTest5PlainUserNameRenderer_name$normalization.graphql',
-          plaintext: 'plain name',
+          __typename: 'PlainUserNameRenderer',
           data: {__ref: 'data'},
+          plaintext: 'plain name',
         },
         'client:root': {
           __id: 'client:root',
@@ -1173,8 +1215,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1187,37 +1230,36 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
-      // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
         'DataCheckerTest5PlainUserNameRenderer_name$normalization.graphql',
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns true when the field/record exist and matches the @module type (markdown)', () => {
       // When the type matches MarkdownUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
         },
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
-          __typename: 'MarkdownUserNameRenderer',
           __module_component_DataCheckerTest5Fragment:
             'MarkdownUserNameRenderer.react',
           __module_operation_DataCheckerTest5Fragment:
             'DataCheckerTest5MarkdownUserNameRenderer_name$normalization.graphql',
-          markdown: 'markdown payload',
+          __typename: 'MarkdownUserNameRenderer',
           data: {__ref: 'data'},
+          markdown: 'markdown payload',
         },
         'client:root': {
           __id: 'client:root',
@@ -1234,8 +1276,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1248,8 +1291,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -1258,11 +1301,11 @@ describe('check()', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
@@ -1281,8 +1324,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1300,19 +1344,19 @@ describe('check()', () => {
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns false when the field/record exists but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
@@ -1338,8 +1382,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1353,19 +1398,19 @@ describe('check()', () => {
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns false when the field/record exists but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
@@ -1385,8 +1430,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1400,18 +1446,18 @@ describe('check()', () => {
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns true when the field/record exists but does not match any @module selection', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
@@ -1430,8 +1476,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1444,8 +1491,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -1463,14 +1510,16 @@ describe('check()', () => {
       Query = graphql`
         query DataCheckerTest9Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest6Fragment @defer(label: "TestFragment")
+            ...DataCheckerTest6Fragment
+              @dangerously_unaliased_fixme
+              @defer(label: "TestFragment")
           }
         }
       `;
     });
 
     it('returns true when deferred selections are fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'User',
@@ -1486,8 +1535,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1498,19 +1548,19 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
 
-    it('returns false when deferred selections are not fetched', () => {
-      const storeData = {
+    it('returns available when deferred selections are not fetched (defer is active)', () => {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'User',
           id: '1',
-          // 'name' not fetched
+          // 'name' not fetched — but defer is active so this is expected
         },
         'client:root': {
           __id: 'client:root',
@@ -1521,8 +1571,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1533,10 +1584,296 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
+    });
+  });
+
+  describe('when @defer directive with if variable is present', () => {
+    let ConditionalDeferQuery: $IMPORTED_TYPE$_Query<any, any>;
+
+    beforeEach(() => {
+      graphql`
+        fragment DataCheckerTestDeferIfFragment on User {
+          id
+          name
+        }
+      `;
+
+      ConditionalDeferQuery = graphql`
+        query DataCheckerTestDeferIfQuery($id: ID!, $shouldDefer: Boolean!) {
+          node(id: $id) {
+            ...DataCheckerTestDeferIfFragment
+              @dangerously_unaliased_fixme
+              @defer(if: $shouldDefer, label: "TestFragment")
+          }
+        }
+      `;
+    });
+
+    it('returns available when deferred selections are missing and defer is active (if: true)', () => {
+      const storeData: RecordSourceJSON = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          // 'name' not fetched — defer is active so this is expected
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
+      const status = check(
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(
+          getRequest(ConditionalDeferQuery).operation,
+          'client:root',
+          {id: '1', shouldDefer: true},
+        ),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        mostRecentlyInvalidatedAt: null,
+        status: 'available',
+      });
+    });
+
+    it('returns missing when deferred selections are missing and defer is inactive (if: false)', () => {
+      const storeData: RecordSourceJSON = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          // 'name' not fetched — defer is inactive so this is genuinely missing
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
+      const status = check(
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(
+          getRequest(ConditionalDeferQuery).operation,
+          'client:root',
+          {id: '1', shouldDefer: false},
+        ),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        mostRecentlyInvalidatedAt: null,
+        status: 'missing',
+      });
+    });
+
+    it('returns available when all data is present regardless of defer variable', () => {
+      const storeData: RecordSourceJSON = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
+
+      // Both should return available when data is present
+      const statusTrue = check(
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(
+          getRequest(ConditionalDeferQuery).operation,
+          'client:root',
+          {id: '1', shouldDefer: true},
+        ),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(statusTrue).toEqual({
+        mostRecentlyInvalidatedAt: null,
+        status: 'available',
+      });
+
+      const statusFalse = check(
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(
+          getRequest(ConditionalDeferQuery).operation,
+          'client:root',
+          {id: '1', shouldDefer: false},
+        ),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(statusFalse).toEqual({
+        mostRecentlyInvalidatedAt: null,
+        status: 'available',
+      });
+    });
+  });
+
+  describe('when @defer contains client extension fields', () => {
+    let DeferWithClientExtQuery;
+
+    beforeEach(() => {
+      graphql`
+        fragment DataCheckerTestDeferClientExtFragment on User {
+          id
+          name
+          nickname
+        }
+      `;
+
+      DeferWithClientExtQuery = graphql`
+        query DataCheckerTestDeferClientExtQuery($id: ID!) {
+          node(id: $id) {
+            ...DataCheckerTestDeferClientExtFragment
+              @dangerously_unaliased_fixme
+              @defer(label: "TestFragment")
+          }
+        }
+      `;
+    });
+
+    it('returns available when server fields present but client extension fields missing (defer active)', () => {
+      // This is the production bug scenario: streaming completed, server
+      // fields are in the store, but client extension fields (like nickname)
+      // are legitimately absent. Without the fix, the missing client extension
+      // field inside the @defer block leaks "missing" to the overall check.
+      const storeData: RecordSourceJSON = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+          // 'nickname' is a client extension field — never server-delivered
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
+      const status = check(
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(
+          getRequest(DeferWithClientExtQuery).operation,
+          'client:root',
+          {id: '1'},
+        ),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        mostRecentlyInvalidatedAt: null,
+        status: 'available',
+      });
+    });
+
+    it('returns available when all fields missing inside active defer', () => {
+      // Before the incremental payload arrives: all fields in the defer block
+      // are missing (both server and client extension). Since defer is active,
+      // this should not cause check() to report "missing".
+      const storeData: RecordSourceJSON = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          // no 'name', no 'nickname' — defer hasn't delivered yet
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
+      const status = check(
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(
+          getRequest(DeferWithClientExtQuery).operation,
+          'client:root',
+          {id: '1'},
+        ),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        mostRecentlyInvalidatedAt: null,
+        status: 'available',
+      });
+    });
+
+    it('returns available when all fields present including client extension', () => {
+      const storeData: RecordSourceJSON = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+          nickname: 'Ali',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      const source = RelayRecordSource.create(storeData);
+      const target = RelayRecordSource.create();
+      const status = check(
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(
+          getRequest(DeferWithClientExtQuery).operation,
+          'client:root',
+          {id: '1'},
+        ),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        mostRecentlyInvalidatedAt: null,
+        status: 'available',
+      });
     });
   });
 
@@ -1553,19 +1890,19 @@ describe('check()', () => {
       Query = graphql`
         query DataCheckerTest6Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest7Fragment
+            ...DataCheckerTest7Fragment @dangerously_unaliased_fixme
           }
         }
       `;
     });
 
     it('returns true when streamed selections are fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',
-          id: '1',
           actors: {__refs: ['2']},
+          id: '1',
         },
         '2': {
           __id: '2',
@@ -1582,8 +1919,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1594,19 +1932,19 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns false when streamed selections are not fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',
-          id: '1',
           actors: {__refs: ['2']},
+          id: '1',
         },
         '2': {
           __id: '2',
@@ -1623,8 +1961,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1635,8 +1974,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -1647,8 +1986,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(sampleData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
           id: '1',
           size: 32,
@@ -1658,8 +1998,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -1667,12 +2007,12 @@ describe('check()', () => {
 
   describe('when some data is missing', () => {
     it('returns missing on missing records', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
           firstName: 'Alice',
+          id: '1',
           'profilePicture(size:32)': {__ref: 'client:3'},
         },
         // missing profilePicture record
@@ -1681,7 +2021,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest8Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1690,27 +2030,28 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
-        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(BarFragment as $FlowFixMe, '1', {size: 32}),
         [],
         null,
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
 
     it('returns missing on missing fields', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
           firstName: 'Alice',
+          id: '1',
           'profilePicture(size:32)': {__ref: 'client:3'},
         },
         'client:3': {
@@ -1722,7 +2063,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest9Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1731,27 +2072,28 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
-        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(BarFragment as $FlowFixMe, '1', {size: 32}),
         [],
         null,
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
 
     it('allows handlers to supplement missing scalar fields', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
           firstName: 'Alice',
+          id: '1',
           'profilePicture(size:32)': {__ref: 'client:3'},
         },
         'client:3': {
@@ -1764,7 +2106,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest10Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1773,23 +2115,24 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
-        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(BarFragment as $FlowFixMe, '1', {size: 32}),
         [
           {
-            kind: 'scalar',
             handle: (field, record, argValues) => {
               return 'thebestimage.uri';
             },
+            kind: 'scalar',
           },
         ],
         null,
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.toJSON()).toEqual({
         'client:3': {
@@ -1804,66 +2147,66 @@ describe('check()', () => {
       [
         'undefined',
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: undefined,
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedHometown: undefined,
         },
       ],
       [
         'null',
         {
-          handleReturnValue: null,
           expectedStatus: {
-            status: 'available',
             mostRecentlyInvalidatedAt: null,
+            status: 'available',
           },
+          handleReturnValue: null,
           updatedHometown: null,
         },
       ],
       [
         "'hometown-exists'",
         {
-          handleReturnValue: 'hometown-exists',
           expectedStatus: {
-            status: 'available',
             mostRecentlyInvalidatedAt: null,
+            status: 'available',
           },
+          handleReturnValue: 'hometown-exists',
           updatedHometown: 'hometown-exists',
         },
       ],
       [
         "'hometown-deleted'",
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: 'hometown-deleted',
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedHometown: undefined,
         },
       ],
       [
         "'hometown-unknown'",
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: 'hometown-unknown',
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedHometown: undefined,
         },
       ],
     ])(
       'linked field handler handler that returns %s',
       (_name, {handleReturnValue, expectedStatus, updatedHometown}) => {
-        const data = {
-          user1: {
-            __id: 'user1',
-            id: 'user1',
-            __typename: 'User',
-            firstName: 'Alice',
-            // hometown: missing
-          },
+        const data: RecordSourceJSON = {
+          'hometown-deleted': null,
           'hometown-exists': {
             __id: 'hometown',
             __typename: 'Page',
             name: 'New York City',
           },
-          'hometown-deleted': null,
+          user1: {
+            __id: 'user1',
+            __typename: 'User',
+            firstName: 'Alice',
+            id: 'user1',
+            // hometown: missing
+          },
         };
         const source = RelayRecordSource.create(data);
         const target = RelayRecordSource.create();
@@ -1874,17 +2217,25 @@ describe('check()', () => {
             }
           }
         `;
-        const handle = jest.fn((field, record, argValues) => {
-          return handleReturnValue;
-        });
+        const handle = jest.fn(
+          (
+            field: NormalizationLinkedField | ReaderLinkedField,
+            record: ?ReadOnlyRecordProxy,
+            argValues: Variables,
+          ) => {
+            return handleReturnValue;
+          },
+        );
         const status = check(
-          source,
-          target,
-          createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(UserFragment as $FlowFixMe, 'user1', {}),
           [
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             {
-              kind: 'linked',
               handle,
+              kind: 'linked',
             },
           ],
           null,
@@ -1896,22 +2247,22 @@ describe('check()', () => {
           updatedHometown === undefined
             ? {}
             : updatedHometown === null
-            ? {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  hometown: null,
-                },
-              }
-            : {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  hometown: {
-                    __ref: updatedHometown,
+              ? {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    hometown: null,
+                  },
+                }
+              : {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    hometown: {
+                      __ref: updatedHometown,
+                    },
                   },
                 },
-              },
         );
       },
     );
@@ -1920,101 +2271,101 @@ describe('check()', () => {
       [
         'undefined',
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: undefined,
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
       [
         'null',
         {
-          handleReturnValue: null,
           expectedStatus: {
-            status: 'available',
             mostRecentlyInvalidatedAt: null,
+            status: 'available',
           },
+          handleReturnValue: null,
           updatedScreennames: null,
         },
       ],
       [
         '[]',
         {
-          handleReturnValue: [],
           expectedStatus: {
-            status: 'available',
             mostRecentlyInvalidatedAt: null,
+            status: 'available',
           },
+          handleReturnValue: [],
           updatedScreennames: [],
         },
       ],
       [
         '[undefined]',
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: [undefined],
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
       [
         '[null]',
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: [null],
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
       [
         "['screenname-exists']",
         {
-          handleReturnValue: ['screenname-exists'],
           expectedStatus: {
-            status: 'available',
             mostRecentlyInvalidatedAt: null,
+            status: 'available',
           },
+          handleReturnValue: ['screenname-exists'],
           updatedScreennames: ['screenname-exists'],
         },
       ],
       [
         "['screenname-deleted']",
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: ['screenname-deleted'],
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
       [
         "['screenname-unknown']",
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: ['screenname-unknown'],
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
       [
         "['screenname-exists', 'screenname-unknown']",
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: ['screenname-exists', 'screenname-unknown'],
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
     ])(
       'plural linked field handler handler that returns %s',
       (_name, {handleReturnValue, expectedStatus, updatedScreennames}) => {
-        const data = {
-          user1: {
-            __id: 'user1',
-            id: 'user1',
-            __typename: 'User',
-            firstName: 'Alice',
-            // screennames: missing
-          },
+        const data: RecordSourceJSON = {
+          'screenname-deleted': null,
           'screenname-exists': {
             __id: 'screenname-exists',
             __typename: 'Screenname',
             name: 'Bert',
           },
-          'screenname-deleted': null,
+          user1: {
+            __id: 'user1',
+            __typename: 'User',
+            firstName: 'Alice',
+            id: 'user1',
+            // screennames: missing
+          },
         };
         const source = RelayRecordSource.create(data);
         const target = RelayRecordSource.create();
@@ -2025,17 +2376,26 @@ describe('check()', () => {
             }
           }
         `;
-        const handle = jest.fn((field, record, argValues) => {
-          return handleReturnValue;
-        });
+        const handle = jest.fn(
+          (
+            field: NormalizationLinkedField | ReaderLinkedField,
+            record: ?ReadOnlyRecordProxy,
+            argValues: Variables,
+          ) => {
+            return handleReturnValue;
+          },
+        );
         const status = check(
-          source,
-          target,
-          createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(UserFragment as $FlowFixMe, 'user1', {}),
           [
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+            // $FlowFixMe[incompatible-type]
             {
-              kind: 'pluralLinked',
               handle,
+              kind: 'pluralLinked',
             },
           ],
           null,
@@ -2047,37 +2407,37 @@ describe('check()', () => {
           updatedScreennames === undefined
             ? {}
             : updatedScreennames === null
-            ? {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  screennames: null,
-                },
-              }
-            : {
-                user1: {
-                  __id: 'user1',
-                  __typename: 'User',
-                  screennames: {
-                    __refs: updatedScreennames,
+              ? {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    screennames: null,
+                  },
+                }
+              : {
+                  user1: {
+                    __id: 'user1',
+                    __typename: 'User',
+                    screennames: {
+                      __refs: updatedScreennames,
+                    },
                   },
                 },
-              },
         );
       },
     );
 
     it('returns modified records with the target', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
         },
         profile_1_32: {
           __id: 'profile_1_32',
-          id: 'profile_1_32',
           __typename: 'Profile',
+          id: 'profile_1_32',
           uri: 'thebestimage.uri',
         },
       };
@@ -2085,7 +2445,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest13Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -2094,26 +2454,26 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
-        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(BarFragment as $FlowFixMe, '1', {size: 32}),
         [
           {
-            kind: 'scalar',
             handle: (field, record, argValues) => {
               if (
                 record &&
-                RelayModernRecord.getDataID(record) === '1' &&
+                record?.getDataID() === '1' &&
                 field.name === 'firstName'
               ) {
                 return 'Alice';
               }
             },
+            kind: 'scalar',
           },
           {
-            kind: 'linked',
             handle: (field, record, argValues) => {
-              const id = record && RelayModernRecord.getDataID(record);
+              const id = record?.getDataID();
               if (
                 field.name === 'profilePicture' &&
                 record &&
@@ -2122,14 +2482,15 @@ describe('check()', () => {
                 return `profile_${id}_${argValues.size}`;
               }
             },
+            kind: 'linked',
           },
         ],
         null,
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.toJSON()).toEqual({
         '1': {
@@ -2142,12 +2503,12 @@ describe('check()', () => {
     });
 
     it('returns available even when client field is missing', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
           firstName: 'Alice',
+          id: '1',
           'profilePicture(size:32)': {__ref: 'client:3'},
         },
       };
@@ -2155,7 +2516,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest14Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           client_actor_field
@@ -2191,16 +2552,17 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
-        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(BarFragment as $FlowFixMe, '1', {size: 32}),
         [],
         null,
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -2225,8 +2587,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2238,8 +2601,8 @@ describe('check()', () => {
 
         // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
         expect(status).toEqual({
-          status: 'available',
           mostRecentlyInvalidatedAt: 1,
+          status: 'available',
         });
         expect(target.size()).toBe(0);
       });
@@ -2261,8 +2624,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2274,8 +2638,8 @@ describe('check()', () => {
 
         // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
         expect(status).toEqual({
-          status: 'available',
           mostRecentlyInvalidatedAt: 1,
+          status: 'available',
         });
         expect(target.size()).toBe(0);
 
@@ -2289,8 +2653,9 @@ describe('check()', () => {
         });
 
         const nextStatus = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2302,8 +2667,8 @@ describe('check()', () => {
 
         // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
         expect(nextStatus).toEqual({
-          status: 'available',
           mostRecentlyInvalidatedAt: 2,
+          status: 'available',
         });
         expect(target.size()).toBe(0);
       });
@@ -2313,6 +2678,7 @@ describe('check()', () => {
       beforeEach(() => {
         sampleData = {
           ...sampleData,
+          // $FlowFixMe[prop-missing]
           'client:4': {
             __id: 'client:4',
             __typename: 'Photo',
@@ -2338,8 +2704,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2351,8 +2718,8 @@ describe('check()', () => {
 
         // Assert result is missing
         expect(status).toEqual({
-          status: 'missing',
           mostRecentlyInvalidatedAt: 1,
+          status: 'missing',
         });
         expect(target.size()).toBe(0);
       });
@@ -2374,8 +2741,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2387,8 +2755,8 @@ describe('check()', () => {
 
         // Assert that result is missing
         expect(status).toEqual({
-          status: 'missing',
           mostRecentlyInvalidatedAt: 1,
+          status: 'missing',
         });
         expect(target.size()).toBe(0);
 
@@ -2402,8 +2770,9 @@ describe('check()', () => {
         });
 
         const nextStatus = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2415,21 +2784,22 @@ describe('check()', () => {
 
         // Assert that result is still missing
         expect(nextStatus).toEqual({
-          status: 'missing',
           mostRecentlyInvalidatedAt: 2,
+          status: 'missing',
         });
         expect(target.size()).toBe(0);
       });
 
       it('returns null invalidation epoch when stale record is unreachable', () => {
+        // $FlowFixMe[prop-missing]
         sampleData = {
           // Root record is missing, so none of the descendants are reachable
           '1': {
             __id: '1',
-            id: '1',
             __typename: 'User',
             firstName: 'Alice',
             'friends(first:3)': {__ref: 'client:1'},
+            id: '1',
             'profilePicture(size:32)': {__ref: 'client:4'},
           },
           'client:1': {
@@ -2439,6 +2809,7 @@ describe('check()', () => {
               __refs: [],
             },
           },
+          // $FlowFixMe[prop-missing]
           'client:4': {
             __id: 'client:4',
             __typename: 'Photo',
@@ -2461,8 +2832,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2474,60 +2846,12 @@ describe('check()', () => {
 
         // Assert that result is missing
         expect(status).toEqual({
-          status: 'missing',
           mostRecentlyInvalidatedAt: null,
+          status: 'missing',
         });
         expect(target.size()).toBe(0);
       });
     });
-  });
-
-  it('returns true when a non-Node record is "missing" an id', () => {
-    const TestFragment = graphql`
-      fragment DataCheckerTest15Fragment on Query {
-        maybeNodeInterface {
-          # This "... on Node { id }" selection would be generated if not present
-          ... on Node {
-            id
-          }
-          ... on NonNodeNoID {
-            name
-          }
-        }
-      }
-    `;
-    const data = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: 'Query',
-        maybeNodeInterface: {__ref: 'client:root:maybeNodeInterface'},
-      },
-      'client:root:maybeNodeInterface': {
-        __id: 'client:root:maybeNodeInterface',
-        __typename: 'NonNodeNoID',
-        __isNode: false,
-        name: 'Alice',
-      },
-    };
-    const source = RelayRecordSource.create(data);
-    const target = RelayRecordSource.create();
-    const status = check(
-      source,
-      target,
-      createNormalizationSelector(
-        (TestFragment: $FlowFixMe),
-        'client:root',
-        {},
-      ),
-      [],
-      null,
-      defaultGetDataID,
-    );
-    expect(status).toEqual({
-      status: 'available',
-      mostRecentlyInvalidatedAt: null,
-    });
-    expect(target.size()).toBe(0);
   });
 
   it('returns false when a Node record is missing an id', () => {
@@ -2546,26 +2870,27 @@ describe('check()', () => {
       }
     `;
 
-    const data = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: 'Query',
-        maybeNodeInterface: {__ref: '1'},
-      },
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         __typename: 'User',
         name: 'Alice',
         // no `id` value
       },
+      'client:root': {
+        __id: 'client:root',
+        __typename: 'Query',
+        maybeNodeInterface: {__ref: '1'},
+      },
     };
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
-        (TestFragment: $FlowFixMe),
+        TestFragment as $FlowFixMe,
         'client:root',
         {},
       ),
@@ -2574,20 +2899,13 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
 
-  describe('with feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = false;
-    });
-
+  describe('precise type refinement', () => {
     it('returns `missing` when a Node record is missing an id', () => {
       const TestFragment = graphql`
         fragment DataCheckerTest17Fragment on Query {
@@ -2603,27 +2921,34 @@ describe('check()', () => {
         }
       `;
 
-      const data = {
+      const typeID = generateTypeID('User');
+      const data: RecordSourceJSON = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          name: 'Alice',
+          // no `id` value
+        },
         'client:root': {
           __id: 'client:root',
           __typename: 'Query',
           maybeNodeInterface: {__ref: '1'},
         },
-        '1': {
-          __id: '1',
-          __typename: 'User',
+        // $FlowFixMe[invalid-computed-prop]
+        [typeID]: {
+          __id: typeID,
           __isNode: true,
-          name: 'Alice',
-          // no `id` value
+          __typename: TYPE_SCHEMA_TYPE,
         },
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
-          (TestFragment: $FlowFixMe),
+          TestFragment as $FlowFixMe,
           'client:root',
           {},
         ),
@@ -2632,8 +2957,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -2652,27 +2977,34 @@ describe('check()', () => {
         }
       `;
 
-      const data = {
+      const typeID = generateTypeID('User');
+      const data: RecordSourceJSON = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: 'Query',
           maybeNodeInterface: {__ref: '1'},
         },
-        '1': {
-          __id: '1',
-          __typename: 'User',
+        // $FlowFixMe[invalid-computed-prop]
+        [typeID]: {
+          __id: typeID,
+          __typename: TYPE_SCHEMA_TYPE,
           // __isNode: true, // dont know if it implements Node or not
-          name: 'Alice',
-          id: '1',
         },
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
-          (TestFragment: $FlowFixMe),
+          TestFragment as $FlowFixMe,
           'client:root',
           {},
         ),
@@ -2681,8 +3013,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -2703,31 +3035,33 @@ describe('check()', () => {
       `;
 
       const typeID = generateTypeID('NonNodeNoID');
-      const data = {
-        'client:root': {
-          __id: 'client:root',
-          __typename: 'Query',
-          maybeNodeInterface: {__ref: '1'},
-        },
+      const data: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'NonNodeNoID',
           // no 'id' bc not a Node
           name: 'Not a Node!',
         },
+        'client:root': {
+          __id: 'client:root',
+          __typename: 'Query',
+          maybeNodeInterface: {__ref: '1'},
+        },
+        // $FlowFixMe[invalid-computed-prop]
         [typeID]: {
           __id: typeID,
-          __typename: TYPE_SCHEMA_TYPE,
           __isNode: false,
+          __typename: TYPE_SCHEMA_TYPE,
         },
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
-          (TestFragment: $FlowFixMe),
+          TestFragment as $FlowFixMe,
           'client:root',
           {},
         ),
@@ -2736,306 +3070,260 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
   });
 
-  describe('with feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
-    let FlightQuery;
-    let InnerQuery;
-    let operationLoader;
-
-    const readRoot = () => {
-      return {
-        $$typeof: Symbol.for('react.element'),
-        type: 'div',
-        key: null,
-        ref: null,
-        props: {foo: 1},
-      };
-    };
-
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
-
-      FlightQuery = graphql`
-        query DataCheckerTestFlightQuery($id: ID!, $count: Int!) {
-          node(id: $id) {
-            ... on Story {
-              flightComponent(condition: true, count: $count, id: $id)
-            }
-          }
+  it('should assign client-only abstract type information to the target source', () => {
+    graphql`
+      fragment DataCheckerTestClient2Interface on ClientInterface {
+        description
+      }
+    `;
+    const clientQuery = graphql`
+      query DataCheckerTestClient2AbstractQuery {
+        client_interface {
+          ...DataCheckerTestClient2Interface
         }
-      `;
-      InnerQuery = graphql`
-        query DataCheckerTestInnerQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
+      }
+    `;
+    const source = RelayRecordSource.create();
+    const target = RelayRecordSource.create();
+    check(
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(
+        getRequest(clientQuery).operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(target.toJSON()).toEqual({
+      'client:__type:ClientTypeImplementingClientInterface': {
+        __id: 'client:__type:ClientTypeImplementingClientInterface',
+        __isClientInterface: true,
+        __typename: '__TypeSchema',
+      },
+      'client:__type:OtherClientTypeImplementingClientInterface': {
+        __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+        __isClientInterface: true,
+        __typename: '__TypeSchema',
+      },
+    });
+  });
+
+  it('should assign client-only abstract type information to the target source if it is not available in the source', () => {
+    graphql`
+      fragment DataCheckerTestClientInterface on ClientInterface {
+        description
+      }
+    `;
+    const clientQuery = graphql`
+      query DataCheckerTestClientAbstractQuery {
+        client_interface {
+          ...DataCheckerTestClientInterface
+        }
+      }
+    `;
+    const source = RelayRecordSource.create({
+      'client:__type:ClientTypeImplementingClientInterface': {
+        __id: 'client:__type:ClientTypeImplementingClientInterface',
+        __isClientInterface: true,
+        __typename: '__TypeSchema',
+      },
+      'client:__type:OtherClientTypeImplementingClientInterface': {
+        __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+        __isClientInterface: true,
+        __typename: '__TypeSchema',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        client_interface: {__ref: 'object-1'},
+      },
+      'object-1': {
+        __id: 'object-1',
+        __typename: 'ClientTypeImplementingClientInterface',
+        id: 'object-1',
+      },
+    });
+    const target = RelayRecordSource.create();
+    check(
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(
+        getRequest(clientQuery).operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(target.toJSON()).toEqual({});
+  });
+
+  describe('exec time resolvers', () => {
+    describe('client query', () => {
+      const Query = graphql`
+        query DataCheckerTestExecQuery @exec_time_resolvers {
+          RelayReaderExecResolversTest_user_one {
+            name
+            best_friend {
               name
+              best_friend {
+                name
+              }
             }
           }
         }
       `;
 
-      operationLoader = {
-        get: jest.fn(() => getRequest(InnerQuery)),
-        load: jest.fn(() => Promise.resolve(getRequest(InnerQuery))),
-      };
-    });
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
+      it('should return available when all data is available', () => {
+        const source = RelayRecordSource.create({
+          '1': {
+            __id: '1',
+            best_friend: {__ref: '2'},
+            name: 'Alice',
+          },
+          '2': {
+            __id: '2',
+            best_fried: {__ref: '3'},
+            name: 'Bob',
+          },
+          '3': {
+            __id: '3',
+            name: 'Zuck',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: {__ref: '1'},
+          },
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('available');
+      });
+
+      it('should return available when only client data is missing', () => {
+        const source = RelayRecordSource.create({
+          '1': {
+            __id: '1',
+            best_friend: {__ref: '2'},
+            name: 'Alice',
+          },
+          '2': {
+            __id: '2',
+            best_fried: undefined,
+            name: 'Bob',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: {__ref: '1'},
+          },
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('available');
+      });
     });
 
-    it('returns available when the Flight field is fetched', () => {
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+    describe('server and client query', () => {
+      const Query = graphql`
+        query DataCheckerTestExecWithServerDataQuery @exec_time_resolvers {
+          RelayReaderExecResolversTest_user_one {
+            name
+            best_friend {
+              name
+              best_friend {
+                name
+              }
+            }
+          }
+          me {
+            name
+          }
+        }
+      `;
+      it('should return available when server data is available', () => {
+        const source = RelayRecordSource.create({
+          '0': {
+            __id: '0',
+            id: '0',
+            name: 'Zuck',
           },
-          id: '1',
-        },
-        '2': {
-          __id: '2',
-          __typename: 'User',
-          id: '2',
-          name: 'Lauren',
-        },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-          __id:
-            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          __typename: 'ReactFlightComponent',
-          queries: [
-            {
-              module: {
-                __dr: 'RelayFlightExampleQuery.graphql',
-              },
-              variables: {
-                id: '2',
-              },
-            },
-          ],
-          tree: {
-            readRoot,
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: undefined,
+            me: {__ref: '0'},
           },
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-          'node(id:"2")': {
-            __ref: '2',
-          },
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        source,
-        target,
-        createNormalizationSelector(
-          getRequest(FlightQuery).operation,
-          ROOT_ID,
-          {
-            count: 10,
-            id: '1',
-          },
-        ),
-        [],
-        operationLoader,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        status: 'available',
-        mostRecentlyInvalidatedAt: null,
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('available');
       });
-      expect(target.size()).toBe(0);
-    });
 
-    it('returns missing when the Flight field exists but has not been processed', () => {
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+      it('should return missing when server data is missing', () => {
+        const source = RelayRecordSource.create({
+          '0': {
+            __id: '0',
+            id: '0',
+            name: undefined,
           },
-          id: '1',
-        },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-          __id:
-            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          __typename: 'ReactFlightComponent',
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: undefined,
+            me: {__ref: '0'},
           },
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        source,
-        target,
-        createNormalizationSelector(
-          getRequest(FlightQuery).operation,
-          ROOT_ID,
-          {
-            count: 10,
-            id: '1',
-          },
-        ),
-        [],
-        operationLoader,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        status: 'missing',
-        mostRecentlyInvalidatedAt: null,
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('missing');
       });
-      expect(target.size()).toBe(0);
-    });
-
-    it('returns missing when the Flight field is null in the store', () => {
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
-          id: '1',
-        },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': null,
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        source,
-        target,
-        createNormalizationSelector(
-          getRequest(FlightQuery).operation,
-          ROOT_ID,
-          {
-            count: 10,
-            id: '1',
-          },
-        ),
-        [],
-        operationLoader,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        status: 'missing',
-        mostRecentlyInvalidatedAt: null,
-      });
-      expect(target.size()).toBe(0);
-    });
-
-    it('returns missing when the Flight field is undefined in the store', () => {
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
-          id: '1',
-        },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': undefined,
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        source,
-        target,
-        createNormalizationSelector(
-          getRequest(FlightQuery).operation,
-          ROOT_ID,
-          {
-            count: 10,
-            id: '1',
-          },
-        ),
-        [],
-        operationLoader,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        status: 'missing',
-        mostRecentlyInvalidatedAt: null,
-      });
-      expect(target.size()).toBe(0);
-    });
-
-    it('returns missing when the linked ReactFlightClientResponseRecord is missing', () => {
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
-          id: '1',
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-        },
-      };
-      const source = RelayRecordSource.create(data);
-      const target = RelayRecordSource.create();
-      const status = check(
-        source,
-        target,
-        createNormalizationSelector(
-          getRequest(FlightQuery).operation,
-          ROOT_ID,
-          {
-            count: 10,
-            id: '1',
-          },
-        ),
-        [],
-        operationLoader,
-        defaultGetDataID,
-      );
-      expect(status).toEqual({
-        status: 'missing',
-        mostRecentlyInvalidatedAt: null,
-      });
-      expect(target.size()).toBe(0);
     });
   });
 });

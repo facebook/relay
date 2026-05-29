@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bf8c7e33b60d0d3a1e0715f88fa97c6d>>
+ * @generated SignedSource<<71b829c99de5b7956ceb584cc305cb91>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,20 +19,20 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType } from "./RelayModernFragmentSpecResolverTestQueryUserFragment.graphql";
 import type { RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType } from "./RelayModernFragmentSpecResolverTestQueryUsersFragment.graphql";
-export type RelayModernFragmentSpecResolverTestAffectingQuery$variables = {|
+export type RelayModernFragmentSpecResolverTestAffectingQuery$variables = {
   fetchSize: boolean,
   id: string,
   size?: ?ReadonlyArray<?number>,
-|};
-export type RelayModernFragmentSpecResolverTestAffectingQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType & RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
-  |},
-|};
-export type RelayModernFragmentSpecResolverTestAffectingQuery = {|
+};
+export type RelayModernFragmentSpecResolverTestAffectingQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType & RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
+  },
+};
+export type RelayModernFragmentSpecResolverTestAffectingQuery = {
   response: RelayModernFragmentSpecResolverTestAffectingQuery$data,
   variables: RelayModernFragmentSpecResolverTestAffectingQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

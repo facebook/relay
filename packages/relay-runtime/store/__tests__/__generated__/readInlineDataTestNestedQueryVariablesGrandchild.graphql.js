@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fdd31d670812ee80997c2d181e763fc4>>
+ * @generated SignedSource<<c6127e4a75d5b9ab115a3327b32e71fe>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,15 +19,15 @@
 import type { InlineFragment, ReaderInlineDataFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type readInlineDataTestNestedQueryVariablesGrandchild$fragmentType: FragmentType;
-export type readInlineDataTestNestedQueryVariablesGrandchild$data = {|
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
-|};
+export type readInlineDataTestNestedQueryVariablesGrandchild$data = {
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
+};
 export type readInlineDataTestNestedQueryVariablesGrandchild$key = {
-  +$data?: readInlineDataTestNestedQueryVariablesGrandchild$data,
-  +$fragmentSpreads: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
+  readonly $data?: readInlineDataTestNestedQueryVariablesGrandchild$data,
+  readonly $fragmentSpreads: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
   ...
 };
 */

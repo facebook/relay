@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0c44a5f01a1c8e5285cbcb0bb4fc881c>>
+ * @generated SignedSource<<402bd3ac6739a0e9c766541a126de310>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,16 +21,16 @@ import type { RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$frag
 import type { RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment.graphql";
 import type { RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment.graphql";
 import type { RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestConcreteUserFragment.graphql";
-export type RelayModernEnvironmentTypeRefinementTestParentQuery$variables = {||};
-export type RelayModernEnvironmentTypeRefinementTestParentQuery$data = {|
-  +userOrPage: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentTypeRefinementTestParentQuery = {|
+export type RelayModernEnvironmentTypeRefinementTestParentQuery$variables = {};
+export type RelayModernEnvironmentTypeRefinementTestParentQuery$data = {
+  readonly userOrPage: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentTypeRefinementTestParentQuery = {
   response: RelayModernEnvironmentTypeRefinementTestParentQuery$data,
   variables: RelayModernEnvironmentTypeRefinementTestParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

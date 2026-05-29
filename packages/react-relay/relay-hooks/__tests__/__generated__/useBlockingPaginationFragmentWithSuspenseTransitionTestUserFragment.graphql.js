@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9ad24597114aef25a9a09bf88d0c0cdc>>
+ * @generated SignedSource<<120ec92d728b64eeefbbab0685087c8f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,23 +21,23 @@ import type { useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserF
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType: FragmentType;
 type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables = any;
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-        +name: ?string,
-        +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +name: ?string,
-  +$fragmentType: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
-|};
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+        readonly name: ?string,
+        readonly $fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
+};
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$key = {
-  +$data?: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data,
-  +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
+  readonly $data?: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data,
+  readonly $fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
   ...
 };
 */

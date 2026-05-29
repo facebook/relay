@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ad1e9ae6f4089badc86a201f8a45ffbf>>
+ * @generated SignedSource<<a831366f7357c6ccfe0bc2dc61c84c70>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,27 +23,27 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryWeakAnimalResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryWeakAnimalResolverType as (
-  args: {|
+  args: {
     request: WeakAnimalRequest,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?Query__weak_animal$normalization);
 import type { Query__weak_animal$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__weak_animal$normalization.graphql";
-export type WeakAnimalRequest = {|
+export type WeakAnimalRequest = {
   ofType: string,
-|};
-export type RelayResolverInterfaceTestWeakAnimalColorQuery$variables = {|
+};
+export type RelayResolverInterfaceTestWeakAnimalColorQuery$variables = {
   request: WeakAnimalRequest,
-|};
-export type RelayResolverInterfaceTestWeakAnimalColorQuery$data = {|
-  +weak_animal: ?{|
-    +$fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
-  |},
-|};
-export type RelayResolverInterfaceTestWeakAnimalColorQuery = {|
+};
+export type RelayResolverInterfaceTestWeakAnimalColorQuery$data = {
+  readonly weak_animal: ?{
+    readonly $fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
+  },
+};
+export type RelayResolverInterfaceTestWeakAnimalColorQuery = {
   response: RelayResolverInterfaceTestWeakAnimalColorQuery$data,
   variables: RelayResolverInterfaceTestWeakAnimalColorQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

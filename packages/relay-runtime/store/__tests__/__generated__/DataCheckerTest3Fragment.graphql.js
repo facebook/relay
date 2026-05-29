@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<180214747c3a06631784f15464371858>>
+ * @generated SignedSource<<6451c8f8a743e9975726359b755d3465>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest3Fragment$fragmentType: FragmentType;
-export type DataCheckerTest3Fragment$data = {|
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: DataCheckerTest3Fragment$fragmentType,
-|};
+export type DataCheckerTest3Fragment$data = {
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: DataCheckerTest3Fragment$fragmentType,
+};
 export type DataCheckerTest3Fragment$key = {
-  +$data?: DataCheckerTest3Fragment$data,
-  +$fragmentSpreads: DataCheckerTest3Fragment$fragmentType,
+  readonly $data?: DataCheckerTest3Fragment$data,
+  readonly $fragmentSpreads: DataCheckerTest3Fragment$fragmentType,
   ...
 };
 */

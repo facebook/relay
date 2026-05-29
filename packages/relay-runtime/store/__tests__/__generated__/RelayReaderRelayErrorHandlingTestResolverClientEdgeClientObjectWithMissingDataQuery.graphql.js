@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c8a71cf5758ae3b0b4639bfca220ee8d>>
+ * @generated SignedSource<<29fabebd06557e9326212f6a838352f9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,21 +27,21 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$variables = {||};
-export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$data = {|
-  +me: ?{|
-    +astrological_sign: ?{|
-      +notes: ?string,
-    |},
-  |},
-|};
-export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$variables = {};
+export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$data = {
+  readonly me: ?{
+    readonly astrological_sign: ?{
+      readonly notes: ?string,
+    },
+  },
+};
+export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery = {
   response: RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$data,
   variables: RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<122881b6ddf238a509cb13667f2e655c>>
+ * @generated SignedSource<<fab6be1b6b5da2fecd7d06849610d146>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,18 +23,18 @@ import type { RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragment
 import type { RelayResponseNormalizerTest1PlainUserNameRenderer_name$fragmentType } from "./RelayResponseNormalizerTest1PlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResponseNormalizerTest1Fragment$fragmentType: FragmentType;
-export type RelayResponseNormalizerTest1Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType & RelayResponseNormalizerTest1PlainUserNameRenderer_name$fragmentType,
-  |},
-  +$fragmentType: RelayResponseNormalizerTest1Fragment$fragmentType,
-|};
+export type RelayResponseNormalizerTest1Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType & RelayResponseNormalizerTest1PlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayResponseNormalizerTest1Fragment$fragmentType,
+};
 export type RelayResponseNormalizerTest1Fragment$key = {
-  +$data?: RelayResponseNormalizerTest1Fragment$data,
-  +$fragmentSpreads: RelayResponseNormalizerTest1Fragment$fragmentType,
+  readonly $data?: RelayResponseNormalizerTest1Fragment$data,
+  readonly $fragmentSpreads: RelayResponseNormalizerTest1Fragment$fragmentType,
   ...
 };
 */

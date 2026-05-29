@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1272d367b189997ead219c4a1c643dc9>>
+ * @generated SignedSource<<bd7b9b32b554176ba77db0d0c32c2a41>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,14 +21,14 @@ import type { ClientEdgesTest5Query_user$fragmentType } from "./ClientEdgesTest5
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$variables = any;
-export type RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data = {|
-  +id: string,
-  +$fragmentSpreads: ClientEdgesTest5Query_user$fragmentType,
-  +$fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data = {
+  readonly id: string,
+  readonly $fragmentSpreads: ClientEdgesTest5Query_user$fragmentType,
+  readonly $fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType,
   ...
 };
 */

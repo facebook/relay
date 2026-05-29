@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b346fce38bf354f2a7aaf4c75bf1a83e>>
+ * @generated SignedSource<<59ae7bc1ef87c78e721f1aa6820d6681>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,16 +27,16 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayResolversAbstractTypeRootFragmentTestQuery$variables = {||};
-export type RelayResolversAbstractTypeRootFragmentTestQuery$data = {|
-  +node: ?{|
-    +node_greeting: ?string,
-  |},
-|};
-export type RelayResolversAbstractTypeRootFragmentTestQuery = {|
+export type RelayResolversAbstractTypeRootFragmentTestQuery$variables = {};
+export type RelayResolversAbstractTypeRootFragmentTestQuery$data = {
+  readonly node: ?{
+    readonly node_greeting: ?string,
+  },
+};
+export type RelayResolversAbstractTypeRootFragmentTestQuery = {
   response: RelayResolversAbstractTypeRootFragmentTestQuery$data,
   variables: RelayResolversAbstractTypeRootFragmentTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

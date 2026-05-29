@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9016816c9735202307b562f088218257>>
+ * @generated SignedSource<<968a9a59892a938f46d66077dbdd1562>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,27 +24,27 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodosResolverType as (
-  args: {|
+  args: {
     first: ?number,
     last: ?number,
-  |},
+  },
   context: TestResolverContextType,
 ) => LiveState<?Query__todos$normalization>);
 import type { Query__todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql";
-export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$variables = {||};
-export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$data = {|
-  +todos: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
-      |},
-    |}>,
-  |},
-|};
-export type RelayResolversWithOutputTypeTestExceptionalProjectQuery = {|
+export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$variables = {};
+export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$data = {
+  readonly todos: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly $fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
+      },
+    }>,
+  },
+};
+export type RelayResolversWithOutputTypeTestExceptionalProjectQuery = {
   response: RelayResolversWithOutputTypeTestExceptionalProjectQuery$data,
   variables: RelayResolversWithOutputTypeTestExceptionalProjectQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

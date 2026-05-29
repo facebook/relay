@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1c0d3831f94edd8461fb1f7c26ffae25>>
+ * @generated SignedSource<<c33ad40df65db7bb4d2d949756a67233>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,18 +23,18 @@ import type { DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType } from 
 import type { DataCheckerTest5PlainUserNameRenderer_name$fragmentType } from "./DataCheckerTest5PlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest5Fragment$fragmentType: FragmentType;
-export type DataCheckerTest5Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType & DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
-  |},
-  +$fragmentType: DataCheckerTest5Fragment$fragmentType,
-|};
+export type DataCheckerTest5Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType & DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: DataCheckerTest5Fragment$fragmentType,
+};
 export type DataCheckerTest5Fragment$key = {
-  +$data?: DataCheckerTest5Fragment$data,
-  +$fragmentSpreads: DataCheckerTest5Fragment$fragmentType,
+  readonly $data?: DataCheckerTest5Fragment$data,
+  readonly $fragmentSpreads: DataCheckerTest5Fragment$fragmentType,
   ...
 };
 */

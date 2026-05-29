@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<83d89ae8f5ddca20fe9c0d65831a057f>>
+ * @generated SignedSource<<980ec4682fa0c7d07041670a864f6bf9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,40 +17,40 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables = {|
+};
+export type RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables = {
   input?: ?CommentCreateInput,
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest1Mutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +id: string,
-      +message: ?{|
-        +text: ?string,
-      |},
-    |},
-    +feedback: ?{|
-      +body: ?{|
-        +text: ?string,
-      |},
-      +id: string,
-      +lastName: ?string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest1Mutation = {|
+};
+export type RelayModernEnvironmentWithOperationTrackerTest1Mutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly id: string,
+      readonly message: ?{
+        readonly text: ?string,
+      },
+    },
+    readonly feedback: ?{
+      readonly body: ?{
+        readonly text: ?string,
+      },
+      readonly id: string,
+      readonly lastName: ?string,
+    },
+  },
+};
+export type RelayModernEnvironmentWithOperationTrackerTest1Mutation = {
   response: RelayModernEnvironmentWithOperationTrackerTest1Mutation$data,
   variables: RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0c8f4d1f194c59e2b8f14d764a0e90b1>>
+ * @generated SignedSource<<cb1adeadf030cb087cc7ae1ecd7e25a7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,21 +18,21 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type Query__todos$normalization = {|
-  +count: number,
-  +edges: ?ReadonlyArray<?{|
-    +cursor: ?string,
-    +node: ?{|
-      +todo_id: string,
-    |},
-  |}>,
-  +pageInfo: {|
-    +endCursor: ?string,
-    +hasNextPage: boolean,
-    +hasPreviousPage: boolean,
-    +startCursor: ?string,
-  |},
-|};
+export type Query__todos$normalization = {
+  readonly count: number,
+  readonly edges: ?ReadonlyArray<?{
+    readonly cursor: ?string,
+    readonly node: ?{
+      readonly todo_id: string,
+    },
+  }>,
+  readonly pageInfo: {
+    readonly endCursor: ?string,
+    readonly hasNextPage: boolean,
+    readonly hasPreviousPage: boolean,
+    readonly startCursor: ?string,
+  },
+};
 
 */
 

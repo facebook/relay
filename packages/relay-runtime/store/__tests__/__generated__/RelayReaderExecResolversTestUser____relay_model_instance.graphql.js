@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c7819a32d67427f373cb73511e8b2fe9>>
+ * @generated SignedSource<<147f26a04ce1f92cb8d683a176a7dd52>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -29,13 +29,13 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   context: TestResolverContextType,
 ) => unknown);
 declare export opaque type RelayReaderExecResolversTestUser____relay_model_instance$fragmentType: FragmentType;
-export type RelayReaderExecResolversTestUser____relay_model_instance$data = {|
-  +__relay_model_instance: NonNullable<ReturnType<typeof relayReaderExecResolversTestUserRelayModelInstanceResolverType>>,
-  +$fragmentType: RelayReaderExecResolversTestUser____relay_model_instance$fragmentType,
-|};
+export type RelayReaderExecResolversTestUser____relay_model_instance$data = {
+  readonly __relay_model_instance: NonNullable<ReturnType<typeof relayReaderExecResolversTestUserRelayModelInstanceResolverType>>,
+  readonly $fragmentType: RelayReaderExecResolversTestUser____relay_model_instance$fragmentType,
+};
 export type RelayReaderExecResolversTestUser____relay_model_instance$key = {
-  +$data?: RelayReaderExecResolversTestUser____relay_model_instance$data,
-  +$fragmentSpreads: RelayReaderExecResolversTestUser____relay_model_instance$fragmentType,
+  readonly $data?: RelayReaderExecResolversTestUser____relay_model_instance$data,
+  readonly $fragmentSpreads: RelayReaderExecResolversTestUser____relay_model_instance$fragmentType,
   ...
 };
 */

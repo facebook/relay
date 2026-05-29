@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<100c6ae35d620fc893bb5b9dce92eea4>>
+ * @generated SignedSource<<ea84b1498fe28185d97e9df1618511d0>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,19 +23,19 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloResolverType as (
-  args: {|
+  args: {
     world: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type HelloWorldResolverWithProvidedVariable$fragmentType: FragmentType;
-export type HelloWorldResolverWithProvidedVariable$data = {|
-  +hello: ?string,
-  +$fragmentType: HelloWorldResolverWithProvidedVariable$fragmentType,
-|};
+export type HelloWorldResolverWithProvidedVariable$data = {
+  readonly hello: ?string,
+  readonly $fragmentType: HelloWorldResolverWithProvidedVariable$fragmentType,
+};
 export type HelloWorldResolverWithProvidedVariable$key = {
-  +$data?: HelloWorldResolverWithProvidedVariable$data,
-  +$fragmentSpreads: HelloWorldResolverWithProvidedVariable$fragmentType,
+  readonly $data?: HelloWorldResolverWithProvidedVariable$data,
+  readonly $fragmentSpreads: HelloWorldResolverWithProvidedVariable$fragmentType,
   ...
 };
 */

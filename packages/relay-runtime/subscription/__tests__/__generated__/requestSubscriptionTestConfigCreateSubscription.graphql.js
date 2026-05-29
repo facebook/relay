@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f1f646d1b04d060e969d986e13e31d51>>
+ * @generated SignedSource<<1ee4b2f8bcf693cf168787ea8ad1f1ef>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 import type { requestSubscriptionTestExtraFragment$fragmentType } from "./requestSubscriptionTestExtraFragment.graphql";
-export type requestSubscriptionTestConfigCreateSubscription$variables = {||};
-export type requestSubscriptionTestConfigCreateSubscription$data = {|
-  +configCreateSubscribe: ?{|
-    +config: ?{|
-      +name: ?string,
-      +$fragmentSpreads: requestSubscriptionTestExtraFragment$fragmentType,
-    |},
-  |},
-|};
-export type requestSubscriptionTestConfigCreateSubscription = {|
+export type requestSubscriptionTestConfigCreateSubscription$variables = {};
+export type requestSubscriptionTestConfigCreateSubscription$data = {
+  readonly configCreateSubscribe: ?{
+    readonly config: ?{
+      readonly name: ?string,
+      readonly $fragmentSpreads: requestSubscriptionTestExtraFragment$fragmentType,
+    },
+  },
+};
+export type requestSubscriptionTestConfigCreateSubscription = {
   response: requestSubscriptionTestConfigCreateSubscription$data,
   variables: requestSubscriptionTestConfigCreateSubscription$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<011750331f264e74732df2ce6e192fdf>>
+ * @generated SignedSource<<c4bedb74941d30e6de3534c32c0edbe7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TodoModelCapitalizedID$fragmentType: FragmentType;
-export type TodoModelCapitalizedID$data = {|
-  +id: string,
-  +$fragmentType: TodoModelCapitalizedID$fragmentType,
-|};
+export type TodoModelCapitalizedID$data = {
+  readonly id: string,
+  readonly $fragmentType: TodoModelCapitalizedID$fragmentType,
+};
 export type TodoModelCapitalizedID$key = {
-  +$data?: TodoModelCapitalizedID$data,
-  +$fragmentSpreads: TodoModelCapitalizedID$fragmentType,
+  readonly $data?: TodoModelCapitalizedID$data,
+  readonly $fragmentSpreads: TodoModelCapitalizedID$fragmentType,
   ...
 };
 */

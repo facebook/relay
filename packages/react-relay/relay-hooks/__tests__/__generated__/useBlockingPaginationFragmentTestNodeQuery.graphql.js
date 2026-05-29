@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a494d416185ad57245e98b5d271ed228>>
+ * @generated SignedSource<<336c560de03d3ef447296257864d03c4>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type useBlockingPaginationFragmentTestNodeQuery$variables = {|
+export type useBlockingPaginationFragmentTestNodeQuery$variables = {
   id: string,
-|};
-export type useBlockingPaginationFragmentTestNodeQuery$data = {|
-  +node: ?{|
-    +name?: ?string,
-  |},
-|};
-export type useBlockingPaginationFragmentTestNodeQuery = {|
+};
+export type useBlockingPaginationFragmentTestNodeQuery$data = {
+  readonly node: ?{
+    readonly name?: ?string,
+  },
+};
+export type useBlockingPaginationFragmentTestNodeQuery = {
   response: useBlockingPaginationFragmentTestNodeQuery$data,
   variables: useBlockingPaginationFragmentTestNodeQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

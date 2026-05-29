@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cb3ecb366d7cea72ab19183c977a1b5d>>
+ * @generated SignedSource<<cd758241c436bafc902473229bd7d897>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useLazyLoadQueryNodeActivityTestUserFragment$fragmentType } from "./useLazyLoadQueryNodeActivityTestUserFragment.graphql";
-export type useLazyLoadQueryNodeActivityTestUserQuery$variables = {|
+export type useLazyLoadQueryNodeActivityTestUserQuery$variables = {
   id?: ?string,
-|};
-export type useLazyLoadQueryNodeActivityTestUserQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +name: ?string,
-    +$fragmentSpreads: useLazyLoadQueryNodeActivityTestUserFragment$fragmentType,
-  |},
-|};
-export type useLazyLoadQueryNodeActivityTestUserQuery = {|
+};
+export type useLazyLoadQueryNodeActivityTestUserQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly $fragmentSpreads: useLazyLoadQueryNodeActivityTestUserFragment$fragmentType,
+  },
+};
+export type useLazyLoadQueryNodeActivityTestUserQuery = {
   response: useLazyLoadQueryNodeActivityTestUserQuery$data,
   variables: useLazyLoadQueryNodeActivityTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

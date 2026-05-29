@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8f7b044dbe1a468563e290e1a7741796>>
+ * @generated SignedSource<<574aad55f4b8b8ab895a33d033d2405d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,29 +22,29 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTestModuleA_user$fragmentType } from "./RelayReaderAliasedFragmentsTestModuleA_user.graphql";
 import type { RelayReaderAliasedFragmentsTestModuleB_user$fragmentType } from "./RelayReaderAliasedFragmentsTestModuleB_user.graphql";
-export type RelayReaderAliasedFragmentsTestMultipleModulesQuery$variables = {|
+export type RelayReaderAliasedFragmentsTestMultipleModulesQuery$variables = {
   conditionA: boolean,
   conditionB: boolean,
   id: string,
-|};
-export type RelayReaderAliasedFragmentsTestMultipleModulesQuery$data = {|
-  +node: ?{|
-    +alias_a?: ?{|
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestModuleA_user$fragmentType,
-    |},
-    +alias_b?: ?{|
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestModuleB_user$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestMultipleModulesQuery = {|
+};
+export type RelayReaderAliasedFragmentsTestMultipleModulesQuery$data = {
+  readonly node: ?{
+    readonly alias_a?: ?{
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestModuleA_user$fragmentType,
+    },
+    readonly alias_b?: ?{
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestModuleB_user$fragmentType,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestMultipleModulesQuery = {
   response: RelayReaderAliasedFragmentsTestMultipleModulesQuery$data,
   variables: RelayReaderAliasedFragmentsTestMultipleModulesQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

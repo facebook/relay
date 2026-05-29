@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fcf2985171fcf8f9b997834b42b905f7>>
+ * @generated SignedSource<<3cd4c81a915b25ed7b2b44e2cef6dbf4>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,29 +22,29 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTestModuleA_user$fragmentType } from "./RelayReaderAliasedFragmentsTestModuleA_user.graphql";
 import type { RelayReaderAliasedFragmentsTestModuleB_user$fragmentType } from "./RelayReaderAliasedFragmentsTestModuleB_user.graphql";
-export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$variables = {|
+export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$variables = {
   id: string,
-|};
-export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$data = {|
-  +node: ?{|
-    +a_common_alias: ?{|
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestModuleA_user$fragmentType,
-    |},
-    +a_namespace_alias_that_prevents_collisions: {|
-      +a_common_alias: ?{|
-        +__fragmentPropName: ?string,
-        +__module_component: ?string,
-        +$fragmentSpreads: RelayReaderAliasedFragmentsTestModuleB_user$fragmentType,
-      |},
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery = {|
+};
+export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$data = {
+  readonly node: ?{
+    readonly a_common_alias: ?{
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestModuleA_user$fragmentType,
+    },
+    readonly a_namespace_alias_that_prevents_collisions: {
+      readonly a_common_alias: ?{
+        readonly __fragmentPropName: ?string,
+        readonly __module_component: ?string,
+        readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestModuleB_user$fragmentType,
+      },
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery = {
   response: RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$data,
   variables: RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

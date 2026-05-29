@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fb3078494f8352e5f46bedb38eb94d69>>
+ * @generated SignedSource<<4869242d4a86529c9fd3269ab140c492>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType: FragmentType;
-export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data = {|
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
-|};
+export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data = {
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
+};
 export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$key = {
-  +$data?: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data,
-  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
+  readonly $data?: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data,
+  readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
   ...
 };
 */

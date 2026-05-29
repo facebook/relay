@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a2115c5b11e8470d3236495e3f450091>>
+ * @generated SignedSource<<cbd9c5aac22b1682cafcbef7742a8cb0>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,17 +26,17 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type LiveResolversTest14Query$variables = {||};
-export type LiveResolversTest14Query$data = {|
-  +counter_no_fragment: ?number,
-  +me: ?{|
-    +__typename: "User",
-  |},
-|};
-export type LiveResolversTest14Query = {|
+export type LiveResolversTest14Query$variables = {};
+export type LiveResolversTest14Query$data = {
+  readonly counter_no_fragment: ?number,
+  readonly me: ?{
+    readonly __typename: "User",
+  },
+};
+export type LiveResolversTest14Query = {
   response: LiveResolversTest14Query$data,
   variables: LiveResolversTest14Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

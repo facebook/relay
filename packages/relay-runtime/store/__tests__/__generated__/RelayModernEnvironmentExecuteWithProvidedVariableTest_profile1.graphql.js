@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c18e3ffa4247504d6dc7c253f282fdf7>>
+ * @generated SignedSource<<420b8783150c6f2fe6e0776590ddf660>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,18 +19,18 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data = {|
-  +id: string,
-  +name?: ?string,
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +username?: ?string,
-  +$fragmentType: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data = {
+  readonly id: string,
+  readonly name?: ?string,
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly username?: ?string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$key = {
-  +$data?: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
   ...
 };
 */

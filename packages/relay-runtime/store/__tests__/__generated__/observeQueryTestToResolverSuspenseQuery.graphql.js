@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9302979a0c6e04a2725c1698e9377d25>>
+ * @generated SignedSource<<7761c42334c3211aa20b44acca954fcb>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,16 +26,16 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type observeQueryTestToResolverSuspenseQuery$variables = {||};
-export type observeQueryTestToResolverSuspenseQuery$data = {|
-  +me: ?{|
-    +counter_suspends_when_odd: ?number,
-  |},
-|};
-export type observeQueryTestToResolverSuspenseQuery = {|
+export type observeQueryTestToResolverSuspenseQuery$variables = {};
+export type observeQueryTestToResolverSuspenseQuery$data = {
+  readonly me: ?{
+    readonly counter_suspends_when_odd: ?number,
+  },
+};
+export type observeQueryTestToResolverSuspenseQuery = {
   response: observeQueryTestToResolverSuspenseQuery$data,
   variables: observeQueryTestToResolverSuspenseQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

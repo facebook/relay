@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0ea378e67428e1bc51c0ec62106f81c2>>
+ * @generated SignedSource<<2ccb2bec1e0eab3d4e3939bffb04246d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,28 +17,28 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTest6ChangeNameBirthdayMutation$variables = {|
+};
+export type validateMutationTest6ChangeNameBirthdayMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTest6ChangeNameBirthdayMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +birthdate?: ?{|
-        +day: ?number,
-        +month: ?number,
-        +year: ?number,
-      |},
-      +username?: ?string,
-    |},
-  |},
-|};
-export type validateMutationTest6ChangeNameBirthdayMutation = {|
+};
+export type validateMutationTest6ChangeNameBirthdayMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly birthdate?: ?{
+        readonly day: ?number,
+        readonly month: ?number,
+        readonly year: ?number,
+      },
+      readonly username?: ?string,
+    },
+  },
+};
+export type validateMutationTest6ChangeNameBirthdayMutation = {
   response: validateMutationTest6ChangeNameBirthdayMutation$data,
   variables: validateMutationTest6ChangeNameBirthdayMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

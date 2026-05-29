@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<50a9fc8ab1333dd8b3073dc8852a3345>>
+ * @generated SignedSource<<2bf5704015f2b4e393034810487fdf5b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,24 +21,24 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceWithOperationTrackerTestUserFragment$fragmentType } from "./FragmentResourceWithOperationTrackerTestUserFragment.graphql";
-export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables = {|
+export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables = {
   id: string,
-|};
-export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data = {|
-  +node: ?{|
-    +friends?: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +node: ?{|
-          +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
-        |},
-      |}>,
-    |},
-  |},
-|};
-export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery = {|
+};
+export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data = {
+  readonly node: ?{
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly $fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+        },
+      }>,
+    },
+  },
+};
+export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery = {
   response: FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data,
   variables: FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

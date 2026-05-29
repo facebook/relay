@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<719363c2e31fc0ad8bffceb5319215bb>>
+ * @generated SignedSource<<cfcb097c21885c18a76fb2ebd131dad1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,22 +20,22 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest13Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest13Fragment$data = {|
-  +actor: ?{|
-    +id?: string,
-    +name?: ?string,
-    +profile_picture?: ?{|
-      +height: ?number,
-      +uri: ?string,
-    |},
-    +traits?: ?ReadonlyArray<?PersonalityTraits>,
-    +websites?: ?ReadonlyArray<?string>,
-  |},
-  +$fragmentType: RelayMockPayloadGeneratorTest13Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest13Fragment$data = {
+  readonly actor: ?{
+    readonly id?: string,
+    readonly name?: ?string,
+    readonly profile_picture?: ?{
+      readonly height: ?number,
+      readonly uri: ?string,
+    },
+    readonly traits?: ?ReadonlyArray<?PersonalityTraits>,
+    readonly websites?: ?ReadonlyArray<?string>,
+  },
+  readonly $fragmentType: RelayMockPayloadGeneratorTest13Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest13Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest13Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest13Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest13Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest13Fragment$fragmentType,
   ...
 };
 */

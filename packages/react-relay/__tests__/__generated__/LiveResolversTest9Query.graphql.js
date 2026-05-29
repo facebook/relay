@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<43cb841750ca4ed03845f43d3c90fa28>>
+ * @generated SignedSource<<eda01edc656196c8dc2048c54db09019>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,24 +25,24 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType as (
   rootKey: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key,
-  args: {|
+  args: {
     scale: ?number,
-  |},
+  },
   context: TestResolverContextType,
 ) => LiveState<?string>);
-export type LiveResolversTest9Query$variables = {|
+export type LiveResolversTest9Query$variables = {
   id: string,
   scale: number,
-|};
-export type LiveResolversTest9Query$data = {|
-  +node: ?{|
-    +profile_picture_uri?: ?string,
-  |},
-|};
-export type LiveResolversTest9Query = {|
+};
+export type LiveResolversTest9Query$data = {
+  readonly node: ?{
+    readonly profile_picture_uri?: ?string,
+  },
+};
+export type LiveResolversTest9Query = {
   response: LiveResolversTest9Query$data,
   variables: LiveResolversTest9Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

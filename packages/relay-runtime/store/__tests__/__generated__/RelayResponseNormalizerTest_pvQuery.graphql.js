@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6c9f4b0da4b095b11fa40cd6eafc3d95>>
+ * @generated SignedSource<<154e699ff79d825f082b33db712f5075>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,30 +18,30 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayResponseNormalizerTest_pvFragment$fragmentType } from "./RelayResponseNormalizerTest_pvFragment.graphql";
-export type RelayResponseNormalizerTest_pvQuery$variables = {|
+export type RelayResponseNormalizerTest_pvQuery$variables = {
   id: string,
-|};
-export type RelayResponseNormalizerTest_pvQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: RelayResponseNormalizerTest_pvFragment$fragmentType,
-  |},
-|};
-export type RelayResponseNormalizerTest_pvQuery = {|
+};
+export type RelayResponseNormalizerTest_pvQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayResponseNormalizerTest_pvFragment$fragmentType,
+  },
+};
+export type RelayResponseNormalizerTest_pvQuery = {
   response: RelayResponseNormalizerTest_pvQuery$data,
   variables: RelayResponseNormalizerTest_pvQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider'),
   "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('../RelayProvider_returnsFalse.relayprovider')
-} as {|
-  +__relay_internal__pv__RelayProvider_returnsFalserelayprovider: {|
-    +get: () => boolean,
-  |},
-  +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
-    +get: () => boolean,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__RelayProvider_returnsFalserelayprovider: {
+    readonly get: () => boolean,
+  },
+  readonly __relay_internal__pv__RelayProvider_returnsTruerelayprovider: {
+    readonly get: () => boolean,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){

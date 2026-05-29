@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6650689035d48ed7c8b25394ed5c12c3>>
+ * @generated SignedSource<<11e08deba00f071399f6009e6eb58559>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,24 +18,24 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType } from "./FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment.graphql";
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$variables = {||};
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +friends: ?{|
-        +edges: ?ReadonlyArray<?{|
-          +node: ?{|
-            +$fragmentSpreads: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
-          |},
-        |}>,
-      |},
-    |},
-  |},
-|};
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery = {|
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$variables = {};
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly friends: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly node: ?{
+            readonly $fragmentSpreads: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
+          },
+        }>,
+      },
+    },
+  },
+};
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery = {
   response: FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$data,
   variables: FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

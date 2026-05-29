@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a11bff1d8308700fc0e2841c184d7095>>
+ * @generated SignedSource<<c238c2124506fe14bcd4f488f0e3165d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,30 +21,30 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment.graphql";
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentWithOperationTrackerTestMutation$variables = {|
+};
+export type RelayModernEnvironmentWithOperationTrackerTestMutation$variables = {
   input?: ?CommentCreateInput,
-|};
-export type RelayModernEnvironmentWithOperationTrackerTestMutation$data = {|
-  +commentCreate: ?{|
-    +feedback: ?{|
-      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentWithOperationTrackerTestMutation = {|
+};
+export type RelayModernEnvironmentWithOperationTrackerTestMutation$data = {
+  readonly commentCreate: ?{
+    readonly feedback: ?{
+      readonly $fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentWithOperationTrackerTestMutation = {
   response: RelayModernEnvironmentWithOperationTrackerTestMutation$data,
   variables: RelayModernEnvironmentWithOperationTrackerTestMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

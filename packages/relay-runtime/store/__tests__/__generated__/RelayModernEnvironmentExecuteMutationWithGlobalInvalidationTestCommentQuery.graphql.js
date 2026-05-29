@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fad20a6ddab66d44726e31e466bbdf76>>
+ * @generated SignedSource<<e3697e47836b94762a5c043ebee2e643>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment.graphql";
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$variables = {|
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery = {
   response: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$data,
   variables: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

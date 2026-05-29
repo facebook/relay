@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<60383db664c0dbae850c7811c669b3dd>>
+ * @generated SignedSource<<71a3539646e4c2ee5e03d2856d054a85>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,14 +26,14 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type LiveResolversTestHandlesErrorOnUpdateQuery$variables = {||};
-export type LiveResolversTestHandlesErrorOnUpdateQuery$data = {|
-  +counter_throws_when_odd: ?number,
-|};
-export type LiveResolversTestHandlesErrorOnUpdateQuery = {|
+export type LiveResolversTestHandlesErrorOnUpdateQuery$variables = {};
+export type LiveResolversTestHandlesErrorOnUpdateQuery$data = {
+  readonly counter_throws_when_odd: ?number,
+};
+export type LiveResolversTestHandlesErrorOnUpdateQuery = {
   response: LiveResolversTestHandlesErrorOnUpdateQuery$data,
   variables: LiveResolversTestHandlesErrorOnUpdateQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

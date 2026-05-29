@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c2e95e13507442be2d119297046b8064>>
+ * @generated SignedSource<<eade1c00b7deae0616917f2b1b484408>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type QueryResourceTest2Query$variables = {|
+export type QueryResourceTest2Query$variables = {
   id: string,
-|};
-export type QueryResourceTest2Query$data = {|
-  +node: ?{|
-    +id?: string,
-    +name?: ?string,
-  |},
-|};
-export type QueryResourceTest2Query = {|
+};
+export type QueryResourceTest2Query$data = {
+  readonly node: ?{
+    readonly id?: string,
+    readonly name?: ?string,
+  },
+};
+export type QueryResourceTest2Query = {
   response: QueryResourceTest2Query$data,
   variables: QueryResourceTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

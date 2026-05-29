@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cda12e4e38196f522312fceb7434b72d>>
+ * @generated SignedSource<<72e0f3c60c29af09adab8bc25bac56b9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,17 +18,17 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType } from "./RelayModernEnvironmentCommitPayloadTest4UserFragment.graphql";
-export type RelayModernEnvironmentCommitPayloadTest4ActorQuery$variables = {||};
-export type RelayModernEnvironmentCommitPayloadTest4ActorQuery$data = {|
-  +me: ?{|
-    +name: ?string,
-    +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentCommitPayloadTest4ActorQuery = {|
+export type RelayModernEnvironmentCommitPayloadTest4ActorQuery$variables = {};
+export type RelayModernEnvironmentCommitPayloadTest4ActorQuery$data = {
+  readonly me: ?{
+    readonly name: ?string,
+    readonly $fragmentSpreads: RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentCommitPayloadTest4ActorQuery = {
   response: RelayModernEnvironmentCommitPayloadTest4ActorQuery$data,
   variables: RelayModernEnvironmentCommitPayloadTest4ActorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

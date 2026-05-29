@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b2eca5b43b530ed571ef5308d8be7992>>
+ * @generated SignedSource<<c091d4a8b7fb375fbe80411da80ef355>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,35 +17,35 @@
 
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
-export type readUpdatableQueryTestMissingFieldsUpdatableQuery$variables = {||};
-export type readUpdatableQueryTestMissingFieldsUpdatableQuery$data = {|
-  get me(): ?{|
+export type readUpdatableQueryTestMissingFieldsUpdatableQuery$variables = {};
+export type readUpdatableQueryTestMissingFieldsUpdatableQuery$data = {
+  get me(): ?{
     lastName: ?string,
-  |},
+  },
   set me(value: null | void): void,
-  get node(): ?({|
-    +__typename: "User",
+  get node(): ?({
+    readonly __typename: "User",
     name: ?string,
-  |} | {|
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+    readonly __typename: "%other",
+  }),
   set node(value: null | void): void,
-  get nodes(): ?ReadonlyArray<?({|
-    +__typename: "User",
+  get nodes(): ?ReadonlyArray<?({
+    readonly __typename: "User",
     name: ?string,
-  |} | {|
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |})>,
+    readonly __typename: "%other",
+  })>,
   set nodes(value: []): void,
-|};
-export type readUpdatableQueryTestMissingFieldsUpdatableQuery = {|
+};
+export type readUpdatableQueryTestMissingFieldsUpdatableQuery = {
   response: readUpdatableQueryTestMissingFieldsUpdatableQuery$data,
   variables: readUpdatableQueryTestMissingFieldsUpdatableQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteUpdatableQuery*/ = (function(){

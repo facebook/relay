@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ffb5a295eb75401906924c9e55f388e4>>
+ * @generated SignedSource<<9e2da07b5a990b674bfb6c0c1610751a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,17 +20,17 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest26Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest26Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest25Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest25Fragment$data = {|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest26Fragment$fragmentType,
-  |},
-  +$fragmentType: RelayMockPayloadGeneratorTest25Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest25Fragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest26Fragment$fragmentType,
+  },
+  readonly $fragmentType: RelayMockPayloadGeneratorTest25Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest25Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest25Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest25Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest25Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest25Fragment$fragmentType,
   ...
 };
 */

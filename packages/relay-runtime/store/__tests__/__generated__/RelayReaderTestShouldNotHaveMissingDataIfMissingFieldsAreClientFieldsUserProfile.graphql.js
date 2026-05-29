@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<723471a3d79aa649509309f76d7c0300>>
+ * @generated SignedSource<<f7ba4612b938328ca470409de44dc149>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,49 +19,49 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType: FragmentType;
-export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data = {|
-  +best_friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +client_friend_edge_field: ?string,
-      +cursor: ?string,
-      +node: ?{|
-        +client_actor_field?: ?string,
-        +id: string,
-        +profilePicture?: ?{|
-          +height: ?number,
-          +uri: ?string,
-          +width: ?number,
-        |},
-      |},
-    |}>,
-  |},
-  +client_actor_field: ?string,
-  +client_foo: ?{|
-    +client_name: ?string,
-    +profile_picture: ?{|
-      +uri: ?string,
-    |},
-  |},
-  +friends: ?{|
-    +client_friends_connection_field: ?string,
-    +edges: ?ReadonlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +client_foo: ?{|
-          +client_name: ?string,
-        |},
-        +firstName: ?string,
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +nickname: ?string,
-  +$fragmentType: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
-|};
+export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data = {
+  readonly best_friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly client_friend_edge_field: ?string,
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly client_actor_field?: ?string,
+        readonly id: string,
+        readonly profilePicture?: ?{
+          readonly height: ?number,
+          readonly uri: ?string,
+          readonly width: ?number,
+        },
+      },
+    }>,
+  },
+  readonly client_actor_field: ?string,
+  readonly client_foo: ?{
+    readonly client_name: ?string,
+    readonly profile_picture: ?{
+      readonly uri: ?string,
+    },
+  },
+  readonly friends: ?{
+    readonly client_friends_connection_field: ?string,
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly client_foo: ?{
+          readonly client_name: ?string,
+        },
+        readonly firstName: ?string,
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly nickname: ?string,
+  readonly $fragmentType: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
+};
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$key = {
-  +$data?: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data,
-  +$fragmentSpreads: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
+  readonly $data?: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data,
+  readonly $fragmentSpreads: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
   ...
 };
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9186e8aac3e38e2948b1b5b51ed85931>>
+ * @generated SignedSource<<bd884b447cc590ea5940398a9f1e1d4c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,21 +27,21 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderClientEdgesTest6Query$variables = {||};
-export type RelayReaderClientEdgesTest6Query$data = {|
-  +me: ?{|
-    +the_alias: ?{|
-      +name: ?string,
-    |},
-  |},
-|};
-export type RelayReaderClientEdgesTest6Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderClientEdgesTest6Query$variables = {};
+export type RelayReaderClientEdgesTest6Query$data = {
+  readonly me: ?{
+    readonly the_alias: ?{
+      readonly name: ?string,
+    },
+  },
+};
+export type RelayReaderClientEdgesTest6Query = {
   response: RelayReaderClientEdgesTest6Query$data,
   variables: RelayReaderClientEdgesTest6Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

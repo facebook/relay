@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ea488ef8fdc7a90c093451b7516e544a>>
+ * @generated SignedSource<<dcf756ce024438a4fe50e0201397fa61>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserProfilePictureResolver$fragmentType: FragmentType;
-export type UserProfilePictureResolver$data = {|
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: UserProfilePictureResolver$fragmentType,
-|};
+export type UserProfilePictureResolver$data = {
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: UserProfilePictureResolver$fragmentType,
+};
 export type UserProfilePictureResolver$key = {
-  +$data?: UserProfilePictureResolver$data,
-  +$fragmentSpreads: UserProfilePictureResolver$fragmentType,
+  readonly $data?: UserProfilePictureResolver$data,
+  readonly $fragmentSpreads: UserProfilePictureResolver$fragmentType,
   ...
 };
 */

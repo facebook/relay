@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<412b4062b9c53ca36e397a62b8375c07>>
+ * @generated SignedSource<<ca4e2a3225120b56e1ea479529d823ad>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentLookupTestChildFragment$fragmentType } from "./RelayModernEnvironmentLookupTestChildFragment.graphql";
-export type RelayModernEnvironmentLookupTestParentQuery$variables = {||};
-export type RelayModernEnvironmentLookupTestParentQuery$data = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-    +$fragmentSpreads: RelayModernEnvironmentLookupTestChildFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentLookupTestParentQuery = {|
+export type RelayModernEnvironmentLookupTestParentQuery$variables = {};
+export type RelayModernEnvironmentLookupTestParentQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly $fragmentSpreads: RelayModernEnvironmentLookupTestChildFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentLookupTestParentQuery = {
   response: RelayModernEnvironmentLookupTestParentQuery$data,
   variables: RelayModernEnvironmentLookupTestParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

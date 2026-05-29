@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c65310d0e1964da5ec00e16c14d77e2f>>
+ * @generated SignedSource<<8c8931722c734ef0e3b3c89483b9ab40>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,20 +19,20 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { GraphQLTagTest3UserFragment$fragmentType } from "./GraphQLTagTest3UserFragment.graphql";
-export type GraphQLTagTestUserFragment2RefetchQuery$variables = {|
+export type GraphQLTagTestUserFragment2RefetchQuery$variables = {
   after?: ?string,
   first?: ?number,
   id: string,
-|};
-export type GraphQLTagTestUserFragment2RefetchQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: GraphQLTagTest3UserFragment$fragmentType,
-  |},
-|};
-export type GraphQLTagTestUserFragment2RefetchQuery = {|
+};
+export type GraphQLTagTestUserFragment2RefetchQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: GraphQLTagTest3UserFragment$fragmentType,
+  },
+};
+export type GraphQLTagTestUserFragment2RefetchQuery = {
   response: GraphQLTagTestUserFragment2RefetchQuery$data,
   variables: GraphQLTagTestUserFragment2RefetchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<702e11a91d7153c8577adde4c50c6d52>>
+ * @generated SignedSource<<04d263080a1f748af4242390c0d2b2a5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -29,13 +29,13 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type UserShoutedGreetingResolver$fragmentType: FragmentType;
-export type UserShoutedGreetingResolver$data = {|
-  +greeting: ?string,
-  +$fragmentType: UserShoutedGreetingResolver$fragmentType,
-|};
+export type UserShoutedGreetingResolver$data = {
+  readonly greeting: ?string,
+  readonly $fragmentType: UserShoutedGreetingResolver$fragmentType,
+};
 export type UserShoutedGreetingResolver$key = {
-  +$data?: UserShoutedGreetingResolver$data,
-  +$fragmentSpreads: UserShoutedGreetingResolver$fragmentType,
+  readonly $data?: UserShoutedGreetingResolver$data,
+  readonly $fragmentSpreads: UserShoutedGreetingResolver$fragmentType,
   ...
 };
 */

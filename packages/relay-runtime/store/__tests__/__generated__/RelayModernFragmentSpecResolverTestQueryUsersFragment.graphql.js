@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<523720deff8f21a5762a252db0a9f6b4>>
+ * @generated SignedSource<<f52a4a966783eebfdd3ced461bb3728a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,17 +19,17 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType: FragmentType;
-export type RelayModernFragmentSpecResolverTestQueryUsersFragment$data = ReadonlyArray<{|
-  +id: string,
-  +name: ?string,
-  +profilePicture?: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
-|}>;
+export type RelayModernFragmentSpecResolverTestQueryUsersFragment$data = ReadonlyArray<{
+  readonly id: string,
+  readonly name: ?string,
+  readonly profilePicture?: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
+}>;
 export type RelayModernFragmentSpecResolverTestQueryUsersFragment$key = ReadonlyArray<{
-  +$data?: RelayModernFragmentSpecResolverTestQueryUsersFragment$data,
-  +$fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
+  readonly $data?: RelayModernFragmentSpecResolverTestQueryUsersFragment$data,
+  readonly $fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
   ...
 }>;
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<990dc94cd631254a43c11429e0783694>>
+ * @generated SignedSource<<946b961a10b6a182b77851bd0a5fccdf>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,14 +26,14 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?string>);
-export type LiveResolversTestWithContextObjectQuery$variables = {||};
-export type LiveResolversTestWithContextObjectQuery$data = {|
-  +hello_world_with_context_object: ?string,
-|};
-export type LiveResolversTestWithContextObjectQuery = {|
+export type LiveResolversTestWithContextObjectQuery$variables = {};
+export type LiveResolversTestWithContextObjectQuery$data = {
+  readonly hello_world_with_context_object: ?string,
+};
+export type LiveResolversTestWithContextObjectQuery = {
   response: LiveResolversTestWithContextObjectQuery$data,
   variables: LiveResolversTestWithContextObjectQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

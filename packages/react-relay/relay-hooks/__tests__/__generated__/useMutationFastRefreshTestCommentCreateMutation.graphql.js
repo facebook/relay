@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<42750a91d21c22833924582384c8d5c3>>
+ * @generated SignedSource<<bc97c3495823f34c2b2465ca01c03b7d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,36 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type useMutationFastRefreshTestCommentCreateMutation$variables = {|
+};
+export type useMutationFastRefreshTestCommentCreateMutation$variables = {
   input?: ?CommentCreateInput,
-|};
-export type useMutationFastRefreshTestCommentCreateMutation$data = {|
-  +commentCreate: ?{|
-    +feedbackCommentEdge: ?{|
-      +cursor: ?string,
-      +node: ?{|
-        +body: ?{|
-          +text: ?string,
-        |},
-        +id: string,
-      |},
-    |},
-  |},
-|};
-export type useMutationFastRefreshTestCommentCreateMutation = {|
+};
+export type useMutationFastRefreshTestCommentCreateMutation$data = {
+  readonly commentCreate: ?{
+    readonly feedbackCommentEdge: ?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly body: ?{
+          readonly text: ?string,
+        },
+        readonly id: string,
+      },
+    },
+  },
+};
+export type useMutationFastRefreshTestCommentCreateMutation = {
   response: useMutationFastRefreshTestCommentCreateMutation$data,
   variables: useMutationFastRefreshTestCommentCreateMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

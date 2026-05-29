@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<833820fe2ce2f03a904755806cadfb40>>
+ * @generated SignedSource<<6f8f4a6d5170cad7fd5f77f679a840ed>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,35 +17,35 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentLookupTestQuery$variables = {|
+export type RelayModernEnvironmentLookupTestQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentLookupTestQuery$data = {|
-  +__id: string,
-  +me: ?{|
-    +__typename: "User",
-    +__id: string,
-    +id: string,
-  |},
-  +node: ?{|
-    +__typename: string,
-    +__id: string,
-    +commentBody?: ?{|
-      +__typename: string,
-      +__id: string,
-      +text?: ?{|
-        +__typename: "Text",
-        +__id: string,
-        +text: ?string,
-      |},
-    |},
-    +id: string,
-  |},
-|};
-export type RelayModernEnvironmentLookupTestQuery = {|
+};
+export type RelayModernEnvironmentLookupTestQuery$data = {
+  readonly __id: string,
+  readonly me: ?{
+    readonly __typename: "User",
+    readonly __id: string,
+    readonly id: string,
+  },
+  readonly node: ?{
+    readonly __typename: string,
+    readonly __id: string,
+    readonly commentBody?: ?{
+      readonly __typename: string,
+      readonly __id: string,
+      readonly text?: ?{
+        readonly __typename: "Text",
+        readonly __id: string,
+        readonly text: ?string,
+      },
+    },
+    readonly id: string,
+  },
+};
+export type RelayModernEnvironmentLookupTestQuery = {
   response: RelayModernEnvironmentLookupTestQuery$data,
   variables: RelayModernEnvironmentLookupTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

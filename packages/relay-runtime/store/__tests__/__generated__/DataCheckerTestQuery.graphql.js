@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e4ff35f25cb4455450e15df291fa09dc>>
+ * @generated SignedSource<<4444729a93a6baab434d7f52e1641e3c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,36 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type DataCheckerTestQuery$variables = {|
+export type DataCheckerTestQuery$variables = {
   id?: ?string,
   size?: ?ReadonlyArray<?number>,
-|};
-export type DataCheckerTestQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +actors?: ?ReadonlyArray<?{|
-      +name: ?string,
-    |}>,
-    +firstName?: ?string,
-    +friends?: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +firstName: ?string,
-          +id: string,
-        |},
-      |}>,
-    |},
-    +id: string,
-    +profilePicture?: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type DataCheckerTestQuery = {|
+};
+export type DataCheckerTestQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly actors?: ?ReadonlyArray<?{
+      readonly name: ?string,
+    }>,
+    readonly firstName?: ?string,
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly firstName: ?string,
+          readonly id: string,
+        },
+      }>,
+    },
+    readonly id: string,
+    readonly profilePicture?: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type DataCheckerTestQuery = {
   response: DataCheckerTestQuery$data,
   variables: DataCheckerTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

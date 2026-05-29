@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4c916c025edaf2b13b9fc9ea46a50008>>
+ * @generated SignedSource<<80e23e2a7dae2dfba67e380c65da084e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,29 +17,29 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayMockPayloadGeneratorTest34Query$variables = {||};
-export type RelayMockPayloadGeneratorTest34Query$data = {|
-  +node: ?{|
-    +friends?: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +node: ?{|
-          +id: string,
-          +name: ?string,
-          +profile_picture: ?{|
-            +height: ?number,
-            +uri: ?string,
-            +width: ?number,
-          |},
-        |},
-      |}>,
-    |},
-    +id?: string,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest34Query = {|
+export type RelayMockPayloadGeneratorTest34Query$variables = {};
+export type RelayMockPayloadGeneratorTest34Query$data = {
+  readonly node: ?{
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly id: string,
+          readonly name: ?string,
+          readonly profile_picture: ?{
+            readonly height: ?number,
+            readonly uri: ?string,
+            readonly width: ?number,
+          },
+        },
+      }>,
+    },
+    readonly id?: string,
+  },
+};
+export type RelayMockPayloadGeneratorTest34Query = {
   response: RelayMockPayloadGeneratorTest34Query$data,
   variables: RelayMockPayloadGeneratorTest34Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

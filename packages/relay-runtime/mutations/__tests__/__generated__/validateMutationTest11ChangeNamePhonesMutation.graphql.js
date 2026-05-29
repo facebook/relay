@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4d5b40d606a42587b3e6b5abd80a642e>>
+ * @generated SignedSource<<a63b9ff333690fe18f2910bd54ab99a9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,25 +17,25 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTest11ChangeNamePhonesMutation$variables = {|
+};
+export type validateMutationTest11ChangeNamePhonesMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTest11ChangeNamePhonesMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +allPhones: ?ReadonlyArray<?{|
-        +isVerified: ?boolean,
-      |}>,
-    |},
-  |},
-|};
-export type validateMutationTest11ChangeNamePhonesMutation = {|
+};
+export type validateMutationTest11ChangeNamePhonesMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly allPhones: ?ReadonlyArray<?{
+        readonly isVerified: ?boolean,
+      }>,
+    },
+  },
+};
+export type validateMutationTest11ChangeNamePhonesMutation = {
   response: validateMutationTest11ChangeNamePhonesMutation$data,
   variables: validateMutationTest11ChangeNamePhonesMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

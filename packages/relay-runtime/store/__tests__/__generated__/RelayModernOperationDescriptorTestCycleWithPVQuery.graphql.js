@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<987420ea26155f27c3e9042e436ad3bd>>
+ * @generated SignedSource<<ab35219d46342e358d67648550350eb0>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,23 +18,23 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernOperationDescriptorTestCycleQuery_fragment$fragmentType } from "./RelayModernOperationDescriptorTestCycleQuery_fragment.graphql";
-export type RelayModernOperationDescriptorTestCycleWithPVQuery$variables = {||};
-export type RelayModernOperationDescriptorTestCycleWithPVQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayModernOperationDescriptorTestCycleQuery_fragment$fragmentType,
-  |},
-|};
-export type RelayModernOperationDescriptorTestCycleWithPVQuery = {|
+export type RelayModernOperationDescriptorTestCycleWithPVQuery$variables = {};
+export type RelayModernOperationDescriptorTestCycleWithPVQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayModernOperationDescriptorTestCycleQuery_fragment$fragmentType,
+  },
+};
+export type RelayModernOperationDescriptorTestCycleWithPVQuery = {
   response: RelayModernOperationDescriptorTestCycleWithPVQuery$data,
   variables: RelayModernOperationDescriptorTestCycleWithPVQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider": require('../RelayProvider_returnsCyclic.relayprovider')
-} as {|
-  +__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider: {|
-    +get: () => boolean,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__RelayProvider_returnsCyclicrelayprovider: {
+    readonly get: () => boolean,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = {

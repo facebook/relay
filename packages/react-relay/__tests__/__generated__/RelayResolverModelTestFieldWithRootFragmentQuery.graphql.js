@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<caa5664dda9ea01620020e2cb021f5b8>>
+ * @generated SignedSource<<390cd201f0c644152f888d94bb96bba5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,13 +24,13 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType as (
-  args: {|
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {capitalized_id as todoModelCapitalizedIdResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelCapitalizedIdResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -39,18 +39,18 @@ import {capitalized_id as todoModelCapitalizedIdResolverType} from "../../../rel
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayResolverModelTestFieldWithRootFragmentQuery$variables = {|
+export type RelayResolverModelTestFieldWithRootFragmentQuery$variables = {
   id: string,
-|};
-export type RelayResolverModelTestFieldWithRootFragmentQuery$data = {|
-  +todo_model: ?{|
-    +capitalized_id: ?string,
-  |},
-|};
-export type RelayResolverModelTestFieldWithRootFragmentQuery = {|
+};
+export type RelayResolverModelTestFieldWithRootFragmentQuery$data = {
+  readonly todo_model: ?{
+    readonly capitalized_id: ?string,
+  },
+};
+export type RelayResolverModelTestFieldWithRootFragmentQuery = {
   response: RelayResolverModelTestFieldWithRootFragmentQuery$data,
   variables: RelayResolverModelTestFieldWithRootFragmentQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

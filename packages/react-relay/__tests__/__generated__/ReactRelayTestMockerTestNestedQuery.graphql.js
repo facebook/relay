@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<577580e16a1c038d62cf9e94535f00e9>>
+ * @generated SignedSource<<ba10c54682527b4e1c5b13180e4b975d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,20 +17,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type ReactRelayTestMockerTestNestedQuery$variables = {||};
-export type ReactRelayTestMockerTestNestedQuery$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +birthdate: ?{|
-        +month: ?number,
-      |},
-    |},
-  |},
-|};
-export type ReactRelayTestMockerTestNestedQuery = {|
+export type ReactRelayTestMockerTestNestedQuery$variables = {};
+export type ReactRelayTestMockerTestNestedQuery$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly birthdate: ?{
+        readonly month: ?number,
+      },
+    },
+  },
+};
+export type ReactRelayTestMockerTestNestedQuery = {
   response: ReactRelayTestMockerTestNestedQuery$data,
   variables: ReactRelayTestMockerTestNestedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

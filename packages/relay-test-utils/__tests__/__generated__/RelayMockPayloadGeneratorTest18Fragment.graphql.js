@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<192abcbf5997488988e9dcc7003de620>>
+ * @generated SignedSource<<f4e5afbc9aa7ad1473b82f0f6f2599b5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest18Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest18Fragment$data = {|
-  +id: string,
-  +name: ?string,
-  +username: ?string,
-  +$fragmentType: RelayMockPayloadGeneratorTest18Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest18Fragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly username: ?string,
+  readonly $fragmentType: RelayMockPayloadGeneratorTest18Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest18Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest18Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest18Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest18Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest18Fragment$fragmentType,
   ...
 };
 */

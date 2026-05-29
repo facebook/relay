@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e8a45d5a59ac503c5bc733bfd6176471>>
+ * @generated SignedSource<<a3c1fe16aae9bae0db168b128a288fbd>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,22 +20,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name.graphql";
-export type RelayModernEnvironmentNoInlineTestModuleQuery$variables = {|
+export type RelayModernEnvironmentNoInlineTestModuleQuery$variables = {
   cond: boolean,
-|};
-export type RelayModernEnvironmentNoInlineTestModuleQuery$data = {|
-  +node: ?{|
-    +nameRenderer?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentNoInlineTestModuleQuery = {|
+};
+export type RelayModernEnvironmentNoInlineTestModuleQuery$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentNoInlineTestModuleQuery = {
   response: RelayModernEnvironmentNoInlineTestModuleQuery$data,
   variables: RelayModernEnvironmentNoInlineTestModuleQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

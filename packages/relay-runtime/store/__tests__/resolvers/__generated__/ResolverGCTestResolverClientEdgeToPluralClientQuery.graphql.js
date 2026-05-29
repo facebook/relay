@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9c45e44ba73adad2353c6a7e88d6720f>>
+ * @generated SignedSource<<eadbee953dd183245a72ae85b8eb9fc2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,19 +27,19 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?ReadonlyArray<{|
-  +id: DataID,
-|}>);
-export type ResolverGCTestResolverClientEdgeToPluralClientQuery$variables = {||};
-export type ResolverGCTestResolverClientEdgeToPluralClientQuery$data = {|
-  +all_astrological_signs: ?ReadonlyArray<{|
-    +__id: string,
-  |}>,
-|};
-export type ResolverGCTestResolverClientEdgeToPluralClientQuery = {|
+) => ?ReadonlyArray<{
+  readonly id: DataID,
+}>);
+export type ResolverGCTestResolverClientEdgeToPluralClientQuery$variables = {};
+export type ResolverGCTestResolverClientEdgeToPluralClientQuery$data = {
+  readonly all_astrological_signs: ?ReadonlyArray<{
+    readonly __id: string,
+  }>,
+};
+export type ResolverGCTestResolverClientEdgeToPluralClientQuery = {
   response: ResolverGCTestResolverClientEdgeToPluralClientQuery$data,
   variables: ResolverGCTestResolverClientEdgeToPluralClientQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

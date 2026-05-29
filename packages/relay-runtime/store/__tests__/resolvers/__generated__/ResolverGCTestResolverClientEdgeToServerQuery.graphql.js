@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<90f5e3ea4737a5993d78f25d75e1f4bb>>
+ * @generated SignedSource<<6059e54d1be5db4f0ab99eb0c300b7d6>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,27 +27,27 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ResolverGCTestResolverClientEdgeToServerQuery$variables = {||};
-export type ResolverGCTestResolverClientEdgeToServerQuery$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +id: string,
-      +name: ?string,
-      +nearest_neighbor: {|
-        +id: string,
-        +name: ?string,
-      |},
-    |},
-    +name: ?string,
-  |},
-|};
-export type ResolverGCTestResolverClientEdgeToServerQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ResolverGCTestResolverClientEdgeToServerQuery$variables = {};
+export type ResolverGCTestResolverClientEdgeToServerQuery$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly id: string,
+      readonly name: ?string,
+      readonly nearest_neighbor: {
+        readonly id: string,
+        readonly name: ?string,
+      },
+    },
+    readonly name: ?string,
+  },
+};
+export type ResolverGCTestResolverClientEdgeToServerQuery = {
   response: ResolverGCTestResolverClientEdgeToServerQuery$data,
   variables: ResolverGCTestResolverClientEdgeToServerQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

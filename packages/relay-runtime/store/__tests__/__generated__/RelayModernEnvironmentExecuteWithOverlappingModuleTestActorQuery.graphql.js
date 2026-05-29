@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5eadc69b02c2e34620418c89bea18b96>>
+ * @generated SignedSource<<a6f001bd96dddb62b79227173d4475cc>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,22 +20,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name.graphql";
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data = {|
-  +node: ?{|
-    +nameRenderer?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery = {
   response: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data,
   variables: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

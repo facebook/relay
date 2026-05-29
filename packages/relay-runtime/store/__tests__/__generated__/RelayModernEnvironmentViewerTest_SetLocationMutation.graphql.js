@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<711f9a935d438bdeab6976ffc889393d>>
+ * @generated SignedSource<<cec44eb9455dd52343f968493c964b33>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,29 +17,29 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type LocationInput = {|
+export type LocationInput = {
   latitude?: ?number,
   longitude?: ?number,
-|};
-export type RelayModernEnvironmentViewerTest_SetLocationMutation$variables = {|
+};
+export type RelayModernEnvironmentViewerTest_SetLocationMutation$variables = {
   input: LocationInput,
-|};
-export type RelayModernEnvironmentViewerTest_SetLocationMutation$data = {|
-  +setLocation: ?{|
-    +viewer: ?{|
-      +marketplace_settings: ?{|
-        +location: ?{|
-          +latitude: ?number,
-          +longitude: ?number,
-        |},
-      |},
-    |},
-  |},
-|};
-export type RelayModernEnvironmentViewerTest_SetLocationMutation = {|
+};
+export type RelayModernEnvironmentViewerTest_SetLocationMutation$data = {
+  readonly setLocation: ?{
+    readonly viewer: ?{
+      readonly marketplace_settings: ?{
+        readonly location: ?{
+          readonly latitude: ?number,
+          readonly longitude: ?number,
+        },
+      },
+    },
+  },
+};
+export type RelayModernEnvironmentViewerTest_SetLocationMutation = {
   response: RelayModernEnvironmentViewerTest_SetLocationMutation$data,
   variables: RelayModernEnvironmentViewerTest_SetLocationMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

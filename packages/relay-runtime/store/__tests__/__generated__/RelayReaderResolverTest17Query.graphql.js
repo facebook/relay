@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6030a0fbfb0272f55431988dace2a48c>>
+ * @generated SignedSource<<725ff2b5434d532283d15016ab6e4c77>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,21 +24,21 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriWithScaleAndDefaultValueResolverType as (
   rootKey: UserProfilePictureWithDefaultValueResolver$key,
-  args: {|
+  args: {
     scale: ?number,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTest17Query$variables = {||};
-export type RelayReaderResolverTest17Query$data = {|
-  +me: ?{|
-    +user_profile_picture_uri_with_scale_and_default_value: ?string,
-  |},
-|};
-export type RelayReaderResolverTest17Query = {|
+export type RelayReaderResolverTest17Query$variables = {};
+export type RelayReaderResolverTest17Query$data = {
+  readonly me: ?{
+    readonly user_profile_picture_uri_with_scale_and_default_value: ?string,
+  },
+};
+export type RelayReaderResolverTest17Query = {
   response: RelayReaderResolverTest17Query$data,
   variables: RelayReaderResolverTest17Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

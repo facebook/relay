@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c21c7b98ac00c0183953a20192253e33>>
+ * @generated SignedSource<<30c7354902143362034c62332d8c9154>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,23 +17,23 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type commitMutationTest5Query$variables = {||};
-export type commitMutationTest5Query$data = {|
-  +node: ?{|
-    +topLevelComments?: ?{|
-      +count: ?number,
-      +edges: ?ReadonlyArray<?{|
-        +node: ?{|
-          +id: string,
-        |},
-      |}>,
-    |},
-  |},
-|};
-export type commitMutationTest5Query = {|
+export type commitMutationTest5Query$variables = {};
+export type commitMutationTest5Query$data = {
+  readonly node: ?{
+    readonly topLevelComments?: ?{
+      readonly count: ?number,
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly id: string,
+        },
+      }>,
+    },
+  },
+};
+export type commitMutationTest5Query = {
   response: commitMutationTest5Query$data,
   variables: commitMutationTest5Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

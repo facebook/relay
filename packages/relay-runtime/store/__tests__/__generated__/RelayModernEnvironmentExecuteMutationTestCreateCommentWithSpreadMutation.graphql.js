@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<de108ca3f177def8b0bf0323d0f56ccf>>
+ * @generated SignedSource<<124d89196682e654e659d4794b76863e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,30 +18,30 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteMutationTestCommentFragment.graphql";
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables = {|
+};
+export type RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables = {
   input: CommentCreateInput,
-|};
-export type RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +$fragmentSpreads: RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation = {|
+};
+export type RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation = {
   response: RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data,
   variables: RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

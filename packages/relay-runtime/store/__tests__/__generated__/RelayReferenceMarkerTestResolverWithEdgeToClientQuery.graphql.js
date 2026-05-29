@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<317cdec880e1add81b6054bead3360d1>>
+ * @generated SignedSource<<b5992bcf2f14a233d1417417af9a1d80>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,19 +27,19 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?ReadonlyArray<{|
-  +id: DataID,
-|}>);
-export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$variables = {||};
-export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$data = {|
-  +all_astrological_signs: ?ReadonlyArray<{|
-    +id: string,
-  |}>,
-|};
-export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery = {|
+) => ?ReadonlyArray<{
+  readonly id: DataID,
+}>);
+export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$variables = {};
+export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$data = {
+  readonly all_astrological_signs: ?ReadonlyArray<{
+    readonly id: string,
+  }>,
+};
+export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery = {
   response: RelayReferenceMarkerTestResolverWithEdgeToClientQuery$data,
   variables: RelayReferenceMarkerTestResolverWithEdgeToClientQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

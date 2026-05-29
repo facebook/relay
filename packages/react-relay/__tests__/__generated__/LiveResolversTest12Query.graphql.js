@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<51ab572537671847e2249e11e7cebd0c>>
+ * @generated SignedSource<<9db94b032569cbb5f5a695964e74ad50>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,21 +23,21 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryCounterNoFragmentWithArgResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterNoFragmentWithArgResolverType as (
-  args: {|
+  args: {
     prefix: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => LiveState<?string>);
-export type LiveResolversTest12Query$variables = {|
+export type LiveResolversTest12Query$variables = {
   prefix: string,
-|};
-export type LiveResolversTest12Query$data = {|
-  +counter_no_fragment_with_arg: ?string,
-|};
-export type LiveResolversTest12Query = {|
+};
+export type LiveResolversTest12Query$data = {
+  readonly counter_no_fragment_with_arg: ?string,
+};
+export type LiveResolversTest12Query = {
   response: LiveResolversTest12Query$data,
   variables: LiveResolversTest12Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

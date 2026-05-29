@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<deadf4c2f416b51e3473b3b2911e0958>>
+ * @generated SignedSource<<09c4bff3f65c7c0c55f3b0b6f9a566c9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,22 +19,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { readUpdatableFragmentTest_2_user$fragmentType } from "./readUpdatableFragmentTest_2_user.graphql";
 import type { readUpdatableFragmentTest_user$fragmentType } from "./readUpdatableFragmentTest_user.graphql";
-export type readUpdatableFragmentTestRegularQuery$variables = {|
+export type readUpdatableFragmentTestRegularQuery$variables = {
   if2?: ?boolean,
   if3?: ?boolean,
-|};
-export type readUpdatableFragmentTestRegularQuery$data = {|
-  +me: ?{|
-    +$updatableFragmentSpreads: readUpdatableFragmentTest_2_user$fragmentType & readUpdatableFragmentTest_user$fragmentType,
-    +firstName: ?string,
-    +firstName2: ?string,
-    +firstName3: ?string,
-  |},
-|};
-export type readUpdatableFragmentTestRegularQuery = {|
+};
+export type readUpdatableFragmentTestRegularQuery$data = {
+  readonly me: ?{
+    readonly $updatableFragmentSpreads: readUpdatableFragmentTest_2_user$fragmentType & readUpdatableFragmentTest_user$fragmentType,
+    readonly firstName: ?string,
+    readonly firstName2: ?string,
+    readonly firstName3: ?string,
+  },
+};
+export type readUpdatableFragmentTestRegularQuery = {
   response: readUpdatableFragmentTestRegularQuery$data,
   variables: readUpdatableFragmentTestRegularQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

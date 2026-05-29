@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<02afe1a532e76be46c297cb7995103b8>>
+ * @generated SignedSource<<9ed951d89e98616dfdd26d467c0ae12c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,24 +22,24 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type usePrefetchableForwardPaginationFragmentTest_user$fragmentType: FragmentType;
 type usePrefetchableForwardPaginationFragmentRefetchQuery$variables = any;
 type usePrefetchableForwardPaginationFragmentTest_user__edges$data = any;
-export type usePrefetchableForwardPaginationFragmentTest_user$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
-    |}>,
-    +pageInfo: ?{|
-      +endCursor: ?string,
-      +hasNextPage: ?boolean,
-      +hasPreviousPage: ?boolean,
-      +startCursor: ?string,
-    |},
-  |},
-  +id: string,
-  +$fragmentType: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
-|};
+export type usePrefetchableForwardPaginationFragmentTest_user$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly $fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
+    }>,
+    readonly pageInfo: ?{
+      readonly endCursor: ?string,
+      readonly hasNextPage: ?boolean,
+      readonly hasPreviousPage: ?boolean,
+      readonly startCursor: ?string,
+    },
+  },
+  readonly id: string,
+  readonly $fragmentType: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
+};
 export type usePrefetchableForwardPaginationFragmentTest_user$key = {
-  +$data?: usePrefetchableForwardPaginationFragmentTest_user$data,
-  +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
+  readonly $data?: usePrefetchableForwardPaginationFragmentTest_user$data,
+  readonly $fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
   ...
 };
 */

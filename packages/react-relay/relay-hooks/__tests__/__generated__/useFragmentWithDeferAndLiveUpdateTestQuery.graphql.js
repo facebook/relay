@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bbbe662437b6742d4525f7b2b40f4c0b>>
+ * @generated SignedSource<<e42148496310d6975c555871e2cea0cd>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useFragmentWithDeferAndLiveUpdateTestFragment$fragmentType } from "./useFragmentWithDeferAndLiveUpdateTestFragment.graphql";
-export type useFragmentWithDeferAndLiveUpdateTestQuery$variables = {|
+export type useFragmentWithDeferAndLiveUpdateTestQuery$variables = {
   id: string,
-|};
-export type useFragmentWithDeferAndLiveUpdateTestQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +id: string,
-    +$fragmentSpreads: useFragmentWithDeferAndLiveUpdateTestFragment$fragmentType,
-  |},
-|};
-export type useFragmentWithDeferAndLiveUpdateTestQuery = {|
+};
+export type useFragmentWithDeferAndLiveUpdateTestQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly id: string,
+    readonly $fragmentSpreads: useFragmentWithDeferAndLiveUpdateTestFragment$fragmentType,
+  },
+};
+export type useFragmentWithDeferAndLiveUpdateTestQuery = {
   response: useFragmentWithDeferAndLiveUpdateTestQuery$data,
   variables: useFragmentWithDeferAndLiveUpdateTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1ed5ceca0ca9cdbe807a82f5460bed5a>>
+ * @generated SignedSource<<cba0a2d5ad956e6cb53a77933214d0e3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,21 +20,21 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type GraphQLTagTest6UserFragment$fragmentType: FragmentType;
 type GraphQLTagTestUserFragment4RefetchQuery$variables = any;
-export type GraphQLTagTest6UserFragment$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +name: ?string,
-  +$fragmentType: GraphQLTagTest6UserFragment$fragmentType,
-|};
+export type GraphQLTagTest6UserFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: GraphQLTagTest6UserFragment$fragmentType,
+};
 export type GraphQLTagTest6UserFragment$key = {
-  +$data?: GraphQLTagTest6UserFragment$data,
-  +$fragmentSpreads: GraphQLTagTest6UserFragment$fragmentType,
+  readonly $data?: GraphQLTagTest6UserFragment$data,
+  readonly $fragmentSpreads: GraphQLTagTest6UserFragment$fragmentType,
   ...
 };
 */

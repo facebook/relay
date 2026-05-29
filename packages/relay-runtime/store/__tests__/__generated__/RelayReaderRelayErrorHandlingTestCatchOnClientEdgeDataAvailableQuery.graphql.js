@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f01ce149202d6c837d6a58b0fc3433c6>>
+ * @generated SignedSource<<c6975ed576386844d2c11c833ddc363f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,21 +27,21 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery$variables = {||};
-export type RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +firstName: ?string,
-    |},
-  |},
-|};
-export type RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery$variables = {};
+export type RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly firstName: ?string,
+    },
+  },
+};
+export type RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery = {
   response: RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery$data,
   variables: RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

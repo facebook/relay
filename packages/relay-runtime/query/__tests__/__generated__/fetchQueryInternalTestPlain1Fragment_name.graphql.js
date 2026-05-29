@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d47c49cb5cca8c0f88048fee3a7d085>>
+ * @generated SignedSource<<dfd3e6b6b85aa2f09d0e76b53373c47f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type fetchQueryInternalTestPlain1Fragment_name$fragmentType: FragmentType;
-export type fetchQueryInternalTestPlain1Fragment_name$data = {|
-  +data: ?{|
-    +text: ?string,
-  |},
-  +plaintext: ?string,
-  +$fragmentType: fetchQueryInternalTestPlain1Fragment_name$fragmentType,
-|};
+export type fetchQueryInternalTestPlain1Fragment_name$data = {
+  readonly data: ?{
+    readonly text: ?string,
+  },
+  readonly plaintext: ?string,
+  readonly $fragmentType: fetchQueryInternalTestPlain1Fragment_name$fragmentType,
+};
 export type fetchQueryInternalTestPlain1Fragment_name$key = {
-  +$data?: fetchQueryInternalTestPlain1Fragment_name$data,
-  +$fragmentSpreads: fetchQueryInternalTestPlain1Fragment_name$fragmentType,
+  readonly $data?: fetchQueryInternalTestPlain1Fragment_name$data,
+  readonly $fragmentSpreads: fetchQueryInternalTestPlain1Fragment_name$fragmentType,
   ...
 };
 */

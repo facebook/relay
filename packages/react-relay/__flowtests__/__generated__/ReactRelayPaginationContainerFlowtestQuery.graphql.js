@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1c9560651db1e7a97aea91331c3d65f8>>
+ * @generated SignedSource<<9d2374c78d2c1fcb1e9a71e478fa94ec>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayPaginationContainerFlowtest_viewer$fragmentType } from "./ReactRelayPaginationContainerFlowtest_viewer.graphql";
-export type ReactRelayPaginationContainerFlowtestQuery$variables = {|
+export type ReactRelayPaginationContainerFlowtestQuery$variables = {
   count: number,
   cursor?: ?string,
-|};
-export type ReactRelayPaginationContainerFlowtestQuery$data = {|
-  +viewer: ?{|
-    +$fragmentSpreads: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
-  |},
-|};
-export type ReactRelayPaginationContainerFlowtestQuery = {|
+};
+export type ReactRelayPaginationContainerFlowtestQuery$data = {
+  readonly viewer: ?{
+    readonly $fragmentSpreads: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
+  },
+};
+export type ReactRelayPaginationContainerFlowtestQuery = {
   response: ReactRelayPaginationContainerFlowtestQuery$data,
   variables: ReactRelayPaginationContainerFlowtestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

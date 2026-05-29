@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b0a9d05f0241f3591b17ccd28b267096>>
+ * @generated SignedSource<<ce6908bdbd5d23cc01a78ca2ac3c1895>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,27 +22,27 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor.graphql";
 import type { RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user.graphql";
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data = {|
-  +node: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
-  |},
-  +viewer: ?{|
-    +actor: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data = {
+  readonly node: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
+  },
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data,
   variables: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

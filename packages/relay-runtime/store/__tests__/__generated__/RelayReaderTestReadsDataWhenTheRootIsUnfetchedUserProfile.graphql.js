@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b0419b77df89c3039c56f65f7bbe311b>>
+ * @generated SignedSource<<f2c23fe46c796604be5482deab61c1ec>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType: FragmentType;
-export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data = {|
-  +name: ?string,
-  +$fragmentType: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType,
-|};
+export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data = {
+  readonly name: ?string,
+  readonly $fragmentType: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType,
+};
 export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$key = {
-  +$data?: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data,
-  +$fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType,
+  readonly $data?: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data,
+  readonly $fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType,
   ...
 };
 */

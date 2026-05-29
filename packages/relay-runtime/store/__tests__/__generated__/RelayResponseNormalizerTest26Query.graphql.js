@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cdebf2c813e9fd48b0beaa4cc91ecd90>>
+ * @generated SignedSource<<6b726e8558c4a1ee0220117ecd73637c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,38 +17,38 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayResponseNormalizerTest26Query$variables = {|
+export type RelayResponseNormalizerTest26Query$variables = {
   id?: ?string,
-|};
-export type RelayResponseNormalizerTest26Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +friends?: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +node: ?{|
-          +comments: ?{|
-            +edges: ?ReadonlyArray<?{|
-              +node: ?{|
-                +body: ?{|
-                  +text: ?string,
-                |},
-                +id: string,
-              |},
-            |}>,
-          |},
-          +firstName: ?string,
-          +id: string,
-        |},
-      |}>,
-    |},
-    +id: string,
-    +name?: ?string,
-  |},
-|};
-export type RelayResponseNormalizerTest26Query = {|
+};
+export type RelayResponseNormalizerTest26Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly comments: ?{
+            readonly edges: ?ReadonlyArray<?{
+              readonly node: ?{
+                readonly body: ?{
+                  readonly text: ?string,
+                },
+                readonly id: string,
+              },
+            }>,
+          },
+          readonly firstName: ?string,
+          readonly id: string,
+        },
+      }>,
+    },
+    readonly id: string,
+    readonly name?: ?string,
+  },
+};
+export type RelayResponseNormalizerTest26Query = {
   response: RelayResponseNormalizerTest26Query$data,
   variables: RelayResponseNormalizerTest26Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

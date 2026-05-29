@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c124d7773a7072d2b2b8aa741e4e15e5>>
+ * @generated SignedSource<<1d9f63ae3d534bacab70acd20883e67b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$data = {|
-  +lastName: ?string,
-  +$fragmentType: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$data = {
+  readonly lastName: ?string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$fragmentType,
   ...
 };
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<62de8b7e7063cae167aec67f2a6b842d>>
+ * @generated SignedSource<<527c5b211b0a1767daf9f1db94a70f89>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type LiveCounterResolver$fragmentType: FragmentType;
-export type LiveCounterResolver$data = {|
-  +me: ?{|
-    +__id: string,
-  |},
-  +$fragmentType: LiveCounterResolver$fragmentType,
-|};
+export type LiveCounterResolver$data = {
+  readonly me: ?{
+    readonly __id: string,
+  },
+  readonly $fragmentType: LiveCounterResolver$fragmentType,
+};
 export type LiveCounterResolver$key = {
-  +$data?: LiveCounterResolver$data,
-  +$fragmentSpreads: LiveCounterResolver$fragmentType,
+  readonly $data?: LiveCounterResolver$data,
+  readonly $fragmentSpreads: LiveCounterResolver$fragmentType,
   ...
 };
 */

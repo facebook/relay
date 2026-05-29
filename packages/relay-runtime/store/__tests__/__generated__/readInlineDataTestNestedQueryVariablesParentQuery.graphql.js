@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3c28a402482596d6af15406b0a314d37>>
+ * @generated SignedSource<<edecf1b9c977a76b4dd4d38d40f7fc77>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { readInlineDataTestNestedQueryVariablesChild$fragmentType } from "./readInlineDataTestNestedQueryVariablesChild.graphql";
-export type readInlineDataTestNestedQueryVariablesParentQuery$variables = {|
+export type readInlineDataTestNestedQueryVariablesParentQuery$variables = {
   scale?: ?number,
-|};
-export type readInlineDataTestNestedQueryVariablesParentQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: readInlineDataTestNestedQueryVariablesChild$fragmentType,
-  |},
-|};
-export type readInlineDataTestNestedQueryVariablesParentQuery = {|
+};
+export type readInlineDataTestNestedQueryVariablesParentQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: readInlineDataTestNestedQueryVariablesChild$fragmentType,
+  },
+};
+export type readInlineDataTestNestedQueryVariablesParentQuery = {
   response: readInlineDataTestNestedQueryVariablesParentQuery$data,
   variables: readInlineDataTestNestedQueryVariablesParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b9df3fbe6488a06984eff86a799f2d41>>
+ * @generated SignedSource<<0a041ef63da1c0659578e0fa3475002d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,19 +25,19 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryEdgeToServerObjectDoesNotExistResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$data = {|
-  +edge_to_server_object_does_not_exist: ?{|
-    +id: string,
-  |},
-|};
-export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$data = {
+  readonly edge_to_server_object_does_not_exist: ?{
+    readonly id: string,
+  },
+};
+export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query = {
   response: RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<26f92fcfeee6e4fb87589de4d4eb2d27>>
+ * @generated SignedSource<<3e263bd5b46a6a42e81e7d02db06ddc1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -29,13 +29,13 @@ import type { TestResolverContextType } from "../../../../relay-runtime/mutation
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type FragmentResourceResolverTestFragment1$fragmentType: FragmentType;
-export type FragmentResourceResolverTestFragment1$data = {|
-  +always_throws: ?string,
-  +$fragmentType: FragmentResourceResolverTestFragment1$fragmentType,
-|};
+export type FragmentResourceResolverTestFragment1$data = {
+  readonly always_throws: ?string,
+  readonly $fragmentType: FragmentResourceResolverTestFragment1$fragmentType,
+};
 export type FragmentResourceResolverTestFragment1$key = {
-  +$data?: FragmentResourceResolverTestFragment1$data,
-  +$fragmentSpreads: FragmentResourceResolverTestFragment1$fragmentType,
+  readonly $data?: FragmentResourceResolverTestFragment1$data,
+  readonly $fragmentSpreads: FragmentResourceResolverTestFragment1$fragmentType,
   ...
 };
 */

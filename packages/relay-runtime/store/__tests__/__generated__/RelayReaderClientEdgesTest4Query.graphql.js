@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5d04363fd92a274fdafab0e2679705fa>>
+ * @generated SignedSource<<6b78ca29989554974c1d34a7d2122502>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -28,9 +28,9 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: UserAnotherClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -38,23 +38,23 @@ import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClient
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderClientEdgesTest4Query$variables = {||};
-export type RelayReaderClientEdgesTest4Query$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +another_client_edge: ?{|
-        +name: ?string,
-      |},
-    |},
-  |},
-|};
-export type RelayReaderClientEdgesTest4Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderClientEdgesTest4Query$variables = {};
+export type RelayReaderClientEdgesTest4Query$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly another_client_edge: ?{
+        readonly name: ?string,
+      },
+    },
+  },
+};
+export type RelayReaderClientEdgesTest4Query = {
   response: RelayReaderClientEdgesTest4Query$data,
   variables: RelayReaderClientEdgesTest4Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

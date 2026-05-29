@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3f2fbf71be844832693d9916b025a211>>
+ * @generated SignedSource<<d4b9187368e5ff914d395c206bf025dc>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,23 +23,23 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryHelloUserResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloUserResolverType as (
-  args: {|
+  args: {
     id: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ClientOnlyQueriesTest3Query$variables = {||};
-export type ClientOnlyQueriesTest3Query$data = {|
-  +hello_user: ?{|
-    +name: ?string,
-  |},
-|};
-export type ClientOnlyQueriesTest3Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ClientOnlyQueriesTest3Query$variables = {};
+export type ClientOnlyQueriesTest3Query$data = {
+  readonly hello_user: ?{
+    readonly name: ?string,
+  },
+};
+export type ClientOnlyQueriesTest3Query = {
   response: ClientOnlyQueriesTest3Query$data,
   variables: ClientOnlyQueriesTest3Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

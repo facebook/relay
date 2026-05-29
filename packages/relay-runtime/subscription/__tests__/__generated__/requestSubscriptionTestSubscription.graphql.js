@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cd46303634d444ae43e4d9ad41e68137>>
+ * @generated SignedSource<<9f9e427e259ac1faa7c4355321571872>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,31 +20,31 @@
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 import type { requestSubscriptionTestPlainUserNameRenderer_name$fragmentType } from "./requestSubscriptionTestPlainUserNameRenderer_name.graphql";
-export type CommentCreateSubscriptionInput = {|
+export type CommentCreateSubscriptionInput = {
   feedbackId?: ?string,
   text?: ?string,
-|};
-export type requestSubscriptionTestSubscription$variables = {|
+};
+export type requestSubscriptionTestSubscription$variables = {
   input: CommentCreateSubscriptionInput,
-|};
-export type requestSubscriptionTestSubscription$data = {|
-  +commentCreateSubscribe: ?{|
-    +comment: ?{|
-      +actor: ?{|
-        +name: ?string,
-        +nameRenderer: ?{|
-          +__fragmentPropName?: ?string,
-          +__module_component?: ?string,
-          +$fragmentSpreads: requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
-        |},
-      |},
-    |},
-  |},
-|};
-export type requestSubscriptionTestSubscription = {|
+};
+export type requestSubscriptionTestSubscription$data = {
+  readonly commentCreateSubscribe: ?{
+    readonly comment: ?{
+      readonly actor: ?{
+        readonly name: ?string,
+        readonly nameRenderer: ?{
+          readonly __fragmentPropName?: ?string,
+          readonly __module_component?: ?string,
+          readonly $fragmentSpreads: requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
+        },
+      },
+    },
+  },
+};
+export type requestSubscriptionTestSubscription = {
   response: requestSubscriptionTestSubscription$data,
   variables: requestSubscriptionTestSubscription$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

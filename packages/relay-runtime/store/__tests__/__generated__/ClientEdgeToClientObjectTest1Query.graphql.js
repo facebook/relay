@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ee7d9fd7d0bd9a65f49cc46aa13ca2d9>>
+ * @generated SignedSource<<b4d93c9f69b7d773b857b0435c2f903a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -46,9 +46,9 @@ import {opposite as astrologicalSignOppositeResolverType} from "../resolvers/Ast
   rootKey: AstrologicalSignOppositeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {astrological_sign as userAstrologicalSignResolverType} from "../resolvers/UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -56,32 +56,32 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../resolver
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ClientEdgeToClientObjectTest1Query$variables = {||};
-export type ClientEdgeToClientObjectTest1Query$data = {|
-  +me: ?{|
-    +astrological_sign: ?{|
-      +__id: string,
-      +house: ?number,
-      +name: ?string,
-      +opposite: ?{|
-        +__id: string,
-        +house: ?number,
-        +name: ?string,
-        +opposite: ?{|
-          +__id: string,
-          +name: ?string,
-        |},
-      |},
-    |},
-  |},
-|};
-export type ClientEdgeToClientObjectTest1Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ClientEdgeToClientObjectTest1Query$variables = {};
+export type ClientEdgeToClientObjectTest1Query$data = {
+  readonly me: ?{
+    readonly astrological_sign: ?{
+      readonly __id: string,
+      readonly house: ?number,
+      readonly name: ?string,
+      readonly opposite: ?{
+        readonly __id: string,
+        readonly house: ?number,
+        readonly name: ?string,
+        readonly opposite: ?{
+          readonly __id: string,
+          readonly name: ?string,
+        },
+      },
+    },
+  },
+};
+export type ClientEdgeToClientObjectTest1Query = {
   response: ClientEdgeToClientObjectTest1Query$data,
   variables: ClientEdgeToClientObjectTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e0701a940c52c2aef66dd67018875d2e>>
+ * @generated SignedSource<<e472b5d264a7cc2bafc1ea262dee17e7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,19 +25,19 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 (queryLiveUserSuspendsWhenOddResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?{|
-  +id: DataID,
-|}>);
+) => LiveState<?{
+  readonly id: DataID,
+}>);
 declare export opaque type LiveExternalGreetingFragment$fragmentType: FragmentType;
-export type LiveExternalGreetingFragment$data = {|
-  +user: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: LiveExternalGreetingFragment$fragmentType,
-|};
+export type LiveExternalGreetingFragment$data = {
+  readonly user: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: LiveExternalGreetingFragment$fragmentType,
+};
 export type LiveExternalGreetingFragment$key = {
-  +$data?: LiveExternalGreetingFragment$data,
-  +$fragmentSpreads: LiveExternalGreetingFragment$fragmentType,
+  readonly $data?: LiveExternalGreetingFragment$data,
+  readonly $fragmentSpreads: LiveExternalGreetingFragment$fragmentType,
   ...
 };
 */

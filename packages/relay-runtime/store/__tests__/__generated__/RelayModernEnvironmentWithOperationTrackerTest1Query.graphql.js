@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<399d8201682644a3dfa3ee57d0e10981>>
+ * @generated SignedSource<<9115c1c93f71e469a8dfd4791aa3e007>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,31 +17,31 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentWithOperationTrackerTest1Query$variables = {|
+export type RelayModernEnvironmentWithOperationTrackerTest1Query$variables = {
   id?: ?string,
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest1Query$data = {|
-  +node: ?{|
-    +body?: ?{|
-      +text: ?string,
-    |},
-    +comments?: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +node: ?{|
-          +id: string,
-          +message: ?{|
-            +text: ?string,
-          |},
-        |},
-      |}>,
-    |},
-    +id?: string,
-  |},
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest1Query = {|
+};
+export type RelayModernEnvironmentWithOperationTrackerTest1Query$data = {
+  readonly node: ?{
+    readonly body?: ?{
+      readonly text: ?string,
+    },
+    readonly comments?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly id: string,
+          readonly message: ?{
+            readonly text: ?string,
+          },
+        },
+      }>,
+    },
+    readonly id?: string,
+  },
+};
+export type RelayModernEnvironmentWithOperationTrackerTest1Query = {
   response: RelayModernEnvironmentWithOperationTrackerTest1Query$data,
   variables: RelayModernEnvironmentWithOperationTrackerTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<801b0bce9d09600c6f5910f9a98ee88f>>
+ * @generated SignedSource<<3c2120c46a04273c3611880831b3c7d6>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest27Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest27Fragment.graphql";
-export type RelayMockPayloadGeneratorTest19Query$variables = {||};
-export type RelayMockPayloadGeneratorTest19Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest27Fragment$fragmentType,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest19Query = {|
+export type RelayMockPayloadGeneratorTest19Query$variables = {};
+export type RelayMockPayloadGeneratorTest19Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest27Fragment$fragmentType,
+  },
+};
+export type RelayMockPayloadGeneratorTest19Query = {
   response: RelayMockPayloadGeneratorTest19Query$data,
   variables: RelayMockPayloadGeneratorTest19Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

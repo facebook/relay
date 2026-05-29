@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f3f3de1b26fe68205adbc2bbc2e9bceb>>
+ * @generated SignedSource<<ab30afb33f7a1ea8973f57a0b93134b7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,19 +19,19 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTest_noInline$fragmentType } from "./RelayModernEnvironmentNoInlineTest_noInline.graphql";
 export type PhotoSize = "LARGE" | "SMALL" | "%future added value";
-export type RelayModernEnvironmentNoInlineTestQuery$variables = {|
+export type RelayModernEnvironmentNoInlineTestQuery$variables = {
   preset?: ?PhotoSize,
   size?: ?ReadonlyArray<?number>,
-|};
-export type RelayModernEnvironmentNoInlineTestQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentNoInlineTestQuery = {|
+};
+export type RelayModernEnvironmentNoInlineTestQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
+  },
+};
+export type RelayModernEnvironmentNoInlineTestQuery = {
   response: RelayModernEnvironmentNoInlineTestQuery$data,
   variables: RelayModernEnvironmentNoInlineTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

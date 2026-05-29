@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e0218bb09754bb20d2036b42947b563b>>
+ * @generated SignedSource<<a954c35c21606128f7739cb878b1bb81>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,14 +17,14 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-export type ResolverGCTestGCEmptyQuery$variables = {||};
-export type ResolverGCTestGCEmptyQuery$data = {|
-  +__id: string,
-|};
-export type ResolverGCTestGCEmptyQuery = {|
+export type ResolverGCTestGCEmptyQuery$variables = {};
+export type ResolverGCTestGCEmptyQuery$data = {
+  readonly __id: string,
+};
+export type ResolverGCTestGCEmptyQuery = {
   response: ResolverGCTestGCEmptyQuery$data,
   variables: ResolverGCTestGCEmptyQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

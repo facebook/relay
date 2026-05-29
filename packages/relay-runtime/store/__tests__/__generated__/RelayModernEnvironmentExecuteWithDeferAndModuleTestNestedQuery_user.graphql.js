@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5441f9407b85c219129b723824227361>>
+ * @generated SignedSource<<bedc695daf187c08b3901773f0c39a92>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,14 +20,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$data = {|
-  +id: string,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType,
-  +$fragmentType: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$data = {
+  readonly id: string,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$key = {
-  +$data?: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$fragmentType,
   ...
 };
 */

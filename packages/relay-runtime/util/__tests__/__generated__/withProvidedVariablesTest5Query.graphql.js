@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<995378cd30a7f90c938fd15f38939ac6>>
+ * @generated SignedSource<<4142c76beaa020ff0c23deb081fc19ce>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,27 +18,27 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { withProvidedVariablesTest5Fragment$fragmentType } from "./withProvidedVariablesTest5Fragment.graphql";
-export type withProvidedVariablesTest5Query$variables = {||};
-export type withProvidedVariablesTest5Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: withProvidedVariablesTest5Fragment$fragmentType,
-  |},
-|};
-export type withProvidedVariablesTest5Query = {|
+export type withProvidedVariablesTest5Query$variables = {};
+export type withProvidedVariablesTest5Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: withProvidedVariablesTest5Fragment$fragmentType,
+  },
+};
+export type withProvidedVariablesTest5Query = {
   response: withProvidedVariablesTest5Query$data,
   variables: withProvidedVariablesTest5Query$variables,
-|};
+};
 ({
   "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('../provideRandomNumber_invalid1.relayprovider'),
   "__relay_internal__pv__provideRandomNumber_invalid2relayprovider": require('../provideRandomNumber_invalid2.relayprovider')
-} as {|
-  +__relay_internal__pv__provideRandomNumber_invalid1relayprovider: {|
-    +get: () => number,
-  |},
-  +__relay_internal__pv__provideRandomNumber_invalid2relayprovider: {|
-    +get: () => number,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__provideRandomNumber_invalid1relayprovider: {
+    readonly get: () => number,
+  },
+  readonly __relay_internal__pv__provideRandomNumber_invalid2relayprovider: {
+    readonly get: () => number,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){

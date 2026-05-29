@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6dd220c61bbff1587c2e4b8012930d44>>
+ * @generated SignedSource<<8252c1cc4cbfb632fd01b7697c0e955c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,24 +24,24 @@ import type { FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_n
 import type { FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType } from "./FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType: FragmentType;
-export type FragmentResourceWithOperationTrackerTestUserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType & FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-  |},
-  +plainNameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-  |},
-  +$fragmentType: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
-|};
+export type FragmentResourceWithOperationTrackerTestUserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType & FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+  },
+  readonly plainNameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+};
 export type FragmentResourceWithOperationTrackerTestUserFragment$key = {
-  +$data?: FragmentResourceWithOperationTrackerTestUserFragment$data,
-  +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+  readonly $data?: FragmentResourceWithOperationTrackerTestUserFragment$data,
+  readonly $fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
   ...
 };
 */

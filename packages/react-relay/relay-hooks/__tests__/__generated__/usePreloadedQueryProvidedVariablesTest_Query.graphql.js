@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c135cd87fe8ebfe10a535e169445c3e6>>
+ * @generated SignedSource<<046579603f12a05ff5576f9776ac4d09>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,30 +18,30 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType } from "./usePreloadedQueryProvidedVariablesTest_Fragment.graphql";
-export type usePreloadedQueryProvidedVariablesTest_Query$variables = {|
+export type usePreloadedQueryProvidedVariablesTest_Query$variables = {
   id: string,
-|};
-export type usePreloadedQueryProvidedVariablesTest_Query$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
-  |},
-|};
-export type usePreloadedQueryProvidedVariablesTest_Query = {|
+};
+export type usePreloadedQueryProvidedVariablesTest_Query$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
+  },
+};
+export type usePreloadedQueryProvidedVariablesTest_Query = {
   response: usePreloadedQueryProvidedVariablesTest_Query$data,
   variables: usePreloadedQueryProvidedVariablesTest_Query$variables,
-|};
+};
 ({
   "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider'),
   "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('../RelayProvider_returnsFalse.relayprovider')
-} as {|
-  +__relay_internal__pv__RelayProvider_returnsFalserelayprovider: {|
-    +get: () => boolean,
-  |},
-  +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
-    +get: () => boolean,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__RelayProvider_returnsFalserelayprovider: {
+    readonly get: () => boolean,
+  },
+  readonly __relay_internal__pv__RelayProvider_returnsTruerelayprovider: {
+    readonly get: () => boolean,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){

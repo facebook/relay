@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4461a87968b63cc656d1b477a751e3ef>>
+ * @generated SignedSource<<57f219aac4af67e7ae3500bf706cdf71>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,81 +19,81 @@
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
 import type { readUpdatableQueryTest_node$fragmentType } from "./readUpdatableQueryTest_node.graphql";
 import type { readUpdatableQueryTest_user$fragmentType } from "./readUpdatableQueryTest_user.graphql";
-export type readUpdatableQueryTestUpdatableQuery$variables = {||};
-export type readUpdatableQueryTestUpdatableQuery$data = {|
-  get me(): ?{|
-    +__typename: "User",
-    +__id: string,
-    +id: string,
+export type readUpdatableQueryTestUpdatableQuery$variables = {};
+export type readUpdatableQueryTestUpdatableQuery$data = {
+  get me(): ?{
+    readonly __typename: "User",
+    readonly __id: string,
+    readonly id: string,
     name: ?string,
-    get author(): ?{|
-      get client_best_friend(): ?{|
+    get author(): ?{
+      get client_best_friend(): ?{
         name: ?string,
-      |},
+      },
       set client_best_friend(value: ?{
-        +__typename: "User",
-        +__id: string,
-        +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
+        readonly __typename: "User",
+        readonly __id: string,
+        readonly $fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
         ...
       }): void,
-    |},
+    },
     set author(value: null | void): void,
-    get author2(): ?{|
+    get author2(): ?{
       client_nickname: ?string,
-    |},
+    },
     set author2(value: null | void): void,
-  |},
+  },
   set me(value: ?{
-    +__typename: "User",
-    +__id: string,
-    +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
+    readonly __typename: "User",
+    readonly __id: string,
+    readonly $fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
     ...
   }): void,
-  get node(): ?({|
-    +__typename: "User",
+  get node(): ?({
+    readonly __typename: "User",
     name: ?string,
-  |} | {|
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+    readonly __typename: "%other",
+  }),
   set node(value: null | void): void,
-  get node2(): ?({|
-    +__typename: "User",
+  get node2(): ?({
+    readonly __typename: "User",
     name: ?string,
-    get parents(): ReadonlyArray<{|
+    get parents(): ReadonlyArray<{
       name: ?string,
-      get parents(): ReadonlyArray<{|
+      get parents(): ReadonlyArray<{
         name: ?string,
-      |}>,
+      }>,
       set parents(value: []): void,
-    |}>,
+    }>,
     set parents(value: ReadonlyArray<{
-      +__typename: "User",
-      +__id: string,
-      +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
+      readonly __typename: "User",
+      readonly __id: string,
+      readonly $fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
       ...
     }>): void,
-  |} | {|
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+    readonly __typename: "%other",
+  }),
   set node2(value: null | void): void,
-  get node3(): ?{|
-    +id: string,
-  |},
+  get node3(): ?{
+    readonly id: string,
+  },
   set node3(value: ?{
-    +__id: string,
-    +__isreadUpdatableQueryTest_node: string,
-    +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
+    readonly __id: string,
+    readonly __isreadUpdatableQueryTest_node: string,
+    readonly $fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
     ...
   }): void,
-|};
-export type readUpdatableQueryTestUpdatableQuery = {|
+};
+export type readUpdatableQueryTestUpdatableQuery = {
   response: readUpdatableQueryTestUpdatableQuery$data,
   variables: readUpdatableQueryTestUpdatableQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteUpdatableQuery*/ = (function(){

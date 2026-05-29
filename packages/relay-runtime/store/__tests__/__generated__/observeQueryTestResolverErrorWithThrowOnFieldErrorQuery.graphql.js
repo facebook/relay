@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0206113382a468bf03a7b9fa7d13cb0e>>
+ * @generated SignedSource<<8a43b8ddc1b24034cba9a80c999b3be3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,16 +27,16 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type observeQueryTestResolverErrorWithThrowOnFieldErrorQuery$variables = {||};
-export type observeQueryTestResolverErrorWithThrowOnFieldErrorQuery$data = {|
-  +me: ?{|
-    +always_throws: ?string,
-  |},
-|};
-export type observeQueryTestResolverErrorWithThrowOnFieldErrorQuery = {|
+export type observeQueryTestResolverErrorWithThrowOnFieldErrorQuery$variables = {};
+export type observeQueryTestResolverErrorWithThrowOnFieldErrorQuery$data = {
+  readonly me: ?{
+    readonly always_throws: ?string,
+  },
+};
+export type observeQueryTestResolverErrorWithThrowOnFieldErrorQuery = {
   response: observeQueryTestResolverErrorWithThrowOnFieldErrorQuery$data,
   variables: observeQueryTestResolverErrorWithThrowOnFieldErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

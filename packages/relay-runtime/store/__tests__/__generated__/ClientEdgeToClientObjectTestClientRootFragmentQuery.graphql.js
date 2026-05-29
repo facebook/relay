@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d0f6bb1015f066d5ae670e19cf41c8da>>
+ * @generated SignedSource<<7fb57ca81b5d5b1ec028110cf291db44>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -34,21 +34,21 @@ import {account as queryAccountResolverType} from "../ClientEdgeToClientObject-t
 (queryAccountResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ClientEdgeToClientObjectTestClientRootFragmentQuery$variables = {||};
-export type ClientEdgeToClientObjectTestClientRootFragmentQuery$data = {|
-  +account: ?{|
-    +__id: string,
-    +account_name: ?string,
-    +id: ?string,
-  |},
-|};
-export type ClientEdgeToClientObjectTestClientRootFragmentQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ClientEdgeToClientObjectTestClientRootFragmentQuery$variables = {};
+export type ClientEdgeToClientObjectTestClientRootFragmentQuery$data = {
+  readonly account: ?{
+    readonly __id: string,
+    readonly account_name: ?string,
+    readonly id: ?string,
+  },
+};
+export type ClientEdgeToClientObjectTestClientRootFragmentQuery = {
   response: ClientEdgeToClientObjectTestClientRootFragmentQuery$data,
   variables: ClientEdgeToClientObjectTestClientRootFragmentQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<423457cf129712ab2368a67e93cb4c44>>
+ * @generated SignedSource<<ac9c35bc46cc04ab787a6751209a98c7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,16 +17,16 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-export type ClientOnlyQueriesTest1Query$variables = {||};
-export type ClientOnlyQueriesTest1Query$data = {|
-  +defaultSettings: ?{|
-    +client_field: ?string,
-  |},
-|};
-export type ClientOnlyQueriesTest1Query = {|
+export type ClientOnlyQueriesTest1Query$variables = {};
+export type ClientOnlyQueriesTest1Query$data = {
+  readonly defaultSettings: ?{
+    readonly client_field: ?string,
+  },
+};
+export type ClientOnlyQueriesTest1Query = {
   response: ClientOnlyQueriesTest1Query$data,
   variables: ClientOnlyQueriesTest1Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

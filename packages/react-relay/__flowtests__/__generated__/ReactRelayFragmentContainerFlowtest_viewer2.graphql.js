@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aea64ad988451a135fcb765d0cd946c2>>
+ * @generated SignedSource<<b7a01cee229c4b258c0652fbbdae4004>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayFragmentContainerFlowtest_viewer2$fragmentType: FragmentType;
-export type ReactRelayFragmentContainerFlowtest_viewer2$data = {|
-  +actor: ?{|
-    +id: string,
-  |},
-  +$fragmentType: ReactRelayFragmentContainerFlowtest_viewer2$fragmentType,
-|};
+export type ReactRelayFragmentContainerFlowtest_viewer2$data = {
+  readonly actor: ?{
+    readonly id: string,
+  },
+  readonly $fragmentType: ReactRelayFragmentContainerFlowtest_viewer2$fragmentType,
+};
 export type ReactRelayFragmentContainerFlowtest_viewer2$key = {
-  +$data?: ReactRelayFragmentContainerFlowtest_viewer2$data,
-  +$fragmentSpreads: ReactRelayFragmentContainerFlowtest_viewer2$fragmentType,
+  readonly $data?: ReactRelayFragmentContainerFlowtest_viewer2$data,
+  readonly $fragmentSpreads: ReactRelayFragmentContainerFlowtest_viewer2$fragmentType,
   ...
 };
 */

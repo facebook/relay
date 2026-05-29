@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5ba78a4282cf55c4a390e6e5db3f561b>>
+ * @generated SignedSource<<52b8597346a3c71912246fab996617e8>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,22 +17,22 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRelayErrorHandlingTestErrorOrderQuery$variables = {||};
-export type RelayReaderRelayErrorHandlingTestErrorOrderQuery$data = {|
-  +also_me: ?{|
-    +name: ?string,
-    +nearest_neighbor: {|
-      +name: ?string,
-    |},
-  |},
-  +me: ?{|
-    +name: ?string,
-  |},
-|};
-export type RelayReaderRelayErrorHandlingTestErrorOrderQuery = {|
+export type RelayReaderRelayErrorHandlingTestErrorOrderQuery$variables = {};
+export type RelayReaderRelayErrorHandlingTestErrorOrderQuery$data = {
+  readonly also_me: ?{
+    readonly name: ?string,
+    readonly nearest_neighbor: {
+      readonly name: ?string,
+    },
+  },
+  readonly me: ?{
+    readonly name: ?string,
+  },
+};
+export type RelayReaderRelayErrorHandlingTestErrorOrderQuery = {
   response: RelayReaderRelayErrorHandlingTestErrorOrderQuery$data,
   variables: RelayReaderRelayErrorHandlingTestErrorOrderQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c927416f24c488774b33be23631b363c>>
+ * @generated SignedSource<<1de769026b110d86f5f49ec4bd312a57>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,23 +19,23 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data = {|
-  +newsFeed: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +feedback?: ?{|
-          +author: ?{|
-            +name: ?string,
-          |},
-        |},
-      |},
-    |}>,
-  |},
-  +$fragmentType: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
-|};
+export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data = {
+  readonly newsFeed: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly feedback?: ?{
+          readonly author: ?{
+            readonly name: ?string,
+          },
+        },
+      },
+    }>,
+  },
+  readonly $fragmentType: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
+};
 export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$key = {
-  +$data?: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data,
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
+  readonly $data?: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
   ...
 };
 */

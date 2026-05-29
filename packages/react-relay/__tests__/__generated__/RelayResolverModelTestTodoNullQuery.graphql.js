@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<312a10ed9d79a1ea61325797b08b88d3>>
+ * @generated SignedSource<<5f2b93a3ee3fcc147154dfcfea525c94>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,19 +25,19 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryTodoModelNullResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverModelTestTodoNullQuery$variables = {||};
-export type RelayResolverModelTestTodoNullQuery$data = {|
-  +todo_model_null: ?{|
-    +id: string,
-  |},
-|};
-export type RelayResolverModelTestTodoNullQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverModelTestTodoNullQuery$variables = {};
+export type RelayResolverModelTestTodoNullQuery$data = {
+  readonly todo_model_null: ?{
+    readonly id: string,
+  },
+};
+export type RelayResolverModelTestTodoNullQuery = {
   response: RelayResolverModelTestTodoNullQuery$data,
   variables: RelayResolverModelTestTodoNullQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

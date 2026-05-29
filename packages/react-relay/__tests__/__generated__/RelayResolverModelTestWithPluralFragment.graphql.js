@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<61ef77cbe61bd31c49e343b329d28c4c>>
+ * @generated SignedSource<<0817cabefb3e204d60aa89cfce61e30c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -47,16 +47,16 @@ import {many_fancy_descriptions as todoModelManyFancyDescriptionsResolverType} f
   context: TestResolverContextType,
 ) => ?ReadonlyArray<?TodoDescription>);
 declare export opaque type RelayResolverModelTestWithPluralFragment$fragmentType: FragmentType;
-export type RelayResolverModelTestWithPluralFragment$data = {|
-  +many_fancy_descriptions: ?ReadonlyArray<?{|
-    +color: ?ReturnType<typeof todoDescriptionColorResolverType>,
-    +text: ?string,
-  |}>,
-  +$fragmentType: RelayResolverModelTestWithPluralFragment$fragmentType,
-|};
+export type RelayResolverModelTestWithPluralFragment$data = {
+  readonly many_fancy_descriptions: ?ReadonlyArray<?{
+    readonly color: ?ReturnType<typeof todoDescriptionColorResolverType>,
+    readonly text: ?string,
+  }>,
+  readonly $fragmentType: RelayResolverModelTestWithPluralFragment$fragmentType,
+};
 export type RelayResolverModelTestWithPluralFragment$key = {
-  +$data?: RelayResolverModelTestWithPluralFragment$data,
-  +$fragmentSpreads: RelayResolverModelTestWithPluralFragment$fragmentType,
+  readonly $data?: RelayResolverModelTestWithPluralFragment$data,
+  readonly $fragmentSpreads: RelayResolverModelTestWithPluralFragment$fragmentType,
   ...
 };
 */

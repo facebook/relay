@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dde5cbb6fa84acc840982abfba16be47>>
+ * @generated SignedSource<<3309f8443ef00dce64af472fdcf15e62>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,18 +23,18 @@ import type { RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType
 import type { RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType } from "./RelayReferenceMarkerTestPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReferenceMarkerTest3Fragment$fragmentType: FragmentType;
-export type RelayReferenceMarkerTest3Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType & RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType,
-  |},
-  +$fragmentType: RelayReferenceMarkerTest3Fragment$fragmentType,
-|};
+export type RelayReferenceMarkerTest3Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType & RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayReferenceMarkerTest3Fragment$fragmentType,
+};
 export type RelayReferenceMarkerTest3Fragment$key = {
-  +$data?: RelayReferenceMarkerTest3Fragment$data,
-  +$fragmentSpreads: RelayReferenceMarkerTest3Fragment$fragmentType,
+  readonly $data?: RelayReferenceMarkerTest3Fragment$data,
+  readonly $fragmentSpreads: RelayReferenceMarkerTest3Fragment$fragmentType,
   ...
 };
 */

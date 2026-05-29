@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c82962c49ce63e2a0cccf5b748e13150>>
+ * @generated SignedSource<<a0ebf34709c8b0e0c3bbba9a6a783754>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,19 +22,19 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloResolverType as (
-  args: {|
+  args: {
     world: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type RelayModernEnvironmentExecuteWithSourceTestResolverQuery$variables = {||};
-export type RelayModernEnvironmentExecuteWithSourceTestResolverQuery$data = {|
-  +hello: ?string,
-|};
-export type RelayModernEnvironmentExecuteWithSourceTestResolverQuery = {|
+export type RelayModernEnvironmentExecuteWithSourceTestResolverQuery$variables = {};
+export type RelayModernEnvironmentExecuteWithSourceTestResolverQuery$data = {
+  readonly hello: ?string,
+};
+export type RelayModernEnvironmentExecuteWithSourceTestResolverQuery = {
   response: RelayModernEnvironmentExecuteWithSourceTestResolverQuery$data,
   variables: RelayModernEnvironmentExecuteWithSourceTestResolverQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

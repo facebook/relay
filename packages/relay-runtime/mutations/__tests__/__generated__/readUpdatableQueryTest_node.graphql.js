@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fc65567424d2d12b1455889dac3b9a1e>>
+ * @generated SignedSource<<46008d426edbff1e37d872fc2fe667f9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -29,14 +29,14 @@ if (__DEV__) {
 module.exports = node;
 
 module.exports.validate = function validate(value/*: {
-  +__id: string,
-  +__isreadUpdatableQueryTest_node?: string,
-  +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
+  readonly __id: string,
+  readonly __isreadUpdatableQueryTest_node?: string,
+  readonly $fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
   ...
 }*/)/*: false | {
-  +__id: string,
-  +__isreadUpdatableQueryTest_node: string,
-  +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
+  readonly __id: string,
+  readonly __isreadUpdatableQueryTest_node: string,
+  readonly $fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
   ...
 }*/ {
   return value.__isreadUpdatableQueryTest_node != null ? (value/*:: as any*/) : false;

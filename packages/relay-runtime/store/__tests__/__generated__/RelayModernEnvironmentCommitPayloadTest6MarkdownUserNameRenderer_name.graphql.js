@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<00a0d1a318f152fb01fcec9188b42fb6>>
+ * @generated SignedSource<<9d33364b4937b124f633c206b16a96d4>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,14 +19,14 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$data = {|
-  +__typename: "MarkdownUserNameRenderer",
-  +markdown: ?string,
-  +$fragmentType: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
-|};
+export type RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$data = {
+  readonly __typename: "MarkdownUserNameRenderer",
+  readonly markdown: ?string,
+  readonly $fragmentType: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
+};
 export type RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$key = {
-  +$data?: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$data,
-  +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
+  readonly $data?: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fa0eda03c38fdaf8bf0951784cf76b49>>
+ * @generated SignedSource<<28d2cdfe68a76ea7e2317d362f48eb4f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,14 +27,14 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   args: void,
   context: TestResolverContextType,
 ) => ?number);
-export type ResolverGCTestRegularReadsLiveQuery$variables = {||};
-export type ResolverGCTestRegularReadsLiveQuery$data = {|
-  +counter_plus_one: ?number,
-|};
-export type ResolverGCTestRegularReadsLiveQuery = {|
+export type ResolverGCTestRegularReadsLiveQuery$variables = {};
+export type ResolverGCTestRegularReadsLiveQuery$data = {
+  readonly counter_plus_one: ?number,
+};
+export type ResolverGCTestRegularReadsLiveQuery = {
   response: ResolverGCTestRegularReadsLiveQuery$data,
   variables: ResolverGCTestRegularReadsLiveQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

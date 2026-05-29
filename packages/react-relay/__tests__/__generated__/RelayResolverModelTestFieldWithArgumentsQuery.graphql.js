@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<014b77bd683d8c08042818e8310ccd4f>>
+ * @generated SignedSource<<549185a28888d7f2233dc4879880c506>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,21 +25,21 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType as (
-  args: {|
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextWithPrefixResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionTextWithPrefixResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
-  args: {|
+  args: {
     prefix: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
@@ -51,20 +51,20 @@ import {fancy_description as todoModelFancyDescriptionResolverType} from "../../
   context: TestResolverContextType,
 ) => ?TodoDescription);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
-export type RelayResolverModelTestFieldWithArgumentsQuery$variables = {|
+export type RelayResolverModelTestFieldWithArgumentsQuery$variables = {
   id: string,
-|};
-export type RelayResolverModelTestFieldWithArgumentsQuery$data = {|
-  +todo_model: ?{|
-    +fancy_description: ?{|
-      +text_with_prefix: ?string,
-    |},
-  |},
-|};
-export type RelayResolverModelTestFieldWithArgumentsQuery = {|
+};
+export type RelayResolverModelTestFieldWithArgumentsQuery$data = {
+  readonly todo_model: ?{
+    readonly fancy_description: ?{
+      readonly text_with_prefix: ?string,
+    },
+  },
+};
+export type RelayResolverModelTestFieldWithArgumentsQuery = {
   response: RelayResolverModelTestFieldWithArgumentsQuery$data,
   variables: RelayResolverModelTestFieldWithArgumentsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

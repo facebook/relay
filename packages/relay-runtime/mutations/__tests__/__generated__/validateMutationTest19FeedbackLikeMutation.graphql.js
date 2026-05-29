@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9b7434811026e795a0458ad1b53c2870>>
+ * @generated SignedSource<<9143c2521baaee4f94b7a9f2bc4a03e8>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,24 +17,24 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type FeedbackLikeInput = {|
+export type FeedbackLikeInput = {
   feedbackId?: ?string,
-|};
-export type validateMutationTest19FeedbackLikeMutation$variables = {|
+};
+export type validateMutationTest19FeedbackLikeMutation$variables = {
   input?: ?FeedbackLikeInput,
-|};
-export type validateMutationTest19FeedbackLikeMutation$data = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +doesViewerLike: ?boolean,
-      +isSavingLike: ?boolean,
-    |},
-  |},
-|};
-export type validateMutationTest19FeedbackLikeMutation = {|
+};
+export type validateMutationTest19FeedbackLikeMutation$data = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly doesViewerLike: ?boolean,
+      readonly isSavingLike: ?boolean,
+    },
+  },
+};
+export type validateMutationTest19FeedbackLikeMutation = {
   response: validateMutationTest19FeedbackLikeMutation$data,
   variables: validateMutationTest19FeedbackLikeMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

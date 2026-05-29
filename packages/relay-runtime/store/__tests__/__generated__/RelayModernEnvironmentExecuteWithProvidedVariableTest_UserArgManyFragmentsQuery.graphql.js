@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<962927357d52c0c64d043ebc65d06caf>>
+ * @generated SignedSource<<318514b39e468b63b6cbb3b363a1694d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,29 +20,29 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType } from "./RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1.graphql";
 import type { RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType } from "./RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2.graphql";
 import type { RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$fragmentType } from "./RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3.graphql";
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType & RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType & RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType & RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType & RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery = {
   response: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$data,
   variables: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider'),
   "__relay_internal__pv__RelayProvider_pictureScalerelayprovider": require('../RelayProvider_pictureScale.relayprovider')
-} as {|
-  +__relay_internal__pv__RelayProvider_pictureScalerelayprovider: {|
-    +get: () => number,
-  |},
-  +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
-    +get: () => boolean,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__RelayProvider_pictureScalerelayprovider: {
+    readonly get: () => number,
+  },
+  readonly __relay_internal__pv__RelayProvider_returnsTruerelayprovider: {
+    readonly get: () => boolean,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){

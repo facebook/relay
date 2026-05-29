@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<739355e74d6a0e0562a52e02a0f561c5>>
+ * @generated SignedSource<<478e41a151f0a4279308fc01aa2a9244>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,10 +18,10 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type RelayMockPayloadGeneratorTest_fragment59$normalization = {|
-  +id: string,
-  +name?: ?string,
-|};
+export type RelayMockPayloadGeneratorTest_fragment59$normalization = {
+  readonly id: string,
+  readonly name?: ?string,
+};
 
 */
 

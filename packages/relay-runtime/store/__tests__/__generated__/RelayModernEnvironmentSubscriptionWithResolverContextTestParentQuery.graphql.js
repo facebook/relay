@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f69fdf933a64ae0554e453fa44b91fd1>>
+ * @generated SignedSource<<028e0d262301416ed30c1cf6fe80058e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType } from "./RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment.graphql";
-export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$variables = {||};
-export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery = {|
+export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$variables = {};
+export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery = {
   response: RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$data,
   variables: RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

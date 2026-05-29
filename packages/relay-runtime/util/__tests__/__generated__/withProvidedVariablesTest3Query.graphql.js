@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5e1d30123ba0f4b3fe3ef95e4d4c485b>>
+ * @generated SignedSource<<0e93acb3dbb88992f6aec63bd7d525c9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,27 +18,27 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { withProvidedVariablesTest3Fragment$fragmentType } from "./withProvidedVariablesTest3Fragment.graphql";
-export type withProvidedVariablesTest3Query$variables = {||};
-export type withProvidedVariablesTest3Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: withProvidedVariablesTest3Fragment$fragmentType,
-  |},
-|};
-export type withProvidedVariablesTest3Query = {|
+export type withProvidedVariablesTest3Query$variables = {};
+export type withProvidedVariablesTest3Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: withProvidedVariablesTest3Fragment$fragmentType,
+  },
+};
+export type withProvidedVariablesTest3Query = {
   response: withProvidedVariablesTest3Query$data,
   variables: withProvidedVariablesTest3Query$variables,
-|};
+};
 ({
   "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider'),
   "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('../provideIncludeUserNames.relayprovider')
-} as {|
-  +__relay_internal__pv__provideIncludeUserNamesrelayprovider: {|
-    +get: () => boolean,
-  |},
-  +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
-    +get: () => number,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__provideIncludeUserNamesrelayprovider: {
+    readonly get: () => boolean,
+  },
+  readonly __relay_internal__pv__provideNumberOfFriendsrelayprovider: {
+    readonly get: () => number,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){

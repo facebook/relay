@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1f9396cdef1858285878fbfe4c4ba2cb>>
+ * @generated SignedSource<<352c156ade0b62fdcccdd66f1088303c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type commitMutationTest1Fragment$fragmentType: FragmentType;
-export type commitMutationTest1Fragment$data = {|
-  +body: ?{|
-    +text: ?string,
-  |},
-  +id: string,
-  +$fragmentType: commitMutationTest1Fragment$fragmentType,
-|};
+export type commitMutationTest1Fragment$data = {
+  readonly body: ?{
+    readonly text: ?string,
+  },
+  readonly id: string,
+  readonly $fragmentType: commitMutationTest1Fragment$fragmentType,
+};
 export type commitMutationTest1Fragment$key = {
-  +$data?: commitMutationTest1Fragment$data,
-  +$fragmentSpreads: commitMutationTest1Fragment$fragmentType,
+  readonly $data?: commitMutationTest1Fragment$data,
+  readonly $fragmentSpreads: commitMutationTest1Fragment$fragmentType,
   ...
 };
 */

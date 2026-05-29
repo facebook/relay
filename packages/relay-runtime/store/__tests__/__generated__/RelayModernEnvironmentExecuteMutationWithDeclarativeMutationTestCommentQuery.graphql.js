@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7ba9822bc7ead540fb7a657df3a278ee>>
+ * @generated SignedSource<<b7b4e7cc2d07bca9b24341b657885d8e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,21 +17,21 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data = {|
-  +node: ?{|
-    +body: ?{|
-      +text: ?string,
-    |},
-    +id: string,
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data = {
+  readonly node: ?{
+    readonly body: ?{
+      readonly text: ?string,
+    },
+    readonly id: string,
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery = {
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data,
   variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

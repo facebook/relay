@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1d3252f337cb1feed86dd48cd8382ac5>>
+ * @generated SignedSource<<f1ea3fb0e66ac1e15a9ec21802f17219>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,17 +19,17 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ResolverFragmentSpreadsTestUnmaskedFragmentSpread$fragmentType: FragmentType;
-export type ResolverFragmentSpreadsTestUnmaskedFragmentSpread$data = {|
-  +profile_picture: ?{|
-    +height: ?number,
-    +uri: ?string,
-    +width: ?number,
-  |},
-  +$fragmentType: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$fragmentType,
-|};
+export type ResolverFragmentSpreadsTestUnmaskedFragmentSpread$data = {
+  readonly profile_picture: ?{
+    readonly height: ?number,
+    readonly uri: ?string,
+    readonly width: ?number,
+  },
+  readonly $fragmentType: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$fragmentType,
+};
 export type ResolverFragmentSpreadsTestUnmaskedFragmentSpread$key = {
-  +$data?: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$data,
-  +$fragmentSpreads: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$fragmentType,
+  readonly $data?: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$data,
+  readonly $fragmentSpreads: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$fragmentType,
   ...
 };
 */

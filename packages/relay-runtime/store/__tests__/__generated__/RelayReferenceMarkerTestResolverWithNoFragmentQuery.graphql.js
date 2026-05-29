@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<160c5fa39f2cfae2200fa938ba2b0dc4>>
+ * @generated SignedSource<<da442691aa04e1c49f56a0d086d0ab36>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,14 +26,14 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type RelayReferenceMarkerTestResolverWithNoFragmentQuery$variables = {||};
-export type RelayReferenceMarkerTestResolverWithNoFragmentQuery$data = {|
-  +counter_no_fragment: ?number,
-|};
-export type RelayReferenceMarkerTestResolverWithNoFragmentQuery = {|
+export type RelayReferenceMarkerTestResolverWithNoFragmentQuery$variables = {};
+export type RelayReferenceMarkerTestResolverWithNoFragmentQuery$data = {
+  readonly counter_no_fragment: ?number,
+};
+export type RelayReferenceMarkerTestResolverWithNoFragmentQuery = {
   response: RelayReferenceMarkerTestResolverWithNoFragmentQuery$data,
   variables: RelayReferenceMarkerTestResolverWithNoFragmentQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

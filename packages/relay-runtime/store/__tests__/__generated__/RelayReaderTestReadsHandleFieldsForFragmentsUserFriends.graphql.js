@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d0ef9d3f37fc423bb2b68d653db7a586>>
+ * @generated SignedSource<<f5e42411c30d42d07d5c2c00afaa4fba>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,21 +19,21 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType: FragmentType;
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +id: string,
-        +name: ?string,
-      |},
-    |}>,
-  |},
-  +$fragmentType: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
-|};
+export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly id: string,
+        readonly name: ?string,
+      },
+    }>,
+  },
+  readonly $fragmentType: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
+};
 export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$key = {
-  +$data?: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data,
-  +$fragmentSpreads: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
+  readonly $data?: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data,
+  readonly $fragmentSpreads: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
   ...
 };
 */

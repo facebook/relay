@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f5c6560077d87467c23b28ab5dfc6450>>
+ * @generated SignedSource<<85a2ea77c1ffe6011d2ce03044d48c87>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,16 +27,16 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   context: TestResolverContextType,
 ) => ?RedOctopus);
 import type { RedOctopus } from "../../../relay-runtime/store/__tests__/resolvers/RedOctopusResolvers.js";
-export type RelayResolverInterfaceTestRedOctopusColorQuery$variables = {||};
-export type RelayResolverInterfaceTestRedOctopusColorQuery$data = {|
-  +red_octopus: ?{|
-    +$fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
-  |},
-|};
-export type RelayResolverInterfaceTestRedOctopusColorQuery = {|
+export type RelayResolverInterfaceTestRedOctopusColorQuery$variables = {};
+export type RelayResolverInterfaceTestRedOctopusColorQuery$data = {
+  readonly red_octopus: ?{
+    readonly $fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
+  },
+};
+export type RelayResolverInterfaceTestRedOctopusColorQuery = {
   response: RelayResolverInterfaceTestRedOctopusColorQuery$data,
   variables: RelayResolverInterfaceTestRedOctopusColorQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

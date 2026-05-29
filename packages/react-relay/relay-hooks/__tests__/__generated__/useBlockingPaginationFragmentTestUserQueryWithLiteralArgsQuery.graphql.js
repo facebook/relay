@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1b6b4a1277c9d32dfcdf702c336f7e5b>>
+ * @generated SignedSource<<8745f6a9173b0077d0dc5108e264e50a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,22 +18,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useBlockingPaginationFragmentTestUserFragment$fragmentType } from "./useBlockingPaginationFragmentTestUserFragment.graphql";
-export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$variables = {|
+export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$variables = {
   after?: ?string,
   before?: ?string,
   first?: ?number,
   id: string,
   last?: ?number,
-|};
-export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
-  |},
-|};
-export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery = {|
+};
+export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
+  },
+};
+export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery = {
   response: useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$data,
   variables: useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

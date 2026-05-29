@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<225d812373e356f03b9d56f3a7ffcc4d>>
+ * @generated SignedSource<<7f55a03278f72732e09f4e90259cef6e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayResolverInterfaceTestAnimalLegsFragment$fragmentType } from "./RelayResolverInterfaceTestAnimalLegsFragment.graphql";
-export type RelayResolverInterfaceTestChickenLegsQuery$variables = {||};
-export type RelayResolverInterfaceTestChickenLegsQuery$data = {|
-  +chicken: ?{|
-    +$fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
-  |},
-|};
-export type RelayResolverInterfaceTestChickenLegsQuery = {|
+export type RelayResolverInterfaceTestChickenLegsQuery$variables = {};
+export type RelayResolverInterfaceTestChickenLegsQuery$data = {
+  readonly chicken: ?{
+    readonly $fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
+  },
+};
+export type RelayResolverInterfaceTestChickenLegsQuery = {
   response: RelayResolverInterfaceTestChickenLegsQuery$data,
   variables: RelayResolverInterfaceTestChickenLegsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

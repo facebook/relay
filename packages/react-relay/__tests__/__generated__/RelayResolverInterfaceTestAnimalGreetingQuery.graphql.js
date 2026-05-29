@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d0174a74da03ababf8d85e8ad8cc5e7>>
+ * @generated SignedSource<<d730c5680da541b5b9de9d85edd2a4ee>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -33,30 +33,30 @@ import {animal as queryAnimalResolverType} from "../../../relay-runtime/store/__
 // Type assertion validating that `queryAnimalResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAnimalResolverType as (
-  args: {|
+  args: {
     request: AnimalRequest,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +__typename: "Cat" | "Chicken" | "Fish",
-  +id: DataID,
-|});
-export type AnimalRequest = {|
+) => ?{
+  readonly __typename: "Cat" | "Chicken" | "Fish",
+  readonly id: DataID,
+});
+export type AnimalRequest = {
   ofType: string,
   returnValidID: boolean,
-|};
-export type RelayResolverInterfaceTestAnimalGreetingQuery$variables = {|
+};
+export type RelayResolverInterfaceTestAnimalGreetingQuery$variables = {
   request: AnimalRequest,
-|};
-export type RelayResolverInterfaceTestAnimalGreetingQuery$data = {|
-  +animal: ?{|
-    +greeting: ?string,
-  |},
-|};
-export type RelayResolverInterfaceTestAnimalGreetingQuery = {|
+};
+export type RelayResolverInterfaceTestAnimalGreetingQuery$data = {
+  readonly animal: ?{
+    readonly greeting: ?string,
+  },
+};
+export type RelayResolverInterfaceTestAnimalGreetingQuery = {
   response: RelayResolverInterfaceTestAnimalGreetingQuery$data,
   variables: RelayResolverInterfaceTestAnimalGreetingQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

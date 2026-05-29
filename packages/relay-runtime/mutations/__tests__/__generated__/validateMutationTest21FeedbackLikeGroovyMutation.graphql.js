@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<056c7e5b2ffeb07691b765b20fb3c59c>>
+ * @generated SignedSource<<9cbec524591b6c2cf1351e33f40afbce>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,25 +20,25 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { validateMutationTestGroovyFragment_groovygroovy$fragmentType } from "./validateMutationTestGroovyFragment_groovygroovy.graphql";
-export type FeedbackLikeInput = {|
+export type FeedbackLikeInput = {
   feedbackId?: ?string,
-|};
-export type validateMutationTest21FeedbackLikeGroovyMutation$variables = {|
+};
+export type validateMutationTest21FeedbackLikeGroovyMutation$variables = {
   input?: ?FeedbackLikeInput,
-|};
-export type validateMutationTest21FeedbackLikeGroovyMutation$data = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
-    |},
-  |},
-|};
-export type validateMutationTest21FeedbackLikeGroovyMutation = {|
+};
+export type validateMutationTest21FeedbackLikeGroovyMutation$data = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
+    },
+  },
+};
+export type validateMutationTest21FeedbackLikeGroovyMutation = {
   response: validateMutationTest21FeedbackLikeGroovyMutation$data,
   variables: validateMutationTest21FeedbackLikeGroovyMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

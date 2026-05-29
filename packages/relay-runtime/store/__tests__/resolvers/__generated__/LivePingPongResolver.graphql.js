@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8117cfacc5671627fa45ea0877fb0c43>>
+ * @generated SignedSource<<5ebc940d9058323b201603812069b223>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type LivePingPongResolver$fragmentType: FragmentType;
-export type LivePingPongResolver$data = {|
-  +me: ?{|
-    +__id: string,
-  |},
-  +$fragmentType: LivePingPongResolver$fragmentType,
-|};
+export type LivePingPongResolver$data = {
+  readonly me: ?{
+    readonly __id: string,
+  },
+  readonly $fragmentType: LivePingPongResolver$fragmentType,
+};
 export type LivePingPongResolver$key = {
-  +$data?: LivePingPongResolver$data,
-  +$fragmentSpreads: LivePingPongResolver$fragmentType,
+  readonly $data?: LivePingPongResolver$data,
+  readonly $fragmentSpreads: LivePingPongResolver$fragmentType,
   ...
 };
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<981f013e8ff568274ec4fab5d984b117>>
+ * @generated SignedSource<<35db3ed50a2b379b01d80df312ec05b2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$fragmentType } from "./RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user.graphql";
-export type ClientEdgeQuery_LiveExternalGreetingFragment_user$variables = {|
+export type ClientEdgeQuery_LiveExternalGreetingFragment_user$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_LiveExternalGreetingFragment_user$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_LiveExternalGreetingFragment_user = {|
+};
+export type ClientEdgeQuery_LiveExternalGreetingFragment_user$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$fragmentType,
+  },
+};
+export type ClientEdgeQuery_LiveExternalGreetingFragment_user = {
   response: ClientEdgeQuery_LiveExternalGreetingFragment_user$data,
   variables: ClientEdgeQuery_LiveExternalGreetingFragment_user$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

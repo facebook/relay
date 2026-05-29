@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<25f2fcdc99142bf9cbb11b97882f0622>>
+ * @generated SignedSource<<2e7b420b006697965e64638fb217f112>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayPublishQueueTest3Query$variables = {||};
-export type RelayPublishQueueTest3Query$data = {|
-  +me: ?{|
-    +screennames: ?ReadonlyArray<?{|
-      +name: ?string,
-    |}>,
-  |},
-|};
-export type RelayPublishQueueTest3Query = {|
+export type RelayPublishQueueTest3Query$variables = {};
+export type RelayPublishQueueTest3Query$data = {
+  readonly me: ?{
+    readonly screennames: ?ReadonlyArray<?{
+      readonly name: ?string,
+    }>,
+  },
+};
+export type RelayPublishQueueTest3Query = {
   response: RelayPublishQueueTest3Query$data,
   variables: RelayPublishQueueTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

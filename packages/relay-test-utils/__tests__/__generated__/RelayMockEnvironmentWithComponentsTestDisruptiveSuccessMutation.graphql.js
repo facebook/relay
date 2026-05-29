@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0be4d52d06af567ad7524daddb8f01e5>>
+ * @generated SignedSource<<9debd81e422f17a2ba48503ce15dfc11>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,24 +17,24 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type FeedbackLikeInput = {|
+export type FeedbackLikeInput = {
   feedbackId?: ?string,
-|};
-export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables = {|
+};
+export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables = {
   input?: ?FeedbackLikeInput,
-|};
-export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +doesViewerLike: ?boolean,
-      +id: string,
-    |},
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation = {|
+};
+export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly doesViewerLike: ?boolean,
+      readonly id: string,
+    },
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation = {
   response: RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data,
   variables: RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

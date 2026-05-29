@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<90abbfa9e9d04107577d42f163af91ae>>
+ * @generated SignedSource<<dbd533e9ffdb58b2de9a321639beca1b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,13 +27,13 @@ import type { TestResolverContextType } from "../../../../relay-runtime/mutation
   context: TestResolverContextType,
 ) => number);
 declare export opaque type useFragmentNullabilityTestFragmentWithFieldThatThrows$fragmentType: FragmentType;
-export type useFragmentNullabilityTestFragmentWithFieldThatThrows$data = {|
-  +field_that_throws: number,
-  +$fragmentType: useFragmentNullabilityTestFragmentWithFieldThatThrows$fragmentType,
-|};
+export type useFragmentNullabilityTestFragmentWithFieldThatThrows$data = {
+  readonly field_that_throws: number,
+  readonly $fragmentType: useFragmentNullabilityTestFragmentWithFieldThatThrows$fragmentType,
+};
 export type useFragmentNullabilityTestFragmentWithFieldThatThrows$key = {
-  +$data?: useFragmentNullabilityTestFragmentWithFieldThatThrows$data,
-  +$fragmentSpreads: useFragmentNullabilityTestFragmentWithFieldThatThrows$fragmentType,
+  readonly $data?: useFragmentNullabilityTestFragmentWithFieldThatThrows$data,
+  readonly $fragmentSpreads: useFragmentNullabilityTestFragmentWithFieldThatThrows$fragmentType,
   ...
 };
 */

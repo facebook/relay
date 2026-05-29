@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3ef25d6a7f13bb836848fc2e352e31d7>>
+ * @generated SignedSource<<3685fa776c6a115e1c32a7b56168e3a7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,22 +21,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name.graphql";
 import type { RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name.graphql";
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$data = {|
-  +node: ?{|
-    +nameRenderer?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery = {
   response: RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$data,
   variables: RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

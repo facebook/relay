@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b082e0683fcd9f6008483a0d045f90c5>>
+ * @generated SignedSource<<d1d9d2a465b2aa69d94d87cf28603829>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,18 +20,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { DataCheckerTest4Fragment$fragmentType } from "./DataCheckerTest4Fragment.graphql";
-export type DataCheckerTest4Query$variables = {|
+export type DataCheckerTest4Query$variables = {
   id: string,
-|};
-export type DataCheckerTest4Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: DataCheckerTest4Fragment$fragmentType,
-  |},
-|};
-export type DataCheckerTest4Query = {|
+};
+export type DataCheckerTest4Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: DataCheckerTest4Fragment$fragmentType,
+  },
+};
+export type DataCheckerTest4Query = {
   response: DataCheckerTest4Query$data,
   variables: DataCheckerTest4Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

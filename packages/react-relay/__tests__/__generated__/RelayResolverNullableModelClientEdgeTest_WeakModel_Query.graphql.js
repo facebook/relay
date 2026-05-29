@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b5c143765292179893e75e2ae780431c>>
+ * @generated SignedSource<<a546aac3d2b7916c1965f9870ce6a74c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -35,16 +35,16 @@ import {first_name as weakModelFirstNameResolverType} from "../RelayResolverNull
   context: TestResolverContextType,
 ) => ?string);
 import type { WeakModel } from "../RelayResolverNullableModelClientEdge-test.js";
-export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$data = {|
-  +edge_to_null_weak_model: ?{|
-    +first_name: ?string,
-  |},
-|};
-export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query = {|
+export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$data = {
+  readonly edge_to_null_weak_model: ?{
+    readonly first_name: ?string,
+  },
+};
+export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query = {
   response: RelayResolverNullableModelClientEdgeTest_WeakModel_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

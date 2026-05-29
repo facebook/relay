@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fc1c833809d495574893e28d8f8f59e6>>
+ * @generated SignedSource<<938526788704b0b9e1484bbeecf0ec94>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType } from "./waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment.graphql";
-export type waitForFragmentDataTestThrowOnFieldErrorQuery$variables = {||};
-export type waitForFragmentDataTestThrowOnFieldErrorQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
-  |},
-|};
-export type waitForFragmentDataTestThrowOnFieldErrorQuery = {|
+export type waitForFragmentDataTestThrowOnFieldErrorQuery$variables = {};
+export type waitForFragmentDataTestThrowOnFieldErrorQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
+  },
+};
+export type waitForFragmentDataTestThrowOnFieldErrorQuery = {
   response: waitForFragmentDataTestThrowOnFieldErrorQuery$data,
   variables: waitForFragmentDataTestThrowOnFieldErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f014bb794a4d12745dd65f9697ab5cdd>>
+ * @generated SignedSource<<2117a7bc59ce0f501ec5f925c4924b2f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,24 +19,24 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType: FragmentType;
-export type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-        +name: ?string,
-        +profile_picture: ?{|
-          +uri: ?string,
-        |},
-      |},
-    |}>,
-  |},
-  +id: string,
-  +$fragmentType: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
-|};
+export type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+        readonly name: ?string,
+        readonly profile_picture: ?{
+          readonly uri: ?string,
+        },
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
+};
 export type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$key = {
-  +$data?: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data,
-  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
+  readonly $data?: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data,
+  readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
   ...
 };
 */

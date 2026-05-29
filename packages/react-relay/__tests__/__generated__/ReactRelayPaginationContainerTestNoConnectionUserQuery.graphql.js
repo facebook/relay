@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<28d38f3a16330444f9d10ac75b6af362>>
+ * @generated SignedSource<<b0f1995abf9377f0107f2da95321610a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,22 +18,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType } from "./ReactRelayPaginationContainerTestNoConnectionUserFragment.graphql";
-export type ReactRelayPaginationContainerTestNoConnectionUserQuery$variables = {|
+export type ReactRelayPaginationContainerTestNoConnectionUserQuery$variables = {
   after?: ?string,
   count: number,
   id: string,
   orderby?: ?ReadonlyArray<?string>,
-|};
-export type ReactRelayPaginationContainerTestNoConnectionUserQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType,
-  |},
-|};
-export type ReactRelayPaginationContainerTestNoConnectionUserQuery = {|
+};
+export type ReactRelayPaginationContainerTestNoConnectionUserQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType,
+  },
+};
+export type ReactRelayPaginationContainerTestNoConnectionUserQuery = {
   response: ReactRelayPaginationContainerTestNoConnectionUserQuery$data,
   variables: ReactRelayPaginationContainerTestNoConnectionUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

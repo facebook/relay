@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2285a83239459a4740c8bb0c428125e0>>
+ * @generated SignedSource<<d2f20f7869341fbbc1461ab72efa7672>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,19 +27,19 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 declare export opaque type UserReadsClientEdgeResolver$fragmentType: FragmentType;
-export type UserReadsClientEdgeResolver$data = {|
-  +client_edge: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: UserReadsClientEdgeResolver$fragmentType,
-|};
+export type UserReadsClientEdgeResolver$data = {
+  readonly client_edge: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: UserReadsClientEdgeResolver$fragmentType,
+};
 export type UserReadsClientEdgeResolver$key = {
-  +$data?: UserReadsClientEdgeResolver$data,
-  +$fragmentSpreads: UserReadsClientEdgeResolver$fragmentType,
+  readonly $data?: UserReadsClientEdgeResolver$data,
+  readonly $fragmentSpreads: UserReadsClientEdgeResolver$fragmentType,
   ...
 };
 */

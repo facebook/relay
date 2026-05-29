@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<628b5ba9300f7662ceccc76246520d64>>
+ * @generated SignedSource<<03abb0bf8058d18f4cc6e6559e9a057c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,17 +19,17 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type fetchQueryInternalTestMarkdownFragment_name$fragmentType: FragmentType;
-export type fetchQueryInternalTestMarkdownFragment_name$data = {|
-  +__typename: "MarkdownUserNameRenderer",
-  +data: ?{|
-    +markup: ?string,
-  |},
-  +markdown: ?string,
-  +$fragmentType: fetchQueryInternalTestMarkdownFragment_name$fragmentType,
-|};
+export type fetchQueryInternalTestMarkdownFragment_name$data = {
+  readonly __typename: "MarkdownUserNameRenderer",
+  readonly data: ?{
+    readonly markup: ?string,
+  },
+  readonly markdown: ?string,
+  readonly $fragmentType: fetchQueryInternalTestMarkdownFragment_name$fragmentType,
+};
 export type fetchQueryInternalTestMarkdownFragment_name$key = {
-  +$data?: fetchQueryInternalTestMarkdownFragment_name$data,
-  +$fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType,
+  readonly $data?: fetchQueryInternalTestMarkdownFragment_name$data,
+  readonly $fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType,
   ...
 };
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c1148b189d099641227618eff1cb2bf2>>
+ * @generated SignedSource<<daedc41e554eac70ca77c35214b6a9dc>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { getFragmentIdentifierTest1UserFragmentWithArgs$fragmentType } from "./getFragmentIdentifierTest1UserFragmentWithArgs.graphql";
-export type getFragmentIdentifierTest1UserQueryWithArgsQuery$variables = {|
+export type getFragmentIdentifierTest1UserQueryWithArgsQuery$variables = {
   id: string,
   scale: number,
-|};
-export type getFragmentIdentifierTest1UserQueryWithArgsQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: getFragmentIdentifierTest1UserFragmentWithArgs$fragmentType,
-  |},
-|};
-export type getFragmentIdentifierTest1UserQueryWithArgsQuery = {|
+};
+export type getFragmentIdentifierTest1UserQueryWithArgsQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: getFragmentIdentifierTest1UserFragmentWithArgs$fragmentType,
+  },
+};
+export type getFragmentIdentifierTest1UserQueryWithArgsQuery = {
   response: getFragmentIdentifierTest1UserQueryWithArgsQuery$data,
   variables: getFragmentIdentifierTest1UserQueryWithArgsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

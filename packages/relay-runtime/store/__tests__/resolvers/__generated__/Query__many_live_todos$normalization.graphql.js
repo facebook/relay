@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<62974448bb0c58b1e0d177ff8b5bd27f>>
+ * @generated SignedSource<<d018413b7f18f393ac80c631b6c682a3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,9 +18,9 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type Query__many_live_todos$normalization = {|
-  +todo_id: string,
-|};
+export type Query__many_live_todos$normalization = {
+  readonly todo_id: string,
+};
 
 */
 

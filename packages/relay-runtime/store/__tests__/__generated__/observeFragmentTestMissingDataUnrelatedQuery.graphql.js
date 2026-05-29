@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a5b03ee5783dca1653ac9bb7f8845d2f>>
+ * @generated SignedSource<<db9c5d95d3306a81a073a3f0714be16d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type observeFragmentTestMissingDataUnrelatedQuery$variables = {||};
-export type observeFragmentTestMissingDataUnrelatedQuery$data = {|
-  +me: ?{|
-    +__typename: "User",
-  |},
-|};
-export type observeFragmentTestMissingDataUnrelatedQuery = {|
+export type observeFragmentTestMissingDataUnrelatedQuery$variables = {};
+export type observeFragmentTestMissingDataUnrelatedQuery$data = {
+  readonly me: ?{
+    readonly __typename: "User",
+  },
+};
+export type observeFragmentTestMissingDataUnrelatedQuery = {
   response: observeFragmentTestMissingDataUnrelatedQuery$data,
   variables: observeFragmentTestMissingDataUnrelatedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

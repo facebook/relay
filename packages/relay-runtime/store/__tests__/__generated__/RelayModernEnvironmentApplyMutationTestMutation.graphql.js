@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<59f790dbac1cceac21f1387b9a7e545d>>
+ * @generated SignedSource<<07ab5bbe85668791b0c2ad89991e44d3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,33 +17,33 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentApplyMutationTestMutation$variables = {|
+};
+export type RelayModernEnvironmentApplyMutationTestMutation$variables = {
   input: CommentCreateInput,
-|};
-export type RelayModernEnvironmentApplyMutationTestMutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +body: ?{|
-        +text: ?string,
-      |},
-      +id: string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentApplyMutationTestMutation = {|
+};
+export type RelayModernEnvironmentApplyMutationTestMutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly body: ?{
+        readonly text: ?string,
+      },
+      readonly id: string,
+    },
+  },
+};
+export type RelayModernEnvironmentApplyMutationTestMutation = {
   response: RelayModernEnvironmentApplyMutationTestMutation$data,
   variables: RelayModernEnvironmentApplyMutationTestMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

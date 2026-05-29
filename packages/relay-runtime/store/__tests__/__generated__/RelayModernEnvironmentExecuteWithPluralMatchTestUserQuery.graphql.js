@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<02478176ddb228435f2104a3dbd71c32>>
+ * @generated SignedSource<<ff1a176686f1c2f5b0fe27c5bc110f3b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,22 +21,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name.graphql";
 import type { RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name.graphql";
-export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data = {|
-  +node: ?{|
-    +nameRenderers?: ?ReadonlyArray<?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$fragmentType,
-    |}>,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data = {
+  readonly node: ?{
+    readonly nameRenderers?: ?ReadonlyArray<?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$fragmentType,
+    }>,
+  },
+};
+export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data,
   variables: RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

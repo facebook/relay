@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c480029f45f17c44a508cfb6fd4c3ece>>
+ * @generated SignedSource<<d1a02437004c1b60e7f93e633f5c3c86>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type QueryAllAstrologicalSignsResolver$fragmentType: FragmentType;
-export type QueryAllAstrologicalSignsResolver$data = {|
-  +me: ?{|
-    +__typename: "User",
-  |},
-  +$fragmentType: QueryAllAstrologicalSignsResolver$fragmentType,
-|};
+export type QueryAllAstrologicalSignsResolver$data = {
+  readonly me: ?{
+    readonly __typename: "User",
+  },
+  readonly $fragmentType: QueryAllAstrologicalSignsResolver$fragmentType,
+};
 export type QueryAllAstrologicalSignsResolver$key = {
-  +$data?: QueryAllAstrologicalSignsResolver$data,
-  +$fragmentSpreads: QueryAllAstrologicalSignsResolver$fragmentType,
+  readonly $data?: QueryAllAstrologicalSignsResolver$data,
+  readonly $fragmentSpreads: QueryAllAstrologicalSignsResolver$fragmentType,
   ...
 };
 */

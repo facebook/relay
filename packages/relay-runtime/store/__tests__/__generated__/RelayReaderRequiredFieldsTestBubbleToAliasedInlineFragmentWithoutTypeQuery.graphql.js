@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c6f8ce11edcca04f216f5930ce11ca9e>>
+ * @generated SignedSource<<f9f985c1dc30f416a0c74c2f8ba82f77>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,20 +17,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$variables = {||};
-export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$data = {|
-  +me: ?{|
-    +requiredFields: ?{|
-      +backgroundImage: {|
-        +uri: string,
-      |},
-    |},
-  |},
-|};
-export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery = {|
+export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$variables = {};
+export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$data = {
+  readonly me: ?{
+    readonly requiredFields: ?{
+      readonly backgroundImage: {
+        readonly uri: string,
+      },
+    },
+  },
+};
+export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery = {
   response: RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$data,
   variables: RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

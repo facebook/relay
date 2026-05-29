@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ece25c1bd5767ef7a318a120426c0299>>
+ * @generated SignedSource<<4a8e585a8d96c70deaae3cb8a4977b33>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { Result } from "relay-runtime";
-export type CatchTest1Query$variables = {||};
-export type CatchTest1Query$data = {|
-  +me: {|
-    +name: Result<?string, unknown>,
-  |},
-|};
-export type CatchTest1Query = {|
+export type CatchTest1Query$variables = {};
+export type CatchTest1Query$data = {
+  readonly me: {
+    readonly name: Result<?string, unknown>,
+  },
+};
+export type CatchTest1Query = {
   response: CatchTest1Query$data,
   variables: CatchTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<19b7b81117c762e3f8ebc46c2e6caf63>>
+ * @generated SignedSource<<c12d04ca212d1ab7897d1f273f3cd038>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,24 +17,24 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type commitMutationTest3Query$variables = {||};
-export type commitMutationTest3Query$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +friends?: ?{|
-        +edges: ?ReadonlyArray<?{|
-          +node: ?{|
-            +id: string,
-          |},
-        |}>,
-      |},
-    |},
-  |},
-|};
-export type commitMutationTest3Query = {|
+export type commitMutationTest3Query$variables = {};
+export type commitMutationTest3Query$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly friends?: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly node: ?{
+            readonly id: string,
+          },
+        }>,
+      },
+    },
+  },
+};
+export type commitMutationTest3Query = {
   response: commitMutationTest3Query$data,
   variables: commitMutationTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

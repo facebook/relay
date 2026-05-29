@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<09190aa3faa9948913ae41b36687db9e>>
+ * @generated SignedSource<<a98af139d0c3682ea28585df4171c102>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,22 +18,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType } from "./RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment.graphql";
-export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$variables = {|
+export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$variables = {
   cursor?: ?string,
   first?: ?number,
   id?: ?string,
-|};
-export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$data = {|
-  +user: ?{|
-    +id: string,
-    +name: ?string,
-    +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery = {|
+};
+export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$data = {
+  readonly user: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery = {
   response: RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$data,
   variables: RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

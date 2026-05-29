@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<091d7ee4c92734a9660030db4c6a517b>>
+ * @generated SignedSource<<6933fd68181dcd7f9b2d1877be2324da>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,9 +27,9 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryEdgeToLiveObjectDoesNotExistResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -47,19 +47,19 @@ import {fancy_description as todoModelFancyDescriptionResolverType} from "../../
   context: TestResolverContextType,
 ) => ?TodoDescription);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
-export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$data = {|
-  +edge_to_live_object_does_not_exist: ?{|
-    +fancy_description: ?{|
-      +text: ?string,
-    |},
-    +id: string,
-  |},
-|};
-export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query = {|
+export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$data = {
+  readonly edge_to_live_object_does_not_exist: ?{
+    readonly fancy_description: ?{
+      readonly text: ?string,
+    },
+    readonly id: string,
+  },
+};
+export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query = {
   response: RelayResolverNullableModelClientEdgeTest_LiveModel_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_LiveModel_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

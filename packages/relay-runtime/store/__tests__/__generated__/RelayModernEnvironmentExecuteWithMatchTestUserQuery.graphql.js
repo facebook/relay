@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<65c1d137c21aa06aa243cb1847f89f09>>
+ * @generated SignedSource<<5789f30593f7c434417bae2d38a11076>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,32 +21,32 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name.graphql";
 import type { RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name.graphql";
-export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$data = {|
-  +node: ?{|
-    +nameRenderer?: ?({|
-      +__typename: "MarkdownUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
-    |} | {|
-      +__typename: "PlainUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$fragmentType,
-    |} | {|
+};
+export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?({
+      readonly __typename: "MarkdownUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
+    } | {
+      readonly __typename: "PlainUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$fragmentType,
+    } | {
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithMatchTestUserQuery = {|
+      readonly __typename: "%other",
+    }),
+  },
+};
+export type RelayModernEnvironmentExecuteWithMatchTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithMatchTestUserQuery$data,
   variables: RelayModernEnvironmentExecuteWithMatchTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

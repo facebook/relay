@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9e2cfa649d47f4c7ffaaf5bec636fcea>>
+ * @generated SignedSource<<80ba7fa5975b05327892a75c5b06ad05>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,42 +19,42 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { readUpdatableQueryTest_node$fragmentType } from "./readUpdatableQueryTest_node.graphql";
 import type { readUpdatableQueryTest_user$fragmentType } from "./readUpdatableQueryTest_user.graphql";
-export type readUpdatableQueryTestRegularQuery$variables = {||};
-export type readUpdatableQueryTestRegularQuery$data = {|
-  +me: ?{|
-    +__id: string,
-    +__isreadUpdatableQueryTest_node?: "User",
-    +author: ?{|
-      +client_best_friend: ?{|
-        +name: ?string,
-      |},
-      +client_nickname: ?string,
-    |},
-    +id: string,
-    +name: ?string,
-    +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
-  |},
-  +node: ?{|
-    +__typename: string,
-    +__id: string,
-    +name?: ?string,
-    +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
-  |},
-  +node2: ?{|
-    +name?: ?string,
-    +parents?: ReadonlyArray<{|
-      +id: string,
-      +name: ?string,
-      +parents: ReadonlyArray<{|
-        +id: string,
-      |}>,
-    |}>,
-  |},
-|};
-export type readUpdatableQueryTestRegularQuery = {|
+export type readUpdatableQueryTestRegularQuery$variables = {};
+export type readUpdatableQueryTestRegularQuery$data = {
+  readonly me: ?{
+    readonly __id: string,
+    readonly __isreadUpdatableQueryTest_node?: "User",
+    readonly author: ?{
+      readonly client_best_friend: ?{
+        readonly name: ?string,
+      },
+      readonly client_nickname: ?string,
+    },
+    readonly id: string,
+    readonly name: ?string,
+    readonly $fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
+  },
+  readonly node: ?{
+    readonly __typename: string,
+    readonly __id: string,
+    readonly name?: ?string,
+    readonly $fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
+  },
+  readonly node2: ?{
+    readonly name?: ?string,
+    readonly parents?: ReadonlyArray<{
+      readonly id: string,
+      readonly name: ?string,
+      readonly parents: ReadonlyArray<{
+        readonly id: string,
+      }>,
+    }>,
+  },
+};
+export type readUpdatableQueryTestRegularQuery = {
   response: readUpdatableQueryTestRegularQuery$data,
   variables: readUpdatableQueryTestRegularQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

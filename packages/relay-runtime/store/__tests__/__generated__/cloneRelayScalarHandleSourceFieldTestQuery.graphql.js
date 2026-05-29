@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2a7ea3acfb0645a7417029c7e5875062>>
+ * @generated SignedSource<<e1225d8bf93fdab857426762112740d9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type cloneRelayScalarHandleSourceFieldTestQuery$variables = {||};
-export type cloneRelayScalarHandleSourceFieldTestQuery$data = {|
-  +me: ?{|
-    +address: ?{|
-      +street: ?string,
-    |},
-  |},
-|};
-export type cloneRelayScalarHandleSourceFieldTestQuery = {|
+export type cloneRelayScalarHandleSourceFieldTestQuery$variables = {};
+export type cloneRelayScalarHandleSourceFieldTestQuery$data = {
+  readonly me: ?{
+    readonly address: ?{
+      readonly street: ?string,
+    },
+  },
+};
+export type cloneRelayScalarHandleSourceFieldTestQuery = {
   response: cloneRelayScalarHandleSourceFieldTestQuery$data,
   variables: cloneRelayScalarHandleSourceFieldTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

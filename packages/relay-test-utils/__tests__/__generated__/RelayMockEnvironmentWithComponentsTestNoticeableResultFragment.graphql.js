@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<95160c00a7b43d93ec9e534c2f4b70f0>>
+ * @generated SignedSource<<93c7fda17ac83cf315c93844a5d9e3bd>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,17 +19,17 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType: FragmentType;
-export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data = {|
-  +doesViewerLike: ?boolean,
-  +id: string,
-  +message: ?{|
-    +text: ?string,
-  |},
-  +$fragmentType: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
-|};
+export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data = {
+  readonly doesViewerLike: ?boolean,
+  readonly id: string,
+  readonly message: ?{
+    readonly text: ?string,
+  },
+  readonly $fragmentType: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
+};
 export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$key = {
-  +$data?: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data,
-  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
+  readonly $data?: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data,
+  readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
   ...
 };
 */

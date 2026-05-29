@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b23591c36d43feb3c129da5516b32ff7>>
+ * @generated SignedSource<<fe6e981a2ee5afa02f5d395dd70217be>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,14 +27,14 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type ResolverFragmentSpreadsTestUnmaskedQuery$variables = {||};
-export type ResolverFragmentSpreadsTestUnmaskedQuery$data = {|
-  +field_that_spreads_unmasked_fragment: ?string,
-|};
-export type ResolverFragmentSpreadsTestUnmaskedQuery = {|
+export type ResolverFragmentSpreadsTestUnmaskedQuery$variables = {};
+export type ResolverFragmentSpreadsTestUnmaskedQuery$data = {
+  readonly field_that_spreads_unmasked_fragment: ?string,
+};
+export type ResolverFragmentSpreadsTestUnmaskedQuery = {
   response: ResolverFragmentSpreadsTestUnmaskedQuery$data,
   variables: ResolverFragmentSpreadsTestUnmaskedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

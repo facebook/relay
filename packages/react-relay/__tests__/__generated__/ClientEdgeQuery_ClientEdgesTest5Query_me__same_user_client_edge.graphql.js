@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ddc6cb18e91063778cc1e5407a5ed58a>>
+ * @generated SignedSource<<733ecf2c5ed0b6dca943861946c70ab5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType } from "./RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge.graphql";
-export type ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$variables = {|
+export type ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge = {|
+};
+export type ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType,
+  },
+};
+export type ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge = {
   response: ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data,
   variables: ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

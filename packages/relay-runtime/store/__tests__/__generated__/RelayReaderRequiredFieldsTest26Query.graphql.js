@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<139d3814dc2ff96b4d592718680095d9>>
+ * @generated SignedSource<<89e26b34c22d9918f9001ca4813f0744>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -36,21 +36,21 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../resolver
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderRequiredFieldsTest26Query$variables = {||};
-export type RelayReaderRequiredFieldsTest26Query$data = {|
-  +me: ?{|
-    +astrological_sign: {|
-      +name: ?string,
-    |},
-  |},
-|};
-export type RelayReaderRequiredFieldsTest26Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderRequiredFieldsTest26Query$variables = {};
+export type RelayReaderRequiredFieldsTest26Query$data = {
+  readonly me: ?{
+    readonly astrological_sign: {
+      readonly name: ?string,
+    },
+  },
+};
+export type RelayReaderRequiredFieldsTest26Query = {
   response: RelayReaderRequiredFieldsTest26Query$data,
   variables: RelayReaderRequiredFieldsTest26Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3f16d7613330098d803a087544bdbb6d>>
+ * @generated SignedSource<<733778bac98acd2441c7b6cc05a2240d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,20 +19,20 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernSelectorTestUserFragment$fragmentType } from "./RelayModernSelectorTestUserFragment.graphql";
 import type { RelayModernSelectorTestUsersFragment$fragmentType } from "./RelayModernSelectorTestUsersFragment.graphql";
-export type RelayModernSelectorTestUserQuery$variables = {|
+export type RelayModernSelectorTestUserQuery$variables = {
   cond: boolean,
   id: string,
   size?: ?ReadonlyArray<?number>,
-|};
-export type RelayModernSelectorTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernSelectorTestUserFragment$fragmentType & RelayModernSelectorTestUsersFragment$fragmentType,
-  |},
-|};
-export type RelayModernSelectorTestUserQuery = {|
+};
+export type RelayModernSelectorTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernSelectorTestUserFragment$fragmentType & RelayModernSelectorTestUsersFragment$fragmentType,
+  },
+};
+export type RelayModernSelectorTestUserQuery = {
   response: RelayModernSelectorTestUserQuery$data,
   variables: RelayModernSelectorTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

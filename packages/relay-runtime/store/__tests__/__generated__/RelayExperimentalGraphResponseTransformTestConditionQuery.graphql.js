@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<db69aeb8ee54c36dea9b36d235defdb8>>
+ * @generated SignedSource<<6f4a0769b3911d0301673d01259e010e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayExperimentalGraphResponseTransformTest_condition$fragmentType } from "./RelayExperimentalGraphResponseTransformTest_condition.graphql";
-export type RelayExperimentalGraphResponseTransformTestConditionQuery$variables = {|
+export type RelayExperimentalGraphResponseTransformTestConditionQuery$variables = {
   enableDefer: boolean,
   id: string,
-|};
-export type RelayExperimentalGraphResponseTransformTestConditionQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayExperimentalGraphResponseTransformTest_condition$fragmentType,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestConditionQuery = {|
+};
+export type RelayExperimentalGraphResponseTransformTestConditionQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayExperimentalGraphResponseTransformTest_condition$fragmentType,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestConditionQuery = {
   response: RelayExperimentalGraphResponseTransformTestConditionQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestConditionQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

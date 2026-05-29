@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8b6ec6d701cbe9373fba685b09054b0c>>
+ * @generated SignedSource<<176db9a8e097d92f76c1c1691bcb0ee7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,13 +20,13 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useBlockingPaginationFragmentTest4Fragment$fragmentType: FragmentType;
 type useBlockingPaginationFragmentTest4FragmentRefetchQuery$variables = any;
-export type useBlockingPaginationFragmentTest4Fragment$data = {|
-  +id: string,
-  +$fragmentType: useBlockingPaginationFragmentTest4Fragment$fragmentType,
-|};
+export type useBlockingPaginationFragmentTest4Fragment$data = {
+  readonly id: string,
+  readonly $fragmentType: useBlockingPaginationFragmentTest4Fragment$fragmentType,
+};
 export type useBlockingPaginationFragmentTest4Fragment$key = {
-  +$data?: useBlockingPaginationFragmentTest4Fragment$data,
-  +$fragmentSpreads: useBlockingPaginationFragmentTest4Fragment$fragmentType,
+  readonly $data?: useBlockingPaginationFragmentTest4Fragment$data,
+  readonly $fragmentSpreads: useBlockingPaginationFragmentTest4Fragment$fragmentType,
   ...
 };
 */

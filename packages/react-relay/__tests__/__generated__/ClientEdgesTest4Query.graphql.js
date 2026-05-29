@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<afd7f803b6570ddf65ad1ffdcab4ca81>>
+ * @generated SignedSource<<a29998683cc3b1d411cac40a1fae346c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,26 +22,26 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `userClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientObjectResolverType as (
-  args: {|
+  args: {
     return_null: boolean,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?User__client_object$normalization);
 import type { User__client_object$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/User__client_object$normalization.graphql";
-export type ClientEdgesTest4Query$variables = {|
+export type ClientEdgesTest4Query$variables = {
   return_null: boolean,
-|};
-export type ClientEdgesTest4Query$data = {|
-  +me: ?{|
-    +client_object: {|
-      +description: ?string,
-    |},
-  |},
-|};
-export type ClientEdgesTest4Query = {|
+};
+export type ClientEdgesTest4Query$data = {
+  readonly me: ?{
+    readonly client_object: {
+      readonly description: ?string,
+    },
+  },
+};
+export type ClientEdgesTest4Query = {
   response: ClientEdgesTest4Query$data,
   variables: ClientEdgesTest4Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

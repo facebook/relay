@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a3e3d772ca670f2a1ff5f23b4482c1f8>>
+ * @generated SignedSource<<b8a52c1705e14866fec62d02076dcaf7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useLazyLoadQueryNodeTestRootFragment$fragmentType: FragmentType;
-export type useLazyLoadQueryNodeTestRootFragment$data = {|
-  +node: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-  +$fragmentType: useLazyLoadQueryNodeTestRootFragment$fragmentType,
-|};
+export type useLazyLoadQueryNodeTestRootFragment$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+  readonly $fragmentType: useLazyLoadQueryNodeTestRootFragment$fragmentType,
+};
 export type useLazyLoadQueryNodeTestRootFragment$key = {
-  +$data?: useLazyLoadQueryNodeTestRootFragment$data,
-  +$fragmentSpreads: useLazyLoadQueryNodeTestRootFragment$fragmentType,
+  readonly $data?: useLazyLoadQueryNodeTestRootFragment$data,
+  readonly $fragmentSpreads: useLazyLoadQueryNodeTestRootFragment$fragmentType,
   ...
 };
 */

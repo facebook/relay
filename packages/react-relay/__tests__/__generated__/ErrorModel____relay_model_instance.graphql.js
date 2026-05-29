@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9e7379014ee5b10ca9dcbc4009902287>>
+ * @generated SignedSource<<2de20af9f4abb1745c5cff4fa3ced7b3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -29,13 +29,13 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   context: TestResolverContextType,
 ) => unknown);
 declare export opaque type ErrorModel____relay_model_instance$fragmentType: FragmentType;
-export type ErrorModel____relay_model_instance$data = {|
-  +__relay_model_instance: NonNullable<ReturnType<typeof errorModelRelayModelInstanceResolverType>>,
-  +$fragmentType: ErrorModel____relay_model_instance$fragmentType,
-|};
+export type ErrorModel____relay_model_instance$data = {
+  readonly __relay_model_instance: NonNullable<ReturnType<typeof errorModelRelayModelInstanceResolverType>>,
+  readonly $fragmentType: ErrorModel____relay_model_instance$fragmentType,
+};
 export type ErrorModel____relay_model_instance$key = {
-  +$data?: ErrorModel____relay_model_instance$data,
-  +$fragmentSpreads: ErrorModel____relay_model_instance$fragmentType,
+  readonly $data?: ErrorModel____relay_model_instance$data,
+  readonly $fragmentSpreads: ErrorModel____relay_model_instance$fragmentType,
   ...
 };
 */

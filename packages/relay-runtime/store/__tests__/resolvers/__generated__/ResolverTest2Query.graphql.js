@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0c45a869313d6d26f8309f9daa14f00d>>
+ * @generated SignedSource<<95e8d0e054355ff6cdd385d71a1d88d0>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ResolverTest2Fragment$fragmentType } from "./ResolverTest2Fragment.graphql";
-export type ResolverTest2Query$variables = {||};
-export type ResolverTest2Query$data = {|
-  +me: ?{|
-    +$fragmentSpreads: ResolverTest2Fragment$fragmentType,
-  |},
-|};
-export type ResolverTest2Query = {|
+export type ResolverTest2Query$variables = {};
+export type ResolverTest2Query$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: ResolverTest2Fragment$fragmentType,
+  },
+};
+export type ResolverTest2Query = {
   response: ResolverTest2Query$data,
   variables: ResolverTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

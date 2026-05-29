@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e9890a98b10d2e91f88c690844ceb222>>
+ * @generated SignedSource<<713ec23ed56bee2f747dbc0c410d2db4>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$fragmentType } from "./RefetchableClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge.graphql";
-export type ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$variables = {|
+export type ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge = {|
+};
+export type ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$fragmentType,
+  },
+};
+export type ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge = {
   response: ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$data,
   variables: ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

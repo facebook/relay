@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9c8ceaa1bec9391f5a78dd0c01d87796>>
+ * @generated SignedSource<<7e401f8a626daff481e08a248588ffff>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,30 +17,30 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayResponseNormalizerTest37Query$variables = {|
+export type RelayResponseNormalizerTest37Query$variables = {
   id: string,
-|};
-export type RelayResponseNormalizerTest37Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +firstName?: ?string,
-    +friends?: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +firstName: ?string,
-          +lastName: ?string,
-        |},
-      |}>,
-    |},
-    +id: string,
-    +lastName?: ?string,
-  |},
-|};
-export type RelayResponseNormalizerTest37Query = {|
+};
+export type RelayResponseNormalizerTest37Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly firstName?: ?string,
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly firstName: ?string,
+          readonly lastName: ?string,
+        },
+      }>,
+    },
+    readonly id: string,
+    readonly lastName?: ?string,
+  },
+};
+export type RelayResponseNormalizerTest37Query = {
   response: RelayResponseNormalizerTest37Query$data,
   variables: RelayResponseNormalizerTest37Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

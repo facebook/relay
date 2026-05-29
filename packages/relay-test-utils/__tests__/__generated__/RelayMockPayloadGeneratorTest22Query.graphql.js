@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0498d070f492e1b283fbe6b66bff4154>>
+ * @generated SignedSource<<25988f8f5c3b52cf24886969ba4cbedd>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type Environment = "MOBILE" | "WEB" | "%future added value";
-export type RelayMockPayloadGeneratorTest22Query$variables = {||};
-export type RelayMockPayloadGeneratorTest22Query$data = {|
-  +node: ?{|
-    +environment?: ?Environment,
-    +id?: string,
-    +name?: ?string,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest22Query = {|
+export type RelayMockPayloadGeneratorTest22Query$variables = {};
+export type RelayMockPayloadGeneratorTest22Query$data = {
+  readonly node: ?{
+    readonly environment?: ?Environment,
+    readonly id?: string,
+    readonly name?: ?string,
+  },
+};
+export type RelayMockPayloadGeneratorTest22Query = {
   response: RelayMockPayloadGeneratorTest22Query$data,
   variables: RelayMockPayloadGeneratorTest22Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<83e04f4ae672a1dd875a4cf929c614aa>>
+ * @generated SignedSource<<939f07bdf03b5ce0d1564bf36861fd61>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -35,16 +35,16 @@ import {text as todoDescriptionTextResolverType} from "../TodoDescription.js";
   context: TestResolverContextType,
 ) => ?string);
 import type { TodoDescription } from "../TodoDescription.js";
-export type ResolverGCTestWeakQuery$variables = {||};
-export type ResolverGCTestWeakQuery$data = {|
-  +some_todo_description: ?{|
-    +text: ?string,
-  |},
-|};
-export type ResolverGCTestWeakQuery = {|
+export type ResolverGCTestWeakQuery$variables = {};
+export type ResolverGCTestWeakQuery$data = {
+  readonly some_todo_description: ?{
+    readonly text: ?string,
+  },
+};
+export type ResolverGCTestWeakQuery = {
   response: ResolverGCTestWeakQuery$data,
   variables: ResolverGCTestWeakQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

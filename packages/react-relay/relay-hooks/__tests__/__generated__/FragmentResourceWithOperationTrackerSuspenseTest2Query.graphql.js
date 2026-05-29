@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<02790f8e3cd163817fafd51ecf720e21>>
+ * @generated SignedSource<<aa497972e1302b8015cdfbc951132238>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceWithOperationTrackerSuspenseTest2Fragment$fragmentType } from "./FragmentResourceWithOperationTrackerSuspenseTest2Fragment.graphql";
-export type FragmentResourceWithOperationTrackerSuspenseTest2Query$variables = {|
+export type FragmentResourceWithOperationTrackerSuspenseTest2Query$variables = {
   ids: ReadonlyArray<string>,
-|};
-export type FragmentResourceWithOperationTrackerSuspenseTest2Query$data = {|
-  +nodes: ?ReadonlyArray<?{|
-    +__typename: string,
-    +$fragmentSpreads: FragmentResourceWithOperationTrackerSuspenseTest2Fragment$fragmentType,
-  |}>,
-|};
-export type FragmentResourceWithOperationTrackerSuspenseTest2Query = {|
+};
+export type FragmentResourceWithOperationTrackerSuspenseTest2Query$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly __typename: string,
+    readonly $fragmentSpreads: FragmentResourceWithOperationTrackerSuspenseTest2Fragment$fragmentType,
+  }>,
+};
+export type FragmentResourceWithOperationTrackerSuspenseTest2Query = {
   response: FragmentResourceWithOperationTrackerSuspenseTest2Query$data,
   variables: FragmentResourceWithOperationTrackerSuspenseTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

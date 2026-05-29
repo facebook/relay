@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2c943322a836b29eef1a230351898bdb>>
+ * @generated SignedSource<<a47b9bc3352d2cf230c64ff75fd77bda>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,24 +18,24 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType } from "./ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment.graphql";
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables = {|
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables = {
   after?: ?string,
   count: number,
   id: string,
   isViewerFriend: boolean,
   orderby?: ?ReadonlyArray<?string>,
-|};
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +id: string,
-    +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
-  |},
-|};
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery = {|
+};
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly id: string,
+    readonly $fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  },
+};
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery = {
   response: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data,
   variables: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

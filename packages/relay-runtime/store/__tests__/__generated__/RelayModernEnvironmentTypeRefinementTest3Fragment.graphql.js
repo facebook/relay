@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d1f8a83e14282d8933311442751a0f8e>>
+ * @generated SignedSource<<045817c5f8ef8af6ccc001f3a51d407a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,15 +20,15 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentTypeRefinementTest4Fragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTest4Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentTypeRefinementTest3Fragment$data = {|
-  +id: string,
-  +lastName: ?string,
-  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest4Fragment$fragmentType,
-  +$fragmentType: RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
-|};
+export type RelayModernEnvironmentTypeRefinementTest3Fragment$data = {
+  readonly id: string,
+  readonly lastName: ?string,
+  readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTest4Fragment$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
+};
 export type RelayModernEnvironmentTypeRefinementTest3Fragment$key = {
-  +$data?: RelayModernEnvironmentTypeRefinementTest3Fragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentTypeRefinementTest3Fragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
   ...
 };
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<43ce67aeb8d76c2149c4922a0fea43e5>>
+ * @generated SignedSource<<66e6736b9a448c4810384e28ecb0781f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment.graphql";
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$variables = {|
+export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery = {|
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery = {
   response: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$data,
   variables: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

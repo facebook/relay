@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<63638a04d7fec0b410500a7b68846a8e>>
+ * @generated SignedSource<<d37609cbcbc774905eee4fe6114a3b49>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,33 +18,33 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { validateMutationTestNodeFragement$fragmentType } from "./validateMutationTestNodeFragement.graphql";
-export type FeedbackLikeInput = {|
+export type FeedbackLikeInput = {
   feedbackId?: ?string,
-|};
-export type validateMutationTestIsNodeSpreadMutation$variables = {|
+};
+export type validateMutationTestIsNodeSpreadMutation$variables = {
   input?: ?FeedbackLikeInput,
-|};
-export type validateMutationTestIsNodeSpreadMutation$data = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +$fragmentSpreads: validateMutationTestNodeFragement$fragmentType,
-    |},
-  |},
-|};
-export type validateMutationTestIsNodeSpreadMutation$rawResponse = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +__isNode: "Feedback",
-      +id: string,
-      +name: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsNodeSpreadMutation = {|
+};
+export type validateMutationTestIsNodeSpreadMutation$data = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly $fragmentSpreads: validateMutationTestNodeFragement$fragmentType,
+    },
+  },
+};
+export type validateMutationTestIsNodeSpreadMutation$rawResponse = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly __isNode: "Feedback",
+      readonly id: string,
+      readonly name: ?string,
+    },
+  },
+};
+export type validateMutationTestIsNodeSpreadMutation = {
   rawResponse: validateMutationTestIsNodeSpreadMutation$rawResponse,
   response: validateMutationTestIsNodeSpreadMutation$data,
   variables: validateMutationTestIsNodeSpreadMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

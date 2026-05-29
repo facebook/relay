@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<345ceaa2a686687199449f7097d7c8de>>
+ * @generated SignedSource<<f48acc30602f082882fd9efb8b0db12e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { Result } from "relay-runtime";
-export type RelayReaderCatchFieldsTestCatchOkInAliasedInlineFragmentToResultQuery$variables = {||};
-export type RelayReaderCatchFieldsTestCatchOkInAliasedInlineFragmentToResultQuery$data = {|
-  +me: ?{|
-    +myAlias: Result<{|
-      +lastName: ?string,
-    |}, unknown>,
-  |},
-|};
-export type RelayReaderCatchFieldsTestCatchOkInAliasedInlineFragmentToResultQuery = {|
+export type RelayReaderCatchFieldsTestCatchOkInAliasedInlineFragmentToResultQuery$variables = {};
+export type RelayReaderCatchFieldsTestCatchOkInAliasedInlineFragmentToResultQuery$data = {
+  readonly me: ?{
+    readonly myAlias: Result<{
+      readonly lastName: ?string,
+    }, unknown>,
+  },
+};
+export type RelayReaderCatchFieldsTestCatchOkInAliasedInlineFragmentToResultQuery = {
   response: RelayReaderCatchFieldsTestCatchOkInAliasedInlineFragmentToResultQuery$data,
   variables: RelayReaderCatchFieldsTestCatchOkInAliasedInlineFragmentToResultQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

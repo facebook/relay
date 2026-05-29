@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<369902823be6c51b9dade80596506a63>>
+ * @generated SignedSource<<6519ddb8f2d55614892f0a4baf11a966>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type validateMutationTestGroovyFragment_groovygroovy$fragmentType: FragmentType;
-export type validateMutationTestGroovyFragment_groovygroovy$data = {|
-  +doesViewerLike: ?boolean,
-  +$fragmentType: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
-|};
+export type validateMutationTestGroovyFragment_groovygroovy$data = {
+  readonly doesViewerLike: ?boolean,
+  readonly $fragmentType: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
+};
 export type validateMutationTestGroovyFragment_groovygroovy$key = {
-  +$data?: validateMutationTestGroovyFragment_groovygroovy$data,
-  +$fragmentSpreads: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
+  readonly $data?: validateMutationTestGroovyFragment_groovygroovy$data,
+  readonly $fragmentSpreads: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
   ...
 };
 */

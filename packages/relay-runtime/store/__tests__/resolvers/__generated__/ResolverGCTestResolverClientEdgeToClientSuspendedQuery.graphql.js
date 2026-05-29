@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7dfaa5d5e88bd331e22bfc50e5eaed1f>>
+ * @generated SignedSource<<1f89b89eb5afcac2867a60133de312b3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -34,22 +34,22 @@ import {virgo_suspends_when_counter_is_odd as queryVirgoSuspendsWhenCounterIsOdd
 (queryVirgoSuspendsWhenCounterIsOddResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?{|
-  +id: DataID,
-|}>);
-export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$variables = {||};
-export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data = {|
-  +me: ?{|
-    +__typename: "User",
-  |},
-  +virgo_suspends_when_counter_is_odd: ?{|
-    +name: ?string,
-  |},
-|};
-export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery = {|
+) => LiveState<?{
+  readonly id: DataID,
+}>);
+export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$variables = {};
+export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data = {
+  readonly me: ?{
+    readonly __typename: "User",
+  },
+  readonly virgo_suspends_when_counter_is_odd: ?{
+    readonly name: ?string,
+  },
+};
+export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery = {
   response: ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data,
   variables: ResolverGCTestResolverClientEdgeToClientSuspendedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

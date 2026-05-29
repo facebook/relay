@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<52368b4700288f71c6ee6da044b66767>>
+ * @generated SignedSource<<d93a3a4495a05b2b2c15102945e173c4>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,9 +26,9 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryEdgeToStrongModelDoesNotExistResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {name as strongModelNameResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
 // Type assertion validating that `strongModelNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -37,16 +37,16 @@ import {name as strongModelNameResolverType} from "../RelayResolverNullableModel
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$data = {|
-  +edge_to_strong_model_does_not_exist: ?{|
-    +name: ?string,
-  |},
-|};
-export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query = {|
+export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$data = {
+  readonly edge_to_strong_model_does_not_exist: ?{
+    readonly name: ?string,
+  },
+};
+export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query = {
   response: RelayResolverNullableModelClientEdgeTest_StrongModel_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_StrongModel_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

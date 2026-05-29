@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6b8fd62835ee451b8ad618bb6077e256>>
+ * @generated SignedSource<<06e2c710ac749f0507546980efb5c5d1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,23 +18,23 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { withProvidedVariablesTest6Fragment$fragmentType } from "./withProvidedVariablesTest6Fragment.graphql";
-export type withProvidedVariablesTest6Query$variables = {||};
-export type withProvidedVariablesTest6Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: withProvidedVariablesTest6Fragment$fragmentType,
-  |},
-|};
-export type withProvidedVariablesTest6Query = {|
+export type withProvidedVariablesTest6Query$variables = {};
+export type withProvidedVariablesTest6Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: withProvidedVariablesTest6Fragment$fragmentType,
+  },
+};
+export type withProvidedVariablesTest6Query = {
   response: withProvidedVariablesTest6Query$data,
   variables: withProvidedVariablesTest6Query$variables,
-|};
+};
 ({
   "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('../provideRandomNumber_invalid1.relayprovider')
-} as {|
-  +__relay_internal__pv__provideRandomNumber_invalid1relayprovider: {|
-    +get: () => number,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__provideRandomNumber_invalid1relayprovider: {
+    readonly get: () => number,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){

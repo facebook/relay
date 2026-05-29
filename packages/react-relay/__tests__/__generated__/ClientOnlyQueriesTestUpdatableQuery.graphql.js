@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e37ed0e693024d87b62c30b051afa77e>>
+ * @generated SignedSource<<47f7614adf8e3555d64bd3db8bab9fb8>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,17 +17,17 @@
 
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
-export type ClientOnlyQueriesTestUpdatableQuery$variables = {||};
-export type ClientOnlyQueriesTestUpdatableQuery$data = {|
-  get defaultSettings(): ?{|
+export type ClientOnlyQueriesTestUpdatableQuery$variables = {};
+export type ClientOnlyQueriesTestUpdatableQuery$data = {
+  get defaultSettings(): ?{
     client_field: ?string,
-  |},
+  },
   set defaultSettings(value: null | void): void,
-|};
-export type ClientOnlyQueriesTestUpdatableQuery = {|
+};
+export type ClientOnlyQueriesTestUpdatableQuery = {
   response: ClientOnlyQueriesTestUpdatableQuery$data,
   variables: ClientOnlyQueriesTestUpdatableQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteUpdatableQuery*/ = {

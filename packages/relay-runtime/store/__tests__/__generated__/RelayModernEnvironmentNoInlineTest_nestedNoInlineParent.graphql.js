@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6517038328dde74babdf5a94aa59ae37>>
+ * @generated SignedSource<<09423fa8d66c28701fb061650760d933>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,21 +20,21 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType } from "./RelayModernEnvironmentNoInlineTest_nestedNoInline.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data = {|
-  +joe: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
-  |},
-  +mark: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
-  |},
-  +zuck: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
-  |},
-  +$fragmentType: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
-|};
+export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data = {
+  readonly joe: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
+  },
+  readonly mark: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
+  },
+  readonly zuck: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
+  },
+  readonly $fragmentType: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
+};
 export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$key = {
-  +$data?: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data,
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
+  readonly $data?: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
   ...
 };
 */

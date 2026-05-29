@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e49e3ae88f64ae345dfecd7f87231b2f>>
+ * @generated SignedSource<<b1b9d3593c8d6b3d644d8046023cdee1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayOperationTrackerTest2Query$variables = {|
+export type RelayOperationTrackerTest2Query$variables = {
   id?: ?string,
-|};
-export type RelayOperationTrackerTest2Query$data = {|
-  +node: ?{|
-    +__typename: string,
-  |},
-|};
-export type RelayOperationTrackerTest2Query = {|
+};
+export type RelayOperationTrackerTest2Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+  },
+};
+export type RelayOperationTrackerTest2Query = {
   response: RelayOperationTrackerTest2Query$data,
   variables: RelayOperationTrackerTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

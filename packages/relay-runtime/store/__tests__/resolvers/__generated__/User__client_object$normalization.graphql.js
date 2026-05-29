@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9d6007f3a315f1e1dccb0b90d6153d3e>>
+ * @generated SignedSource<<939766e4f7251197815f73163529f048>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,9 +18,9 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type User__client_object$normalization = {|
-  +description: ?string,
-|};
+export type User__client_object$normalization = {
+  readonly description: ?string,
+};
 
 */
 

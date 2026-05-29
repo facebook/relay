@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9e62511058a3fc07af7988bf30356713>>
+ * @generated SignedSource<<d8d1cee7e6d3cc463dccb43aaca401fb>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type observeFragmentTestDeferFragment$fragmentType: FragmentType;
-export type observeFragmentTestDeferFragment$data = {|
-  +name: ?string,
-  +$fragmentType: observeFragmentTestDeferFragment$fragmentType,
-|};
+export type observeFragmentTestDeferFragment$data = {
+  readonly name: ?string,
+  readonly $fragmentType: observeFragmentTestDeferFragment$fragmentType,
+};
 export type observeFragmentTestDeferFragment$key = {
-  +$data?: observeFragmentTestDeferFragment$data,
-  +$fragmentSpreads: observeFragmentTestDeferFragment$fragmentType,
+  readonly $data?: observeFragmentTestDeferFragment$data,
+  readonly $fragmentSpreads: observeFragmentTestDeferFragment$fragmentType,
   ...
 };
 */

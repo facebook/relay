@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e9792a5dabc10ba28ff98ce4c9e2248c>>
+ * @generated SignedSource<<bc946418d4119917ba630491fdcc9e3b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,14 +18,14 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment$fragmentType } from "./RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment.graphql";
-export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$variables = {||};
-export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$data = {|
-  +$fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment$fragmentType,
-|};
-export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery = {|
+export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$variables = {};
+export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$data = {
+  readonly $fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment$fragmentType,
+};
+export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery = {
   response: RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$data,
   variables: RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

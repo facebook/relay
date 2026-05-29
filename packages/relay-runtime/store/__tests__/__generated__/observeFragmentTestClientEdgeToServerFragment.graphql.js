@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0b468a41360142897b3c288b4cd98a6b>>
+ * @generated SignedSource<<6fae309667881bda628fbf05d0dda3be>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,19 +27,19 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 declare export opaque type observeFragmentTestClientEdgeToServerFragment$fragmentType: FragmentType;
-export type observeFragmentTestClientEdgeToServerFragment$data = {|
-  +client_edge: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: observeFragmentTestClientEdgeToServerFragment$fragmentType,
-|};
+export type observeFragmentTestClientEdgeToServerFragment$data = {
+  readonly client_edge: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: observeFragmentTestClientEdgeToServerFragment$fragmentType,
+};
 export type observeFragmentTestClientEdgeToServerFragment$key = {
-  +$data?: observeFragmentTestClientEdgeToServerFragment$data,
-  +$fragmentSpreads: observeFragmentTestClientEdgeToServerFragment$fragmentType,
+  readonly $data?: observeFragmentTestClientEdgeToServerFragment$data,
+  readonly $fragmentSpreads: observeFragmentTestClientEdgeToServerFragment$fragmentType,
   ...
 };
 */

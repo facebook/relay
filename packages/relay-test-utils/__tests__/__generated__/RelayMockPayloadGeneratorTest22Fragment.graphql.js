@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c64c9cb795c73c5b93cfcda48dadfa06>>
+ * @generated SignedSource<<d149807f759535354064a58d304ce56c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,59 +21,59 @@ import type { RelayMockPayloadGeneratorTest21Fragment$fragmentType } from "./Rel
 import type { RelayMockPayloadGeneratorTest23Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest23Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest22Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest22Fragment$data = {|
-  +actor: ?{|
-    +feedback?: ?{|
-      +comments: ?{|
-        +edges: ?ReadonlyArray<?{|
-          +node: ?{|
-            +$fragmentSpreads: RelayMockPayloadGeneratorTest23Fragment$fragmentType,
-          |},
-        |}>,
-      |},
-    |},
-    +id?: string,
-    +name?: ?string,
-    +pageName?: ?string,
-    +profilePicture?: ?{|
-      +height: ?number,
-      +uri: ?string,
-      +width: ?number,
-    |},
-    +userName?: ?string,
-    +username: ?string,
-  |},
-  +customName: ?string,
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-        +name: ?string,
-      |},
-    |}>,
-    +myPageInfo: ?{|
-      +endCursor: ?string,
-      +hasNextPage: ?boolean,
-    |},
-  |},
-  +id: string,
-  +myActor: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-  +name: ?string,
-  +profilePicture?: ?{|
-    +uri: ?string,
-  |},
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest21Fragment$fragmentType,
-  +$fragmentType: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest22Fragment$data = {
+  readonly actor: ?{
+    readonly feedback?: ?{
+      readonly comments: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly node: ?{
+            readonly $fragmentSpreads: RelayMockPayloadGeneratorTest23Fragment$fragmentType,
+          },
+        }>,
+      },
+    },
+    readonly id?: string,
+    readonly name?: ?string,
+    readonly pageName?: ?string,
+    readonly profilePicture?: ?{
+      readonly height: ?number,
+      readonly uri: ?string,
+      readonly width: ?number,
+    },
+    readonly userName?: ?string,
+    readonly username: ?string,
+  },
+  readonly customName: ?string,
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+        readonly name: ?string,
+      },
+    }>,
+    readonly myPageInfo: ?{
+      readonly endCursor: ?string,
+      readonly hasNextPage: ?boolean,
+    },
+  },
+  readonly id: string,
+  readonly myActor: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+  readonly name: ?string,
+  readonly profilePicture?: ?{
+    readonly uri: ?string,
+  },
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest21Fragment$fragmentType,
+  readonly $fragmentType: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest22Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest22Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest22Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
   ...
 };
 */

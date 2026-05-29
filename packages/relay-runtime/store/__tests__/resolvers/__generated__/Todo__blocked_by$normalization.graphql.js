@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a940e9da531be7ece27d57c83c5a357d>>
+ * @generated SignedSource<<57d26c1fa5d3934e76f04357b0d3d10f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,9 +18,9 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type Todo__blocked_by$normalization = {|
-  +todo_id: string,
-|};
+export type Todo__blocked_by$normalization = {
+  readonly todo_id: string,
+};
 
 */
 

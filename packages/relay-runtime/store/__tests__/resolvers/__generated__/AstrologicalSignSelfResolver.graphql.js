@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<feed770ae6dd6f52aba4312c479e1920>>
+ * @generated SignedSource<<b3a42fa48586760d06c1d23c16c62c98>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type AstrologicalSignSelfResolver$fragmentType: FragmentType;
-export type AstrologicalSignSelfResolver$data = {|
-  +id: string,
-  +$fragmentType: AstrologicalSignSelfResolver$fragmentType,
-|};
+export type AstrologicalSignSelfResolver$data = {
+  readonly id: string,
+  readonly $fragmentType: AstrologicalSignSelfResolver$fragmentType,
+};
 export type AstrologicalSignSelfResolver$key = {
-  +$data?: AstrologicalSignSelfResolver$data,
-  +$fragmentSpreads: AstrologicalSignSelfResolver$fragmentType,
+  readonly $data?: AstrologicalSignSelfResolver$data,
+  readonly $fragmentSpreads: AstrologicalSignSelfResolver$fragmentType,
   ...
 };
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<af9eefd912c311029b1a124dfab9930f>>
+ * @generated SignedSource<<48edf7ce941d7476240b5e44b968a313>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,18 +21,18 @@ import type { useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFrag
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType: FragmentType;
 type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$variables = any;
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
-  +$fragmentType: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
-|};
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
+  readonly $fragmentType: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
+};
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$key = {
-  +$data?: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data,
-  +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
+  readonly $data?: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data,
+  readonly $fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
   ...
 };
 */

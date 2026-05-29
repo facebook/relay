@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7ae055fcfe4cc1b6795bd765ab718831>>
+ * @generated SignedSource<<ef99706ef707e5c2caa4fc230d15bbb6>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$fragmentType } from "./RefetchableClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend.graphql";
-export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$variables = {|
+export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend = {|
+};
+export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$fragmentType,
+  },
+};
+export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend = {
   response: ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$data,
   variables: ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

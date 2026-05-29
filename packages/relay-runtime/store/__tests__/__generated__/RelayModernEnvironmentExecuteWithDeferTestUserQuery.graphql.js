@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fb881680c1940a7eebc756b7d14c6394>>
+ * @generated SignedSource<<64bb637bcfe6c9dadea8a38c8e31c52e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferTestUserFragment.graphql";
-export type RelayModernEnvironmentExecuteWithDeferTestUserQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithDeferTestUserQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithDeferTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithDeferTestUserQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithDeferTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithDeferTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithDeferTestUserQuery$data,
   variables: RelayModernEnvironmentExecuteWithDeferTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b80135050cde275d9e3e4a78e6dd1c88>>
+ * @generated SignedSource<<28410ebf64ee51ccfba092c7bf62d537>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,21 +27,21 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type LiveResolversTestWithProvidedVariablesQuery$variables = {||};
-export type LiveResolversTestWithProvidedVariablesQuery$data = {|
-  +hello_world_with_provided_variable: ?string,
-|};
-export type LiveResolversTestWithProvidedVariablesQuery = {|
+export type LiveResolversTestWithProvidedVariablesQuery$variables = {};
+export type LiveResolversTestWithProvidedVariablesQuery$data = {
+  readonly hello_world_with_provided_variable: ?string,
+};
+export type LiveResolversTestWithProvidedVariablesQuery = {
   response: LiveResolversTestWithProvidedVariablesQuery$data,
   variables: LiveResolversTestWithProvidedVariablesQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__HelloWorldProviderrelayprovider": require('../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider.relayprovider')
-} as {|
-  +__relay_internal__pv__HelloWorldProviderrelayprovider: {|
-    +get: () => string,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__HelloWorldProviderrelayprovider: {
+    readonly get: () => string,
+  },
+});
 */
 
 var node/*: ClientRequest*/ = {

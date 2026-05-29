@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<727ec3e74f4fa2877d004bac043cb4f7>>
+ * @generated SignedSource<<f6ab60c765748bb3cf4acb041793413c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -29,13 +29,13 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   context: TestResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type LiveResolversTestDeferFragment$fragmentType: FragmentType;
-export type LiveResolversTestDeferFragment$data = {|
-  +counter_suspends_when_odd: ?number,
-  +$fragmentType: LiveResolversTestDeferFragment$fragmentType,
-|};
+export type LiveResolversTestDeferFragment$data = {
+  readonly counter_suspends_when_odd: ?number,
+  readonly $fragmentType: LiveResolversTestDeferFragment$fragmentType,
+};
 export type LiveResolversTestDeferFragment$key = {
-  +$data?: LiveResolversTestDeferFragment$data,
-  +$fragmentSpreads: LiveResolversTestDeferFragment$fragmentType,
+  readonly $data?: LiveResolversTestDeferFragment$data,
+  readonly $fragmentSpreads: LiveResolversTestDeferFragment$fragmentType,
   ...
 };
 */

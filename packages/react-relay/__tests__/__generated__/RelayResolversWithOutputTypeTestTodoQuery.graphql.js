@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a8fca7cf10395993b052d6bbfdf315ac>>
+ * @generated SignedSource<<2ae84f537072fe891c1d317dfc4ed3c9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,24 +24,24 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryTodoResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoResolverType as (
-  args: {|
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => LiveState<?Query__todo$normalization>);
 import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
-export type RelayResolversWithOutputTypeTestTodoQuery$variables = {|
+export type RelayResolversWithOutputTypeTestTodoQuery$variables = {
   id: string,
-|};
-export type RelayResolversWithOutputTypeTestTodoQuery$data = {|
-  +todo: ?{|
-    +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
-  |},
-|};
-export type RelayResolversWithOutputTypeTestTodoQuery = {|
+};
+export type RelayResolversWithOutputTypeTestTodoQuery$data = {
+  readonly todo: ?{
+    readonly $fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
+  },
+};
+export type RelayResolversWithOutputTypeTestTodoQuery = {
   response: RelayResolversWithOutputTypeTestTodoQuery$data,
   variables: RelayResolversWithOutputTypeTestTodoQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

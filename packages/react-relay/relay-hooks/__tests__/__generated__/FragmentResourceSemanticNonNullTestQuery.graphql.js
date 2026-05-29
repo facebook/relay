@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d9c561d0cf34c4e2552118bdd68839d0>>
+ * @generated SignedSource<<24f27db7c40b40be41d71fb8be883662>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,19 +19,19 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceSemanticNonNullTestFragment1$fragmentType } from "./FragmentResourceSemanticNonNullTestFragment1.graphql";
 import type { FragmentResourceSemanticNonNullTestFragment2$fragmentType } from "./FragmentResourceSemanticNonNullTestFragment2.graphql";
-export type FragmentResourceSemanticNonNullTestQuery$variables = {|
+export type FragmentResourceSemanticNonNullTestQuery$variables = {
   id: string,
-|};
-export type FragmentResourceSemanticNonNullTestQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +$fragmentSpreads: FragmentResourceSemanticNonNullTestFragment1$fragmentType & FragmentResourceSemanticNonNullTestFragment2$fragmentType,
-  |},
-|};
-export type FragmentResourceSemanticNonNullTestQuery = {|
+};
+export type FragmentResourceSemanticNonNullTestQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly $fragmentSpreads: FragmentResourceSemanticNonNullTestFragment1$fragmentType & FragmentResourceSemanticNonNullTestFragment2$fragmentType,
+  },
+};
+export type FragmentResourceSemanticNonNullTestQuery = {
   response: FragmentResourceSemanticNonNullTestQuery$data,
   variables: FragmentResourceSemanticNonNullTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

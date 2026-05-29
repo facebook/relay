@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f677bd4be56b81aa124df345aaad0075>>
+ * @generated SignedSource<<ed5f5782c309f0587e9dd3b1ebb8d796>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,29 +17,29 @@
 
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
-export type CommentCreateSubscriptionInput = {|
+export type CommentCreateSubscriptionInput = {
   feedbackId?: ?string,
   text?: ?string,
-|};
-export type requestSubscriptionTestCommentCreateSubscription$variables = {|
+};
+export type requestSubscriptionTestCommentCreateSubscription$variables = {
   input?: ?CommentCreateSubscriptionInput,
-|};
-export type requestSubscriptionTestCommentCreateSubscription$data = {|
-  +commentCreateSubscribe: ?{|
-    +feedbackCommentEdge: ?{|
-      +node: ?{|
-        +body: ?{|
-          +text: ?string,
-        |},
-        +id: string,
-      |},
-    |},
-  |},
-|};
-export type requestSubscriptionTestCommentCreateSubscription = {|
+};
+export type requestSubscriptionTestCommentCreateSubscription$data = {
+  readonly commentCreateSubscribe: ?{
+    readonly feedbackCommentEdge: ?{
+      readonly node: ?{
+        readonly body: ?{
+          readonly text: ?string,
+        },
+        readonly id: string,
+      },
+    },
+  },
+};
+export type requestSubscriptionTestCommentCreateSubscription = {
   response: requestSubscriptionTestCommentCreateSubscription$data,
   variables: requestSubscriptionTestCommentCreateSubscription$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

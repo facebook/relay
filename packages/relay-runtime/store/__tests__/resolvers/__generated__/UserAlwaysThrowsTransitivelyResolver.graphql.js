@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<801513443984cef53f0a2337ee6cdc15>>
+ * @generated SignedSource<<41e8cf275f2b36e6e0b577506cb6ce57>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -29,13 +29,13 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type UserAlwaysThrowsTransitivelyResolver$fragmentType: FragmentType;
-export type UserAlwaysThrowsTransitivelyResolver$data = {|
-  +always_throws: ?string,
-  +$fragmentType: UserAlwaysThrowsTransitivelyResolver$fragmentType,
-|};
+export type UserAlwaysThrowsTransitivelyResolver$data = {
+  readonly always_throws: ?string,
+  readonly $fragmentType: UserAlwaysThrowsTransitivelyResolver$fragmentType,
+};
 export type UserAlwaysThrowsTransitivelyResolver$key = {
-  +$data?: UserAlwaysThrowsTransitivelyResolver$data,
-  +$fragmentSpreads: UserAlwaysThrowsTransitivelyResolver$fragmentType,
+  readonly $data?: UserAlwaysThrowsTransitivelyResolver$data,
+  readonly $fragmentSpreads: UserAlwaysThrowsTransitivelyResolver$fragmentType,
   ...
 };
 */

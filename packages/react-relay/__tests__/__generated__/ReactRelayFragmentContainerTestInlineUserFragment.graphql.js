@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e6898c406405d5cce806cb55ddd3a996>>
+ * @generated SignedSource<<688dcd0d29314918b03a90cffcfa8835>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,13 +19,13 @@
 import type { InlineFragment, ReaderInlineDataFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayFragmentContainerTestInlineUserFragment$fragmentType: FragmentType;
-export type ReactRelayFragmentContainerTestInlineUserFragment$data = {|
-  +id: string,
-  +$fragmentType: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
-|};
+export type ReactRelayFragmentContainerTestInlineUserFragment$data = {
+  readonly id: string,
+  readonly $fragmentType: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
+};
 export type ReactRelayFragmentContainerTestInlineUserFragment$key = {
-  +$data?: ReactRelayFragmentContainerTestInlineUserFragment$data,
-  +$fragmentSpreads: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
+  readonly $data?: ReactRelayFragmentContainerTestInlineUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
   ...
 };
 */

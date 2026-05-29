@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e7f2522abee306a3087ebe0160b1db62>>
+ * @generated SignedSource<<0303bcca44963404daf68cf4d5fe46dc>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,9 +26,9 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryEdgeToPluralLiveObjectsSomeExistResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?ReadonlyArray<?{|
-  +id: DataID,
-|}>);
+) => ?ReadonlyArray<?{
+  readonly id: DataID,
+}>);
 import {description as todoModelDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -37,17 +37,17 @@ import {description as todoModelDescriptionResolverType} from "../../../relay-ru
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query$data = {|
-  +edge_to_plural_live_objects_some_exist: ?ReadonlyArray<?{|
-    +description: ?string,
-    +id: string,
-  |}>,
-|};
-export type RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query = {|
+export type RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query$data = {
+  readonly edge_to_plural_live_objects_some_exist: ?ReadonlyArray<?{
+    readonly description: ?string,
+    readonly id: string,
+  }>,
+};
+export type RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query = {
   response: RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

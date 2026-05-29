@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fea40fe04c6490604d97884dcf9d19a7>>
+ * @generated SignedSource<<1c17a664d4bef1d2aa2dc9f6e795f3d3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,21 +25,21 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType as (
-  args: {|
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextWithPrefixResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionTextWithPrefixResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
-  args: {|
+  args: {
     prefix: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
 import {fancy_description_suspends as todoModelFancyDescriptionSuspendsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
@@ -51,20 +51,20 @@ import {fancy_description_suspends as todoModelFancyDescriptionSuspendsResolverT
   context: TestResolverContextType,
 ) => LiveState<?TodoDescription>);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
-export type RelayResolverModelTestSuspendedWeakClientEdgeQuery$variables = {|
+export type RelayResolverModelTestSuspendedWeakClientEdgeQuery$variables = {
   id: string,
-|};
-export type RelayResolverModelTestSuspendedWeakClientEdgeQuery$data = {|
-  +todo_model: ?{|
-    +fancy_description_suspends: ?{|
-      +text_with_prefix: ?string,
-    |},
-  |},
-|};
-export type RelayResolverModelTestSuspendedWeakClientEdgeQuery = {|
+};
+export type RelayResolverModelTestSuspendedWeakClientEdgeQuery$data = {
+  readonly todo_model: ?{
+    readonly fancy_description_suspends: ?{
+      readonly text_with_prefix: ?string,
+    },
+  },
+};
+export type RelayResolverModelTestSuspendedWeakClientEdgeQuery = {
   response: RelayResolverModelTestSuspendedWeakClientEdgeQuery$data,
   variables: RelayResolverModelTestSuspendedWeakClientEdgeQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

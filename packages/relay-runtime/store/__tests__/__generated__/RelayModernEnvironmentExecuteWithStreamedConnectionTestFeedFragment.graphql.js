@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1043b314cf3913945039cb2032d8cce5>>
+ * @generated SignedSource<<81cebbb69b7ae9bc8fbd1fa3b03b6544>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,32 +19,32 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data = {|
-  +newsFeed: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +__typename: string,
-        +feedback: ?{|
-          +actors: ?ReadonlyArray<?{|
-            +id: string,
-            +name: ?string,
-          |}>,
-          +id: string,
-        |},
-        +id: string,
-      |},
-    |}>,
-    +pageInfo: ?{|
-      +endCursor: ?string,
-      +hasNextPage: ?boolean,
-    |},
-  |},
-  +$fragmentType: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data = {
+  readonly newsFeed: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly __typename: string,
+        readonly feedback: ?{
+          readonly actors: ?ReadonlyArray<?{
+            readonly id: string,
+            readonly name: ?string,
+          }>,
+          readonly id: string,
+        },
+        readonly id: string,
+      },
+    }>,
+    readonly pageInfo: ?{
+      readonly endCursor: ?string,
+      readonly hasNextPage: ?boolean,
+    },
+  },
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
   ...
 };
 */

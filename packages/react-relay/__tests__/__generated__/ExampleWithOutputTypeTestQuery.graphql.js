@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8d199e9beedca49726e2b2838733a4da>>
+ * @generated SignedSource<<d090b8955571af0c4b90ad6a33bde2de>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,16 +26,16 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   context: TestResolverContextType,
 ) => ?Query__example_client_object$normalization);
 import type { Query__example_client_object$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__example_client_object$normalization.graphql";
-export type ExampleWithOutputTypeTestQuery$variables = {||};
-export type ExampleWithOutputTypeTestQuery$data = {|
-  +example_client_object: ?{|
-    +description: ?string,
-  |},
-|};
-export type ExampleWithOutputTypeTestQuery = {|
+export type ExampleWithOutputTypeTestQuery$variables = {};
+export type ExampleWithOutputTypeTestQuery$data = {
+  readonly example_client_object: ?{
+    readonly description: ?string,
+  },
+};
+export type ExampleWithOutputTypeTestQuery = {
   response: ExampleWithOutputTypeTestQuery$data,
   variables: ExampleWithOutputTypeTestQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

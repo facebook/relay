@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<887903d8c1a9916290d59da0fc312ccf>>
+ * @generated SignedSource<<86992013807d215331e0241766bad719>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,28 +19,28 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest2Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest2Fragment$data = {|
-  +author: ?{|
-    +authorID?: string,
-    +birthdate: ?{|
-      +day: ?number,
-      +month: ?number,
-      +year: ?number,
-    |},
-    +emailAddresses: ?ReadonlyArray<?string>,
-    +id?: string,
-    +myId: string,
-    +myUsername: ?string,
-    +name?: ?string,
-    +username?: ?string,
-  |},
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RelayMockPayloadGeneratorTest2Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest2Fragment$data = {
+  readonly author: ?{
+    readonly authorID?: string,
+    readonly birthdate: ?{
+      readonly day: ?number,
+      readonly month: ?number,
+      readonly year: ?number,
+    },
+    readonly emailAddresses: ?ReadonlyArray<?string>,
+    readonly id?: string,
+    readonly myId: string,
+    readonly myUsername: ?string,
+    readonly name?: ?string,
+    readonly username?: ?string,
+  },
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: RelayMockPayloadGeneratorTest2Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest2Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest2Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest2Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest2Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest2Fragment$fragmentType,
   ...
 };
 */

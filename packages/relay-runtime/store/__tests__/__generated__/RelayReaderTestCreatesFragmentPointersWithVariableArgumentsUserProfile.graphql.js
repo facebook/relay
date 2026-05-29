@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<395f28e1d50b21d58c795d296d270cfd>>
+ * @generated SignedSource<<9ba7a189c681d1cb61e84e2bd08e032d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,14 +20,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType } from "./RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType: FragmentType;
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$data = {|
-  +id: string,
-  +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
-  +$fragmentType: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
-|};
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$data = {
+  readonly id: string,
+  readonly $fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
+  readonly $fragmentType: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
+};
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$key = {
-  +$data?: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$data,
-  +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
+  readonly $data?: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$data,
+  readonly $fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
   ...
 };
 */

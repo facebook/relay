@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f5a625b24093d4a765ba68972e2ab37c>>
+ * @generated SignedSource<<51461a5cbaae6b2dab59efaff95b5ac8>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -28,16 +28,16 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type CatchTestResolverErrorThrowQuery$variables = {||};
-export type CatchTestResolverErrorThrowQuery$data = {|
-  +me: Result<?{|
-    +always_throws: ?string,
-  |}, unknown>,
-|};
-export type CatchTestResolverErrorThrowQuery = {|
+export type CatchTestResolverErrorThrowQuery$variables = {};
+export type CatchTestResolverErrorThrowQuery$data = {
+  readonly me: Result<?{
+    readonly always_throws: ?string,
+  }, unknown>,
+};
+export type CatchTestResolverErrorThrowQuery = {
   response: CatchTestResolverErrorThrowQuery$data,
   variables: CatchTestResolverErrorThrowQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<30e0bb2ba0295c7036e1257b452ea2f7>>
+ * @generated SignedSource<<025cdff63613894af968d4bffbfd368a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,18 +20,18 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType } from "./ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType: FragmentType;
-export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$data = {|
-  +id: string,
-  +name?: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
-  +$fragmentType: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
-|};
+export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$data = {
+  readonly id: string,
+  readonly name?: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
+  readonly $fragmentType: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+};
 export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$key = {
-  +$data?: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$data,
-  +$fragmentSpreads: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  readonly $data?: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   ...
 };
 */

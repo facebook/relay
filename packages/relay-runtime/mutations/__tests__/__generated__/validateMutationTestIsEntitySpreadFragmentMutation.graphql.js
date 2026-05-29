@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8f5398e5f6ffadecb60e8d5e7c9c10cb>>
+ * @generated SignedSource<<5d4e966b97cc8d08d8dff2384f5580b9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,34 +18,34 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { validateMutationTestEntityFragement$fragmentType } from "./validateMutationTestEntityFragement.graphql";
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTestIsEntitySpreadFragmentMutation$variables = {|
+};
+export type validateMutationTestIsEntitySpreadFragmentMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTestIsEntitySpreadFragmentMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +$fragmentSpreads: validateMutationTestEntityFragement$fragmentType,
-    |},
-  |},
-|};
-export type validateMutationTestIsEntitySpreadFragmentMutation$rawResponse = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +__typename: string,
-      +__isEntity?: string,
-      +id: string,
-      +url?: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsEntitySpreadFragmentMutation = {|
+};
+export type validateMutationTestIsEntitySpreadFragmentMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly $fragmentSpreads: validateMutationTestEntityFragement$fragmentType,
+    },
+  },
+};
+export type validateMutationTestIsEntitySpreadFragmentMutation$rawResponse = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly __typename: string,
+      readonly __isEntity?: string,
+      readonly id: string,
+      readonly url?: ?string,
+    },
+  },
+};
+export type validateMutationTestIsEntitySpreadFragmentMutation = {
   rawResponse: validateMutationTestIsEntitySpreadFragmentMutation$rawResponse,
   response: validateMutationTestIsEntitySpreadFragmentMutation$data,
   variables: validateMutationTestIsEntitySpreadFragmentMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

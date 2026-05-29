@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ff456bd96f8c82d7d278f4097bae553f>>
+ * @generated SignedSource<<fedbde6dd5ebf96b00e412cbb54c44cf>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment.graphql";
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables = {
   enableStream: boolean,
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery = {
   response: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data,
   variables: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

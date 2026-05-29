@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<85d9d738af7563618b6e9a4f3bb6076b>>
+ * @generated SignedSource<<c0a12497db2dcb5ca52cd576889fd745>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType } from "./RelayExperimentalGraphResponseTransformTest_no_inline_user_name.graphql";
-export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$variables = {||};
-export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery = {|
+export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$variables = {};
+export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery = {
   response: RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

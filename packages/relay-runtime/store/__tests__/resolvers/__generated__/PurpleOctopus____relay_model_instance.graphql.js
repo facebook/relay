@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7b7ea62621fcfd4ca61e0b91f3764572>>
+ * @generated SignedSource<<6b10e6b4fefce1136cd191394f3d21fa>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,13 +20,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { PurpleOctopus } from "../PurpleOctopusResolvers.js";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type PurpleOctopus____relay_model_instance$fragmentType: FragmentType;
-export type PurpleOctopus____relay_model_instance$data = {|
-  +__relay_model_instance: PurpleOctopus,
-  +$fragmentType: PurpleOctopus____relay_model_instance$fragmentType,
-|};
+export type PurpleOctopus____relay_model_instance$data = {
+  readonly __relay_model_instance: PurpleOctopus,
+  readonly $fragmentType: PurpleOctopus____relay_model_instance$fragmentType,
+};
 export type PurpleOctopus____relay_model_instance$key = {
-  +$data?: PurpleOctopus____relay_model_instance$data,
-  +$fragmentSpreads: PurpleOctopus____relay_model_instance$fragmentType,
+  readonly $data?: PurpleOctopus____relay_model_instance$data,
+  readonly $fragmentSpreads: PurpleOctopus____relay_model_instance$fragmentType,
   ...
 };
 */

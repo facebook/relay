@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<02c67876cef28c171d8cae66ba055784>>
+ * @generated SignedSource<<3e766ae8e94f5042d8025c293c296cc0>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,22 +21,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { fetchQueryInternalTestMarkdownFragment_name$fragmentType } from "./fetchQueryInternalTestMarkdownFragment_name.graphql";
 import type { fetchQueryInternalTestPlainFragment_name$fragmentType } from "./fetchQueryInternalTestPlainFragment_name.graphql";
-export type fetchQueryInternalTest2Query$variables = {|
+export type fetchQueryInternalTest2Query$variables = {
   id: string,
-|};
-export type fetchQueryInternalTest2Query$data = {|
-  +node: ?{|
-    +nameRenderer?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType & fetchQueryInternalTestPlainFragment_name$fragmentType,
-    |},
-  |},
-|};
-export type fetchQueryInternalTest2Query = {|
+};
+export type fetchQueryInternalTest2Query$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType & fetchQueryInternalTestPlainFragment_name$fragmentType,
+    },
+  },
+};
+export type fetchQueryInternalTest2Query = {
   response: fetchQueryInternalTest2Query$data,
   variables: fetchQueryInternalTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

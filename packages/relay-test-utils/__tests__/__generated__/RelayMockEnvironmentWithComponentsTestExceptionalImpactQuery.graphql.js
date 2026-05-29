@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fcf4f33fc4075e265b67eadd1c077161>>
+ * @generated SignedSource<<c10419744f62867267b9e2c236dbfa60>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,22 +18,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType } from "./RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment.graphql";
-export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables = {|
+export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables = {
   id?: ?string,
-|};
-export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data = {|
-  +user: ?{|
-    +hometown: ?{|
-      +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
-    |},
-    +id: string,
-    +name: ?string,
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery = {|
+};
+export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data = {
+  readonly user: ?{
+    readonly hometown: ?{
+      readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
+    },
+    readonly id: string,
+    readonly name: ?string,
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery = {
   response: RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data,
   variables: RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

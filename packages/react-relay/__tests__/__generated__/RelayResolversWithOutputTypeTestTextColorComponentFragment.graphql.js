@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<da404da780adc3d28a504e04f08166fe>>
+ * @generated SignedSource<<4630b7912fb14a740c2044d169320a70>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -29,13 +29,13 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType: FragmentType;
-export type RelayResolversWithOutputTypeTestTextColorComponentFragment$data = {|
-  +human_readable_color: ?string,
-  +$fragmentType: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
-|};
+export type RelayResolversWithOutputTypeTestTextColorComponentFragment$data = {
+  readonly human_readable_color: ?string,
+  readonly $fragmentType: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
+};
 export type RelayResolversWithOutputTypeTestTextColorComponentFragment$key = {
-  +$data?: RelayResolversWithOutputTypeTestTextColorComponentFragment$data,
-  +$fragmentSpreads: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
+  readonly $data?: RelayResolversWithOutputTypeTestTextColorComponentFragment$data,
+  readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
   ...
 };
 */

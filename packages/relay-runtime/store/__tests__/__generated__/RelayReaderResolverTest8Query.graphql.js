@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<20bfd7a796e075f5fc80d002ac0b805f>>
+ * @generated SignedSource<<1623d4f79062cd63e3fbe67463d65fac>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,16 +27,16 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTest8Query$variables = {||};
-export type RelayReaderResolverTest8Query$data = {|
-  +me: ?{|
-    +name_passthrough: NonNullable<?string>,
-  |},
-|};
-export type RelayReaderResolverTest8Query = {|
+export type RelayReaderResolverTest8Query$variables = {};
+export type RelayReaderResolverTest8Query$data = {
+  readonly me: ?{
+    readonly name_passthrough: NonNullable<?string>,
+  },
+};
+export type RelayReaderResolverTest8Query = {
   response: RelayReaderResolverTest8Query$data,
   variables: RelayReaderResolverTest8Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

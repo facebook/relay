@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bb94b5c0b01a12df5d78e1b4192ca484>>
+ * @generated SignedSource<<5cc133f029e40dbe5f50025627e46a49>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -34,20 +34,20 @@ import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScal
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriWithScaleResolverType as (
   rootKey: UserProfilePictureResolver$key,
-  args: {|
+  args: {
     scale: ?number,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType: FragmentType;
-export type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$data = {|
-  +greeting: ?string,
-  +uri: ?string,
-  +$fragmentType: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType,
-|};
+export type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$data = {
+  readonly greeting: ?string,
+  readonly uri: ?string,
+  readonly $fragmentType: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType,
+};
 export type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key = {
-  +$data?: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$data,
-  +$fragmentSpreads: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType,
+  readonly $data?: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$data,
+  readonly $fragmentSpreads: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType,
   ...
 };
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<55acab300a946671f6da6acd84cf5fd0>>
+ * @generated SignedSource<<39008e48527ac8ccccf3080e98307e55>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType } from "./RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends.graphql";
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$variables = {||};
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
-  |},
-|};
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery = {|
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$variables = {};
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
+  },
+};
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery = {
   response: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$data,
   variables: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

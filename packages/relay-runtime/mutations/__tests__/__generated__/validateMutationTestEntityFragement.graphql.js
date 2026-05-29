@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<43aaa00a08a48580e51980fd3f786ef6>>
+ * @generated SignedSource<<260b9310bbd2ff6ab082bcff0f108b2a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type validateMutationTestEntityFragement$fragmentType: FragmentType;
-export type validateMutationTestEntityFragement$data = {|
-  +url: ?string,
-  +$fragmentType: validateMutationTestEntityFragement$fragmentType,
-|};
+export type validateMutationTestEntityFragement$data = {
+  readonly url: ?string,
+  readonly $fragmentType: validateMutationTestEntityFragement$fragmentType,
+};
 export type validateMutationTestEntityFragement$key = {
-  +$data?: validateMutationTestEntityFragement$data,
-  +$fragmentSpreads: validateMutationTestEntityFragement$fragmentType,
+  readonly $data?: validateMutationTestEntityFragement$data,
+  readonly $fragmentSpreads: validateMutationTestEntityFragement$fragmentType,
   ...
 };
 */

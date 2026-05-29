@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<14224610aa96639bf0446655861cf93f>>
+ * @generated SignedSource<<14424c745640a2f1a7bef8d4d75f78a5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,28 +17,28 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$variables = {|
+export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$variables = {
   id: string,
-|};
-export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +friends?: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +id: string,
-          +name: ?string,
-        |},
-      |}>,
-    |},
-    +id: string,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery = {|
+};
+export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly id: string,
+          readonly name: ?string,
+        },
+      }>,
+    },
+    readonly id: string,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery = {
   response: RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

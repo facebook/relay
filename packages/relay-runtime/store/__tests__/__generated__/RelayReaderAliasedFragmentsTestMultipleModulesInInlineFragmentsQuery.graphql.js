@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f1fd89b3a60f7eae2563a5c3daab33fc>>
+ * @generated SignedSource<<7253a3fc6f93e9160282ee622aba05bb>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,29 +22,29 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTestModuleA_user$fragmentType } from "./RelayReaderAliasedFragmentsTestModuleA_user.graphql";
 import type { RelayReaderAliasedFragmentsTestModuleB_user$fragmentType } from "./RelayReaderAliasedFragmentsTestModuleB_user.graphql";
-export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$variables = {|
+export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$variables = {
   conditionA: boolean,
   conditionB: boolean,
   id: string,
-|};
-export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$data = {|
-  +node: ?{|
-    +alias_a?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestModuleA_user$fragmentType,
-    |},
-    +alias_b?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestModuleB_user$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery = {|
+};
+export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$data = {
+  readonly node: ?{
+    readonly alias_a?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestModuleA_user$fragmentType,
+    },
+    readonly alias_b?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestModuleB_user$fragmentType,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery = {
   response: RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$data,
   variables: RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

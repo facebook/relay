@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c0370f2559bf2bb2c01fea6d1d5469c9>>
+ * @generated SignedSource<<75ce484ace995e1d26dc2d613b19c18a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_UserReadsClientEdgeResolver_client_edge$fragmentType } from "./RefetchableClientEdgeQuery_UserReadsClientEdgeResolver_client_edge.graphql";
-export type ClientEdgeQuery_UserReadsClientEdgeResolver_client_edge$variables = {|
+export type ClientEdgeQuery_UserReadsClientEdgeResolver_client_edge$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_UserReadsClientEdgeResolver_client_edge$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_UserReadsClientEdgeResolver_client_edge$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_UserReadsClientEdgeResolver_client_edge = {|
+};
+export type ClientEdgeQuery_UserReadsClientEdgeResolver_client_edge$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_UserReadsClientEdgeResolver_client_edge$fragmentType,
+  },
+};
+export type ClientEdgeQuery_UserReadsClientEdgeResolver_client_edge = {
   response: ClientEdgeQuery_UserReadsClientEdgeResolver_client_edge$data,
   variables: ClientEdgeQuery_UserReadsClientEdgeResolver_client_edge$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

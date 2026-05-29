@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ea6bb31209ab0b67dfdc60dd91006a85>>
+ * @generated SignedSource<<8f6dce77144a61178687af3bdb1f030a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,52 +17,52 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTestIsActorInlineMutation$variables = {|
+};
+export type validateMutationTestIsActorInlineMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTestIsActorInlineMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +birthdate?: ?{|
-        +day: ?number,
-        +month: ?number,
-        +year: ?number,
-      |},
-      +username?: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsActorInlineMutation$rawResponse = {|
-  +actorNameChange: ?{|
-    +actor: ?({|
-      +__typename: "Page",
-      +__isActor: "Page",
-      +id: string,
-      +username: ?string,
-    |} | {|
-      +__typename: "User",
-      +__isActor: "User",
-      +birthdate: ?{|
-        +day: ?number,
-        +month: ?number,
-        +year: ?number,
-      |},
-      +id: string,
-    |} | {|
-      +__typename: string,
-      +__isActor: string,
-      +id: string,
-    |}),
-  |},
-|};
-export type validateMutationTestIsActorInlineMutation = {|
+};
+export type validateMutationTestIsActorInlineMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly birthdate?: ?{
+        readonly day: ?number,
+        readonly month: ?number,
+        readonly year: ?number,
+      },
+      readonly username?: ?string,
+    },
+  },
+};
+export type validateMutationTestIsActorInlineMutation$rawResponse = {
+  readonly actorNameChange: ?{
+    readonly actor: ?({
+      readonly __typename: "Page",
+      readonly __isActor: "Page",
+      readonly id: string,
+      readonly username: ?string,
+    } | {
+      readonly __typename: "User",
+      readonly __isActor: "User",
+      readonly birthdate: ?{
+        readonly day: ?number,
+        readonly month: ?number,
+        readonly year: ?number,
+      },
+      readonly id: string,
+    } | {
+      readonly __typename: string,
+      readonly __isActor: string,
+      readonly id: string,
+    }),
+  },
+};
+export type validateMutationTestIsActorInlineMutation = {
   rawResponse: validateMutationTestIsActorInlineMutation$rawResponse,
   response: validateMutationTestIsActorInlineMutation$data,
   variables: validateMutationTestIsActorInlineMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

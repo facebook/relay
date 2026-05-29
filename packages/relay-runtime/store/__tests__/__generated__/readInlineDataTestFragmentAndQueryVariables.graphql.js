@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2022e3e8351e6191c6d1253c123a4f6b>>
+ * @generated SignedSource<<335905263b4ef31b0e3f6456236a8dee>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,21 +19,21 @@
 import type { InlineFragment, ReaderInlineDataFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type readInlineDataTestFragmentAndQueryVariables$fragmentType: FragmentType;
-export type readInlineDataTestFragmentAndQueryVariables$data = {|
-  +defaultVariable: ?{|
-    +uri: ?string,
-  |},
-  +fragmentVariable: ?{|
-    +uri: ?string,
-  |},
-  +queryVariable: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: readInlineDataTestFragmentAndQueryVariables$fragmentType,
-|};
+export type readInlineDataTestFragmentAndQueryVariables$data = {
+  readonly defaultVariable: ?{
+    readonly uri: ?string,
+  },
+  readonly fragmentVariable: ?{
+    readonly uri: ?string,
+  },
+  readonly queryVariable: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: readInlineDataTestFragmentAndQueryVariables$fragmentType,
+};
 export type readInlineDataTestFragmentAndQueryVariables$key = {
-  +$data?: readInlineDataTestFragmentAndQueryVariables$data,
-  +$fragmentSpreads: readInlineDataTestFragmentAndQueryVariables$fragmentType,
+  readonly $data?: readInlineDataTestFragmentAndQueryVariables$data,
+  readonly $fragmentSpreads: readInlineDataTestFragmentAndQueryVariables$fragmentType,
   ...
 };
 */

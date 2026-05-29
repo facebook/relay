@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4cc198a4b73b460febaea2ddb92d3639>>
+ * @generated SignedSource<<dd1eb3fe52b9eb43d2a523510abfa009>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,25 +19,25 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data = {|
-  +newsFeed: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +feedback: ?{|
-          +actors: ?ReadonlyArray<?{|
-            +name: ?string,
-          |}>,
-        |},
-        +id: string,
-      |},
-    |}>,
-  |},
-  +$fragmentType: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data = {
+  readonly newsFeed: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly feedback: ?{
+          readonly actors: ?ReadonlyArray<?{
+            readonly name: ?string,
+          }>,
+        },
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
   ...
 };
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<239cb79883358b829f39a24ccff70f57>>
+ * @generated SignedSource<<73b7eb9041f16db3397cf453c5c9603f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayResponseNormalizerTest2Fragment$fragmentType } from "./RelayResponseNormalizerTest2Fragment.graphql";
-export type RelayResponseNormalizerTest6Query$variables = {|
+export type RelayResponseNormalizerTest6Query$variables = {
   enableDefer: boolean,
   id: string,
-|};
-export type RelayResponseNormalizerTest6Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayResponseNormalizerTest2Fragment$fragmentType,
-  |},
-|};
-export type RelayResponseNormalizerTest6Query = {|
+};
+export type RelayResponseNormalizerTest6Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayResponseNormalizerTest2Fragment$fragmentType,
+  },
+};
+export type RelayResponseNormalizerTest6Query = {
   response: RelayResponseNormalizerTest6Query$data,
   variables: RelayResponseNormalizerTest6Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

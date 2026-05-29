@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fb2b3a330ea6201b0e6313941e4a6e71>>
+ * @generated SignedSource<<ed9d406fe441e35677a07ef1ab68d62b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,25 +19,25 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType } from "./ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment.graphql";
 import type { ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType } from "./ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment.graphql";
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables = {|
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables = {
   after?: ?string,
   count: number,
   id: string,
   orderby?: ?ReadonlyArray<?string>,
-|};
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
-  |},
-  +viewer: ?{|
-    +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
-  |},
-|};
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery = {|
+};
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
+  },
+  readonly viewer: ?{
+    readonly $fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
+  },
+};
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery = {
   response: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data,
   variables: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

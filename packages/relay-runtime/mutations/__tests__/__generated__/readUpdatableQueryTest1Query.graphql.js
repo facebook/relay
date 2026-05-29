@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<04d0e2b210e52cb5058712b7b9d030dd>>
+ * @generated SignedSource<<b98ac8d81db21c71ed9be0f95fc5b489>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,14 +18,14 @@
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
 import type { OpaqueScalarType } from "../OpaqueScalarType";
-export type readUpdatableQueryTest1Query$variables = {||};
-export type readUpdatableQueryTest1Query$data = {|
+export type readUpdatableQueryTest1Query$variables = {};
+export type readUpdatableQueryTest1Query$data = {
   updatable_scalar_field: ?OpaqueScalarType,
-|};
-export type readUpdatableQueryTest1Query = {|
+};
+export type readUpdatableQueryTest1Query = {
   response: readUpdatableQueryTest1Query$data,
   variables: readUpdatableQueryTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteUpdatableQuery*/ = {

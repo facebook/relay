@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c570c25fc0f26e17bfba21d31f3ebed2>>
+ * @generated SignedSource<<329b05edcc7b53b8a81ce3bf697e71f6>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -28,16 +28,16 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   context: TestResolverContextType,
 ) => LiveState<?ReadonlyArray<?Query__many_live_todos$normalization>>);
 import type { Query__many_live_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_live_todos$normalization.graphql";
-export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables = {||};
-export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$data = {|
-  +many_live_todos: ?ReadonlyArray<?{|
-    +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
-  |}>,
-|};
-export type RelayResolversWithOutputTypeTestManyLiveTodosQuery = {|
+export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables = {};
+export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$data = {
+  readonly many_live_todos: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
+  }>,
+};
+export type RelayResolversWithOutputTypeTestManyLiveTodosQuery = {
   response: RelayResolversWithOutputTypeTestManyLiveTodosQuery$data,
   variables: RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

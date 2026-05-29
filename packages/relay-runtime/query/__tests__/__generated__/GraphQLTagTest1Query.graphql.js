@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<40ef9e05435707008be169f93590c143>>
+ * @generated SignedSource<<3ab3a5bfcc57125de52049ef1adfe72f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type GraphQLTagTest1Query$variables = {||};
-export type GraphQLTagTest1Query$data = {|
-  +me: ?{|
-    +id: string,
-  |},
-|};
-export type GraphQLTagTest1Query = {|
+export type GraphQLTagTest1Query$variables = {};
+export type GraphQLTagTest1Query$data = {
+  readonly me: ?{
+    readonly id: string,
+  },
+};
+export type GraphQLTagTest1Query = {
   response: GraphQLTagTest1Query$data,
   variables: GraphQLTagTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

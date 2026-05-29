@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5375bf63e7eb851bc74bb0c41d427c2d>>
+ * @generated SignedSource<<54664101eb3d9c8a22b122fc4e25a240>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,37 +21,37 @@
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name.graphql";
 import type { RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name.graphql";
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables = {
   input: CommentCreateInput,
-|};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +actor: ?{|
-        +name: ?string,
-        +nameRenderer: ?{|
-          +__fragmentPropName?: ?string,
-          +__module_component?: ?string,
-          +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
-        |},
-      |},
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly actor: ?{
+        readonly name: ?string,
+        readonly nameRenderer: ?{
+          readonly __fragmentPropName?: ?string,
+          readonly __module_component?: ?string,
+          readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
+        },
+      },
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation = {
   response: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data,
   variables: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

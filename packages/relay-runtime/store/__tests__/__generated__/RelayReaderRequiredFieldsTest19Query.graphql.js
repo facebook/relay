@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a9108251888d8ec587c870e77b5a5a8c>>
+ * @generated SignedSource<<bc50377f20322b51c7ff10e44793244b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderRequiredFieldsTest1Fragment$fragmentType } from "./RelayReaderRequiredFieldsTest1Fragment.graphql";
-export type RelayReaderRequiredFieldsTest19Query$variables = {||};
-export type RelayReaderRequiredFieldsTest19Query$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderRequiredFieldsTest1Fragment$fragmentType,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest19Query = {|
+export type RelayReaderRequiredFieldsTest19Query$variables = {};
+export type RelayReaderRequiredFieldsTest19Query$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderRequiredFieldsTest1Fragment$fragmentType,
+  },
+};
+export type RelayReaderRequiredFieldsTest19Query = {
   response: RelayReaderRequiredFieldsTest19Query$data,
   variables: RelayReaderRequiredFieldsTest19Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

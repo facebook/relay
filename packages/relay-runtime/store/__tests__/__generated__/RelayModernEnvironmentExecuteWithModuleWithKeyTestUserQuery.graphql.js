@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5c9bca4952c8038b54b3841a72fd7dae>>
+ * @generated SignedSource<<3dc442a00834f0eea0bc693c29f40b2c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,22 +21,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name.graphql";
 import type { RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name.graphql";
-export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$data = {|
-  +node: ?{|
-    +nameRenderer?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$data,
   variables: RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

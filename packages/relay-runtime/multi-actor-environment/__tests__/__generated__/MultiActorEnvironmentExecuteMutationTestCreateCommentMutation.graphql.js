@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<864ad690b1c0903f3e1a7cd00fa0a083>>
+ * @generated SignedSource<<910e95f246341069b6160017b36b24c2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,33 +17,33 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables = {|
+};
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables = {
   input: CommentCreateInput,
-|};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +body: ?{|
-        +text: ?string,
-      |},
-      +id: string,
-    |},
-  |},
-|};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation = {|
+};
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly body: ?{
+        readonly text: ?string,
+      },
+      readonly id: string,
+    },
+  },
+};
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation = {
   response: MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data,
   variables: MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

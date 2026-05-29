@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ad7d8d87c7a35d9ab6d189d340abe3d9>>
+ * @generated SignedSource<<5cc6f116a6d5f8f733872e0ae9847360>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,16 +20,16 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { ResolverFragmentSpreadsTestInlineFragmentSpread$fragmentType } from "./ResolverFragmentSpreadsTestInlineFragmentSpread.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ResolverFragmentSpreadsTestInlineFragment$fragmentType: FragmentType;
-export type ResolverFragmentSpreadsTestInlineFragment$data = {|
-  +me: {|
-    +name: string,
-    +$fragmentSpreads: ResolverFragmentSpreadsTestInlineFragmentSpread$fragmentType,
-  |},
-  +$fragmentType: ResolverFragmentSpreadsTestInlineFragment$fragmentType,
-|};
+export type ResolverFragmentSpreadsTestInlineFragment$data = {
+  readonly me: {
+    readonly name: string,
+    readonly $fragmentSpreads: ResolverFragmentSpreadsTestInlineFragmentSpread$fragmentType,
+  },
+  readonly $fragmentType: ResolverFragmentSpreadsTestInlineFragment$fragmentType,
+};
 export type ResolverFragmentSpreadsTestInlineFragment$key = {
-  +$data?: ResolverFragmentSpreadsTestInlineFragment$data,
-  +$fragmentSpreads: ResolverFragmentSpreadsTestInlineFragment$fragmentType,
+  readonly $data?: ResolverFragmentSpreadsTestInlineFragment$data,
+  readonly $fragmentSpreads: ResolverFragmentSpreadsTestInlineFragment$fragmentType,
   ...
 };
 */

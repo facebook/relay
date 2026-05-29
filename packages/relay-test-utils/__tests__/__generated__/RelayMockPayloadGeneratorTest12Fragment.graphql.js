@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6ab0b049e8492d65a610f5e8a2b32286>>
+ * @generated SignedSource<<4563c7caee0bca5723c3f54af0634b82>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,41 +19,41 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest12Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest12Fragment$data = {|
-  +body: ?{|
-    +text: ?string,
-  |},
-  +id: string,
-  +myTown: ?{|
-    +feedback: ?{|
-      +comments: ?{|
-        +edges: ?ReadonlyArray<?{|
-          +comment: ?{|
-            +id: string,
-            +likeSentence: ?{|
-              +text: ?string,
-            |},
-            +message: ?{|
-              +text: ?string,
-            |},
-          |},
-          +cursor: ?string,
-        |}>,
-        +pageInfo: ?{|
-          +startCursor: ?string,
-        |},
-      |},
-    |},
-    +id: string,
-    +name: ?string,
-    +url: ?string,
-  |},
-  +name: ?string,
-  +$fragmentType: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest12Fragment$data = {
+  readonly body: ?{
+    readonly text: ?string,
+  },
+  readonly id: string,
+  readonly myTown: ?{
+    readonly feedback: ?{
+      readonly comments: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly comment: ?{
+            readonly id: string,
+            readonly likeSentence: ?{
+              readonly text: ?string,
+            },
+            readonly message: ?{
+              readonly text: ?string,
+            },
+          },
+          readonly cursor: ?string,
+        }>,
+        readonly pageInfo: ?{
+          readonly startCursor: ?string,
+        },
+      },
+    },
+    readonly id: string,
+    readonly name: ?string,
+    readonly url: ?string,
+  },
+  readonly name: ?string,
+  readonly $fragmentType: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest12Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest12Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest12Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
   ...
 };
 */

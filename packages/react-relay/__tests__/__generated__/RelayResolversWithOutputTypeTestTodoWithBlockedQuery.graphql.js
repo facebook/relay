@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<51f5dc3acaaab671119687dd344b4867>>
+ * @generated SignedSource<<a19ef9dd3901359e2f8682f9cb71cac6>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,9 +25,9 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryTodoResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoResolverType as (
-  args: {|
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => LiveState<?Query__todo$normalization>);
 import {blocked_by as todoBlockedByResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
@@ -40,20 +40,20 @@ import {blocked_by as todoBlockedByResolverType} from "../../../relay-runtime/st
 ) => ?ReadonlyArray<?Todo__blocked_by$normalization>);
 import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
 import type { Todo__blocked_by$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql";
-export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$variables = {|
+export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$variables = {
   id: string,
-|};
-export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$data = {|
-  +todo: ?{|
-    +blocked_by: ?ReadonlyArray<?{|
-      +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
-    |}>,
-  |},
-|};
-export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery = {|
+};
+export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$data = {
+  readonly todo: ?{
+    readonly blocked_by: ?ReadonlyArray<?{
+      readonly $fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
+    }>,
+  },
+};
+export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery = {
   response: RelayResolversWithOutputTypeTestTodoWithBlockedQuery$data,
   variables: RelayResolversWithOutputTypeTestTodoWithBlockedQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

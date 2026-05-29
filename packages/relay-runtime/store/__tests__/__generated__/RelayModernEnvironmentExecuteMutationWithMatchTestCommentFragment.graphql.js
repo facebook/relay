@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dc86dacc37c47ad1202d8a7fd8c620af>>
+ * @generated SignedSource<<ca2deda0ffd4a1f5d8226d4f0f1ffd3a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,21 +23,21 @@ import type { RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserName
 import type { RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data = {|
-  +actor: ?{|
-    +name: ?string,
-    +nameRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
-    |},
-  |},
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data = {
+  readonly actor: ?{
+    readonly name: ?string,
+    readonly nameRenderer: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
+    },
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
   ...
 };
 */

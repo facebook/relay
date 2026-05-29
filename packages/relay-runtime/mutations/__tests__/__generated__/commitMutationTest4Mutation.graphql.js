@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d6c8e73fa3bed3feb88d36febad5a0c2>>
+ * @generated SignedSource<<0759132c2b59073793288dd9744587ef>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,36 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type commitMutationTest4Mutation$variables = {|
+};
+export type commitMutationTest4Mutation$variables = {
   input?: ?CommentCreateInput,
-|};
-export type commitMutationTest4Mutation$data = {|
-  +commentCreate: ?{|
-    +feedbackCommentEdge: ?{|
-      +cursor: ?string,
-      +node: ?{|
-        +body: ?{|
-          +text: ?string,
-        |},
-        +id: string,
-      |},
-    |},
-  |},
-|};
-export type commitMutationTest4Mutation = {|
+};
+export type commitMutationTest4Mutation$data = {
+  readonly commentCreate: ?{
+    readonly feedbackCommentEdge: ?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly body: ?{
+          readonly text: ?string,
+        },
+        readonly id: string,
+      },
+    },
+  },
+};
+export type commitMutationTest4Mutation = {
   response: commitMutationTest4Mutation$data,
   variables: commitMutationTest4Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

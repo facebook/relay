@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8944c89ea327085b59f4fc0aa24e989a>>
+ * @generated SignedSource<<a46b8f848154033fc229f3eb939f6879>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,33 +17,33 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type FeedbackLikeInput = {|
+export type FeedbackLikeInput = {
   feedbackId?: ?string,
-|};
-export type validateMutationTestIsNodeInlineFragmentMutation$variables = {|
+};
+export type validateMutationTestIsNodeInlineFragmentMutation$variables = {
   input?: ?FeedbackLikeInput,
-|};
-export type validateMutationTestIsNodeInlineFragmentMutation$data = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +name?: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsNodeInlineFragmentMutation$rawResponse = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +__isNode: "Feedback",
-      +id: string,
-      +name: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsNodeInlineFragmentMutation = {|
+};
+export type validateMutationTestIsNodeInlineFragmentMutation$data = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly name?: ?string,
+    },
+  },
+};
+export type validateMutationTestIsNodeInlineFragmentMutation$rawResponse = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly __isNode: "Feedback",
+      readonly id: string,
+      readonly name: ?string,
+    },
+  },
+};
+export type validateMutationTestIsNodeInlineFragmentMutation = {
   rawResponse: validateMutationTestIsNodeInlineFragmentMutation$rawResponse,
   response: validateMutationTestIsNodeInlineFragmentMutation$data,
   variables: validateMutationTestIsNodeInlineFragmentMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

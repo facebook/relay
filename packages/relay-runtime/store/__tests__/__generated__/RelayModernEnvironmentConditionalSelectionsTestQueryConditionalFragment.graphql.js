@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<458003aae968d1ea2baff27484e7dca5>>
+ * @generated SignedSource<<786248e2bccd635c768056e95b56675f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,20 +19,20 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data = {|
-  +me?: ?{|
-    +name: ?string,
-  |},
-  +viewer?: ?{|
-    +actor: ?{|
-      +name: ?string,
-    |},
-  |},
-  +$fragmentType: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
-|};
+export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data = {
+  readonly me?: ?{
+    readonly name: ?string,
+  },
+  readonly viewer?: ?{
+    readonly actor: ?{
+      readonly name: ?string,
+    },
+  },
+  readonly $fragmentType: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
+};
 export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$key = {
-  +$data?: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
   ...
 };
 */

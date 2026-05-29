@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c979a2a62f17020eff2533581043aa52>>
+ * @generated SignedSource<<f41b747c68842c8a377eda7aaf8fb818>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,22 +18,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { usePrefetchableForwardPaginationFragmentTest_user$fragmentType } from "./usePrefetchableForwardPaginationFragmentTest_user.graphql";
-export type usePrefetchableForwardPaginationFragmentTestQuery$variables = {|
+export type usePrefetchableForwardPaginationFragmentTestQuery$variables = {
   after?: ?string,
   before?: ?string,
   first?: ?number,
   id: string,
   last?: ?number,
-|};
-export type usePrefetchableForwardPaginationFragmentTestQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
-  |},
-|};
-export type usePrefetchableForwardPaginationFragmentTestQuery = {|
+};
+export type usePrefetchableForwardPaginationFragmentTestQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
+  },
+};
+export type usePrefetchableForwardPaginationFragmentTestQuery = {
   response: usePrefetchableForwardPaginationFragmentTestQuery$data,
   variables: usePrefetchableForwardPaginationFragmentTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

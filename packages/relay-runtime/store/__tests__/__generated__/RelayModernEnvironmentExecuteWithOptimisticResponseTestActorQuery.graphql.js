@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b43874715fc1f744e3ed6309923e838d>>
+ * @generated SignedSource<<ab798b23123cd67910f8002834530cc1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,21 +17,21 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$variables = {
   fetchSize: boolean,
-|};
-export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$data = {|
-  +me: ?{|
-    +name: ?string,
-    +profilePicture?: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$data = {
+  readonly me: ?{
+    readonly name: ?string,
+    readonly profilePicture?: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery = {
   response: RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$data,
   variables: RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<01ed066e588eb2c73050922bfd714ad3>>
+ * @generated SignedSource<<1a278976f5789424d00819ad317cfa71>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,19 +22,19 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloResolverType as (
-  args: {|
+  args: {
     world: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type ResolverGCTestNoFragmentStaticArgsQuery$variables = {||};
-export type ResolverGCTestNoFragmentStaticArgsQuery$data = {|
-  +hello: ?string,
-|};
-export type ResolverGCTestNoFragmentStaticArgsQuery = {|
+export type ResolverGCTestNoFragmentStaticArgsQuery$variables = {};
+export type ResolverGCTestNoFragmentStaticArgsQuery$data = {
+  readonly hello: ?string,
+};
+export type ResolverGCTestNoFragmentStaticArgsQuery = {
   response: ResolverGCTestNoFragmentStaticArgsQuery$data,
   variables: ResolverGCTestNoFragmentStaticArgsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

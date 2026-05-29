@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3eee039885f0246114a618fc391f7711>>
+ * @generated SignedSource<<ef871dcac64726bc78fa99ab7547f451>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,24 +18,24 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReferenceMarkerTest1Fragment$fragmentType } from "./RelayReferenceMarkerTest1Fragment.graphql";
-export type RelayReferenceMarkerTest1Query$variables = {|
+export type RelayReferenceMarkerTest1Query$variables = {
   id?: ?string,
   size?: ?ReadonlyArray<?number>,
-|};
-export type RelayReferenceMarkerTest1Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +actors?: ?ReadonlyArray<?{|
-      +name: ?string,
-    |}>,
-    +id: string,
-    +$fragmentSpreads: RelayReferenceMarkerTest1Fragment$fragmentType,
-  |},
-|};
-export type RelayReferenceMarkerTest1Query = {|
+};
+export type RelayReferenceMarkerTest1Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly actors?: ?ReadonlyArray<?{
+      readonly name: ?string,
+    }>,
+    readonly id: string,
+    readonly $fragmentSpreads: RelayReferenceMarkerTest1Fragment$fragmentType,
+  },
+};
+export type RelayReferenceMarkerTest1Query = {
   response: RelayReferenceMarkerTest1Query$data,
   variables: RelayReferenceMarkerTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

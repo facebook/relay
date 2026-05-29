@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<65880c073c7492b20b3b1e501372abb2>>
+ * @generated SignedSource<<53cb8af2867fdd46790b16734728f8d1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,42 +19,42 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest14Fragment$fragmentType: FragmentType;
-export type DataCheckerTest14Fragment$data = {|
-  +best_friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +client_friend_edge_field: ?string,
-      +cursor: ?string,
-      +node: ?{|
-        +client_actor_field?: ?string,
-        +client_foo: ?{|
-          +client_name: ?string,
-          +profile_picture: ?{|
-            +uri: ?string,
-          |},
-        |},
-        +id: string,
-        +profilePicture?: ?{|
-          +height: ?number,
-          +uri: ?string,
-          +width: ?number,
-        |},
-      |},
-    |}>,
-  |},
-  +client_actor_field: ?string,
-  +client_foo: ?{|
-    +client_name: ?string,
-    +profile_picture: ?{|
-      +uri: ?string,
-    |},
-  |},
-  +firstName: ?string,
-  +id: string,
-  +$fragmentType: DataCheckerTest14Fragment$fragmentType,
-|};
+export type DataCheckerTest14Fragment$data = {
+  readonly best_friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly client_friend_edge_field: ?string,
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly client_actor_field?: ?string,
+        readonly client_foo: ?{
+          readonly client_name: ?string,
+          readonly profile_picture: ?{
+            readonly uri: ?string,
+          },
+        },
+        readonly id: string,
+        readonly profilePicture?: ?{
+          readonly height: ?number,
+          readonly uri: ?string,
+          readonly width: ?number,
+        },
+      },
+    }>,
+  },
+  readonly client_actor_field: ?string,
+  readonly client_foo: ?{
+    readonly client_name: ?string,
+    readonly profile_picture: ?{
+      readonly uri: ?string,
+    },
+  },
+  readonly firstName: ?string,
+  readonly id: string,
+  readonly $fragmentType: DataCheckerTest14Fragment$fragmentType,
+};
 export type DataCheckerTest14Fragment$key = {
-  +$data?: DataCheckerTest14Fragment$data,
-  +$fragmentSpreads: DataCheckerTest14Fragment$fragmentType,
+  readonly $data?: DataCheckerTest14Fragment$data,
+  readonly $fragmentSpreads: DataCheckerTest14Fragment$fragmentType,
   ...
 };
 */

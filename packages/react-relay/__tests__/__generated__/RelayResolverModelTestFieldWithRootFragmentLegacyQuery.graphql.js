@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f76ffa3b59e21e97cdb9e6f1a2264119>>
+ * @generated SignedSource<<ebcbf68561f99618a64c0cf6fc6a9cbb>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,13 +24,13 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType as (
-  args: {|
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {capitalized_id_legacy as todoModelCapitalizedIdLegacyResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelCapitalizedIdLegacyResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -39,18 +39,18 @@ import {capitalized_id_legacy as todoModelCapitalizedIdLegacyResolverType} from 
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$variables = {|
+export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$variables = {
   id: string,
-|};
-export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$data = {|
-  +todo_model: ?{|
-    +capitalized_id_legacy: ?string,
-  |},
-|};
-export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery = {|
+};
+export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$data = {
+  readonly todo_model: ?{
+    readonly capitalized_id_legacy: ?string,
+  },
+};
+export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery = {
   response: RelayResolverModelTestFieldWithRootFragmentLegacyQuery$data,
   variables: RelayResolverModelTestFieldWithRootFragmentLegacyQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

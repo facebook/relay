@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<12be887fc833d10c932d5d19eea06ccf>>
+ * @generated SignedSource<<b48e3c44f2a0443c13001098f22f5abc>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType } from "./useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment.graphql";
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables = {|
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables = {
   id: string,
   scale: number,
-|};
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
-  |},
-|};
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery = {|
+};
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
+  },
+};
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery = {
   response: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data,
   variables: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

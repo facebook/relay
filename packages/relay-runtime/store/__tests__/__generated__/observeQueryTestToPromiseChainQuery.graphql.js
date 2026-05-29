@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b11e5840b86db0346f15a38f194724cb>>
+ * @generated SignedSource<<225654e56aad2513a5412cbb30c7991f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeQueryTestToPromiseFragment$fragmentType } from "./observeQueryTestToPromiseFragment.graphql";
-export type observeQueryTestToPromiseChainQuery$variables = {||};
-export type observeQueryTestToPromiseChainQuery$data = {|
-  +me: {|
-    +$fragmentSpreads: observeQueryTestToPromiseFragment$fragmentType,
-  |},
-|};
-export type observeQueryTestToPromiseChainQuery = {|
+export type observeQueryTestToPromiseChainQuery$variables = {};
+export type observeQueryTestToPromiseChainQuery$data = {
+  readonly me: {
+    readonly $fragmentSpreads: observeQueryTestToPromiseFragment$fragmentType,
+  },
+};
+export type observeQueryTestToPromiseChainQuery = {
   response: observeQueryTestToPromiseChainQuery$data,
   variables: observeQueryTestToPromiseChainQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

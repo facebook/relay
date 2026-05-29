@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<45148529bfea23511e3935ba3d13f10f>>
+ * @generated SignedSource<<da64a2d5a087766dc4ed1fbfa87a9401>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,13 +25,13 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType as (
-  args: {|
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -49,20 +49,20 @@ import {many_fancy_descriptions_but_some_are_null as todoModelManyFancyDescripti
   context: TestResolverContextType,
 ) => ?ReadonlyArray<?TodoDescription>);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
-export type RelayResolverModelTestTodoWithNullablePluralFieldQuery$variables = {|
+export type RelayResolverModelTestTodoWithNullablePluralFieldQuery$variables = {
   id: string,
-|};
-export type RelayResolverModelTestTodoWithNullablePluralFieldQuery$data = {|
-  +todo_model: ?{|
-    +many_fancy_descriptions_but_some_are_null: ?ReadonlyArray<?{|
-      +text: ?string,
-    |}>,
-  |},
-|};
-export type RelayResolverModelTestTodoWithNullablePluralFieldQuery = {|
+};
+export type RelayResolverModelTestTodoWithNullablePluralFieldQuery$data = {
+  readonly todo_model: ?{
+    readonly many_fancy_descriptions_but_some_are_null: ?ReadonlyArray<?{
+      readonly text: ?string,
+    }>,
+  },
+};
+export type RelayResolverModelTestTodoWithNullablePluralFieldQuery = {
   response: RelayResolverModelTestTodoWithNullablePluralFieldQuery$data,
   variables: RelayResolverModelTestTodoWithNullablePluralFieldQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

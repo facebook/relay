@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aec02a9b596423606b628c49bf7398d6>>
+ * @generated SignedSource<<6150c6e0b119185f28d7b23f1af8306e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,23 +21,23 @@ import type { usePaginationFragmentTestNestedUserFragment$fragmentType } from ".
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePaginationFragmentTestUserFragmentWithStreaming$fragmentType: FragmentType;
 type usePaginationFragmentTestUserFragmentStreamingPaginationQuery$variables = any;
-export type usePaginationFragmentTestUserFragmentWithStreaming$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-        +name: ?string,
-        +$fragmentSpreads: usePaginationFragmentTestNestedUserFragment$fragmentType,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +name: ?string,
-  +$fragmentType: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
-|};
+export type usePaginationFragmentTestUserFragmentWithStreaming$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+        readonly name: ?string,
+        readonly $fragmentSpreads: usePaginationFragmentTestNestedUserFragment$fragmentType,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
+};
 export type usePaginationFragmentTestUserFragmentWithStreaming$key = {
-  +$data?: usePaginationFragmentTestUserFragmentWithStreaming$data,
-  +$fragmentSpreads: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
+  readonly $data?: usePaginationFragmentTestUserFragmentWithStreaming$data,
+  readonly $fragmentSpreads: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
   ...
 };
 */

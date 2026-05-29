@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e564c17201c887c7661ad47e60823b46>>
+ * @generated SignedSource<<85a624b795cbd42b06d465c13e5ca380>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,21 +27,21 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery$variables = {||};
-export type RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +firstName: ?string,
-    |},
-  |},
-|};
-export type RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery$variables = {};
+export type RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly firstName: ?string,
+    },
+  },
+};
+export type RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery = {
   response: RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery$data,
   variables: RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d65522e1657c8e2d6df862a9b5b7311>>
+ * @generated SignedSource<<1fc6c80638b167120db66551f94870c4>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,34 +17,34 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTestIsEntityInlineFragmentMutation$variables = {|
+};
+export type validateMutationTestIsEntityInlineFragmentMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTestIsEntityInlineFragmentMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +url?: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsEntityInlineFragmentMutation$rawResponse = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +__typename: string,
-      +__isEntity?: string,
-      +id: string,
-      +url?: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsEntityInlineFragmentMutation = {|
+};
+export type validateMutationTestIsEntityInlineFragmentMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly url?: ?string,
+    },
+  },
+};
+export type validateMutationTestIsEntityInlineFragmentMutation$rawResponse = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly __typename: string,
+      readonly __isEntity?: string,
+      readonly id: string,
+      readonly url?: ?string,
+    },
+  },
+};
+export type validateMutationTestIsEntityInlineFragmentMutation = {
   rawResponse: validateMutationTestIsEntityInlineFragmentMutation$rawResponse,
   response: validateMutationTestIsEntityInlineFragmentMutation$data,
   variables: validateMutationTestIsEntityInlineFragmentMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5b85be52dc73e68cd679026e60a31242>>
+ * @generated SignedSource<<c54168fc68055bd48094a3a96c9aacf5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,31 +19,31 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReferenceMarkerTest2Fragment$fragmentType: FragmentType;
-export type RelayReferenceMarkerTest2Fragment$data = {|
-  +best_friends: ?{|
-    +client_friends_connection_field: ?string,
-    +edges: ?ReadonlyArray<?{|
-      +client_friend_edge_field: ?string,
-      +cursor: ?string,
-      +node: ?{|
-        +firstName: ?string,
-        +id: string,
-      |},
-    |}>,
-  |},
-  +client_foo: ?{|
-    +client_name: ?string,
-    +profile_picture: ?{|
-      +uri: ?string,
-    |},
-  |},
-  +firstName: ?string,
-  +nickname: ?string,
-  +$fragmentType: RelayReferenceMarkerTest2Fragment$fragmentType,
-|};
+export type RelayReferenceMarkerTest2Fragment$data = {
+  readonly best_friends: ?{
+    readonly client_friends_connection_field: ?string,
+    readonly edges: ?ReadonlyArray<?{
+      readonly client_friend_edge_field: ?string,
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly firstName: ?string,
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly client_foo: ?{
+    readonly client_name: ?string,
+    readonly profile_picture: ?{
+      readonly uri: ?string,
+    },
+  },
+  readonly firstName: ?string,
+  readonly nickname: ?string,
+  readonly $fragmentType: RelayReferenceMarkerTest2Fragment$fragmentType,
+};
 export type RelayReferenceMarkerTest2Fragment$key = {
-  +$data?: RelayReferenceMarkerTest2Fragment$data,
-  +$fragmentSpreads: RelayReferenceMarkerTest2Fragment$fragmentType,
+  readonly $data?: RelayReferenceMarkerTest2Fragment$data,
+  readonly $fragmentSpreads: RelayReferenceMarkerTest2Fragment$fragmentType,
   ...
 };
 */

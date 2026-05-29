@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<83688342a473b8e031ef2a5a3a7dc729>>
+ * @generated SignedSource<<753cd989b6a9bbbb11c9849684cbf6e9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockEnvironmentTestWithDeferFragment_user$fragmentType } from "./RelayMockEnvironmentTestWithDeferFragment_user.graphql";
-export type RelayMockEnvironmentTestWithDeferQuery$variables = {|
+export type RelayMockEnvironmentTestWithDeferQuery$variables = {
   id: string,
-|};
-export type RelayMockEnvironmentTestWithDeferQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: RelayMockEnvironmentTestWithDeferFragment_user$fragmentType,
-  |},
-|};
-export type RelayMockEnvironmentTestWithDeferQuery = {|
+};
+export type RelayMockEnvironmentTestWithDeferQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayMockEnvironmentTestWithDeferFragment_user$fragmentType,
+  },
+};
+export type RelayMockEnvironmentTestWithDeferQuery = {
   response: RelayMockEnvironmentTestWithDeferQuery$data,
   variables: RelayMockEnvironmentTestWithDeferQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

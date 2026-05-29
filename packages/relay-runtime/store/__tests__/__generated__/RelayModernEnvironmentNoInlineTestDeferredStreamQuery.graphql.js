@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f208ef50022b42d6ac7ddf63af48af29>>
+ * @generated SignedSource<<8fac0cc3a47214e815ebedcfc484b5ca>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType } from "./RelayModernEnvironmentNoInlineTestDeferredStreamParent.graphql";
-export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables = {|
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables = {
   cond: boolean,
   enableStream?: ?boolean,
-|};
-export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data = {|
-  +viewer: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery = {|
+};
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data = {
+  readonly viewer: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
+  },
+};
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery = {
   response: RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data,
   variables: RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

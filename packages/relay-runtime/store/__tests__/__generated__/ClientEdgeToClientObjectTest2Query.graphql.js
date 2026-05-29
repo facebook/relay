@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2afb72d3154db6042ad3e086f18bcd17>>
+ * @generated SignedSource<<d009f8b9ccf76ca4f27bb533db30eb76>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -36,19 +36,19 @@ import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from ".
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?ReadonlyArray<{|
-  +id: DataID,
-|}>);
-export type ClientEdgeToClientObjectTest2Query$variables = {||};
-export type ClientEdgeToClientObjectTest2Query$data = {|
-  +all_astrological_signs: ?ReadonlyArray<{|
-    +name: ?string,
-  |}>,
-|};
-export type ClientEdgeToClientObjectTest2Query = {|
+) => ?ReadonlyArray<{
+  readonly id: DataID,
+}>);
+export type ClientEdgeToClientObjectTest2Query$variables = {};
+export type ClientEdgeToClientObjectTest2Query$data = {
+  readonly all_astrological_signs: ?ReadonlyArray<{
+    readonly name: ?string,
+  }>,
+};
+export type ClientEdgeToClientObjectTest2Query = {
   response: ClientEdgeToClientObjectTest2Query$data,
   variables: ClientEdgeToClientObjectTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

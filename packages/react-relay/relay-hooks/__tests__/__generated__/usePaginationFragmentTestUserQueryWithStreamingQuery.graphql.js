@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<972c92cd00cb6256793cb7d5381917e2>>
+ * @generated SignedSource<<673eabac562b617dbc689d32f92e20da>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,7 +18,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { usePaginationFragmentTestUserFragmentWithStreaming$fragmentType } from "./usePaginationFragmentTestUserFragmentWithStreaming.graphql";
-export type usePaginationFragmentTestUserQueryWithStreamingQuery$variables = {|
+export type usePaginationFragmentTestUserQueryWithStreamingQuery$variables = {
   after?: ?string,
   before?: ?string,
   first?: ?number,
@@ -26,16 +26,16 @@ export type usePaginationFragmentTestUserQueryWithStreamingQuery$variables = {|
   isViewerFriend?: ?boolean,
   last?: ?number,
   orderby?: ?ReadonlyArray<?string>,
-|};
-export type usePaginationFragmentTestUserQueryWithStreamingQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
-  |},
-|};
-export type usePaginationFragmentTestUserQueryWithStreamingQuery = {|
+};
+export type usePaginationFragmentTestUserQueryWithStreamingQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
+  },
+};
+export type usePaginationFragmentTestUserQueryWithStreamingQuery = {
   response: usePaginationFragmentTestUserQueryWithStreamingQuery$data,
   variables: usePaginationFragmentTestUserQueryWithStreamingQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

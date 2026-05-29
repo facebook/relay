@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8ab0875165c26de4c543a49a865002cf>>
+ * @generated SignedSource<<272635016af1f77214d9739320741198>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,26 +17,26 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$variables = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$data = {|
-  +node: ?{|
-    +comments: ?{|
-      +__id: string,
-      +edges: ?ReadonlyArray<?{|
-        +__typename: "CommentsEdge",
-        +node: ?{|
-          +id: string,
-        |},
-      |}>,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$data = {
+  readonly node: ?{
+    readonly comments: ?{
+      readonly __id: string,
+      readonly edges: ?ReadonlyArray<?{
+        readonly __typename: "CommentsEdge",
+        readonly node: ?{
+          readonly id: string,
+        },
+      }>,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query = {
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$data,
   variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

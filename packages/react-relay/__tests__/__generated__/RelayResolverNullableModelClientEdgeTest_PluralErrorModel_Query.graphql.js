@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<493fab5e9dbf88c0d3ec6818018f689d>>
+ * @generated SignedSource<<2df2323b066786142a85137fae754dc9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,19 +25,19 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryEdgeToPluralModelsThatThrowResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?ReadonlyArray<?{|
-  +id: DataID,
-|}>);
-export type RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$data = {|
-  +edge_to_plural_models_that_throw: ?ReadonlyArray<?{|
-    +__typename: "ErrorModel",
-  |}>,
-|};
-export type RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query = {|
+) => ?ReadonlyArray<?{
+  readonly id: DataID,
+}>);
+export type RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$data = {
+  readonly edge_to_plural_models_that_throw: ?ReadonlyArray<?{
+    readonly __typename: "ErrorModel",
+  }>,
+};
+export type RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query = {
   response: RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

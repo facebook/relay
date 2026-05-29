@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b274a584a50fd02071a4062268273f6f>>
+ * @generated SignedSource<<ef6814b98f86e9c31d9211f0214fe794>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,19 +26,19 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryFishResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverInterfaceTestFishLegsQuery$variables = {||};
-export type RelayResolverInterfaceTestFishLegsQuery$data = {|
-  +fish: ?{|
-    +$fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
-  |},
-|};
-export type RelayResolverInterfaceTestFishLegsQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverInterfaceTestFishLegsQuery$variables = {};
+export type RelayResolverInterfaceTestFishLegsQuery$data = {
+  readonly fish: ?{
+    readonly $fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
+  },
+};
+export type RelayResolverInterfaceTestFishLegsQuery = {
   response: RelayResolverInterfaceTestFishLegsQuery$data,
   variables: RelayResolverInterfaceTestFishLegsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

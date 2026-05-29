@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7464da2f370fea55189c1ae26a601043>>
+ * @generated SignedSource<<5b3a97468358d7f49f81dbe4de4ee3cc>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,20 +20,20 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePaginationFragmentTestStoryFragment$fragmentType: FragmentType;
 type usePaginationFragmentTestStoryFragmentRefetchQuery$variables = any;
-export type usePaginationFragmentTestStoryFragment$data = {|
-  +comments: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-  +fetch_id: string,
-  +$fragmentType: usePaginationFragmentTestStoryFragment$fragmentType,
-|};
+export type usePaginationFragmentTestStoryFragment$data = {
+  readonly comments: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly fetch_id: string,
+  readonly $fragmentType: usePaginationFragmentTestStoryFragment$fragmentType,
+};
 export type usePaginationFragmentTestStoryFragment$key = {
-  +$data?: usePaginationFragmentTestStoryFragment$data,
-  +$fragmentSpreads: usePaginationFragmentTestStoryFragment$fragmentType,
+  readonly $data?: usePaginationFragmentTestStoryFragment$data,
+  readonly $fragmentSpreads: usePaginationFragmentTestStoryFragment$fragmentType,
   ...
 };
 */

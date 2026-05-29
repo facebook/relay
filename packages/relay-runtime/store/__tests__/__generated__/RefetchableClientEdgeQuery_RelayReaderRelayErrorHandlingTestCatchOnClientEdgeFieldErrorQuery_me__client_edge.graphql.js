@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dadf93ed69cb35a89bf72bdd70f1f53e>>
+ * @generated SignedSource<<ffc2db7a103d5860caf0e59dd4f74ebd>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeFieldErrorQuery_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeFieldErrorQuery_me__client_edge$variables = any;
-export type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeFieldErrorQuery_me__client_edge$data = {|
-  +id: string,
-  +lastName: ?string,
-  +$fragmentType: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeFieldErrorQuery_me__client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeFieldErrorQuery_me__client_edge$data = {
+  readonly id: string,
+  readonly lastName: ?string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeFieldErrorQuery_me__client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeFieldErrorQuery_me__client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeFieldErrorQuery_me__client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeFieldErrorQuery_me__client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeFieldErrorQuery_me__client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeFieldErrorQuery_me__client_edge$fragmentType,
   ...
 };
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<963e66f117e88c1fe2f2ec673dcf282e>>
+ * @generated SignedSource<<3749682958634406cea381e3b1f2ed75>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -34,20 +34,20 @@ import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType}
 (queryLiveUserSuspendsWhenOddResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?{|
-  +id: DataID,
-|}>);
-export type LiveResolversTestUnsubscribesWhenSuspendsQuery$variables = {||};
-export type LiveResolversTestUnsubscribesWhenSuspendsQuery$data = {|
-  +greeting: ?string,
-  +user: ?{|
-    +id: string,
-  |},
-|};
-export type LiveResolversTestUnsubscribesWhenSuspendsQuery = {|
+) => LiveState<?{
+  readonly id: DataID,
+}>);
+export type LiveResolversTestUnsubscribesWhenSuspendsQuery$variables = {};
+export type LiveResolversTestUnsubscribesWhenSuspendsQuery$data = {
+  readonly greeting: ?string,
+  readonly user: ?{
+    readonly id: string,
+  },
+};
+export type LiveResolversTestUnsubscribesWhenSuspendsQuery = {
   response: LiveResolversTestUnsubscribesWhenSuspendsQuery$data,
   variables: LiveResolversTestUnsubscribesWhenSuspendsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<af54c829a64251cbcdfa1291e5ac60e0>>
+ * @generated SignedSource<<80960cfa172d9ed0ea013bac1c971100>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data = {|
-  +actor: ?{|
-    +id: string,
-  |},
-  +$fragmentType: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
-|};
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data = {
+  readonly actor: ?{
+    readonly id: string,
+  },
+  readonly $fragmentType: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
+};
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$key = {
-  +$data?: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data,
-  +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
+  readonly $data?: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data,
+  readonly $fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
   ...
 };
 */

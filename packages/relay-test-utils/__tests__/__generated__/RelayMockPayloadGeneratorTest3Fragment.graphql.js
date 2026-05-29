@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7da9594aa34899ee96d36bcf174c1790>>
+ * @generated SignedSource<<ed2a54a917ea299de912a88a1f829b63>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,37 +19,37 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest3Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest3Fragment$data = {|
-  +allPhones: ?ReadonlyArray<?{|
-    +phoneNumber: ?{|
-      +displayNumber: ?string,
-    |},
-  |}>,
-  +author: ?{|
-    +authorID: string,
-    +name?: ?string,
-    +objectType: "User",
-    +username: ?string,
-  |},
-  +backgroundImage: ?{|
-    +uri: ?string,
-  |},
-  +birthdate?: ?{|
-    +month?: ?number,
-    +year: ?number,
-  |},
-  +customId: string,
-  +emailAddresses: ?ReadonlyArray<?string>,
-  +id: string,
-  +name: ?string,
-  +profile_picture?: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayMockPayloadGeneratorTest3Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest3Fragment$data = {
+  readonly allPhones: ?ReadonlyArray<?{
+    readonly phoneNumber: ?{
+      readonly displayNumber: ?string,
+    },
+  }>,
+  readonly author: ?{
+    readonly authorID: string,
+    readonly name?: ?string,
+    readonly objectType: "User",
+    readonly username: ?string,
+  },
+  readonly backgroundImage: ?{
+    readonly uri: ?string,
+  },
+  readonly birthdate?: ?{
+    readonly month?: ?number,
+    readonly year: ?number,
+  },
+  readonly customId: string,
+  readonly emailAddresses: ?ReadonlyArray<?string>,
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture?: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayMockPayloadGeneratorTest3Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest3Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest3Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest3Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest3Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest3Fragment$fragmentType,
   ...
 };
 */

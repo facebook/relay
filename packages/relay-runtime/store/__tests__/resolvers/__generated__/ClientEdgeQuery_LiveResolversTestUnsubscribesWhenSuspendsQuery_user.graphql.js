@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7af5287603e4cd56e2b9b5d369bfd85c>>
+ * @generated SignedSource<<e34806f2ef767123a136bbba3f942845>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$fragmentType } from "./RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user.graphql";
-export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$variables = {|
+export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user = {|
+};
+export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$fragmentType,
+  },
+};
+export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user = {
   response: ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$data,
   variables: ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d5ff3e00b73acdcbb1e6d4afc4ada515>>
+ * @generated SignedSource<<1d0b3984beeb9967b2cf4c6bb2ca9ea2>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,14 +19,14 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentCommitUpdateTestUserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentCommitUpdateTestUserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RelayModernEnvironmentCommitUpdateTestUserFragment$fragmentType,
-|};
+export type RelayModernEnvironmentCommitUpdateTestUserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: RelayModernEnvironmentCommitUpdateTestUserFragment$fragmentType,
+};
 export type RelayModernEnvironmentCommitUpdateTestUserFragment$key = {
-  +$data?: RelayModernEnvironmentCommitUpdateTestUserFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentCommitUpdateTestUserFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentCommitUpdateTestUserFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentCommitUpdateTestUserFragment$fragmentType,
   ...
 };
 */

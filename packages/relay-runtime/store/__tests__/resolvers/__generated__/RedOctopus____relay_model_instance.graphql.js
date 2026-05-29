@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bdce003725b921a27cb0a8361991a07d>>
+ * @generated SignedSource<<ad61d67e919f75b85125f9b56a49a99b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,13 +20,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RedOctopus } from "../RedOctopusResolvers.js";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RedOctopus____relay_model_instance$fragmentType: FragmentType;
-export type RedOctopus____relay_model_instance$data = {|
-  +__relay_model_instance: RedOctopus,
-  +$fragmentType: RedOctopus____relay_model_instance$fragmentType,
-|};
+export type RedOctopus____relay_model_instance$data = {
+  readonly __relay_model_instance: RedOctopus,
+  readonly $fragmentType: RedOctopus____relay_model_instance$fragmentType,
+};
 export type RedOctopus____relay_model_instance$key = {
-  +$data?: RedOctopus____relay_model_instance$data,
-  +$fragmentSpreads: RedOctopus____relay_model_instance$fragmentType,
+  readonly $data?: RedOctopus____relay_model_instance$data,
+  readonly $fragmentSpreads: RedOctopus____relay_model_instance$fragmentType,
   ...
 };
 */

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<963345ad4a589c468a85fd388b581222>>
+ * @generated SignedSource<<878e4bdee3a15e481796afbbd5ce21ef>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,26 +17,26 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables = {|
+export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables = {
   id: string,
-|};
-export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data = {|
-  +node: ?{|
-    +friends?: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +id: string,
-          +name: ?string,
-        |},
-      |}>,
-    |},
-  |},
-|};
-export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery = {|
+};
+export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data = {
+  readonly node: ?{
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly id: string,
+          readonly name: ?string,
+        },
+      }>,
+    },
+  },
+};
+export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery = {
   response: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data,
   variables: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

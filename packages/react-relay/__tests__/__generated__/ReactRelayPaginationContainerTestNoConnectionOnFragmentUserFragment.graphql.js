@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<772ddc8c6eec7e3f9fa40d58f1fe41aa>>
+ * @generated SignedSource<<6b300ce85cbf8feb89962884c167f322>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,23 +19,23 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-    +pageInfo: ?{|
-      +endCursor: ?string,
-      +hasNextPage: ?boolean,
-    |},
-  |},
-  +$fragmentType: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
-|};
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+    readonly pageInfo: ?{
+      readonly endCursor: ?string,
+      readonly hasNextPage: ?boolean,
+    },
+  },
+  readonly $fragmentType: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
+};
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$key = {
-  +$data?: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data,
-  +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
+  readonly $data?: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
   ...
 };
 */

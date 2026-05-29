@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7149aefd86356c1745e435275c1be97c>>
+ * @generated SignedSource<<179a696dd03ae59acb02c7a3a307e586>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -32,19 +32,19 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   context: TestResolverContextType,
 ) => ?Todo__text$normalization);
 declare export opaque type RelayResolversWithOutputTypeTestFragment$fragmentType: FragmentType;
-export type RelayResolversWithOutputTypeTestFragment$data = {|
-  +text: ?{|
-    +content: string,
-    +style: ?{|
-      +$fragmentSpreads: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
-    |},
-  |},
-  +$fragmentSpreads: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
-  +$fragmentType: RelayResolversWithOutputTypeTestFragment$fragmentType,
-|};
+export type RelayResolversWithOutputTypeTestFragment$data = {
+  readonly text: ?{
+    readonly content: string,
+    readonly style: ?{
+      readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
+    },
+  },
+  readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
+  readonly $fragmentType: RelayResolversWithOutputTypeTestFragment$fragmentType,
+};
 export type RelayResolversWithOutputTypeTestFragment$key = {
-  +$data?: RelayResolversWithOutputTypeTestFragment$data,
-  +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
+  readonly $data?: RelayResolversWithOutputTypeTestFragment$data,
+  readonly $fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
   ...
 };
 */

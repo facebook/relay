@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0faf62037f255c6608a9e9ac8b149893>>
+ * @generated SignedSource<<69f64e81d4530518cb6fcd36d72f7c97>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,25 +24,25 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType as (
-  args: {|
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverModelWithContextTestQuery$variables = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverModelWithContextTestQuery$variables = {
   id: string,
-|};
-export type RelayResolverModelWithContextTestQuery$data = {|
-  +todo_model: ?{|
-    +$fragmentSpreads: RelayResolverModelWithContextTestFragment$fragmentType,
-  |},
-|};
-export type RelayResolverModelWithContextTestQuery = {|
+};
+export type RelayResolverModelWithContextTestQuery$data = {
+  readonly todo_model: ?{
+    readonly $fragmentSpreads: RelayResolverModelWithContextTestFragment$fragmentType,
+  },
+};
+export type RelayResolverModelWithContextTestQuery = {
   response: RelayResolverModelWithContextTestQuery$data,
   variables: RelayResolverModelWithContextTestQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

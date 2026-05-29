@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<33d8df37b02a358a5a2a8d56cb81de16>>
+ * @generated SignedSource<<d6669b6d3421aaaa91b1b5038c3c066d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,19 +22,19 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 // Type assertion validating that `queryHelloOptionalWorldResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloOptionalWorldResolverType as (
-  args: {|
+  args: {
     world: ?string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type ResolverTest4Query$variables = {||};
-export type ResolverTest4Query$data = {|
-  +hello_optional_world: ?string,
-|};
-export type ResolverTest4Query = {|
+export type ResolverTest4Query$variables = {};
+export type ResolverTest4Query$data = {
+  readonly hello_optional_world: ?string,
+};
+export type ResolverTest4Query = {
   response: ResolverTest4Query$data,
   variables: ResolverTest4Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

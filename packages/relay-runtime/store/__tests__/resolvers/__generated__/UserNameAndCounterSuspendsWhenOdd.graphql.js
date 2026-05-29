@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ad778ad4e2822e38379f0e711755471f>>
+ * @generated SignedSource<<ac12289ed6c214d2b8519cc33a9a1547>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -29,16 +29,16 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   context: TestResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type UserNameAndCounterSuspendsWhenOdd$fragmentType: FragmentType;
-export type UserNameAndCounterSuspendsWhenOdd$data = {|
-  +counter_suspends_when_odd: ?number,
-  +me: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: UserNameAndCounterSuspendsWhenOdd$fragmentType,
-|};
+export type UserNameAndCounterSuspendsWhenOdd$data = {
+  readonly counter_suspends_when_odd: ?number,
+  readonly me: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: UserNameAndCounterSuspendsWhenOdd$fragmentType,
+};
 export type UserNameAndCounterSuspendsWhenOdd$key = {
-  +$data?: UserNameAndCounterSuspendsWhenOdd$data,
-  +$fragmentSpreads: UserNameAndCounterSuspendsWhenOdd$fragmentType,
+  readonly $data?: UserNameAndCounterSuspendsWhenOdd$data,
+  readonly $fragmentSpreads: UserNameAndCounterSuspendsWhenOdd$fragmentType,
   ...
 };
 */

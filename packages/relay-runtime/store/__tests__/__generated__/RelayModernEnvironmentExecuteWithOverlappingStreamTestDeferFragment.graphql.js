@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<61c91457d06a9088cd757f3ec84cd3d7>>
+ * @generated SignedSource<<63e54f7bba27ab0c8b058e63e208171c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data = {|
-  +viewedBy: ?ReadonlyArray<?{|
-    +name: ?string,
-  |}>,
-  +$fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data = {
+  readonly viewedBy: ?ReadonlyArray<?{
+    readonly name: ?string,
+  }>,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
   ...
 };
 */

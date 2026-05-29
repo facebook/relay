@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2693dada5777cc6dc61cb195adeba6c9>>
+ * @generated SignedSource<<0c7177cf69ab45400cf46a3c13628435>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,14 +20,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernFlowtest_user$fragmentType } from "./RelayModernFlowtest_user.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernFlowtest_badref$fragmentType: FragmentType;
-export type RelayModernFlowtest_badref$data = {|
-  +id: string,
-  +$fragmentSpreads: RelayModernFlowtest_user$fragmentType,
-  +$fragmentType: RelayModernFlowtest_badref$fragmentType,
-|};
+export type RelayModernFlowtest_badref$data = {
+  readonly id: string,
+  readonly $fragmentSpreads: RelayModernFlowtest_user$fragmentType,
+  readonly $fragmentType: RelayModernFlowtest_badref$fragmentType,
+};
 export type RelayModernFlowtest_badref$key = {
-  +$data?: RelayModernFlowtest_badref$data,
-  +$fragmentSpreads: RelayModernFlowtest_badref$fragmentType,
+  readonly $data?: RelayModernFlowtest_badref$data,
+  readonly $fragmentSpreads: RelayModernFlowtest_badref$fragmentType,
   ...
 };
 */

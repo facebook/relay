@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d2f60a4ef4774bff4707d84759d3a67a>>
+ * @generated SignedSource<<1010e7f96a2c0a0cbd6d020bdd475aa0>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,16 +20,16 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType } from "./RelayResolversWithOutputTypeTestTextColorComponentFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType: FragmentType;
-export type RelayResolversWithOutputTypeTestTextStyleComponentFragment$data = {|
-  +color: ?{|
-    +$fragmentSpreads: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
-  |},
-  +font_style: ?string,
-  +$fragmentType: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
-|};
+export type RelayResolversWithOutputTypeTestTextStyleComponentFragment$data = {
+  readonly color: ?{
+    readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
+  },
+  readonly font_style: ?string,
+  readonly $fragmentType: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
+};
 export type RelayResolversWithOutputTypeTestTextStyleComponentFragment$key = {
-  +$data?: RelayResolversWithOutputTypeTestTextStyleComponentFragment$data,
-  +$fragmentSpreads: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
+  readonly $data?: RelayResolversWithOutputTypeTestTextStyleComponentFragment$data,
+  readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
   ...
 };
 */

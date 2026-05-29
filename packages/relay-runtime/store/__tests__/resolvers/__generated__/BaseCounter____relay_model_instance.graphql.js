@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<38b8665168b166f35fd80e87d08c4457>>
+ * @generated SignedSource<<4996a7e1f2d3176c63f816fb09a7a29b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,13 +20,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { BaseCounter } from "../LiveCounterContextResolver.js";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type BaseCounter____relay_model_instance$fragmentType: FragmentType;
-export type BaseCounter____relay_model_instance$data = {|
-  +__relay_model_instance: BaseCounter,
-  +$fragmentType: BaseCounter____relay_model_instance$fragmentType,
-|};
+export type BaseCounter____relay_model_instance$data = {
+  readonly __relay_model_instance: BaseCounter,
+  readonly $fragmentType: BaseCounter____relay_model_instance$fragmentType,
+};
 export type BaseCounter____relay_model_instance$key = {
-  +$data?: BaseCounter____relay_model_instance$data,
-  +$fragmentSpreads: BaseCounter____relay_model_instance$fragmentType,
+  readonly $data?: BaseCounter____relay_model_instance$data,
+  readonly $fragmentSpreads: BaseCounter____relay_model_instance$fragmentType,
   ...
 };
 */

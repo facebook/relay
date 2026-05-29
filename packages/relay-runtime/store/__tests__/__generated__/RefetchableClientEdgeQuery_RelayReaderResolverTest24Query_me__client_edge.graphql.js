@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ffbbdabadc1a9bc10b9b008982206766>>
+ * @generated SignedSource<<a44e33d0fb5a0cb607defb5b54024d32>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$variables = any;
-export type RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data = {|
-  +__typename: "User",
-  +id: string,
-  +$fragmentType: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data = {
+  readonly __typename: "User",
+  readonly id: string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType,
   ...
 };
 */

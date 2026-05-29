@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<17d7c97d5fc57975f72188079ef2f70f>>
+ * @generated SignedSource<<300e94528b50e3b8c5d7d90450ddc974>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,24 +21,24 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceWithOperationTrackerTestUserFragment$fragmentType } from "./FragmentResourceWithOperationTrackerTestUserFragment.graphql";
-export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables = {||};
-export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +friends: ?{|
-        +edges: ?ReadonlyArray<?{|
-          +node: ?{|
-            +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
-          |},
-        |}>,
-      |},
-    |},
-  |},
-|};
-export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery = {|
+export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables = {};
+export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly friends: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly node: ?{
+            readonly $fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+          },
+        }>,
+      },
+    },
+  },
+};
+export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery = {
   response: FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data,
   variables: FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

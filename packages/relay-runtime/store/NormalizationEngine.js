@@ -306,10 +306,12 @@ class NormalizationEngine {
       );
     }
 
-    // Replay handle field payloads from parent
-    // TODO(skyyao): emit parent fieldPayloads as a separate payload (with empty
-    // source) like OperationExecutor._processDeferResponse so handles run
-    // against the just-committed updated parent record.
+    // Replay handle field payloads from parent. Concatenated into this
+    // payload's fieldPayloads rather than emitted as a separate empty-source
+    // payload like OperationExecutor._processDeferResponse: within one
+    // commitPayload the source merges before fieldPayloads run, so the
+    // parent handlers still see the updated parent record. Same end state,
+    // one fewer commit (one fewer round of subscriber notifications).
     const parentID = placeholder.selector.dataID;
     const parentEntry = this._parentRecords.get(parentID);
     let fieldPayloads = payload.fieldPayloads;
@@ -394,10 +396,13 @@ class NormalizationEngine {
       currentParentRecord.setLinkedRecords(nextItems, storageKey);
     };
 
-    // Replay handle field payloads from parent
-    // TODO(skyyao): emit parent fieldPayloads as a separate payload (with empty
-    // source) like OperationExecutor._processStreamResponse so handles run
-    // against the just-committed updated parent record.
+    // Replay handle field payloads from parent. Concatenated into this
+    // payload's fieldPayloads rather than emitted as a separate empty-source
+    // payload like OperationExecutor._processStreamResponse: within one
+    // commitPayload the source merges and the storeUpdater runs before
+    // fieldPayloads, so the parent handlers still see the updated parent
+    // record (with the new stream item linked in). Same end state, one
+    // fewer commit (one fewer round of subscriber notifications).
     let mergedFieldPayloads = relayPayload.fieldPayloads;
     if (fieldPayloads.length > 0) {
       mergedFieldPayloads = (mergedFieldPayloads ?? []).concat(fieldPayloads);

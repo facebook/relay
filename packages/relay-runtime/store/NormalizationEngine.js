@@ -679,6 +679,10 @@ class NormalizationEngine {
     // the followup. The caller drains pendingModules recursively (see
     // ReactiveQueryExecutionNode_EXPERIMENTAL.executeWithNetwork) — this
     // mirrors OperationExecutor's recursive `_processPayloadFollowups`.
+    //
+    // Load failures propagate via Promise rejection — the caller is expected
+    // to surface them (e.g., via sink.error), mirroring OperationExecutor's
+    // behavior at OperationExecutor.js:1121.
     const emptyResult: NormalizationResult = {
       payloads: [],
       pendingModules: [],
@@ -690,10 +694,7 @@ class NormalizationEngine {
           loadedNode != null
             ? this._normalizeFollowup(followup, loadedNode, parentIsFinal)
             : emptyResult,
-        )
-        // TODO(skyyao): surface async @module load errors instead of silently
-        // swallowing — OperationExecutor terminates execution via sink.error().
-        .catch((_error: unknown) => emptyResult),
+        ),
     );
   }
 

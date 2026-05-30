@@ -59,6 +59,12 @@ type ParityArgs = Readonly<{
   query: ConcreteRequest,
   variables: Variables,
   loadFragment: (operationReference: unknown) => ?NormalizationRootNode,
+  // Optional: when set, .get() always returns null (forcing the async path)
+  // and .load() delegates here. Use to test async load semantics — including
+  // rejection — that can't be expressed via the sync `loadFragment` alone.
+  loadFragmentAsync?: (
+    operationReference: unknown,
+  ) => Promise<?NormalizationRootNode>,
   response: GraphQLResponseWithData,
 }>;
 
@@ -78,9 +84,16 @@ type ParityResult = Readonly<{
   >,
   // Engine-only: the raw NormalizationResult. Null for the executor path.
   engineResult: NormalizationResult | null,
+  // Errors surfaced during processing, normalized across both paths:
+  //   - executor: invocations of `subscribe({error})` (e.g., async @module
+  //               load failures forwarded by `OperationExecutor.js:1121`).
+  //   - engine:   `Promise.allSettled(pendingModules)` rejection reasons.
+  errors: ReadonlyArray<unknown>,
 }>;
 
-function runViaOperationExecutor(args: ParityArgs): ParityResult {
+async function runViaOperationExecutor(
+  args: ParityArgs,
+): Promise<ParityResult> {
   const normalizeResponseSpy = jest.fn(normalizeResponse);
   let dataSource: ?Sink<GraphQLResponse>;
   const localFetch = (
@@ -98,13 +111,17 @@ function runViaOperationExecutor(args: ParityArgs): ParityResult {
     // $FlowFixMe[invalid-tuple-arity] error found when enabling Flow LTI mode
     network: RelayNetwork.create(localFetch),
     normalizeResponse: normalizeResponseSpy,
-    operationLoader: buildOperationLoader(args.loadFragment),
+    operationLoader: buildOperationLoader(
+      args.loadFragment,
+      args.loadFragmentAsync,
+    ),
     store: localStore,
   });
+  const errorCallback = jest.fn<[Error], unknown>();
   const op = createOperationDescriptor(args.query, args.variables);
   localEnv.execute({operation: op}).subscribe({
     complete: jest.fn<[], unknown>(),
-    error: jest.fn<[Error], unknown>(),
+    error: errorCallback,
     next: jest.fn<[unknown], unknown>(),
   });
   // dataSource is assigned synchronously inside RelayObservable.create above.
@@ -113,23 +130,44 @@ function runViaOperationExecutor(args: ParityArgs): ParityResult {
   jest.runAllTimers();
   return {
     engineResult: null,
+    errors: errorCallback.mock.calls.map(call => call[0]),
     normalizeResponseSpy,
     source: localStore.getSource(),
   };
 }
 
-function runViaNormalizationEngine(args: ParityArgs): ParityResult {
+async function runViaNormalizationEngine(
+  args: ParityArgs,
+): Promise<ParityResult> {
   const normalizeResponseSpy = jest.fn(normalizeResponse);
   const op = createOperationDescriptor(args.query, args.variables);
   const engine = new NormalizationEngine({
     normalizeResponse: normalizeResponseSpy,
     operation: op.request.node.operation,
-    operationLoader: buildOperationLoader(args.loadFragment),
+    operationLoader: buildOperationLoader(
+      args.loadFragment,
+      args.loadFragmentAsync,
+    ),
     variables: op.request.variables,
   });
   const engineResult = engine.processResponse(args.response);
+  // Drain pendingModules to surface async @module load failures uniformly
+  // with the executor path's `subscribe({error})` channel. Hand-rolled
+  // settle (Promise.allSettled isn't in the test env's Promise polyfill).
+  const settled = await Promise.all(
+    engineResult.pendingModules.map(p =>
+      p.then<{kind: 'ok'} | {kind: 'err', reason: unknown}>(
+        () => ({kind: 'ok'}),
+        (reason: unknown) => ({kind: 'err', reason}),
+      ),
+    ),
+  );
+  const errors = settled
+    .filter(s => s.kind === 'err')
+    .map(s => (s as $FlowFixMe).reason);
   return {
     engineResult,
+    errors,
     normalizeResponseSpy,
     source: engineResult.payloads[engineResult.payloads.length - 1].source,
   };
@@ -137,7 +175,14 @@ function runViaNormalizationEngine(args: ParityArgs): ParityResult {
 
 function buildOperationLoader(
   loadFragment: (ref: unknown) => ?NormalizationRootNode,
+  loadFragmentAsync: ?(ref: unknown) => Promise<?NormalizationRootNode>,
 ): OperationLoader {
+  if (loadFragmentAsync != null) {
+    return {
+      get: jest.fn(() => null),
+      load: jest.fn(loadFragmentAsync),
+    };
+  }
   return {
     get: jest.fn(loadFragment),
     load: jest.fn((ref: unknown) => Promise.resolve(loadFragment(ref))),
@@ -1359,8 +1404,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ['OperationExecutor', runViaOperationExecutor],
           ['NormalizationEngine', runViaNormalizationEngine],
         ])('parity (%s)', (_runnerName, runner) => {
-          it('SplitOperation followup binds @arguments via getLocalVariables', () => {
-            const {source} = runner({
+          it('SplitOperation followup binds @arguments via getLocalVariables', async () => {
+            const {source} = await runner({
               query: QueryWithModule,
               variables: {cond: true},
               loadFragment: () => markdownRendererNormalizationFragment,
@@ -1390,6 +1435,40 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             // argumentDefinitions resolving against the call-site args.
             expect(renderer.data).toBeDefined();
             expect(renderer.markdown).toBeUndefined();
+          });
+
+          it('async @module load failure surfaces (does not get swallowed)', async () => {
+            // The @module fragment fails to load (e.g., network error). Both
+            // paths must surface the error: the executor via
+            // `subscribe({error})`, the engine via `pendingModules` rejection.
+            // Without the fix, NormalizationEngine wrapped its load chain in
+            // `.catch(() => emptyResult)`, silently dropping the error.
+            const loadError = new Error('forced @module load failure');
+            const {errors} = await runner({
+              query: QueryWithModule,
+              variables: {cond: true},
+              loadFragment: () => null, // not used when loadFragmentAsync is set
+              loadFragmentAsync: () => Promise.reject(loadError),
+              response: {
+                data: {
+                  node: {
+                    __typename: 'User',
+                    id: '1',
+                    nameRenderer: {
+                      __module_component_RelayModernEnvironmentNoInlineTestModuleQuery:
+                        'MarkdownUserNameRenderer.react',
+                      __module_operation_RelayModernEnvironmentNoInlineTestModuleQuery:
+                        'RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$normalization.graphql',
+                      __typename: 'MarkdownUserNameRenderer',
+                      data: {id: 'data-1', markup: '<markup/>'},
+                      markdown: 'markdown payload',
+                    },
+                  },
+                },
+                extensions: {is_final: true as unknown},
+              },
+            });
+            expect(errors).toContain(loadError);
           });
         });
       });

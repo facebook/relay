@@ -3708,7 +3708,7 @@ flatted@^3.1.0:
 
 flow-bin@^0.315.0:
   version "0.315.0"
-  resolved "https://registry.facebook.net/flow-bin/-/flow-bin-0.315.0.tgz#f6c3275cddde4c041d438617371f08a6bbeea70c"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.315.0.tgz#f6c3275cddde4c041d438617371f08a6bbeea70c"
   integrity sha512-Z6uioCGGS6GovDi+sIj5F7bpli2oZ6DXh2ey7ga6iRGJJdTd8uA0/KIjTHpHC3Cw9OAhqt+/4NQtYnH8joHcqg==
 
 flush-write-stream@^1.0.2:

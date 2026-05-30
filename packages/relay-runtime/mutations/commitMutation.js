@@ -165,8 +165,9 @@ function commitMutation<
         }
       },
       error: (err: Error) => {
-        config.onError?.(err);
-        config.onSettled?.(null, null, err);
+        const {onError, onSettled} = config;
+        onError?.(err);
+        onSettled?.(null, null, err);
       },
       next: payload => {
         if (Array.isArray(payload)) {

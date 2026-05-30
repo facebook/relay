@@ -1538,7 +1538,12 @@ describe('commitMutation()', () => {
     dataSource.next({
       data: {
         commentCreate: {
-          comment: {body: {text: 'Gave Relay'}, id: '1'},
+          comment: {
+            body: {
+              text: 'Gave Relay',
+            },
+            id: '1',
+          },
         },
       },
     });
@@ -1566,10 +1571,21 @@ describe('commitMutation()', () => {
     dataSource.next({
       data: {
         commentCreate: {
-          comment: {body: {text: 'Gave Relay'}, id: '1'},
+          comment: {
+            body: {
+              text: 'Gave Relay',
+            },
+            id: '1',
+          },
         },
       },
-      errors: [{locations: [], message: 'wtf', severity: 'ERROR'}],
+      errors: [
+        {
+          locations: [],
+          message: 'wtf',
+          severity: 'ERROR',
+        },
+      ],
     } as GraphQLResponseWithoutData);
     dataSource.complete();
 
@@ -1615,7 +1631,12 @@ describe('commitMutation()', () => {
     dataSource.next({
       data: {
         commentCreate: {
-          comment: {body: {text: 'Gave Relay'}, id: '1'},
+          comment: {
+            body: {
+              text: 'Gave Relay',
+            },
+            id: '1',
+          },
         },
       },
     });

@@ -171,6 +171,7 @@ class NormalizationEngine {
     ) {
       this._processFollowups(
         payload.followupPayloads,
+        payload.isFinal,
         extraPayloads,
         pendingModules,
       );
@@ -299,6 +300,7 @@ class NormalizationEngine {
     ) {
       this._processFollowups(
         payload.followupPayloads,
+        payload.isFinal,
         extraPayloads,
         pendingModules,
       );
@@ -633,19 +635,26 @@ class NormalizationEngine {
 
   _processFollowups(
     followups: ReadonlyArray<FollowupPayload>,
+    parentIsFinal: boolean,
     outPayloads: Array<RelayResponsePayload>,
     outPendingModules: Array<Promise<NormalizationResult>>,
   ): void {
     for (let i = 0; i < followups.length; i++) {
       const followup = followups[i];
       if (followup.kind === 'ModuleImportPayload') {
-        this._processModuleImport(followup, outPayloads, outPendingModules);
+        this._processModuleImport(
+          followup,
+          parentIsFinal,
+          outPayloads,
+          outPendingModules,
+        );
       }
     }
   }
 
   _processModuleImport(
     followup: ModuleImportPayload,
+    parentIsFinal: boolean,
     outPayloads: Array<RelayResponsePayload>,
     outPendingModules: Array<Promise<NormalizationResult>>,
   ): void {
@@ -659,7 +668,7 @@ class NormalizationEngine {
       followup.operationReference,
     );
     if (node != null) {
-      const result = this._normalizeFollowup(followup, node);
+      const result = this._normalizeFollowup(followup, node, parentIsFinal);
       outPayloads.push(...result.payloads);
       outPendingModules.push(...result.pendingModules);
       return;
@@ -679,7 +688,7 @@ class NormalizationEngine {
         .load(followup.operationReference)
         .then((loadedNode: ?NormalizationRootNode) =>
           loadedNode != null
-            ? this._normalizeFollowup(followup, loadedNode)
+            ? this._normalizeFollowup(followup, loadedNode, parentIsFinal)
             : emptyResult,
         )
         // TODO(skyyao): surface async @module load errors instead of silently
@@ -691,12 +700,10 @@ class NormalizationEngine {
   _normalizeFollowup(
     followup: ModuleImportPayload,
     node: NormalizationRootNode,
+    parentIsFinal: boolean,
   ): NormalizationResult {
     const operationNode =
       node.kind === 'SplitOperation' ? node : node.operation;
-    // TODO(skyyao): propagate is_final extension on the synthetic response when
-    // in loading_final state, to enable nested defer/3D processing on
-    // non-streaming server mode (see OperationExecutor.js:864-870).
     // For SplitOperation followups, resolve the operation's argumentDefinitions
     // against the call-site args so $arg references inside the SplitOperation
     // bind correctly. Mirrors OperationExecutor._normalizeFollowupPayload.
@@ -715,7 +722,13 @@ class NormalizationEngine {
     );
 
     const payload = this._normalizeResponse(
-      {data: followup.data} as $FlowFixMe,
+      {
+        data: followup.data,
+        // `is_final` is propagated from the parent response so nested
+        // @defer/3D placeholders inside the followup know whether more
+        // chunks are coming. Mirrors OperationExecutor.
+        extensions: parentIsFinal ? {is_final: true} : undefined,
+      } as $FlowFixMe,
       selector,
       followup.typeName,
       {
@@ -742,13 +755,14 @@ class NormalizationEngine {
       );
     }
 
-    // Process nested followups
+    // Process nested followups (parent's is_final propagates through)
     if (
       payload.followupPayloads != null &&
       payload.followupPayloads.length > 0
     ) {
       this._processFollowups(
         payload.followupPayloads,
+        payload.isFinal,
         extraPayloads,
         pendingModules,
       );

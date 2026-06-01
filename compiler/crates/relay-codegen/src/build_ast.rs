@@ -2578,8 +2578,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             return module_name;
         }
         let module_name_str = module_name.lookup();
-        let is_relative = module_name_str.starts_with("./")
-            || module_name_str.starts_with("../");
+        let is_relative = module_name_str.starts_with("./") || module_name_str.starts_with("../");
 
         if matches!(self.project_config.js_module_format, JsModuleFormat::Haste) || !is_relative {
             module_name
@@ -2637,14 +2636,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let artifact_path = self
             .project_config
             .artifact_path_for_definition(self.definition_source_location);
-        let norm_artifact_path = self.project_config.path_for_language_specific_artifact(
-            fragment_source_location,
-            normalization_filename,
-        );
-        self.project_config.js_module_import_identifier(
-            &artifact_path,
-            &norm_artifact_path,
-        )
+        let norm_artifact_path = self
+            .project_config
+            .path_for_language_specific_artifact(fragment_source_location, normalization_filename);
+        self.project_config
+            .js_module_import_identifier(&artifact_path, &norm_artifact_path)
     }
 
     fn build_module_import_selections(

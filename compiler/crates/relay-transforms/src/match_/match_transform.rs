@@ -569,10 +569,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                                     .unwrap()
                                     .name
                                     .location,
-                                module_source_location: spread
-                                    .fragment
-                                    .location
-                                    .source_location(),
+                                module_source_location: spread.fragment.location.source_location(),
                                 location: module_directive.name.location,
                                 no_inline: should_use_no_inline,
                             }

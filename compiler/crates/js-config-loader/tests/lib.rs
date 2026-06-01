@@ -148,6 +148,25 @@ fn config_js() {
 }
 
 #[test]
+fn config_mjs() {
+    let dir = tempdir().unwrap();
+    let dir_d = dir.path().join("a/b/c/d");
+    let dir_f = dir.path().join("a/b/c/d/e/f");
+    create_dir_all(&dir_f).unwrap();
+
+    std::fs::write(
+        dir_d.join("foo.config.mjs"),
+        r#"
+        export default { name: "correct" };
+        "#,
+    )
+    .unwrap();
+
+    let config = search::<TestConfig>("foo", &dir_f).unwrap().unwrap();
+    assert_eq!(config.value.name, "correct");
+}
+
+#[test]
 fn config_js_invalid_js() {
     let dir = tempdir().unwrap();
     let dir_d = dir.path().join("a/b/c/d");

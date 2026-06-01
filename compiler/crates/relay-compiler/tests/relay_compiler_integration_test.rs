@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<663cc1a70c8cd4c80da35f4823b6df51>>
+ * @generated SignedSource<<16a740cf5f64d667fc8038ce8036bf16>>
  */
 
 mod relay_compiler_integration;
@@ -374,6 +374,13 @@ async fn mixed_interface_server_type_does_not_implement_node_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/mixed_interface_server_type_does_not_implement_node.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/mixed_interface_server_type_does_not_implement_node.invalid.expected");
     test_fixture(transform_fixture, file!(), "mixed_interface_server_type_does_not_implement_node.invalid.input", "relay_compiler_integration/fixtures/mixed_interface_server_type_does_not_implement_node.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn module_directive_relative_path() {
+    let input = include_str!("relay_compiler_integration/fixtures/module_directive_relative_path.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/module_directive_relative_path.expected");
+    test_fixture(transform_fixture, file!(), "module_directive_relative_path.input", "relay_compiler_integration/fixtures/module_directive_relative_path.expected", input, expected).await;
 }
 
 #[tokio::test]

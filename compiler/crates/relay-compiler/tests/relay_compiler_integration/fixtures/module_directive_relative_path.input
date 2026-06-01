@@ -1,0 +1,65 @@
+//- src/App.js
+graphql`
+  query AppQuery($id: ID!) {
+    node(id: $id) {
+      ... on Comment {
+        body {
+          ...MarkdownRenderer_body
+            @module(name: "./renderers/MarkdownRenderer")
+          ...PlaintextRenderer_body
+            @module(name: "./renderers/PlaintextRenderer")
+        }
+      }
+    }
+  }
+`;
+
+//- src/renderers/MarkdownRenderer.js
+graphql`
+  fragment MarkdownRenderer_body on MarkdownCommentBody {
+    markdown
+  }
+`;
+
+//- src/renderers/PlaintextRenderer.js
+graphql`
+  fragment PlaintextRenderer_body on PlaintextCommentBody {
+    text
+  }
+`;
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "./schema.graphql",
+  "moduleImportConfig": {
+    "dynamicModuleProvider": {
+      "mode": "Custom",
+      "statement": "() => import('<$module>')"
+    }
+  }
+}
+
+//- schema.graphql
+interface Node {
+  id: ID!
+}
+
+type MarkdownCommentBody {
+  markdown: String
+}
+
+type PlaintextCommentBody {
+  text: String
+}
+
+union CommentBody = MarkdownCommentBody | PlaintextCommentBody
+
+type Comment implements Node {
+  id: ID!
+  body: CommentBody
+}
+
+type Query {
+  node(id: ID): Node
+}

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<88aa7e7b123eec495b433d4836317428>>
+ * @generated SignedSource<<d99c68d16b272610c22a8e5e1724517e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -49,24 +49,24 @@ import {fancy_description as todoModelFancyDescriptionResolverType} from "../../
   context: TestResolverContextType,
 ) => ?TodoDescription);
 declare export opaque type RelayResolverModelTestInterfaceFragment$fragmentType: FragmentType;
-export type RelayResolverModelTestInterfaceFragment$data = {|
-  +fancy_description: ?{|
-    +some_client_type_with_interface: ?{|
-      +client_interface: {|
-        +__typename: string,
-        +description: ?string,
-      |},
-    |},
-    +some_interface: ?{|
-      +__typename: string,
-      +description: ?string,
-    |},
-  |},
-  +$fragmentType: RelayResolverModelTestInterfaceFragment$fragmentType,
-|};
+export type RelayResolverModelTestInterfaceFragment$data = {
+  readonly fancy_description: ?{
+    readonly some_client_type_with_interface: ?{
+      readonly client_interface: {
+        readonly __typename: string,
+        readonly description: ?string,
+      },
+    },
+    readonly some_interface: ?{
+      readonly __typename: string,
+      readonly description: ?string,
+    },
+  },
+  readonly $fragmentType: RelayResolverModelTestInterfaceFragment$fragmentType,
+};
 export type RelayResolverModelTestInterfaceFragment$key = {
-  +$data?: RelayResolverModelTestInterfaceFragment$data,
-  +$fragmentSpreads: RelayResolverModelTestInterfaceFragment$fragmentType,
+  readonly $data?: RelayResolverModelTestInterfaceFragment$data,
+  readonly $fragmentSpreads: RelayResolverModelTestInterfaceFragment$fragmentType,
   ...
 };
 */

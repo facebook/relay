@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a132af5adc761ac931e41fa3a4c365e9>>
+ * @generated SignedSource<<6b7b577143ec81d5c6a4dc135a155ccf>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataCheckerTestClient2Interface$fragmentType } from "./DataCheckerTestClient2Interface.graphql";
-export type DataCheckerTestClient2AbstractQuery$variables = {||};
-export type DataCheckerTestClient2AbstractQuery$data = {|
-  +client_interface: ?{|
-    +$fragmentSpreads: DataCheckerTestClient2Interface$fragmentType,
-  |},
-|};
-export type DataCheckerTestClient2AbstractQuery = {|
+export type DataCheckerTestClient2AbstractQuery$variables = {};
+export type DataCheckerTestClient2AbstractQuery$data = {
+  readonly client_interface: ?{
+    readonly $fragmentSpreads: DataCheckerTestClient2Interface$fragmentType,
+  },
+};
+export type DataCheckerTestClient2AbstractQuery = {
   response: DataCheckerTestClient2AbstractQuery$data,
   variables: DataCheckerTestClient2AbstractQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3bf5cbcd402cdd5525979bf6ba35b917>>
+ * @generated SignedSource<<e4711cb2087a7ed704fe8ee60e7d7e7b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayResponseNormalizerTestClientInterfaceFragment$fragmentType } from "./RelayResponseNormalizerTestClientInterfaceFragment.graphql";
-export type RelayResponseNormalizerTestClientInterfaceQuery$variables = {||};
-export type RelayResponseNormalizerTestClientInterfaceQuery$data = {|
-  +client_interface: ?{|
-    +$fragmentSpreads: RelayResponseNormalizerTestClientInterfaceFragment$fragmentType,
-  |},
-  +client_union: ?{|
-    +__typename: string,
-  |},
-|};
-export type RelayResponseNormalizerTestClientInterfaceQuery = {|
+export type RelayResponseNormalizerTestClientInterfaceQuery$variables = {};
+export type RelayResponseNormalizerTestClientInterfaceQuery$data = {
+  readonly client_interface: ?{
+    readonly $fragmentSpreads: RelayResponseNormalizerTestClientInterfaceFragment$fragmentType,
+  },
+  readonly client_union: ?{
+    readonly __typename: string,
+  },
+};
+export type RelayResponseNormalizerTestClientInterfaceQuery = {
   response: RelayResponseNormalizerTestClientInterfaceQuery$data,
   variables: RelayResponseNormalizerTestClientInterfaceQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

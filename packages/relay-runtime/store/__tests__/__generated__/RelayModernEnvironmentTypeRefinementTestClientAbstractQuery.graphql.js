@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7161069d8034ae7e1528b39c02830f49>>
+ * @generated SignedSource<<df688843fc9f700013b5bad2c3d4dcd0>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,16 +18,16 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestClientInterface.graphql";
-export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$variables = {||};
-export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$data = {|
-  +client_interface: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery = {|
+export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$variables = {};
+export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$data = {
+  readonly client_interface: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType,
+  },
+};
+export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery = {
   response: RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$data,
   variables: RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

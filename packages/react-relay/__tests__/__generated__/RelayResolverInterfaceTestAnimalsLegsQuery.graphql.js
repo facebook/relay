@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e0f2f76a2cd8022c8c38670b5ec7e577>>
+ * @generated SignedSource<<a8cd32470e146562cdf94d177111ec1d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,31 +24,31 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryAnimalsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAnimalsResolverType as (
-  args: {|
+  args: {
     requests: ReadonlyArray<AnimalRequest>,
-  |},
+  },
   context: TestResolverContextType,
-) => ?ReadonlyArray<?{|
-  +__typename: "Cat" | "Chicken" | "Fish",
-  +id: DataID,
-|}>);
-export type AnimalRequest = {|
+) => ?ReadonlyArray<?{
+  readonly __typename: "Cat" | "Chicken" | "Fish",
+  readonly id: DataID,
+}>);
+export type AnimalRequest = {
   ofType: string,
   returnValidID: boolean,
-|};
-export type RelayResolverInterfaceTestAnimalsLegsQuery$variables = {|
+};
+export type RelayResolverInterfaceTestAnimalsLegsQuery$variables = {
   requests: ReadonlyArray<AnimalRequest>,
-|};
-export type RelayResolverInterfaceTestAnimalsLegsQuery$data = {|
-  +animals: ?ReadonlyArray<?{|
-    +id: string,
-    +$fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
-  |}>,
-|};
-export type RelayResolverInterfaceTestAnimalsLegsQuery = {|
+};
+export type RelayResolverInterfaceTestAnimalsLegsQuery$data = {
+  readonly animals: ?ReadonlyArray<?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
+  }>,
+};
+export type RelayResolverInterfaceTestAnimalsLegsQuery = {
   response: RelayResolverInterfaceTestAnimalsLegsQuery$data,
   variables: RelayResolverInterfaceTestAnimalsLegsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

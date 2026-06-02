@@ -186,25 +186,31 @@ impl RelayResolverAbstractTypesTransform<'_> {
                     let concrete_return_type =
                         self.program.schema.field(concrete_field_id).type_.inner();
                     let definition = WithLocation::new(node.definition.location, concrete_field_id);
+                    let filtered = filter_incompatible_inline_fragments(
+                        concrete_return_type,
+                        &node.selections,
+                    );
+                    let nested_selections = if concrete_return_type
+                        != self
+                            .program
+                            .schema
+                            .field(node.definition.item)
+                            .type_
+                            .inner()
+                    {
+                        self.convert_interface_selections_to_concrete_field_selections(
+                            concrete_return_type,
+                            &filtered,
+                        )
+                    } else {
+                        filtered
+                    };
                     Selection::LinkedField(Arc::new(LinkedField {
                         definition,
                         alias: node.alias,
                         arguments: node.arguments.clone(),
                         directives: node.directives.clone(),
-                        // The linked field on the concrete type may have a
-                        // _narrower_ return type than the field on the
-                        // interface. As such, some of the selections which were
-                        // valid within the interface's field may not be valid
-                        // within the concrete type's field.
-                        //
-                        // So instead of passing the original selection set
-                        // through directly, we must filter out any selections
-                        // which are not compatible with the concrete type's
-                        // field's return type.
-                        selections: filter_incompatible_inline_fragments(
-                            concrete_return_type,
-                            &node.selections,
-                        ),
+                        selections: nested_selections,
                     }))
                 }
                 Selection::ScalarField(node) => {

@@ -45,6 +45,10 @@ fragment ActorsRendererFragment on Node {
         #         "PlainUserNameRenderer_name",
         #     ),
         #     fragment_source_location: match-on-child-of-plural.graphql:282:308,
+        #     module_source_location: Embedded {
+        #         path: "match-on-child-of-plural.graphql",
+        #         index: 0,
+        #     },
         #     no_inline: false,
         # }
          {
@@ -70,6 +74,10 @@ fragment ActorsRendererFragment on Node {
         #         "MarkdownUserNameRenderer_name",
         #     ),
         #     fragment_source_location: match-on-child-of-plural.graphql:382:411,
+        #     module_source_location: Embedded {
+        #         path: "match-on-child-of-plural.graphql",
+        #         index: 0,
+        #     },
         #     no_inline: false,
         # }
          {

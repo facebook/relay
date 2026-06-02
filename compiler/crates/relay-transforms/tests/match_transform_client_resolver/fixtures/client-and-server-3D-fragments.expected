@@ -89,6 +89,10 @@ fragment ClientFragment on Persona {
       #         "ClientUser_Fragment",
       #     ),
       #     fragment_source_location: client-and-server-3D-fragments.graphql:196:215,
+      #     module_source_location: Embedded {
+      #         path: "client-and-server-3D-fragments.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -112,6 +116,10 @@ fragment ClientFragment on Persona {
       #         "SpecialUser_Fragment",
       #     ),
       #     fragment_source_location: client-and-server-3D-fragments.graphql:275:295,
+      #     module_source_location: Embedded {
+      #         path: "client-and-server-3D-fragments.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -162,6 +170,10 @@ fragment ServerFragment on User {
       #         "PlainUserNameRenderer_name",
       #     ),
       #     fragment_source_location: client-and-server-3D-fragments.graphql:596:622,
+      #     module_source_location: Embedded {
+      #         path: "client-and-server-3D-fragments.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -187,6 +199,10 @@ fragment ServerFragment on User {
       #         "MarkdownUserNameRenderer_name",
       #     ),
       #     fragment_source_location: client-and-server-3D-fragments.graphql:696:725,
+      #     module_source_location: Embedded {
+      #         path: "client-and-server-3D-fragments.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

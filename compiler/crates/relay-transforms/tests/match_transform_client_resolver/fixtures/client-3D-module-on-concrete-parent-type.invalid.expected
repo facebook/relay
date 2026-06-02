@@ -49,6 +49,10 @@ fragment NameRendererFragment on Persona {
       #         "ClientUser_Fragment",
       #     ),
       #     fragment_source_location: client-3D-module-on-concrete-parent-type.invalid.graphql:139:158,
+      #     module_source_location: Embedded {
+      #         path: "client-3D-module-on-concrete-parent-type.invalid.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

@@ -77,6 +77,10 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #         "PlainUserNameRenderer_name",
       #     ),
       #     fragment_source_location: query-with-transitive-module-dep.graphql:332:358,
+      #     module_source_location: Embedded {
+      #         path: "query-with-transitive-module-dep.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -102,6 +106,10 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #         "MarkdownUserNameRenderer_name",
       #     ),
       #     fragment_source_location: query-with-transitive-module-dep.graphql:432:461,
+      #     module_source_location: Embedded {
+      #         path: "query-with-transitive-module-dep.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

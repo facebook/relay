@@ -30,6 +30,10 @@ fragment ActorsRendererFragment on Node {
       #         "PlainUserNameRenderer_name",
       #     ),
       #     fragment_source_location: module-on-field-without-js.graphql:153:179,
+      #     module_source_location: Embedded {
+      #         path: "module-on-field-without-js.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

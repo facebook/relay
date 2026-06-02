@@ -20,6 +20,7 @@ use common::FeatureFlag;
 use common::FeatureFlags;
 use common::Location;
 use common::NamedItem;
+use common::SourceLocationKey;
 use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use fnv::FnvBuildHasher;
@@ -568,6 +569,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                                     .unwrap()
                                     .name
                                     .location,
+                                module_source_location: spread.fragment.location.source_location(),
                                 location: module_directive.name.location,
                                 no_inline: should_use_no_inline,
                             }
@@ -1160,6 +1162,9 @@ pub struct ModuleMetadata {
     pub read_time_resolvers: bool,
     pub fragment_name: FragmentDefinitionName,
     pub fragment_source_location: Location,
+    /// The source file containing the @module directive usage.
+    /// Used to resolve relative module paths in non-Haste environments.
+    pub module_source_location: SourceLocationKey,
     pub no_inline: bool,
 }
 associated_data_impl!(ModuleMetadata);

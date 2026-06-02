@@ -85,6 +85,10 @@ fragment NameRendererFragment on Persona @__RelayDataDrivenDependencyMetadata
       #         "ClientUser_Fragment",
       #     ),
       #     fragment_source_location: client-resolver-3D-module-on-interface.graphql:202:221,
+      #     module_source_location: Embedded {
+      #         path: "client-resolver-3D-module-on-interface.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -108,6 +112,10 @@ fragment NameRendererFragment on Persona @__RelayDataDrivenDependencyMetadata
       #         "SpecialUser_Fragment",
       #     ),
       #     fragment_source_location: client-resolver-3D-module-on-interface.graphql:281:301,
+      #     module_source_location: Embedded {
+      #         path: "client-resolver-3D-module-on-interface.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

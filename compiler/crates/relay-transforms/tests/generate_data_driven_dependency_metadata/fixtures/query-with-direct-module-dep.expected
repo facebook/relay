@@ -59,6 +59,10 @@ query QueryWithDirectModuleDep @__RelayDataDrivenDependencyMetadata
           #         "PlainUserNameRenderer_name",
           #     ),
           #     fragment_source_location: query-with-direct-module-dep.graphql:303:329,
+          #     module_source_location: Embedded {
+          #         path: "query-with-direct-module-dep.graphql",
+          #         index: 0,
+          #     },
           #     no_inline: false,
           # }
            {
@@ -84,6 +88,10 @@ query QueryWithDirectModuleDep @__RelayDataDrivenDependencyMetadata
           #         "MarkdownUserNameRenderer_name",
           #     ),
           #     fragment_source_location: query-with-direct-module-dep.graphql:403:432,
+          #     module_source_location: Embedded {
+          #         path: "query-with-direct-module-dep.graphql",
+          #         index: 0,
+          #     },
           #     no_inline: false,
           # }
            {

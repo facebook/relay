@@ -127,8 +127,10 @@ impl<'program> CatchDirective<'program> {
         let catchable_field = field.directives().named(*CATCH_DIRECTIVE_NAME);
         let required_field = field.directives().named(*REQUIRED_DIRECTIVE_NAME);
 
-        if catchable_field.is_some() && required_field.is_some() {
-            let required_location = required_field.unwrap().name.location;
+        if catchable_field.is_some()
+            && let Some(required) = required_field
+        {
+            let required_location = required.name.location;
             self.errors.push(Diagnostic::error(
                 ValidationMessage::CatchDirectiveWithRequiredDirective,
                 required_location,

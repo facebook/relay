@@ -49,6 +49,10 @@ fragment NameRendererFragment on User {
       #         "PlainUserNameRenderer_name",
       #     ),
       #     fragment_source_location: server-3D-match-on-interface.graphql:257:283,
+      #     module_source_location: Embedded {
+      #         path: "server-3D-match-on-interface.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -74,6 +78,10 @@ fragment NameRendererFragment on User {
       #         "MarkdownUserNameRenderer_name",
       #     ),
       #     fragment_source_location: server-3D-match-on-interface.graphql:357:386,
+      #     module_source_location: Embedded {
+      #         path: "server-3D-match-on-interface.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

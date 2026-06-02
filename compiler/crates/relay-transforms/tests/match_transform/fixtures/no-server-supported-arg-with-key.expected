@@ -32,6 +32,10 @@ fragment ActorsRendererFragment on Node {
       #         "PlainUserNameRenderer_name",
       #     ),
       #     fragment_source_location: no-server-supported-arg-with-key.graphql:297:323,
+      #     module_source_location: Embedded {
+      #         path: "no-server-supported-arg-with-key.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::Path;
 use std::path::PathBuf;
 
 use ::intern::Lookup;
@@ -40,6 +41,7 @@ use lazy_static::lazy_static;
 use md5::Digest;
 use md5::Md5;
 use relay_config::JsModuleFormat;
+use relay_config::ModuleProvider;
 use relay_config::ProjectConfig;
 use relay_config::Surface;
 use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
@@ -2567,6 +2569,69 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
     }
 
+    fn resolve_module_import_name(
+        &self,
+        module_name: StringKey,
+        module_source_location: common::SourceLocationKey,
+        provider: ModuleProvider,
+    ) -> StringKey {
+        if !matches!(provider, ModuleProvider::Custom { .. }) {
+            return module_name;
+        }
+        let module_name_str = module_name.lookup();
+        let is_relative = module_name_str.starts_with("./") || module_name_str.starts_with("../");
+
+        if matches!(self.project_config.js_module_format, JsModuleFormat::Haste) || !is_relative {
+            module_name
+        } else {
+            assert!(
+                !module_source_location.is_generated(),
+                "Cannot resolve relative @module path '{}' from a generated source location",
+                module_name_str
+            );
+            let mut source_dir = PathBuf::from(module_source_location.path());
+            source_dir.pop();
+            let module_path = normalize_path(&source_dir.join(PathBuf::from(module_name_str)));
+
+            self.project_config.js_module_import_identifier(
+                &self
+                    .project_config
+                    .artifact_path_for_definition(self.definition_source_location),
+                &module_path,
+            )
+        }
+    }
+
+    fn resolve_normalization_import(
+        &self,
+        fragment_name: FragmentDefinitionName,
+        fragment_source_location: common::SourceLocationKey,
+        provider: ModuleProvider,
+    ) -> StringKey {
+        if !matches!(provider, ModuleProvider::Custom { .. })
+            || matches!(self.project_config.js_module_format, JsModuleFormat::Haste)
+        {
+            return get_normalization_fragment_filename(fragment_name);
+        }
+        assert!(
+            !fragment_source_location.is_generated(),
+            "Cannot resolve normalization import path for fragment '{}' from a generated source location",
+            fragment_name
+        );
+        let normalization_filename = format!(
+            "{}.graphql",
+            get_normalization_operation_name(fragment_name.0)
+        );
+        let artifact_path = self
+            .project_config
+            .artifact_path_for_definition(self.definition_source_location);
+        let norm_artifact_path = self
+            .project_config
+            .path_for_language_specific_artifact(fragment_source_location, normalization_filename);
+        self.project_config
+            .js_module_import_identifier(&artifact_path, &norm_artifact_path)
+    }
+
     fn build_module_import_selections(
         &mut self,
         module_metadata: &ModuleMetadata,
@@ -2614,11 +2679,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         .module_import_config
                         .dynamic_module_provider
                 {
+                    let resolved_component_module = self.resolve_module_import_name(
+                        module_metadata.module_name,
+                        module_metadata.module_source_location,
+                        dynamic_module_provider,
+                    );
                     module_import.push(ObjectEntry {
                         key: CODEGEN_CONSTANTS.component_module_provider,
                         value: Primitive::DynamicImport {
                             provider: dynamic_module_provider,
-                            module: module_metadata.module_name,
+                            module: resolved_component_module,
                         },
                     });
                 }
@@ -2642,18 +2712,28 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         Some(operation_module_provider) => operation_module_provider,
                         None => dynamic_module_provider,
                     };
+                    let resolved_component_module = self.resolve_module_import_name(
+                        module_metadata.module_name,
+                        module_metadata.module_source_location,
+                        dynamic_module_provider,
+                    );
+                    let resolved_operation_module = self.resolve_normalization_import(
+                        fragment_name,
+                        module_metadata.fragment_source_location.source_location(),
+                        operation_module_provider,
+                    );
                     module_import.push(ObjectEntry {
                         key: CODEGEN_CONSTANTS.component_module_provider,
                         value: Primitive::DynamicImport {
                             provider: dynamic_module_provider,
-                            module: module_metadata.module_name,
+                            module: resolved_component_module,
                         },
                     });
                     module_import.push(ObjectEntry {
                         key: CODEGEN_CONSTANTS.operation_module_provider,
                         value: Primitive::DynamicImport {
                             provider: operation_module_provider,
-                            module: get_normalization_fragment_filename(fragment_name),
+                            module: resolved_operation_module,
                         },
                     });
                 }
@@ -2863,6 +2943,32 @@ fn build_alias(alias: Option<StringKey>, name: StringKey) -> ObjectEntry {
     }
 }
 
+/// Collapse `.` and `..` segments in a path without touching the filesystem.
+/// Unlike `Path::canonicalize`, this works on paths that don't exist on disk
+/// and doesn't resolve symlinks.
+fn normalize_path(path: &Path) -> PathBuf {
+    let mut normalized = PathBuf::new();
+    for component in path.components() {
+        match component {
+            std::path::Component::ParentDir => {
+                // If the path is empty or already ends with `..`, we can't collapse
+                // further — accumulate another `..`. Otherwise pop the last segment.
+                match normalized.components().next_back() {
+                    Some(std::path::Component::ParentDir) | None => {
+                        normalized.push(component);
+                    }
+                    _ => {
+                        normalized.pop();
+                    }
+                }
+            }
+            std::path::Component::CurDir => {}
+            _ => normalized.push(component),
+        }
+    }
+    normalized
+}
+
 /// Computes the md5 hash of a string.
 pub fn md5(data: &str) -> String {
     let mut md5 = Md5::new();
@@ -2878,4 +2984,47 @@ struct ContextualMetadata {
     has_exec_time_resolvers_enabled_provider: bool,
     has_server_to_client_resolvers: bool,
     use_experimental_provider: Option<WithLocation<StringKey>>,
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::Path;
+
+    use super::normalize_path;
+
+    #[test]
+    fn normalize_path_simple_parent() {
+        // `src/foo/../bar` → `src/bar`
+        assert_eq!(
+            normalize_path(Path::new("src/foo/../bar")),
+            Path::new("src/bar")
+        );
+    }
+
+    #[test]
+    fn normalize_path_exceeds_root() {
+        // `src/foo/../../../../B`: four `..` against two normal segments yields `../../B`
+        assert_eq!(
+            normalize_path(Path::new("src/foo/../../../../B")),
+            Path::new("../../B"),
+        );
+    }
+
+    #[test]
+    fn normalize_path_consecutive_parent_dirs() {
+        // Accumulated `..` segments must not cancel each other out.
+        assert_eq!(
+            normalize_path(Path::new("../../foo")),
+            Path::new("../../foo")
+        );
+    }
+
+    #[test]
+    fn normalize_path_cur_dir_ignored() {
+        // `.` components are dropped.
+        assert_eq!(
+            normalize_path(Path::new("./src/./foo")),
+            Path::new("src/foo")
+        );
+    }
 }

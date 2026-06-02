@@ -73,6 +73,10 @@ fragment NameRendererFragment on Persona {
       #         "ClientUser_Fragment",
       #     ),
       #     fragment_source_location: client-3D-module-on-interface-parent-type.graphql:202:221,
+      #     module_source_location: Embedded {
+      #         path: "client-3D-module-on-interface-parent-type.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -96,6 +100,10 @@ fragment NameRendererFragment on Persona {
       #         "SpecialUser_Fragment",
       #     ),
       #     fragment_source_location: client-3D-module-on-interface-parent-type.graphql:281:301,
+      #     module_source_location: Embedded {
+      #         path: "client-3D-module-on-interface-parent-type.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

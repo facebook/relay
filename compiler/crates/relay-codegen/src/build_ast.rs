@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::Path;
 use std::path::PathBuf;
 
 use ::intern::Lookup;
@@ -2590,19 +2591,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             );
             let mut source_dir = PathBuf::from(module_source_location.path());
             source_dir.pop();
-            let joined = source_dir.join(PathBuf::from(module_name_str));
-            let mut module_path = PathBuf::new();
-            for component in joined.components() {
-                match component {
-                    std::path::Component::ParentDir => {
-                        if !module_path.pop() {
-                            module_path.push(component);
-                        }
-                    }
-                    std::path::Component::CurDir => {}
-                    _ => module_path.push(component),
-                }
-            }
+            let module_path =
+                normalize_path(&source_dir.join(PathBuf::from(module_name_str)));
 
             self.project_config.js_module_import_identifier(
                 &self
@@ -2952,6 +2942,25 @@ fn build_alias(alias: Option<StringKey>, name: StringKey) -> ObjectEntry {
         key: CODEGEN_CONSTANTS.alias,
         value: alias,
     }
+}
+
+/// Collapse `.` and `..` segments in a path without touching the filesystem.
+/// Unlike `Path::canonicalize`, this works on paths that don't exist on disk
+/// and doesn't resolve symlinks.
+fn normalize_path(path: &Path) -> PathBuf {
+    let mut normalized = PathBuf::new();
+    for component in path.components() {
+        match component {
+            std::path::Component::ParentDir => {
+                if !normalized.pop() {
+                    normalized.push(component);
+                }
+            }
+            std::path::Component::CurDir => {}
+            _ => normalized.push(component),
+        }
+    }
+    normalized
 }
 
 /// Computes the md5 hash of a string.

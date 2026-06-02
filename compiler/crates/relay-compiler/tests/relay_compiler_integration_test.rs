@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<16a740cf5f64d667fc8038ce8036bf16>>
+ * @generated SignedSource<<d50e7542590f5ccb148c85117fd40da3>>
  */
 
 mod relay_compiler_integration;
@@ -381,6 +381,13 @@ async fn module_directive_relative_path() {
     let input = include_str!("relay_compiler_integration/fixtures/module_directive_relative_path.input");
     let expected = include_str!("relay_compiler_integration/fixtures/module_directive_relative_path.expected");
     test_fixture(transform_fixture, file!(), "module_directive_relative_path.input", "relay_compiler_integration/fixtures/module_directive_relative_path.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn module_directive_relative_path_custom_output() {
+    let input = include_str!("relay_compiler_integration/fixtures/module_directive_relative_path_custom_output.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/module_directive_relative_path_custom_output.expected");
+    test_fixture(transform_fixture, file!(), "module_directive_relative_path_custom_output.input", "relay_compiler_integration/fixtures/module_directive_relative_path_custom_output.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -24,6 +24,7 @@ use common::Named;
 use common::NamedItem;
 use common::WithLocation;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
+use fnv::FnvHashMap;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -137,6 +138,8 @@ type ExistingRefetchOperations = StringKeyMap<WithLocation<FragmentDefinitionNam
 pub struct RefetchableFragment<'program, 'pc> {
     connection_constants: ConnectionConstants,
     existing_refetch_operations: ExistingRefetchOperations,
+    // O(1) operation-name lookup to avoid per-fragment linear scans.
+    existing_operations: FnvHashMap<OperationDefinitionName, &'program Arc<OperationDefinition>>,
     for_typegen: bool,
     infer_variables_visitor: InferVariablesVisitor<'program>,
     program: &'program Program,
@@ -149,9 +152,11 @@ impl<'program, 'pc> RefetchableFragment<'program, 'pc> {
         project_config: &'pc ProjectConfig,
         for_typegen: bool,
     ) -> Self {
+        let existing_operations = program.operations().map(|op| (op.name.item, op)).collect();
         RefetchableFragment {
             connection_constants: Default::default(),
             existing_refetch_operations: Default::default(),
+            existing_operations,
             for_typegen,
             infer_variables_visitor: InferVariablesVisitor::new(program),
             program,
@@ -308,8 +313,9 @@ impl<'program, 'pc> RefetchableFragment<'program, 'pc> {
 
         // check for conflict with operations
         if let Some(existing_query) = self
-            .program
-            .operation(refetchable_directive.query_name.item)
+            .existing_operations
+            .get(&refetchable_directive.query_name.item)
+            .copied()
         {
             return Err(vec![
                 Diagnostic::error(

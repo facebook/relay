@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0f319903f07b43ca9d1fd638aae3ef31>>
+ * @generated SignedSource<<c55efd4349809c348af8491a7766efed>>
  */
 
 mod skip_redundant_nodes;
@@ -38,6 +38,13 @@ async fn redundant_selection_in_inline_fragments() {
     let input = include_str!("skip_redundant_nodes/fixtures/redundant-selection-in-inline-fragments.graphql");
     let expected = include_str!("skip_redundant_nodes/fixtures/redundant-selection-in-inline-fragments.expected");
     test_fixture(transform_fixture, file!(), "redundant-selection-in-inline-fragments.graphql", "skip_redundant_nodes/fixtures/redundant-selection-in-inline-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn skip_many_duplicates_at_same_level() {
+    let input = include_str!("skip_redundant_nodes/fixtures/skip-many-duplicates-at-same-level.graphql");
+    let expected = include_str!("skip_redundant_nodes/fixtures/skip-many-duplicates-at-same-level.expected");
+    test_fixture(transform_fixture, file!(), "skip-many-duplicates-at-same-level.graphql", "skip_redundant_nodes/fixtures/skip-many-duplicates-at-same-level.expected", input, expected).await;
 }
 
 #[tokio::test]

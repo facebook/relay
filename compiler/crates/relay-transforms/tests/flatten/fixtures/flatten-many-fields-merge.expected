@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# Merging many selections of the same field from different inline fragments.
+fragment UserFragment on User {
+  ... on User {
+    name
+    firstName
+  }
+  ... on User {
+    name
+    lastName
+  }
+  ... on User {
+    name
+    emailAddresses
+  }
+}
+==================================== OUTPUT ===================================
+fragment UserFragment on User {
+  name
+  firstName
+  lastName
+  emailAddresses
+}

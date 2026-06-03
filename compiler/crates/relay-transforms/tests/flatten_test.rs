@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8a035f3972bb95c60f23754821230364>>
+ * @generated SignedSource<<d1294346c45e889a8ed49286779bfd0c>>
  */
 
 mod flatten;
@@ -17,6 +17,27 @@ async fn anonymous_inline_fragment_with_directives() {
     let input = include_str!("flatten/fixtures/anonymous-inline-fragment-with-directives.graphql");
     let expected = include_str!("flatten/fixtures/anonymous-inline-fragment-with-directives.expected");
     test_fixture(transform_fixture, file!(), "anonymous-inline-fragment-with-directives.graphql", "flatten/fixtures/anonymous-inline-fragment-with-directives.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn flatten_deep_nested_three_way_merge() {
+    let input = include_str!("flatten/fixtures/flatten-deep-nested-three-way-merge.graphql");
+    let expected = include_str!("flatten/fixtures/flatten-deep-nested-three-way-merge.expected");
+    test_fixture(transform_fixture, file!(), "flatten-deep-nested-three-way-merge.graphql", "flatten/fixtures/flatten-deep-nested-three-way-merge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn flatten_many_fields_merge() {
+    let input = include_str!("flatten/fixtures/flatten-many-fields-merge.graphql");
+    let expected = include_str!("flatten/fixtures/flatten-many-fields-merge.expected");
+    test_fixture(transform_fixture, file!(), "flatten-many-fields-merge.graphql", "flatten/fixtures/flatten-many-fields-merge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn flatten_merge_with_directives() {
+    let input = include_str!("flatten/fixtures/flatten-merge-with-directives.graphql");
+    let expected = include_str!("flatten/fixtures/flatten-merge-with-directives.expected");
+    test_fixture(transform_fixture, file!(), "flatten-merge-with-directives.graphql", "flatten/fixtures/flatten-merge-with-directives.expected", input, expected).await;
 }
 
 #[tokio::test]

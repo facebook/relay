@@ -1,0 +1,11 @@
+# Merging selections from inline fragments with different directives.
+fragment UserFragment on User {
+  ... @include(if: $cond) {
+    name
+    firstName
+  }
+  ... @skip(if: $cond) {
+    name
+    lastName
+  }
+}

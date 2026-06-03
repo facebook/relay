@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aa16eb83ad5b453d68a681a1c54cd784>>
+ * @generated SignedSource<<9e0dbe0630002235f8ee3a743905e23a>>
  */
 
 mod validate_selection_conflict;
@@ -17,6 +17,34 @@ async fn field_names_still_conflict_in_aliased_fragment() {
     let input = include_str!("validate_selection_conflict/fixtures/field_names_still_conflict_in_aliased_fragment.graphql");
     let expected = include_str!("validate_selection_conflict/fixtures/field_names_still_conflict_in_aliased_fragment.expected");
     test_fixture(transform_fixture, file!(), "field_names_still_conflict_in_aliased_fragment.graphql", "validate_selection_conflict/fixtures/field_names_still_conflict_in_aliased_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn linked_field_compatible_nested_subselections() {
+    let input = include_str!("validate_selection_conflict/fixtures/linked-field-compatible-nested-subselections.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/linked-field-compatible-nested-subselections.expected");
+    test_fixture(transform_fixture, file!(), "linked-field-compatible-nested-subselections.graphql", "validate_selection_conflict/fixtures/linked-field-compatible-nested-subselections.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn linked_field_deeply_nested_compatible() {
+    let input = include_str!("validate_selection_conflict/fixtures/linked-field-deeply-nested-compatible.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/linked-field-deeply-nested-compatible.expected");
+    test_fixture(transform_fixture, file!(), "linked-field-deeply-nested-compatible.graphql", "validate_selection_conflict/fixtures/linked-field-deeply-nested-compatible.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn linked_field_deeply_nested_conflict() {
+    let input = include_str!("validate_selection_conflict/fixtures/linked-field-deeply-nested-conflict.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/linked-field-deeply-nested-conflict.expected");
+    test_fixture(transform_fixture, file!(), "linked-field-deeply-nested-conflict.graphql", "validate_selection_conflict/fixtures/linked-field-deeply-nested-conflict.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn linked_field_nested_conflict_through_spreads() {
+    let input = include_str!("validate_selection_conflict/fixtures/linked-field-nested-conflict-through-spreads.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/linked-field-nested-conflict-through-spreads.expected");
+    test_fixture(transform_fixture, file!(), "linked-field-nested-conflict-through-spreads.graphql", "validate_selection_conflict/fixtures/linked-field-nested-conflict-through-spreads.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -94,6 +122,13 @@ async fn same_alias_under_duplicated_linked_field() {
     let input = include_str!("validate_selection_conflict/fixtures/same-alias-under-duplicated-linked-field.graphql");
     let expected = include_str!("validate_selection_conflict/fixtures/same-alias-under-duplicated-linked-field.expected");
     test_fixture(transform_fixture, file!(), "same-alias-under-duplicated-linked-field.graphql", "validate_selection_conflict/fixtures/same-alias-under-duplicated-linked-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn same_field_multiple_type_conditions_valid() {
+    let input = include_str!("validate_selection_conflict/fixtures/same-field-multiple-type-conditions-valid.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/same-field-multiple-type-conditions-valid.expected");
+    test_fixture(transform_fixture, file!(), "same-field-multiple-type-conditions-valid.graphql", "validate_selection_conflict/fixtures/same-field-multiple-type-conditions-valid.expected", input, expected).await;
 }
 
 #[tokio::test]

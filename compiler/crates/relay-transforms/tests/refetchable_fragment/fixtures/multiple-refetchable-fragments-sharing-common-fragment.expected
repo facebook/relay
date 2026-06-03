@@ -1,0 +1,106 @@
+==================================== INPUT ====================================
+# Multiple @refetchable fragments that share a common utility fragment.
+# Tests that the InferVariablesVisitor cache is reused across fragments.
+fragment RefetchableA on Node
+  @refetchable(queryName: "RefetchableAQuery") {
+  id
+  ... on User {
+    ...SharedFields
+  }
+}
+
+fragment RefetchableB on Node
+  @refetchable(queryName: "RefetchableBQuery") {
+  id
+  ... on User {
+    ...SharedFields
+  }
+}
+
+fragment SharedFields on User {
+  name
+  profilePicture {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+query RefetchableAQuery(
+  $id: ID!
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     FragmentDefinitionName(
+#         "RefetchableA",
+#     ),
+# )
+ {
+  node(id: $id) {
+    ...RefetchableA
+  }
+}
+
+query RefetchableBQuery(
+  $id: ID!
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     FragmentDefinitionName(
+#         "RefetchableB",
+#     ),
+# )
+ {
+  node(id: $id) {
+    ...RefetchableB
+  }
+}
+
+fragment RefetchableA on Node @refetchable(queryName: "RefetchableAQuery") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: OperationDefinitionName(
+#         "RefetchableAQuery",
+#     ),
+#     path: [
+#         "node",
+#     ],
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
+#     ),
+#     is_prefetchable_pagination: false,
+# }
+ {
+  id
+  ... on User {
+    ...SharedFields
+  }
+}
+
+fragment RefetchableB on Node @refetchable(queryName: "RefetchableBQuery") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: OperationDefinitionName(
+#         "RefetchableBQuery",
+#     ),
+#     path: [
+#         "node",
+#     ],
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
+#     ),
+#     is_prefetchable_pagination: false,
+# }
+ {
+  id
+  ... on User {
+    ...SharedFields
+  }
+}
+
+fragment SharedFields on User {
+  name
+  profilePicture {
+    uri
+  }
+}

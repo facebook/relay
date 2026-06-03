@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# Deeply nested linked fields with compatible subselections at every level.
+query TestQuery {
+  me {
+    author {
+      profile_picture {
+        uri
+      }
+    }
+  }
+  me {
+    author {
+      profile_picture {
+        width
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+OK

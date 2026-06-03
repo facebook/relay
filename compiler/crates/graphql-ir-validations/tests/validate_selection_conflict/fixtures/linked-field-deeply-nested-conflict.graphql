@@ -1,0 +1,18 @@
+# expected-to-throw
+# Deeply nested linked fields with a conflict in the leaf subselection.
+query TestQuery {
+  me {
+    author {
+      profile_picture {
+        same_alias: width
+      }
+    }
+  }
+  me {
+    author {
+      profile_picture {
+        same_alias: height
+      }
+    }
+  }
+}

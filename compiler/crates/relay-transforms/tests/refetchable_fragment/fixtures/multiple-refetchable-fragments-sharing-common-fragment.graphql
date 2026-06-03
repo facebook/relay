@@ -1,0 +1,24 @@
+# Multiple @refetchable fragments that share a common utility fragment.
+# Tests that the InferVariablesVisitor cache is reused across fragments.
+fragment RefetchableA on Node
+  @refetchable(queryName: "RefetchableAQuery") {
+  id
+  ... on User {
+    ...SharedFields
+  }
+}
+
+fragment RefetchableB on Node
+  @refetchable(queryName: "RefetchableBQuery") {
+  id
+  ... on User {
+    ...SharedFields
+  }
+}
+
+fragment SharedFields on User {
+  name
+  profilePicture {
+    uri
+  }
+}

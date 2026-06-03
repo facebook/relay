@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# Nested linked field conflict reached through fragment spreads.
+query TestQuery {
+  me {
+    ...F1
+    ...F2
+  }
+}
+
+fragment F1 on User {
+  profile_picture {
+    same_alias: width
+  }
+}
+
+fragment F2 on User {
+  profile_picture {
+    same_alias: height
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'width' and 'height'
+
+  linked-field-nested-conflict-through-spreads.graphql:12:17
+   11 │   profile_picture {
+   12 │     same_alias: width
+      │                 ^^^^^
+   13 │   }
+
+  ℹ︎ the other field
+
+  linked-field-nested-conflict-through-spreads.graphql:18:17
+   17 │   profile_picture {
+   18 │     same_alias: height
+      │                 ^^^^^^
+   19 │   }

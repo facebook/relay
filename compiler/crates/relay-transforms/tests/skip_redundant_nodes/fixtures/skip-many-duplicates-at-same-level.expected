@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# Multiple duplicate selections of the same fields at the same level.
+query skipManyDuplicatesAtSameLevelQuery {
+  me {
+    name
+    firstName
+    name
+    lastName
+    firstName
+    name
+  }
+}
+==================================== OUTPUT ===================================
+query skipManyDuplicatesAtSameLevelQuery {
+  me {
+    name
+    firstName
+    lastName
+  }
+}

@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# Tests that operations with nested abstract type conditions in
+# sub-selections are NOT skipped by the concrete-type pre-check.
+# The outer inline fragments are on concrete types (User, Page)
+# but the inner selections spread on an abstract type (Actor).
+query ConcreteOuterAbstractInner {
+  node(id: 1) {
+    ... on User {
+      id
+      name
+    }
+    ... on Page {
+      id
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+OK

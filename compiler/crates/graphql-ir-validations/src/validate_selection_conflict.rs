@@ -64,6 +64,18 @@ enum Field<'s> {
 
 type Fields<'s> = HashMap<StringKey, Vec<Field<'s>>, intern::BuildIdHasher<u32>>;
 
+/// Bundles the inputs `validate_field_pair` needs for one (existing, new) field
+/// comparison. Grouped to keep the function under clippy's argument-count limit
+/// and to make call sites read like a single logical "pair to validate".
+struct FieldPairCtx<'a, 's> {
+    existing_field: &'a Field<'s>,
+    field: &'a Field<'s>,
+    key: StringKey,
+    fields_mutually_exclusive: bool,
+    l_definition: &'a schema::definitions::Field,
+    r_definition: &'a schema::definitions::Field,
+}
+
 struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
     project_config: &'s ProjectConfig,
@@ -327,27 +339,19 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     /// errors from recursive sub-selection validation (propagated with `?`).
     fn validate_field_pair(
         &self,
-        existing_field: &Field<'s>,
-        field: &Field<'s>,
-        key: StringKey,
-        parent_fields_mutually_exclusive: bool,
+        pair: FieldPairCtx<'_, 's>,
         errors: &mut Vec<Diagnostic>,
     ) -> DiagnosticsResult<()> {
-        let l_definition = existing_field.get_field_definition(&self.program.schema);
-        let r_definition = field.get_field_definition(&self.program.schema);
-
-        let is_parent_fields_mutually_exclusive = || {
-            parent_fields_mutually_exclusive
-                || l_definition.parent_type != r_definition.parent_type
-                    && matches!(
-                        (l_definition.parent_type, r_definition.parent_type),
-                        (Some(Type::Object(_)), Some(Type::Object(_)))
-                    )
-        };
-
+        let FieldPairCtx {
+            existing_field,
+            field,
+            key,
+            fields_mutually_exclusive,
+            l_definition,
+            r_definition,
+        } = pair;
         match (existing_field, &field) {
             (Field::LinkedField(l), Field::LinkedField(r)) => {
-                let fields_mutually_exclusive = is_parent_fields_mutually_exclusive();
                 if !fields_mutually_exclusive
                     && let Err(err) = self.validate_same_field(
                         key,
@@ -386,7 +390,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 }
             }
             (Field::ScalarField(l), Field::ScalarField(r)) => {
-                if !is_parent_fields_mutually_exclusive() {
+                if !fields_mutually_exclusive {
                     if let Err(err) = self.validate_same_field(
                         key,
                         l_definition.name.item,
@@ -432,6 +436,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     ) -> Result<bool, Vec<Diagnostic>> {
         let mut errors = vec![];
         let addr1 = field.pointer_address();
+        let mut validated_mutually_exclusive_pair = false;
 
         for existing_field in existing {
             if field == existing_field {
@@ -453,13 +458,40 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 continue;
             }
 
+            let l_definition = existing_field.get_field_definition(&self.program.schema);
+            let r_definition = field.get_field_definition(&self.program.schema);
+
+            let fields_mutually_exclusive = parent_fields_mutually_exclusive
+                || l_definition.parent_type != r_definition.parent_type
+                    && matches!(
+                        (l_definition.parent_type, r_definition.parent_type),
+                        (Some(Type::Object(_)), Some(Type::Object(_)))
+                    );
+
+            if self.further_optimization
+                && fields_mutually_exclusive
+                && validated_mutually_exclusive_pair
+            {
+                self.verified_fields_pair
+                    .insert((addr1, addr2, parent_fields_mutually_exclusive));
+                continue;
+            }
+
             self.validate_field_pair(
-                existing_field,
-                field,
-                key,
-                parent_fields_mutually_exclusive,
+                FieldPairCtx {
+                    existing_field,
+                    field,
+                    key,
+                    fields_mutually_exclusive,
+                    l_definition,
+                    r_definition,
+                },
                 &mut errors,
             )?;
+
+            if fields_mutually_exclusive {
+                validated_mutually_exclusive_pair = true;
+            }
 
             if self.further_optimization {
                 self.verified_fields_pair

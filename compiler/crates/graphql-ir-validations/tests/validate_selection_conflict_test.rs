@@ -4,13 +4,41 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9e0dbe0630002235f8ee3a743905e23a>>
+ * @generated SignedSource<<5f4d5fc2789a565839ddba7e497e7939>>
  */
 
 mod validate_selection_conflict;
 
 use validate_selection_conflict::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn concrete_types_scalar_type_conflict_invalid() {
+    let input = include_str!("validate_selection_conflict/fixtures/concrete-types-scalar-type-conflict.invalid.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/concrete-types-scalar-type-conflict.invalid.expected");
+    test_fixture(transform_fixture, file!(), "concrete-types-scalar-type-conflict.invalid.graphql", "validate_selection_conflict/fixtures/concrete-types-scalar-type-conflict.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn concrete_types_with_nested_abstract() {
+    let input = include_str!("validate_selection_conflict/fixtures/concrete-types-with-nested-abstract.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/concrete-types-with-nested-abstract.expected");
+    test_fixture(transform_fixture, file!(), "concrete-types-with-nested-abstract.graphql", "validate_selection_conflict/fixtures/concrete-types-with-nested-abstract.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn cross_validation_nested_arg_conflict_invalid() {
+    let input = include_str!("validate_selection_conflict/fixtures/cross-validation-nested-arg-conflict.invalid.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/cross-validation-nested-arg-conflict.invalid.expected");
+    test_fixture(transform_fixture, file!(), "cross-validation-nested-arg-conflict.invalid.graphql", "validate_selection_conflict/fixtures/cross-validation-nested-arg-conflict.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn cross_validation_nested_linked_fields() {
+    let input = include_str!("validate_selection_conflict/fixtures/cross-validation-nested-linked-fields.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/cross-validation-nested-linked-fields.expected");
+    test_fixture(transform_fixture, file!(), "cross-validation-nested-linked-fields.graphql", "validate_selection_conflict/fixtures/cross-validation-nested-linked-fields.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn field_names_still_conflict_in_aliased_fragment() {
@@ -45,6 +73,13 @@ async fn linked_field_nested_conflict_through_spreads() {
     let input = include_str!("validate_selection_conflict/fixtures/linked-field-nested-conflict-through-spreads.graphql");
     let expected = include_str!("validate_selection_conflict/fixtures/linked-field-nested-conflict-through-spreads.expected");
     test_fixture(transform_fixture, file!(), "linked-field-nested-conflict-through-spreads.graphql", "validate_selection_conflict/fixtures/linked-field-nested-conflict-through-spreads.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn many_concrete_types_same_key() {
+    let input = include_str!("validate_selection_conflict/fixtures/many-concrete-types-same-key.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/many-concrete-types-same-key.expected");
+    test_fixture(transform_fixture, file!(), "many-concrete-types-same-key.graphql", "validate_selection_conflict/fixtures/many-concrete-types-same-key.expected", input, expected).await;
 }
 
 #[tokio::test]

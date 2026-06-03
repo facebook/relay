@@ -1,0 +1,24 @@
+# Tests that multiple mutually exclusive concrete types with the same
+# response key (id) and compatible types are validated correctly.
+# The optimization skips redundant type checks after the first
+# mutually exclusive pair via transitivity.
+query TestQuery {
+  node(id: 1) {
+    ... on User {
+      id
+      name
+    }
+    ... on Page {
+      id
+      name
+    }
+    ... on Comment {
+      id
+      name
+    }
+    ... on Feedback {
+      id
+      name
+    }
+  }
+}

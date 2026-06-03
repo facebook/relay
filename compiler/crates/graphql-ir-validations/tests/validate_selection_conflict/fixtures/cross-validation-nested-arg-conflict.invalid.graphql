@@ -1,0 +1,23 @@
+# expected-to-throw
+# Tests that cross-validation of linked fields on same concrete type
+# (non-mutually-exclusive) correctly detects argument conflicts at
+# nested levels. Both selections are on the same type (User), so
+# the sub-field argument difference is a real conflict.
+query CrossValidationNestedArgConflict {
+  me {
+    feedback {
+      author {
+        profilePicture(size: 100) {
+          uri
+        }
+      }
+    }
+    feedback {
+      author {
+        profilePicture(size: 200) {
+          uri
+        }
+      }
+    }
+  }
+}

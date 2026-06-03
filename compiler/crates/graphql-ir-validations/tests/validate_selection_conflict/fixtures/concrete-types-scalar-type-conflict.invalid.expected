@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# Tests that operations with only concrete type inline fragments
+# still correctly detect scalar type conflicts between ME fields.
+query ConcreteTypeScalarConflict {
+  pet {
+    ... on Cat {
+      name
+    }
+    ... on Dog {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+type Cat {
+  id: ID!
+  name: String
+}
+
+type Dog {
+  id: ID!
+  name: Int
+}
+
+union Pet = Cat | Dog
+
+extend type Query {
+  pet: Pet
+}
+==================================== ERROR ====================================
+✖︎ Field 'name' is ambiguous because it references fields with different types: 'name' with type 'String' and 'name' with type 'Int'
+
+  concrete-types-scalar-type-conflict.invalid.graphql:7:7
+    6 │     ... on Cat {
+    7 │       name
+      │       ^^^^
+    8 │     }
+
+  ℹ︎ the other field
+
+  concrete-types-scalar-type-conflict.invalid.graphql:10:7
+    9 │     ... on Dog {
+   10 │       name
+      │       ^^^^
+   11 │     }

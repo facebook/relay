@@ -1,0 +1,38 @@
+# Tests that deeply nested linked fields on mutually exclusive concrete types
+# are validated correctly via cross-validation (no false positives).
+# User and Page both have feedback: Feedback, and Feedback has author: User,
+# exercising multi-level recursive merge across concrete type boundaries.
+query CrossValidationNestedLinked {
+  node(id: 1) {
+    ... on User {
+      feedback {
+        author {
+          name
+          profilePicture {
+            uri
+          }
+        }
+      }
+    }
+    ... on Page {
+      feedback {
+        author {
+          name
+          profilePicture {
+            uri
+          }
+        }
+      }
+    }
+    ... on Comment {
+      feedback {
+        author {
+          name
+          profilePicture {
+            uri
+          }
+        }
+      }
+    }
+  }
+}

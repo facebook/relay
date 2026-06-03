@@ -268,25 +268,158 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         })
     }
 
-    fn validate_and_insert_field_selection(
+    /// Validates cross-compatibility between two Fields maps without mutating
+    /// either. Used when the merged result will be discarded, e.g. recursive
+    /// linked field sub-selection validation. Both maps are already
+    /// self-consistent, so we only need to check fields from `right` against
+    /// matching entries in `left`.
+    fn validate_fields_overlap(
         &self,
-        fields: &mut Fields<'s>,
-        field: &Field<'s>,
+        left: &Fields<'s>,
+        right: &Fields<'s>,
         parent_fields_mutually_exclusive: bool,
     ) -> DiagnosticsResult<()> {
-        let key = field.get_response_key(&self.program.schema);
-        if !fields.contains_key(&key) {
-            fields.entry(key).or_default().push(field.clone());
-            return Ok(());
-        }
+        validate_map(right.values().flatten(), |field| {
+            self.validate_field_overlap(left, field, parent_fields_mutually_exclusive)
+        })
+    }
 
+    fn ambiguous_field_type_error(
+        &self,
+        key: StringKey,
+        l_definition: &schema::definitions::Field,
+        r_definition: &schema::definitions::Field,
+        l_loc: Location,
+        r_loc: Location,
+    ) -> Diagnostic {
+        Diagnostic::error(
+            ValidationMessage::AmbiguousFieldType {
+                response_key: key,
+                l_name: l_definition.name.item,
+                r_name: r_definition.name.item,
+                l_type_string: self.program.schema.get_type_string(&l_definition.type_),
+                r_type_string: self.program.schema.get_type_string(&r_definition.type_),
+            },
+            l_loc,
+        )
+        .annotate("the other field", r_loc)
+    }
+
+    /// Validates a single (existing_field, field) pair for selection conflicts.
+    /// Pushes any validation errors into `errors`. Returns `Err` only for fatal
+    /// errors from recursive sub-selection validation (propagated with `?`).
+    fn validate_field_pair(
+        &self,
+        existing_field: &Field<'s>,
+        field: &Field<'s>,
+        key: StringKey,
+        parent_fields_mutually_exclusive: bool,
+        errors: &mut Vec<Diagnostic>,
+    ) -> DiagnosticsResult<()> {
+        let l_definition = existing_field.get_field_definition(&self.program.schema);
+        let r_definition = field.get_field_definition(&self.program.schema);
+
+        let is_parent_fields_mutually_exclusive = || {
+            parent_fields_mutually_exclusive
+                || l_definition.parent_type != r_definition.parent_type
+                    && matches!(
+                        (l_definition.parent_type, r_definition.parent_type),
+                        (Some(Type::Object(_)), Some(Type::Object(_)))
+                    )
+        };
+
+        match (existing_field, &field) {
+            (Field::LinkedField(l), Field::LinkedField(r)) => {
+                let fields_mutually_exclusive = is_parent_fields_mutually_exclusive();
+                if !fields_mutually_exclusive
+                    && let Err(err) = self.validate_same_field(
+                        key,
+                        l_definition.name.item,
+                        r_definition.name.item,
+                        *l,
+                        *r,
+                    )
+                {
+                    errors.push(err);
+                };
+                if !fields_mutually_exclusive
+                    && let Err(err) = self.validate_match_conflict(key, l, r)
+                {
+                    errors.push(err);
+                }
+                if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
+                    let l_fields = self.validate_linked_field_selections(l)?;
+                    let r_fields = self.validate_linked_field_selections(r)?;
+
+                    if let Err(errs) = self.validate_fields_overlap(
+                        &l_fields,
+                        &r_fields,
+                        fields_mutually_exclusive,
+                    ) {
+                        errors.extend(errs);
+                    }
+                } else {
+                    errors.push(self.ambiguous_field_type_error(
+                        key,
+                        l_definition,
+                        r_definition,
+                        l.definition.location,
+                        r.definition.location,
+                    ));
+                }
+            }
+            (Field::ScalarField(l), Field::ScalarField(r)) => {
+                if !is_parent_fields_mutually_exclusive() {
+                    if let Err(err) = self.validate_same_field(
+                        key,
+                        l_definition.name.item,
+                        r_definition.name.item,
+                        *l,
+                        *r,
+                    ) {
+                        errors.push(err);
+                    };
+                } else if l_definition.type_ != r_definition.type_ {
+                    errors.push(self.ambiguous_field_type_error(
+                        key,
+                        l_definition,
+                        r_definition,
+                        l.definition.location,
+                        r.definition.location,
+                    ));
+                }
+            }
+            (existing_field, _) => {
+                errors.push(self.ambiguous_field_type_error(
+                    key,
+                    l_definition,
+                    r_definition,
+                    existing_field.loc(),
+                    field.loc(),
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Validates a field against all existing fields under its response key.
+    /// Returns `Ok(true)` if an exact match was found (field already exists),
+    /// `Ok(false)` if all pairs validated successfully, or `Err` on validation
+    /// errors.
+    fn validate_field_in_set(
+        &self,
+        existing: &[Field<'s>],
+        field: &Field<'s>,
+        key: StringKey,
+        parent_fields_mutually_exclusive: bool,
+    ) -> Result<bool, Vec<Diagnostic>> {
         let mut errors = vec![];
         let addr1 = field.pointer_address();
 
-        for existing_field in fields.get(&key).unwrap() {
+        for existing_field in existing {
             if field == existing_field {
                 return if errors.is_empty() {
-                    Ok(())
+                    Ok(true)
                 } else {
                     Err(errors)
                 };
@@ -303,139 +436,68 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 continue;
             }
 
-            let l_definition = existing_field.get_field_definition(&self.program.schema);
-            let r_definition = field.get_field_definition(&self.program.schema);
+            self.validate_field_pair(
+                existing_field,
+                field,
+                key,
+                parent_fields_mutually_exclusive,
+                &mut errors,
+            )?;
 
-            let is_parent_fields_mutually_exclusive = || {
-                parent_fields_mutually_exclusive
-                    || l_definition.parent_type != r_definition.parent_type
-                        && matches!(
-                            (l_definition.parent_type, r_definition.parent_type),
-                            (Some(Type::Object(_)), Some(Type::Object(_)))
-                        )
-            };
-
-            match (existing_field, &field) {
-                (Field::LinkedField(l), Field::LinkedField(r)) => {
-                    let fields_mutually_exclusive = is_parent_fields_mutually_exclusive();
-                    if !fields_mutually_exclusive
-                        && let Err(err) = self.validate_same_field(
-                            key,
-                            l_definition.name.item,
-                            r_definition.name.item,
-                            *l,
-                            *r,
-                        )
-                    {
-                        errors.push(err);
-                    };
-                    if !fields_mutually_exclusive
-                        && let Err(err) = self.validate_match_conflict(key, l, r)
-                    {
-                        errors.push(err);
-                    }
-                    if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
-                        let mut l_fields = self.validate_linked_field_selections(l)?;
-                        let r_fields = self.validate_linked_field_selections(r)?;
-
-                        if let Err(errs) = self.validate_and_merge_fields(
-                            Arc::make_mut(&mut l_fields),
-                            &r_fields,
-                            fields_mutually_exclusive,
-                        ) {
-                            errors.extend(errs);
-                        }
-                    } else {
-                        errors.push(
-                            Diagnostic::error(
-                                ValidationMessage::AmbiguousFieldType {
-                                    response_key: key,
-                                    l_name: l_definition.name.item,
-                                    r_name: r_definition.name.item,
-                                    l_type_string: self
-                                        .program
-                                        .schema
-                                        .get_type_string(&l_definition.type_),
-                                    r_type_string: self
-                                        .program
-                                        .schema
-                                        .get_type_string(&r_definition.type_),
-                                },
-                                l.definition.location,
-                            )
-                            .annotate("the other field", r.definition.location),
-                        );
-                    }
-                }
-                (Field::ScalarField(l), Field::ScalarField(r)) => {
-                    if !is_parent_fields_mutually_exclusive() {
-                        if let Err(err) = self.validate_same_field(
-                            key,
-                            l_definition.name.item,
-                            r_definition.name.item,
-                            *l,
-                            *r,
-                        ) {
-                            errors.push(err);
-                        };
-                    } else if l_definition.type_ != r_definition.type_ {
-                        errors.push(
-                            Diagnostic::error(
-                                ValidationMessage::AmbiguousFieldType {
-                                    response_key: key,
-                                    l_name: l_definition.name.item,
-                                    r_name: r_definition.name.item,
-                                    l_type_string: self
-                                        .program
-                                        .schema
-                                        .get_type_string(&l_definition.type_),
-                                    r_type_string: self
-                                        .program
-                                        .schema
-                                        .get_type_string(&r_definition.type_),
-                                },
-                                l.definition.location,
-                            )
-                            .annotate("the other field", r.definition.location),
-                        );
-                    }
-                }
-                (existing_field, _) => {
-                    errors.push(
-                        Diagnostic::error(
-                            ValidationMessage::AmbiguousFieldType {
-                                response_key: key,
-                                l_name: l_definition.name.item,
-                                r_name: r_definition.name.item,
-                                l_type_string: self
-                                    .program
-                                    .schema
-                                    .get_type_string(&l_definition.type_),
-                                r_type_string: self
-                                    .program
-                                    .schema
-                                    .get_type_string(&r_definition.type_),
-                            },
-                            existing_field.loc(),
-                        )
-                        .annotate("the other field", field.loc()),
-                    );
-                }
-            }
-
-            // Save the verified pair into cache. The same pair of fields can appear under different parent
-            // fields, and the validation rule differs according to `parent_fields_mutually_exclusive`.
             if self.further_optimization {
                 self.verified_fields_pair
                     .insert((addr1, addr2, parent_fields_mutually_exclusive));
             }
         }
         if errors.is_empty() {
-            fields.entry(key).or_default().push(field.clone());
-            Ok(())
+            Ok(false)
         } else {
             Err(errors)
         }
+    }
+
+    /// Like `validate_and_insert_field_selection` but read-only: validates a
+    /// field against existing fields under the same response key without
+    /// inserting it. For linked field pairs, recurses via
+    /// `validate_fields_overlap` to avoid `Arc::make_mut` clones.
+    fn validate_field_overlap(
+        &self,
+        fields: &Fields<'s>,
+        field: &Field<'s>,
+        parent_fields_mutually_exclusive: bool,
+    ) -> DiagnosticsResult<()> {
+        let key = field.get_response_key(&self.program.schema);
+        let existing = match fields.get(&key) {
+            Some(existing) => existing,
+            None => return Ok(()),
+        };
+        self.validate_field_in_set(existing, field, key, parent_fields_mutually_exclusive)?;
+        Ok(())
+    }
+
+    fn validate_and_insert_field_selection(
+        &self,
+        fields: &mut Fields<'s>,
+        field: &Field<'s>,
+        parent_fields_mutually_exclusive: bool,
+    ) -> DiagnosticsResult<()> {
+        let key = field.get_response_key(&self.program.schema);
+        if !fields.contains_key(&key) {
+            fields.entry(key).or_default().push(field.clone());
+            return Ok(());
+        }
+
+        let already_exists = self.validate_field_in_set(
+            fields.get(&key).unwrap(),
+            field,
+            key,
+            parent_fields_mutually_exclusive,
+        )?;
+
+        if !already_exists {
+            fields.entry(key).or_default().push(field.clone());
+        }
+        Ok(())
     }
 
     fn validate_same_field<F: IRField>(

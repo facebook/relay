@@ -13,10 +13,13 @@ use common::SourceLocationKey;
 use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
-use graphql_text_printer::OperationPrinter;
+use graphql_ir::OperationDefinitionName;
 use graphql_text_printer::PrinterOptions;
+use graphql_text_printer::compute_operation_text;
+use graphql_text_printer::precompute_fragment_texts;
 use intern::Lookup;
 use intern::string_key::StringKey;
+use rayon::prelude::*;
 use relay_codegen::QueryID;
 use relay_config::ResolversSchemaModuleConfig;
 use relay_transforms::ArtifactSourceKeyData;
@@ -56,7 +59,27 @@ pub fn generate_artifacts(
             .is_fully_enabled(),
         ..Default::default()
     };
-    let mut operation_printer = OperationPrinter::new(&programs.operation_text, printer_options);
+    // Pre-compute all fragment texts into a read-only map, then compute all
+    // operation texts in parallel. This replaces the sequential mutable
+    // OperationPrinter with thread-safe parallel computation.
+    let fragment_texts = precompute_fragment_texts(&programs.operation_text, printer_options);
+    let mut op_texts: FnvHashMap<OperationDefinitionName, String> = programs
+        .operation_text
+        .operations()
+        .collect::<Vec<_>>()
+        .into_par_iter()
+        .map(|op| {
+            (
+                op.name.item,
+                compute_operation_text(
+                    op,
+                    &programs.operation_text,
+                    &fragment_texts,
+                    printer_options,
+                ),
+            )
+        })
+        .collect();
     group_operations(programs).into_values().map(|operations| {
             if let Some(normalization) = operations.normalization {
                 // We have a normalization AST... so we'll move forward with that
@@ -99,7 +122,7 @@ pub fn generate_artifacts(
                     let source_hash = source_hashes.get(&source_name.into()).cloned().unwrap();
 
                     return generate_normalization_artifact(
-                        &mut operation_printer,
+                        &mut op_texts,
                         ArtifactSourceKey::ExecutableDefinition(source_name.into()),
                         project_config,
                         &operations,
@@ -111,7 +134,7 @@ pub fn generate_artifacts(
                     let source_name = client_edges_directive.source_name.item;
                     let source_hash = source_hashes.get(&source_name).cloned().unwrap();
                     return generate_normalization_artifact(
-                        &mut operation_printer,
+                        &mut op_texts,
                         ArtifactSourceKey::ExecutableDefinition(source_name),
                         project_config,
                         &operations,
@@ -123,7 +146,7 @@ pub fn generate_artifacts(
                         .cloned()
                         .unwrap();
                     return generate_normalization_artifact(
-                        &mut operation_printer,
+                        &mut op_texts,
                         ArtifactSourceKey::ExecutableDefinition(normalization.name.item.into()),
                         project_config,
                         &operations,
@@ -200,7 +223,7 @@ pub fn generate_artifacts(
 }
 
 fn generate_normalization_artifact(
-    operation_printer: &mut OperationPrinter<'_>,
+    op_texts: &mut FnvHashMap<OperationDefinitionName, String>,
     artifact_source: ArtifactSourceKey,
     project_config: &ProjectConfig,
     operations: &OperationGroup<'_>,
@@ -208,7 +231,7 @@ fn generate_normalization_artifact(
 ) -> Artifact {
     let text = operations
         .operation_text
-        .map(|operation| operation_printer.print(operation));
+        .map(|operation| op_texts.remove(&operation.name.item).unwrap());
 
     let normalization = operations
         .normalization

@@ -16,6 +16,9 @@ use common::DiagnosticsResult;
 use common::Location;
 use common::NamedItem;
 use common::PointerAddress;
+#[cfg(not(target_arch = "wasm32"))]
+use common::sync::ParallelIterator;
+use common::sync::par_iter;
 use dashmap::DashMap;
 use dashmap::DashSet;
 use errors::par_try_map;
@@ -131,21 +134,35 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
 
         let mut all_errors = vec![];
         let dummy_hashset = HashSet::new();
-        while let Some(visiting) = unclaimed_fragment_queue.pop_front() {
-            if let Err(errors) = self.validate_and_collect_fragment(
-                program
-                    .fragment(visiting)
-                    .expect("fragment must have been registered"),
-            ) {
-                all_errors.extend(errors);
-            }
+        // Process the topology-ordered fragment queue one BFS level at a time.
+        // Within a level, every fragment has all its dependencies validated and
+        // cached (in `fragment_cache`, a DashMap), so the fragments at this
+        // level are independent of each other and can validate in parallel.
+        // Dependency-graph maintenance (queue updates) stays sequential — it's
+        // cheap and avoids needing concurrent `dag_spreading`.
+        while !unclaimed_fragment_queue.is_empty() {
+            let level: Vec<FragmentDefinitionName> = unclaimed_fragment_queue.drain(..).collect();
+            let level_errors: Vec<Diagnostic> = par_iter(&level)
+                .filter_map(|visiting| {
+                    self.validate_and_collect_fragment(
+                        program
+                            .fragment(*visiting)
+                            .expect("fragment must have been registered"),
+                    )
+                    .err()
+                })
+                .flatten()
+                .collect();
+            all_errors.extend(level_errors);
 
-            for used_by in dag_used_by.get(&visiting).unwrap_or(&dummy_hashset) {
-                // fragment "used_by" now can assume "...now" cached.
-                let entries = dag_spreading.entry(*used_by).or_default();
-                entries.remove(&visiting);
-                if entries.is_empty() {
-                    unclaimed_fragment_queue.push_back(*used_by);
+            for visiting in level {
+                for used_by in dag_used_by.get(&visiting).unwrap_or(&dummy_hashset) {
+                    // fragment "used_by" now can assume "...now" cached.
+                    let entries = dag_spreading.entry(*used_by).or_default();
+                    entries.remove(&visiting);
+                    if entries.is_empty() {
+                        unclaimed_fragment_queue.push_back(*used_by);
+                    }
                 }
             }
         }

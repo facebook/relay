@@ -33,6 +33,7 @@ use graphql_ir::node_identifier::LocationAgnosticBehavior;
 use intern::Lookup;
 use intern::string_key::StringKey;
 use relay_config::ProjectConfig;
+use rustc_hash::FxBuildHasher;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
@@ -64,9 +65,9 @@ struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
     project_config: &'s ProjectConfig,
     fragment_cache: DashMap<StringKey, Arc<Fields<'s>>, intern::BuildIdHasher<u32>>,
-    fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
+    fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>, FxBuildHasher>,
     further_optimization: bool,
-    verified_fields_pair: DashSet<(PointerAddress, PointerAddress, bool)>,
+    verified_fields_pair: DashSet<(PointerAddress, PointerAddress, bool), FxBuildHasher>,
     _behavior: PhantomData<TBehavior>,
 }
 
@@ -80,9 +81,9 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             program,
             project_config,
             fragment_cache: Default::default(),
-            fields_cache: Default::default(),
+            fields_cache: DashMap::with_hasher(FxBuildHasher),
             further_optimization,
-            verified_fields_pair: Default::default(),
+            verified_fields_pair: DashSet::with_hasher(FxBuildHasher),
             _behavior: PhantomData::<B>,
         }
     }

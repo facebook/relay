@@ -1,0 +1,107 @@
+==================================== INPUT ====================================
+query TestQuery @exec_time_resolvers {
+  me {
+    best_friend @waterfall {
+      name
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+fragment RefetchableClientEdgeQuery_TestQuery_me__best_friend on User @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-to-server-with-exec-time-resolvers.graphql:6:15,
+#         item: OperationDefinitionName(
+#             OperationDefinitionName(
+#                 "TestQuery",
+#             ),
+#         ),
+#     },
+# }
+ @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: OperationDefinitionName(
+#         "ClientEdgeQuery_TestQuery_me__best_friend",
+#     ),
+#     path: [
+#         "node",
+#     ],
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
+#     ),
+#     is_prefetchable_pagination: false,
+# }
+ {
+  name
+  id
+}
+
+query ClientEdgeQuery_TestQuery_me__best_friend(
+  $id: ID!
+) @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-to-server-with-exec-time-resolvers.graphql:6:15,
+#         item: OperationDefinitionName(
+#             OperationDefinitionName(
+#                 "TestQuery",
+#             ),
+#         ),
+#     },
+# }
+ {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_TestQuery_me__best_friend
+  }
+}
+
+query TestQuery @exec_time_resolvers {
+  me {
+    ... @__ClientEdgeMetadataDirective
+    # ServerObject {
+    #     query_name: OperationDefinitionName(
+    #         "ClientEdgeQuery_TestQuery_me__best_friend",
+    #     ),
+    #     unique_id: 0,
+    # }
+     {
+      ...BestFriendResolverFragment_name @__RelayResolverMetadata
+      # RelayResolverMetadata {
+      #     field_id: FieldID(530),
+      #     import_path: "BestFriendResolver",
+      #     import_name: None,
+      #     field_alias: None,
+      #     field_path: "me.best_friend",
+      #     field_arguments: [],
+      #     fragment_arguments: [],
+      #     live: false,
+      #     output_type_info: EdgeTo,
+      #     fragment_data_injection_mode: None,
+      #     type_confirmed: false,
+      #     resolver_type: ResolverModule,
+      #     return_fragment: None,
+      # }
+       @waterfall
+      best_friend @waterfall {
+        name
+      }
+    }
+  }
+}

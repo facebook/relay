@@ -128,11 +128,6 @@ pub enum ValidationMessage {
     ClientEdgeUnsupportedDirective { directive_name: DirectiveName },
 
     #[error(
-        "Client to server edges are not supported in exec time resolvers. Please consider disable exec time resolver on the query for now, or not using client to server edges."
-    )]
-    ClientEdgeToServerWithExecTimeResolvers,
-
-    #[error(
         "Server-to-client resolver @rootFragment `{fragment_name}` in exec time resolvers may only select `__typename` and/or `id`. Found disallowed selection: {field_name}. S2C resolvers must use identity-only @rootFragment."
     )]
     S2CRootFragmentInvalidSelection {

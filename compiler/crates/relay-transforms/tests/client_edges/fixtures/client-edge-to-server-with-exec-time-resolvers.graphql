@@ -1,18 +1,8 @@
-#expected-to-throw
 query TestQuery @exec_time_resolvers {
   me {
-    ...UserFragment
-  }
-}
-
-fragment UserFragment on User {
-  name
-  ...NestedFragment
-}
-
-fragment NestedFragment on User {
-  best_friend @waterfall {
-    name
+    best_friend @waterfall {
+      name
+    }
   }
 }
 

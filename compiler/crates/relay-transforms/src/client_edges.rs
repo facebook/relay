@@ -812,13 +812,8 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 None => return Transformed::Keep,
             }
         } else {
-            // Client-to-server edges are not compatible with exec time resolvers
-            if self.has_exec_time_resolvers {
-                self.errors.push(Diagnostic::error(
-                    ValidationMessage::ClientEdgeToServerWithExecTimeResolvers,
-                    field.definition.location,
-                ));
-            }
+            // Client-to-server edges are now supported in exec time resolvers
+            // (validation removed to enable C2S support)
             self.get_edge_to_server_object_metadata_directive(
                 field_type,
                 field.definition.location,

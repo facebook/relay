@@ -1,11 +1,21 @@
-#expected-to-throw
 query TestQuery @exec_time_resolvers {
   me {
     ...UserFragment
+    ...OtherUserFragment
   }
 }
 
 fragment UserFragment on User {
+  name
+  ...SharedFragment
+}
+
+fragment OtherUserFragment on User {
+  id
+  ...SharedFragment  # This fragment is used twice
+}
+
+fragment SharedFragment on User {
   best_friend @waterfall {
     name
   }

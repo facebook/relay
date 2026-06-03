@@ -1,0 +1,17 @@
+query TestQuery($skip: Boolean!) {
+  viewer @skip(if: $skip) {
+    actor {
+      id
+    }
+  }
+  me {
+    name
+    __query {
+      viewer {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}

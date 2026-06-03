@@ -120,6 +120,13 @@ impl Schema for SDLSchema {
         }
     }
 
+    fn query_selection_field(&self) -> FieldID {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.query_selection_field(),
+            SDLSchema::InMemory(schema) => schema.query_selection_field(),
+        }
+    }
+
     fn get_type(&self, type_name: StringKey) -> Option<Type> {
         match self {
             SDLSchema::FlatBuffer(schema) => schema.get_type(type_name),

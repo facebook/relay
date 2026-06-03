@@ -1,0 +1,18 @@
+# enable_query_root_selection
+
+query querySelectionHoistQuery {
+  me {
+    ...querySelectionHoistFragment
+  }
+}
+
+fragment querySelectionHoistFragment on User {
+  name
+  __query {
+    viewer {
+      actor {
+        name
+      }
+    }
+  }
+}

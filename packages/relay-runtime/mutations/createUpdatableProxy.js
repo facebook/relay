@@ -186,6 +186,7 @@ function updateProxyFromSelections<TData>(
       case 'Stream':
       case 'RelayResolver':
       case 'RelayLiveResolver':
+      case 'QueryRootSelection':
         // These types of reader nodes are not currently handled.
         throw new Error(
           'Encountered an unexpected ReaderSelection variant in RelayRecordSourceProxy. This indicates a bug in Relay.',

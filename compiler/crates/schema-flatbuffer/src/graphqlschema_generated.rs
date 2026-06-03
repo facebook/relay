@@ -1955,11 +1955,9 @@ impl<'a> Argument<'a> {
         // Created from valid Table for this object
         // which contains a valid value in this slot
         unsafe {
-            self._tab
-                .get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(
-                    Argument::VT_DIRECTIVES,
-                    None,
-                )
+            self._tab.get::<flatbuffers::ForwardsUOffset<
+                flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>,
+            >>(Argument::VT_DIRECTIVES, None)
         }
     }
 }

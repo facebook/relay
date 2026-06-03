@@ -1,0 +1,23 @@
+# enable_query_root_selection
+
+query querySelectionHoistDuplicateQuery {
+  viewer {
+    actor {
+      id
+    }
+  }
+  me {
+    ...querySelectionHoistDuplicateFragment
+  }
+}
+
+fragment querySelectionHoistDuplicateFragment on User {
+  name
+  __query {
+    viewer {
+      actor {
+        name
+      }
+    }
+  }
+}

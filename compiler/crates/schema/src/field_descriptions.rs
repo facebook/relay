@@ -13,4 +13,6 @@ lazy_static! {
     pub static ref CLIENT_ID_DESCRIPTION: StringKey = "Relay's cache key for this object.".intern();
     pub static ref TYPENAME_DESCRIPTION: StringKey =
         "This object's GraphQL type. Provided by GraphQL type name introspection.".intern();
+    pub static ref QUERY_SELECTION_DESCRIPTION: StringKey =
+        "Relay extension: select fields from the query root within any fragment. Selections inside `__query { ... }` are hoisted to the query root at compile time, letting a fragment declare its dependency on root-level data without threading it through every parent component. Access the data via `data.__query`.".intern();
 }

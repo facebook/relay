@@ -1,0 +1,210 @@
+==================================== INPUT ====================================
+# enable_query_root_selection
+
+query querySelectionHoistQuery {
+  me {
+    ...querySelectionHoistFragment
+  }
+}
+
+fragment querySelectionHoistFragment on User {
+  name
+  __query {
+    viewer {
+      actor {
+        name
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "querySelectionHoistQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "querySelectionHoistFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "querySelectionHoistQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "eca8fbfcdf2d379ed4581b426b9283c1",
+    "id": null,
+    "metadata": {},
+    "name": "querySelectionHoistQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query querySelectionHoistQuery {
+  me {
+    ...querySelectionHoistFragment
+    id
+  }
+  viewer {
+    actor {
+      __typename
+      name
+      id
+    }
+  }
+}
+
+fragment querySelectionHoistFragment on User {
+  name
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "querySelectionHoistFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "QueryRootSelection",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "Viewer",
+              "kind": "LinkedField",
+              "name": "viewer",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": null,
+                  "kind": "LinkedField",
+                  "name": "actor",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

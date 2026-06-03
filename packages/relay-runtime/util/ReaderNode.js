@@ -143,6 +143,11 @@ export type ReaderInlineFragment = {
   readonly abstractKey?: ?string,
 };
 
+export type ReaderQueryRootSelection = {
+  +kind: 'QueryRootSelection',
+  +selections: ReadonlyArray<ReaderSelection>,
+};
+
 export type ReaderAliasedInlineFragmentSpread = {
   readonly kind: 'AliasedInlineFragmentSpread',
   readonly name: string,
@@ -339,7 +344,8 @@ export type ReaderSelection =
   | ReaderStream
   | ReaderCatchField
   | ReaderRequiredField
-  | ReaderRelayResolver;
+  | ReaderRelayResolver
+  | ReaderQueryRootSelection;
 
 export type ReaderVariableArgument = {
   readonly kind: 'Variable',

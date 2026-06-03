@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+query TestQuery($a: Boolean!, $b: Boolean!, $c: Boolean!) {
+  me {
+    ... @include(if: $a) {
+      ... @skip(if: $b) {
+        __query @include(if: $c) {
+          viewer {
+            actor {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $a: Boolean!
+  $b: Boolean!
+  $c: Boolean!
+) {
+  ... @skip(if: $b) @include(if: $a) {
+    viewer @include(if: $c) {
+      actor {
+        name
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+query TestQuery($showActor: Boolean!) {
+  me {
+    name
+    __query {
+      viewer {
+        actor @include(if: $showActor) {
+          name
+        }
+      }
+    }
+  }
+}

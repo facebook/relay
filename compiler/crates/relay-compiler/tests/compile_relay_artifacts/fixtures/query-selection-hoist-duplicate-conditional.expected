@@ -1,0 +1,271 @@
+==================================== INPUT ====================================
+# enable_query_root_selection
+
+query querySelectionHoistDuplicateConditionalQuery($skip: Boolean!) {
+  viewer @skip(if: $skip) {
+    actor {
+      id
+    }
+  }
+  me {
+    ...querySelectionHoistDuplicateConditionalFragment
+  }
+}
+
+fragment querySelectionHoistDuplicateConditionalFragment on User {
+  name
+  __query {
+    viewer {
+      actor {
+        name
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "skip"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "querySelectionHoistDuplicateConditionalQuery",
+    "selections": [
+      {
+        "condition": "skip",
+        "kind": "Condition",
+        "passingValue": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Viewer",
+            "kind": "LinkedField",
+            "name": "viewer",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "actor",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "id",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "querySelectionHoistDuplicateConditionalFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "skip"
+      }
+    ],
+    "kind": "Operation",
+    "name": "querySelectionHoistDuplicateConditionalQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "d15c7b1241ce88dbd3ad72631960a1c7",
+    "id": null,
+    "metadata": {},
+    "name": "querySelectionHoistDuplicateConditionalQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query querySelectionHoistDuplicateConditionalQuery(
+  $skip: Boolean!
+) {
+  viewer @skip(if: $skip) {
+    actor {
+      __typename
+      id
+    }
+  }
+  me {
+    ...querySelectionHoistDuplicateConditionalFragment
+    id
+  }
+  viewer {
+    actor {
+      __typename
+      name
+      id
+    }
+  }
+}
+
+fragment querySelectionHoistDuplicateConditionalFragment on User {
+  name
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "querySelectionHoistDuplicateConditionalFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "QueryRootSelection",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "Viewer",
+              "kind": "LinkedField",
+              "name": "viewer",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": null,
+                  "kind": "LinkedField",
+                  "name": "actor",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

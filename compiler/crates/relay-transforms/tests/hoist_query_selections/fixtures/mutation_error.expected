@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+# expected-to-throw
+mutation TestMutation($input: CommentCreateInput!) {
+  commentCreate(input: $input) {
+    __query {
+      viewer {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ `__query` is not allowed in mutation operations. `__query` can only be used in queries.
+
+  mutation_error.graphql:2:10
+    1 │ # expected-to-throw
+    2 │ mutation TestMutation($input: CommentCreateInput!) {
+      │          ^^^^^^^^^^^^
+    3 │   commentCreate(input: $input) {

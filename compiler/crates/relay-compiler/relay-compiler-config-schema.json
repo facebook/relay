@@ -672,6 +672,11 @@
           "type": "boolean",
           "default": false
         },
+        "enable_query_root_selection": {
+          "description": "Enable the `__query` selection syntax for hoisting selections to the\nquery root. When enabled, any selection set can include `__query { ... }`\nto select fields from the query root type.",
+          "type": "boolean",
+          "default": false
+        },
         "enable_relay_resolver_mutations": {
           "description": "Allow relay resolvers to extend the Mutation type",
           "type": "boolean",
@@ -972,6 +977,7 @@
             "enable_3d_branch_arg_generation": false,
             "enable_exec_time_resolvers_directive": false,
             "enable_fragment_argument_transform": false,
+            "enable_query_root_selection": false,
             "enable_relay_resolver_mutations": false,
             "enable_resolver_normalization_ast": false,
             "enable_shadow_resolvers": {

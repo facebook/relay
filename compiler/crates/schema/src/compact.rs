@@ -129,7 +129,7 @@ fn collect_strings(schema: &InMemorySchema) -> StringCollector {
     }
 
     let fields: Vec<&Field> = schema.get_fields().collect();
-    let regular_field_count = fields.len().saturating_sub(5);
+    let regular_field_count = fields.len().saturating_sub(6);
     for field in &fields[..regular_field_count] {
         c.add(field.name.item);
         c.add_opt(field.description);
@@ -974,7 +974,7 @@ pub fn serialize_parallel(schema: &InMemorySchema) -> Vec<u8> {
 
     // Fields — large, indexed for parallel decoding
     let fields: Vec<&Field> = schema.get_fields().collect();
-    let regular_field_count = fields.len().saturating_sub(5);
+    let regular_field_count = fields.len().saturating_sub(6);
     write_indexed_section(
         &mut out,
         &fields[..regular_field_count],

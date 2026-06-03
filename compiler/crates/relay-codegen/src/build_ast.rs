@@ -61,6 +61,7 @@ use relay_transforms::INTERNAL_METADATA_DIRECTIVE;
 use relay_transforms::InlineDirectiveMetadata;
 use relay_transforms::ModuleMetadata;
 use relay_transforms::NoInlineFragmentSpreadMetadata;
+use relay_transforms::QUERY_ROOT_SELECTION_DIRECTIVE_NAME;
 use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 use relay_transforms::RefetchableMetadata;
 use relay_transforms::RelayDirective;
@@ -2225,6 +2226,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             }
                         }
                     }
+                } else if inline_frag
+                    .directives
+                    .iter()
+                    .any(|d| d.name.item == *QUERY_ROOT_SELECTION_DIRECTIVE_NAME)
+                {
+                    let selections = self.build_selections(context, inline_frag.selections.iter());
+                    Primitive::Key(self.object(object! {
+                        kind: Primitive::String(CODEGEN_CONSTANTS.query_root_selection),
+                        selections: selections,
+                    }))
                 } else if
                 // TODO(T63388023): Use typed custom directives
                 inline_frag.directives.len() == 1

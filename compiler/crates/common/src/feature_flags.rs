@@ -118,6 +118,12 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub allow_resolver_non_nullable_return_type: FeatureFlag,
 
+    /// Enable the `__query` selection syntax for hoisting selections to the
+    /// query root. When enabled, any selection set can include `__query { ... }`
+    /// to select fields from the query root type.
+    #[serde(default)]
+    pub enable_query_root_selection: bool,
+
     /// Disable validating the composite schema (server, client schema
     /// extensions, Relay Resolvers) after its built.
     #[serde(default)]
@@ -263,6 +269,7 @@ impl Default for FeatureFlags {
             flow_modern_syntax: Default::default(),
             emit_nogrep_annotation: Default::default(),
             disable_more_precise_abstract_selection_raw_response_type: Default::default(),
+            enable_query_root_selection: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

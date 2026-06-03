@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a63153d73bff5e158caa177e9aa4c9f8>>
+ * @generated SignedSource<<bb83834551c513bbec583eea77361ccc>>
  */
 
 mod compile_relay_artifacts;
@@ -1130,6 +1130,27 @@ async fn provided_variable_split_operation() {
     let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-split-operation.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-split-operation.expected");
     test_fixture(transform_fixture, file!(), "provided-variable-split-operation.graphql", "compile_relay_artifacts/fixtures/provided-variable-split-operation.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_selection_hoist() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-selection-hoist.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-selection-hoist.expected");
+    test_fixture(transform_fixture, file!(), "query-selection-hoist.graphql", "compile_relay_artifacts/fixtures/query-selection-hoist.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_selection_hoist_duplicate() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-selection-hoist-duplicate.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-selection-hoist-duplicate.expected");
+    test_fixture(transform_fixture, file!(), "query-selection-hoist-duplicate.graphql", "compile_relay_artifacts/fixtures/query-selection-hoist-duplicate.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_selection_hoist_duplicate_conditional() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-selection-hoist-duplicate-conditional.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-selection-hoist-duplicate-conditional.expected");
+    test_fixture(transform_fixture, file!(), "query-selection-hoist-duplicate-conditional.graphql", "compile_relay_artifacts/fixtures/query-selection-hoist-duplicate-conditional.expected", input, expected).await;
 }
 
 #[tokio::test]

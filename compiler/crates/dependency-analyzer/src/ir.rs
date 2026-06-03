@@ -11,6 +11,8 @@ use std::fmt;
 
 use common::PerfLogEvent;
 use graphql_ir::*;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
 use relay_transforms::get_all_resolver_fragment_dependency_names;
 use rustc_hash::FxHashMap;
 use rustc_hash::FxHashSet;
@@ -315,57 +317,66 @@ fn add_descendants(
     }
 }
 
-/// Get fragment references of each definition
-pub fn get_ir_definition_references<'a>(
+/// Get fragment references of each definition.
+///
+/// Each definition's reference set is independent (selection-tree walk plus
+/// schema field lookups, no shared mutable state). On the slowest www project
+/// this loop runs serially during `chunkify_project_time`, *while* most rayon
+/// workers sit idle (the project's chunks haven't yet been built, so the inner
+/// `validate_and_transform_all` `into_par_iter` hasn't started).
+/// Switching to `par_iter().collect()` lets us amortize over the otherwise-
+/// idle thread pool.
+pub fn get_ir_definition_references(
     schema: &SDLSchema,
-    definitions: impl IntoIterator<Item = &'a ExecutableDefinition>,
+    definitions: &[ExecutableDefinition],
 ) -> ExecutableDefinitionNameMap<ExecutableDefinitionNameSet> {
-    let mut result: ExecutableDefinitionNameMap<ExecutableDefinitionNameSet> = Default::default();
-    for definition in definitions {
-        let name = definition.name_with_location().item;
-        let name = match definition {
-            ExecutableDefinition::Operation(_) => OperationDefinitionName(name).into(),
-            ExecutableDefinition::Fragment(_) => FragmentDefinitionName(name).into(),
-        };
-        let mut selections: Vec<_> = match definition {
-            ExecutableDefinition::Operation(definition) => &definition.selections,
-            ExecutableDefinition::Fragment(definition) => &definition.selections,
-        }
-        .iter()
-        .collect();
-        let mut references: ExecutableDefinitionNameSet = Default::default();
-        while let Some(selection) = selections.pop() {
-            match selection {
-                Selection::FragmentSpread(selection) => {
-                    references.insert(selection.fragment.item.into());
-                }
-                Selection::LinkedField(selection) => {
-                    for fragment_name in get_all_resolver_fragment_dependency_names(
-                        schema.field(selection.definition.item),
-                        schema,
-                    ) {
-                        references.insert(fragment_name.into());
+    definitions
+        .par_iter()
+        .map(|definition| {
+            let name = definition.name_with_location().item;
+            let name = match definition {
+                ExecutableDefinition::Operation(_) => OperationDefinitionName(name).into(),
+                ExecutableDefinition::Fragment(_) => FragmentDefinitionName(name).into(),
+            };
+            let mut selections: Vec<_> = match definition {
+                ExecutableDefinition::Operation(definition) => &definition.selections,
+                ExecutableDefinition::Fragment(definition) => &definition.selections,
+            }
+            .iter()
+            .collect();
+            let mut references: ExecutableDefinitionNameSet = Default::default();
+            while let Some(selection) = selections.pop() {
+                match selection {
+                    Selection::FragmentSpread(selection) => {
+                        references.insert(selection.fragment.item.into());
                     }
+                    Selection::LinkedField(selection) => {
+                        for fragment_name in get_all_resolver_fragment_dependency_names(
+                            schema.field(selection.definition.item),
+                            schema,
+                        ) {
+                            references.insert(fragment_name.into());
+                        }
 
-                    selections.extend(&selection.selections);
-                }
-                Selection::InlineFragment(selection) => {
-                    selections.extend(&selection.selections);
-                }
-                Selection::Condition(selection) => {
-                    selections.extend(&selection.selections);
-                }
-                Selection::ScalarField(selection) => {
-                    for fragment_name in get_all_resolver_fragment_dependency_names(
-                        schema.field(selection.definition.item),
-                        schema,
-                    ) {
-                        references.insert(fragment_name.into());
+                        selections.extend(&selection.selections);
+                    }
+                    Selection::InlineFragment(selection) => {
+                        selections.extend(&selection.selections);
+                    }
+                    Selection::Condition(selection) => {
+                        selections.extend(&selection.selections);
+                    }
+                    Selection::ScalarField(selection) => {
+                        for fragment_name in get_all_resolver_fragment_dependency_names(
+                            schema.field(selection.definition.item),
+                            schema,
+                        ) {
+                            references.insert(fragment_name.into());
+                        }
                     }
                 }
             }
-        }
-        result.insert(name, references);
-    }
-    result
+            (name, references)
+        })
+        .collect()
 }

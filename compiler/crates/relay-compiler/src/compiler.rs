@@ -482,6 +482,21 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         return Err(Error::Cancelled);
     }
 
+    // Pre-parse unique server schemas shared by multiple projects.
+    // This avoids redundant parsing when many projects (e.g. intern_www,
+    // facebook_www, oculus_www) all reference the same schema source.
+    compiler_state.parsed_server_asts_cache =
+        setup_event.time("preparse_unique_server_schemas_time", || {
+            crate::build_project::build_schema::preparse_unique_server_schemas(
+                &config,
+                compiler_state,
+            )
+        });
+    setup_event.number(
+        "preparse_unique_server_schemas_count",
+        compiler_state.parsed_server_asts_cache.len(),
+    );
+
     let build_results: Vec<_> = config
         .par_enabled_projects()
         .filter(|project_config| {

@@ -347,6 +347,12 @@ pub struct CompilerState {
     pub source_control_update_status: Arc<SourceControlUpdateStatus>,
     #[serde(default)]
     pub compact_schemas: FnvHashMap<ProjectName, CompactSchemaSources>,
+    /// Cache of pre-parsed server schema ASTs, keyed by schema location path.
+    /// Populated before the parallel project build loop so that multiple projects
+    /// sharing the same schema source can reuse the parsed ASTs instead of
+    /// re-parsing the same SDL text independently.
+    #[serde(skip)]
+    pub parsed_server_asts_cache: FnvHashMap<PathBuf, Arc<Vec<graphql_syntax::SchemaDocument>>>,
 }
 
 /// Stringify a path such that it's stable across operating systems.

@@ -59,7 +59,7 @@ pub fn build_schema_with_extensions_parallel<
 }
 
 pub fn build_schema_with_extensions_from_asts(
-    server_sdls: Vec<SchemaDocument>,
+    server_sdls: &[SchemaDocument],
     mut extension_sdls: Vec<SchemaDocument>,
 ) -> DiagnosticsResult<SDLSchema> {
     let relay_extensions_ast =
@@ -67,7 +67,7 @@ pub fn build_schema_with_extensions_from_asts(
 
     extension_sdls.push(relay_extensions_ast);
 
-    let mut schema = SDLSchema::build(&server_sdls, &extension_sdls)?;
+    let mut schema = SDLSchema::build(server_sdls, &extension_sdls)?;
     remove_defer_stream_label(&mut schema);
     Ok(schema)
 }

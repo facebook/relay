@@ -367,6 +367,28 @@ impl Transformer<'_> for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         })
     }
 
+    fn transform_arguments(
+        &mut self,
+        arguments: &[graphql_ir::Argument],
+    ) -> TransformedValue<Vec<graphql_ir::Argument>> {
+        if self.scope.has_bindings() {
+            transform_list(arguments, |argument| self.transform_argument(argument))
+        } else {
+            TransformedValue::Keep
+        }
+    }
+
+    fn transform_directives(
+        &mut self,
+        directives: &[Directive],
+    ) -> TransformedValue<Vec<Directive>> {
+        if self.scope.has_bindings() {
+            transform_list(directives, |directive| self.transform_directive(directive))
+        } else {
+            TransformedValue::Keep
+        }
+    }
+
     fn transform_directive(&mut self, directive: &Directive) -> Transformed<Directive> {
         if directive.name.item == RelayResolverMetadata::directive_name()
             && let Some(resolver_metadata) = RelayResolverMetadata::from(directive)

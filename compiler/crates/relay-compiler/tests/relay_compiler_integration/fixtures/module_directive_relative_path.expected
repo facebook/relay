@@ -32,13 +32,7 @@ graphql`
 //- relay.config.json
 {
   "language": "typescript",
-  "schema": "./schema.graphql",
-  "moduleImportConfig": {
-    "dynamicModuleProvider": {
-      "mode": "Custom",
-      "statement": "() => import('<$module>')"
-    }
-  }
+  "schema": "./schema.graphql"
 }
 
 //- schema.graphql

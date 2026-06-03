@@ -37,13 +37,7 @@ graphql`
     "test_project": {
       "language": "typescript",
       "schema": "schema.graphql",
-      "output": "generated",
-      "moduleImportConfig": {
-        "dynamicModuleProvider": {
-          "mode": "Custom",
-          "statement": "() => import('<$module>')"
-        }
-      }
+      "output": "generated"
     }
   }
 }

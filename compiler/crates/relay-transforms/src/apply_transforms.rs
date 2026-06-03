@@ -197,7 +197,7 @@ fn apply_common_transforms(
         transform_match(
             &program,
             &project_config.feature_flags,
-            project_config.module_import_config,
+            project_config.effective_module_import_config(),
             project_config.schema_config.defer_stream_interface,
         )
     })?;
@@ -702,7 +702,7 @@ fn apply_typegen_transforms(
         transform_match(
             &program,
             &project_config.feature_flags,
-            project_config.module_import_config,
+            project_config.effective_module_import_config(),
             project_config.schema_config.defer_stream_interface,
         )
     })?;

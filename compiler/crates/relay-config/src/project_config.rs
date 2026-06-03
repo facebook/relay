@@ -38,6 +38,7 @@ use crate::connection_interface::ConnectionInterface;
 use crate::defer_stream_interface::DeferStreamInterface;
 use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
+use crate::module_import_config::ModuleProvider;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
 use crate::resolvers_schema_module_config::ResolversSchemaModuleConfig;
 
@@ -530,6 +531,24 @@ impl ProjectConfig {
         };
 
         self.create_path_for_artifact(source_file, filename)
+    }
+
+    /// Returns `module_import_config` with `dynamic_module_provider` filled in when absent.
+    /// For non-Haste (CommonJS) projects the default is `() => import('<$module>')`, which
+    /// generates standard ES dynamic-import expressions without any extra user configuration.
+    pub fn effective_module_import_config(&self) -> ModuleImportConfig {
+        if self.module_import_config.dynamic_module_provider.is_none()
+            && !matches!(self.js_module_format, JsModuleFormat::Haste)
+        {
+            ModuleImportConfig {
+                dynamic_module_provider: Some(ModuleProvider::Custom {
+                    statement: "() => import('<$module>')".intern(),
+                }),
+                ..self.module_import_config
+            }
+        } else {
+            self.module_import_config
+        }
     }
 
     /// Generates identifier for importing module at `target_module_path` from module at `importing_artifact_path`.

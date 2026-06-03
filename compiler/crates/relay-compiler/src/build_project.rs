@@ -225,6 +225,10 @@ fn build_raw_program_chunks(
         if !buffer.is_empty() {
             chunks.push(buffer);
         }
+        // LPT (longest-processing-time) scheduling: sort chunks DESC by
+        // definition count so rayon dispatches the biggest chunks first and
+        // smaller chunks fill tail-end idle slots.
+        chunks.sort_by_key(|chunk| std::cmp::Reverse(chunk.len()));
         log_event.stop(chunkify_time);
         chunks
     };

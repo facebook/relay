@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::PathBuf;
 use std::sync::Arc;
+use std::sync::Mutex;
 
 use common::PerfLogEvent;
 use common::PerfLogger;
@@ -21,6 +23,7 @@ pub use watchman_client::prelude::Clock;
 use watchman_client::prelude::*;
 
 use super::FileSourceResult;
+use super::external_file_source::ExternalFileSource;
 use super::watchman_query_builder::get_watchman_expr;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
@@ -65,10 +68,44 @@ impl WatchmanFileSource {
     ) -> Result<CompilerState> {
         info!("Querying files to compile...");
         let query_time = perf_logger_event.start("file_source_query_time");
-        // If the saved state flag is passed, load from it or fail.
-        if let Some(saved_state_path) = &self.config.load_saved_state_file {
+        // Consume-on-attempt take() — the path is dropped whether this
+        // branch succeeds or returns Err via `?` further down. Safety:
+        //
+        //   - **Success.** Subsequent `WatchmanFileSource::query()` calls
+        //     (from later `compiler.watch()` loop iterations, e.g. after a
+        //     source-control update) see `None` and fall through to
+        //     `try_saved_state` below, which fetches a fresh saved-state
+        //     from infrastructure at the post-rebase mergebase. Re-using
+        //     the original snapshot here would mis-build.
+        //
+        //   - **Failure via `?` below** (deserialize / Watchman query /
+        //     merge). The path is dropped, `query()` returns Err, and the
+        //     caller propagates: `subscribe()` -> `Compiler::watch()` ->
+        //     the daemon's spawned task ends -> the daemon's
+        //     `tokio::select!` notices the dead task and tears down the
+        //     daemon. The next client invocation spawns a fresh daemon
+        //     with a fresh `--initial-import-state` from `DaemonStartHints`,
+        //     so a transient failure (e.g. corrupt-on-disk saved-state)
+        //     doesn't put the daemon into a stuck state. A future watch()
+        //     iteration on a hypothetical surviving daemon would have
+        //     fallen through to `try_saved_state` harmlessly anyway.
+        //
+        //   - **Concurrency.** `compiler.watch()` runs in a single tokio
+        //     task; there are no concurrent `query()` calls on a shared
+        //     `Arc<Config>`, so the take() doesn't race against a peer.
+        //     If a future change adds a second caller, the `Mutex` guards
+        //     the take itself — a racing peer would see `None` and fall
+        //     through, which is still correct (just loses the optimization
+        //     for that one call).
+        let saved_state_override = self
+            .config
+            .load_saved_state_file
+            .lock()
+            .ok()
+            .and_then(|mut guard| guard.take());
+        if let Some(saved_state_path) = saved_state_override {
             let mut compiler_state = perf_logger_event.time("deserialize_saved_state", || {
-                CompilerState::deserialize_from_file(saved_state_path)
+                CompilerState::deserialize_from_file(&saved_state_path)
             })?;
             let query_timer = perf_logger_event.start("watchman_query_time");
             let file_source_result = query_file_result(
@@ -156,6 +193,65 @@ impl WatchmanFileSource {
         Ok(compiler_state)
     }
 
+    /// Cold daemon fast-path: when the client (e.g. meerkat) provided both a
+    /// saved-state file and a changed-files-list, build the initial
+    /// `CompilerState` from those locally instead of paying the slow
+    /// saved-state-from-Manifold fetch + Watchman SCM-aware query.
+    ///
+    /// The two paths are an *optimization hint*, not a constraint — on any
+    /// failure (missing input, deserialize error, version mismatch, etc.)
+    /// this returns `None` and the caller falls back to the normal Watchman
+    /// path (which will fetch a fresh saved-state from infrastructure).
+    ///
+    /// Both inputs are consumed once. On subsequent `watch()` iterations
+    /// (e.g. after a source-control update), this returns `None` and the
+    /// caller goes through the normal Watchman path.
+    fn try_initial_external_state(
+        &self,
+        perf_logger_event: &impl PerfLogEvent,
+        perf_logger: &impl PerfLogger,
+    ) -> Option<CompilerState> {
+        let (saved_state_path, changed_files_list) = take_initial_external_paths(
+            &self.config.load_saved_state_file,
+            &self.config.initial_external_changed_files_list,
+        )?;
+        let initial_external_timer = perf_logger_event.start("initial_external_state_time");
+        let external = ExternalFileSource::new(
+            saved_state_path,
+            changed_files_list,
+            Arc::clone(&self.config),
+        );
+        let result = external.create_compiler_state(perf_logger);
+        perf_logger_event.stop(initial_external_timer);
+        match result {
+            Ok(state) => {
+                info!(
+                    "Seeded daemon state from client-provided saved-state + \
+                     changed-files-list (skipping watchman SCM-aware query)."
+                );
+                perf_logger_event.bool("used_initial_external_state", true);
+                Some(state)
+            }
+            Err(err) => {
+                // Note the asymmetry with the `None` arm of
+                // `take_initial_external_paths`: that arm restores
+                // `saved_state_path` to its Mutex slot when the changed-files
+                // list is absent, but here on `Err` we do NOT restore — the
+                // path has been moved into `ExternalFileSource` and consumed
+                // by deserialize_from_file, and a saved-state that failed to
+                // load is exactly what we don't want to retry on the fallback
+                // path. Letting the fallback go through `try_saved_state`
+                // gets a fresh saved-state from infrastructure instead.
+                perf_logger_event.string("initial_external_state_error", format!("{err:?}"));
+                warn!(
+                    "Unable to seed initial daemon state from client-provided \
+                     saved-state + changed-files: {err:?}. Falling back to watchman query."
+                );
+                None
+            }
+        }
+    }
+
     /// Starts a subscription sending updates since the given clock.
     pub async fn subscribe(
         self,
@@ -163,7 +259,11 @@ impl WatchmanFileSource {
         perf_logger: &impl PerfLogger,
     ) -> Result<(CompilerState, WatchmanFileSourceSubscription)> {
         let timer = perf_logger_event.start("file_source_subscribe_time");
-        let mut compiler_state = self.query(perf_logger_event, perf_logger).await?;
+        let mut compiler_state =
+            match self.try_initial_external_state(perf_logger_event, perf_logger) {
+                Some(state) => state,
+                None => self.query(perf_logger_event, perf_logger).await?,
+            };
 
         let expression = get_watchman_expr(&self.config);
 
@@ -495,5 +595,136 @@ fn debug_query_results(query_result: &QueryResult<WatchmanFile>, extension_filte
         } else {
             debug!("WatchmanFileSource::query_file_result(...): no files found");
         }
+    }
+}
+
+/// Atomically (from the perspective of `compiler.watch()`'s single-threaded
+/// caller) take the saved-state path and the changed-files-list path that
+/// the client provided as cold-start hints. If both are present, returns
+/// `Some((saved_state, changed_files))` and leaves both slots empty so a
+/// subsequent `watch()` iteration won't re-consume stale paths.
+///
+/// **Restore semantics on `None`.** If saved-state is missing entirely,
+/// changed-files is not touched (no half-consume). If saved-state is present
+/// but changed-files is missing, the saved-state is *restored* to its slot
+/// so the caller's fallback (`WatchmanFileSource::query`) can still consume
+/// it. This preserves the saved-state-only fast path (only `--initial-import-state`
+/// set, no `--initial-changed-files-list`) that the prior commit added.
+///
+/// The asymmetry with the `try_initial_external_state` `Err` arm is intentional:
+/// there, the saved-state path has already been moved into `ExternalFileSource`
+/// and consumed by `deserialize_from_file`; a saved-state that failed to load
+/// is exactly what we don't want to retry. See the comment on that `Err` arm.
+fn take_initial_external_paths(
+    saved_state_slot: &Mutex<Option<PathBuf>>,
+    changed_files_slot: &Mutex<Option<PathBuf>>,
+) -> Option<(PathBuf, PathBuf)> {
+    let saved_state_path = {
+        let mut guard = saved_state_slot.lock().ok()?;
+        guard.take()?
+    };
+    match changed_files_slot.lock().ok().and_then(|mut g| g.take()) {
+        Some(changes) => Some((saved_state_path, changes)),
+        None => {
+            // Restore so the fallback (try_saved_state-from-file branch of
+            // WatchmanFileSource::query) can consume the saved-state path.
+            if let Ok(mut guard) = saved_state_slot.lock() {
+                *guard = Some(saved_state_path);
+            }
+            None
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_take_initial_external_paths_returns_both_when_both_present() {
+        let saved_state = Mutex::new(Some(PathBuf::from("/state.bin")));
+        let changes = Mutex::new(Some(PathBuf::from("/changes.json")));
+
+        let result = take_initial_external_paths(&saved_state, &changes);
+
+        assert_eq!(
+            result,
+            Some((PathBuf::from("/state.bin"), PathBuf::from("/changes.json")))
+        );
+        // Both slots are now empty — subsequent watch() iterations won't
+        // re-consume stale paths.
+        assert!(saved_state.lock().unwrap().is_none());
+        assert!(changes.lock().unwrap().is_none());
+    }
+
+    #[test]
+    fn test_take_initial_external_paths_restores_saved_state_when_changes_missing() {
+        let saved_state = Mutex::new(Some(PathBuf::from("/state.bin")));
+        let changes: Mutex<Option<PathBuf>> = Mutex::new(None);
+
+        let result = take_initial_external_paths(&saved_state, &changes);
+
+        assert!(result.is_none());
+        // Saved-state was restored so the fallback Watchman query path
+        // (WatchmanFileSource::query's load_saved_state_file branch) can
+        // still consume it — this preserves the saved-state-only fast path
+        // that the prior commit added.
+        assert_eq!(
+            *saved_state.lock().unwrap(),
+            Some(PathBuf::from("/state.bin"))
+        );
+        assert!(changes.lock().unwrap().is_none());
+    }
+
+    #[test]
+    fn test_take_initial_external_paths_returns_none_when_saved_state_missing() {
+        let saved_state: Mutex<Option<PathBuf>> = Mutex::new(None);
+        let changes = Mutex::new(Some(PathBuf::from("/changes.json")));
+
+        let result = take_initial_external_paths(&saved_state, &changes);
+
+        assert!(result.is_none());
+        // Changes slot is NOT consumed when saved-state is missing — no
+        // half-consume — so a future caller that does have a saved-state
+        // could still use the changes list (defensive; today nothing
+        // exercises this path).
+        assert!(saved_state.lock().unwrap().is_none());
+        assert_eq!(
+            *changes.lock().unwrap(),
+            Some(PathBuf::from("/changes.json"))
+        );
+    }
+
+    /// Documents the `Err` arm consume-and-don't-restore behavior of
+    /// `try_initial_external_state`: when `ExternalFileSource::create_compiler_state`
+    /// returns an error, the saved-state path is NOT restored to its slot
+    /// — it was moved into `ExternalFileSource` and consumed by
+    /// `deserialize_from_file`. After the error, both slots are empty so
+    /// the fallback `WatchmanFileSource::query` goes through `try_saved_state`
+    /// (which fetches a fresh saved-state from Manifold) rather than
+    /// re-deserializing the same failed file.
+    ///
+    /// This test exercises the helper-level invariant since we can't easily
+    /// construct an `ExternalFileSource` in isolation without a real Config;
+    /// the assertion is that *after* `take_initial_external_paths` returns
+    /// the pair, neither slot still has anything for a fallback to consume.
+    #[test]
+    fn test_external_failure_leaves_both_slots_empty() {
+        let saved_state = Mutex::new(Some(PathBuf::from("/state.bin")));
+        let changes = Mutex::new(Some(PathBuf::from("/changes.json")));
+
+        let (taken_state, taken_changes) =
+            take_initial_external_paths(&saved_state, &changes).unwrap();
+
+        // Pretend ExternalFileSource consumed both and then failed —
+        // we drop them without restoring.
+        drop(taken_state);
+        drop(taken_changes);
+
+        // Both slots are empty; a subsequent WatchmanFileSource::query()
+        // will see load_saved_state_file=None and fall through to
+        // try_saved_state (the desired behavior for the Err fallback).
+        assert!(saved_state.lock().unwrap().is_none());
+        assert!(changes.lock().unwrap().is_none());
     }
 }

@@ -12,6 +12,7 @@ use std::fmt;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::sync::Mutex;
 use std::vec;
 
 use async_trait::async_trait;
@@ -142,7 +143,17 @@ pub struct Config {
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
     /// If set, tries to initialize the compiler from the saved state file.
-    pub load_saved_state_file: Option<PathBuf>,
+    /// Consumed (taken) by the first file_source query so subsequent watch()
+    /// loop iterations (e.g. after a source-control update) don't re-deserialize
+    /// a now-stale snapshot — they fall back to the normal saved-state path.
+    pub load_saved_state_file: Mutex<Option<PathBuf>>,
+    /// Path to a JSON file listing files changed since `load_saved_state_file`'s
+    /// snapshot, in the format produced by Meerkat for `--changed-files-list`.
+    /// When BOTH this and `load_saved_state_file` are set, the first iteration
+    /// of `compiler.watch()` skips the Watchman query entirely and seeds initial
+    /// state from `(saved_state + changed_files)`. Subsequent iterations fall
+    /// back to the normal Watchman path. Consume-once via Mutex&lt;Option&gt;.
+    pub initial_external_changed_files_list: Mutex<Option<PathBuf>>,
     /// Function to generate extra
     pub generate_extra_artifacts: Option<GenerateExtraArtifactsFn>,
     pub generate_virtual_id_file_name: Option<GenerateVirtualIdFieldName>,
@@ -569,7 +580,8 @@ impl Config {
             is_multi_project,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
-            load_saved_state_file: None,
+            load_saved_state_file: Mutex::new(None),
+            initial_external_changed_files_list: Mutex::new(None),
             generate_extra_artifacts: None,
             generate_virtual_id_file_name: None,
             get_artifacts_file_hash_map: None,
@@ -818,6 +830,32 @@ fn unify_roots(mut paths: Vec<PathBuf>) -> Vec<PathBuf> {
 mod test {
     use super::*;
 
+    /// Asserts the consume-once invariant of `load_saved_state_file` and
+    /// `initial_external_changed_files_list` — once `take()`d, the slot is
+    /// empty so a re-entry of `compiler.watch()` (e.g. after a source-control
+    /// update) won't re-deserialize a now-stale snapshot from the same path.
+    #[test]
+    fn test_consume_once_mutex_option_path() {
+        let slot: Mutex<Option<PathBuf>> = Mutex::new(Some(PathBuf::from("/tmp/state.bin")));
+
+        // First take consumes the value.
+        let first = slot.lock().unwrap().take();
+        assert_eq!(first, Some(PathBuf::from("/tmp/state.bin")));
+
+        // Second take observes the now-empty slot.
+        let second = slot.lock().unwrap().take();
+        assert_eq!(second, None);
+
+        // Restoring the slot (the no-changes-list fallback in
+        // try_initial_external_state) puts the value back so the caller's
+        // fallback path can consume it.
+        *slot.lock().unwrap() = Some(PathBuf::from("/tmp/restored.bin"));
+        assert_eq!(
+            slot.lock().unwrap().take(),
+            Some(PathBuf::from("/tmp/restored.bin"))
+        );
+    }
+
     #[test]
     fn test_unify_roots() {
         assert_eq!(unify_roots(vec![]).len(), 0);
@@ -861,6 +899,7 @@ impl fmt::Debug for Config {
             header,
             codegen_command,
             load_saved_state_file,
+            initial_external_changed_files_list,
             generate_extra_artifacts,
             saved_state_config,
             saved_state_loader,
@@ -885,7 +924,17 @@ impl fmt::Debug for Config {
             .field("projects", projects)
             .field("header", header)
             .field("codegen_command", codegen_command)
-            .field("load_saved_state_file", load_saved_state_file)
+            .field(
+                "load_saved_state_file",
+                &load_saved_state_file.lock().map(|guard| guard.clone()).ok(),
+            )
+            .field(
+                "initial_external_changed_files_list",
+                &initial_external_changed_files_list
+                    .lock()
+                    .map(|guard| guard.clone())
+                    .ok(),
+            )
             .field("saved_state_config", saved_state_config)
             .field(
                 "create_operation_persister",

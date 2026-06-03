@@ -86,9 +86,30 @@ impl FileSource {
             FileSourceKind::Watchman => Ok(Self::Watchman(
                 WatchmanFileSource::connect(config, perf_logger_event).await?,
             )),
-            FileSourceKind::External(changed_files_list) => Ok(Self::External(
-                ExternalFileSource::new(changed_files_list.to_path_buf(), Arc::clone(config)),
-            )),
+            FileSourceKind::External(changed_files_list) => {
+                // ExternalFileSource needs both the saved-state path and the
+                // changed-files list. The saved-state path lives in Config's
+                // consume-once mutex; take it here at the call site so the
+                // External source itself doesn't reach into Config's mutex state.
+                // Mutex poison would indicate a panic in another consumer of
+                // this slot, which we explicitly want surfaced rather than
+                // silently coerced — a poisoned slot is a programming bug.
+                let saved_state_path = config
+                    .load_saved_state_file
+                    .lock()
+                    .expect("load_saved_state_file mutex was poisoned by an earlier panic")
+                    .take()
+                    .ok_or_else(|| Error::ConfigError {
+                        details:
+                            "FileSourceKind::External requires load_saved_state_file to be set"
+                                .to_string(),
+                    })?;
+                Ok(Self::External(ExternalFileSource::new(
+                    saved_state_path,
+                    changed_files_list.to_path_buf(),
+                    Arc::clone(config),
+                )))
+            }
             FileSourceKind::WalkDir => {
                 Ok(Self::WalkDir(WalkDirFileSource::new(Arc::clone(config))))
             }

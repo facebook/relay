@@ -27,7 +27,7 @@ const Scheduler = require('scheduler/unstable_mock');
 // The subset of a Promise that React APIs rely on. This resolves a value.
 // This doesn't require a return value neither from the handler nor the
 // then function.
-interface Thenable<+R> {
+interface Thenable<out R> {
   then<U>(
     onFulfill: (value: R) => void | Thenable<U> | U,
     onReject: (error: unknown) => void | Thenable<U> | U,

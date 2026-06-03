@@ -34,6 +34,7 @@ use crate::artifact_map::ArtifactSourceKey;
 use crate::build_project::BuildProjectFailure;
 use crate::build_project::build_project;
 use crate::build_project::commit_project;
+use crate::build_project::get_artifacts_file_hash_map::spawn_artifact_hash_map_prefetch;
 use crate::compiler_state::ArtifactMapKind;
 use crate::compiler_state::CompilerState;
 use crate::compiler_state::DocblockSources;
@@ -576,6 +577,26 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
 
         let source_control_update_status = Arc::clone(&compiler_state.source_control_update_status);
         handles.push(task::spawn(async move {
+            // Spawn the Eden hash map RPC inside this per-project tokio task so
+            // (a) the synchronous artifact-path extraction parallelizes across
+            //     projects via the tokio worker pool instead of running serially
+            //     in the build_commit_state loop, and
+            // (b) the RPC still fires before commit_project's persist/generate
+            //     work — preserving the original "early start" intent.
+            //
+            // Skip the spawn if a source control update is in progress —
+            // commit_project will short-circuit with `Cancelled` at its first
+            // SCM check, so the RPC would be wasted. Mirrors the pre-diff
+            // gating where the spawn lived inside commit_project after the
+            // SCM check.
+            let hash_map_handle = if source_control_update_status.is_started() {
+                None
+            } else {
+                spawn_artifact_hash_map_prefetch(
+                    config.get_artifacts_file_hash_map.as_ref(),
+                    &artifacts,
+                )
+            };
             let project_config = &config.projects[&project_name];
             let artifact_map = commit_project(
                 &config,
@@ -588,6 +609,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 removed_artifact_sources,
                 dirty_artifact_paths,
                 source_control_update_status,
+                hash_map_handle,
             )
             .await?;
             Ok(((project_name, artifact_map, schema), diagnostics))

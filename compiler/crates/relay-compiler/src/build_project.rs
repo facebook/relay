@@ -597,6 +597,9 @@ pub async fn commit_project(
     // Dirty artifacts that should be removed if no longer in the artifacts map
     mut artifacts_to_remove: DashSet<PathBuf, FnvBuildHasher>,
     source_control_update_status: Arc<SourceControlUpdateStatus>,
+    // Pre-spawned Eden hash map RPC handle, started earlier in compiler.rs
+    // to overlap with build_commit_state_time processing.
+    hash_map_handle: Option<get_artifacts_file_hash_map::ArtifactHashMapHandle>,
 ) -> Result<ArtifactMap, BuildProjectFailure> {
     let log_event = perf_logger.create_event("commit_project");
     log_event.string("project", project_config.name.to_string());
@@ -616,19 +619,6 @@ pub async fn commit_project(
         debug!("commit_project cancelled before persisting due to source control updates");
         return Err(BuildProjectFailure::Cancelled);
     }
-
-    // Start hash map prefetch as a background task. The closure extracts
-    // artifact paths synchronously, then the spawned future does the async
-    // Eden Thrift RPC (~5-10s). This overlaps the network I/O with
-    // persist_operations and generate_extra_artifacts below.
-    let hash_map_handle = if !artifacts.is_empty() {
-        config
-            .get_artifacts_file_hash_map
-            .as_ref()
-            .map(|get_fn| tokio::spawn(get_fn(&artifacts)))
-    } else {
-        None
-    };
 
     if let Some(operation_persister) = config
         .create_operation_persister

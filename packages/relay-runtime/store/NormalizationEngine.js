@@ -55,6 +55,12 @@ function stableStringify(value: unknown): string {
 
 export type NormalizationResult = Readonly<{
   payloads: ReadonlyArray<RelayResponsePayload>,
+  // Parallel to `payloads`: identifies which @defer placeholder produced each
+  // payload, or null for payloads not originating from a deferred chunk
+  // (initial response, @stream items, @module followups). Lets the caller
+  // route per-chunk side-effects (e.g. S2C resolver execution) to a per-defer
+  // context without the engine mutating placeholders or payloads.
+  payloadOrigins: ReadonlyArray<?DeferPlaceholder>,
   // Each pending module resolves to its own NormalizationResult so the caller
   // can recursively drain nested incremental data (extra payloads + further
   // pending modules) produced by an async @module load. Mirrors the recursion
@@ -148,6 +154,7 @@ class NormalizationEngine {
     );
 
     const extraPayloads: Array<RelayResponsePayload> = [];
+    const extraOrigins: Array<?DeferPlaceholder> = [];
     const pendingModules: Array<Promise<NormalizationResult>> = [];
 
     // Register incremental placeholders and flush any buffered responses
@@ -160,6 +167,7 @@ class NormalizationEngine {
         payload.source,
         payload.fieldPayloads,
         extraPayloads,
+        extraOrigins,
         pendingModules,
       );
     }
@@ -173,6 +181,7 @@ class NormalizationEngine {
         payload.followupPayloads,
         payload.isFinal,
         extraPayloads,
+        extraOrigins,
         pendingModules,
       );
     }
@@ -185,8 +194,13 @@ class NormalizationEngine {
       isPreNormalized: true,
     };
 
+    // Initial response: primary payload has no defer origin (null). Extras
+    // populated by `_registerPlaceholders` (flushed buffered chunks) and
+    // `_processFollowups` carry their origins via the parallel `extraOrigins`
+    // array.
     return {
       payloads: [primaryPayload, ...extraPayloads],
+      payloadOrigins: [null, ...extraOrigins],
       pendingModules,
     };
   }
@@ -277,6 +291,7 @@ class NormalizationEngine {
     );
 
     const extraPayloads: Array<RelayResponsePayload> = [];
+    const extraOrigins: Array<?DeferPlaceholder> = [];
     const pendingModules: Array<Promise<NormalizationResult>> = [];
 
     // Register nested placeholders (recursive @defer)
@@ -289,6 +304,7 @@ class NormalizationEngine {
         payload.source,
         payload.fieldPayloads,
         extraPayloads,
+        extraOrigins,
         pendingModules,
       );
     }
@@ -302,6 +318,7 @@ class NormalizationEngine {
         payload.followupPayloads,
         payload.isFinal,
         extraPayloads,
+        extraOrigins,
         pendingModules,
       );
     }
@@ -328,8 +345,12 @@ class NormalizationEngine {
       isPreNormalized: true,
     };
 
+    // Defer chunk: primary payload's origin is THIS placeholder. Extras
+    // (nested defers, module followups) have their own origins via the
+    // parallel `extraOrigins` array.
     return {
       payloads: [primaryPayload, ...extraPayloads],
+      payloadOrigins: [placeholder, ...extraOrigins],
       pendingModules,
     };
   }
@@ -408,6 +429,10 @@ class NormalizationEngine {
       mergedFieldPayloads = (mergedFieldPayloads ?? []).concat(fieldPayloads);
     }
 
+    // @stream items have no defer origin — they route to root, preserving
+    // existing semantics. (S2C inside @stream'd items would also go to root
+    // today; if that path needs per-item routing in the future, mirror the
+    // _processDefer pattern with a stream-instance origin.)
     return {
       payloads: [
         {
@@ -420,6 +445,7 @@ class NormalizationEngine {
           storeUpdater,
         },
       ],
+      payloadOrigins: [null],
       pendingModules: [],
     };
   }
@@ -549,6 +575,7 @@ class NormalizationEngine {
     source: MutableRecordSource,
     fieldPayloads: ?ReadonlyArray<HandleFieldPayload>,
     outPayloads: Array<RelayResponsePayload>,
+    outOrigins: Array<?DeferPlaceholder>,
     outPendingModules: Array<Promise<NormalizationResult>>,
   ): void {
     for (let i = 0; i < placeholders.length; i++) {
@@ -627,6 +654,7 @@ class NormalizationEngine {
           }
           if (result != null) {
             outPayloads.push(...result.payloads);
+            outOrigins.push(...result.payloadOrigins);
             outPendingModules.push(...result.pendingModules);
           }
         }
@@ -642,6 +670,7 @@ class NormalizationEngine {
     followups: ReadonlyArray<FollowupPayload>,
     parentIsFinal: boolean,
     outPayloads: Array<RelayResponsePayload>,
+    outOrigins: Array<?DeferPlaceholder>,
     outPendingModules: Array<Promise<NormalizationResult>>,
   ): void {
     for (let i = 0; i < followups.length; i++) {
@@ -651,6 +680,7 @@ class NormalizationEngine {
           followup,
           parentIsFinal,
           outPayloads,
+          outOrigins,
           outPendingModules,
         );
       }
@@ -661,6 +691,7 @@ class NormalizationEngine {
     followup: ModuleImportPayload,
     parentIsFinal: boolean,
     outPayloads: Array<RelayResponsePayload>,
+    outOrigins: Array<?DeferPlaceholder>,
     outPendingModules: Array<Promise<NormalizationResult>>,
   ): void {
     const operationLoader = this._operationLoader;
@@ -675,6 +706,7 @@ class NormalizationEngine {
     if (node != null) {
       const result = this._normalizeFollowup(followup, node, parentIsFinal);
       outPayloads.push(...result.payloads);
+      outOrigins.push(...result.payloadOrigins);
       outPendingModules.push(...result.pendingModules);
       return;
     }
@@ -690,6 +722,7 @@ class NormalizationEngine {
     // behavior at OperationExecutor.js:1121.
     const emptyResult: NormalizationResult = {
       payloads: [],
+      payloadOrigins: [],
       pendingModules: [],
     };
     outPendingModules.push(
@@ -745,6 +778,7 @@ class NormalizationEngine {
     );
 
     const extraPayloads: Array<RelayResponsePayload> = [];
+    const extraOrigins: Array<?DeferPlaceholder> = [];
     const pendingModules: Array<Promise<NormalizationResult>> = [];
 
     // Register nested placeholders
@@ -757,6 +791,7 @@ class NormalizationEngine {
         payload.source,
         payload.fieldPayloads,
         extraPayloads,
+        extraOrigins,
         pendingModules,
       );
     }
@@ -770,6 +805,7 @@ class NormalizationEngine {
         payload.followupPayloads,
         payload.isFinal,
         extraPayloads,
+        extraOrigins,
         pendingModules,
       );
     }
@@ -782,8 +818,12 @@ class NormalizationEngine {
       isPreNormalized: true,
     };
 
+    // Module followup: primary payload has no defer origin (null). Nested
+    // defer chunks inside the followup carry their own origins via
+    // `extraOrigins`.
     return {
       payloads: [primaryPayload, ...extraPayloads],
+      payloadOrigins: [null, ...extraOrigins],
       pendingModules,
     };
   }

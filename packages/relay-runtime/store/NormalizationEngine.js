@@ -179,6 +179,7 @@ class NormalizationEngine {
     ) {
       this._processFollowups(
         payload.followupPayloads,
+        null, // parentOrigin: initial response has no defer parent
         payload.isFinal,
         extraPayloads,
         extraOrigins,
@@ -309,13 +310,20 @@ class NormalizationEngine {
       );
     }
 
-    // Process nested followups (recursive @module)
+    // Process nested followups (recursive @module). The defer placeholder is
+    // threaded as `parentOrigin` so any @module followup's primary payload
+    // inherits this defer's origin — without this, the executor would route
+    // S2C executions inside a deferred @module back to root scope, defeating
+    // per-defer subscope routing and re-introducing the @defer non-blocking-
+    // initial-render deadlock for queries with @module-inside-@defer plus
+    // suspending @live S2C resolvers.
     if (
       payload.followupPayloads != null &&
       payload.followupPayloads.length > 0
     ) {
       this._processFollowups(
         payload.followupPayloads,
+        placeholder, // parentOrigin: @module is INSIDE this defer chunk
         payload.isFinal,
         extraPayloads,
         extraOrigins,
@@ -668,6 +676,7 @@ class NormalizationEngine {
 
   _processFollowups(
     followups: ReadonlyArray<FollowupPayload>,
+    parentOrigin: ?DeferPlaceholder,
     parentIsFinal: boolean,
     outPayloads: Array<RelayResponsePayload>,
     outOrigins: Array<?DeferPlaceholder>,
@@ -678,6 +687,7 @@ class NormalizationEngine {
       if (followup.kind === 'ModuleImportPayload') {
         this._processModuleImport(
           followup,
+          parentOrigin,
           parentIsFinal,
           outPayloads,
           outOrigins,
@@ -689,6 +699,7 @@ class NormalizationEngine {
 
   _processModuleImport(
     followup: ModuleImportPayload,
+    parentOrigin: ?DeferPlaceholder,
     parentIsFinal: boolean,
     outPayloads: Array<RelayResponsePayload>,
     outOrigins: Array<?DeferPlaceholder>,
@@ -704,7 +715,12 @@ class NormalizationEngine {
       followup.operationReference,
     );
     if (node != null) {
-      const result = this._normalizeFollowup(followup, node, parentIsFinal);
+      const result = this._normalizeFollowup(
+        followup,
+        node,
+        parentOrigin,
+        parentIsFinal,
+      );
       outPayloads.push(...result.payloads);
       outOrigins.push(...result.payloadOrigins);
       outPendingModules.push(...result.pendingModules);
@@ -720,6 +736,10 @@ class NormalizationEngine {
     // Load failures propagate via Promise rejection — the caller is expected
     // to surface them (e.g., via sink.error), mirroring OperationExecutor's
     // behavior at OperationExecutor.js:1121.
+    //
+    // `parentOrigin` is captured by the .then closure; the placeholder object
+    // remains live, and WeakMap identity in the executor's deferScopes map is
+    // exactly what we want for routing the async followup's S2C executions.
     const emptyResult: NormalizationResult = {
       payloads: [],
       payloadOrigins: [],
@@ -730,7 +750,12 @@ class NormalizationEngine {
         .load(followup.operationReference)
         .then((loadedNode: ?NormalizationRootNode) =>
           loadedNode != null
-            ? this._normalizeFollowup(followup, loadedNode, parentIsFinal)
+            ? this._normalizeFollowup(
+                followup,
+                loadedNode,
+                parentOrigin,
+                parentIsFinal,
+              )
             : emptyResult,
         ),
     );
@@ -739,6 +764,7 @@ class NormalizationEngine {
   _normalizeFollowup(
     followup: ModuleImportPayload,
     node: NormalizationRootNode,
+    parentOrigin: ?DeferPlaceholder,
     parentIsFinal: boolean,
   ): NormalizationResult {
     const operationNode =
@@ -796,13 +822,16 @@ class NormalizationEngine {
       );
     }
 
-    // Process nested followups (parent's is_final propagates through)
+    // Process nested followups (parent's is_final propagates through, and
+    // `parentOrigin` propagates so a nested @module inside an @module inside
+    // an @defer still inherits the original defer's placeholder).
     if (
       payload.followupPayloads != null &&
       payload.followupPayloads.length > 0
     ) {
       this._processFollowups(
         payload.followupPayloads,
+        parentOrigin,
         payload.isFinal,
         extraPayloads,
         extraOrigins,
@@ -818,12 +847,14 @@ class NormalizationEngine {
       isPreNormalized: true,
     };
 
-    // Module followup: primary payload has no defer origin (null). Nested
-    // defer chunks inside the followup carry their own origins via
+    // Module followup: primary payload inherits `parentOrigin` from its
+    // containing context (null for root @module, the defer placeholder for
+    // @module inside a deferred chunk). Nested defer chunks discovered
+    // during this followup's normalization carry their own origins via
     // `extraOrigins`.
     return {
       payloads: [primaryPayload, ...extraPayloads],
-      payloadOrigins: [null, ...extraOrigins],
+      payloadOrigins: [parentOrigin, ...extraOrigins],
       pendingModules,
     };
   }

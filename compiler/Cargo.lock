@@ -875,6 +875,7 @@ dependencies = [
  "intern",
  "relay-config",
  "relay-test-schema",
+ "rustc-hash",
  "schema",
  "serde",
  "thiserror 2.0.18",

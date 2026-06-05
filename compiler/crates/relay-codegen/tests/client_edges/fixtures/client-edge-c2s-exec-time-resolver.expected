@@ -146,5 +146,6 @@ extend type Query {
       "storageKey": null
     }
   ],
-  "exec_time_resolvers_enabled_provider": require('execTimeResolversFlagProvider')
+  "exec_time_resolvers_enabled_provider": require('execTimeResolversFlagProvider'),
+  "has_client_to_server_resolvers": true
 }

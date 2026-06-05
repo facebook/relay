@@ -463,6 +463,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         let mut context = ContextualMetadata {
             has_client_edges: false,
+            has_client_to_server_resolvers: false,
             has_exec_time_resolvers_directive,
             has_exec_time_resolvers_enabled_provider: exec_time_resolvers_enabled_provider
                 .is_some(),
@@ -558,6 +559,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             }),
                         })
                     }
+                }
+                if context.has_client_to_server_resolvers {
+                    fields.push(ObjectEntry {
+                        key: "has_client_to_server_resolvers".intern(),
+                        value: Primitive::Bool(true),
+                    });
                 }
                 if context.has_server_to_client_resolvers {
                     fields.push(ObjectEntry {
@@ -2020,6 +2027,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             ClientEdgeMetadataDirective::ServerObject { query_name, .. } => {
                 // C2S (client-to-server) edges need to emit ClientEdgeToServerObject
                 // with the operation reference so the executor can trigger the waterfall fetch.
+                context.has_client_to_server_resolvers = true;
                 let obj = object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
                     operation: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Name(ExecutableDefinitionName::OperationDefinitionName(*query_name))),
@@ -2983,6 +2991,7 @@ pub fn md5(data: &str) -> String {
 #[derive(Default)]
 struct ContextualMetadata {
     has_client_edges: bool,
+    has_client_to_server_resolvers: bool,
     has_exec_time_resolvers_directive: bool,
     has_exec_time_resolvers_enabled_provider: bool,
     has_server_to_client_resolvers: bool,

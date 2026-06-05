@@ -1338,6 +1338,7 @@ SchemaDocument {
                 locations: [
                     Field,
                 ],
+                directives: [],
                 description: Some(
                     StringNode {
                         token: Token {
@@ -1366,6 +1367,7 @@ SchemaDocument {
                 locations: [
                     Field,
                 ],
+                directives: [],
                 description: Some(
                     StringNode {
                         token: Token {
@@ -1476,6 +1478,7 @@ SchemaDocument {
                 locations: [
                     Field,
                 ],
+                directives: [],
                 description: Some(
                     StringNode {
                         token: Token {

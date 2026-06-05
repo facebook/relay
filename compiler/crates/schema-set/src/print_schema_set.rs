@@ -344,10 +344,11 @@ impl PrintableDefinition for SetDirective {
             .collect::<Vec<_>>()
             .join(" | ");
         format!(
-            "{}directive @{name}{arguments} on {locations}",
+            "{}directive @{name}{arguments}{directives} on {locations}",
             print_description(self),
             name = self.string_key_name(),
             arguments = print_arguments(&self.arguments),
+            directives = print_directive_values(self),
             locations = printed_locations
         )
     }

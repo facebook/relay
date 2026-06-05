@@ -210,6 +210,7 @@ impl ToSDLDefinition<DirectiveDefinition> for SetDirective {
             arguments: build_argument_definitions(&self.arguments),
             repeatable: self.repeatable,
             locations,
+            directives: build_directives(&self.directives),
             description: build_description(&self.definition),
             span: Span::empty(),
             hack_source: build_hack_source(&self.definition),
@@ -772,6 +773,16 @@ mod tests {
         assert!(
             sdl.contains("directive @x on QUERY | MUTATION | SUBSCRIPTION | FIELD"),
             "Expected directive locations to be sorted by location, got: {}",
+            sdl,
+        );
+    }
+
+    #[test]
+    fn test_directive_with_applied_directives() {
+        let sdl = schema_sdl("directive @foo @deprecated on FIELD");
+        assert!(
+            sdl.contains("directive @foo @deprecated on FIELD"),
+            "Expected applied directives to print on the directive definition, got: {}",
             sdl,
         );
     }

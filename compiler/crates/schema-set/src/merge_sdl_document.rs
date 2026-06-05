@@ -472,6 +472,7 @@ impl ToSetDefinition<SetDirective> for DirectiveDefinition {
             arguments,
             locations: self.locations.clone(),
             repeatable: self.repeatable,
+            directives: build_directive_values(&self.directives, source, is_client_definition),
         }
     }
 }

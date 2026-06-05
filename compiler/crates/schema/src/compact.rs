@@ -124,6 +124,7 @@ fn collect_strings(schema: &InMemorySchema) -> StringCollector {
     for d in schema.get_directives() {
         c.add(d.name.item.0);
         c.add_arguments(&d.arguments);
+        c.add_directive_values(&d.directives);
         c.add_opt(d.description);
         c.add_opt(d.hack_source);
     }
@@ -325,6 +326,7 @@ impl<'a> Writer<'a> {
             DirectiveLocation::InputObject => 16,
             DirectiveLocation::InputFieldDefinition => 17,
             DirectiveLocation::VariableDefinition => 18,
+            DirectiveLocation::DirectiveDefinition => 19,
         });
     }
 
@@ -476,6 +478,7 @@ impl<'a> Writer<'a> {
         }
         self.w_bool(d.repeatable);
         self.w_bool(d.is_extension);
+        self.w_dir_vals(&d.directives);
         self.w_opt_sk(d.description);
         self.w_opt_sk(d.hack_source);
     }
@@ -594,6 +597,7 @@ impl<'a> Reader<'a> {
             16 => DirectiveLocation::InputObject,
             17 => DirectiveLocation::InputFieldDefinition,
             18 => DirectiveLocation::VariableDefinition,
+            19 => DirectiveLocation::DirectiveDefinition,
             v => panic!("invalid DirectiveLocation variant: {v}"),
         }
     }
@@ -794,6 +798,7 @@ impl<'a> Reader<'a> {
         let locations = (0..loc_count).map(|_| self.r_dir_loc()).collect();
         let repeatable = self.r_bool();
         let is_extension = self.r_bool();
+        let directives = self.r_dir_vals();
         let description = self.r_opt_sk();
         let hack_source = self.r_opt_sk();
         Directive {
@@ -802,6 +807,7 @@ impl<'a> Reader<'a> {
             locations,
             repeatable,
             is_extension,
+            directives,
             description,
             hack_source,
         }

@@ -818,6 +818,7 @@ pub struct SetDirective {
     pub repeatable: bool,
     // Keep locations ordered by input order
     pub locations: Vec<DirectiveLocation>,
+    pub directives: Vec<SetDirectiveValue>,
 }
 impl_traits!(
     SetDirective,
@@ -825,6 +826,7 @@ impl_traits!(
     impl_has_definition_item,
     impl_has_coordinate,
     impl_string_key_named_with_location,
+    impl_can_have_directives,
     impl_has_description
 );
 

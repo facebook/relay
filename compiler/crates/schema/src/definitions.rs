@@ -401,6 +401,7 @@ pub struct Directive {
     pub locations: Vec<DirectiveLocation>,
     pub repeatable: bool,
     pub is_extension: bool,
+    pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
     pub hack_source: Option<StringKey>,
 }

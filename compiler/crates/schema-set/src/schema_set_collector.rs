@@ -504,27 +504,46 @@ impl SchemaSet {
         if !options.include_directive_definitions {
             return;
         }
-        schema
-            .get_directive(common::DirectiveName(directive_name))
-            .map(|schema_directive| {
-                self.directives
-                    .entry(directive_name)
-                    .or_insert_with(|| SetDirective {
-                        definition: SchemaDefinitionItem {
-                            locations: vec![schema_directive.name.location],
-                            is_client_definition: schema_directive.is_extension,
-                            description: None,
-                            hack_source: None,
-                        },
-                        coordinate: Some(SchemaCoordinate::Directive {
-                            name: directive_name,
-                        }),
-                        arguments: StringKeyIndexMap::default(),
-                        locations: schema_directive.locations.clone(),
-                        name: common::DirectiveName(directive_name),
-                        repeatable: schema_directive.repeatable,
-                    })
-            });
+        let Some(schema_directive) = schema.get_directive(common::DirectiveName(directive_name))
+        else {
+            return;
+        };
+
+        // Guard against infinite recursion: a directive can apply other
+        // directives (or itself) on its definition, and `touch_directive_values`
+        // below calls back into `touch_directive`.
+        if self.directives.contains_key(&directive_name) {
+            return;
+        }
+
+        self.directives.insert(
+            directive_name,
+            SetDirective {
+                definition: SchemaDefinitionItem {
+                    locations: vec![schema_directive.name.location],
+                    is_client_definition: schema_directive.is_extension,
+                    description: None,
+                    hack_source: None,
+                },
+                coordinate: Some(SchemaCoordinate::Directive {
+                    name: directive_name,
+                }),
+                arguments: StringKeyIndexMap::default(),
+                locations: schema_directive.locations.clone(),
+                name: common::DirectiveName(directive_name),
+                repeatable: schema_directive.repeatable,
+                directives: schema_directive
+                    .directives
+                    .iter()
+                    .map(|d| SetDirectiveValue::from_schema_value(d, schema_directive.is_extension))
+                    .collect(),
+            },
+        );
+
+        // Pull the definitions of directives applied to this directive's
+        // definition into the schema set, for parity with the other touch_*
+        // collectors.
+        self.touch_directive_values(schema, &schema_directive.directives, options);
     }
 
     pub fn touch_directive_values(
@@ -1221,6 +1240,40 @@ mod tests {
         let input_type = sdl_schema.get_type("CreateInput".intern()).unwrap();
         set.touch_input_type(&sdl_schema, &input_type, &options);
         assert!(set.types.contains_key(&"CreateInput".intern()));
+    }
+
+    #[test]
+    fn test_touch_directive_pulls_in_applied_directive_definitions() {
+        // `@foo`'s definition applies `@bar`. Touching `@foo` must also pull in
+        // `@bar`'s definition, for parity with the other touch_* collectors —
+        // otherwise the printed schema set could reference an undefined directive.
+        let sdl_schema = build_sdl_schema(
+            r#"
+                type Query { id: ID }
+                directive @bar on DIRECTIVE_DEFINITION
+                directive @foo @bar on FIELD
+            "#,
+        );
+        let options = UsedSchemaCollectionOptions {
+            include_directives_on_schema_definitions: true,
+            include_implementations_when_typename_requested: None,
+            include_all_overlapping_concrete_types: false,
+            include_directive_definitions: true,
+            include_implicit_output_enum_values: false,
+            include_implicit_input_fields_and_enum_values: false,
+        };
+        let mut set = SchemaSet::new();
+
+        set.touch_directive(&sdl_schema, "foo".intern(), &options);
+
+        assert!(
+            set.directives.contains_key(&"foo".intern()),
+            "@foo should be collected"
+        );
+        assert!(
+            set.directives.contains_key(&"bar".intern()),
+            "@bar's definition should be pulled in because @foo's definition applies it"
+        );
     }
 
     #[test]

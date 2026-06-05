@@ -1280,6 +1280,7 @@ impl<'a> Parser<'a> {
         self.parse_kind(TokenKind::At)?;
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;
+        let directives = self.parse_constant_directives()?;
 
         let repeatable = self.peek_keyword("repeatable");
         if repeatable {
@@ -1294,6 +1295,7 @@ impl<'a> Parser<'a> {
             arguments,
             repeatable,
             locations,
+            directives,
             description,
             hack_source,
             span,
@@ -1309,6 +1311,7 @@ impl<'a> Parser<'a> {
         self.advance_kind(TokenKind::At)?;
         self.advance_identifier()?; // name
         self.advance_argument_defs()?; // arguments
+        self.advance_constant_directives()?; // directives
 
         let repeatable = self.peek_keyword("repeatable");
         if repeatable {
@@ -1397,6 +1400,7 @@ impl<'a> Parser<'a> {
             "INPUT_OBJECT" => Ok(DirectiveLocation::InputObject),
             "INPUT_FIELD_DEFINITION" => Ok(DirectiveLocation::InputFieldDefinition),
             "VARIABLE_DEFINITION" => Ok(DirectiveLocation::VariableDefinition),
+            "DIRECTIVE_DEFINITION" => Ok(DirectiveLocation::DirectiveDefinition),
             token_str => {
                 let error = Diagnostic::error(
                     format!("Unexpected `{token_str}`, expected a directive location."),

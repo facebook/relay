@@ -440,6 +440,7 @@ impl SetEmptyClone for SetDirective {
         Self {
             arguments: Default::default(),
             locations: Default::default(),
+            directives: Default::default(),
             ..self.clone()
         }
     }

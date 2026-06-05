@@ -1,39 +1,28 @@
 ==================================== INPUT ====================================
-"""
-My Directive
-"""
-directive @my_directive on FIELD
+directive @onDirectiveDef on DIRECTIVE_DEFINITION
 ==================================== OUTPUT ===================================
 SchemaDocument {
-    location: directive_description.graphql:0:54,
+    location: directive_location_directive_definition.graphql:0:50,
     definitions: [
         DirectiveDefinition(
             DirectiveDefinition {
                 name: Identifier {
-                    span: 32:44,
+                    span: 11:25,
                     token: Token {
-                        span: 32:44,
+                        span: 11:25,
                         kind: Identifier,
                     },
-                    value: "my_directive",
+                    value: "onDirectiveDef",
                 },
                 arguments: None,
                 repeatable: false,
                 locations: [
-                    Field,
+                    DirectiveDefinition,
                 ],
                 directives: [],
-                description: Some(
-                    StringNode {
-                        token: Token {
-                            span: 0:20,
-                            kind: BlockStringLiteral,
-                        },
-                        value: "My Directive",
-                    },
-                ),
+                description: None,
                 hack_source: None,
-                span: 21:54,
+                span: 0:50,
             },
         ),
     ],

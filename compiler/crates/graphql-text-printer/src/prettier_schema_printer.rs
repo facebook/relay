@@ -556,10 +556,21 @@ fn directive_definition_doc(def: &DirectiveDefinition) -> RcDoc<'static, ()> {
     let args = def.arguments.as_ref().map(|a| &a.items[..]);
     let locations_str = format_locations_inline(&def.locations);
     let repeatable_str = if def.repeatable { " repeatable" } else { "" };
+    let directives_inline = if def.directives.is_empty() {
+        String::new()
+    } else {
+        format!(
+            " {}",
+            render_doc(constant_directives_doc(&def.directives), LINE_WIDTH)
+        )
+    };
 
     let prefix = format!("directive @{}", def.name.value);
     let args_inline = args.map_or(String::new(), format_arguments_single_line);
-    let suffix = format!("{} on {}", repeatable_str, locations_str);
+    let suffix = format!(
+        "{}{} on {}",
+        directives_inline, repeatable_str, locations_str
+    );
 
     let has_arg_descriptions = args.is_some_and(|a| a.iter().any(|arg| arg.description.is_some()));
 
@@ -594,6 +605,7 @@ fn directive_definition_doc(def: &DirectiveDefinition) -> RcDoc<'static, ()> {
                 .append(RcDoc::text(")"));
         }
         doc = doc
+            .append(RcDoc::text(directives_inline))
             .append(RcDoc::text(repeatable_str))
             .append(RcDoc::text(" on "))
             .append(RcDoc::text(locations_str));

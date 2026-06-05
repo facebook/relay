@@ -257,6 +257,7 @@ fn remove_directive_usages_from_directive(
             .collect(),
         name: directive.name,
         repeatable: directive.repeatable,
+        directives: remove_directive_usages(&directive.directives, excluded_directive_names),
     }
 }
 

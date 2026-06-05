@@ -56,7 +56,7 @@ impl TypeSystemDefinition {
             TypeSystemDefinition::ScalarTypeExtension(d) => &d.directives,
             TypeSystemDefinition::SchemaDefinition(d) => &d.directives,
             TypeSystemDefinition::SchemaExtension(d) => &d.directives,
-            TypeSystemDefinition::DirectiveDefinition(_) => &[],
+            TypeSystemDefinition::DirectiveDefinition(d) => &d.directives,
         }
     }
 
@@ -139,8 +139,7 @@ impl fmt::Display for TypeSystemDefinition {
                 arguments,
                 repeatable,
                 locations,
-                description,
-                hack_source,
+                directives,
                 ..
             }) => write_directive_definition_helper(
                 f,
@@ -148,8 +147,7 @@ impl fmt::Display for TypeSystemDefinition {
                 arguments,
                 repeatable,
                 locations,
-                description,
-                hack_source,
+                directives,
             ),
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
                 name,
@@ -514,6 +512,7 @@ pub struct DirectiveDefinition {
     pub arguments: Option<List<InputValueDefinition>>,
     pub repeatable: bool,
     pub locations: Vec<DirectiveLocation>,
+    pub directives: Vec<ConstantDirective>,
     pub description: Option<StringNode>,
     pub hack_source: Option<StringNode>,
     pub span: Span,
@@ -552,6 +551,7 @@ pub enum DirectiveLocation {
     InputObject,
     InputFieldDefinition,
     VariableDefinition,
+    DirectiveDefinition,
 }
 
 impl From<OperationKind> for DirectiveLocation {
@@ -586,6 +586,7 @@ impl fmt::Display for DirectiveLocation {
             DirectiveLocation::InputObject => write!(f, "INPUT_OBJECT"),
             DirectiveLocation::InputFieldDefinition => write!(f, "INPUT_FIELD_DEFINITION"),
             DirectiveLocation::VariableDefinition => write!(f, "VARIABLE_DEFINITION"),
+            DirectiveLocation::DirectiveDefinition => write!(f, "DIRECTIVE_DEFINITION"),
         }
     }
 }
@@ -786,13 +787,13 @@ fn write_directive_definition_helper(
     arguments: &Option<List<InputValueDefinition>>,
     repeatable: &bool,
     locations: &[DirectiveLocation],
-    _description: &Option<StringNode>,
-    _hack_source: &Option<StringNode>,
+    directives: &[ConstantDirective],
 ) -> fmt::Result {
     write!(f, "directive @{name}")?;
     if let Some(arguments) = arguments.as_ref() {
         write_arguments(f, &arguments.items)?;
     }
+    write_directives(f, directives)?;
     if *repeatable {
         write!(f, " repeatable")?;
     }

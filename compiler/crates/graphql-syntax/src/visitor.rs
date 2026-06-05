@@ -472,6 +472,7 @@ pub trait SyntaxVisitor {
         if let Some(arguments) = &directive.arguments {
             self.visit_input_value_definitions(&arguments.items);
         }
+        self.visit_constant_directives(&directive.directives);
     }
 
     // Constant Directives

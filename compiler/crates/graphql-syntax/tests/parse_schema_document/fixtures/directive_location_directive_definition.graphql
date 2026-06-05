@@ -1,0 +1,1 @@
+directive @onDirectiveDef on DIRECTIVE_DEFINITION

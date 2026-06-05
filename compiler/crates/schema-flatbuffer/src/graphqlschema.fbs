@@ -109,6 +109,7 @@ enum DirectiveLocation : byte {
     InputObject,
     InputFieldDefinition,
     VariableDefinition,
+    DirectiveDefinition,
 }
 
 table Directive {
@@ -117,6 +118,7 @@ table Directive {
     arguments: [Argument];
     locations: [DirectiveLocation];
     repeatable: bool;
+    directives: [DirectiveValue];
 }
 
 table EnumValue {

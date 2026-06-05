@@ -1314,6 +1314,7 @@ impl InMemorySchema {
                 arguments,
                 repeatable,
                 locations,
+                directives,
                 description,
                 hack_source,
                 ..
@@ -1329,6 +1330,7 @@ impl InMemorySchema {
                     }
                 }
                 let arguments = self.build_arguments(arguments, *location_key)?;
+                let directive_values = self.build_directive_values(directives);
                 self.directives.insert(
                     DirectiveName(name.value),
                     Directive {
@@ -1340,6 +1342,7 @@ impl InMemorySchema {
                         locations: locations.clone(),
                         repeatable: *repeatable,
                         is_extension,
+                        directives: directive_values,
                         description: description.as_ref().map(|node| node.value),
                         hack_source: hack_source.as_ref().map(|node| node.value),
                     },

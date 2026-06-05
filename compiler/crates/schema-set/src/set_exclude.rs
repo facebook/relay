@@ -158,7 +158,10 @@ impl SetExclude for SetRootSchema {
 impl CanBeEmpty for SetDirective {
     fn is_set_empty(&self) -> bool {
         // definition will NOT be none if repeatable has changed!
-        self.coordinate.is_none() && self.arguments.is_empty() && self.locations.is_empty()
+        self.coordinate.is_none()
+            && self.arguments.is_empty()
+            && self.locations.is_empty()
+            && self.directives.is_empty()
     }
 }
 
@@ -189,6 +192,7 @@ impl SetExclude for SetDirective {
             arguments: exclude_argument_definitions(&self.arguments, &other.arguments, options),
             name: self.name,
             repeatable: self.repeatable,
+            directives: exclude_directives(&self.directives, &other.directives, options),
         }
     }
 }

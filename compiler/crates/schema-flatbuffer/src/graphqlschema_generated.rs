@@ -365,7 +365,7 @@ pub const ENUM_MAX_DIRECTIVE_LOCATION: i8 = 18;
     note = "Use associated constants instead. This will no longer be generated in 2021."
 )]
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_DIRECTIVE_LOCATION: [DirectiveLocation; 19] = [
+pub const ENUM_VALUES_DIRECTIVE_LOCATION: [DirectiveLocation; 20] = [
     DirectiveLocation::Query,
     DirectiveLocation::Mutation,
     DirectiveLocation::Subscription,
@@ -385,6 +385,7 @@ pub const ENUM_VALUES_DIRECTIVE_LOCATION: [DirectiveLocation; 19] = [
     DirectiveLocation::InputObject,
     DirectiveLocation::InputFieldDefinition,
     DirectiveLocation::VariableDefinition,
+    DirectiveLocation::DirectiveDefinition,
 ];
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
@@ -411,9 +412,10 @@ impl DirectiveLocation {
     pub const InputObject: Self = Self(16);
     pub const InputFieldDefinition: Self = Self(17);
     pub const VariableDefinition: Self = Self(18);
+    pub const DirectiveDefinition: Self = Self(19);
 
     pub const ENUM_MIN: i8 = 0;
-    pub const ENUM_MAX: i8 = 18;
+    pub const ENUM_MAX: i8 = 19;
     pub const ENUM_VALUES: &'static [Self] = &[
         Self::Query,
         Self::Mutation,
@@ -434,6 +436,7 @@ impl DirectiveLocation {
         Self::InputObject,
         Self::InputFieldDefinition,
         Self::VariableDefinition,
+        Self::DirectiveDefinition,
     ];
     /// Returns the variant's name or "" if unknown.
     pub fn variant_name(self) -> Option<&'static str> {
@@ -457,6 +460,7 @@ impl DirectiveLocation {
             Self::InputObject => Some("InputObject"),
             Self::InputFieldDefinition => Some("InputFieldDefinition"),
             Self::VariableDefinition => Some("VariableDefinition"),
+            Self::DirectiveDefinition => Some("DirectiveDefinition"),
             _ => None,
         }
     }
@@ -2086,6 +2090,7 @@ impl<'a> Directive<'a> {
     pub const VT_ARGUMENTS: flatbuffers::VOffsetT = 8;
     pub const VT_LOCATIONS: flatbuffers::VOffsetT = 10;
     pub const VT_REPEATABLE: flatbuffers::VOffsetT = 12;
+    pub const VT_DIRECTIVES: flatbuffers::VOffsetT = 14;
 
     #[inline]
     pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
@@ -2097,6 +2102,9 @@ impl<'a> Directive<'a> {
         args: &'args DirectiveArgs<'args>,
     ) -> flatbuffers::WIPOffset<Directive<'bldr>> {
         let mut builder = DirectiveBuilder::new(_fbb);
+        if let Some(x) = args.directives {
+            builder.add_directives(x);
+        }
         if let Some(x) = args.locations {
             builder.add_locations(x);
         }
@@ -2169,6 +2177,19 @@ impl<'a> Directive<'a> {
                 .unwrap()
         }
     }
+    #[inline]
+    pub fn directives(
+        &self,
+    ) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
+        // Safety:
+        // Created from valid Table for this object
+        // which contains a valid value in this slot
+        unsafe {
+            self._tab.get::<flatbuffers::ForwardsUOffset<
+                flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>,
+            >>(Directive::VT_DIRECTIVES, None)
+        }
+    }
 }
 
 impl flatbuffers::Verifiable for Directive<'_> {
@@ -2184,6 +2205,7 @@ impl flatbuffers::Verifiable for Directive<'_> {
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Argument>>>>("arguments", Self::VT_ARGUMENTS, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, DirectiveLocation>>>("locations", Self::VT_LOCATIONS, false)?
      .visit_field::<bool>("repeatable", Self::VT_REPEATABLE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue>>>>("directives", Self::VT_DIRECTIVES, false)?
      .finish();
         Ok(())
     }
@@ -2196,6 +2218,11 @@ pub struct DirectiveArgs<'a> {
     >,
     pub locations: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, DirectiveLocation>>>,
     pub repeatable: bool,
+    pub directives: Option<
+        flatbuffers::WIPOffset<
+            flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>,
+        >,
+    >,
 }
 impl<'a> Default for DirectiveArgs<'a> {
     #[inline]
@@ -2206,6 +2233,7 @@ impl<'a> Default for DirectiveArgs<'a> {
             arguments: None,
             locations: None,
             repeatable: false,
+            directives: None,
         }
     }
 }
@@ -2249,6 +2277,16 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> DirectiveBuilder<'a, 'b, A> {
             .push_slot::<bool>(Directive::VT_REPEATABLE, repeatable, false);
     }
     #[inline]
+    pub fn add_directives(
+        &mut self,
+        directives: flatbuffers::WIPOffset<
+            flatbuffers::Vector<'b, flatbuffers::ForwardsUOffset<DirectiveValue<'b>>>,
+        >,
+    ) {
+        self.fbb_
+            .push_slot_always::<flatbuffers::WIPOffset<_>>(Directive::VT_DIRECTIVES, directives);
+    }
+    #[inline]
     pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> DirectiveBuilder<'a, 'b, A> {
         let start = _fbb.start_table();
         DirectiveBuilder {
@@ -2271,6 +2309,7 @@ impl core::fmt::Debug for Directive<'_> {
         ds.field("arguments", &self.arguments());
         ds.field("locations", &self.locations());
         ds.field("repeatable", &self.repeatable());
+        ds.field("directives", &self.directives());
         ds.finish()
     }
 }

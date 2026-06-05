@@ -2959,6 +2959,7 @@ SchemaDocument {
                     FragmentSpread,
                     InlineFragment,
                 ],
+                directives: [],
                 description: Some(
                     StringNode {
                         token: Token {
@@ -3038,6 +3039,7 @@ SchemaDocument {
                     FragmentSpread,
                     InlineFragment,
                 ],
+                directives: [],
                 description: None,
                 hack_source: None,
                 span: 2673:2760,
@@ -3109,6 +3111,7 @@ SchemaDocument {
                     FragmentSpread,
                     InlineFragment,
                 ],
+                directives: [],
                 description: None,
                 hack_source: None,
                 span: 2760:2848,
@@ -3179,6 +3182,7 @@ SchemaDocument {
                     Object,
                     Interface,
                 ],
+                directives: [],
                 description: None,
                 hack_source: None,
                 span: 2848:2930,

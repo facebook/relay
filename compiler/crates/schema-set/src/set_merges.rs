@@ -344,6 +344,7 @@ impl Merges for SetDirective {
                 self.locations.push(other_locaiton);
             }
         }
+        merge_directive_values(self, other.directives);
         Ok(())
     }
 }

@@ -262,7 +262,7 @@ function loadQuery<
       // short circuiting the check avoids unnecessary updates
       environment.check(operation).status !== 'available';
 
-    if (shouldFetch) {
+    if (shouldFetch && !environment.isEmpty(operation)) {
       executeDeduped(operation, () => {
         // N.B. Since we have the operation synchronously available here,
         // we can immediately fetch and execute the operation.
@@ -320,9 +320,9 @@ function loadQuery<
           );
           retainReference = environment.retain(operation);
           if (networkObservable != null) {
-            executeDeduped(operation, () =>
-              executeWithNetworkSource(operation, networkObservable),
-            );
+            executeDeduped(operation, () => {
+              return executeWithNetworkSource(operation, networkObservable);
+            });
           }
         },
       ));

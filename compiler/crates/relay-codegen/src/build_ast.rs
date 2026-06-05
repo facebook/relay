@@ -1951,8 +1951,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     // This function creates a node that is the UNION of the nodes that would be created for read time resolvers
     // and for exec time resolvers (so runtime has ALL the information it needs to run for both resolver modes.)
-    // Surprisingly, this function can stay exactly the same as build_client_edge_with_enabled_resolver_normalization_ast
-    // (the function for exec time resolver nodes).
+    // For C2C (client-to-client) edges, we emit ClientEdgeToClientObject with model resolvers.
+    // For C2S (client-to-server) edges, we emit ClientEdgeToServerObject with the operation reference.
     fn build_client_edge_exec_and_read_time(
         &mut self,
         context: &mut ContextualMetadata,
@@ -1968,7 +1968,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
         let backing_field = backing_field_primitives.into_iter().next().unwrap();
 
-        let client_edge_model_resolvers = match &client_edge_metadata.metadata_directive {
+        let selections_item = self.build_linked_field(context, client_edge_metadata.linked_field);
+
+        match &client_edge_metadata.metadata_directive {
             ClientEdgeMetadataDirective::ClientObject {
                 model_resolvers, ..
             } => {
@@ -1982,7 +1984,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         client_edge_metadata.backing_field
                     ),
                 };
-                field_directives.and_then(|field_directives| {
+                let client_edge_model_resolvers = field_directives.and_then(|field_directives| {
                     let resolver_metadata = RelayResolverMetadata::find(field_directives).unwrap();
                     let is_weak_resolver = matches!(
                         resolver_metadata.output_type_info,
@@ -1998,27 +2000,35 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     } else {
                         Some(Primitive::Key(self.object(model_resolver_primitives)))
                     }
-                })
+                });
+
+                let obj = match client_edge_model_resolvers {
+                    Some(model_resolvers) => object! {
+                        kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                        client_edge_model_resolvers: model_resolvers,
+                        client_edge_backing_field_key: backing_field,
+                        client_edge_selections_key: selections_item,
+                    },
+                    None => object! {
+                        kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                        client_edge_backing_field_key: backing_field,
+                        client_edge_selections_key: selections_item,
+                    },
+                };
+                Primitive::Key(self.object(obj))
             }
-            ClientEdgeMetadataDirective::ServerObject { .. } => None,
-        };
-
-        let selections_item = self.build_linked_field(context, client_edge_metadata.linked_field);
-
-        let obj = match client_edge_model_resolvers {
-            Some(model_resolvers) => object! {
-                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                client_edge_model_resolvers: model_resolvers,
-                client_edge_backing_field_key: backing_field,
-                client_edge_selections_key: selections_item,
-            },
-            None => object! {
-                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                client_edge_backing_field_key: backing_field,
-                client_edge_selections_key: selections_item,
-            },
-        };
-        Primitive::Key(self.object(obj))
+            ClientEdgeMetadataDirective::ServerObject { query_name, .. } => {
+                // C2S (client-to-server) edges need to emit ClientEdgeToServerObject
+                // with the operation reference so the executor can trigger the waterfall fetch.
+                let obj = object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
+                    operation: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Name(ExecutableDefinitionName::OperationDefinitionName(*query_name))),
+                    client_edge_backing_field_key: backing_field,
+                    client_edge_selections_key: selections_item,
+                };
+                Primitive::Key(self.object(obj))
+            }
+        }
     }
 
     fn build_normalization_client_edge(
@@ -2051,10 +2061,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 client_edge_selections_key: selections_item,
             }))
         } else {
-            // If a Client Edge models an edge to the server, its generated
-            // query's normalization AST will take care of
-            // normalization/retention of selections hanging off the edge. So,
-            // we just need to include the backing field.
+            // For read-time C2S edges, the waterfall query is handled by the
+            // OperationExecutor using the reader AST's ClientEdgeToServerObject node.
+            // The normalization AST only needs the backing resolver field.
             backing_field
         }
     }

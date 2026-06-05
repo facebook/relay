@@ -1,0 +1,150 @@
+==================================== INPUT ====================================
+# enable-exec-time-resolvers-directive
+# C2S (client-to-server) edge with exec-time resolvers should emit
+# ClientEdgeToServerObject in the normalization AST with operation reference.
+
+query Foo @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
+  client_me {
+    best_friend @waterfall {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+type ClientUser {
+  best_friend: User
+    @relay_resolver(import_name: "BestFriend", import_path: "BestFriendResolver")
+}
+
+extend type Query {
+  client_me: ClientUser
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "id"
+    }
+  ],
+  "kind": "Operation",
+  "name": "ClientEdgeQuery_Foo_client_me__best_friend",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "id"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "node",
+      "plural": false,
+      "selections": [
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "RefetchableClientEdgeQuery_Foo_client_me__best_friend"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": require('ClientEdgeQuery_Foo_client_me__best_friend.graphql'),
+      "identifierInfo": {
+        "identifierField": "id",
+        "identifierQueryVariableName": "id"
+      }
+    }
+  },
+  "name": "RefetchableClientEdgeQuery_Foo_client_me__best_friend",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "Foo",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "ClientUser",
+      "kind": "LinkedField",
+      "name": "client_me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ClientEdgeToServerObject",
+          "operation": require('ClientEdgeQuery_Foo_client_me__best_friend.graphql'),
+          "backingField": {
+            "name": "best_friend",
+            "args": null,
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false,
+            "resolverInfo": {
+              "resolverFunction": require('BestFriendResolver').BestFriend,
+              "rootFragment": null
+            },
+            "fragment": null
+          },
+          "linkedField": {
+            "alias": null,
+            "args": null,
+            "concreteType": "User",
+            "kind": "LinkedField",
+            "name": "best_friend",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "exec_time_resolvers_enabled_provider": require('execTimeResolversFlagProvider')
+}

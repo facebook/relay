@@ -16,6 +16,7 @@ import type {PayloadData, PayloadError} from '../network/RelayNetworkTypes';
 import type {
   NormalizationActorChange,
   NormalizationClientEdgeToClientObject,
+  NormalizationClientEdgeToServerObject,
   NormalizationDefer,
   NormalizationInlineFragment,
   NormalizationLinkedField,
@@ -133,6 +134,7 @@ class RelayResponseNormalizer {
     {
       selections: Array<
         | NormalizationClientEdgeToClientObject
+        | NormalizationClientEdgeToServerObject
         | NormalizationLiveResolverField
         | NormalizationResolverField,
       >,
@@ -346,6 +348,13 @@ class RelayResponseNormalizer {
           }
           break;
         case 'ClientEdgeToClientObject':
+        case 'ClientEdgeToServerObject':
+          // Both variants share the same shape (linkedField, backingField,
+          // resolverInfo) for the purposes of normalization. C2S edges are
+          // only intended for the exec-time path (compiler enforces it), so
+          // the !useExecTimeResolvers branch is treated as a regular client
+          // edge backing — the read path will fail later if a C2S edge ever
+          // reaches it without exec-time resolvers enabled.
           if (!this._useExecTimeResolvers) {
             this._normalizeResolver(selection.backingField, record, data);
           } else if (
@@ -420,6 +429,7 @@ class RelayResponseNormalizer {
   _collectS2CExecution(
     selection:
       | NormalizationClientEdgeToClientObject
+      | NormalizationClientEdgeToServerObject
       | NormalizationLiveResolverField
       | NormalizationResolverField,
     record: Record,

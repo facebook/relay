@@ -39,6 +39,7 @@ const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
+  CLIENT_EDGE_TO_SERVER_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   CONNECTION,
@@ -579,6 +580,7 @@ class RelayMockPayloadGenerator {
           }
           break;
         case CLIENT_EDGE_TO_CLIENT_OBJECT:
+        case CLIENT_EDGE_TO_SERVER_OBJECT:
           mockData = this._traverseSelections(
             [selection.backingField],
             typeName,

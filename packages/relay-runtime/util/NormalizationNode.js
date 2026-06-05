@@ -226,6 +226,15 @@ export type NormalizationClientEdgeToClientObject = {
   readonly modelResolvers?: NormalizationModelResolvers | null,
 };
 
+export type NormalizationClientEdgeToServerObject = {
+  readonly kind: 'ClientEdgeToServerObject',
+  readonly linkedField: NormalizationLinkedField,
+  readonly backingField:
+    | NormalizationResolverField
+    | NormalizationLiveResolverField,
+  readonly operation: ConcreteRequest,
+};
+
 export type NormalizationClientComponent = {
   readonly args?: ?ReadonlyArray<NormalizationArgument>,
   readonly kind: 'ClientComponent',
@@ -242,6 +251,7 @@ export type NormalizationSelection =
   | NormalizationClientComponent
   | NormalizationClientExtension
   | NormalizationClientEdgeToClientObject
+  | NormalizationClientEdgeToServerObject
   | NormalizationDefer
   | NormalizationField
   | NormalizationFragmentSpread

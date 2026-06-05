@@ -1,0 +1,22 @@
+# enable-exec-time-resolvers-directive
+# C2S (client-to-server) edge with exec-time resolvers should emit
+# ClientEdgeToServerObject in the normalization AST with operation reference.
+
+query Foo @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
+  client_me {
+    best_friend @waterfall {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+type ClientUser {
+  best_friend: User
+    @relay_resolver(import_name: "BestFriend", import_path: "BestFriendResolver")
+}
+
+extend type Query {
+  client_me: ClientUser
+}

@@ -501,6 +501,7 @@ class DataChecker {
           }
           break;
         case 'ClientEdgeToClientObject':
+        case 'ClientEdgeToServerObject':
           if (!this._useExecTimeResolvers) {
             this._checkResolver(selection.backingField, dataID);
           }

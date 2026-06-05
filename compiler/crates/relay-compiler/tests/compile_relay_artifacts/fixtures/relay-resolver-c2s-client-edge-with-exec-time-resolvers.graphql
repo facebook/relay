@@ -1,0 +1,24 @@
+# C2S (client-to-server) edge with @exec_time_resolvers in the full compiler
+# pipeline (compile_relay_artifacts does NOT enable exec-time codegen, so
+# the normalization AST uses read-time format: only the backing resolver field).
+fragment relayResolverC2sClientEdgeWithExecTimeResolvers_best_friend_resolver on User {
+  actor_key
+}
+
+query relayResolverC2sClientEdgeWithExecTimeResolversQuery @exec_time_resolvers {
+  me {
+    best_friend @waterfall {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User
+    @relay_resolver(
+      fragment_name: "relayResolverC2sClientEdgeWithExecTimeResolvers_best_friend_resolver"
+      import_path: "./foo/bar/baz/BestFriendResolver.js"
+    )
+}

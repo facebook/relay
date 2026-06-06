@@ -710,7 +710,7 @@
           "description": "Use modern Flow syntax for generated object types.\nThis enables gradual rollout of exact object type syntax and readonly\nproperties across files.",
           "$ref": "#/$defs/FeatureFlag",
           "default": {
-            "kind": "disabled"
+            "kind": "enabled"
           }
         },
         "legacy_include_path_in_required_reader_nodes": {
@@ -983,7 +983,7 @@
             },
             "enforce_module_name_prefix_for_non_haste": false,
             "flow_modern_syntax": {
-              "kind": "disabled"
+              "kind": "enabled"
             },
             "legacy_include_path_in_required_reader_nodes": {
               "kind": "disabled"

@@ -211,7 +211,7 @@ pub struct FeatureFlags {
     /// Use modern Flow syntax for generated object types.
     /// This enables gradual rollout of exact object type syntax and readonly
     /// properties across files.
-    #[serde(default)]
+    #[serde(default = "enabled_feature_flag")]
     pub flow_modern_syntax: FeatureFlag,
 
     /// When enabled, the `@nogrep` annotation is included in the docblock
@@ -260,12 +260,12 @@ impl Default for FeatureFlags {
             enable_shadow_resolvers: Default::default(),
             allow_legacy_relay_resolver_tag: Default::default(),
             enforce_module_name_prefix_for_non_haste: Default::default(),
-            flow_modern_syntax: Default::default(),
             emit_nogrep_annotation: Default::default(),
             disable_more_precise_abstract_selection_raw_response_type: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,
+            flow_modern_syntax: FeatureFlag::Enabled,
         }
     }
 }
@@ -346,6 +346,7 @@ mod tests {
             flags.enforce_fragment_alias_where_ambiguous,
             FeatureFlag::Enabled
         ));
+        assert!(matches!(flags.flow_modern_syntax, FeatureFlag::Enabled));
         // A couple of quick sanity checks for other defaults
         assert!(matches!(flags.no_inline, FeatureFlag::Disabled));
         assert!(!flags.enable_resolver_normalization_ast);

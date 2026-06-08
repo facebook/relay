@@ -13,6 +13,7 @@ use graphql_syntax::ConstantDirective;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DefaultValue;
 use graphql_syntax::DirectiveDefinition;
+use graphql_syntax::DirectiveDefinitionExtension;
 use graphql_syntax::EnumTypeDefinition;
 use graphql_syntax::EnumTypeExtension;
 use graphql_syntax::EnumValueDefinition;
@@ -86,19 +87,15 @@ impl ToSDLDefinition<SchemaDocument> for SchemaSet {
             vec![self.root_schema.to_type_system_definition()]
         };
 
-        let mut directives = self
-            .directives
-            .values()
-            .map(|d| d.to_sdl_definition())
-            .collect::<Vec<_>>();
-        directives.sort_by_key(|a| a.name.value);
+        let mut directives = self.directives.values().collect::<Vec<_>>();
+        directives.sort_by_key(|a| a.name.0);
 
         let mut sorted_types = self.types.values().collect::<Vec<_>>();
         sorted_types.sort_by_key(|a| a.string_key_name());
 
         let definitions = directives
             .into_iter()
-            .map(TypeSystemDefinition::DirectiveDefinition)
+            .map(|d| d.to_type_system_definition())
             .chain(root_schema_definitions)
             .chain(
                 sorted_types
@@ -214,6 +211,22 @@ impl ToSDLDefinition<DirectiveDefinition> for SetDirective {
             description: build_description(&self.definition),
             span: Span::empty(),
             hack_source: build_hack_source(&self.definition),
+        }
+    }
+}
+
+impl ToTypeSystemDefinition for SetDirective {
+    fn to_type_system_definition(&self) -> TypeSystemDefinition {
+        let definition = self.to_sdl_definition();
+        if self.coordinate.is_none() {
+            // Extension-only directive: emit `extend directive @foo @bar`.
+            TypeSystemDefinition::DirectiveDefinitionExtension(DirectiveDefinitionExtension {
+                name: definition.name,
+                directives: definition.directives,
+                span: definition.span,
+            })
+        } else {
+            TypeSystemDefinition::DirectiveDefinition(definition)
         }
     }
 }
@@ -783,6 +796,31 @@ mod tests {
         assert!(
             sdl.contains("directive @foo @deprecated on FIELD"),
             "Expected applied directives to print on the directive definition, got: {}",
+            sdl,
+        );
+    }
+
+    #[test]
+    fn test_extend_directive_merges_into_definition() {
+        let sdl = schema_sdl(indoc! {r#"
+            directive @foo on FIELD
+            extend directive @foo @deprecated
+        "#});
+        assert!(
+            sdl.contains("directive @foo @deprecated on FIELD"),
+            "Expected `extend directive` to merge applied directives into the definition, got: {}",
+            sdl,
+        );
+    }
+
+    #[test]
+    fn test_extension_only_directive_prints_extend() {
+        // A directive that only ever appears as an extension (no base definition)
+        // should round-trip as `extend directive @foo ...`.
+        let sdl = schema_sdl("extend directive @foo @deprecated");
+        assert!(
+            sdl.contains("extend directive @foo @deprecated"),
+            "Expected an extension-only directive to print as `extend directive`, got: {}",
             sdl,
         );
     }

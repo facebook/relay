@@ -527,6 +527,9 @@ impl<'a> Parser<'a> {
             "input" => Ok(TypeSystemDefinition::InputObjectTypeExtension(
                 self.parse_input_object_type_extension()?,
             )),
+            "directive" => Ok(TypeSystemDefinition::DirectiveDefinitionExtension(
+                self.parse_directive_definition_extension()?,
+            )),
             token_str => {
                 let error = Diagnostic::error(
                     format!("Unexpected token `{token_str}`"),
@@ -562,6 +565,7 @@ impl<'a> Parser<'a> {
             "union" => self.advance_union_type_extension(),
             "enum" => self.advance_enum_type_extension(),
             "input" => self.advance_input_object_type_extension(),
+            "directive" => self.advance_directive_definition_extension(),
             token_str => {
                 let error = Diagnostic::error(
                     format!("Unexpected token `{token_str}`"),
@@ -1319,6 +1323,46 @@ impl<'a> Parser<'a> {
         }
         self.advance_keyword("on")?;
         self.advance_directive_locations()?; // locations
+        Ok(self.current)
+    }
+
+    /**
+     * DirectiveDefinitionExtension :
+     *   - extend directive @ Name Directives[Const]
+     */
+    fn parse_directive_definition_extension(
+        &mut self,
+    ) -> ParseResult<DirectiveDefinitionExtension> {
+        // `extend directive` was parsed before
+        let start = self.index();
+        self.parse_kind(TokenKind::At)?;
+        let name = self.parse_identifier()?;
+        let directives = self.parse_constant_directives()?;
+        if directives.is_empty() {
+            self.record_error(Diagnostic::error(
+                "Directive extension should define one or more directives.",
+                Location::new(self.source_location, name.span),
+            ));
+            return Err(());
+        }
+        let end = self.index();
+        let span = Span::new(start, end);
+        Ok(DirectiveDefinitionExtension {
+            name,
+            directives,
+            span,
+        })
+    }
+
+    /**
+     * DirectiveDefinitionExtension :
+     *   - extend directive @ Name Directives[Const]
+     */
+    fn advance_directive_definition_extension(&mut self) -> ParseResult<Token> {
+        // `extend directive` was parsed before
+        self.advance_kind(TokenKind::At)?;
+        self.advance_identifier()?; // name
+        self.advance_constant_directives()?; // directives
         Ok(self.current)
     }
 

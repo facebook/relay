@@ -37,6 +37,7 @@ pub enum TypeSystemDefinition {
     ScalarTypeDefinition(ScalarTypeDefinition),
     ScalarTypeExtension(ScalarTypeExtension),
     DirectiveDefinition(DirectiveDefinition),
+    DirectiveDefinitionExtension(DirectiveDefinitionExtension),
 }
 
 impl TypeSystemDefinition {
@@ -57,6 +58,7 @@ impl TypeSystemDefinition {
             TypeSystemDefinition::SchemaDefinition(d) => &d.directives,
             TypeSystemDefinition::SchemaExtension(d) => &d.directives,
             TypeSystemDefinition::DirectiveDefinition(d) => &d.directives,
+            TypeSystemDefinition::DirectiveDefinitionExtension(d) => &d.directives,
         }
     }
 
@@ -71,6 +73,7 @@ impl TypeSystemDefinition {
             TypeSystemDefinition::UnionTypeDefinition(extension) => extension.name.span,
             TypeSystemDefinition::UnionTypeExtension(extension) => extension.name.span,
             TypeSystemDefinition::DirectiveDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::DirectiveDefinitionExtension(extension) => extension.name.span,
             TypeSystemDefinition::InputObjectTypeDefinition(extension) => extension.name.span,
             TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.name.span,
             TypeSystemDefinition::EnumTypeDefinition(extension) => extension.name.span,
@@ -149,6 +152,11 @@ impl fmt::Display for TypeSystemDefinition {
                 locations,
                 directives,
             ),
+            TypeSystemDefinition::DirectiveDefinitionExtension(DirectiveDefinitionExtension {
+                name,
+                directives,
+                ..
+            }) => write_directive_definition_extension_helper(f, &name.value, directives),
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
                 name,
                 directives,
@@ -204,6 +212,7 @@ impl Named for TypeSystemDefinition {
             TypeSystemDefinition::UnionTypeDefinition(definition) => definition.name.value,
             TypeSystemDefinition::UnionTypeExtension(extension) => extension.name.value,
             TypeSystemDefinition::DirectiveDefinition(definition) => definition.name.value,
+            TypeSystemDefinition::DirectiveDefinitionExtension(extension) => extension.name.value,
             TypeSystemDefinition::InputObjectTypeDefinition(definition) => definition.name.value,
             TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.name.value,
             TypeSystemDefinition::EnumTypeDefinition(definition) => definition.name.value,
@@ -518,6 +527,31 @@ pub struct DirectiveDefinition {
     pub span: Span,
 }
 
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+pub struct DirectiveDefinitionExtension {
+    pub name: Identifier,
+    pub directives: Vec<ConstantDirective>,
+    pub span: Span,
+}
+impl From<DirectiveDefinitionExtension> for DirectiveDefinition {
+    fn from(ext: DirectiveDefinitionExtension) -> Self {
+        Self {
+            name: ext.name,
+            arguments: None,
+            repeatable: false,
+            locations: vec![],
+            directives: ext.directives,
+            // Extensions cannot have descriptions
+            description: None,
+            hack_source: None,
+            span: ext.span,
+        }
+    }
+}
+impl ExtensionIntoDefinition for DirectiveDefinitionExtension {
+    type DefinitionType = DirectiveDefinition;
+}
+
 #[derive(
     PartialEq,
     Eq,
@@ -799,6 +833,16 @@ fn write_directive_definition_helper(
     }
     write!(f, " on ")?;
     write_list(f, locations, " | ")?;
+    writeln!(f)
+}
+
+fn write_directive_definition_extension_helper(
+    f: &mut fmt::Formatter<'_>,
+    name: &StringKey,
+    directives: &[ConstantDirective],
+) -> fmt::Result {
+    write!(f, "extend directive @{name}")?;
+    write_directives(f, directives)?;
     writeln!(f)
 }
 

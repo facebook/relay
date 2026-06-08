@@ -4,13 +4,27 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f3a953a72b9c3857baf1c592c10eae0e>>
+ * @generated SignedSource<<68f05ea9aa314d1698b5ac02d374a5fc>>
  */
 
 mod parse_schema_document;
 
 use parse_schema_document::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn directive_definition_extension() {
+    let input = include_str!("parse_schema_document/fixtures/directive_definition_extension.graphql");
+    let expected = include_str!("parse_schema_document/fixtures/directive_definition_extension.expected");
+    test_fixture(transform_fixture, file!(), "directive_definition_extension.graphql", "parse_schema_document/fixtures/directive_definition_extension.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn directive_definition_extension_empty() {
+    let input = include_str!("parse_schema_document/fixtures/directive_definition_extension_empty.graphql");
+    let expected = include_str!("parse_schema_document/fixtures/directive_definition_extension_empty.expected");
+    test_fixture(transform_fixture, file!(), "directive_definition_extension_empty.graphql", "parse_schema_document/fixtures/directive_definition_extension_empty.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn directive_description() {

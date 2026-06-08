@@ -244,19 +244,16 @@ impl PartitionsBaseExtension for SetDirective {
     // an extension directive with a base directive of the same name (to, for instance, add an argument).
     fn partition_base_extension(&self) -> (Self, Option<Self>) {
         let (base_args, extension_args) = self.partition_extension_arguments();
-        let (base_directives, extension_directives) = self.partition_extension_directives();
         let base = Self {
             arguments: base_args,
-            directives: base_directives,
             ..self.clone()
         };
 
-        let extension = if extension_args.is_empty() && extension_directives.is_empty() {
+        let extension = if extension_args.is_empty() {
             None
         } else {
             Some(Self {
                 arguments: extension_args,
-                directives: extension_directives,
                 coordinate: None,
                 ..self.clone()
             })

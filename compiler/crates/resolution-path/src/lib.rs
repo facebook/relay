@@ -15,7 +15,6 @@ use graphql_syntax::ConstantValue;
 use graphql_syntax::DefaultValue;
 use graphql_syntax::Directive;
 use graphql_syntax::DirectiveDefinition;
-use graphql_syntax::DirectiveDefinitionExtension;
 use graphql_syntax::EnumNode;
 use graphql_syntax::EnumTypeDefinition;
 use graphql_syntax::EnumTypeExtension;
@@ -101,10 +100,10 @@ extern crate assert_matches;
 /// Each AST node type must implement three things:
 ///
 /// - A `[NODE_TYPE]Parent` enum or type alias defining the valid parent///Path
-///   type(s) that this node can have.
+///     type(s) that this node can have.
 /// - A `[NODE_TYPE]Path` struct which is a `Path` with the type arguments
-///   `Inner` defined as the AST node itself and `Parent` defined as the above
-///   `[NODE_TYPE]Parent`.
+///     `Inner` defined as the AST node itself and `Parent` defined as the above
+///     `[NODE_TYPE]Parent`.
 /// - Implement the `ResolvePosition` trait for the AST node itself.
 ///
 /// The actual logic of the module lives in the implementation of
@@ -162,7 +161,6 @@ pub enum ResolutionPath<'a> {
     SchemaExtension(SchemaExtensionPath<'a>),
     OperationTypeDefinition(OperationTypeDefinitionPath<'a>),
     DirectiveDefinition(DirectiveDefinitionPath<'a>),
-    DirectiveDefinitionExtension(DirectiveDefinitionExtensionPath<'a>),
     InputValueDefinition(InputValueDefinitionPath<'a>),
     UnionTypeDefinition(UnionTypeDefinitionPath<'a>),
     UnionTypeExtension(UnionTypeExtensionPath<'a>),
@@ -604,7 +602,6 @@ pub enum IdentParent<'a> {
     EnumValueDefinitionName(EnumValueDefinitionPath<'a>),
     ScalarTypeDefinitionName(ScalarTypeDefinitionPath<'a>),
     ScalarTypeExtensionName(ScalarTypeExtensionPath<'a>),
-    DirectiveDefinitionExtensionName(DirectiveDefinitionExtensionPath<'a>),
     FieldDefinitionName(FieldDefinitionPath<'a>),
     InputValueDefinitionName(InputValueDefinitionPath<'a>),
     OperationTypeDefinitionType(OperationTypeDefinitionPath<'a>),
@@ -1153,9 +1150,6 @@ impl<'a> ResolvePosition<'a> for TypeSystemDefinition {
             TypeSystemDefinition::DirectiveDefinition(directive) => {
                 directive.resolve(self.path(parent), position)
             }
-            TypeSystemDefinition::DirectiveDefinitionExtension(directive_ext) => {
-                directive_ext.resolve(self.path(parent), position)
-            }
             TypeSystemDefinition::UnionTypeDefinition(union) => {
                 union.resolve(self.path(parent), position)
             }
@@ -1204,9 +1198,6 @@ impl<'a> ResolvePosition<'a> for TypeSystemDefinition {
     fn contains(&'a self, position: Span) -> bool {
         match self {
             TypeSystemDefinition::DirectiveDefinition(directive) => directive.contains(position),
-            TypeSystemDefinition::DirectiveDefinitionExtension(directive_ext) => {
-                directive_ext.contains(position)
-            }
             TypeSystemDefinition::UnionTypeDefinition(union) => union.contains(position),
             TypeSystemDefinition::UnionTypeExtension(union_ext) => union_ext.contains(position),
             TypeSystemDefinition::InterfaceTypeDefinition(interface) => {
@@ -2053,38 +2044,6 @@ impl<'a> ResolvePosition<'a> for ScalarTypeExtension {
     }
 }
 
-pub type DirectiveDefinitionExtensionPath<'a> =
-    Path<&'a DirectiveDefinitionExtension, DirectiveDefinitionExtensionParent<'a>>;
-pub type DirectiveDefinitionExtensionParent<'a> = TypeSystemDefinitionPath<'a>;
-
-impl<'a> ResolvePosition<'a> for DirectiveDefinitionExtension {
-    type Parent = DirectiveDefinitionExtensionParent<'a>;
-
-    fn resolve(&'a self, parent: Self::Parent, position: Span) -> ResolutionPath<'a> {
-        if self.name.contains(position) {
-            return self.name.resolve(
-                IdentParent::DirectiveDefinitionExtensionName(self.path(parent)),
-                position,
-            );
-        }
-
-        for directive in self.directives.iter() {
-            if directive.contains(position) {
-                return directive.resolve(
-                    ConstantDirectiveParent::DirectiveDefinitionExtension(self.path(parent)),
-                    position,
-                );
-            }
-        }
-
-        ResolutionPath::DirectiveDefinitionExtension(self.path(parent))
-    }
-
-    fn contains(&'a self, position: Span) -> bool {
-        self.span.contains(position)
-    }
-}
-
 pub type ConstantDirectivePath<'a> = Path<&'a ConstantDirective, ConstantDirectiveParent<'a>>;
 #[derive(Debug)]
 pub enum ConstantDirectiveParent<'a> {
@@ -2101,7 +2060,6 @@ pub enum ConstantDirectiveParent<'a> {
     EnumValueDefinition(EnumValueDefinitionPath<'a>),
     ScalarTypeDefinition(ScalarTypeDefinitionPath<'a>),
     ScalarTypeExtension(ScalarTypeExtensionPath<'a>),
-    DirectiveDefinitionExtension(DirectiveDefinitionExtensionPath<'a>),
     SchemaDefinition(SchemaDefinitionPath<'a>),
     SchemaExtension(SchemaExtensionPath<'a>),
     FieldDefinition(FieldDefinitionPath<'a>),

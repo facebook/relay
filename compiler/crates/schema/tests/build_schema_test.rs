@@ -4,27 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9c6cd85162fc6a76c000d91b57954f71>>
+ * @generated SignedSource<<9c6f20c0829029363ad806936843eef3>>
  */
 
 mod build_schema;
 
 use build_schema::transform_fixture;
 use fixture_tests::test_fixture;
-
-#[tokio::test]
-async fn directive_definition_duplicate_directive() {
-    let input = include_str!("build_schema/fixtures/directive-definition-duplicate-directive.graphql");
-    let expected = include_str!("build_schema/fixtures/directive-definition-duplicate-directive.expected");
-    test_fixture(transform_fixture, file!(), "directive-definition-duplicate-directive.graphql", "build_schema/fixtures/directive-definition-duplicate-directive.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn directive_definition_extension_duplicate_directive() {
-    let input = include_str!("build_schema/fixtures/directive-definition-extension-duplicate-directive.graphql");
-    let expected = include_str!("build_schema/fixtures/directive-definition-extension-duplicate-directive.expected");
-    test_fixture(transform_fixture, file!(), "directive-definition-extension-duplicate-directive.graphql", "build_schema/fixtures/directive-definition-extension-duplicate-directive.expected", input, expected).await;
-}
 
 #[tokio::test]
 async fn directive_on_arg_def() {

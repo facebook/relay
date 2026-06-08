@@ -1,7 +1,0 @@
-directive @bar on DIRECTIVE_DEFINITION
-
-directive @foo @bar @bar on FIELD
-
-type Query {
-  foo: String
-}

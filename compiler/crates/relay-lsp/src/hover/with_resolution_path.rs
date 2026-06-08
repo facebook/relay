@@ -453,14 +453,9 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
             parent: IdentParent::OperationTypeDefinitionType(_),
         }) => HoverBehavior::None,
         ResolutionPath::DirectiveDefinition(_) => HoverBehavior::None,
-        ResolutionPath::DirectiveDefinitionExtension(_) => HoverBehavior::None,
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent: IdentParent::DirectiveDefinitionName(_),
-        }) => HoverBehavior::None,
-        ResolutionPath::Ident(IdentPath {
-            inner: _,
-            parent: IdentParent::DirectiveDefinitionExtensionName(_),
         }) => HoverBehavior::None,
         ResolutionPath::InputValueDefinition(_) => HoverBehavior::None,
         ResolutionPath::Ident(IdentPath {

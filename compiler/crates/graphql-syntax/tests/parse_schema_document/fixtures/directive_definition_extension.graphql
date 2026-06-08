@@ -1,3 +1,0 @@
-directive @foo on FIELD
-
-extend directive @foo @bar @deprecated(reason: "old")

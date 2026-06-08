@@ -283,9 +283,6 @@ impl SchemaSet {
             TypeSystemDefinition::DirectiveDefinition(def) => {
                 merge_def_into(&mut self.directives, def, source, is_client_document)
             }
-            TypeSystemDefinition::DirectiveDefinitionExtension(ext) => {
-                merge_ext_into(&mut self.directives, ext, source, is_client_document)
-            }
         }
     }
 

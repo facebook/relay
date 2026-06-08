@@ -1,5 +1,0 @@
-# expected-to-throw
-# An `extend directive` with zero applied directives is invalid per the spec.
-directive @foo on FIELD
-
-extend directive @foo

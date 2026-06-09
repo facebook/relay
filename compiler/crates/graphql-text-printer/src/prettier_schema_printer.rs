@@ -15,6 +15,7 @@
 use graphql_syntax::ConstantDirective;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveDefinition;
+use graphql_syntax::DirectiveDefinitionExtension;
 use graphql_syntax::DirectiveLocation;
 use graphql_syntax::EnumTypeDefinition;
 use graphql_syntax::EnumTypeExtension;
@@ -91,6 +92,9 @@ fn type_system_definition_doc(definition: &TypeSystemDefinition) -> RcDoc<'stati
         TypeSystemDefinition::ScalarTypeDefinition(def) => scalar_type_definition_doc(def),
         TypeSystemDefinition::ScalarTypeExtension(ext) => scalar_type_extension_doc(ext),
         TypeSystemDefinition::DirectiveDefinition(def) => directive_definition_doc(def),
+        TypeSystemDefinition::DirectiveDefinitionExtension(ext) => {
+            directive_definition_extension_doc(ext)
+        }
     }
 }
 
@@ -610,6 +614,21 @@ fn directive_definition_doc(def: &DirectiveDefinition) -> RcDoc<'static, ()> {
             .append(RcDoc::text(" on "))
             .append(RcDoc::text(locations_str));
     }
+
+    doc.append(RcDoc::hardline())
+}
+
+fn directive_definition_extension_doc(ext: &DirectiveDefinitionExtension) -> RcDoc<'static, ()> {
+    let mut doc = RcDoc::text("extend directive @");
+    doc = doc.append(RcDoc::text(ext.name.value.to_string()));
+
+    let prefix_len = "extend directive @".len() + ext.name.value.to_string().len();
+    doc = doc.append(directives_with_suffix_doc(
+        &ext.directives,
+        prefix_len,
+        0,
+        INDENT_WIDTH,
+    ));
 
     doc.append(RcDoc::hardline())
 }

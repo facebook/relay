@@ -181,6 +181,12 @@ impl SyntaxVisitor for TestVisitor {
                 "visit_type_system_definition: directive @{}",
                 def.name.value
             )),
+            graphql_syntax::TypeSystemDefinition::DirectiveDefinitionExtension(ext) => {
+                self.log(format!(
+                    "visit_type_system_definition: extend directive @{}",
+                    ext.name.value
+                ))
+            }
         }
         self.default_visit_type_system_definition(definition);
     }

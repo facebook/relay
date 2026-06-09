@@ -19,6 +19,9 @@ pub enum SchemaError {
     #[error("Duplicate directive definition '{0}'.")]
     DuplicateDirectiveDefinition(StringKey),
 
+    #[error("Cannot extend directive '{0}', the directive is not defined on the schema.")]
+    ExtendUndefinedDirective(StringKey),
+
     #[error("Cannot extend type '{0}', the type is not defined on the server schema.")]
     ExtendUndefinedType(StringKey),
 

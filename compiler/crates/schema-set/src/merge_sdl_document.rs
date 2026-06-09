@@ -194,7 +194,10 @@ pub fn set_type_from_definition(
                 .to_set_definition(source, is_client_definition, true)
         }
         // No corresponding `SetType` for these
-        SchemaDefinition(_) | SchemaExtension(_) | DirectiveDefinition(_) => return None,
+        SchemaDefinition(_)
+        | SchemaExtension(_)
+        | DirectiveDefinition(_)
+        | DirectiveDefinitionExtension(_) => return None,
     })
 }
 

@@ -878,15 +878,16 @@ impl InMemorySchema {
                 TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
                 TypeSystemDefinition::EnumTypeExtension { .. } => {}
                 TypeSystemDefinition::SchemaExtension { .. } => {
-                    todo!("SchemaExtension not implemented: {}", definition)
+                    panic!("SchemaExtension not implemented: {}", definition)
                 }
                 TypeSystemDefinition::UnionTypeExtension { .. } => {}
                 TypeSystemDefinition::InputObjectTypeExtension { .. } => {
-                    todo!("InputObjectTypeExtension not implemented: {}", definition)
+                    panic!("InputObjectTypeExtension not implemented: {}", definition)
                 }
                 TypeSystemDefinition::ScalarTypeExtension { .. } => {
-                    todo!("ScalarTypeExtension not implemented: {}", definition)
+                    panic!("ScalarTypeExtension not implemented: {}", definition)
                 }
+                TypeSystemDefinition::DirectiveDefinitionExtension { .. } => {}
             }
         }
 
@@ -1330,7 +1331,15 @@ impl InMemorySchema {
                     }
                 }
                 let arguments = self.build_arguments(arguments, *location_key)?;
-                let directive_values = self.build_directive_values(directives);
+                // Dedupe applied directives so a non-repeatable directive is not
+                // applied to the same directive definition more than once,
+                // matching how the other type system definitions merge their
+                // directives via `extend_without_duplicates`.
+                let mut directive_values = Vec::new();
+                extend_without_duplicates(
+                    &mut directive_values,
+                    self.build_directive_values(directives),
+                );
                 self.directives.insert(
                     DirectiveName(name.value),
                     Directive {
@@ -1347,6 +1356,27 @@ impl InMemorySchema {
                         hack_source: hack_source.as_ref().map(|node| node.value),
                     },
                 );
+            }
+            TypeSystemDefinition::DirectiveDefinitionExtension(DirectiveDefinitionExtension {
+                name,
+                directives,
+                ..
+            }) => {
+                let directive_values = self.build_directive_values(directives);
+                match self.directives.get_mut(&DirectiveName(name.value)) {
+                    Some(directive) => {
+                        // Dedupe so an extension re-applying a non-repeatable
+                        // directive does not add it more than once, matching how
+                        // the other type system extensions merge directives.
+                        extend_without_duplicates(&mut directive.directives, directive_values);
+                    }
+                    None => {
+                        return Err(vec![Diagnostic::error(
+                            SchemaError::ExtendUndefinedDirective(name.value),
+                            Location::new(*location_key, name.span),
+                        )]);
+                    }
+                }
             }
             TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
                 name,
@@ -1674,7 +1704,9 @@ impl InMemorySchema {
                     }
                 }
             }
-            TypeSystemDefinition::SchemaExtension { .. } => todo!("SchemaExtension"),
+            TypeSystemDefinition::SchemaExtension { .. } => {
+                panic!("SchemaExtension not implemented")
+            }
 
             TypeSystemDefinition::UnionTypeExtension(UnionTypeExtension {
                 name,
@@ -1707,9 +1739,11 @@ impl InMemorySchema {
                 }
             },
             TypeSystemDefinition::InputObjectTypeExtension { .. } => {
-                todo!("InputObjectTypeExtension")
+                panic!("InputObjectTypeExtension not implemented")
             }
-            TypeSystemDefinition::ScalarTypeExtension { .. } => todo!("ScalarTypeExtension"),
+            TypeSystemDefinition::ScalarTypeExtension { .. } => {
+                panic!("ScalarTypeExtension not implemented")
+            }
         }
         Ok(())
     }

@@ -1283,4 +1283,41 @@ mod tests {
         let deserialized = deserialize_parallel(&bytes);
         assert_schemas_equivalent(&schema, &deserialized);
     }
+
+    /// Applied directives on a directive definition (and `extend directive`)
+    /// should round-trip through the compact serialization format.
+    #[test]
+    fn round_trip_directive_applied_directives() {
+        let sdl = "
+            type Query { id: ID }
+            directive @bar on DIRECTIVE_DEFINITION
+            directive @baz on DIRECTIVE_DEFINITION
+            directive @foo @bar on FIELD
+            extend directive @foo @baz
+        ";
+        let schema = get_in_memory_schema(sdl);
+
+        let foo = schema
+            .get_directive(DirectiveName("foo".intern()))
+            .expect("@foo should be defined");
+        // One applied directive from the definition (@bar) plus one from the
+        // `extend directive @foo @baz` extension.
+        let applied: Vec<&str> = foo.directives.iter().map(|d| d.name.0.lookup()).collect();
+        assert_eq!(
+            applied,
+            vec!["bar", "baz"],
+            "@foo should carry the definition directive then the extension directive"
+        );
+
+        let bytes = serialize_parallel(&schema);
+        let deserialized = deserialize_parallel(&bytes);
+        let foo2 = deserialized
+            .get_directive(DirectiveName("foo".intern()))
+            .expect("@foo should survive round-trip");
+        let applied2: Vec<&str> = foo2.directives.iter().map(|d| d.name.0.lookup()).collect();
+        assert_eq!(
+            applied2, applied,
+            "applied directives on @foo should round-trip through compact format"
+        );
+    }
 }

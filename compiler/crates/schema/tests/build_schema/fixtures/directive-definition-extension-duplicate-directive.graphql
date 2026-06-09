@@ -1,0 +1,9 @@
+directive @bar on DIRECTIVE_DEFINITION
+
+directive @foo @bar on FIELD
+
+extend directive @foo @bar
+
+type Query {
+  foo: String
+}

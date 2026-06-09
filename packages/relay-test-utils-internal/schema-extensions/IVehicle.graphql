@@ -1,0 +1,6 @@
+interface IVehicle {
+  id: ID!
+  wheels: Int
+}
+
+extend type Bicycle implements IVehicle

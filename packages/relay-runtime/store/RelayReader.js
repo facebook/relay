@@ -1056,25 +1056,28 @@ class RelayReader {
             backingField.path,
             this._owner.identifier,
           );
-          const id = this._resolverCache.ensureClientRecord(
-            localId,
-            concreteType,
-          );
 
           const modelResolvers = field.modelResolvers;
           if (modelResolvers != null) {
             const modelResolver = modelResolvers[concreteType];
-            invariant(
-              modelResolver !== undefined,
-              'Invalid `__typename` returned by resolver at `%s` in `%s`. Expected one of %s but got `%s`.',
-              backingField.path,
-              this._owner.identifier,
-              Object.keys(modelResolvers).join(', '),
-              concreteType,
-            );
-            const model = this._readResolverFieldImpl(modelResolver, id);
-            return model != null ? id : null;
+            if (modelResolver !== undefined) {
+              // Model resolver type: namespace the ID and read the model.
+              const id = this._resolverCache.ensureClientRecord(
+                localId,
+                concreteType,
+              );
+              const model = this._readResolverFieldImpl(modelResolver, id);
+              return model != null ? id : null;
+            } else {
+              // Server/CSE type: use the original ID directly.
+              return localId;
+            }
           }
+          // No model resolvers — concrete client object edge.
+          const id = this._resolverCache.ensureClientRecord(
+            localId,
+            concreteType,
+          );
           return id;
         });
       } else {
@@ -1111,9 +1114,49 @@ class RelayReader {
             backingField.path,
             this._owner.identifier,
           );
-          // @edgeTo case where we need to ensure that the record has `id` field
-          storeID = this._resolverCache.ensureClientRecord(id, concreteType);
-          traversalPathSegment = null;
+          const modelResolvers = field.modelResolvers;
+          if (modelResolvers != null) {
+            const modelResolver = modelResolvers[concreteType];
+            if (modelResolver !== undefined) {
+              // Model resolver type: namespace the ID and read the model.
+              storeID = this._resolverCache.ensureClientRecord(
+                id,
+                concreteType,
+              );
+              const model = this._readResolverFieldImpl(modelResolver, storeID);
+              if (model == null) {
+                // If the model resolver returns undefined, we should still
+                // return null to match GQL behavior.
+                data[fieldName] = null;
+                return null;
+              }
+              traversalPathSegment = null;
+            } else {
+              // Server/CSE type: use the original ID directly. The data
+              // lives in the store under the original ID, not a namespaced
+              // client record.
+              storeID = id;
+              // Check if there is a refetch query for this server type.
+              const serverObjectOperations = field.serverObjectOperations;
+              const serverOp =
+                serverObjectOperations != null
+                  ? serverObjectOperations[concreteType]
+                  : null;
+              if (serverOp != null) {
+                traversalPathSegment = {
+                  clientEdgeDestinationID: id,
+                  readerClientEdge: {operation: serverOp},
+                };
+              } else {
+                traversalPathSegment = null;
+              }
+            }
+          } else {
+            // No model resolvers — concrete client object edge.
+            // @edgeTo case where we need to ensure that the record has `id` field
+            storeID = this._resolverCache.ensureClientRecord(id, concreteType);
+            traversalPathSegment = null;
+          }
         } else {
           // The normalization process in LiveResolverCache should take care of generating the correct ID.
           storeID = id;
@@ -1125,32 +1168,6 @@ class RelayReader {
           clientEdgeDestinationID: id,
           readerClientEdge: field,
         };
-      }
-
-      const modelResolvers = field.modelResolvers;
-      if (modelResolvers != null) {
-        invariant(
-          typeof concreteType === 'string',
-          'Expected resolver for field at `%s` in `%s` modeling an edge to an abstract type to return an object with a `__typename` property.',
-          backingField.path,
-          this._owner.identifier,
-        );
-        const modelResolver = modelResolvers[concreteType];
-        invariant(
-          modelResolver !== undefined,
-          'Invalid `__typename` returned by resolver at `%s` in `%s`. Expected one of %s but got `%s`.',
-          backingField.path,
-          this._owner.identifier,
-          Object.keys(modelResolvers).join(', '),
-          concreteType,
-        );
-        const model = this._readResolverFieldImpl(modelResolver, storeID);
-        if (model == null) {
-          // If the model resolver returns undefined, we should still return null
-          // to match GQL behavior.
-          data[fieldName] = null;
-          return null;
-        }
       }
       this._clientEdgeTraversalPath.push(traversalPathSegment);
 

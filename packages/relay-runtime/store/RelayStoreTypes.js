@@ -32,11 +32,7 @@ import type {
   NormalizationSelectableNode,
   NormalizationSelection,
 } from '../util/NormalizationNode';
-import type {
-  ReaderClientEdgeToServerObject,
-  ReaderFragment,
-  ReaderLinkedField,
-} from '../util/ReaderNode';
+import type {ReaderFragment, ReaderLinkedField} from '../util/ReaderNode';
 import type {
   ConcreteRequest,
   RequestParameters,
@@ -128,7 +124,7 @@ export type FieldError =
 export type FieldErrors = Array<FieldError>;
 
 export type ClientEdgeTraversalInfo = {
-  readonly readerClientEdge: ReaderClientEdgeToServerObject,
+  readonly readerClientEdge: {readonly operation: ConcreteRequest, ...},
   readonly clientEdgeDestinationID: DataID,
 };
 

@@ -102,7 +102,7 @@ query ClientEdgeQuery_UserFragment_best_friend(
 #         ),
 #     },
 # }
- {
+ @exec_time_resolvers {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_UserFragment_best_friend
   }

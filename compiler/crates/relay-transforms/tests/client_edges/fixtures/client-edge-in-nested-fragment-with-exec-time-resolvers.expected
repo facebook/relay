@@ -112,7 +112,7 @@ query ClientEdgeQuery_NestedFragment_best_friend(
 #         ),
 #     },
 # }
- {
+ @exec_time_resolvers {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_NestedFragment_best_friend
   }

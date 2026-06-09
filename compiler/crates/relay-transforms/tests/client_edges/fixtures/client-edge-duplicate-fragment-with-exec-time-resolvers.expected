@@ -123,7 +123,7 @@ query ClientEdgeQuery_SharedFragment_best_friend(
 #         ),
 #     },
 # }
- {
+ @exec_time_resolvers {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_SharedFragment_best_friend
   }

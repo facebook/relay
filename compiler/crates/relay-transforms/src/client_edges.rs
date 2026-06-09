@@ -382,6 +382,20 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     }
                     .into(),
                 );
+                // Propagate exec-time semantics to the auto-generated
+                // ClientEdgeQuery so its NormalizationOperation carries
+                // `use_exec_time_resolvers: true`. The reactive executor's
+                // per-waterfall NormalizationEngine reads this flag to
+                // collect S2C executions instead of inlining them. See
+                // CLIENT_TO_SERVER_EDGES_DESIGN.md section 7.1.
+                if self.has_exec_time_resolvers {
+                    directives.push(Directive {
+                        name: WithLocation::generated(*EXEC_TIME_RESOLVERS_DIRECTIVE_NAME),
+                        arguments: vec![],
+                        data: None,
+                        location: Location::generated(),
+                    });
+                }
                 self.new_operations.push(OperationDefinition {
                     kind: OperationKind::Query,
                     name: WithLocation::new(

@@ -120,7 +120,8 @@ extend type User {
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "use_exec_time_resolvers": true
   },
   "params": {
     "cacheID": "9477b1811e2031d984fb8e189ea36eca",

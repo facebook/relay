@@ -55,7 +55,8 @@ extend type Query {
       ],
       "storageKey": null
     }
-  ]
+  ],
+  "use_exec_time_resolvers": true
 }
 
 {

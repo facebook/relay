@@ -54,4 +54,7 @@ pub enum SchemaError {
 
     #[error("Reference to undefined directive '{0}'.")]
     UndefinedDirective(StringKey),
+
+    #[error("The directive `@{0}` can only be used once at this location, but was used {1} times.")]
+    RepeatedNonRepeatableDirective(StringKey, usize),
 }

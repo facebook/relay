@@ -1,0 +1,11 @@
+# expected-to-throw
+
+directive @bar on ARGUMENT_DEFINITION
+
+type Foo {
+  field(a: String @bar @bar): ID
+}
+
+type Query {
+  foo: Foo
+}

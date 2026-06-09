@@ -1,0 +1,11 @@
+# expected-to-throw
+
+directive @bar on FIELD_DEFINITION
+
+type Foo {
+  id: ID @bar @bar
+}
+
+type Query {
+  foo: Foo
+}

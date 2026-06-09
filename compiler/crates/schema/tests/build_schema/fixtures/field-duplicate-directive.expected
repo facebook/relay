@@ -1,18 +1,20 @@
 ==================================== INPUT ====================================
 # expected-to-throw
 
-directive @bar on DIRECTIVE_DEFINITION
+directive @bar on FIELD_DEFINITION
 
-directive @foo @bar @bar on FIELD
+type Foo {
+  id: ID @bar @bar
+}
 
 type Query {
-  foo: String
+  foo: Foo
 }
 ==================================== ERROR ====================================
 ✖︎ The directive `@bar` can only be used once at this location, but was used 2 times.
 
-  directive-definition-duplicate-directive.graphql:5:12
-    4 │ 
-    5 │ directive @foo @bar @bar on FIELD
-      │            ^^^
-    6 │
+  field-duplicate-directive.graphql:6:3
+    5 │ type Foo {
+    6 │   id: ID @bar @bar
+      │   ^^
+    7 │ }

@@ -1,0 +1,11 @@
+# expected-to-throw
+
+directive @bar on INPUT_OBJECT
+
+input I @bar @bar {
+  id: ID
+}
+
+type Query {
+  foo(i: I): ID
+}

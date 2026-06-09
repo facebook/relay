@@ -1,3 +1,5 @@
+# expected-to-throw
+
 directive @bar on DIRECTIVE_DEFINITION
 
 directive @foo @bar on FIELD

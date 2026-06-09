@@ -1,0 +1,578 @@
+==================================== INPUT ====================================
+type Foo @unknown @unknown {
+  id: ID
+}
+
+type Query {
+  foo: Foo
+}
+==================================== OUTPUT ===================================
+Text Schema:Schema {
+  query_type: Some(
+    ObjectID(1),
+)
+  mutation_type: None
+  subscription_type: None
+  directives: [
+    Directive {
+        name: WithLocation {
+            location: <generated>:255:262,
+            item: DirectiveName(
+                "include",
+            ),
+        },
+        arguments: [
+            Argument {
+                name: WithLocation {
+                    location: <generated>:263:265,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+    Directive {
+        name: WithLocation {
+            location: <generated>:334:338,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
+        arguments: [
+            Argument {
+                name: WithLocation {
+                    location: <generated>:339:341,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+]
+  type_map: {
+    "Boolean": Scalar(3),
+    "Float": Scalar(1),
+    "Foo": Object(0),
+    "ID": Scalar(4),
+    "Int": Scalar(0),
+    "Query": Object(1),
+    "String": Scalar(2),
+}
+  enums: []
+  fields: [
+    Field {
+        name: WithLocation {
+            location: undefined-directive-applied-multiple-times.graphql:31:33,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: undefined-directive-applied-multiple-times.graphql:56:59,
+            item: "foo",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Object(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__typename",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: Some(
+            "This object's GraphQL type. Provided by GraphQL type name introspection.",
+        ),
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__token",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__id",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: Some(
+            "Relay's cache key for this object.",
+        ),
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "strong_id__",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "is_fulfilled__",
+        },
+        is_extension: true,
+        arguments: [
+            Argument {
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "name",
+                    ),
+                },
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+        hack_source: None,
+    },
+]
+  input_objects: []
+  interfaces: []
+  objects: [
+    Object {
+        name: WithLocation {
+            location: undefined-directive-applied-multiple-times.graphql:5:8,
+            item: ObjectName(
+                "Foo",
+            ),
+        },
+        is_extension: false,
+        fields: [
+            FieldID(0),
+        ],
+        interfaces: [],
+        directives: [
+            DirectiveValue {
+                name: DirectiveName(
+                    "unknown",
+                ),
+                arguments: [],
+            },
+            DirectiveValue {
+                name: DirectiveName(
+                    "unknown",
+                ),
+                arguments: [],
+            },
+        ],
+        description: None,
+        hack_source: None,
+    },
+    Object {
+        name: WithLocation {
+            location: undefined-directive-applied-multiple-times.graphql:46:51,
+            item: ObjectName(
+                "Query",
+            ),
+        },
+        is_extension: false,
+        fields: [
+            FieldID(1),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+]
+  scalars: [
+    Scalar {
+        name: WithLocation {
+            location: <generated>:187:190,
+            item: ScalarName(
+                "Int",
+            ),
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:198:203,
+            item: ScalarName(
+                "Float",
+            ),
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:211:217,
+            item: ScalarName(
+                "String",
+            ),
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:225:232,
+            item: ScalarName(
+                "Boolean",
+            ),
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:240:242,
+            item: ScalarName(
+                "ID",
+            ),
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+]
+  unions: []
+  }
+
+FlatBuffer Schema:FB Schema {
+directives: [
+    Directive {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "include",
+            ),
+        },
+        arguments: [
+            Argument {
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
+                type_: NonNull(
+                    Named(
+                        Scalar(0),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+    Directive {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: DirectiveName(
+                "skip",
+            ),
+        },
+        arguments: [
+            Argument {
+                name: WithLocation {
+                    location: <generated>:0:0,
+                    item: ArgumentName(
+                        "if",
+                    ),
+                },
+                type_: NonNull(
+                    Named(
+                        Scalar(0),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+]
+enums: []
+fields: [
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "foo",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Object(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: None,
+        hack_source: None,
+    },
+]
+input_objects: []
+interfaces: []
+objects: [
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ObjectName(
+                "Foo",
+            ),
+        },
+        is_extension: false,
+        fields: [
+            FieldID(0),
+        ],
+        interfaces: [],
+        directives: [
+            DirectiveValue {
+                name: DirectiveName(
+                    "unknown",
+                ),
+                arguments: [],
+            },
+            DirectiveValue {
+                name: DirectiveName(
+                    "unknown",
+                ),
+                arguments: [],
+            },
+        ],
+        description: None,
+        hack_source: None,
+    },
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ObjectName(
+                "Query",
+            ),
+        },
+        is_extension: false,
+        fields: [
+            FieldID(1),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+]
+scalars: [
+    Scalar {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "Boolean",
+            ),
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "Float",
+            ),
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "ID",
+            ),
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "Int",
+            ),
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "String",
+            ),
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+]
+unions: []
+}

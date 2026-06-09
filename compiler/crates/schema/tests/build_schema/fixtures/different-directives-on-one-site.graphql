@@ -1,0 +1,11 @@
+directive @bar on OBJECT
+
+directive @qux on OBJECT
+
+type Foo @bar @qux {
+  id: ID
+}
+
+type Query {
+  foo: Foo
+}

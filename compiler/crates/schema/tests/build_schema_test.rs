@@ -4,13 +4,27 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9c6cd85162fc6a76c000d91b57954f71>>
+ * @generated SignedSource<<c030e40d18edc8090e91f649d50f3141>>
  */
 
 mod build_schema;
 
 use build_schema::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn different_directives_on_one_site() {
+    let input = include_str!("build_schema/fixtures/different-directives-on-one-site.graphql");
+    let expected = include_str!("build_schema/fixtures/different-directives-on-one-site.expected");
+    test_fixture(transform_fixture, file!(), "different-directives-on-one-site.graphql", "build_schema/fixtures/different-directives-on-one-site.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn directive_definition_argument_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/directive-definition-argument-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/directive-definition-argument-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "directive-definition-argument-duplicate-directive.graphql", "build_schema/fixtures/directive-definition-argument-duplicate-directive.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn directive_definition_duplicate_directive() {
@@ -41,6 +55,20 @@ async fn directives_for_external_types() {
 }
 
 #[tokio::test]
+async fn enum_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/enum-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/enum-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "enum-duplicate-directive.graphql", "build_schema/fixtures/enum-duplicate-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn enum_value_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/enum-value-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/enum-value-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "enum-value-duplicate-directive.graphql", "build_schema/fixtures/enum-value-duplicate-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn extend_interface_before_define() {
     let input = include_str!("build_schema/fixtures/extend-interface-before-define.graphql");
     let expected = include_str!("build_schema/fixtures/extend-interface-before-define.expected");
@@ -62,10 +90,52 @@ async fn extend_union_before_define() {
 }
 
 #[tokio::test]
+async fn field_argument_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/field-argument-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/field-argument-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "field-argument-duplicate-directive.graphql", "build_schema/fixtures/field-argument-duplicate-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn field_descriptions() {
     let input = include_str!("build_schema/fixtures/field-descriptions.graphql");
     let expected = include_str!("build_schema/fixtures/field-descriptions.expected");
     test_fixture(transform_fixture, file!(), "field-descriptions.graphql", "build_schema/fixtures/field-descriptions.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn field_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/field-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/field-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "field-duplicate-directive.graphql", "build_schema/fixtures/field-duplicate-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn input_object_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/input-object-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/input-object-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "input-object-duplicate-directive.graphql", "build_schema/fixtures/input-object-duplicate-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn input_object_field_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/input-object-field-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/input-object-field-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "input-object-field-duplicate-directive.graphql", "build_schema/fixtures/input-object-field-duplicate-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn interface_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/interface-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/interface-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "interface-duplicate-directive.graphql", "build_schema/fixtures/interface-duplicate-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn interface_extension_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/interface-extension-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/interface-extension-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "interface-extension-duplicate-directive.graphql", "build_schema/fixtures/interface-extension-duplicate-directive.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -171,4 +241,60 @@ async fn kitchen_sink() {
     let input = include_str!("build_schema/fixtures/kitchen-sink.graphql");
     let expected = include_str!("build_schema/fixtures/kitchen-sink.expected");
     test_fixture(transform_fixture, file!(), "kitchen-sink.graphql", "build_schema/fixtures/kitchen-sink.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn object_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/object-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/object-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "object-duplicate-directive.graphql", "build_schema/fixtures/object-duplicate-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn object_duplicate_directive_differing_args() {
+    let input = include_str!("build_schema/fixtures/object-duplicate-directive-differing-args.graphql");
+    let expected = include_str!("build_schema/fixtures/object-duplicate-directive-differing-args.expected");
+    test_fixture(transform_fixture, file!(), "object-duplicate-directive-differing-args.graphql", "build_schema/fixtures/object-duplicate-directive-differing-args.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn object_extension_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/object-extension-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/object-extension-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "object-extension-duplicate-directive.graphql", "build_schema/fixtures/object-extension-duplicate-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn object_extension_duplicate_directive_differing_args() {
+    let input = include_str!("build_schema/fixtures/object-extension-duplicate-directive-differing-args.graphql");
+    let expected = include_str!("build_schema/fixtures/object-extension-duplicate-directive-differing-args.expected");
+    test_fixture(transform_fixture, file!(), "object-extension-duplicate-directive-differing-args.graphql", "build_schema/fixtures/object-extension-duplicate-directive-differing-args.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn repeatable_directive_applied_multiple_times() {
+    let input = include_str!("build_schema/fixtures/repeatable-directive-applied-multiple-times.graphql");
+    let expected = include_str!("build_schema/fixtures/repeatable-directive-applied-multiple-times.expected");
+    test_fixture(transform_fixture, file!(), "repeatable-directive-applied-multiple-times.graphql", "build_schema/fixtures/repeatable-directive-applied-multiple-times.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn scalar_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/scalar-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/scalar-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "scalar-duplicate-directive.graphql", "build_schema/fixtures/scalar-duplicate-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn undefined_directive_applied_multiple_times() {
+    let input = include_str!("build_schema/fixtures/undefined-directive-applied-multiple-times.graphql");
+    let expected = include_str!("build_schema/fixtures/undefined-directive-applied-multiple-times.expected");
+    test_fixture(transform_fixture, file!(), "undefined-directive-applied-multiple-times.graphql", "build_schema/fixtures/undefined-directive-applied-multiple-times.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn union_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/union-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/union-duplicate-directive.expected");
+    test_fixture(transform_fixture, file!(), "union-duplicate-directive.graphql", "build_schema/fixtures/union-duplicate-directive.expected", input, expected).await;
 }

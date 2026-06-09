@@ -1013,9 +1013,153 @@ impl InMemorySchema {
                 }
             }
         }
+        let diagnostics = schema.validate_non_repeatable_directives();
+        if !diagnostics.is_empty() {
+            return Err(diagnostics);
+        }
+
         schema.load_defaults();
 
         Ok(schema)
+    }
+
+    /// Validates that no non-repeatable directive is applied more than once at
+    /// the same location. The check runs after the whole schema is built so that
+    /// every `DirectiveDefinition` is available (a usage may be parsed before the
+    /// directive it references is defined) and so that base + extension directive
+    /// applications, which are merged into a single list per entity, are all
+    /// considered together.
+    ///
+    /// Undefined directives are skipped: without a definition we cannot know
+    /// whether they are repeatable, and the IR build pass validates those.
+    fn validate_non_repeatable_directives(&self) -> Vec<Diagnostic> {
+        let mut diagnostics = Vec::new();
+
+        for directive in self.directives.values() {
+            self.check_repeated_directives(
+                &directive.directives,
+                directive.name.location,
+                &mut diagnostics,
+            );
+            for argument in directive.arguments.iter() {
+                self.check_repeated_directives(
+                    &argument.directives,
+                    argument.name.location,
+                    &mut diagnostics,
+                );
+            }
+        }
+
+        for object in &self.objects {
+            self.check_repeated_directives(
+                &object.directives,
+                object.name.location,
+                &mut diagnostics,
+            );
+        }
+
+        for interface in &self.interfaces {
+            self.check_repeated_directives(
+                &interface.directives,
+                interface.name.location,
+                &mut diagnostics,
+            );
+        }
+
+        for union in &self.unions {
+            self.check_repeated_directives(
+                &union.directives,
+                union.name.location,
+                &mut diagnostics,
+            );
+        }
+
+        for enum_ in &self.enums {
+            self.check_repeated_directives(
+                &enum_.directives,
+                enum_.name.location,
+                &mut diagnostics,
+            );
+            // `EnumValue` carries no span, so fall back to the enum's location.
+            for value in &enum_.values {
+                self.check_repeated_directives(
+                    &value.directives,
+                    enum_.name.location,
+                    &mut diagnostics,
+                );
+            }
+        }
+
+        for scalar in &self.scalars {
+            self.check_repeated_directives(
+                &scalar.directives,
+                scalar.name.location,
+                &mut diagnostics,
+            );
+        }
+
+        for input_object in &self.input_objects {
+            self.check_repeated_directives(
+                &input_object.directives,
+                input_object.name.location,
+                &mut diagnostics,
+            );
+            for field in input_object.fields.iter() {
+                self.check_repeated_directives(
+                    &field.directives,
+                    field.name.location,
+                    &mut diagnostics,
+                );
+            }
+        }
+
+        for field in &self.fields {
+            self.check_repeated_directives(
+                &field.directives,
+                field.name.location,
+                &mut diagnostics,
+            );
+            for argument in field.arguments.iter() {
+                self.check_repeated_directives(
+                    &argument.directives,
+                    argument.name.location,
+                    &mut diagnostics,
+                );
+            }
+        }
+
+        diagnostics
+    }
+
+    /// Pushes a `RepeatedNonRepeatableDirective` diagnostic for every applied
+    /// directive in `directives` that is defined, non-repeatable, and seen
+    /// more than once at the same location.
+    fn check_repeated_directives(
+        &self,
+        directives: &[DirectiveValue],
+        location: Location,
+        diagnostics: &mut Vec<Diagnostic>,
+    ) {
+        // Keep repeated directives in name-sorted order
+        let mut seen: BTreeMap<DirectiveName, usize> = BTreeMap::new();
+        for directive_value in directives {
+            if let Some(directive) = self.get_directive(directive_value.name)
+                && !directive.repeatable
+            {
+                let name = directive_value.name;
+                let seen_count = seen.entry(name).or_insert(0);
+                *seen_count += 1;
+            }
+        }
+
+        for (name, count) in seen {
+            if count > 1 {
+                diagnostics.push(Diagnostic::error(
+                    SchemaError::RepeatedNonRepeatableDirective(name.0, count),
+                    location,
+                ));
+            }
+        }
     }
 
     fn load_defaults(&mut self) {
@@ -1331,15 +1475,10 @@ impl InMemorySchema {
                     }
                 }
                 let arguments = self.build_arguments(arguments, *location_key)?;
-                // Dedupe applied directives so a non-repeatable directive is not
-                // applied to the same directive definition more than once,
-                // matching how the other type system definitions merge their
-                // directives via `extend_without_duplicates`.
-                let mut directive_values = Vec::new();
-                extend_without_duplicates(
-                    &mut directive_values,
-                    self.build_directive_values(directives),
-                );
+                // Retain every applied directive (including duplicates) so the
+                // post-build validation pass can detect a non-repeatable
+                // directive applied more than once.
+                let directive_values = self.build_directive_values(directives);
                 self.directives.insert(
                     DirectiveName(name.value),
                     Directive {
@@ -1365,10 +1504,10 @@ impl InMemorySchema {
                 let directive_values = self.build_directive_values(directives);
                 match self.directives.get_mut(&DirectiveName(name.value)) {
                     Some(directive) => {
-                        // Dedupe so an extension re-applying a non-repeatable
-                        // directive does not add it more than once, matching how
-                        // the other type system extensions merge directives.
-                        extend_without_duplicates(&mut directive.directives, directive_values);
+                        // Retain duplicates so the post-build validation pass can
+                        // detect a non-repeatable directive re-applied by an
+                        // extension.
+                        directive.directives.extend(directive_values);
                     }
                     None => {
                         return Err(vec![Diagnostic::error(
@@ -1594,10 +1733,7 @@ impl InMemorySchema {
                     );
 
                     let built_directives = self.build_directive_values(directives);
-                    extend_without_duplicates(
-                        &mut self.objects[index].directives,
-                        built_directives,
-                    );
+                    self.objects[index].directives.extend(built_directives);
                 }
                 _ => {
                     return Err(vec![Diagnostic::error(
@@ -1646,10 +1782,7 @@ impl InMemorySchema {
                     );
 
                     let built_directives = self.build_directive_values(directives);
-                    extend_without_duplicates(
-                        &mut self.interfaces[index].directives,
-                        built_directives,
-                    );
+                    self.interfaces[index].directives.extend(built_directives);
                 }
                 _ => {
                     return Err(vec![Diagnostic::error(
@@ -1691,10 +1824,7 @@ impl InMemorySchema {
                             );
                         }
                         let built_directives = self.build_directive_values(directives);
-                        extend_without_duplicates(
-                            &mut self.enums[index].directives,
-                            built_directives,
-                        );
+                        self.enums[index].directives.extend(built_directives);
                     }
                     _ => {
                         return Err(vec![Diagnostic::error(
@@ -1729,7 +1859,7 @@ impl InMemorySchema {
                     extend_without_duplicates(&mut self.unions[index].members, client_members);
 
                     let built_directives = self.build_directive_values(directives);
-                    extend_without_duplicates(&mut self.unions[index].directives, built_directives);
+                    self.unions[index].directives.extend(built_directives);
                 }
                 _ => {
                     return Err(vec![Diagnostic::error(

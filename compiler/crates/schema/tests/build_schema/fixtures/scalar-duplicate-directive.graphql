@@ -1,0 +1,9 @@
+# expected-to-throw
+
+directive @bar on SCALAR
+
+scalar S @bar @bar
+
+type Query {
+  s: S
+}

@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+schema {
+  query: Query
+}
+
+type Query {
+  foo: String
+}
+
+type OtherQuery {
+  bar: String
+}
+
+# `query` is already defined by the base schema definition.
+extend schema {
+  query: OtherQuery
+}
+==================================== ERROR ====================================
+✖︎ Duplicate query type definition, got 'OtherQuery' and 'Query'.
+
+  invalid-schema-extension-duplicate-operation.graphql:17:10
+   16 │ extend schema {
+   17 │   query: OtherQuery
+      │          ^^^^^^^^^^
+   18 │ }

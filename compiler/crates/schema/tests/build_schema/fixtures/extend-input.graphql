@@ -1,0 +1,15 @@
+directive @exampleInputDirective on INPUT_OBJECT
+
+input ExampleInput {
+  id: ID!
+}
+
+type Query {
+  field(input: ExampleInput): String
+}
+
+# %extensions%
+
+extend input ExampleInput @exampleInputDirective {
+  name: String
+}

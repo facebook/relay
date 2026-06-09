@@ -1,0 +1,17 @@
+schema {
+  query: Query
+}
+
+type Query {
+  foo: String
+}
+
+type RootMutation {
+  bar: String
+}
+
+# %extensions%
+
+extend schema {
+  mutation: RootMutation
+}

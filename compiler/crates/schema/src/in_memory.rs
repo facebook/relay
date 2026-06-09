@@ -874,19 +874,15 @@ impl InMemorySchema {
                     type_map.insert(name.value, Type::Scalar(ScalarID(next_scalar_id)));
                     next_scalar_id += 1;
                 }
+                // Type extensions don't introduce new entries into the type_map;
+                // they are resolved against existing definitions in `add_definition`.
                 TypeSystemDefinition::ObjectTypeExtension { .. } => {}
                 TypeSystemDefinition::InterfaceTypeExtension { .. } => {}
                 TypeSystemDefinition::EnumTypeExtension { .. } => {}
-                TypeSystemDefinition::SchemaExtension { .. } => {
-                    panic!("SchemaExtension not implemented: {}", definition)
-                }
+                TypeSystemDefinition::SchemaExtension { .. } => {}
                 TypeSystemDefinition::UnionTypeExtension { .. } => {}
-                TypeSystemDefinition::InputObjectTypeExtension { .. } => {
-                    panic!("InputObjectTypeExtension not implemented: {}", definition)
-                }
-                TypeSystemDefinition::ScalarTypeExtension { .. } => {
-                    panic!("ScalarTypeExtension not implemented: {}", definition)
-                }
+                TypeSystemDefinition::InputObjectTypeExtension { .. } => {}
+                TypeSystemDefinition::ScalarTypeExtension { .. } => {}
                 TypeSystemDefinition::DirectiveDefinitionExtension { .. } => {}
             }
         }
@@ -1400,59 +1396,7 @@ impl InMemorySchema {
             TypeSystemDefinition::SchemaDefinition(SchemaDefinition {
                 operation_types, ..
             }) => {
-                for OperationTypeDefinition {
-                    operation, type_, ..
-                } in &operation_types.items
-                {
-                    let operation_id = self.build_object_id(type_.value)?;
-                    match operation {
-                        OperationType::Query => {
-                            if let Some(prev_query_type) = self.query_type {
-                                return Err(vec![Diagnostic::error(
-                                    SchemaError::DuplicateOperationDefinition(
-                                        operation.to_string(),
-                                        type_.value,
-                                        expect_object_type_name(&self.type_map, prev_query_type),
-                                    ),
-                                    Location::new(*location_key, type_.span),
-                                )]);
-                            } else {
-                                self.query_type = Some(operation_id);
-                            }
-                        }
-                        OperationType::Mutation => {
-                            if let Some(prev_mutation_type) = self.mutation_type {
-                                return Err(vec![Diagnostic::error(
-                                    SchemaError::DuplicateOperationDefinition(
-                                        operation.to_string(),
-                                        type_.value,
-                                        expect_object_type_name(&self.type_map, prev_mutation_type),
-                                    ),
-                                    Location::new(*location_key, type_.span),
-                                )]);
-                            } else {
-                                self.mutation_type = Some(operation_id);
-                            }
-                        }
-                        OperationType::Subscription => {
-                            if let Some(prev_subscription_type) = self.subscription_type {
-                                return Err(vec![Diagnostic::error(
-                                    SchemaError::DuplicateOperationDefinition(
-                                        operation.to_string(),
-                                        type_.value,
-                                        expect_object_type_name(
-                                            &self.type_map,
-                                            prev_subscription_type,
-                                        ),
-                                    ),
-                                    Location::new(*location_key, type_.span),
-                                )]);
-                            } else {
-                                self.subscription_type = Some(operation_id);
-                            }
-                        }
-                    }
-                }
+                self.add_operation_types(&operation_types.items, location_key)?;
             }
             TypeSystemDefinition::DirectiveDefinition(DirectiveDefinition {
                 name,
@@ -1834,8 +1778,14 @@ impl InMemorySchema {
                     }
                 }
             }
-            TypeSystemDefinition::SchemaExtension { .. } => {
-                panic!("SchemaExtension not implemented")
+            TypeSystemDefinition::SchemaExtension(SchemaExtension {
+                operation_types, ..
+            }) => {
+                // Schema-level directives have no storage in `InMemorySchema`
+                // (mirroring `SchemaDefinition`), so only operation types are applied.
+                if let Some(operation_types) = operation_types {
+                    self.add_operation_types(&operation_types.items, location_key)?;
+                }
             }
 
             TypeSystemDefinition::UnionTypeExtension(UnionTypeExtension {
@@ -1868,11 +1818,134 @@ impl InMemorySchema {
                     )]);
                 }
             },
-            TypeSystemDefinition::InputObjectTypeExtension { .. } => {
-                panic!("InputObjectTypeExtension not implemented")
-            }
-            TypeSystemDefinition::ScalarTypeExtension { .. } => {
-                panic!("ScalarTypeExtension not implemented")
+            TypeSystemDefinition::InputObjectTypeExtension(InputObjectTypeExtension {
+                name,
+                fields,
+                directives,
+                ..
+            }) => match self.type_map.get(&name.value).cloned() {
+                Some(Type::InputObject(id)) => {
+                    let index = id.as_usize();
+                    let input_object = self.input_objects.get(index).ok_or_else(|| {
+                        vec![Diagnostic::error(
+                            SchemaError::ExtendUndefinedType(name.value),
+                            Location::new(*location_key, name.span),
+                        )]
+                    })?;
+                    let mut existing_fields: HashMap<StringKey, Location> = input_object
+                        .fields
+                        .iter()
+                        .map(|field| (field.name.item.0, field.name.location))
+                        .collect();
+                    let client_fields = self.build_arguments(fields, *location_key)?;
+                    for field in client_fields.iter() {
+                        let field_name = field.name.item.0;
+                        if let Some(prev_location) =
+                            existing_fields.insert(field_name, field.name.location)
+                        {
+                            return Err(vec![
+                                Diagnostic::error(
+                                    SchemaError::DuplicateField(field_name),
+                                    field.name.location,
+                                )
+                                .annotate("previously defined here", prev_location),
+                            ]);
+                        }
+                    }
+                    self.input_objects[index].fields.0.extend(client_fields);
+
+                    let built_directives = self.build_directive_values(directives);
+                    self.input_objects[index]
+                        .directives
+                        .extend(built_directives);
+                }
+                _ => {
+                    return Err(vec![Diagnostic::error(
+                        SchemaError::ExtendUndefinedType(name.value),
+                        Location::new(*location_key, name.span),
+                    )]);
+                }
+            },
+            TypeSystemDefinition::ScalarTypeExtension(ScalarTypeExtension {
+                name,
+                directives,
+                ..
+            }) => match self.type_map.get(&name.value).cloned() {
+                Some(Type::Scalar(id)) => {
+                    let index = id.as_usize();
+                    self.scalars.get(index).ok_or_else(|| {
+                        vec![Diagnostic::error(
+                            SchemaError::ExtendUndefinedType(name.value),
+                            Location::new(*location_key, name.span),
+                        )]
+                    })?;
+                    let built_directives = self.build_directive_values(directives);
+                    self.scalars[index].directives.extend(built_directives);
+                }
+                _ => {
+                    return Err(vec![Diagnostic::error(
+                        SchemaError::ExtendUndefinedType(name.value),
+                        Location::new(*location_key, name.span),
+                    )]);
+                }
+            },
+        }
+        Ok(())
+    }
+
+    fn add_operation_types(
+        &mut self,
+        operation_types: &[OperationTypeDefinition],
+        location_key: &SourceLocationKey,
+    ) -> DiagnosticsResult<()> {
+        for OperationTypeDefinition {
+            operation, type_, ..
+        } in operation_types
+        {
+            let operation_id = self.build_object_id(type_.value)?;
+            match operation {
+                OperationType::Query => {
+                    if let Some(prev_query_type) = self.query_type {
+                        return Err(vec![Diagnostic::error(
+                            SchemaError::DuplicateOperationDefinition(
+                                operation.to_string(),
+                                type_.value,
+                                expect_object_type_name(&self.type_map, prev_query_type),
+                            ),
+                            Location::new(*location_key, type_.span),
+                        )]);
+                    } else {
+                        self.query_type = Some(operation_id);
+                    }
+                }
+                OperationType::Mutation => {
+                    if let Some(prev_mutation_type) = self.mutation_type {
+                        return Err(vec![Diagnostic::error(
+                            SchemaError::DuplicateOperationDefinition(
+                                operation.to_string(),
+                                type_.value,
+                                expect_object_type_name(&self.type_map, prev_mutation_type),
+                            ),
+                            Location::new(*location_key, type_.span),
+                        )]);
+                    } else {
+                        self.mutation_type = Some(operation_id);
+                    }
+                }
+                OperationType::Subscription => {
+                    if let Some(prev_subscription_type) = self.subscription_type {
+                        return Err(vec![Diagnostic::error(
+                            SchemaError::DuplicateOperationDefinition(
+                                operation.to_string(),
+                                type_.value,
+                                expect_object_type_name(&self.type_map, prev_subscription_type),
+                            ),
+                            Location::new(*location_key, type_.span),
+                        )]);
+                    } else {
+                        self.subscription_type = Some(operation_id);
+                    }
+                }
             }
         }
         Ok(())

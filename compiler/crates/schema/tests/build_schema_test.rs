@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c030e40d18edc8090e91f649d50f3141>>
+ * @generated SignedSource<<a95c2a378639e109e01e4d5882f28a1a>>
  */
 
 mod build_schema;
@@ -69,6 +69,13 @@ async fn enum_value_duplicate_directive() {
 }
 
 #[tokio::test]
+async fn extend_input() {
+    let input = include_str!("build_schema/fixtures/extend-input.graphql");
+    let expected = include_str!("build_schema/fixtures/extend-input.expected");
+    test_fixture(transform_fixture, file!(), "extend-input.graphql", "build_schema/fixtures/extend-input.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn extend_interface_before_define() {
     let input = include_str!("build_schema/fixtures/extend-interface-before-define.graphql");
     let expected = include_str!("build_schema/fixtures/extend-interface-before-define.expected");
@@ -80,6 +87,27 @@ async fn extend_object_before_define() {
     let input = include_str!("build_schema/fixtures/extend-object-before-define.graphql");
     let expected = include_str!("build_schema/fixtures/extend-object-before-define.expected");
     test_fixture(transform_fixture, file!(), "extend-object-before-define.graphql", "build_schema/fixtures/extend-object-before-define.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn extend_scalar() {
+    let input = include_str!("build_schema/fixtures/extend-scalar.graphql");
+    let expected = include_str!("build_schema/fixtures/extend-scalar.expected");
+    test_fixture(transform_fixture, file!(), "extend-scalar.graphql", "build_schema/fixtures/extend-scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn extend_scalar_before_define() {
+    let input = include_str!("build_schema/fixtures/extend-scalar-before-define.graphql");
+    let expected = include_str!("build_schema/fixtures/extend-scalar-before-define.expected");
+    test_fixture(transform_fixture, file!(), "extend-scalar-before-define.graphql", "build_schema/fixtures/extend-scalar-before-define.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn extend_schema() {
+    let input = include_str!("build_schema/fixtures/extend-schema.graphql");
+    let expected = include_str!("build_schema/fixtures/extend-schema.expected");
+    test_fixture(transform_fixture, file!(), "extend-schema.graphql", "build_schema/fixtures/extend-schema.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -181,6 +209,13 @@ async fn invalid_implements_non_interface() {
 }
 
 #[tokio::test]
+async fn invalid_input_extension_duplicate_field() {
+    let input = include_str!("build_schema/fixtures/invalid-input-extension-duplicate-field.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-input-extension-duplicate-field.expected");
+    test_fixture(transform_fixture, file!(), "invalid-input-extension-duplicate-field.graphql", "build_schema/fixtures/invalid-input-extension-duplicate-field.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn invalid_input_type() {
     let input = include_str!("build_schema/fixtures/invalid-input-type.graphql");
     let expected = include_str!("build_schema/fixtures/invalid-input-type.expected");
@@ -220,6 +255,13 @@ async fn invalid_object_extension_local_duplicated_fields() {
     let input = include_str!("build_schema/fixtures/invalid-object-extension-local-duplicated-fields.graphql");
     let expected = include_str!("build_schema/fixtures/invalid-object-extension-local-duplicated-fields.expected");
     test_fixture(transform_fixture, file!(), "invalid-object-extension-local-duplicated-fields.graphql", "build_schema/fixtures/invalid-object-extension-local-duplicated-fields.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn invalid_schema_extension_duplicate_operation() {
+    let input = include_str!("build_schema/fixtures/invalid-schema-extension-duplicate-operation.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-schema-extension-duplicate-operation.expected");
+    test_fixture(transform_fixture, file!(), "invalid-schema-extension-duplicate-operation.graphql", "build_schema/fixtures/invalid-schema-extension-duplicate-operation.expected", input, expected).await;
 }
 
 #[tokio::test]

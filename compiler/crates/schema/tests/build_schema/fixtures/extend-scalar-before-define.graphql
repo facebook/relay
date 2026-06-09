@@ -1,0 +1,14 @@
+# expected-to-throw
+
+type Query {
+  data: JSON
+}
+
+# Invalid according to spec:
+# > The named type must already be defined and must be a Scalar type.
+# -- https://spec.graphql.org/June2018/#ScalarTypeExtension
+extend scalar JSON @exampleScalarDirective
+
+scalar JSON
+
+directive @exampleScalarDirective on SCALAR

@@ -1,0 +1,12 @@
+# expected-to-throw
+
+input ExampleInput {
+  id: ID!
+}
+
+# %extensions%
+
+# `id` is already defined on the base input object.
+extend input ExampleInput {
+  id: String
+}

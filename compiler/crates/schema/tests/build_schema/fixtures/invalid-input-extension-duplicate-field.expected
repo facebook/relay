@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+input ExampleInput {
+  id: ID!
+}
+
+# %extensions%
+
+# `id` is already defined on the base input object.
+extend input ExampleInput {
+  id: String
+}
+==================================== ERROR ====================================
+✖︎ Duplicate field definition 'id' found.
+
+  invalid-input-extension-duplicate-field.graphql:11:3
+   10 │ extend input ExampleInput {
+   11 │   id: String
+      │   ^^
+   12 │ }
+
+  ℹ︎ previously defined here
+
+  invalid-input-extension-duplicate-field.graphql:4:3
+    3 │ input ExampleInput {
+    4 │   id: ID!
+      │   ^^
+    5 │ }

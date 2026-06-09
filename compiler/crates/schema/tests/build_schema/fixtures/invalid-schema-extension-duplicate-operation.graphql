@@ -1,0 +1,18 @@
+# expected-to-throw
+
+schema {
+  query: Query
+}
+
+type Query {
+  foo: String
+}
+
+type OtherQuery {
+  bar: String
+}
+
+# `query` is already defined by the base schema definition.
+extend schema {
+  query: OtherQuery
+}

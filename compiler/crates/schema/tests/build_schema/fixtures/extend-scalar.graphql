@@ -1,0 +1,11 @@
+directive @exampleScalarDirective on SCALAR
+
+scalar JSON
+
+type Query {
+  data: JSON
+}
+
+# %extensions%
+
+extend scalar JSON @exampleScalarDirective

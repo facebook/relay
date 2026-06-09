@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# `extend scalar` requires directives per the spec.
+scalar Foo
+
+extend scalar Foo
+==================================== ERROR ====================================
+✖︎ Scalar extension should define one or more directives.
+
+  scalar_extension_empty.graphql:5:15
+    4 │ 
+    5 │ extend scalar Foo
+      │               ^^^

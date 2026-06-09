@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# `extend union` requires directives or member types per the spec.
+union Foo = A
+
+extend union Foo
+==================================== ERROR ====================================
+✖︎ Union extension should define one of directives or member types.
+
+  union_extension_empty.graphql:5:14
+    4 │ 
+    5 │ extend union Foo
+      │              ^^^

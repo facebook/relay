@@ -61,7 +61,7 @@ type XIGStory
 
 union Actor @source(schema: "instagram", name: "Story") = User | Page
 
-extend union Actor
+extend union Actor @deprecated
 
 enum AppStoreSectionContentTypeEnum
   @source(schema: "instagram", name: "Story") {
@@ -70,14 +70,14 @@ enum AppStoreSectionContentTypeEnum
   EARLY_ACCESS
 }
 
-extend enum AppStoreSectionContentTypeEnum
+extend enum AppStoreSectionContentTypeEnum @deprecated
 
 input AppVersions @source(schema: "instagram", name: "Story") {
   app_id: ID!
   version_code: Int
 }
 
-extend input AppVersions
+extend input AppVersions @deprecated
 
 type Page {
   id: ID
@@ -85,4 +85,4 @@ type Page {
 
 scalar ID @source(schema: "instagram", name: "Story")
 
-extend scalar ID
+extend scalar ID @deprecated

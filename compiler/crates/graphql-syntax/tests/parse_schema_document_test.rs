@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<68f05ea9aa314d1698b5ac02d374a5fc>>
+ * @generated SignedSource<<8a792443b42a748270eb6628818a6de5>>
  */
 
 mod parse_schema_document;
@@ -48,10 +48,38 @@ async fn directive_with_directives() {
 }
 
 #[tokio::test]
+async fn enum_extension_empty() {
+    let input = include_str!("parse_schema_document/fixtures/enum_extension_empty.graphql");
+    let expected = include_str!("parse_schema_document/fixtures/enum_extension_empty.expected");
+    test_fixture(transform_fixture, file!(), "enum_extension_empty.graphql", "parse_schema_document/fixtures/enum_extension_empty.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn field_description() {
     let input = include_str!("parse_schema_document/fixtures/field_description.graphql");
     let expected = include_str!("parse_schema_document/fixtures/field_description.expected");
     test_fixture(transform_fixture, file!(), "field_description.graphql", "parse_schema_document/fixtures/field_description.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn input_object_extension_empty() {
+    let input = include_str!("parse_schema_document/fixtures/input_object_extension_empty.graphql");
+    let expected = include_str!("parse_schema_document/fixtures/input_object_extension_empty.expected");
+    test_fixture(transform_fixture, file!(), "input_object_extension_empty.graphql", "parse_schema_document/fixtures/input_object_extension_empty.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn scalar_extension_empty() {
+    let input = include_str!("parse_schema_document/fixtures/scalar_extension_empty.graphql");
+    let expected = include_str!("parse_schema_document/fixtures/scalar_extension_empty.expected");
+    test_fixture(transform_fixture, file!(), "scalar_extension_empty.graphql", "parse_schema_document/fixtures/scalar_extension_empty.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_extension_empty() {
+    let input = include_str!("parse_schema_document/fixtures/schema_extension_empty.graphql");
+    let expected = include_str!("parse_schema_document/fixtures/schema_extension_empty.expected");
+    test_fixture(transform_fixture, file!(), "schema_extension_empty.graphql", "parse_schema_document/fixtures/schema_extension_empty.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -80,4 +108,11 @@ async fn type_description() {
     let input = include_str!("parse_schema_document/fixtures/type_description.graphql");
     let expected = include_str!("parse_schema_document/fixtures/type_description.expected");
     test_fixture(transform_fixture, file!(), "type_description.graphql", "parse_schema_document/fixtures/type_description.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn union_extension_empty() {
+    let input = include_str!("parse_schema_document/fixtures/union_extension_empty.graphql");
+    let expected = include_str!("parse_schema_document/fixtures/union_extension_empty.expected");
+    test_fixture(transform_fixture, file!(), "union_extension_empty.graphql", "parse_schema_document/fixtures/union_extension_empty.expected", input, expected).await;
 }

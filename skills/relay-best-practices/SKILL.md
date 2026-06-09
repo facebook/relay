@@ -51,6 +51,10 @@ page before writing Relay code. Key docs:
 | Compiler configuration | `getting-started/compiler-config.mdx` |
 | Lint rules (ESLint plugin) | `getting-started/lint-rules.mdx` |
 
+**For performance-specific guidance** (query placement, `@defer`, pagination,
+fetch policies, caching, fragment granularity), see the companion
+`relay-performance` skill.
+
 ## Core Philosophy
 
 These principles are the foundation of every decision below. When in doubt,
@@ -115,12 +119,52 @@ See `<llm-docs>/getting-started/lint-rules.mdx` for installation and configurati
 
 ## Decision Rules
 
-### Queries: Never use `useLazyLoadQuery`
+### Queries belong at roots — never in hooks
+
+Queries belong at **route entrypoints** (the top-level component for a URL).
+Hooks are leaves — reused across many components. A query inside a hook fires
+late (after the hook's host renders) AND duplicates across every caller. The fix
+is always: accept a fragment key as a parameter, use `useFragment`.
 
 Use `usePreloadedQuery` + `useQueryLoader` (or `loadQuery`). Start the fetch in
 an event handler, route transition, or during app initialization — before the
 component renders. `useLazyLoadQuery` does not start fetching until render,
 creating waterfalls. See `<llm-docs>/guided-tour/rendering/queries.mdx` for the full pattern.
+
+### Before fixing where a query lives, ask if it should exist
+
+| Question | If YES |
+|----------|--------|
+| Parent already fetches this GraphQL type? | Delete query, use `useFragment` |
+| Component only fetches and passes data down? | Delete the wrapper component entirely (loader anti-pattern) |
+| Query is inside a custom hook? | Delete query, accept a fragment key param |
+| Two components fetch the same data? | Delete one query, fetch in a common ancestor |
+| Data is only used for logging/analytics? | Move to `@defer` or server-side logging |
+| Data is static config (same for every user)? | Inject server-side, no round-trip needed |
+
+### `loadQuery` in `useEffect` is worse than `useLazyLoadQuery`
+
+`useEffect` runs **after paint**, so the fetch starts even later than
+`useLazyLoadQuery` (which at least starts during render). Call `loadQuery` in
+event handlers, route transitions, or app initialization — never in effects.
+
+### Walking the ancestor tree for `useFragment`
+
+When deciding whether `useFragment` can replace a query, walk **up** the
+component tree from your component. Stop at: route boundaries, feature gates,
+conditional renders, or user-triggered interactions. Keep walking through:
+unconditional renders, layout/wrapper components, context providers.
+
+If any ancestor already queries the GraphQL type you need, `useFragment` is
+the answer. Threading fragment keys through several layers of props is fine —
+it IS the correct pattern.
+
+### Don't default query variables to empty values
+
+Never default a query variable to `''`, `0`, or `null` when the real value is
+unavailable. This fires the query with bad data, returning wrong results or
+errors. Instead, use conditional rendering (`if (!id) return null`) or
+`@include`/`@skip` directives to omit the field entirely.
 
 ### Data flow: Always use fragments
 
@@ -270,14 +314,14 @@ Do not select fields individually in both a fragment and a mutation response —
 they will drift out of sync. Spread the fragment instead:
 
 ```graphql
-// WRONG
+# WRONG
 mutation UpdateUserMutation($input: UpdateUserInput!) {
   updateUser(input: $input) {
     user { id, name, email, avatarUrl }
   }
 }
 
-// CORRECT
+# CORRECT
 mutation UpdateUserMutation($input: UpdateUserInput!) {
   updateUser(input: $input) {
     user { ...UserCard_user }
@@ -285,7 +329,70 @@ mutation UpdateUserMutation($input: UpdateUserInput!) {
 }
 ```
 
+## Correctness
+
+### Use `optimisticUpdater` for store-dependent values
+
+If an optimistic value depends on current store state (e.g., incrementing a
+like count), use `optimisticUpdater` instead of `optimisticResponse`. Multiple
+overlapping optimistic responses can compound incorrectly — two simultaneous
+"like" mutations both read count=5 and set count=6, instead of 5→6→7. When one
+rolls back, the store is left in an inconsistent state.
+
+### Invalidate data after wide-effect mutations
+
+When a mutation has side effects too broad to capture in a single response
+payload, use `invalidateRecord()` for targeted invalidation or
+`invalidateStore()` for global invalidation. Pair with
+`useSubscribeToInvalidationState` on mounted components to trigger refetches
+for stale data automatically.
+
+### Handle staleness explicitly
+
+Relay treats cached data as fresh **indefinitely** by default. Two approaches:
+
+- **Time-based**: Set `queryCacheExpirationTime` on the Relay Store to
+  automatically mark data stale after a duration.
+- **Event-based**: Call `invalidateRecord()` after mutations whose side effects
+  extend beyond the mutation response payload.
+
+Without explicit staleness handling, components can display arbitrarily old data
+after the user returns to a previously visited screen.
+
+### Single artifact directory for type safety
+
+Without setting `artifactDirectory` in the compiler config, fragment references
+may default to `any`, losing type safety. Set it and align your bundler's
+module resolution accordingly. See `<llm-docs>/getting-started/compiler-config.mdx`.
+
+### Use `@updatable` for store manipulation
+
+Prefer typesafe updatable queries/fragments over raw store manipulation with
+string-based field access (e.g., `store.get(id).setValue(newName, 'name')`).
+Updatable fragments provide getters and setters, reducing the risk of typos
+and type mismatches.
+
+### Avoid unnecessary refetches after mutations
+
+Do not call `refetch()` or `fetchQuery()` after mutations when spreading
+component fragments in the mutation response would auto-update the store. Each
+unnecessary refetch is a wasted network request and delays the UI update.
+
+Reserve manual refetches for cases where the mutation's side effects are too
+broad to capture in the response payload — and in those cases, prefer
+`invalidateRecord()` (see above).
+
+### Use subscriptions for real-time data
+
+Prefer GraphQL Subscriptions over polling (`setInterval` + `fetchQuery`) or
+manual refresh buttons for data that must stay current. Subscriptions push
+updates only when data changes and integrate with Relay's normalized store
+automatically.
+
 ## Naming Conventions
+
+Relay **enforces** that operation names match the module (file) they are defined
+in. Mismatched names cause compiler errors, not just style warnings.
 
 | Element | Convention | Example |
 |---------|-----------|---------|
@@ -293,3 +400,30 @@ mutation UpdateUserMutation($input: UpdateUserInput!) {
 | Query | `ComponentNameQuery` | `HomePageQuery` |
 | Mutation | `ComponentNameMutation` | `LikeButtonMutation` |
 | Generated files | `__generated__/*.graphql` | Never edit these |
+
+The module name is the filename stripped of all extensions (`.react.js`, `.tsx`,
+etc.). `UserCard.react.js` → module name `UserCard`.
+
+### Renaming operations when extracting to a new file
+
+When moving a component to a new file, rename only the operations **defined in
+that file** to match the new filename. Do NOT rename fragment spreads that
+reference fragments owned by other modules — those names belong to their
+defining component.
+
+Renaming an operation also changes its generated type name (e.g.,
+`UserCard_user$key` → `ProfileCard_user$key`), so update all downstream imports
+of those generated types.
+
+### Never hand-edit `__generated__/` files
+
+The next compiler run overwrites any manual edits. If you see type errors about
+missing generated types, run the compiler first — the types are just out of
+date, not missing.
+
+### Verify mutation variable keys after auto-formatting
+
+Auto-formatters and linters can rename variables in ways that silently break
+mutation calls. After running lint auto-fix, verify that variable keys in
+`commit({ variables: { ... } })` still match the generated `Mutation$variables`
+type (check for `data` vs `input` mismatches in particular).

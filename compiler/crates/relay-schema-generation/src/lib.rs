@@ -230,6 +230,7 @@ impl RelayResolverExtractor {
                 strict_mode: true,
                 enable_jsx: true,
                 dialect: ParserDialect::Flow,
+                parse_flow_match: false,
                 store_doc_block: false,
                 store_comments: true,
             },

@@ -27,6 +27,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             strict_mode: true,
             enable_jsx: false,
             dialect: ParserDialect::Flow,
+            parse_flow_match: false,
             store_doc_block: false,
             store_comments: true,
         },

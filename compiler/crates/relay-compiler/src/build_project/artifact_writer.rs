@@ -150,7 +150,7 @@ fn ensure_file_directory_exists(file_path: &Path) -> io::Result<()> {
     Ok(())
 }
 
-fn content_is_different(path: &Path, content: &[u8]) -> io::Result<bool> {
+pub fn content_is_different(path: &Path, content: &[u8]) -> io::Result<bool> {
     if path.exists() {
         let existing_content = std::fs::read(path)?;
         Ok(existing_content != content)
@@ -159,7 +159,7 @@ fn content_is_different(path: &Path, content: &[u8]) -> io::Result<bool> {
     }
 }
 
-fn hash_is_different(file_hash: String, content: &[u8]) -> io::Result<bool> {
+pub fn hash_is_different(file_hash: String, content: &[u8]) -> io::Result<bool> {
     let hasher = Sha1::new_with_prefix(content);
     let content_hash = format!("{:x}", hasher.finalize());
     Ok(file_hash != content_hash)

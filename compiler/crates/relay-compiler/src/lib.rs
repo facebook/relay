@@ -23,6 +23,8 @@ mod graphql_asts;
 mod operation_persister;
 mod path_validator;
 mod red_to_green;
+#[cfg(unix)]
+pub mod server_daemon;
 pub mod status_reporter;
 pub mod subschema_extraction;
 mod utils;

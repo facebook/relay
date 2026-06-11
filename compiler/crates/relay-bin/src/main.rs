@@ -7,6 +7,8 @@
 
 use std::env;
 use std::env::current_dir;
+#[cfg(unix)]
+use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 use std::sync::Arc;
@@ -19,8 +21,14 @@ use log::error;
 use log::info;
 use relay_codemod::AvailableCodemod;
 use relay_codemod::run_codemod;
+#[cfg(unix)]
+use relay_compiler::DeferredArtifactCache;
+#[cfg(unix)]
+use relay_compiler::DeferredArtifactWriter;
 use relay_compiler::FileSourceKind;
 use relay_compiler::LocalPersister;
+#[cfg(unix)]
+use relay_compiler::NoopArtifactWriter;
 use relay_compiler::OperationPersister;
 use relay_compiler::PersistConfig;
 use relay_compiler::ProjectName;
@@ -32,6 +40,20 @@ use relay_compiler::config::Config;
 use relay_compiler::config::ConfigFile;
 use relay_compiler::errors::Error as CompilerError;
 use relay_compiler::get_programs;
+#[cfg(unix)]
+use relay_compiler::server_daemon;
+#[cfg(unix)]
+use relay_compiler::server_daemon::protocol::DaemonRequest;
+#[cfg(unix)]
+use relay_compiler::server_daemon::protocol::DaemonResponse;
+#[cfg(unix)]
+use relay_compiler::server_daemon::protocol::ResponseResult;
+#[cfg(unix)]
+use relay_compiler::server_daemon::socket::ServerConfig as DaemonServerConfig;
+#[cfg(unix)]
+use relay_compiler::status_reporter::BuildStatus;
+#[cfg(unix)]
+use relay_compiler::status_reporter::NoopStatusReporter;
 use relay_compiler::subschema_extraction::compile_and_extract_subschema;
 use relay_lsp::DummyExtraDataProvider;
 use relay_lsp::FieldDefinitionSourceInfo;
@@ -202,6 +224,43 @@ enum Commands {
     Codemod(CodemodCommand),
     ExperimentalRegenerateSubSchema(UpdateSchemaCommand),
     ExperimentalCompareDocumentIR(CompareDocumentIRCommand),
+    /// Manage the compiler daemon server.
+    ///
+    /// The daemon keeps an in-memory compiler state for fast incremental
+    /// rebuilds and writes artifacts on demand via `relay server write`
+    /// instead of after every build.
+    #[cfg(unix)]
+    Server(ServerOpt),
+}
+
+#[cfg(unix)]
+#[derive(Parser)]
+#[clap(rename_all = "camel_case")]
+struct ServerOpt {
+    /// Compile only this project. You can pass this argument multiple times.
+    /// If excluded, all projects will be compiled.
+    #[clap(long, short)]
+    project: Vec<String>,
+
+    /// Compile using this config file. If not provided, searches for a config
+    /// in package.json under the `relay` key or `relay.config.json` files
+    /// among other up from the current working directory.
+    #[clap(long)]
+    config: Option<PathBuf>,
+
+    #[clap(subcommand)]
+    command: ServerCommand,
+}
+
+#[cfg(unix)]
+#[derive(Debug, clap::Subcommand)]
+enum ServerCommand {
+    /// Start the compiler daemon server in the foreground.
+    Start,
+    /// Check the daemon's compiler version.
+    Version,
+    /// Shut down the daemon.
+    Shutdown,
 }
 
 #[derive(ValueEnum, Clone, Copy)]
@@ -269,6 +328,8 @@ async fn main() {
         Commands::ExperimentalCompareDocumentIR(command) => {
             handle_compare_document_ir_command(command)
         }
+        #[cfg(unix)]
+        Commands::Server(opt) => handle_server_command(opt).await,
     };
 
     if let Err(err) = result {
@@ -561,4 +622,132 @@ fn should_use_watchman(no_watchman_flag: bool) -> bool {
         .args(["list-capabilities"])
         .output()
         .is_ok()
+}
+
+/// Compiler version string used by the daemon for client/server version checks.
+#[cfg(unix)]
+fn compiler_version() -> String {
+    option_env!("CARGO_PKG_VERSION")
+        .unwrap_or("unknown")
+        .to_string()
+}
+
+#[cfg(unix)]
+async fn handle_server_command(opt: ServerOpt) -> Result<(), Error> {
+    configure_logger(OutputKind::Verbose, TerminalMode::Mixed);
+
+    // Resolve the config path eagerly — the daemon's socket and log file
+    // paths are derived from it, and `start` and other subcommands must
+    // agree on the hash to talk to the same daemon.
+    let config_path = match opt.config.clone() {
+        Some(p) => p,
+        None => Config::find_path(
+            &current_dir().expect("Unable to get current working directory."),
+        )
+        .map_err(Error::ConfigError)?
+        .ok_or_else(|| {
+            Error::ConfigError(CompilerError::ConfigError {
+                details: "No Relay config found from current directory. Pass --config to specify one explicitly.".to_string(),
+            })
+        })?,
+    };
+
+    match opt.command {
+        ServerCommand::Start => {
+            start_server_foreground(&config_path, &opt.project, opt.config).await
+        }
+        cmd @ (ServerCommand::Version | ServerCommand::Shutdown) => {
+            let request = match cmd {
+                ServerCommand::Version => DaemonRequest::Version,
+                ServerCommand::Shutdown => DaemonRequest::Shutdown,
+                _ => unreachable!(),
+            };
+            let socket_path = server_daemon::get_socket_path(&config_path, &opt.project);
+            info!("Sending {:?} to {}", request, socket_path.display());
+            let response = server_daemon::send_request(&socket_path, request).await;
+            log_daemon_response(response);
+            Ok(())
+        }
+    }
+}
+
+#[cfg(unix)]
+async fn start_server_foreground(
+    config_path: &Path,
+    projects: &[String],
+    user_config_arg: Option<PathBuf>,
+) -> Result<(), Error> {
+    info!("Starting Relay compiler in server mode...");
+
+    let mut config = get_config(user_config_arg)?;
+    set_project_flag(&mut config, &projects.to_vec())?;
+    apply_default_cli_extensions(&mut config);
+
+    // Wrap the existing status reporter so daemon clients can observe build
+    // lifecycle and so handle_write can wait_for_idle.
+    let base_reporter =
+        std::mem::replace(&mut config.status_reporter, Box::new(NoopStatusReporter));
+    let mut build_status = BuildStatus::new(
+        base_reporter,
+        config.root_dir.clone(),
+        config.is_multi_project,
+    );
+    let log_path = server_daemon::get_log_file_path(config_path, projects);
+    build_status.set_log_path(log_path);
+    let build_status = Arc::new(build_status);
+    config.daemon_build_status = Some(Arc::clone(&build_status));
+    config.status_reporter = Box::new(Arc::clone(&build_status));
+
+    // Swap the real artifact writer for the deferred one. The cache holds the
+    // original writer; flush_to_disk runs the original writer's writes.
+    let original_artifact_writer =
+        std::mem::replace(&mut config.artifact_writer, Box::new(NoopArtifactWriter));
+    let artifact_cache = Arc::new(DeferredArtifactCache::new(original_artifact_writer));
+    config.artifact_writer = Box::new(DeferredArtifactWriter::new(Arc::clone(&artifact_cache)));
+
+    let socket_path = server_daemon::get_socket_path(config_path, projects);
+    info!("Starting server on {}", socket_path.display());
+
+    let perf_logger = Arc::new(ConsoleLogger);
+    server_daemon::start_server(DaemonServerConfig {
+        socket_path,
+        config_path: config_path.to_path_buf(),
+        projects: projects.to_vec(),
+        compiler_config: config,
+        perf_logger,
+        artifact_cache,
+        build_status,
+        compiler_version: compiler_version(),
+        flush_writer_factory: None,
+    })
+    .await
+    .map_err(|e| Error::CompilerError {
+        details: format!("Daemon server error: {e}"),
+    })
+}
+
+#[cfg(unix)]
+fn log_daemon_response(response: Option<DaemonResponse>) {
+    match response {
+        Some(DaemonResponse::Success { result }) => match result {
+            ResponseResult::Version { compiler_version } => {
+                println!("{}", compiler_version);
+            }
+            ResponseResult::ShutdownAck => {
+                info!("Daemon shut down successfully.");
+            }
+            _ => {
+                error!("Unexpected response from daemon");
+                std::process::exit(1);
+            }
+        },
+        Some(DaemonResponse::Error { code, message }) => {
+            error!("Error ({code:?}): {message}");
+            std::process::exit(1);
+        }
+        None => {
+            error!("No server response");
+            std::process::exit(1);
+        }
+    }
 }

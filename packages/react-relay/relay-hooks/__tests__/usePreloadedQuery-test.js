@@ -32,12 +32,8 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-const {
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
+const {flushMicrotasks} = require('relay-test-utils-internal');
 const warning = require('warning');
-
-injectPromisePolyfill__DEPRECATED();
 
 jest.mock('warning');
 
@@ -142,7 +138,7 @@ describe('usePreloadedQuery', () => {
       jest.spyOn(console, 'error').mockImplementation(() => {});
     });
 
-    it('suspends while the query is pending', () => {
+    it('suspends while the query is pending', async () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -162,12 +158,12 @@ describe('usePreloadedQuery', () => {
           </React.Suspense>
         </RelayEnvironmentProvider>,
       );
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Fallback');
       expect(data).toBe(undefined);
     });
 
-    it('suspends while the query is pending (with default variables)', () => {
+    it('suspends while the query is pending (with default variables)', async () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -185,12 +181,12 @@ describe('usePreloadedQuery', () => {
           </React.Suspense>
         </RelayEnvironmentProvider>,
       );
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Fallback');
       expect(data).toBe(undefined);
     });
 
-    it('renders synchronously if the query has already completed', () => {
+    it('renders synchronously if the query has already completed', async () => {
       // TODO(T40983823): Fix usage of timers in tests
       environment.getStore().holdGC();
 
@@ -220,7 +216,7 @@ describe('usePreloadedQuery', () => {
           </React.Suspense>
         </RelayEnvironmentProvider>,
       );
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Zuck');
       expect(data).toEqual({
         node: {
@@ -230,7 +226,7 @@ describe('usePreloadedQuery', () => {
       });
     });
 
-    it('renders synchronously if the query has already errored', () => {
+    it('renders synchronously if the query has already errored', async () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -259,11 +255,11 @@ describe('usePreloadedQuery', () => {
         </RelayEnvironmentProvider>,
       );
       // Ensure that useEffect runs
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Error Boundary');
     });
 
-    it('updates asynchronously when the query completes', () => {
+    it('updates asynchronously when the query completes', async () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -285,7 +281,7 @@ describe('usePreloadedQuery', () => {
         </RelayEnvironmentProvider>,
       );
       // Ensure that useEffect runs
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Fallback');
       expect(data).toBe(undefined);
 
@@ -295,7 +291,7 @@ describe('usePreloadedQuery', () => {
         // $FlowFixMe[incompatible-use]
         dataSource.complete();
       }
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Zuck');
       expect(data).toEqual({
         node: {
@@ -305,7 +301,7 @@ describe('usePreloadedQuery', () => {
       });
     });
 
-    it('refetches when a different fetchKey is passed', () => {
+    it('refetches when a different fetchKey is passed', async () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -335,7 +331,7 @@ describe('usePreloadedQuery', () => {
         </RelayEnvironmentProvider>,
       );
       // Ensure that useEffect runs
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Fallback');
       expect(data).toBe(undefined);
 
@@ -344,7 +340,7 @@ describe('usePreloadedQuery', () => {
         dataSourceBreakCache0.next(response);
         dataSourceBreakCache0.complete();
       }
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Zuck');
       expect(data).toEqual({
         node: {
@@ -365,7 +361,7 @@ describe('usePreloadedQuery', () => {
         dataSourceBreakCache1.next(responseRefetch);
         dataSourceBreakCache1.complete();
       }
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Changed Name');
       expect(data).toEqual({
         node: {
@@ -375,7 +371,7 @@ describe('usePreloadedQuery', () => {
       });
     });
 
-    it('refetches when consumed with a different environment', () => {
+    it('refetches when consumed with a different environment', async () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -399,7 +395,7 @@ describe('usePreloadedQuery', () => {
         </RelayEnvironmentProvider>,
       );
       // Ensure that useEffect runs
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Fallback');
       expect(data).toBe(undefined);
 
@@ -409,7 +405,7 @@ describe('usePreloadedQuery', () => {
       expect(fetch).toBeCalledTimes(1);
       newEnvironment.mock.resolve(query, response);
 
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Zuck');
       expect(data).toEqual({
         node: {
@@ -419,7 +415,7 @@ describe('usePreloadedQuery', () => {
       });
     });
 
-    it('no refetch when the same fetchKey is passed', () => {
+    it('no refetch when the same fetchKey is passed', async () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -449,7 +445,7 @@ describe('usePreloadedQuery', () => {
         </RelayEnvironmentProvider>,
       );
       // Ensure that useEffect runs
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Fallback');
       expect(data).toBe(undefined);
 
@@ -458,7 +454,7 @@ describe('usePreloadedQuery', () => {
         dataSourceBreakCache0.next(response);
         dataSourceBreakCache0.complete();
       }
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Zuck');
       expect(data).toEqual({
         node: {
@@ -479,7 +475,7 @@ describe('usePreloadedQuery', () => {
         dataSourceBreakCache1.next(responseRefetch);
         dataSourceBreakCache1.complete();
       }
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Zuck');
       expect(data).toEqual({
         node: {
@@ -489,7 +485,7 @@ describe('usePreloadedQuery', () => {
       });
     });
 
-    it('updates asynchronously when the query errors', () => {
+    it('updates asynchronously when the query errors', async () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
@@ -513,7 +509,7 @@ describe('usePreloadedQuery', () => {
         </RelayEnvironmentProvider>,
       );
       // Ensure that useEffect runs
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Fallback');
       expect(data).toBe(undefined);
 
@@ -522,7 +518,7 @@ describe('usePreloadedQuery', () => {
       if (dataSource) {
         dataSource.error(error);
       }
-      TestRenderer.act(() => jest.runAllImmediates());
+      await TestRenderer.act(() => flushMicrotasks());
       expect(renderer.toJSON()).toEqual('Error Boundary');
     });
   });
@@ -543,7 +539,7 @@ describe('usePreloadedQuery', () => {
     });
 
     describe('if loadQuery is passed a preloadableConcreteRequest which is not available synchronously', () => {
-      it('does not suspend while the query is pending until the query AST and network response are available', () => {
+      it('does not suspend while the query is pending until the query AST and network response are available', async () => {
         const prefetched = loadQuery(environment, preloadableConcreteRequest, {
           id: '4',
         });
@@ -564,7 +560,7 @@ describe('usePreloadedQuery', () => {
         // This isn't really a problem in practice because by the time the component
         // renders the ast /must/ have already been downloaded
         // TODO(T85673186): Detect raw network requests in flight to suspend on.
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('MISSING NAME');
         expect(data).toEqual({node: undefined});
 
@@ -576,7 +572,7 @@ describe('usePreloadedQuery', () => {
         if (dataSource) {
           dataSource.next(response);
         }
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('Zuck');
         expect(data).toEqual({
           node: {
@@ -586,7 +582,7 @@ describe('usePreloadedQuery', () => {
         });
       });
 
-      it('does not suspend while the query is pending until the network response and the query AST are available', () => {
+      it('does not suspend while the query is pending until the network response and the query AST are available', async () => {
         const prefetched = loadQuery(environment, preloadableConcreteRequest, {
           id: '4',
         });
@@ -614,7 +610,7 @@ describe('usePreloadedQuery', () => {
         expect(renderer?.toJSON()).toEqual('MISSING NAME');
         expect(data).toEqual({node: undefined});
 
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer?.toJSON()).toEqual('MISSING NAME');
         expect(data).toEqual({node: undefined});
 
@@ -622,7 +618,7 @@ describe('usePreloadedQuery', () => {
         if (dataSource) {
           dataSource.next(response);
         }
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer?.toJSON()).toEqual('Zuck');
         expect(data).toEqual({
           node: {
@@ -632,7 +628,7 @@ describe('usePreloadedQuery', () => {
         });
       });
 
-      it('renders synchronously if the query has already completed', () => {
+      it('renders synchronously if the query has already completed', async () => {
         const prefetched = loadQuery(environment, preloadableConcreteRequest, {
           id: '4',
         });
@@ -642,7 +638,7 @@ describe('usePreloadedQuery', () => {
         if (dataSource) {
           dataSource.next(response);
         }
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
 
         function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
@@ -668,7 +664,7 @@ describe('usePreloadedQuery', () => {
         });
       });
 
-      it('renders an error synchronously if the query has already errored', () => {
+      it('renders an error synchronously if the query has already errored', async () => {
         const prefetched = loadQuery(environment, preloadableConcreteRequest, {
           id: '4',
         });
@@ -678,7 +674,7 @@ describe('usePreloadedQuery', () => {
         if (dataSource) {
           dataSource.error(new Error('No data for you'));
         }
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
 
         function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
@@ -703,7 +699,7 @@ describe('usePreloadedQuery', () => {
 
     describe('when loadQuery is passed a query AST', () => {
       describe('when the network response is available before usePreloadedQuery is rendered', () => {
-        it('should synchronously render successfully', () => {
+        it('should synchronously render successfully', async () => {
           const prefetched = loadQuery(environment, query, {
             id: '4',
           });
@@ -712,7 +708,7 @@ describe('usePreloadedQuery', () => {
           if (dataSource) {
             dataSource.next(response);
           }
-          TestRenderer.act(() => jest.runAllImmediates());
+          await TestRenderer.act(() => flushMicrotasks());
 
           function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
@@ -737,7 +733,7 @@ describe('usePreloadedQuery', () => {
             },
           });
         });
-        it('should synchronously render errors', () => {
+        it('should synchronously render errors', async () => {
           const prefetched = loadQuery(environment, query, {
             id: '4',
           });
@@ -746,7 +742,7 @@ describe('usePreloadedQuery', () => {
           if (dataSource) {
             dataSource.error(new Error('No data for you'));
           }
-          TestRenderer.act(() => jest.runAllImmediates());
+          await TestRenderer.act(() => flushMicrotasks());
 
           function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
@@ -770,7 +766,7 @@ describe('usePreloadedQuery', () => {
       });
 
       describe('when the network response occurs after usePreloadedQuery is rendered', () => {
-        it('should suspend, and then render', () => {
+        it('should suspend, and then render', async () => {
           const prefetched = loadQuery(environment, query, {
             id: '4',
           });
@@ -797,7 +793,7 @@ describe('usePreloadedQuery', () => {
           if (dataSource) {
             dataSource.next(response);
           }
-          TestRenderer.act(() => jest.runAllImmediates());
+          await TestRenderer.act(() => flushMicrotasks());
 
           expect(renderer?.toJSON()).toEqual('Zuck');
           expect(data).toEqual({
@@ -807,7 +803,7 @@ describe('usePreloadedQuery', () => {
             },
           });
         });
-        it('should suspend, then render and error', () => {
+        it('should suspend, then render and error', async () => {
           const prefetched = loadQuery(environment, query, {
             id: '4',
           });
@@ -837,7 +833,7 @@ describe('usePreloadedQuery', () => {
           if (dataSource) {
             dataSource.error(new Error('No data for you'));
           }
-          TestRenderer.act(() => jest.runAllImmediates());
+          await TestRenderer.act(() => flushMicrotasks());
 
           expect(renderer?.toJSON()).toEqual('Error Boundary');
         });
@@ -854,7 +850,7 @@ describe('usePreloadedQuery', () => {
         resolvedModule = originalResolvedModule;
       });
       describe('when the network response is available before usePreloadedQuery is rendered', () => {
-        it('should synchronously render successfully', () => {
+        it('should synchronously render successfully', async () => {
           const prefetched = loadQuery(
             environment,
             preloadableConcreteRequest,
@@ -867,7 +863,7 @@ describe('usePreloadedQuery', () => {
           if (dataSource) {
             dataSource.next(response);
           }
-          TestRenderer.act(() => jest.runAllImmediates());
+          await TestRenderer.act(() => flushMicrotasks());
 
           function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
@@ -892,7 +888,7 @@ describe('usePreloadedQuery', () => {
             },
           });
         });
-        it('should synchronously render errors', () => {
+        it('should synchronously render errors', async () => {
           const prefetched = loadQuery(
             environment,
             preloadableConcreteRequest,
@@ -905,7 +901,7 @@ describe('usePreloadedQuery', () => {
           if (dataSource) {
             dataSource.error(new Error('No data for you'));
           }
-          TestRenderer.act(() => jest.runAllImmediates());
+          await TestRenderer.act(() => flushMicrotasks());
 
           function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
@@ -929,7 +925,7 @@ describe('usePreloadedQuery', () => {
       });
 
       describe('when the network response occurs after usePreloadedQuery is rendered', () => {
-        it('should suspend, and then render', () => {
+        it('should suspend, and then render', async () => {
           const prefetched = loadQuery(
             environment,
             preloadableConcreteRequest,
@@ -960,7 +956,7 @@ describe('usePreloadedQuery', () => {
           if (dataSource) {
             dataSource.next(response);
           }
-          TestRenderer.act(() => jest.runAllImmediates());
+          await TestRenderer.act(() => flushMicrotasks());
 
           expect(renderer?.toJSON()).toEqual('Zuck');
           expect(data).toEqual({
@@ -970,7 +966,7 @@ describe('usePreloadedQuery', () => {
             },
           });
         });
-        it('should suspend, then render and error', () => {
+        it('should suspend, then render and error', async () => {
           const prefetched = loadQuery(
             environment,
             preloadableConcreteRequest,
@@ -1003,7 +999,7 @@ describe('usePreloadedQuery', () => {
           if (dataSource) {
             dataSource.error(new Error('No data for you'));
           }
-          TestRenderer.act(() => jest.runAllImmediates());
+          await TestRenderer.act(() => flushMicrotasks());
 
           expect(renderer?.toJSON()).toEqual('Error Boundary');
         });
@@ -1011,7 +1007,7 @@ describe('usePreloadedQuery', () => {
     });
 
     describe('when environments do not match', () => {
-      it('should fetch the data at render time, even if the query has already resolved', () => {
+      it('should fetch the data at render time, even if the query has already resolved', async () => {
         let altDataSource;
         // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         const altFetch = jest.fn((_query, _variables, _cacheConfig) =>
@@ -1033,7 +1029,7 @@ describe('usePreloadedQuery', () => {
         if (dataSource) {
           dataSource.next(response);
         }
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
 
         expect(altFetch).not.toHaveBeenCalled();
         function Component(props: any) {
@@ -1058,13 +1054,13 @@ describe('usePreloadedQuery', () => {
           altDataSource.next(response);
         }
 
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer?.toJSON()).toEqual('Zuck');
       });
     });
 
     describe('when loadQuery is passed a preloadedQuery that was disposed', () => {
-      it('warns that the preloadedQuery has already been disposed', () => {
+      it('warns that the preloadedQuery has already been disposed', async () => {
         const expectWarningMessage = expect.stringMatching(
           /^usePreloadedQuery\(\): Expected preloadedQuery to not be disposed/,
         );
@@ -1077,8 +1073,8 @@ describe('usePreloadedQuery', () => {
           return data?.node?.name ?? 'MISSING NAME';
         }
 
-        const render = () => {
-          TestRenderer.act(() => {
+        const render = async () => {
+          await TestRenderer.act(async () => {
             TestRenderer.create(
               <RelayEnvironmentProvider environment={environment}>
                 <React.Suspense fallback="Fallback">
@@ -1086,11 +1082,10 @@ describe('usePreloadedQuery', () => {
                 </React.Suspense>
               </RelayEnvironmentProvider>,
             );
-            jest.runAllImmediates();
           });
         };
 
-        render();
+        await render();
         expect(warning).toBeCalledTimes(1);
         expect(warning).toHaveBeenLastCalledWith(
           true, // invariant holds
@@ -1098,7 +1093,7 @@ describe('usePreloadedQuery', () => {
         );
 
         prefetched.dispose();
-        render();
+        await render();
         expect(warning).toBeCalledTimes(2);
         expect(warning).toHaveBeenLastCalledWith(
           false, // invariant broken
@@ -1108,7 +1103,7 @@ describe('usePreloadedQuery', () => {
     });
 
     describe('refetching', () => {
-      it('renders updated data correctly when refetching same query and variables', () => {
+      it('renders updated data correctly when refetching same query and variables', async () => {
         const loadedFirst = loadQuery(
           environment,
           preloadableConcreteRequest,
@@ -1131,7 +1126,7 @@ describe('usePreloadedQuery', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>,
         );
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('Fallback');
         expect(data).toBe(undefined);
 
@@ -1145,7 +1140,7 @@ describe('usePreloadedQuery', () => {
           // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('Zuck');
         expect(data).toEqual({
           node: {
@@ -1174,7 +1169,7 @@ describe('usePreloadedQuery', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>,
         );
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('Fallback');
         expect(data).toBe(undefined);
 
@@ -1199,7 +1194,7 @@ describe('usePreloadedQuery', () => {
           // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('Zuck Refetched');
         expect(data).toEqual({
           node: {
@@ -1209,7 +1204,7 @@ describe('usePreloadedQuery', () => {
         });
       });
 
-      it('renders updated data correctly when refetching different variables', () => {
+      it('renders updated data correctly when refetching different variables', async () => {
         const loadedFirst = loadQuery(
           environment,
           preloadableConcreteRequest,
@@ -1232,7 +1227,7 @@ describe('usePreloadedQuery', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>,
         );
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('Fallback');
         expect(data).toBe(undefined);
 
@@ -1246,7 +1241,7 @@ describe('usePreloadedQuery', () => {
           // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('Zuck');
         expect(data).toEqual({
           node: {
@@ -1275,7 +1270,7 @@ describe('usePreloadedQuery', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>,
         );
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('Fallback');
         expect(data).toBe(undefined);
 
@@ -1300,7 +1295,7 @@ describe('usePreloadedQuery', () => {
           // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('User 5');
         expect(data).toEqual({
           node: {
@@ -1312,7 +1307,7 @@ describe('usePreloadedQuery', () => {
     });
 
     describe('handles null', () => {
-      it('returns null when the preloaded query is null', () => {
+      it('returns null when the preloaded query is null', async () => {
         let data: ?usePreloadedQueryTestQuery['response'];
         component Component(prefetched: any) {
           data = usePreloadedQuery(query, prefetched);
@@ -1326,7 +1321,7 @@ describe('usePreloadedQuery', () => {
           </RelayEnvironmentProvider>,
         );
 
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('MISSING NAME');
         expect(data).toEqual(null);
 
@@ -1350,7 +1345,7 @@ describe('usePreloadedQuery', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>,
         );
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('Fallback');
         expect(data).toBe(undefined);
 
@@ -1374,7 +1369,7 @@ describe('usePreloadedQuery', () => {
           });
           dataSource?.complete();
         }
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('User 5');
         expect(data).toEqual({
           node: {
@@ -1394,7 +1389,7 @@ describe('usePreloadedQuery', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>,
         );
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         expect(renderer.toJSON()).toEqual('MISSING NAME');
         expect(data).toBe(null);
       });

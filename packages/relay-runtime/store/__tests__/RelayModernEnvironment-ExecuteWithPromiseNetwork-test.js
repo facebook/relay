@@ -25,10 +25,9 @@ const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() with Promise network', () => {
@@ -113,7 +112,7 @@ describe('execute() with Promise network', () => {
     expect(fetch.mock.calls[0][2]).toBe(cacheConfig);
   });
 
-  it('calls complete() when the batch completes', () => {
+  it('calls complete() when the batch completes', async () => {
     environment.execute({operation}).subscribe(callbacks);
     deferred.resolve({
       data: {
@@ -124,24 +123,24 @@ describe('execute() with Promise network', () => {
         },
       },
     });
-    jest.runAllTimers();
+    await flushMicrotasks();
     expect(complete.mock.calls.length).toBe(1);
     expect(next.mock.calls.length).toBe(1);
     expect(error).not.toBeCalled();
   });
 
-  it('calls error() when the batch has an error', () => {
+  it('calls error() when the batch has an error', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const e = new Error('wtf');
     deferred.reject(e);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(error).toBeCalledWith(e);
     expect(complete).not.toBeCalled();
     expect(next.mock.calls.length).toBe(0);
   });
 
-  it('calls next() and publishes payloads to the store', () => {
+  it('calls next() and publishes payloads to the store', async () => {
     const selector = createReaderSelector(
       query.fragment,
       ROOT_ID,
@@ -164,7 +163,7 @@ describe('execute() with Promise network', () => {
       errors: undefined,
     };
     deferred.resolve(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(next.mock.calls.length).toBe(1);
     expect(next).toBeCalledWith(payload);

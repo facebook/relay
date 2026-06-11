@@ -23,10 +23,8 @@ const {
 } = require('relay-runtime');
 const {
   createMockEnvironment,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
 
 const {useContext} = React;
 
@@ -119,7 +117,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       });
     });
 
-    it('renders with the query data if the data exists in the store', () => {
+    it('renders with the query data if the data exists in the store', async () => {
       const payload = {
         node: {
           __typename: 'User',
@@ -130,7 +128,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       };
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, UserQuery, render, variables);
-      ReactTestRenderer.act(() => jest.runAllImmediates());
+      await ReactTestRenderer.act(() => flushMicrotasks());
       expect(environment.retain).toBeCalledTimes(1);
       expect(environment.check).toBeCalledTimes(1);
       expect(environment.subscribe).toBeCalledTimes(1);
@@ -169,7 +167,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toEqual('Mark');
     });
 
-    it('retains data correctly', () => {
+    it('retains data correctly', async () => {
       const payload = {
         node: {
           __typename: 'User',
@@ -180,7 +178,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       };
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, UserQuery, render, variables);
-      ReactTestRenderer.act(() => jest.runAllImmediates());
+      await ReactTestRenderer.act(() => flushMicrotasks());
       expect(environment.retain).toBeCalledTimes(1);
       const snapshot = environment.lookup(operation.fragment, operation);
       ReactTestRenderer.act(() => jest.runAllTimers());
@@ -195,7 +193,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
   });
 
   describe('when store data updates', () => {
-    it('renders with new data', () => {
+    it('renders with new data', async () => {
       const payload = {
         node: {
           __typename: 'User',
@@ -207,7 +205,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       environment.commitPayload(operation, payload);
 
       const instance = renderer(environment, UserQuery, render, variables);
-      ReactTestRenderer.act(() => jest.runAllImmediates());
+      await ReactTestRenderer.act(() => flushMicrotasks());
       expect(render).toBeCalledTimes(1);
       render.mockClear();
 
@@ -229,9 +227,9 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toEqual('Alice');
     });
 
-    it('subscribes to changes if initial data is undefined', () => {
+    it('subscribes to changes if initial data is undefined', async () => {
       const instance = renderer(environment, UserQuery, render, variables);
-      ReactTestRenderer.act(() => jest.runAllImmediates());
+      await ReactTestRenderer.act(() => flushMicrotasks());
       expect(render).toBeCalledTimes(1);
       expect(instance.toJSON()).toEqual(null);
       render.mockClear();
@@ -264,7 +262,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       },
     };
 
-    it('renders new data if the variables change', () => {
+    it('renders new data if the variables change', async () => {
       const secondVariables = {id: '5'};
       const secondOperation = createOperationDescriptor(
         UserQuery,
@@ -280,7 +278,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       };
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, UserQuery, render, variables);
-      ReactTestRenderer.act(() => jest.runAllImmediates());
+      await ReactTestRenderer.act(() => flushMicrotasks());
       expect(render).toBeCalledTimes(1);
       expect(instance.toJSON()).toEqual('Mark');
       render.mockClear();
@@ -288,9 +286,6 @@ describe('ReactRelayLocalQueryRenderer', () => {
       environment.commitPayload(secondOperation, secondPayload);
       ReactTestRenderer.act(() => {
         setProps({variables: secondVariables});
-      });
-      ReactTestRenderer.act(() => {
-        jest.runAllImmediates();
       });
 
       expect(environment.retain).toBeCalledTimes(2);
@@ -310,20 +305,17 @@ describe('ReactRelayLocalQueryRenderer', () => {
       ReactTestRenderer.act(() => {
         setProps({variables: {id: '6'}});
       });
-      ReactTestRenderer.act(() => {
-        jest.runAllImmediates();
-      });
       expect(render).toBeCalledTimes(2);
       expect(instance.toJSON()).toEqual(null);
     });
 
-    it('renders new data if the environment changes', () => {
+    it('renders new data if the environment changes', async () => {
       const newEnvironment = createMockEnvironment({
         store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
       });
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, UserQuery, render, variables);
-      ReactTestRenderer.act(() => jest.runAllImmediates());
+      await ReactTestRenderer.act(() => flushMicrotasks());
       expect(render).toBeCalledTimes(1);
       expect(instance.toJSON()).toEqual('Mark');
       render.mockClear();
@@ -392,7 +384,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(instance.toJSON()).toEqual('Kram');
     });
 
-    it('disposes old observers when the varaibles change', () => {
+    it('disposes old observers when the varaibles change', async () => {
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, UserQuery, render, variables);
       expect(instance.toJSON()).toEqual('Mark');
@@ -405,7 +397,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
       // old data should be collected by GC
       environment.getStore().__gc();
-      jest.runAllImmediates();
+      await flushMicrotasks();
       expect(
         environment.lookup(operation.fragment, operation).data.node,
       ).toBeUndefined();
@@ -427,7 +419,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       },
     };
 
-    it('disposes old observers', () => {
+    it('disposes old observers', async () => {
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, UserQuery, render, variables);
       expect(instance.toJSON()).toEqual('Mark');
@@ -435,7 +427,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       instance.unmount();
       // make sure GC runs
       environment.getStore().__gc();
-      jest.runAllImmediates();
+      await flushMicrotasks();
       expect(
         environment.lookup(operation.fragment, operation).data,
       ).toBeUndefined();
@@ -460,22 +452,22 @@ describe('ReactRelayLocalQueryRenderer', () => {
       instance = renderer(environment, UserQuery, render, variables);
     });
 
-    it('runs after GC, data should not be collected by GC', () => {
+    it('runs after GC, data should not be collected by GC', async () => {
       const snapshot = environment.lookup(operation.fragment, operation);
       expect(snapshot.data).toBeDefined();
       // Data should not be collected by GC
       environment.getStore().__gc();
-      ReactTestRenderer.act(() => jest.runAllImmediates());
+      await ReactTestRenderer.act(() => flushMicrotasks());
       expect(environment.getStore().getSource().toJSON()).not.toEqual({});
 
-      ReactTestRenderer.act(() => jest.runAllImmediates());
+      await ReactTestRenderer.act(() => flushMicrotasks());
       expect(environment.lookup(operation.fragment, operation)).toEqual(
         snapshot,
       );
       expect(instance.toJSON()).toBe('Mark');
     });
 
-    it('runs after commiting another payload, latest data should be rendered', () => {
+    it('runs after commiting another payload, latest data should be rendered', async () => {
       ReactTestRenderer.act(() => {
         environment.commitPayload(operation, {
           node: {
@@ -486,14 +478,12 @@ describe('ReactRelayLocalQueryRenderer', () => {
           },
         });
       });
-
-      ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(instance.toJSON()).toBe('Alice');
     });
 
-    it('never runs before unmount, data retain should be released', () => {
+    it('never runs before unmount, data retain should be released', async () => {
       ReactTestRenderer.act(() => instance.unmount());
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(environment.getStore().getSource().toJSON()).toEqual({});
     });
   });

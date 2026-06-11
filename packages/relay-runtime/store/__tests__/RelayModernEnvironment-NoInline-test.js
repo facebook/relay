@@ -45,10 +45,9 @@ const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
 const {
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 // Inline parity-test helpers: drive a (query, variables, loadFragment,
@@ -307,7 +306,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         operation = createOperationDescriptor(Query, {size: [1]});
       });
 
-      it('executes and reads back results (fragment type matches)', () => {
+      it('executes and reads back results (fragment type matches)', async () => {
         environment.execute({operation}).subscribe(callbacks);
         subject.next({
           data: {
@@ -385,7 +384,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         // available after GC if the query is retained
         const retain = environment.retain(operation);
         (environment.getStore() as $FlowFixMe).scheduleGC();
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(environment.check(operation)).toEqual({
           fetchTime: null,
           status: 'available',
@@ -394,13 +393,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         // missing after being freed plus a GC run
         retain.dispose();
         (environment.getStore() as $FlowFixMe).scheduleGC();
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(environment.check(operation)).toEqual({
           status: 'missing',
         });
       });
 
-      it('executes and reads back results (fragment type does not match)', () => {
+      it('executes and reads back results (fragment type does not match)', async () => {
         environment.execute({operation}).subscribe(callbacks);
         subject.next({
           data: {
@@ -473,7 +472,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         // available after GC if the query is retained
         const retain = environment.retain(operation);
         (environment.getStore() as $FlowFixMe).scheduleGC();
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(environment.check(operation)).toEqual({
           fetchTime: null,
           status: 'available',
@@ -482,14 +481,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         // missing after being freed plus a GC run
         retain.dispose();
         (environment.getStore() as $FlowFixMe).scheduleGC();
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(environment.check(operation)).toEqual({
           status: 'missing',
         });
       });
 
       describe('with arguments', () => {
-        it('executes and reads back results with no-inline fragments on the same level', () => {
+        it('executes and reads back results with no-inline fragments on the same level', async () => {
           const QueryWithArgs = graphql`
             query RelayModernEnvironmentNoInlineTestWithArgsQuery(
               $size: [Int]
@@ -663,7 +662,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // available after GC if the query is retained
           const retain = environment.retain(operation);
           (environment.getStore() as $FlowFixMe).scheduleGC();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(environment.check(operation)).toEqual({
             fetchTime: null,
             status: 'available',
@@ -672,13 +671,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // missing after being freed plus a GC run
           retain.dispose();
           (environment.getStore() as $FlowFixMe).scheduleGC();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(environment.check(operation)).toEqual({
             status: 'missing',
           });
         });
 
-        it('executes and reads back results with nested no-inline fragments', () => {
+        it('executes and reads back results with nested no-inline fragments', async () => {
           const QueryNested = graphql`
             query RelayModernEnvironmentNoInlineTestNestedQuery(
               $global_cond: Boolean!
@@ -836,7 +835,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // available after GC if the query is retained
           const retain = environment.retain(operation);
           (environment.getStore() as $FlowFixMe).scheduleGC();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(environment.check(operation)).toEqual({
             fetchTime: null,
             status: 'available',
@@ -845,7 +844,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // missing after being freed plus a GC run
           retain.dispose();
           (environment.getStore() as $FlowFixMe).scheduleGC();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(environment.check(operation)).toEqual({
             status: 'missing',
           });
@@ -853,7 +852,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       describe('with @stream and @defer', () => {
-        it('executes and reads back results with stream', () => {
+        it('executes and reads back results with stream', async () => {
           const QueryWithStream = graphql`
             query RelayModernEnvironmentNoInlineTestStreamQuery(
               $cond: Boolean!
@@ -943,7 +942,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // available after GC if the query is retained
           const retain = environment.retain(operation);
           (environment.getStore() as $FlowFixMe).scheduleGC();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(environment.check(operation)).toEqual({
             fetchTime: null,
             status: 'available',
@@ -952,7 +951,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // missing after being freed plus a GC run
           retain.dispose();
           (environment.getStore() as $FlowFixMe).scheduleGC();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(environment.check(operation)).toEqual({
             status: 'missing',
           });
@@ -994,7 +993,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('executes and reads back results with defer and stream', () => {
+        it('executes and reads back results with defer and stream', async () => {
           const QueryWithDeferredStream = graphql`
             query RelayModernEnvironmentNoInlineTestDeferredStreamQuery(
               $cond: Boolean!
@@ -1141,7 +1140,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // available after GC if the query is retained
           const retain = environment.retain(operation);
           (environment.getStore() as $FlowFixMe).scheduleGC();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(environment.check(operation)).toEqual({
             fetchTime: null,
             status: 'available',
@@ -1150,7 +1149,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // missing after being freed plus a GC run
           retain.dispose();
           (environment.getStore() as $FlowFixMe).scheduleGC();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(environment.check(operation)).toEqual({
             status: 'missing',
           });
@@ -1291,7 +1290,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('executes and reads back results for the MarkdownUserNameRenderer', () => {
+        it('executes and reads back results for the MarkdownUserNameRenderer', async () => {
           operation = createOperationDescriptor(QueryWithModule, {
             cond: true,
           });
@@ -1353,7 +1352,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // Include `markup` and skip `markdown` becasue $cond is true
           resolveFragment(markdownRendererNormalizationFragment);
-          jest.runAllTimers();
+          await flushMicrotasks();
           const selectorData = environment.lookup(selector);
           expect(selectorData.data).toEqual({
             data: {
@@ -1380,7 +1379,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // available after GC if the query is retained
           const retain = environment.retain(operation);
           (environment.getStore() as $FlowFixMe).scheduleGC();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(environment.check(operation)).toEqual({
             fetchTime: null,
             status: 'available',
@@ -1389,7 +1388,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // missing after being freed plus a GC run
           retain.dispose();
           (environment.getStore() as $FlowFixMe).scheduleGC();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(environment.check(operation)).toEqual({
             status: 'missing',
           });

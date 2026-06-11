@@ -41,12 +41,8 @@ const {
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {
-  disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
+const {disallowWarnings, flushAsyncWork} = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 const commentID = '1';
@@ -274,7 +270,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls next() and publishes the initial payload to the store', () => {
+      it('calls next() and publishes the initial payload to the store', async () => {
         environment.executeMutation({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -302,7 +298,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
         dataSource.next(payload);
-        jest.runAllTimers();
+        await flushAsyncWork();
 
         expect(next.mock.calls.length).toBe(1);
         expect(complete).not.toBeCalled();
@@ -367,7 +363,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).not.toBe(null);
       });
 
-      it('loads the @match fragment and normalizes/publishes the field payload', () => {
+      it('loads the @match fragment and normalizes/publishes the field payload', async () => {
         environment.executeMutation({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -396,7 +392,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
         dataSource.next(payload);
-        jest.runAllTimers();
+        await flushAsyncWork();
         next.mockClear();
 
         expect(operationLoader.load).toBeCalledTimes(1);
@@ -422,7 +418,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(initialMatchSnapshot, matchCallback);
 
         resolveFragment(markdownRendererNormalizationFragment);
-        jest.runAllTimers();
+        await flushAsyncWork();
         // next() should not be called when @match resolves, no new GraphQLResponse
         // was received for this case
         expect(next).toBeCalledTimes(0);
@@ -448,7 +444,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).not.toBe(null);
       });
 
-      it('calls complete() only after match payloads are processed (network completes first)', () => {
+      it('calls complete() only after match payloads are processed (network completes first)', async () => {
         environment.executeMutation({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -478,7 +474,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         };
         dataSource.next(payload);
         dataSource.complete();
-        jest.runAllTimers();
+        await flushAsyncWork();
         expect(complete).toBeCalledTimes(0);
         expect(error).toBeCalledTimes(0);
         expect(next).toBeCalledTimes(1);
@@ -496,7 +492,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
         );
         resolveFragment(markdownRendererNormalizationFragment);
-        jest.runAllTimers();
+        await flushAsyncWork();
 
         expect(complete).toBeCalledTimes(1);
         expect(error).toBeCalledTimes(0);
@@ -510,7 +506,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls complete() only after match payloads are processed (network completes last)', () => {
+      it('calls complete() only after match payloads are processed (network completes last)', async () => {
         environment.executeMutation({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -539,14 +535,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
         dataSource.next(payload);
-        jest.runAllTimers();
+        await flushAsyncWork();
 
         expect(operationLoader.load).toBeCalledTimes(1);
         expect(operationLoader.load.mock.calls[0][0]).toEqual(
           'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
         );
         resolveFragment(markdownRendererNormalizationFragment);
-        jest.runAllTimers();
+        await flushAsyncWork();
 
         // The mutation affecting the query should still be in flight
         // since the network hasn't completed
@@ -599,14 +595,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
 
-        it('optimistically creates @match fields', () => {
+        it('optimistically creates @match fields', async () => {
           operationLoader.get.mockImplementationOnce(name => {
             return markdownRendererNormalizationFragment;
           });
           environment
             .executeMutation({operation, optimisticResponse})
             .subscribe(callbacks);
-          jest.runAllTimers();
+          await flushAsyncWork();
 
           expect(next.mock.calls.length).toBe(0);
           expect(complete).not.toBeCalled();
@@ -654,7 +650,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('optimistically creates @match fields and loads resources', () => {
+        it('optimistically creates @match fields and loads resources', async () => {
           operationLoader.load.mockImplementationOnce(() => {
             return new Promise(resolve => {
               setTimeout(() => {
@@ -665,7 +661,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environment
             .executeMutation({operation, optimisticResponse})
             .subscribe(callbacks);
-          jest.runAllTimers();
+          await flushAsyncWork();
 
           expect(next.mock.calls.length).toBe(0);
           expect(complete).not.toBeCalled();
@@ -713,7 +709,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('does not apply async 3D optimistic updates if the server response arrives first', () => {
+        it('does not apply async 3D optimistic updates if the server response arrives first', async () => {
           operationLoader.load.mockImplementationOnce(() => {
             return new Promise(resolve => {
               setTimeout(() => {
@@ -752,7 +748,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           };
           dataSource.next(serverPayload);
-          jest.runAllTimers();
+          await flushAsyncWork();
 
           expect(next.mock.calls.length).toBe(1);
           expect(complete).not.toBeCalled();
@@ -798,7 +794,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         });
 
-        it('does not apply async 3D optimistic updates if the operation is cancelled', () => {
+        it('does not apply async 3D optimistic updates if the operation is cancelled', async () => {
           operationLoader.load.mockImplementationOnce(() => {
             return new Promise(resolve => {
               setTimeout(() => {
@@ -811,8 +807,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             .subscribe(callbacks);
           disposable.unsubscribe();
 
-          jest.runAllImmediates();
-          jest.runAllTimers();
+          await flushAsyncWork();
+          await flushAsyncWork();
 
           expect(next).not.toBeCalled();
           expect(complete).not.toBeCalled();
@@ -834,14 +830,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(matchSnapshot.data).toEqual(undefined);
         });
 
-        it('catches error when operationLoader.load fails synchronously', () => {
+        it('catches error when operationLoader.load fails synchronously', async () => {
           operationLoader.load.mockImplementationOnce(() => {
             throw new Error('<user-error>');
           });
           environment
             .executeMutation({operation, optimisticResponse})
             .subscribe(callbacks);
-          jest.runAllTimers();
+          await flushAsyncWork();
           expect(error.mock.calls.length).toBe(1);
           expect(error.mock.calls[0][0]).toEqual(new Error('<user-error>'));
         });

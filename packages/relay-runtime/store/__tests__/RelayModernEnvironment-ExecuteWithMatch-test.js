@@ -36,10 +36,9 @@ const nullthrows = require('nullthrows');
 const {
   cannotReadPropertyOfUndefined__DEPRECATED,
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() a query with @match', () => {
@@ -163,7 +162,7 @@ describe('execute() a query with @match', () => {
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
-  it('calls next() and publishes the initial payload to the store', () => {
+  it('calls next() and publishes the initial payload to the store', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -186,7 +185,7 @@ describe('execute() a query with @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
@@ -231,7 +230,7 @@ describe('execute() a query with @match', () => {
     });
   });
 
-  it('loads the @match fragment and normalizes/publishes the field payload', () => {
+  it('loads the @match fragment and normalizes/publishes the field payload', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -255,7 +254,7 @@ describe('execute() a query with @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
     next.mockClear();
     expect(operationCallback).toBeCalledTimes(1); // initial results tested above
     const operationSnapshot = operationCallback.mock.calls[0][0];
@@ -274,7 +273,7 @@ describe('execute() a query with @match', () => {
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(markdownRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
     // next() should not be called when @match resolves, no new GraphQLResponse
     // was received for this case
     expect(next).toBeCalledTimes(0);
@@ -349,7 +348,7 @@ describe('execute() a query with @match', () => {
     });
   });
 
-  it('calls complete() if the network completes before processing the match', () => {
+  it('calls complete() if the network completes before processing the match', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -372,7 +371,7 @@ describe('execute() a query with @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
     dataSource.complete();
     expect(callbacks.complete).toBeCalledTimes(0);
     expect(callbacks.error).toBeCalledTimes(0);
@@ -391,7 +390,7 @@ describe('execute() a query with @match', () => {
       'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
     expect(callbacks.complete).toBeCalledTimes(1);
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
@@ -404,7 +403,7 @@ describe('execute() a query with @match', () => {
     ).toBe(null);
   });
 
-  it('calls complete() if the network completes after processing the match', () => {
+  it('calls complete() if the network completes after processing the match', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -427,14 +426,14 @@ describe('execute() a query with @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toBe(
       'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
     expect(callbacks.complete).toBeCalledTimes(0);
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
@@ -460,7 +459,7 @@ describe('execute() a query with @match', () => {
     ).toBe(null);
   });
 
-  it('calls error() if the operationLoader function throws synchronously', () => {
+  it('calls error() if the operationLoader function throws synchronously', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -487,7 +486,7 @@ describe('execute() a query with @match', () => {
       throw loaderError;
     });
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(callbacks.error).toBeCalledTimes(1);
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
@@ -526,7 +525,7 @@ describe('execute() a query with @match', () => {
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
   });
 
-  it('calls error() if the operationLoader promise fails', () => {
+  it('calls error() if the operationLoader promise fails', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -553,13 +552,13 @@ describe('execute() a query with @match', () => {
       return Promise.reject(loaderError);
     });
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(callbacks.error).toBeCalledTimes(1);
     expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
   });
 
-  it('calls error() if processing a match payload throws', () => {
+  it('calls error() if processing a match payload throws', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -588,7 +587,7 @@ describe('execute() a query with @match', () => {
       return Promise.resolve({} as any);
     });
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(callbacks.error).toBeCalledTimes(1);
     expect(callbacks.error.mock.calls[0][0].message).toBe(
@@ -596,7 +595,7 @@ describe('execute() a query with @match', () => {
     );
   });
 
-  it('cancels @match processing if unsubscribed before match payload is processed', () => {
+  it('cancels @match processing if unsubscribed before match payload is processed', async () => {
     const subscription = environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -620,7 +619,7 @@ describe('execute() a query with @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
     next.mockClear();
     expect(operationCallback).toBeCalledTimes(1); // initial results tested above
     const operationSnapshot = operationCallback.mock.calls[0][0];
@@ -640,7 +639,7 @@ describe('execute() a query with @match', () => {
 
     subscription.unsubscribe();
     resolveFragment(markdownRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
     // next() should not be called when @match resolves, no new GraphQLResponse
     // was received for this case
     expect(next).toBeCalledTimes(0);
@@ -688,7 +687,7 @@ describe('execute() a query with @match', () => {
       });
     });
 
-    it('loads the @match fragment and normalizes/publishes the field payload with scheduling', () => {
+    it('loads the @match fragment and normalizes/publishes the field payload with scheduling', async () => {
       environment.execute({operation}).subscribe(callbacks);
       const payload = {
         data: {
@@ -716,7 +715,7 @@ describe('execute() a query with @match', () => {
       expect(operationCallback).toBeCalledTimes(0);
       expect(tasks.size).toBe(1);
       runTask();
-      jest.runAllTimers();
+      await flushMicrotasks();
       next.mockClear();
       expect(operationCallback).toBeCalledTimes(1); // initial results tested above
       const operationSnapshot = operationCallback.mock.calls[0][0];
@@ -735,7 +734,7 @@ describe('execute() a query with @match', () => {
       environment.subscribe(initialMatchSnapshot, matchCallback);
 
       resolveFragment(markdownRendererNormalizationFragment);
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(matchCallback).toBeCalledTimes(0);
       expect(tasks.size).toBe(1);
       runTask();
@@ -757,7 +756,7 @@ describe('execute() a query with @match', () => {
       });
     });
 
-    it('cancels processing of @match fragments with scheduling', () => {
+    it('cancels processing of @match fragments with scheduling', async () => {
       const subscription = environment
         .execute({operation})
         .subscribe(callbacks);
@@ -787,7 +786,7 @@ describe('execute() a query with @match', () => {
       expect(operationCallback).toBeCalledTimes(0);
       expect(tasks.size).toBe(1);
       runTask();
-      jest.runAllTimers();
+      await flushMicrotasks();
       next.mockClear();
       expect(operationCallback).toBeCalledTimes(1); // initial results tested above
       const operationSnapshot = operationCallback.mock.calls[0][0];
@@ -806,7 +805,7 @@ describe('execute() a query with @match', () => {
       environment.subscribe(initialMatchSnapshot, matchCallback);
 
       resolveFragment(markdownRendererNormalizationFragment);
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(matchCallback).toBeCalledTimes(0);
       expect(tasks.size).toBe(1);
 

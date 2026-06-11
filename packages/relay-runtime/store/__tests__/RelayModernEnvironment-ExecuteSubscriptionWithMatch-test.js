@@ -42,10 +42,9 @@ const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
 const {
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
@@ -253,7 +252,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(operationSnapshot, operationCallback);
       });
 
-      it('calls next() and publishes the initial payload to the store', () => {
+      it('calls next() and publishes the initial payload to the store', async () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -283,7 +282,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
         dataSource.next(payload);
-        jest.runAllTimers();
+        await flushMicrotasks();
 
         expect(next.mock.calls.length).toBe(1);
         expect(complete).not.toBeCalled();
@@ -358,7 +357,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).not.toBe(null);
       });
 
-      it('loads the @match fragment and normalizes/publishes the field payload', () => {
+      it('loads the @match fragment and normalizes/publishes the field payload', async () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -388,7 +387,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
         dataSource.next(payload);
-        jest.runAllTimers();
+        await flushMicrotasks();
         next.mockClear();
 
         expect(operationLoader.load).toBeCalledTimes(1);
@@ -420,7 +419,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(initialMatchSnapshot, matchCallback);
 
         resolveFragment(markdownRendererNormalizationFragment);
-        jest.runAllTimers();
+        await flushMicrotasks();
         // next() should not be called when @match resolves, no new GraphQLResponse
         // was received for this case
         expect(next).toBeCalledTimes(0);
@@ -447,7 +446,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls complete() only after match payloads are processed (root network completes first)', () => {
+      it('calls complete() only after match payloads are processed (root network completes first)', async () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -478,7 +477,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         };
         dataSource.next(payload);
         dataSource.complete();
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(complete).toBeCalledTimes(0);
         expect(error).toBeCalledTimes(0);
         expect(next).toBeCalledTimes(1);
@@ -497,7 +496,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
         );
         resolveFragment(markdownRendererNormalizationFragment);
-        jest.runAllTimers();
+        await flushMicrotasks();
 
         expect(complete).toBeCalledTimes(1);
         expect(error).toBeCalledTimes(0);
@@ -511,7 +510,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls complete() only after match payloads are processed (root network completes first, with batching on)', () => {
+      it('calls complete() only after match payloads are processed (root network completes first, with batching on)', async () => {
         const prevFlagAsync = RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN;
         RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN = task => {
           const handle = setTimeout(task, 0);
@@ -549,7 +548,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         };
         dataSource.next(payload);
         dataSource.complete();
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(complete).toBeCalledTimes(0);
         expect(error).toBeCalledTimes(0);
         expect(next).toBeCalledTimes(1);
@@ -568,7 +567,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
         );
         resolveFragment(markdownRendererNormalizationFragment);
-        jest.runAllImmediates();
+        await flushMicrotasks();
 
         expect(complete).toBeCalledTimes(1);
         expect(error).toBeCalledTimes(0);
@@ -584,7 +583,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN = prevFlagAsync;
       });
 
-      it('calls complete() only after match payloads are processed (root network completes last)', () => {
+      it('calls complete() only after match payloads are processed (root network completes last)', async () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -614,7 +613,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
         dataSource.next(payload);
-        jest.runAllTimers();
+        await flushMicrotasks();
 
         // The subscription affecting the query should appear in flight
         // since module hasn't been resolved
@@ -629,7 +628,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
         );
         resolveFragment(markdownRendererNormalizationFragment);
-        jest.runAllTimers();
+        await flushMicrotasks();
 
         expect(complete).toBeCalledTimes(0);
         expect(error).toBeCalledTimes(0);
@@ -656,7 +655,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         ).toBe(null);
       });
 
-      it('calls error() even if match payloads have not been resolved', () => {
+      it('calls error() even if match payloads have not been resolved', async () => {
         environment.execute({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -686,7 +685,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
         dataSource.next(payload);
-        jest.runAllTimers();
+        await flushMicrotasks();
 
         // The subscription affecting the query should appear in flight
         // since module hasn't been resolved
@@ -768,7 +767,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environment.subscribe(operationSnapshot, operationCallback);
         });
 
-        it('calls complete() only after match payloads are processed (root network completes first)', () => {
+        it('calls complete() only after match payloads are processed (root network completes first)', async () => {
           environment.execute({operation}).subscribe(callbacks);
           const payload = {
             data: {
@@ -799,7 +798,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           };
           dataSource.next(payload);
           dataSource.complete();
-          jest.runAllTimers();
+          await flushMicrotasks();
           runTask();
           expect(complete).toBeCalledTimes(0);
           expect(error).toBeCalledTimes(0);
@@ -819,7 +818,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
           );
           resolveFragment(markdownRendererNormalizationFragment);
-          jest.runAllTimers();
+          await flushMicrotasks();
           // The normalization file is loaded, but the data hasn't been published to the store
           expect(tasks.size).toBe(1);
           expect(

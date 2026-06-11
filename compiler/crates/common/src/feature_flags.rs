@@ -208,12 +208,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enforce_module_name_prefix_for_non_haste: bool,
 
-    /// Use modern Flow syntax for generated object types.
-    /// This enables gradual rollout of exact object type syntax and readonly
-    /// properties across files.
-    #[serde(default = "enabled_feature_flag")]
-    pub flow_modern_syntax: FeatureFlag,
-
     /// When enabled, the `@nogrep` annotation is included in the docblock
     /// header of generated artifacts. This annotation was historically always
     /// emitted but is no longer needed. This flag allows incremental removal
@@ -265,7 +259,6 @@ impl Default for FeatureFlags {
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,
-            flow_modern_syntax: FeatureFlag::Enabled,
         }
     }
 }
@@ -346,7 +339,6 @@ mod tests {
             flags.enforce_fragment_alias_where_ambiguous,
             FeatureFlag::Enabled
         ));
-        assert!(matches!(flags.flow_modern_syntax, FeatureFlag::Enabled));
         // A couple of quick sanity checks for other defaults
         assert!(matches!(flags.no_inline, FeatureFlag::Disabled));
         assert!(!flags.enable_resolver_normalization_ast);

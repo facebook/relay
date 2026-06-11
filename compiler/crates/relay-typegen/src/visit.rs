@@ -2827,7 +2827,7 @@ fn get_type_condition_info(fragment_spread: &FragmentSpread) -> Option<TypeCondi
 
 /// Returns the type of the generated query. This is the type parameter that you would have
 /// Example:
-/// {| response: MyQuery$data, variables: MyQuery$variables |}
+/// { response: MyQuery$data, variables: MyQuery$variables }
 pub(crate) fn get_operation_type_export(
     variables_identifier_key: StringKey,
     response_identifier_key: StringKey,

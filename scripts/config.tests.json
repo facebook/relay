@@ -69,9 +69,6 @@
         },
         "allow_legacy_relay_resolver_tag": {
           "kind": "enabled"
-        },
-        "flow_modern_syntax": {
-          "kind": "enabled"
         }
       },
       "language": "flow",

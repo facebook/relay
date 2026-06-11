@@ -7,10 +7,12 @@
 
 import {ProviderProps, ReactElement, ReactNode} from 'react';
 import {IEnvironment, RelayContext} from 'relay-runtime';
+import {ActorIdentifier, IActorEnvironment} from 'relay-runtime/multi-actor-environment/index';
 
 export interface Props {
     children: ReactNode;
     environment: IEnvironment;
+    getEnvironmentForActor?: ((actorIdentifier: ActorIdentifier) => IActorEnvironment) | null | undefined;
 }
 
 export function RelayEnvironmentProvider(props: Props): ReactElement<ProviderProps<RelayContext>>;

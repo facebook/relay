@@ -37,6 +37,10 @@ pub use build_project::SourceHashes;
 pub use build_project::artifact_writer::ArtifactFileWriter;
 pub use build_project::artifact_writer::ArtifactValidationWriter;
 pub use build_project::artifact_writer::ArtifactWriter;
+#[cfg(unix)]
+pub use build_project::artifact_writer::DeferredArtifactCache;
+#[cfg(unix)]
+pub use build_project::artifact_writer::DeferredArtifactWriter;
 pub use build_project::artifact_writer::NoopArtifactWriter;
 pub use build_project::build_programs;
 pub use build_project::build_raw_program;

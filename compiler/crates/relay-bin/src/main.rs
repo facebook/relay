@@ -285,6 +285,28 @@ fn get_config(config_path: Option<PathBuf>) -> Result<Config, Error> {
     }
 }
 
+/// Wire up the OSS CLI's default config extensions: the standard operation
+/// persister (Remote/Local from `project_config.persist`) and the default
+/// extra-artifacts generator. Used by every entry point that drives a real
+/// build.
+fn apply_default_cli_extensions(config: &mut Config) {
+    config.create_operation_persister = Some(Box::new(|project_config| {
+        project_config.persist.as_ref().map(
+            |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
+                match persist_config {
+                    PersistConfig::Remote(remote_config) => {
+                        Box::new(RemotePersister::new(remote_config.clone()))
+                    }
+                    PersistConfig::Local(local_config) => {
+                        Box::new(LocalPersister::new(local_config.clone()))
+                    }
+                }
+            },
+        )
+    }));
+    config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
+}
+
 fn configure_logger(output: OutputKind, terminal_mode: TerminalMode) {
     let log_level = match output {
         OutputKind::Debug => LevelFilter::Debug,
@@ -408,20 +430,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
         config.artifact_writer = Box::<ArtifactValidationWriter>::default();
     }
 
-    config.create_operation_persister = Some(Box::new(|project_config| {
-        project_config.persist.as_ref().map(
-            |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
-                match persist_config {
-                    PersistConfig::Remote(remote_config) => {
-                        Box::new(RemotePersister::new(remote_config.clone()))
-                    }
-                    PersistConfig::Local(local_config) => {
-                        Box::new(LocalPersister::new(local_config.clone()))
-                    }
-                }
-            },
-        )
-    }));
+    apply_default_cli_extensions(&mut config);
 
     config.file_source_config = if should_use_watchman(command.no_watchman) {
         FileSourceKind::Watchman
@@ -435,8 +444,6 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
             details: "Cannot run relay in watch mode if `watchman` is not available. Install watchman or remove the --watch flag.".to_string(),
         });
     }
-
-    config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
 
     let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
 

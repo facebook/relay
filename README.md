@@ -16,11 +16,12 @@ The [relay-examples](https://github.com/relayjs/relay-examples) repository conta
 git clone https://github.com/relayjs/relay-examples.git
 cd relay-examples/todo
 yarn
-yarn build
-yarn start
+yarn grats
+yarn relay
+yarn dev
 ```
 
-Then, just point your browser at `http://localhost:3000`.
+Then, just point your browser at `http://localhost:5173`.
 
 ## Contribute
 

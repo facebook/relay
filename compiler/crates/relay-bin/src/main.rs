@@ -255,8 +255,27 @@ struct ServerOpt {
 #[cfg(unix)]
 #[derive(Debug, clap::Subcommand)]
 enum ServerCommand {
-    /// Start the compiler daemon server in the foreground.
-    Start,
+    /// Start the compiler daemon server.
+    Start {
+        /// Run the server in the foreground (default: spawn a background process).
+        #[clap(long)]
+        foreground: bool,
+        /// [internal] Path to a saved-state file to use for the daemon's
+        /// initial compiler setup, instead of fetching saved-state from
+        /// infrastructure. Consumed once on first build; subsequent builds
+        /// (e.g. after a source-control update inside the watch loop) use
+        /// the normal saved-state path.
+        #[clap(long)]
+        initial_import_state: Option<PathBuf>,
+        /// [internal] Path to a JSON file of files changed since the
+        /// `initial_import_state` snapshot. When set together with
+        /// `initial_import_state`, the daemon skips the Watchman SCM-aware
+        /// query on its first build and seeds state from
+        /// `(saved_state + changed_files)` directly. Subsequent builds use
+        /// Watchman normally.
+        #[clap(long, requires("initial_import_state"))]
+        initial_changed_files_list: Option<PathBuf>,
+    },
     /// Check the daemon's compiler version.
     Version,
     /// Shut down the daemon.
@@ -653,8 +672,38 @@ async fn handle_server_command(opt: ServerOpt) -> Result<(), Error> {
     };
 
     match opt.command {
-        ServerCommand::Start => {
-            start_server_foreground(&config_path, &opt.project, opt.config).await
+        ServerCommand::Start {
+            foreground,
+            initial_import_state,
+            initial_changed_files_list,
+        } => {
+            if foreground {
+                start_server_foreground(
+                    &config_path,
+                    &opt.project,
+                    opt.config,
+                    initial_import_state,
+                    initial_changed_files_list,
+                )
+                .await
+            } else {
+                let extra_args = vec![
+                    "--config".to_string(),
+                    config_path.to_string_lossy().into_owned(),
+                ];
+                let start_extra_args = server_daemon::build_initial_external_state_args(
+                    initial_import_state.as_deref(),
+                    initial_changed_files_list.as_deref(),
+                );
+                server_daemon::start_daemon_process(
+                    &config_path,
+                    &opt.project,
+                    &extra_args,
+                    &start_extra_args,
+                )
+                .await;
+                Ok(())
+            }
         }
         cmd @ (ServerCommand::Version | ServerCommand::Shutdown) => {
             let request = match cmd {
@@ -676,12 +725,19 @@ async fn start_server_foreground(
     config_path: &Path,
     projects: &[String],
     user_config_arg: Option<PathBuf>,
+    initial_import_state: Option<PathBuf>,
+    initial_changed_files_list: Option<PathBuf>,
 ) -> Result<(), Error> {
     info!("Starting Relay compiler in server mode...");
 
     let mut config = get_config(user_config_arg)?;
     set_project_flag(&mut config, &projects.to_vec())?;
     apply_default_cli_extensions(&mut config);
+    server_daemon::apply_initial_external_state_hints(
+        &mut config,
+        initial_import_state,
+        initial_changed_files_list,
+    );
 
     // Wrap the existing status reporter so daemon clients can observe build
     // lifecycle and so handle_write can wait_for_idle.

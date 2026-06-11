@@ -32,6 +32,7 @@ use std::sync::Mutex;
 
 use log::error;
 use log::info;
+use log::warn;
 use serde::Deserialize;
 use serde::Serialize;
 pub use socket::send_request;
@@ -262,6 +263,60 @@ pub fn get_log_file_path(config_path: &Path, projects: &[String]) -> PathBuf {
 /// Derive the log file path from a socket path by changing the extension to `.log`.
 pub fn log_path_for_socket(socket_path: &Path) -> PathBuf {
     socket_path.with_extension("log")
+}
+
+/// Print a one-line summary for every discovered daemon and optionally
+/// `shutdown` active daemons / `cleanup` stale or gone ones.
+///
+/// Shared by the OSS `relay server list` CLI and the FB binary's
+/// equivalent subcommand so the human-facing output stays in sync.
+pub async fn list_daemons(cleanup: bool, shutdown: bool) -> std::io::Result<()> {
+    let daemons = DaemonMetadata::list()?;
+    if daemons.is_empty() {
+        println!("No daemons found.");
+        return Ok(());
+    }
+    for metadata in &daemons {
+        let status = metadata.status();
+        let status_str = match status {
+            DaemonStatus::Active => "active",
+            DaemonStatus::Stale => "stale",
+            DaemonStatus::Gone => "gone",
+        };
+        println!(
+            "[{}] pid={} socket={} config={} projects=[{}] version={}",
+            status_str,
+            metadata.pid,
+            metadata.socket_path.display(),
+            metadata.config_path.display(),
+            metadata.projects.join(", "),
+            metadata.compiler_version,
+        );
+        if shutdown && matches!(status, DaemonStatus::Active) {
+            info!(
+                "Shutting down active daemon: {}",
+                metadata.socket_path.display()
+            );
+            if send_request(&metadata.socket_path, protocol::DaemonRequest::Shutdown)
+                .await
+                .is_none()
+            {
+                warn!(
+                    "Failed to shut down daemon: {}",
+                    metadata.socket_path.display()
+                );
+            }
+        }
+        if cleanup && matches!(status, DaemonStatus::Stale | DaemonStatus::Gone) {
+            info!(
+                "Cleaning up {} daemon: {}",
+                status_str,
+                metadata.socket_path.display()
+            );
+            metadata.cleanup();
+        }
+    }
+    Ok(())
 }
 
 pub fn get_socket_path(config_path: &Path, projects: &[String]) -> PathBuf {

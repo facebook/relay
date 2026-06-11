@@ -280,6 +280,17 @@ enum ServerCommand {
     Version,
     /// Shut down the daemon.
     Shutdown,
+    /// Print the path of the daemon log file.
+    LogFilePath,
+    /// List all known daemon instances and their status.
+    List {
+        /// Remove stale socket files and gone metadata files.
+        #[clap(long)]
+        cleanup: bool,
+        /// Shut down all active daemons.
+        #[clap(long)]
+        shutdown: bool,
+    },
 }
 
 #[derive(ValueEnum, Clone, Copy)]
@@ -704,6 +715,18 @@ async fn handle_server_command(opt: ServerOpt) -> Result<(), Error> {
                 .await;
                 Ok(())
             }
+        }
+        ServerCommand::LogFilePath => {
+            let log_path = server_daemon::get_log_file_path(&config_path, &opt.project);
+            println!("{}", log_path.display());
+            Ok(())
+        }
+        ServerCommand::List { cleanup, shutdown } => {
+            if let Err(e) = server_daemon::list_daemons(cleanup, shutdown).await {
+                error!("Failed to list daemons: {}", e);
+                std::process::exit(1);
+            }
+            Ok(())
         }
         cmd @ (ServerCommand::Version | ServerCommand::Shutdown) => {
             let request = match cmd {

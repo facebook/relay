@@ -147,6 +147,31 @@ struct CompileCommand {
     /// writing to disk
     #[clap(long)]
     validate: bool,
+
+    /// Send this build through the compiler daemon instead of compiling
+    /// in-process. The daemon is started in the background on first use and
+    /// reused across invocations, eliminating per-build startup cost. Pass
+    /// `--daemon=false` to force an in-process build. When the working
+    /// directory is mid-rebase / mid-merge, the build falls back to
+    /// in-process automatically. Not compatible with `--watch`,
+    /// `--validate`, `--repersist`, `--no-watchman`, or inline-config
+    /// flags (`--src`, `--schema`, `--artifactDirectory`) — these all
+    /// imply per-build behavior the daemon's in-memory state can't honor.
+    /// Unix-only.
+    #[cfg(unix)]
+    #[clap(
+        long,
+        conflicts_with_all = &[
+            "watch",
+            "validate",
+            "repersist",
+            "no_watchman",
+            "src",
+            "schema",
+            "artifact_directory",
+        ],
+    )]
+    daemon: Option<bool>,
 }
 
 #[derive(Parser)]
@@ -513,6 +538,17 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
         }));
     }
 
+    // `--daemon=true`: send this build through the compiler daemon (start it
+    // in the background on first use, reuse on subsequent invocations). When
+    // the working directory is mid-rebase / mid-merge we fall through to the
+    // in-process build path below — the daemon's cached artifacts would be
+    // derived from pre-merge state and applying them mid-merge can stomp on
+    // the user's in-progress resolution.
+    #[cfg(unix)]
+    if matches!(command.daemon, Some(true)) && try_daemon_build(&command).await? {
+        return Ok(());
+    }
+
     let mut config = get_config(command.config)?;
 
     set_project_flag(&mut config, &command.projects)?;
@@ -848,4 +884,61 @@ fn log_daemon_response(response: Option<DaemonResponse>) -> Result<(), Error> {
     } else {
         Err(Error::DaemonCommandFailed)
     }
+}
+
+/// Attempt a daemon-driven build for `--daemon=true`. Returns:
+///   - `Ok(true)`  — daemon flushed the build (caller should return).
+///   - `Ok(false)` — caller should fall through to the in-process build path
+///     (currently: rebase / merge / cherry-pick in progress, where the
+///     daemon's cached artifacts would be derived from pre-merge state).
+///   - `Err(_)`    — failed to locate the Relay config.
+///
+/// Exits the process via `log_daemon_response` if the daemon reports an
+/// error (matching the OSS CLI's behavior for `server write` failures).
+#[cfg(unix)]
+async fn try_daemon_build(command: &CompileCommand) -> Result<bool, Error> {
+    let config_path = match command.config.clone() {
+        Some(p) => p,
+        None => Config::find_path(
+            &current_dir().expect("Unable to get current working directory."),
+        )
+        .map_err(Error::ConfigError)?
+        .ok_or_else(|| {
+            Error::ConfigError(CompilerError::ConfigError {
+                details: "No Relay config found from current directory. Pass --config to specify one explicitly.".to_string(),
+            })
+        })?,
+    };
+
+    let in_transient_vcs_state = config_path
+        .parent()
+        .and_then(server_daemon::vcs_state::find_repo_root)
+        .as_deref()
+        .map(server_daemon::vcs_state::is_in_rebase_or_merge_state)
+        .unwrap_or(false);
+    if in_transient_vcs_state {
+        info!("Rebase/merge in progress, running in-process build instead of using daemon");
+        return Ok(false);
+    }
+
+    let extra_args = daemon_subprocess_extra_args(&config_path);
+    let (socket_path, _outcome) = server_daemon::ensure_daemon_running(
+        &config_path,
+        &command.projects,
+        &compiler_version(),
+        &extra_args,
+        &[],
+    )
+    .await;
+    info!("Sending Write to {}", socket_path.display());
+    let response = server_daemon::send_request(
+        &socket_path,
+        DaemonRequest::Write {
+            flush_manifest_path: None,
+            flush_shard_dir: None,
+        },
+    )
+    .await;
+    log_daemon_response(response)?;
+    Ok(true)
 }

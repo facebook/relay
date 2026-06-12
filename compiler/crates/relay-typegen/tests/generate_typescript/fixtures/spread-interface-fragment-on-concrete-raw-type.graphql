@@ -1,0 +1,23 @@
+fragment MyFragment on Actor {
+  name
+  ... on User {
+    canViewerLike
+  }
+  ... on Page {
+    subscribeStatus
+  }
+}
+
+query MyQuery @raw_response_type {
+  me {
+    canViewerComment
+    ...MyFragment
+  }
+}
+
+mutation MyMutation @raw_response_type {
+  setName(name: "test") {
+    canViewerComment
+    ...MyFragment
+  }
+}

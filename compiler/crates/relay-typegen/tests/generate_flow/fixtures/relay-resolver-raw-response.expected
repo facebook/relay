@@ -31,12 +31,10 @@ export type relayResolver_Query$data = {
   },
 };
 export type relayResolver_Query$rawResponse = {
-  readonly me: ?({
-    readonly id: string,
-  } | {
+  readonly me: ?{
     readonly id: string,
     readonly name: ?string,
-  }),
+  },
 };
 export type relayResolver_Query = {
   rawResponse: relayResolver_Query$rawResponse,

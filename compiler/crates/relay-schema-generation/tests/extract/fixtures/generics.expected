@@ -14,6 +14,11 @@ function live_generic_user(user: User): LiveState<Generic<User>> {}
 
 //extract
 function live_array_generic_optinal_user(user: User): LiveState<Array<Generic<?User>>> {}
+
+//extract
+function resolver_value_with_nested_unknown(
+  user: User,
+): RelayResolverValue<ReadonlyArray<AdsGenericFilter<unknown>>> {}
 ==================================== OUTPUT ===================================
 Strong(
     FieldData {
@@ -294,5 +299,145 @@ Strong(
         is_live: Some(
             <generated>:397:429,
         ),
+    },
+)
+
+Strong(
+    FieldData {
+        field_name: WithLocation {
+            location: <generated>:453:487,
+            item: "resolver_value_with_nested_unknown",
+        },
+        return_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "RelayResolverValue",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 506,
+                            end: 524,
+                        },
+                    },
+                ),
+                type_parameters: Some(
+                    TypeParameterInstantiation {
+                        params: [
+                            GenericTypeAnnotation(
+                                GenericTypeAnnotation {
+                                    id: Identifier(
+                                        Identifier {
+                                            name: "ReadonlyArray",
+                                            binding: None,
+                                            type_annotation: None,
+                                            loc: None,
+                                            range: SourceRange {
+                                                start: 525,
+                                                end: 538,
+                                            },
+                                        },
+                                    ),
+                                    type_parameters: Some(
+                                        TypeParameterInstantiation {
+                                            params: [
+                                                GenericTypeAnnotation(
+                                                    GenericTypeAnnotation {
+                                                        id: Identifier(
+                                                            Identifier {
+                                                                name: "AdsGenericFilter",
+                                                                binding: None,
+                                                                type_annotation: None,
+                                                                loc: None,
+                                                                range: SourceRange {
+                                                                    start: 539,
+                                                                    end: 555,
+                                                                },
+                                                            },
+                                                        ),
+                                                        type_parameters: Some(
+                                                            TypeParameterInstantiation {
+                                                                params: [
+                                                                    UnknownTypeAnnotation(
+                                                                        UnknownTypeAnnotation {
+                                                                            loc: None,
+                                                                            range: SourceRange {
+                                                                                start: 556,
+                                                                                end: 563,
+                                                                            },
+                                                                        },
+                                                                    ),
+                                                                ],
+                                                                loc: None,
+                                                                range: SourceRange {
+                                                                    start: 555,
+                                                                    end: 564,
+                                                                },
+                                                            },
+                                                        ),
+                                                        loc: None,
+                                                        range: SourceRange {
+                                                            start: 539,
+                                                            end: 564,
+                                                        },
+                                                    },
+                                                ),
+                                            ],
+                                            loc: None,
+                                            range: SourceRange {
+                                                start: 538,
+                                                end: 565,
+                                            },
+                                        },
+                                    ),
+                                    loc: None,
+                                    range: SourceRange {
+                                        start: 525,
+                                        end: 565,
+                                    },
+                                },
+                            ),
+                        ],
+                        loc: None,
+                        range: SourceRange {
+                            start: 524,
+                            end: 566,
+                        },
+                    },
+                ),
+                loc: None,
+                range: SourceRange {
+                    start: 506,
+                    end: 566,
+                },
+            },
+        ),
+        entity_type: Some(
+            GenericTypeAnnotation(
+                GenericTypeAnnotation {
+                    id: Identifier(
+                        Identifier {
+                            name: "User",
+                            binding: None,
+                            type_annotation: None,
+                            loc: None,
+                            range: SourceRange {
+                                start: 497,
+                                end: 501,
+                            },
+                        },
+                    ),
+                    type_parameters: None,
+                    loc: None,
+                    range: SourceRange {
+                        start: 497,
+                        end: 501,
+                    },
+                },
+            ),
+        ),
+        arguments: None,
+        is_live: None,
     },
 )

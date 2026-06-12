@@ -19,6 +19,8 @@ use common::ConsoleLogger;
 use intern::string_key::Intern;
 use log::error;
 use log::info;
+#[cfg(unix)]
+use log::warn;
 use relay_codemod::AvailableCodemod;
 use relay_codemod::run_codemod;
 #[cfg(unix)]
@@ -46,6 +48,8 @@ use relay_compiler::server_daemon;
 use relay_compiler::server_daemon::protocol::DaemonRequest;
 #[cfg(unix)]
 use relay_compiler::server_daemon::protocol::DaemonResponse;
+#[cfg(unix)]
+use relay_compiler::server_daemon::protocol::MessageSeverity;
 #[cfg(unix)]
 use relay_compiler::server_daemon::protocol::ResponseResult;
 #[cfg(unix)]
@@ -276,6 +280,8 @@ enum ServerCommand {
         #[clap(long, requires("initial_import_state"))]
         initial_changed_files_list: Option<PathBuf>,
     },
+    /// Request the daemon to write cached artifacts to disk.
+    Write,
     /// Check the daemon's compiler version.
     Version,
     /// Shut down the daemon.
@@ -728,17 +734,31 @@ async fn handle_server_command(opt: ServerOpt) -> Result<(), Error> {
             }
             Ok(())
         }
-        cmd @ (ServerCommand::Version | ServerCommand::Shutdown) => {
+        cmd @ (ServerCommand::Write | ServerCommand::Version | ServerCommand::Shutdown) => {
             let request = match cmd {
+                ServerCommand::Write => DaemonRequest::Write {
+                    flush_manifest_path: None,
+                    flush_shard_dir: None,
+                },
                 ServerCommand::Version => DaemonRequest::Version,
                 ServerCommand::Shutdown => DaemonRequest::Shutdown,
                 _ => unreachable!(),
             };
             let socket_path = server_daemon::get_socket_path(&config_path, &opt.project);
+
+            // For Write, check the daemon's version first and restart it on
+            // mismatch so artifacts aren't written by a stale compiler.
+            if matches!(&request, DaemonRequest::Write { .. })
+                && let Some(response) =
+                    server_daemon::send_request(&socket_path, DaemonRequest::Version).await
+                && has_version_mismatch(&response)
+            {
+                restart_daemon(&socket_path, &config_path, &opt.project).await;
+            }
+
             info!("Sending {:?} to {}", request, socket_path.display());
             let response = server_daemon::send_request(&socket_path, request).await;
-            log_daemon_response(response);
-            Ok(())
+            log_daemon_response(response)
         }
     }
 }
@@ -806,27 +826,81 @@ async fn start_server_foreground(
 }
 
 #[cfg(unix)]
-fn log_daemon_response(response: Option<DaemonResponse>) {
+fn has_version_mismatch(response: &DaemonResponse) -> bool {
+    match response {
+        DaemonResponse::Success {
+            result:
+                ResponseResult::Version {
+                    compiler_version: daemon_version,
+                },
+        } => daemon_version != &compiler_version(),
+        DaemonResponse::Error { code, message } => {
+            error!("Daemon returned error ({code:?}): {message}");
+            true
+        }
+        _ => {
+            error!("Unexpected response from daemon version check");
+            true
+        }
+    }
+}
+
+#[cfg(unix)]
+async fn restart_daemon(socket_path: &Path, config_path: &Path, projects: &[String]) {
+    info!("Compiler version mismatch detected, restarting daemon...");
+    server_daemon::send_request(socket_path, DaemonRequest::Shutdown).await;
+    // Brief wait for the old daemon to release the socket.
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    let extra_args = vec![
+        "--config".to_string(),
+        config_path.to_string_lossy().into_owned(),
+    ];
+    server_daemon::start_daemon_process(config_path, projects, &extra_args, &[]).await;
+}
+
+/// Log a daemon response and return `Err` if it indicates failure.
+/// Individual error messages are surfaced via `error!` before returning so
+/// the caller can `?`-propagate to `main`, which prints the wrapper error
+/// and exits non-zero — no `process::exit(1)` here, so any tokio cleanup
+/// or trailing telemetry the caller wants to run still gets a chance.
+#[cfg(unix)]
+fn log_daemon_response(response: Option<DaemonResponse>) -> Result<(), Error> {
     match response {
         Some(DaemonResponse::Success { result }) => match result {
+            ResponseResult::WriteAck { messages } => {
+                let mut has_error = false;
+                for msg in &messages {
+                    match msg.severity {
+                        MessageSeverity::Error => {
+                            error!("{}", msg.text);
+                            has_error = true;
+                        }
+                        MessageSeverity::Warning => warn!("{}", msg.text),
+                        MessageSeverity::Info => info!("{}", msg.text),
+                    }
+                }
+                if has_error {
+                    Err(Error::DaemonCommandFailed)
+                } else {
+                    Ok(())
+                }
+            }
             ResponseResult::Version { compiler_version } => {
                 println!("{}", compiler_version);
+                Ok(())
             }
             ResponseResult::ShutdownAck => {
                 info!("Daemon shut down successfully.");
-            }
-            _ => {
-                error!("Unexpected response from daemon");
-                std::process::exit(1);
+                Ok(())
             }
         },
         Some(DaemonResponse::Error { code, message }) => {
             error!("Error ({code:?}): {message}");
-            std::process::exit(1);
+            Err(Error::DaemonCommandFailed)
         }
         None => {
             error!("No server response");
-            std::process::exit(1);
+            Err(Error::DaemonCommandFailed)
         }
     }
 }

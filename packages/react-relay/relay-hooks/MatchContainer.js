@@ -103,18 +103,10 @@ export type MatchContainerProps<
   readonly props?: TProps,
 };
 
-function MatchContainer<
+component MatchContainer<
   TProps extends {...},
   TFallback extends React.Node | null,
->({
-  fallback,
-  loader,
-  match,
-  props,
-}: MatchContainerProps<TProps, TFallback>):
-  | React.MixedElement
-  | TFallback
-  | null {
+>(...{fallback, loader, match, props}: MatchContainerProps<TProps, TFallback>) {
   if (match != null && typeof match !== 'object') {
     throw new Error(
       'MatchContainer: Expected `match` value to be an object or null/undefined.',

@@ -40,44 +40,54 @@ const usersFragment: useFragmentFlowtest_users$fragment = graphql`
 /* eslint-disable react-hooks/rules-of-hooks */
 
 // Nullability of returned data type is correct
+// $FlowExpectedError[react-rule-hook]
 useFragment(
   userFragment,
   Any as useFragmentFlowtest_user$key,
 ) as useFragmentFlowtest_user$data;
+// $FlowExpectedError[react-rule-hook]
 useFragment(
   userFragment,
   Any as ?useFragmentFlowtest_user$key,
 ) as ?useFragmentFlowtest_user$data;
+// $FlowExpectedError[react-rule-hook]
 useFragment(
   usersFragment,
   Any as useFragmentFlowtest_users$key,
 ) as useFragmentFlowtest_users$data;
+// $FlowExpectedError[react-rule-hook]
 useFragment(
   usersFragment,
   Any as ?useFragmentFlowtest_users$key,
 ) as ?useFragmentFlowtest_users$data;
 
 // $FlowExpectedError[incompatible-type] : can't cast nullable to non-nullable
+// $FlowExpectedError[react-rule-hook]
 useFragment(
   userFragment,
   Any as ?useFragmentFlowtest_user$key,
 ) as useFragmentFlowtest_user$data;
 // $FlowExpectedError[incompatible-type] : can't cast nullable plural to non-nullable plural
+// $FlowExpectedError[react-rule-hook]
 useFragment(
   usersFragment,
   Any as ?useFragmentFlowtest_users$key,
 ) as useFragmentFlowtest_users$data;
 
 // $FlowExpectedError[incompatible-type] : Key should be one of the generated types
+// $FlowExpectedError[react-rule-hook]
 useFragment(userFragment, 'INVALID_KEY');
 
 // $FlowExpectedError[incompatible-type] : Key should not be a user provided object
+// $FlowExpectedError[react-rule-hook]
 useFragment(userFragment, {a: 123});
 
 // $FlowExpectedError[incompatible-type] : Key should not be an empty object
+// $FlowExpectedError[react-rule-hook]
 useFragment(userFragment, {});
 
 // $FlowExpectedError[incompatible-type] : Key should be the `<name>$key` type from generated flow
+// $FlowExpectedError[react-rule-hook]
 useFragment(userFragment, Any as useFragmentFlowtest_user$data);
 
 /* eslint-enable react-hooks/rules-of-hooks */

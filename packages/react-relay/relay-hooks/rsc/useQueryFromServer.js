@@ -36,7 +36,7 @@ const committedRefs: WeakSet<any> = new WeakSet();
 
 const DEFAULT_STALE_MS = 30_000;
 
-function useQueryFromServer<TVariables extends Variables, TData>(
+hook useQueryFromServer<TVariables extends Variables, TData>(
   query: Query<TVariables, TData>,
   queryRef: PreloadedQueryRef<TVariables, TData>,
   options?: {staleThresholdMs?: number},

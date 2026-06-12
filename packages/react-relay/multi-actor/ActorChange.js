@@ -30,9 +30,7 @@ type ActorChangeProps<TFragmentRef> = {
   ) => React.MixedElement,
 };
 
-function ActorChange<TFragmentRef>(
-  props: ActorChangeProps<TFragmentRef>,
-): React.MixedElement {
+component ActorChange<TFragmentRef>(...props: ActorChangeProps<TFragmentRef>) {
   const actorEnvironment = useRelayActorEnvironment(
     props.actorChangePoint.__viewer,
   );

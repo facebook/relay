@@ -41,6 +41,9 @@ pub use socket::start_server;
 use crate::ArtifactWriter;
 use crate::config::Config;
 use crate::server_daemon::protocol::DaemonRequest;
+use crate::server_daemon::protocol::DaemonResponse;
+use crate::server_daemon::protocol::MessageSeverity;
+use crate::server_daemon::protocol::ResponseResult;
 
 /// Builds the [`ArtifactWriter`] used when a [`protocol::DaemonRequest::Write`]
 /// supplies both `flush_manifest_path` and `flush_shard_dir`.
@@ -267,9 +270,6 @@ pub fn log_path_for_socket(socket_path: &Path) -> PathBuf {
 
 /// Print a one-line summary for every discovered daemon and optionally
 /// `shutdown` active daemons / `cleanup` stale or gone ones.
-///
-/// Shared by the OSS `relay server list` CLI and the FB binary's
-/// equivalent subcommand so the human-facing output stays in sync.
 pub async fn list_daemons(cleanup: bool, shutdown: bool) -> std::io::Result<()> {
     let daemons = DaemonMetadata::list()?;
     if daemons.is_empty() {
@@ -434,6 +434,149 @@ fn log_daemon_file(log_path: &Path) {
         && !log_contents.is_empty()
     {
         error!("Daemon log ({}):\n{}", log_path.display(), log_contents);
+    }
+}
+
+/// Outcome of [`ensure_daemon_running`] — exposed so callers can log
+/// or branch on whether the daemon was already running, freshly started,
+/// or restarted due to a version mismatch.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DaemonStartOutcome {
+    AlreadyRunning,
+    Started,
+    Restarted,
+}
+
+impl std::fmt::Display for DaemonStartOutcome {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            DaemonStartOutcome::AlreadyRunning => "already_running",
+            DaemonStartOutcome::Started => "started",
+            DaemonStartOutcome::Restarted => "restarted",
+        })
+    }
+}
+
+/// Check whether a [`DaemonRequest::Version`] response indicates that the
+/// daemon's compiler version differs from `client_version`. Returns `true`
+/// on protocol errors too — the safe default is to assume mismatch and let
+/// callers restart.
+pub fn has_version_mismatch(response: &DaemonResponse, client_version: &str) -> bool {
+    match response {
+        DaemonResponse::Success {
+            result:
+                ResponseResult::Version {
+                    compiler_version: daemon_version,
+                },
+        } => daemon_version != client_version,
+        DaemonResponse::Error { code, message } => {
+            error!("Daemon returned error ({code:?}): {message}");
+            true
+        }
+        _ => {
+            error!("Unexpected response from daemon version check");
+            true
+        }
+    }
+}
+
+/// Shut down a running daemon and start a fresh one in its place. Waits
+/// for the new daemon to become ready before returning. `extra_args` and
+/// `start_extra_args` are forwarded verbatim to [`start_daemon_process`].
+pub async fn restart_daemon(
+    socket_path: &Path,
+    config_path: &Path,
+    projects: &[String],
+    extra_args: &[String],
+    start_extra_args: &[String],
+) {
+    info!("Compiler version mismatch detected, restarting daemon...");
+    send_request(socket_path, DaemonRequest::Shutdown).await;
+    // Brief wait for the old daemon to release the socket.
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    start_daemon_process(config_path, projects, extra_args, start_extra_args).await;
+}
+
+/// Ensure a daemon with a matching compiler version is running for the
+/// given config + projects.
+///
+/// If no daemon is running, a fresh one is started. If a daemon is running
+/// but reports a different `client_version`, it is shut down and replaced.
+/// Returns the socket path (for sending subsequent requests) and the start
+/// outcome (for telemetry).
+///
+/// `extra_args` and `start_extra_args` are forwarded to
+/// [`start_daemon_process`] so callers can pass binary-specific
+/// `Server`-level and `Start`-subcommand-level args respectively.
+pub async fn ensure_daemon_running(
+    config_path: &Path,
+    projects: &[String],
+    client_version: &str,
+    extra_args: &[String],
+    start_extra_args: &[String],
+) -> (PathBuf, DaemonStartOutcome) {
+    let socket_path = get_socket_path(config_path, projects);
+    let outcome = match send_request(&socket_path, DaemonRequest::Version).await {
+        Some(response) if has_version_mismatch(&response, client_version) => {
+            restart_daemon(
+                &socket_path,
+                config_path,
+                projects,
+                extra_args,
+                start_extra_args,
+            )
+            .await;
+            DaemonStartOutcome::Restarted
+        }
+        Some(_) => DaemonStartOutcome::AlreadyRunning,
+        None => {
+            info!("Starting daemon...");
+            start_daemon_process(config_path, projects, extra_args, start_extra_args).await;
+            DaemonStartOutcome::Started
+        }
+    };
+    (socket_path, outcome)
+}
+
+/// Log a daemon response at the appropriate severity. Returns `true` if
+/// the response indicates success and `false` if it indicates an error
+/// (e.g. build errors in a `WriteAck`, an explicit `Error` response, or
+/// no response at all). Callers can use the return value to decide whether
+/// to `std::process::exit(1)`.
+pub fn log_daemon_response(response: Option<DaemonResponse>) -> bool {
+    match response {
+        Some(DaemonResponse::Success { result }) => match result {
+            ResponseResult::WriteAck { messages } => {
+                let mut has_error = false;
+                for msg in &messages {
+                    match msg.severity {
+                        MessageSeverity::Error => {
+                            error!("{}", msg.text);
+                            has_error = true;
+                        }
+                        MessageSeverity::Warning => warn!("{}", msg.text),
+                        MessageSeverity::Info => info!("{}", msg.text),
+                    }
+                }
+                !has_error
+            }
+            ResponseResult::Version { compiler_version } => {
+                println!("{}", compiler_version);
+                true
+            }
+            ResponseResult::ShutdownAck => {
+                info!("Daemon shut down successfully.");
+                true
+            }
+        },
+        Some(DaemonResponse::Error { code, message }) => {
+            error!("Error ({code:?}): {message}");
+            false
+        }
+        None => {
+            error!("No server response");
+            false
+        }
     }
 }
 

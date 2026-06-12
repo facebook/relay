@@ -12,6 +12,7 @@
 //! these states so the client can fall back to a direct build.
 
 use std::path::Path;
+use std::path::PathBuf;
 
 /// Sentinel files under `.hg` / `.sl` that indicate an in-progress
 /// rebase, merge, or histedit.
@@ -53,6 +54,20 @@ pub fn is_in_rebase_or_merge_state(root_dir: &Path) -> bool {
         }
     }
     false
+}
+
+/// Walk up from `start_dir` looking for the nearest directory that contains
+/// a `.git`, `.hg`, or `.sl` entry — that is, the enclosing repository root.
+/// Returns `None` if no repo root is found anywhere along the path.
+pub fn find_repo_root(start_dir: &Path) -> Option<PathBuf> {
+    for ancestor in start_dir.ancestors() {
+        for vcs in [".hg", ".sl", ".git"] {
+            if ancestor.join(vcs).exists() {
+                return Some(ancestor.to_path_buf());
+            }
+        }
+    }
+    None
 }
 
 #[cfg(test)]

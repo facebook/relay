@@ -178,20 +178,20 @@ export type PreloadQueryStatus = Readonly<{
  * TExtraProps - a bag of extra props that you may define in `entrypoint` file
  * and they will be passed to the EntryPointComponent as `extraProps`
  */
-type InternalEntryPointRepresentation<
+interface InternalEntryPointRepresentation<
     TEntryPointParams extends Record<string, unknown>,
     TPreloadedQueries extends Record<string, OperationType>,
     TNestedEntryPoints extends Record<string, unknown>,
     TRuntimeProps extends Record<string, unknown>,
     TExtraProps extends Record<string, unknown> | null,
-> = Readonly<{
+> extends Readonly<{
     root: JSResourceReference<
         EntryPointComponent<TPreloadedQueries, TNestedEntryPoints, TRuntimeProps, TExtraProps>
     >;
     getPreloadProps: (
         entryPointParams: TEntryPointParams,
     ) => PreloadProps<TEntryPointParams, TPreloadedQueries, TNestedEntryPoints, TExtraProps>;
-}>;
+}> {}
 
 type ThinQueryParamsObject<TPreloadedQueries extends Record<string, OperationType> = Record<string, never>> = {
     [K in keyof TPreloadedQueries]: ThinQueryParams<TPreloadedQueries[K]>;
@@ -229,12 +229,12 @@ export type PreloadProps<
     queries?: ThinQueryParamsObject<TPreloadedQueries> | undefined;
 }>;
 
-export type EntryPointProps<TPreloadedQueries, TNestedEntryPoints, TRuntimeProps, TExtraProps> = Readonly<{
+export interface EntryPointProps<TPreloadedQueries, TNestedEntryPoints, TRuntimeProps, TExtraProps> extends Readonly<{
     entryPoints: PreloadedEntryPoints<TNestedEntryPoints>;
     extraProps: TExtraProps;
     props: TRuntimeProps;
     queries: PreloadedQueries<TPreloadedQueries>;
-}>;
+}> {}
 
 export type EntryPointComponent<
     TPreloadedQueries extends Record<string, OperationType>,

@@ -45,6 +45,7 @@ import type {
   NormalizationLinkedField,
   NormalizationOperation,
   NormalizationRootNode,
+  NormalizationScalarField,
   NormalizationSelectableNode,
   NormalizationSplitOperation,
 } from '../util/NormalizationNode';
@@ -1484,11 +1485,26 @@ class Executor<TMutation extends MutationParameters> {
     const {parentID, node, variables, actorIdentifier} = placeholder;
     const prevActorIdentifier = this._actorIdentifier;
     this._actorIdentifier = actorIdentifier ?? this._actorIdentifier;
-    // Find the LinkedField where @stream was applied
+    // Find the field where @stream was applied
     const field = node.selections[0];
     invariant(
-      field != null && field.kind === 'LinkedField' && field.plural === true,
+      field != null &&
+        (field.kind === 'LinkedField' || field.kind === 'ScalarField'),
       'OperationExecutor: Expected @stream to be used on a plural field.',
+    );
+    if (field.kind === 'ScalarField') {
+      return this._processStreamScalarResponse(
+        parentID,
+        field,
+        variables,
+        path,
+        response,
+        prevActorIdentifier,
+      );
+    }
+    invariant(
+      field.plural === true,
+      'OperationExecutor: Expected @stream to be used on a plural LinkedField.',
     );
     const {
       fieldPayloads,
@@ -1557,6 +1573,114 @@ class Executor<TMutation extends MutationParameters> {
         handleFieldsRelayPayload,
       );
     }
+
+    this._actorIdentifier = prevActorIdentifier;
+    return relayPayload;
+  }
+
+  /**
+   * Process a single streamed scalar value for a @stream field on a list of
+   * scalars. Unlike linked fields, scalar values are stored directly in the
+   * parent record's value array — no separate records are created.
+   */
+  _processStreamScalarResponse(
+    parentID: DataID,
+    field: NormalizationScalarField,
+    variables: Variables,
+    path: ReadonlyArray<unknown>,
+    response: GraphQLResponseWithData,
+    prevActorIdentifier: ActorIdentifier,
+  ): RelayResponsePayload {
+    const {data} = response;
+    const storageKey = getStorageKey(field, variables);
+
+    // Load the version of the parent record from which this incremental data
+    // was derived
+    const parentEntry = this._source.get(parentID);
+    invariant(
+      parentEntry != null,
+      'OperationExecutor: Expected the parent record `%s` for @stream ' +
+        'scalar data to exist.',
+      parentID,
+    );
+    const {record: parentRecord, fieldPayloads} = parentEntry;
+
+    // Load the field value (items) that were created by *this* query executor
+    // in order to check if there have been any concurrent modifications by
+    // some other operation.
+    const prevValues = RelayModernRecord.getValue(parentRecord, storageKey);
+    invariant(
+      Array.isArray(prevValues),
+      'OperationExecutor: Expected record `%s` to have fetched scalar ' +
+        'field `%s` with @stream.',
+      parentID,
+      field.name,
+    );
+
+    // Determine the index in the field of the new item
+    const finalPathEntry = path[path.length - 1];
+    const itemIndex = parseInt(finalPathEntry, 10);
+    invariant(
+      itemIndex === finalPathEntry && itemIndex >= 0,
+      'OperationExecutor: Expected path for @stream to end in a ' +
+        'positive integer index, got `%s`',
+      finalPathEntry,
+    );
+
+    // Update the cached version of the parent record to reflect the new value:
+    // this is used when subsequent stream payloads arrive to see if there
+    // have been concurrent modifications to the list
+    const nextParentRecord = RelayModernRecord.clone(parentRecord);
+    const nextValues = [...prevValues];
+    nextValues[itemIndex] = data;
+    RelayModernRecord.setValue(nextParentRecord, storageKey, nextValues);
+    this._source.set(parentID, {
+      fieldPayloads,
+      record: nextParentRecord,
+    });
+
+    // Publish the new value and update the parent record to set
+    // field[index] = value *if* the parent record hasn't been concurrently
+    // modified.
+    const relayPayload: RelayResponsePayload = {
+      errors: null,
+      fieldPayloads: [],
+      followupPayloads: null,
+      incrementalPlaceholders: null,
+      isFinal: false,
+      source: RelayRecordSource.create(),
+    };
+    this._getPublishQueueAndSaveActor().commitPayload(
+      this._operation,
+      relayPayload,
+      store => {
+        const currentParentRecord = store.get(parentID);
+        if (currentParentRecord == null) {
+          // parent has since been deleted, stream data is stale
+          return;
+        }
+        const currentItems = currentParentRecord.getValue(storageKey);
+        if (!Array.isArray(currentItems)) {
+          // field has since been deleted, stream data is stale
+          return;
+        }
+        if (
+          currentItems.length !== prevValues.length ||
+          currentItems.some(
+            (currentItem, index) => prevValues[index] !== currentItem,
+          )
+        ) {
+          // field has been modified by something other than this query,
+          // stream data is stale
+          return;
+        }
+        // parent.field has not been concurrently modified:
+        // update `parent.field[index] = value`
+        const nextItems = [...currentItems];
+        nextItems[itemIndex] = data;
+        currentParentRecord.setValue(nextItems, storageKey);
+      },
+    );
 
     this._actorIdentifier = prevActorIdentifier;
     return relayPayload;

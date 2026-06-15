@@ -1238,6 +1238,7 @@ impl SingleProjectConfigFile {
             js_module_format: self.js_module_format,
             feature_flags: self.feature_flags,
             module_import_config: self.module_import_config,
+            relativize_js_module_paths: self.relativize_js_module_paths,
             resolvers_schema_module: self.resolvers_schema_module,
             extra: self.extra,
             ..Default::default()

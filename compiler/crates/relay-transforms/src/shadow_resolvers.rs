@@ -22,6 +22,7 @@ use schema::Schema;
 use super::ValidationMessage;
 use crate::extract_module_name;
 use crate::relay_resolvers::RelayResolverMetadata;
+use crate::relay_resolvers::get_resolver_fragment_dependency_name;
 
 /// Shadow resolvers transform.
 ///
@@ -97,6 +98,18 @@ impl<'program> ShadowResolversTransform<'program> {
         {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::ReturnFragmentRequiresFeatureFlag,
+                location,
+            ));
+            return;
+        }
+
+        // Validate: resolver must define a root fragment when using @returnFragment.
+        // Detect the root fragment from the schema (the resolver's @rootFragment),
+        // not from `fragment_data_injection_mode` — that field is only populated for
+        // `@injectFragmentData` and is None for a key-only root fragment.
+        if get_resolver_fragment_dependency_name(self.program.schema.field(field_id)).is_none() {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ReturnFragmentRequiresRootFragment,
                 location,
             ));
             return;

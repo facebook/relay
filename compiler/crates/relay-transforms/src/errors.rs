@@ -243,6 +243,11 @@ pub enum ValidationMessage {
         module_name: String,
         fragment_name: StringKey,
     },
+
+    #[error(
+        "@returnFragment requires the resolver to define a @rootFragment. Resolvers with @returnFragment must read data from the graph using a root fragment."
+    )]
+    ReturnFragmentRequiresRootFragment,
 }
 
 #[derive(

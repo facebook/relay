@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d50e7542590f5ccb148c85117fd40da3>>
+ * @generated SignedSource<<7b4e6652a182603c5f864a44adb0e609>>
  */
 
 mod relay_compiler_integration;
@@ -566,10 +566,24 @@ async fn resolver_return_fragment_invalid_name_invalid() {
 }
 
 #[tokio::test]
+async fn resolver_return_fragment_requires_feature_flag() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.expected");
+    test_fixture(transform_fixture, file!(), "resolver_return_fragment_requires_feature_flag.input", "relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn resolver_return_fragment_requires_feature_flag_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.invalid.expected");
     test_fixture(transform_fixture, file!(), "resolver_return_fragment_requires_feature_flag.invalid.input", "relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_return_fragment_requires_root_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_requires_root_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_requires_root_fragment.expected");
+    test_fixture(transform_fixture, file!(), "resolver_return_fragment_requires_root_fragment.input", "relay_compiler_integration/fixtures/resolver_return_fragment_requires_root_fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

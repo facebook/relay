@@ -287,6 +287,7 @@ fn apply_reader_transforms(
         relay_resolvers(project_config.name, &program)
     })?;
 
+    // Validate shadow resolver features (like return_fragment)
     log_event.time("shadow_resolvers_transform", || {
         shadow_resolvers_transform(&program, &project_config.feature_flags)
     })?;
@@ -373,10 +374,12 @@ fn apply_operation_transforms(
     program = log_event.time("client_edges", || {
         client_edges(&program, project_config, &base_fragment_names, true)
     })?;
+
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(project_config.name, &program)
     })?;
 
+    // Validate shadow resolver features (like return_fragment)
     log_event.time("shadow_resolvers_transform", || {
         shadow_resolvers_transform(&program, &project_config.feature_flags)
     })?;
@@ -752,6 +755,7 @@ fn apply_typegen_transforms(
         relay_resolvers(project_config.name, &program)
     })?;
 
+    // Validate shadow resolver features (like return_fragment)
     log_event.time("shadow_resolvers_transform", || {
         shadow_resolvers_transform(&program, &project_config.feature_flags)
     })?;

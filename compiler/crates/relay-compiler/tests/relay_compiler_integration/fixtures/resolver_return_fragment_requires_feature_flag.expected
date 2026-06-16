@@ -1,9 +1,9 @@
 ==================================== INPUT ====================================
 //- User_foo.js
-// Test that @returnFragment requires fragment names to start with the module name.
+// Test that @returnFragment requires the enable_shadow_resolvers feature flag.
 /**
  * @relayField User.foo: RelayResolverValue
- * @returnFragment WrongPrefix_fragment
+ * @returnFragment SomeExternalFragment
  */
 
 //- UserFragment.js
@@ -15,20 +15,17 @@ graphql`fragment UserFragment on User {
 {
   "language": "flow",
   "jsModuleFormat": "haste",
-  "schema": "schema.graphql",
-  "featureFlags": {
-    "enable_shadow_resolvers": { "kind": "enabled" }
-  }
+  "schema": "schema.graphql"
 }
 
 //- schema.graphql
 type Query { me: User }
 type User { name: String }
 ==================================== OUTPUT ===================================
-✖︎ @returnFragment requires the resolver to define a @rootFragment. Resolvers with @returnFragment must read data from the graph using a root fragment.
+✖︎ The @returnFragment docblock tag requires the 'enable_shadow_resolvers' feature flag to be enabled.
 
   User_foo.js:4:20
     3 │  * @relayField User.foo: RelayResolverValue
-    4 │  * @returnFragment WrongPrefix_fragment
+    4 │  * @returnFragment SomeExternalFragment
       │                    ^^^^^^^^^^^^^^^^^^^^
     5 │

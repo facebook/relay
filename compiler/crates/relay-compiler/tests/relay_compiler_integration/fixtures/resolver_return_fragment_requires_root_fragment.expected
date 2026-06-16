@@ -1,9 +1,9 @@
 ==================================== INPUT ====================================
 //- User_foo.js
-// Test that @returnFragment requires fragment names to start with the module name.
+// Test that @returnFragment requires the resolver to have a @rootFragment.
 /**
  * @relayField User.foo: RelayResolverValue
- * @returnFragment WrongPrefix_fragment
+ * @returnFragment UserFooExternalFragment
  */
 
 //- UserFragment.js
@@ -29,6 +29,6 @@ type User { name: String }
 
   User_foo.js:4:20
     3 │  * @relayField User.foo: RelayResolverValue
-    4 │  * @returnFragment WrongPrefix_fragment
-      │                    ^^^^^^^^^^^^^^^^^^^^
+    4 │  * @returnFragment UserFooExternalFragment
+      │                    ^^^^^^^^^^^^^^^^^^^^^^^
     5 │

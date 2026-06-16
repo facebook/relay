@@ -10,10 +10,12 @@ use std::collections::HashSet;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlags;
-use graphql_ir::Field;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Program;
+use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+use graphql_ir::Visitor;
 use graphql_syntax::is_valid_identifier;
 use intern::Lookup;
 use schema::FieldID;
@@ -61,18 +63,10 @@ impl<'program> ShadowResolversTransform<'program> {
         }
     }
 
-    fn validate_resolver_directives(&mut self, directives: &[graphql_ir::Directive]) {
-        // Use RelayResolverMetadata::find to get metadata from IR directives
-        // Note: After relay_resolvers_spread_transform, resolver fields become either:
-        // - ScalarField for __id (for resolvers without root fragments)
-        // - FragmentSpread (for resolvers with root fragments)
-        // Both have RelayResolverMetadata attached to their directives.
-        let resolver_metadata = match RelayResolverMetadata::find(directives) {
-            Some(metadata) => metadata,
-            None => return,
-        };
-
-        // Use the field_id from the metadata (the original resolver field)
+    /// Validates resolver metadata from directives attached to any IR node (field or fragment spread).
+    /// After the relay_resolvers transform, resolver fields WITH a root fragment are converted to
+    /// FragmentSpreads with RelayResolverMetadata attached, so we need to check both.
+    fn validate_resolver_metadata(&mut self, resolver_metadata: &RelayResolverMetadata) {
         let field_id = resolver_metadata.field_id;
 
         // Skip if already validated
@@ -156,7 +150,68 @@ impl<'program> ShadowResolversTransform<'program> {
                 location,
             ));
         }
+
+        // Validate: return fragment must be spread within the root fragment.
+        // Read the root fragment name from the schema (the resolver's @rootFragment);
+        // it is guaranteed Some by the has-root-fragment check above.
+        let root_fragment_name =
+            get_resolver_fragment_dependency_name(self.program.schema.field(field_id))
+                .expect("resolver has a root fragment (checked above)");
+
+        if let Some(root_fragment) = self.program.fragment(root_fragment_name)
+            && !selections_contain_fragment_spread(&root_fragment.selections, return_fragment.item)
+        {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ReturnFragmentNotSpreadInRootFragment {
+                    return_fragment_name: return_fragment.item,
+                    root_fragment_name,
+                },
+                location,
+            ));
+        }
     }
+
+    fn validate_resolver_field<F: graphql_ir::Field>(&mut self, field: &F) {
+        // Use RelayResolverMetadata::find to get metadata from IR field directives
+        // This handles resolvers WITHOUT root fragments (they remain as fields)
+        if let Some(resolver_metadata) = RelayResolverMetadata::find(field.directives()) {
+            self.validate_resolver_metadata(resolver_metadata);
+        }
+    }
+}
+
+/// Checks if a fragment with the given name is spread within the selections.
+/// This recursively traverses into linked fields, inline fragments, and conditions,
+/// but does NOT traverse into other fragment definitions (fragment spreads).
+fn selections_contain_fragment_spread(
+    selections: &[Selection],
+    fragment_name: FragmentDefinitionName,
+) -> bool {
+    struct FragmentSpreadFinder {
+        target_name: FragmentDefinitionName,
+        found: bool,
+    }
+
+    impl Visitor for FragmentSpreadFinder {
+        const NAME: &'static str = "FragmentSpreadFinder";
+        const VISIT_ARGUMENTS: bool = false;
+        const VISIT_DIRECTIVES: bool = false;
+
+        fn visit_fragment_spread(&mut self, spread: &graphql_ir::FragmentSpread) {
+            // Check if this is the fragment we're looking for
+            if spread.fragment.item == self.target_name {
+                self.found = true;
+            }
+            // Do NOT call default_visit_fragment_spread or traverse into the fragment definition
+        }
+    }
+
+    let mut finder = FragmentSpreadFinder {
+        target_name: fragment_name,
+        found: false,
+    };
+    finder.visit_selections(selections);
+    finder.found
 }
 
 impl Transformer<'_> for ShadowResolversTransform<'_> {
@@ -168,7 +223,7 @@ impl Transformer<'_> for ShadowResolversTransform<'_> {
         &mut self,
         field: &graphql_ir::ScalarField,
     ) -> Transformed<graphql_ir::Selection> {
-        self.validate_resolver_directives(field.directives());
+        self.validate_resolver_field(field);
         Transformed::Keep
     }
 
@@ -176,7 +231,7 @@ impl Transformer<'_> for ShadowResolversTransform<'_> {
         &mut self,
         field: &graphql_ir::LinkedField,
     ) -> Transformed<graphql_ir::Selection> {
-        self.validate_resolver_directives(field.directives());
+        self.validate_resolver_field(field);
         self.default_transform_linked_field(field)
     }
 
@@ -184,7 +239,11 @@ impl Transformer<'_> for ShadowResolversTransform<'_> {
         &mut self,
         spread: &graphql_ir::FragmentSpread,
     ) -> Transformed<graphql_ir::Selection> {
-        self.validate_resolver_directives(&spread.directives);
+        // After relay_resolvers transform, resolver fields WITH root fragments are converted
+        // to FragmentSpreads with RelayResolverMetadata attached
+        if let Some(resolver_metadata) = RelayResolverMetadata::find(&spread.directives) {
+            self.validate_resolver_metadata(resolver_metadata);
+        }
         Transformed::Keep
     }
 }

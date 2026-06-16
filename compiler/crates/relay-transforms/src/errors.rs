@@ -248,6 +248,14 @@ pub enum ValidationMessage {
         "@returnFragment requires the resolver to define a @rootFragment. Resolvers with @returnFragment must read data from the graph using a root fragment."
     )]
     ReturnFragmentRequiresRootFragment,
+
+    #[error(
+        "The @returnFragment '{return_fragment_name}' must be spread within the @rootFragment '{root_fragment_name}'. Add `...{return_fragment_name}` to your root fragment."
+    )]
+    ReturnFragmentNotSpreadInRootFragment {
+        return_fragment_name: FragmentDefinitionName,
+        root_fragment_name: FragmentDefinitionName,
+    },
 }
 
 #[derive(

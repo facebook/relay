@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7b4e6652a182603c5f864a44adb0e609>>
+ * @generated SignedSource<<ed7ec0889e1174ba9bdffa834e772c30>>
  */
 
 mod relay_compiler_integration;
@@ -563,6 +563,13 @@ async fn resolver_return_fragment_invalid_name_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_invalid_name.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_invalid_name.invalid.expected");
     test_fixture(transform_fixture, file!(), "resolver_return_fragment_invalid_name.invalid.input", "relay_compiler_integration/fixtures/resolver_return_fragment_invalid_name.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_return_fragment_not_spread_in_root_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_not_spread_in_root_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_not_spread_in_root_fragment.expected");
+    test_fixture(transform_fixture, file!(), "resolver_return_fragment_not_spread_in_root_fragment.input", "relay_compiler_integration/fixtures/resolver_return_fragment_not_spread_in_root_fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

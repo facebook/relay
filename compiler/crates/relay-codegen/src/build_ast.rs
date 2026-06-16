@@ -2024,6 +2024,18 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 };
                 Primitive::Key(self.object(obj))
             }
+            ClientEdgeMetadataDirective::StoreRefObject { .. } => {
+                // Pointer-design shadow resolver. No waterfall, no model
+                // resolvers: the consumer's selections were transplanted onto
+                // the shadowed server field in the main op, and the resolver
+                // returns a pointer (DataID) read off that record.
+                let obj = object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                    client_edge_backing_field_key: backing_field,
+                    client_edge_selections_key: selections_item,
+                };
+                Primitive::Key(self.object(obj))
+            }
             ClientEdgeMetadataDirective::ServerObject { query_name, .. } => {
                 // C2S (client-to-server) edges need to emit ClientEdgeToServerObject
                 // with the operation reference so the executor can trigger the waterfall fetch.
@@ -2192,6 +2204,29 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                              client_edge_backing_field_key: backing_field,
                              client_edge_selections_key: selections_item,
                          }))
+                 }
+             }
+
+             ClientEdgeMetadataDirective::StoreRefObject { .. } => {
+                 // Pointer-design shadow resolver. The resolver returns a pointer
+                 // (DataID) to an already-normalized record; the consumer reads
+                 // its selections off that record via a store-ref edge. There is
+                 // no waterfall, so we emit NO `serverObjectOperations` and NO
+                 // model resolvers. The `isStoreRefEdge` flag emitted here tells
+                 // the runtime to read the raw store id and push a null traversal
+                 // segment instead of fetching via a waterfall.
+                 if self.project_config.feature_flags.disable_resolver_reader_ast {
+                     selections_item
+                 } else {
+                     Primitive::Key(self.object(object! {
+                         kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                         concrete_type: Primitive::Null,
+                         is_store_ref_edge: Primitive::Bool(true),
+                         client_edge_model_resolvers: Primitive::Null,
+                         server_object_operations: Primitive::Null,
+                         client_edge_backing_field_key: backing_field,
+                         client_edge_selections_key: selections_item,
+                     }))
                  }
              }
          };

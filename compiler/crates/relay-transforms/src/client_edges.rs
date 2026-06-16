@@ -93,6 +93,17 @@ pub enum ClientEdgeMetadataDirective {
         model_resolvers: Vec<ClientEdgeModelResolver>,
         server_object_operations: Vec<ClientEdgeServerObjectOperation>,
     },
+    /// A pointer-design "shadow resolver" edge. The backing resolver shadows a
+    /// server field, transplants the consumer's selections onto that server
+    /// field in the main operation (so they are fetched without a waterfall),
+    /// and returns a pointer (DataID) to the already-normalized record. The
+    /// consumer reads its selections off that record via a store-ref edge.
+    ///
+    /// This is modeled as a distinct variant (rather than overloading
+    /// `ClientObject` with empty `server_object_operations` plus a flag) so that
+    /// invalid states are unrepresentable: a store-ref edge never generates a
+    /// `ClientEdgeQuery` and never carries `server_object_operations`.
+    StoreRefObject { unique_id: u32 },
 }
 associated_data_impl!(ClientEdgeMetadataDirective);
 
@@ -777,6 +788,26 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         }
     }
 
+    /// Returns true if `field_type` is backed by a pointer-design shadow
+    /// resolver, i.e. a Relay Resolver declaring a `@returnFragment`. Such
+    /// resolvers shadow a server field and return a pointer read off the
+    /// already-normalized record (no waterfall), so they must be routed to the
+    /// `StoreRefObject` edge variant rather than the regular client-object /
+    /// server-object client-edge paths.
+    fn is_shadow_resolver_field(&self, field_type: &schema::Field) -> bool {
+        // `get_resolver_info` may surface diagnostics, but those are also raised
+        // (and reported) by the `relay_resolvers` field transform that runs
+        // after this pass. Here we only need the boolean signal of whether a
+        // `@returnFragment` is present, so we ignore any diagnostics.
+        matches!(
+            get_resolver_info(&self.program.schema, field_type, field_type.name.location),
+            Some(Ok(ResolverInfo {
+                return_fragment: Some(_),
+                ..
+            }))
+        )
+    }
+
     fn transform_linked_field_impl(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let schema = &self.program.schema;
         let field_type = schema.field(field.definition.item);
@@ -812,6 +843,43 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         let new_selections = self
             .transform_selections(&field.selections)
             .replace_or_else(|| field.selections.clone());
+
+        // Pointer-design shadow resolver: a resolver that shadows a server field
+        // and returns a pointer (DataID) read off the already-normalized record.
+        // Its consumer selections are transplanted onto the shadowed server field
+        // in the main operation, so there is NO waterfall. Route it to a
+        // distinct `StoreRefObject` edge and never generate a `ClientEdgeQuery`
+        // or `server_object_operations`.
+        //
+        // Gated on the feature flag first so non-adopting projects skip the
+        // `get_resolver_info` reparse inside `is_shadow_resolver_field` for every
+        // client edge: a valid shadow resolver can only exist when
+        // `enable_shadow_resolvers` is fully enabled.
+        if self
+            .project_config
+            .feature_flags
+            .enable_shadow_resolvers
+            .is_fully_enabled()
+            && self.is_shadow_resolver_field(field_type)
+        {
+            // `@waterfall` on a pointer shadow field is a hard error: the field
+            // is explicitly NOT a waterfall (its selections are fetched in the
+            // main op). Detect this before the missing/required-waterfall checks
+            // that the regular client-object / server-object paths would apply.
+            if let Some(directive) = waterfall_directive {
+                self.errors.push(Diagnostic::error_with_data(
+                    ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
+                    directive.location,
+                ));
+            }
+
+            let metadata_directive = ClientEdgeMetadataDirective::StoreRefObject {
+                unique_id: self.get_key(),
+            };
+            let inline_fragment =
+                create_inline_fragment_for_client_edge(field, new_selections, metadata_directive);
+            return Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)));
+        }
 
         let metadata_directive = if is_edge_to_client_object {
             // Validate S2C @rootFragment identity-only constraint

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<59e59215ba1b5ba1e2aa5d5cd86cdcc1>>
+ * @generated SignedSource<<b3e7df422634ad9adf727c163366c087>>
  */
 
 mod relay_compiler_integration;
@@ -346,6 +346,13 @@ async fn mixed_interface_fragment_spread() {
     let input = include_str!("relay_compiler_integration/fixtures/mixed_interface_fragment_spread.input");
     let expected = include_str!("relay_compiler_integration/fixtures/mixed_interface_fragment_spread.expected");
     test_fixture(transform_fixture, file!(), "mixed_interface_fragment_spread.input", "relay_compiler_integration/fixtures/mixed_interface_fragment_spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn mixed_interface_fragment_spread_nested() {
+    let input = include_str!("relay_compiler_integration/fixtures/mixed_interface_fragment_spread_nested.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/mixed_interface_fragment_spread_nested.expected");
+    test_fixture(transform_fixture, file!(), "mixed_interface_fragment_spread_nested.input", "relay_compiler_integration/fixtures/mixed_interface_fragment_spread_nested.expected", input, expected).await;
 }
 
 #[tokio::test]

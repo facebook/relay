@@ -42,6 +42,25 @@ use self::shadow_transform::shadow_resolvers_transform;
 use self::spread_transform::relay_resolvers_spread_transform;
 use super::ValidationMessage;
 
+/// Which artifact pipeline a `relay_resolvers` run is feeding.
+///
+/// This only affects the shadow-resolver transplant (pointer design): the
+/// consumer's selections are transplanted onto the shadowed server field so they
+/// are fetched by the *main operation* (`ForOperation`). The transplant must NOT
+/// reach the reader fragment or the consumer's public `$data` (`ForReader`),
+/// where it would defeat masking -- the consumer reads those selections off the
+/// resolver-returned pointer via the store-ref edge, not off a sibling field.
+/// Non-shadow resolvers are unaffected by this distinction.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ResolversPipeline {
+    /// Operation/operation-text pipeline: emit the shadow transplant so the main
+    /// query normalizes/fetches `page { id __typename <consumer selections> }`.
+    ForOperation,
+    /// Reader/typegen pipeline: suppress the shadow transplant so it stays out of
+    /// the reader fragment and the consumer's `$data`.
+    ForReader,
+}
+
 /// Transform Relay Resolver fields. This is done in three passes.
 ///
 /// First we locate fields which are backed Relay Resolvers and attach a
@@ -56,10 +75,15 @@ pub fn relay_resolvers(
     project_name: ProjectName,
     program: &Program,
     feature_flags: &FeatureFlags,
+    pipeline: ResolversPipeline,
 ) -> DiagnosticsResult<Program> {
     let transformed_fields_program = relay_resolvers_fields_transform(project_name, program)?;
     let validated_program = shadow_resolvers_transform(&transformed_fields_program, feature_flags)?;
-    relay_resolvers_spread_transform(&validated_program)
+    relay_resolvers_spread_transform(
+        &validated_program,
+        pipeline,
+        feature_flags.enable_shadow_resolvers.is_fully_enabled(),
+    )
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

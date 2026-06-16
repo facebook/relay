@@ -271,6 +271,14 @@ pub enum ValidationMessage {
     ShadowReturnUnsupportedFragmentSpread,
 
     #[error(
+        "The inline fragment type condition '{type_condition_name}' cannot be transplanted onto the shadowed server type '{type_name}'. Shadow resolver selections are fetched from the shadowed server field, so a type condition must overlap that server type (client-extension type conditions like client-only members are not supported in v1)."
+    )]
+    ShadowReturnIncompatibleInlineFragmentType {
+        type_condition_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
         "Plural shadow resolvers (whose return type is a list) are not yet supported. The `@returnFragment` pointer design currently only supports singular shadow resolver fields. Remove the list from the resolver's return type, or split into a singular field."
     )]
     ShadowResolverPluralUnsupported,

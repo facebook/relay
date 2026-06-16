@@ -21,6 +21,7 @@ use graphql_text_printer::print_operation;
 use relay_config::ProjectConfig;
 use relay_config::ProjectName;
 use relay_test_schema::get_test_schema_with_extensions;
+use relay_transforms::ResolversPipeline;
 use relay_transforms::client_edges;
 use relay_transforms::relay_resolvers;
 
@@ -57,6 +58,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             ProjectName::default(),
             &next_program,
             &project_config.feature_flags,
+            ResolversPipeline::ForOperation,
         )
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 

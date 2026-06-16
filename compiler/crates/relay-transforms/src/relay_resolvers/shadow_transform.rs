@@ -21,17 +21,16 @@ use intern::Lookup;
 use schema::FieldID;
 use schema::Schema;
 
+use super::RelayResolverFieldMetadata;
 use super::ValidationMessage;
 use crate::extract_module_name;
-use crate::relay_resolvers::RelayResolverMetadata;
-use crate::relay_resolvers::get_resolver_fragment_dependency_name;
 
 /// Shadow resolvers transform.
 ///
-/// This transform validates return_fragment on resolver fields that are actually
-/// used in operations/fragments. It uses the Transformer trait to visit fields
-/// and tracks which schema fields have been validated to avoid duplicate validation.
-pub fn shadow_resolvers_transform(
+/// This transform validates return_fragment on resolver fields. It runs after
+/// the field transform (which attaches RelayResolverFieldMetadata) but before
+/// the spread transform (which converts fields to fragment spreads).
+pub(super) fn shadow_resolvers_transform(
     program: &Program,
     feature_flags: &FeatureFlags,
 ) -> DiagnosticsResult<Program> {
@@ -63,12 +62,12 @@ impl<'program> ShadowResolversTransform<'program> {
         }
     }
 
-    /// Validates resolver metadata from directives attached to any IR node (field or fragment spread).
-    /// After the relay_resolvers transform, resolver fields WITH a root fragment are converted to
-    /// FragmentSpreads with RelayResolverMetadata attached, so we need to check both.
-    fn validate_resolver_metadata(&mut self, resolver_metadata: &RelayResolverMetadata) {
-        let field_id = resolver_metadata.field_id;
-
+    /// Validates resolver metadata attached by the field transform.
+    fn validate_resolver_metadata(
+        &mut self,
+        field_metadata: &RelayResolverFieldMetadata,
+        field_id: FieldID,
+    ) {
         // Skip if already validated
         if self.validated_fields.contains(&field_id) {
             return;
@@ -76,7 +75,7 @@ impl<'program> ShadowResolversTransform<'program> {
         self.validated_fields.insert(field_id);
 
         // Check if this resolver has a return_fragment
-        let return_fragment = match &resolver_metadata.return_fragment {
+        let return_fragment = match &field_metadata.return_fragment {
             Some(rf) => rf,
             None => return,
         };
@@ -97,11 +96,8 @@ impl<'program> ShadowResolversTransform<'program> {
             return;
         }
 
-        // Validate: resolver must define a root fragment when using @returnFragment.
-        // Detect the root fragment from the schema (the resolver's @rootFragment),
-        // not from `fragment_data_injection_mode` — that field is only populated for
-        // `@injectFragmentData` and is None for a key-only root fragment.
-        if get_resolver_fragment_dependency_name(self.program.schema.field(field_id)).is_none() {
+        // Validate: resolver must define a root fragment when using @returnFragment
+        if !field_metadata.has_root_fragment() {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::ReturnFragmentRequiresRootFragment,
                 location,
@@ -151,12 +147,10 @@ impl<'program> ShadowResolversTransform<'program> {
             ));
         }
 
-        // Validate: return fragment must be spread within the root fragment.
-        // Read the root fragment name from the schema (the resolver's @rootFragment);
-        // it is guaranteed Some by the has-root-fragment check above.
-        let root_fragment_name =
-            get_resolver_fragment_dependency_name(self.program.schema.field(field_id))
-                .expect("resolver has a root fragment (checked above)");
+        // Validate: return fragment must be spread within the root fragment
+        let root_fragment_name = field_metadata
+            .fragment_name
+            .expect("has_root_fragment() returned true");
 
         if let Some(root_fragment) = self.program.fragment(root_fragment_name)
             && !selections_contain_fragment_spread(&root_fragment.selections, return_fragment.item)
@@ -168,14 +162,6 @@ impl<'program> ShadowResolversTransform<'program> {
                 },
                 location,
             ));
-        }
-    }
-
-    fn validate_resolver_field<F: graphql_ir::Field>(&mut self, field: &F) {
-        // Use RelayResolverMetadata::find to get metadata from IR field directives
-        // This handles resolvers WITHOUT root fragments (they remain as fields)
-        if let Some(resolver_metadata) = RelayResolverMetadata::find(field.directives()) {
-            self.validate_resolver_metadata(resolver_metadata);
         }
     }
 }
@@ -223,7 +209,10 @@ impl Transformer<'_> for ShadowResolversTransform<'_> {
         &mut self,
         field: &graphql_ir::ScalarField,
     ) -> Transformed<graphql_ir::Selection> {
-        self.validate_resolver_field(field);
+        // Check for RelayResolverFieldMetadata attached by field_transform
+        if let Some(field_metadata) = RelayResolverFieldMetadata::find(&field.directives) {
+            self.validate_resolver_metadata(field_metadata, field.definition.item);
+        }
         Transformed::Keep
     }
 
@@ -231,19 +220,10 @@ impl Transformer<'_> for ShadowResolversTransform<'_> {
         &mut self,
         field: &graphql_ir::LinkedField,
     ) -> Transformed<graphql_ir::Selection> {
-        self.validate_resolver_field(field);
-        self.default_transform_linked_field(field)
-    }
-
-    fn transform_fragment_spread(
-        &mut self,
-        spread: &graphql_ir::FragmentSpread,
-    ) -> Transformed<graphql_ir::Selection> {
-        // After relay_resolvers transform, resolver fields WITH root fragments are converted
-        // to FragmentSpreads with RelayResolverMetadata attached
-        if let Some(resolver_metadata) = RelayResolverMetadata::find(&spread.directives) {
-            self.validate_resolver_metadata(resolver_metadata);
+        // Check for RelayResolverFieldMetadata attached by field_transform
+        if let Some(field_metadata) = RelayResolverFieldMetadata::find(&field.directives) {
+            self.validate_resolver_metadata(field_metadata, field.definition.item);
         }
-        Transformed::Keep
+        self.default_transform_linked_field(field)
     }
 }

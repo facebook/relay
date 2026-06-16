@@ -8,9 +8,11 @@
 mod field_transform;
 mod fragment_dependencies;
 mod resolver_utils;
+mod shadow_transform;
 mod spread_transform;
 
 use common::DiagnosticsResult;
+use common::FeatureFlags;
 use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::FragmentDefinitionName;
@@ -34,21 +36,28 @@ pub(crate) use self::resolver_utils::get_argument_value;
 pub(crate) use self::resolver_utils::get_bool_argument_is_true;
 pub use self::resolver_utils::resolver_import_alias;
 pub use self::resolver_utils::resolver_type_import_alias;
+use self::shadow_transform::shadow_resolvers_transform;
 use self::spread_transform::relay_resolvers_spread_transform;
 use super::ValidationMessage;
 
-/// Transform Relay Resolver fields. This is done in two passes.
+/// Transform Relay Resolver fields. This is done in three passes.
 ///
 /// First we locate fields which are backed Relay Resolvers and attach a
-/// metadata directive to them, then we convert those fields into either an
+/// metadata directive to them. Then we validate shadow resolver features
+/// (like @returnFragment). Finally we convert those fields into either an
 /// annotated stub `__id` field, or an annotated fragment spread referencing the
 /// resolver's root fragment.
 ///
 /// See the docblock for `relay_resolvers_spread_transform` for more details
 /// about the resulting format.
-pub fn relay_resolvers(project_name: ProjectName, program: &Program) -> DiagnosticsResult<Program> {
+pub fn relay_resolvers(
+    project_name: ProjectName,
+    program: &Program,
+    feature_flags: &FeatureFlags,
+) -> DiagnosticsResult<Program> {
     let transformed_fields_program = relay_resolvers_fields_transform(project_name, program)?;
-    relay_resolvers_spread_transform(&transformed_fields_program)
+    let validated_program = shadow_resolvers_transform(&transformed_fields_program, feature_flags)?;
+    relay_resolvers_spread_transform(&validated_program)
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

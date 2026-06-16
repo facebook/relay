@@ -284,12 +284,7 @@ fn apply_reader_transforms(
     })?;
 
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(project_config.name, &program)
-    })?;
-
-    // Validate shadow resolver features (like return_fragment)
-    log_event.time("shadow_resolvers_transform", || {
-        shadow_resolvers_transform(&program, &project_config.feature_flags)
+        relay_resolvers(project_config.name, &program, &project_config.feature_flags)
     })?;
 
     program = log_event.time("client_extensions", || client_extensions(&program));
@@ -376,12 +371,7 @@ fn apply_operation_transforms(
     })?;
 
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(project_config.name, &program)
-    })?;
-
-    // Validate shadow resolver features (like return_fragment)
-    log_event.time("shadow_resolvers_transform", || {
-        shadow_resolvers_transform(&program, &project_config.feature_flags)
+        relay_resolvers(project_config.name, &program, &project_config.feature_flags)
     })?;
 
     if project_config.resolvers_schema_module.is_some() {
@@ -752,12 +742,7 @@ fn apply_typegen_transforms(
     })?;
 
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(project_config.name, &program)
-    })?;
-
-    // Validate shadow resolver features (like return_fragment)
-    log_event.time("shadow_resolvers_transform", || {
-        shadow_resolvers_transform(&program, &project_config.feature_flags)
+        relay_resolvers(project_config.name, &program, &project_config.feature_flags)
     })?;
 
     log_event.time("flatten", || flatten(&mut program, false, false))?;

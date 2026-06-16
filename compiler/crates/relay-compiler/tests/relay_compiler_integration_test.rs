@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b3e7df422634ad9adf727c163366c087>>
+ * @generated SignedSource<<04d310785366531bc7a9481213fa107f>>
  */
 
 mod relay_compiler_integration;
@@ -843,6 +843,13 @@ async fn semantic_null_require_bubbling() {
     let input = include_str!("relay_compiler_integration/fixtures/semantic_null_require_bubbling.input");
     let expected = include_str!("relay_compiler_integration/fixtures/semantic_null_require_bubbling.expected");
     test_fixture(transform_fixture, file!(), "semantic_null_require_bubbling.input", "relay_compiler_integration/fixtures/semantic_null_require_bubbling.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn shadow_return_directive_in_user_source_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/shadow_return_directive_in_user_source.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/shadow_return_directive_in_user_source.invalid.expected");
+    test_fixture(transform_fixture, file!(), "shadow_return_directive_in_user_source.invalid.input", "relay_compiler_integration/fixtures/shadow_return_directive_in_user_source.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

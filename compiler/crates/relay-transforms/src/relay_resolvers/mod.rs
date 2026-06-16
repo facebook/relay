@@ -13,6 +13,7 @@ mod spread_transform;
 
 use common::DiagnosticsResult;
 use common::FeatureFlags;
+use common::Location;
 use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::FragmentDefinitionName;
@@ -32,6 +33,7 @@ pub use self::field_transform::get_resolver_info;
 use self::field_transform::relay_resolvers_fields_transform;
 pub use self::fragment_dependencies::get_all_resolver_fragment_dependency_names;
 pub use self::fragment_dependencies::get_resolver_fragment_dependency_name;
+pub use self::fragment_dependencies::get_resolver_return_fragment_name;
 pub(crate) use self::resolver_utils::get_argument_value;
 pub(crate) use self::resolver_utils::get_bool_argument_is_true;
 pub use self::resolver_utils::resolver_import_alias;
@@ -115,6 +117,26 @@ impl RelayResolverFieldMetadata {
 }
 
 associated_data_impl!(RelayResolverFieldMetadata);
+
+/// Typed IR associated-data marker for shadow resolvers.
+///
+/// The `@returnFragment` placeholder spread (the "magic fragment") authored
+/// inside a shadow resolver's `@rootFragment` is converted, before `build_ir`
+/// runs, into the schema-known `@__relay_shadow_return` directive on the enclosing
+/// shadowed field, so that `build_ir` never sees an undefined fragment spread. The
+/// shadow resolver transform then converts that syntax directive into this typed
+/// associated-data marker and strips the syntax directive, so the marker (rather
+/// than a lasting plain directive) is the long-lived IR representation that later
+/// transforms consume to transplant consumer selections and build the pointer
+/// edge.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ShadowReturnMarker {
+    /// Name of the original `@returnFragment` placeholder this marker replaced.
+    pub return_fragment_name: FragmentDefinitionName,
+    /// Location of the original placeholder spread, for error reporting.
+    pub spread_location: Location,
+}
+associated_data_impl!(ShadowReturnMarker);
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RelayResolverMetadata {

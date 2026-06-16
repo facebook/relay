@@ -32,6 +32,7 @@ use crate::ModuleMetadata;
 use crate::RefetchableDerivedFromMetadata;
 use crate::RelayResolverMetadata;
 use crate::RequiredMetadataDirective;
+use crate::ShadowReturnMarker;
 use crate::catch_directive::CATCH_DIRECTIVE_NAME;
 use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use crate::connections::ConnectionMetadataDirective;
@@ -86,7 +87,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 20] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 21] = [
         *CATCH_DIRECTIVE_NAME,
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
@@ -107,8 +108,9 @@ lazy_static! {
         ProvidedVariableMetadata::directive_name(),
         FragmentAliasMetadata::directive_name(),
         *RAW_TEXT_DIRECTIVE_NAME,
+        ShadowReturnMarker::directive_name(),
     ];
-    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [DirectiveName; 10] = [
+    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [DirectiveName; 11] = [
         *CATCH_DIRECTIVE_NAME,
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
@@ -118,7 +120,11 @@ lazy_static! {
         *INTERNAL_METADATA_DIRECTIVE,
         *ARGUMENT_DEFINITION,
         *REQUIRED_DIRECTIVE_NAME,
-        *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME
+        *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME,
+        // The shadow-return marker is internal metadata on the shadowed server
+        // field; it must not affect field identity so the generic spread-derived
+        // `page { id __typename }` merges with the transplanted consumer copy.
+        ShadowReturnMarker::directive_name(),
     ];
     static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [DirectiveName; 7] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,

@@ -9,6 +9,7 @@ use common::NamedItem;
 use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
 use docblock_shared::GENERATED_FRAGMENT_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RETURN_FRAGMENT_ARGUMENT_NAME;
 use graphql_ir::FragmentDefinitionName;
 use schema::Field;
 use schema::SDLSchema;
@@ -37,6 +38,26 @@ pub fn get_resolver_fragment_dependency_name(field: &Field) -> Option<FragmentDe
             resolver_directive
                 .arguments
                 .named(*FRAGMENT_KEY_ARGUMENT_NAME)
+        })
+        .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
+}
+
+/// If the field is a shadow resolver (a resolver that declares a
+/// `@returnFragment` "magic fragment"), return the name of that return
+/// fragment. This is the placeholder spread (`...Bar`) that the product authors
+/// inside the resolver's `@rootFragment` to mark the shadowed server field.
+pub fn get_resolver_return_fragment_name(field: &Field) -> Option<FragmentDefinitionName> {
+    if !field.is_extension {
+        return None;
+    }
+
+    field
+        .directives
+        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+        .and_then(|resolver_directive| {
+            resolver_directive
+                .arguments
+                .named(*RETURN_FRAGMENT_ARGUMENT_NAME)
         })
         .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
 }

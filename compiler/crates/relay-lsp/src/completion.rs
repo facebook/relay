@@ -12,6 +12,7 @@ use common::DirectiveName;
 use common::Named;
 use common::NamedItem;
 use common::Span;
+use docblock_shared::SHADOW_RETURN_DIRECTIVE_NAME;
 use fnv::FnvHashSet;
 use graphql_ir::DIRECTIVE_ARGUMENTS;
 use graphql_ir::FragmentDefinitionName;
@@ -736,6 +737,13 @@ fn completion_items_for_request(
             let directives = schema.directives_for_location(location);
             let items = directives
                 .iter()
+                // Internal compiler-only directives (e.g. the shadow-resolver
+                // `@__relay_shadow_return` marker injected by the pre-`build_ir`
+                // conversion) must never be offered for authoring: they are not
+                // part of the
+                // public API and trusting a user-written copy would let a product
+                // bypass the `...ReturnFragment` authoring form.
+                .filter(|directive| !is_internal_directive(directive.name.item))
                 .map(|directive| completion_item_from_directive(directive, schema))
                 .collect();
             Some(items)
@@ -1228,6 +1236,15 @@ fn merge_completion_items_ordered<I: IntoIterator<Item = Vec<CompletionItem>>>(
             items
         })
         .collect()
+}
+
+/// Internal compiler-only directives that must never be surfaced for authoring
+/// in directive completion. The shadow-resolver `@__relay_shadow_return` marker
+/// is injected by the pre-`build_ir` conversion pass and converted to a typed IR
+/// marker; offering it (or trusting a hand-written copy) would let a product
+/// bypass the `...ReturnFragment` authoring form.
+fn is_internal_directive(name: DirectiveName) -> bool {
+    name == *SHADOW_RETURN_DIRECTIVE_NAME
 }
 
 fn completion_item_from_directive(

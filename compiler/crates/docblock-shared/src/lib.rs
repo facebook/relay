@@ -160,6 +160,18 @@ lazy_static! {
     /// Name of docblock tag used to indicate that a shadow resolver returns
     /// data conforming to a specific fragment's shape.
     pub static ref RETURN_FRAGMENT_FIELD: StringKey = "returnFragment".intern();
+    /// Internal, compiler-generated directive used as an escape hatch for shadow
+    /// resolvers. The `@returnFragment` placeholder spread inside a shadow
+    /// resolver's `@rootFragment` is converted into this directive on the
+    /// enclosing shadowed field before `build_ir` runs, so that `build_ir` never
+    /// sees an undefined fragment spread. It is converted to typed IR
+    /// associated-data (`ShadowReturnMarker`) and stripped before codegen.
+    pub static ref SHADOW_RETURN_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__relay_shadow_return".intern());
+    /// Argument on `@__relay_shadow_return` carrying the name of the original
+    /// `@returnFragment` placeholder that was converted into the directive.
+    pub static ref SHADOW_RETURN_FRAGMENT_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("fragment".intern());
     /// Docblock tag used to indicate that a docblock is defining a "weak" type.
     /// Such docblocks should be followed by a type export which will act as the
     /// Flow/TypeScript type of the backing model for this type.

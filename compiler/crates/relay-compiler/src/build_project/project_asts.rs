@@ -22,6 +22,8 @@ use schema::Schema;
 
 use crate::GraphQLAsts;
 use crate::artifact_map::ArtifactSourceKey;
+use crate::build_project::shadow_return_conversion::convert_shadow_return_fragment_spreads;
+use crate::build_project::shadow_return_conversion::reject_user_authored_shadow_return_directive;
 use crate::errors::BuildProjectError;
 
 pub struct ProjectAsts {
@@ -86,6 +88,43 @@ pub fn get_project_asts(
             .filter_map(|ast| ast.name().map(FragmentDefinitionName)),
     );
     definitions.append(&mut base_resolver_fragment_asts);
+
+    // `@__relay_shadow_return` is internal to the compiler: the only legitimate
+    // source of it is the conversion below (implemented in
+    // `shadow_return_conversion`). Reject any user-authored occurrence before we
+    // inject our own, so a product author cannot hand-write the trusted marker
+    // and bypass the `...ReturnFragment` authoring form. This runs unconditionally
+    // (independent of whether the schema defines any shadow resolvers).
+    reject_user_authored_shadow_return_directive(&definitions).map_err(|errors| {
+        BuildProjectError::ValidationErrors {
+            errors,
+            project_name: project_config.name,
+        }
+    })?;
+
+    // Convert shadow-resolver `@returnFragment` placeholder spreads into the
+    // schema-known internal `@__relay_shadow_return` directive on the enclosing
+    // shadowed field. This must run while the documents are still raw
+    // `graphql_syntax` ASTs (before `build_ir`), so that the placeholder spread —
+    // which references a fragment that is never defined — does not reach
+    // `build_ir` and trip its undefined-fragment validation. Covers both project
+    // definitions and the appended base resolver fragments.
+    //
+    // Gated on the feature flag: the conversion scans every field in the schema
+    // (O(100k+) on a server schema) to find shadow resolvers, and a valid shadow
+    // resolver can only exist when `enable_shadow_resolvers` is fully enabled
+    // (otherwise `@returnFragment` is rejected with
+    // `ReturnFragmentRequiresFeatureFlag`). Skipping it for the ~all projects that
+    // don't enable the feature avoids a full schema scan + allocations on every
+    // build. This mirrors the gate in `shadow_resolvers_transform`, so the
+    // conversion runs iff that transform will consume the marker.
+    if project_config
+        .feature_flags
+        .enable_shadow_resolvers
+        .is_fully_enabled()
+    {
+        convert_shadow_return_fragment_spreads(schema, &mut definitions);
+    }
 
     Ok(ProjectAstData {
         project_asts: ProjectAsts {

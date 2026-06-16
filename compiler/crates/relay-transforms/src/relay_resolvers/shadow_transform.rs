@@ -6,11 +6,16 @@
  */
 
 use std::collections::HashSet;
+use std::sync::Arc;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlags;
+use common::NamedItem;
+use docblock_shared::SHADOW_RETURN_DIRECTIVE_NAME;
+use docblock_shared::SHADOW_RETURN_FRAGMENT_ARGUMENT_NAME;
 use graphql_ir::FragmentDefinitionName;
+use graphql_ir::LinkedField;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -22,23 +27,29 @@ use schema::FieldID;
 use schema::Schema;
 
 use super::RelayResolverFieldMetadata;
+use super::ShadowReturnMarker;
 use super::ValidationMessage;
 use crate::extract_module_name;
 
 /// Shadow resolvers transform.
 ///
-/// This transform validates return_fragment on resolver fields. It runs after
-/// the field transform (which attaches RelayResolverFieldMetadata) but before
+/// This transform validates `@returnFragment` on resolver fields. It runs after
+/// the field transform (which attaches `RelayResolverFieldMetadata`) but before
 /// the spread transform (which converts fields to fragment spreads).
+///
+/// It also converts the schema-known internal `@__relay_shadow_return` directive
+/// (added before `build_ir` in place of the `@returnFragment` placeholder spread)
+/// into the typed IR associated-data marker `ShadowReturnMarker`, and strips the
+/// syntax directive so it never reaches codegen / artifacts.
 pub(super) fn shadow_resolvers_transform(
     program: &Program,
     feature_flags: &FeatureFlags,
 ) -> DiagnosticsResult<Program> {
     let mut transform = ShadowResolversTransform::new(program, feature_flags);
-    transform.transform_program(program);
+    let next_program = transform.transform_program(program);
 
     if transform.errors.is_empty() {
-        Ok(program.clone())
+        Ok(next_program.replace_or_else(|| program.clone()))
     } else {
         Err(transform.errors)
     }
@@ -96,6 +107,22 @@ impl<'program> ShadowResolversTransform<'program> {
             return;
         }
 
+        // Validate: plural shadow resolvers are NOT supported in v1. The pointer
+        // design transplants the consumer's selections onto the shadowed server
+        // field and reads them off a single returned DataID via a SINGULAR
+        // store-ref edge. A list return type would route to the plural client
+        // edge path, which calls `ensureClientRecord` and silently
+        // mis-namespaces the records. Gate it at the compiler so it can never
+        // reach the runtime (see also the runtime invariant in `RelayReader.js`).
+        let schema_field = self.program.schema.field(field_id);
+        if schema_field.type_.is_list() {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ShadowResolverPluralUnsupported,
+                location,
+            ));
+            return;
+        }
+
         // Validate: resolver must define a root fragment when using @returnFragment
         if !field_metadata.has_root_fragment() {
             self.errors.push(Diagnostic::error(
@@ -133,7 +160,6 @@ impl<'program> ShadowResolversTransform<'program> {
         }
 
         // Validate: fragment name must start with the module name (namespace rule)
-        let schema_field = self.program.schema.field(field_id);
         let source_location = schema_field.name.location.source_location();
         if let Some(module_name) = extract_module_name(source_location.path())
             && !return_fragment.item.lookup().starts_with(&module_name)
@@ -147,13 +173,22 @@ impl<'program> ShadowResolversTransform<'program> {
             ));
         }
 
-        // Validate: return fragment must be spread within the root fragment
+        // Validate: return fragment must be spread within the root fragment.
+        //
+        // The `@returnFragment` placeholder spread is converted into the
+        // schema-known internal `@__relay_shadow_return` directive at the AST
+        // rail (before `build_ir`). So we look for that marker directive (keyed
+        // on the return fragment name), not the original spread, which no longer
+        // exists by the time we reach IR.
         let root_fragment_name = field_metadata
             .fragment_name
             .expect("has_root_fragment() returned true");
 
         if let Some(root_fragment) = self.program.fragment(root_fragment_name)
-            && !selections_contain_fragment_spread(&root_fragment.selections, return_fragment.item)
+            && !selections_contain_shadow_return_marker(
+                &root_fragment.selections,
+                return_fragment.item,
+            )
         {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::ReturnFragmentNotSpreadInRootFragment {
@@ -166,34 +201,57 @@ impl<'program> ShadowResolversTransform<'program> {
     }
 }
 
-/// Checks if a fragment with the given name is spread within the selections.
-/// This recursively traverses into linked fields, inline fragments, and conditions,
-/// but does NOT traverse into other fragment definitions (fragment spreads).
-fn selections_contain_fragment_spread(
+/// Read the `fragment` argument off a `@__relay_shadow_return` directive (the
+/// internal marker emitted before `build_ir` in place of the `@returnFragment`
+/// placeholder spread). Returns the return fragment name it carries.
+fn shadow_return_directive_fragment_name(field: &LinkedField) -> Option<FragmentDefinitionName> {
+    field
+        .directives
+        .named(*SHADOW_RETURN_DIRECTIVE_NAME)
+        .and_then(|directive| {
+            directive
+                .arguments
+                .named(*SHADOW_RETURN_FRAGMENT_ARGUMENT_NAME)
+        })
+        .and_then(|arg| arg.value.item.get_string_literal())
+        .map(FragmentDefinitionName)
+}
+
+/// Checks if the shadow-return marker for the given return fragment is present
+/// within the selections. The `@returnFragment` placeholder spread is converted
+/// before `build_ir` into the `@__relay_shadow_return` directive on the shadowed
+/// linked field, so we look for that directive (carrying the matching return
+/// fragment name) rather than the original spread. Recursively traverses into
+/// linked fields, inline fragments, and conditions, but does NOT traverse into
+/// other fragment definitions (fragment spreads).
+fn selections_contain_shadow_return_marker(
     selections: &[Selection],
-    fragment_name: FragmentDefinitionName,
+    return_fragment_name: FragmentDefinitionName,
 ) -> bool {
-    struct FragmentSpreadFinder {
+    struct ShadowReturnMarkerFinder {
         target_name: FragmentDefinitionName,
         found: bool,
     }
 
-    impl Visitor for FragmentSpreadFinder {
-        const NAME: &'static str = "FragmentSpreadFinder";
+    impl Visitor for ShadowReturnMarkerFinder {
+        const NAME: &'static str = "ShadowReturnMarkerFinder";
         const VISIT_ARGUMENTS: bool = false;
         const VISIT_DIRECTIVES: bool = false;
 
-        fn visit_fragment_spread(&mut self, spread: &graphql_ir::FragmentSpread) {
-            // Check if this is the fragment we're looking for
-            if spread.fragment.item == self.target_name {
+        fn visit_linked_field(&mut self, field: &LinkedField) {
+            if shadow_return_directive_fragment_name(field) == Some(self.target_name) {
                 self.found = true;
             }
-            // Do NOT call default_visit_fragment_spread or traverse into the fragment definition
+            self.default_visit_linked_field(field);
+        }
+
+        fn visit_fragment_spread(&mut self, _spread: &graphql_ir::FragmentSpread) {
+            // Do NOT traverse into the spread fragment definition.
         }
     }
 
-    let mut finder = FragmentSpreadFinder {
-        target_name: fragment_name,
+    let mut finder = ShadowReturnMarkerFinder {
+        target_name: return_fragment_name,
         found: false,
     };
     finder.visit_selections(selections);
@@ -224,6 +282,36 @@ impl Transformer<'_> for ShadowResolversTransform<'_> {
         if let Some(field_metadata) = RelayResolverFieldMetadata::find(&field.directives) {
             self.validate_resolver_metadata(field_metadata, field.definition.item);
         }
+
+        // Convert the schema-known `@__relay_shadow_return` syntax directive into
+        // the typed associated-data marker and strip the syntax directive so it
+        // never reaches codegen.
+        if let Some(return_fragment_name) = shadow_return_directive_fragment_name(field) {
+            let shadow_return_directive = field
+                .directives
+                .named(*SHADOW_RETURN_DIRECTIVE_NAME)
+                .expect("shadow_return_directive_fragment_name matched the directive");
+            let marker = ShadowReturnMarker {
+                return_fragment_name,
+                spread_location: shadow_return_directive.location,
+            };
+            let mut directives: Vec<_> = field
+                .directives
+                .iter()
+                .filter(|directive| directive.name.item != *SHADOW_RETURN_DIRECTIVE_NAME)
+                .cloned()
+                .collect();
+            directives.push(marker.into());
+            let selections = self
+                .transform_selections(&field.selections)
+                .replace_or_else(|| field.selections.clone());
+            return Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                directives,
+                selections,
+                ..field.clone()
+            })));
+        }
+
         self.default_transform_linked_field(field)
     }
 }

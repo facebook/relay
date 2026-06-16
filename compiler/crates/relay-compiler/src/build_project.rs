@@ -24,6 +24,7 @@ pub mod get_artifacts_file_hash_map;
 mod log_program_stats;
 mod persist_operations;
 mod project_asts;
+mod shadow_return_conversion;
 mod source_control;
 mod validate;
 

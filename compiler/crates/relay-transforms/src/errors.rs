@@ -256,6 +256,29 @@ pub enum ValidationMessage {
         return_fragment_name: FragmentDefinitionName,
         root_fragment_name: FragmentDefinitionName,
     },
+
+    #[error(
+        "The selection '{field_name}' on shadow resolver field cannot be transplanted onto the shadowed server type '{type_name}'. The shadowed server type must define a field with the same name so the consumer's selections can be fetched in the main query."
+    )]
+    ShadowReturnSelectionNotOnShadowedType {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
+        "Fragment spreads in selections on a shadow resolver field are not yet supported. Inline the selection instead."
+    )]
+    ShadowReturnUnsupportedFragmentSpread,
+
+    #[error(
+        "Plural shadow resolvers (whose return type is a list) are not yet supported. The `@returnFragment` pointer design currently only supports singular shadow resolver fields. Remove the list from the resolver's return type, or split into a singular field."
+    )]
+    ShadowResolverPluralUnsupported,
+
+    #[error(
+        "The `@__relay_shadow_return` directive is internal to the Relay compiler and cannot be used in source. Shadow resolver return data is marked by spreading the resolver's `@returnFragment` placeholder inside its `@rootFragment`; the compiler generates this directive automatically."
+    )]
+    InternalShadowReturnDirectiveNotAllowed,
 }
 
 #[derive(

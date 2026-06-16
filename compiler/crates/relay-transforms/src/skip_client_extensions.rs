@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::DirectiveName;
+use common::Location;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
@@ -16,6 +19,7 @@ use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use schema::Schema;
 
@@ -86,7 +90,27 @@ impl Transformer<'_> for SkipClientExtensionsTransform<'_> {
             .schema
             .is_extension_type(fragment.type_condition)
         {
-            Transformed::Delete
+            // Rather than deleting the spread entirely, inline the fragment's
+            // server-reachable selections. This handles fragments on mixed abstract
+            // types (e.g. `...PersonFragment` on IPerson where DogPerson is a server
+            // implementor and CatPerson is a client resolver type). After
+            // relay_resolvers_abstract_types, the fragment body is already expanded
+            // into per-concrete-type inline fragments; applying skip_client_extensions
+            // recursively retains only the server-type ones.
+            let selections = match self.transform_selections(&fragment.selections) {
+                TransformedValue::Keep => fragment.selections.to_vec(),
+                TransformedValue::Replace(sels) => sels,
+            };
+            match selections.as_slice() {
+                [] => Transformed::Delete,
+                [single] => Transformed::Replace(single.clone()),
+                _ => Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                    type_condition: None,
+                    directives: vec![],
+                    selections,
+                    spread_location: Location::generated(),
+                }))),
+            }
         } else {
             self.default_transform_fragment_spread(spread)
         }

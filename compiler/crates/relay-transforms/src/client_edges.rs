@@ -618,6 +618,11 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             // (e.g. `... on BestFriend { wheels @resolver }`). These client-type
             // fragments must not appear in the server refetch query for a server
             // implementor (e.g. Bicycle), so strip them before generating each query.
+            //
+            // Fragment spreads on mixed abstract types (e.g. `...PersonFragment` on IPerson)
+            // pass through here unchanged. skip_client_extensions handles them in the
+            // operation text pipeline by inlining their server-reachable selections in
+            // place of the spread, while the reader keeps the original fragment spread.
             let server_selections = new_selections
                 .iter()
                 .filter(|selection| {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<531e3ef1337c69ca8342a9d0e9ae234d>>
+ * @generated SignedSource<<72bc12942de566f4a56bcdace9fae551>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -107,64 +107,50 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "wheels",
+                "storageKey": null
+              },
+              {
                 "kind": "ClientExtension",
                 "selections": [
                   {
                     "kind": "InlineFragment",
                     "selections": [
                       {
-                        "kind": "InlineFragment",
-                        "selections": [
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "wheels",
-                            "storageKey": null
-                          }
-                        ],
-                        "type": "Bicycle",
-                        "abstractKey": null
-                      },
-                      {
-                        "kind": "InlineFragment",
-                        "selections": [
-                          {
-                            "name": "wheels",
-                            "args": null,
-                            "fragment": {
-                              "kind": "InlineFragment",
-                              "selections": [
-                                {
-                                  "name": "__relay_model_instance",
-                                  "args": null,
-                                  "fragment": {
-                                    "kind": "InlineFragment",
-                                    "selections": [
-                                      (v2/*:: as any*/)
-                                    ],
-                                    "type": "Car",
-                                    "abstractKey": null
-                                  },
-                                  "kind": "RelayResolver",
-                                  "storageKey": null,
-                                  "isOutputType": false
-                                }
-                              ],
-                              "type": "Car",
-                              "abstractKey": null
-                            },
-                            "kind": "RelayResolver",
-                            "storageKey": null,
-                            "isOutputType": true
-                          }
-                        ],
-                        "type": "Car",
-                        "abstractKey": null
+                        "name": "wheels",
+                        "args": null,
+                        "fragment": {
+                          "kind": "InlineFragment",
+                          "selections": [
+                            {
+                              "name": "__relay_model_instance",
+                              "args": null,
+                              "fragment": {
+                                "kind": "InlineFragment",
+                                "selections": [
+                                  (v2/*:: as any*/)
+                                ],
+                                "type": "Car",
+                                "abstractKey": null
+                              },
+                              "kind": "RelayResolver",
+                              "storageKey": null,
+                              "isOutputType": false
+                            }
+                          ],
+                          "type": "Car",
+                          "abstractKey": null
+                        },
+                        "kind": "RelayResolver",
+                        "storageKey": null,
+                        "isOutputType": true
                       }
                     ],
-                    "type": "IVehicle",
-                    "abstractKey": "__isIVehicle"
+                    "type": "Car",
+                    "abstractKey": null
                   }
                 ]
               }
@@ -184,12 +170,12 @@ return {
     }
   },
   "params": {
-    "cacheID": "22a524f826a70fc7b642f166c2bea147",
+    "cacheID": "2c17465be3dc675f390a17c2b6ab3d6b",
     "id": null,
     "metadata": {},
     "name": "ClientEdgeQuery_RelayResolverMixedInterfaceTestVehicleCarQuery_vehicle",
     "operationKind": "query",
-    "text": "query ClientEdgeQuery_RelayResolverMixedInterfaceTestVehicleCarQuery_vehicle(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...RefetchableClientEdgeQuery_RelayResolverMixedInterfaceTestVehicleCarQuery_vehicle\n    id\n  }\n}\n\nfragment RefetchableClientEdgeQuery_RelayResolverMixedInterfaceTestVehicleCarQuery_vehicle on Bicycle {\n  id\n}\n"
+    "text": "query ClientEdgeQuery_RelayResolverMixedInterfaceTestVehicleCarQuery_vehicle(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...RefetchableClientEdgeQuery_RelayResolverMixedInterfaceTestVehicleCarQuery_vehicle\n    id\n  }\n}\n\nfragment RefetchableClientEdgeQuery_RelayResolverMixedInterfaceTestVehicleCarQuery_vehicle on Bicycle {\n  wheels\n  id\n}\n"
   }
 };
 })();

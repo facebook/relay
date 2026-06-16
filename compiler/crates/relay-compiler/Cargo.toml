@@ -60,7 +60,7 @@ persist-query = { path = "../persist-query" }
 petgraph = { version = "0.8", features = ["serde-1"] }
 program-with-dependencies = { path = "../program-with-dependencies" }
 rayon = "1.11.0"
-regex = "1.12.3"
+regex = "1.12.4"
 relay-codegen = { path = "../relay-codegen" }
 relay-config = { path = "../relay-config" }
 relay-docblock = { path = "../relay-docblock" }

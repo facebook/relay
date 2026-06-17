@@ -51,6 +51,16 @@ type LoadMoreFn<TVariables extends Variables> = (
   },
 ) => void;
 
+// Caps the number of items requested in a single `loadMore` so that automatic
+// prefetching can never generate a query large enough to overwhelm the backend
+// (e.g. requesting the entire `totalCount` of a connection at once).
+function clampFetchSize(fetchSize: number, maxFetchSize: ?number): number {
+  if (maxFetchSize != null) {
+    return Math.min(fetchSize, maxFetchSize);
+  }
+  return fetchSize;
+}
+
 export type ReturnType<TVariables, TData, TEdgeData, TKey> = {
   // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
@@ -106,6 +116,7 @@ hook usePrefetchableForwardPaginationFragment<
   },
   minimalFetchSize: number = 1,
   disablePrefetching?: boolean = false,
+  maxFetchSize?: ?number,
 ): ReturnType<TVariables, TData, TEdgeData, TKey> {
   const fragmentNode = getFragment(fragmentInput);
   useStaticFragmentNodeWarning(
@@ -175,10 +186,23 @@ hook usePrefetchableForwardPaginationFragment<
   // to synchronously get the loading state to decide whether to load more
   const isLoadingMoreRef = useRef(false);
 
+  // When a pagination request fails, automatic prefetching is paused so we don't
+  // keep retrying against a failing server in a tight loop (which can effectively
+  // DDOS the backend). Prefetching resumes when the product explicitly calls
+  // `loadNext`, or after a `refetch`/reset.
+  const hasPrefetchErroredRef = useRef(false);
+
   const observer = useMemo(() => {
     function setIsLoadingFalse() {
       isLoadingMoreRef.current = false;
       setIsLoadingMore(false);
+    }
+    function handleError() {
+      // Stop the automatic prefetch loop until the product explicitly asks for
+      // more items again, otherwise the prefetch `useEffect` would immediately
+      // re-issue the request and hammer the server.
+      hasPrefetchErroredRef.current = true;
+      setIsLoadingFalse();
     }
     return {
       start: () => {
@@ -188,13 +212,14 @@ hook usePrefetchableForwardPaginationFragment<
         reallySetIsLoadingMore(true);
       },
       complete: setIsLoadingFalse,
-      error: setIsLoadingFalse,
+      error: handleError,
       unsubscribe: RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX
         ? setIsLoadingFalse
         : undefined,
     };
   }, [setIsLoadingMore]);
   const handleReset = useCallback(() => {
+    hasPrefetchErroredRef.current = false;
     if (!isRefetching) {
       // Do not reset items count during refetching
       const schedule = environment.getScheduler()?.schedule;
@@ -251,10 +276,16 @@ hook usePrefetchableForwardPaginationFragment<
         // If the product needs more items from network, load the amount needed to fullfil
         // the requirement and cache, capped at the current amount defined by product
         if (!isLoadingMoreRef.current && availableSizeRef.current < 0) {
+          // An explicit `loadNext` is a deliberate user action, so clear any
+          // previous prefetch error and attempt to fetch again.
+          hasPrefetchErroredRef.current = false;
           loadMore(
-            Math.max(
-              minimalFetchSize,
-              Math.min(numToAdd, bufferSize - availableSizeRef.current),
+            clampFetchSize(
+              Math.max(
+                minimalFetchSize,
+                Math.min(numToAdd, bufferSize - availableSizeRef.current),
+              ),
+              maxFetchSize,
             ),
             // Keep options For backward compatibility
             options ?? {
@@ -296,6 +327,7 @@ hook usePrefetchableForwardPaginationFragment<
       bufferSize,
       loadMore,
       minimalFetchSize,
+      maxFetchSize,
       edgeKeys,
       fragmentData,
       prefetchingUNSTABLE_extraVariables,
@@ -322,15 +354,22 @@ hook usePrefetchableForwardPaginationFragment<
       !isLoadingMore &&
       !isRefetching &&
       !disablePrefetching &&
+      // If a previous prefetch request errored, stop automatically retrying so
+      // we don't thrash the server. Prefetching resumes after an explicit
+      // `loadNext` or a `refetch`.
+      !hasPrefetchErroredRef.current &&
       hasNext &&
       (sourceSize - numInUse < bufferSize || numInUse > sourceSize)
     ) {
       const onComplete = prefetchingOnComplete;
       loadMore(
-        Math.max(
-          bufferSize - Math.max(sourceSize - numInUse, 0),
-          numInUse - sourceSize,
-          minimalFetchSize,
+        clampFetchSize(
+          Math.max(
+            bufferSize - Math.max(sourceSize - numInUse, 0),
+            numInUse - sourceSize,
+            minimalFetchSize,
+          ),
+          maxFetchSize,
         ),
         {
           onComplete,
@@ -373,6 +412,8 @@ hook usePrefetchableForwardPaginationFragment<
     edgeKeys,
     isLoadingMore,
     minimalFetchSize,
+    maxFetchSize,
+    disablePrefetching,
     environment,
     edgesFragment,
   ]);
@@ -390,6 +431,8 @@ hook usePrefetchableForwardPaginationFragment<
   const refetchPagination = useCallback(
     (variables: TVariables, options?: Options) => {
       disposeFetchNext();
+      // A refetch is a fresh start, so re-enable automatic prefetching.
+      hasPrefetchErroredRef.current = false;
       setIsRefetching(true);
       return refetch(variables, {
         ...options,

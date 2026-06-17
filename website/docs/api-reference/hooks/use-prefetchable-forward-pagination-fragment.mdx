@@ -86,7 +86,7 @@ module.exports = FriendsList;
 * `prefetchingLoadMoreOptions`: *_[Optional]_* fetching arguments to provide to the automatic prefetch.
   * `options`: *_[Optional]_* options object
       * `onComplete`: Function that will be called whenever the request has completed, including any incremental data payloads. If an error occurs during the request, `onComplete` will be called with an `Error` object as the first parameter.
-* `minimumFetchSize`: Optional argument to define the minimum number of items to fetch in any requests.
+* `minimalFetchSize`: Optional argument to define the minimum number of items to fetch in any requests.
 * `disablePrefetching`: *_[Optional]_* boolean argument to disable the automatic prefetching that fills the buffer. When `true`, items are only fetched in response to explicit `loadNext` calls. Defaults to `false`.
 * `maxFetchSize`: *_[Optional]_* argument to define the maximum number of items to fetch in any single request. The number of items the hook computes for a request (either to fill the buffer or to fulfill a `loadNext`) is clamped to this value. This prevents the hook from generating very large queries (for example, requesting close to the entire `totalCount` of a connection at once) that could overwhelm the backend. If unset, no upper bound is applied.
 

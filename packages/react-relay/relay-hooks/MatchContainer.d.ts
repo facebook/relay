@@ -83,7 +83,7 @@ export type MatchPointer = Readonly<{
 
 export type MatchContainerProps<TProps = Record<string, unknown>, TFallback = ReactNode> = Readonly<{
     fallback?: TFallback | null | undefined;
-    loader: (module: unknown) => ComponentType<TProps>;
+    loader?: ((module: unknown) => ComponentType<TProps>) | null | undefined;
     match?: MatchPointer | TypenameOnlyPointer | null | undefined;
     props?: TProps | undefined;
 }>;

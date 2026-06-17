@@ -107,14 +107,11 @@ The `@module(name: ...)` value is set to a relative path that resolves from
 the source file to the component. The compiler embeds this as an `import()`
 call in the normalization AST (resolved relative to `__generated__/`).
 
-The `Environment` provides a default `OperationLoader` that handles
-`() => import(...)` function references, so no explicit `operationLoader`
-configuration is needed.
-
-`MatchContainer`'s `loader` receives the `componentModuleProvider` function
-that the normalizer stored in the Relay record. We wrap it with `React.lazy`
-for Suspense-based async loading — the same pattern a production app would use
-for code splitting.
+No boilerplate is needed:
+- The `Environment` provides a default `OperationLoader` that handles the
+  compiler's `() => import(...)` references.
+- `MatchContainer` uses the environment's `OperationLoader` to resolve
+  components via Suspense when no explicit `loader` prop is provided.
 
 ```tsx title="App.tsx"
 import React, { Suspense } from "react";
@@ -127,21 +124,6 @@ import MatchContainer from "react-relay/relay-hooks/MatchContainer";
 import { gratsNetwork } from "../GratsNetwork";
 
 const testEnvironment = new Environment({ network: gratsNetwork });
-
-// MatchContainer's loader receives the componentModuleProvider function
-// (e.g. () => import('../MarkdownRendererView')) that the normalizer stored
-// in the Relay record. Wrap it with React.lazy for Suspense-based loading.
-const lazyCache = new Map<unknown, React.ComponentType<any>>();
-
-function moduleLoader(ref: unknown): React.ComponentType<any> {
-  if (!lazyCache.has(ref)) {
-    lazyCache.set(
-      ref,
-      React.lazy(ref as () => Promise<{ default: React.ComponentType<any> }>),
-    );
-  }
-  return lazyCache.get(ref)!;
-}
 
 function App() {
   const data = useLazyLoadQuery<any>(
@@ -160,13 +142,7 @@ function App() {
     {},
   );
 
-  return (
-    <MatchContainer
-      match={data.viewer?.nameRenderer}
-      loader={moduleLoader}
-      props={{}}
-    />
-  );
+  return <MatchContainer match={data.viewer?.nameRenderer} />;
 }
 
 export default function TestApp() {

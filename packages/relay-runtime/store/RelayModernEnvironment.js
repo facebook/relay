@@ -61,6 +61,7 @@ const OperationExecutor = require('./OperationExecutor');
 const RelayModernStore = require('./RelayModernStore');
 const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
+const createOperationLoader = require('../util/createOperationLoader');
 const invariant = require('invariant');
 
 export type EnvironmentConfig = {
@@ -109,16 +110,17 @@ class RelayModernEnvironment implements IEnvironment {
     this.configName = config.configName;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull === true;
     this._deferDeduplicatedFields = config.deferDeduplicatedFields === true;
-    const operationLoader = config.operationLoader;
+    const operationLoader =
+      config.operationLoader ?? createOperationLoader();
     if (__DEV__) {
-      if (operationLoader != null) {
+      if (config.operationLoader != null) {
         invariant(
-          typeof operationLoader === 'object' &&
-            typeof operationLoader.get === 'function' &&
-            typeof operationLoader.load === 'function',
+          typeof config.operationLoader === 'object' &&
+            typeof config.operationLoader.get === 'function' &&
+            typeof config.operationLoader.load === 'function',
           'RelayModernEnvironment: Expected `operationLoader` to be an object ' +
             'with get() and load() functions, got `%s`.',
-          operationLoader,
+          config.operationLoader,
         );
       }
     }
@@ -127,7 +129,7 @@ class RelayModernEnvironment implements IEnvironment {
       new RelayModernStore(new RelayRecordSource(), {
         getDataID: config.getDataID,
         log: config.log,
-        operationLoader: config.operationLoader,
+        operationLoader,
         shouldProcessClientComponents: config.shouldProcessClientComponents,
       });
 

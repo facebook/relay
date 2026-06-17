@@ -116,11 +116,11 @@ No boilerplate is needed:
 ```tsx title="App.tsx"
 import React, { Suspense } from "react";
 import {
+  MatchContainer,
   RelayEnvironmentProvider,
   useLazyLoadQuery,
 } from "react-relay";
 import { graphql, Environment } from "relay-runtime";
-import MatchContainer from "react-relay/relay-hooks/MatchContainer";
 import { gratsNetwork } from "../GratsNetwork";
 
 const testEnvironment = new Environment({ network: gratsNetwork });

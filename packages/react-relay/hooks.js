@@ -14,6 +14,7 @@
 /* eslint relay-internal/esm-compatible-cjs: error */
 
 const EntryPointContainer = require('./relay-hooks/EntryPointContainer.react');
+const MatchContainer = require('./relay-hooks/MatchContainer');
 const loadEntryPoint = require('./relay-hooks/loadEntryPoint');
 const {loadQuery} = require('./relay-hooks/loadQuery');
 const ProfilerContext = require('./relay-hooks/ProfilerContext');
@@ -91,6 +92,7 @@ module.exports = {
   requestSubscription,
 
   EntryPointContainer: EntryPointContainer,
+  MatchContainer: MatchContainer,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
 
   ProfilerContext: ProfilerContext,

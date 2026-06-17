@@ -68,10 +68,10 @@ for (const file of fixtureFiles) {
     try {
       await runFixture(tempDir);
 
-      // Dynamic require of the built App component
+      // Dynamic import of the built App component
       // Jest's transform will handle TSX compilation
       const appPath = path.join(tempDir, 'template', 'App.tsx');
-      const appModule = require(appPath);
+      const appModule = await import(appPath);
       const TestApp = appModule.default;
 
       // Render with React Testing Library

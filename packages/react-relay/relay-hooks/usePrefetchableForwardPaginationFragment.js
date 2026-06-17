@@ -51,16 +51,6 @@ type LoadMoreFn<TVariables extends Variables> = (
   },
 ) => void;
 
-// Caps the number of items requested in a single `loadMore` so that automatic
-// prefetching can never generate a query large enough to overwhelm the backend
-// (e.g. requesting the entire `totalCount` of a connection at once).
-function clampFetchSize(fetchSize: number, maxFetchSize: ?number): number {
-  if (maxFetchSize != null) {
-    return Math.min(fetchSize, maxFetchSize);
-  }
-  return fetchSize;
-}
-
 export type ReturnType<TVariables, TData, TEdgeData, TKey> = {
   // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
@@ -280,12 +270,14 @@ hook usePrefetchableForwardPaginationFragment<
           // previous prefetch error and attempt to fetch again.
           hasPrefetchErroredRef.current = false;
           loadMore(
-            clampFetchSize(
+            // Cap the request at `maxFetchSize` so we never generate a query
+            // large enough to overwhelm the backend.
+            Math.min(
               Math.max(
                 minimalFetchSize,
                 Math.min(numToAdd, bufferSize - availableSizeRef.current),
               ),
-              maxFetchSize,
+              maxFetchSize ?? Infinity,
             ),
             // Keep options For backward compatibility
             options ?? {
@@ -363,13 +355,16 @@ hook usePrefetchableForwardPaginationFragment<
     ) {
       const onComplete = prefetchingOnComplete;
       loadMore(
-        clampFetchSize(
+        // Cap the request at `maxFetchSize` so we never generate a query large
+        // enough to overwhelm the backend (e.g. close to the connection's
+        // entire `totalCount`).
+        Math.min(
           Math.max(
             bufferSize - Math.max(sourceSize - numInUse, 0),
             numInUse - sourceSize,
             minimalFetchSize,
           ),
-          maxFetchSize,
+          maxFetchSize ?? Infinity,
         ),
         {
           onComplete,

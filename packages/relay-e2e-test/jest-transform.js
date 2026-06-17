@@ -74,7 +74,7 @@ module.exports = {
     plugins.push([reactJsx, {runtime: 'automatic'}]);
 
     // Relay babel transform for graphql`` tagged templates
-    plugins.push([findBabelPluginRelay(), {eagerEsModules: false}]);
+    plugins.push([findBabelPluginRelay(), {eagerEsModules: true}]);
 
     // Rewrite Haste-style bare module imports used by Relay source
     plugins.push([
@@ -87,8 +87,11 @@ module.exports = {
       },
     ]);
 
-    // Convert ES modules to CommonJS for Jest
-    plugins.push(modulesCommonjs);
+    // Convert ES modules to CommonJS for Jest — but skip for TypeScript
+    // fixture files so import() returns clean ESM without nested defaults.
+    if (!isTypeScript || isRelaySource) {
+      plugins.push(modulesCommonjs);
+    }
 
     return babel.transformSync(src, {
       filename,

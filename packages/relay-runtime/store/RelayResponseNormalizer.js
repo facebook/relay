@@ -532,6 +532,13 @@ class RelayResponseNormalizer {
       componentKey,
       componentReference ?? null,
     );
+    // Prefetch the component module so it loads in parallel with the
+    // operation normalization AST. Module systems cache import() calls,
+    // so when MatchContainer's loader calls the same function at render
+    // time, it resolves from the cache without a waterfall.
+    if (typeof componentReference === 'function') {
+      (componentReference: any)().catch(() => {});
+    }
     const operationKey = getModuleOperationKey(moduleImport.documentName);
     const operationReference =
       moduleImport.operationModuleProvider || data[operationKey];

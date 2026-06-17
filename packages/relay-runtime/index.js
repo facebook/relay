@@ -63,6 +63,7 @@ const RelayStoreUtils = require('./store/RelayStoreUtils');
 const ResolverFragments = require('./store/ResolverFragments');
 const ViewerPattern = require('./store/ViewerPattern');
 const requestSubscription = require('./subscription/requestSubscription');
+const createOperationLoader = require('./util/createOperationLoader');
 const createPayloadFor3DField = require('./util/createPayloadFor3DField');
 const deepFreeze = require('./util/deepFreeze');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
@@ -422,6 +423,7 @@ module.exports = {
   // Utilities
   PreloadableQueryRegistry,
   RelayProfiler: RelayProfiler,
+  createOperationLoader: createOperationLoader,
   createPayloadFor3DField: createPayloadFor3DField,
 
   // INTERNAL-ONLY: These exports might be removed at any point.

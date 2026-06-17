@@ -12,8 +12,79 @@
 'use strict';
 
 const React = require('react');
+const useRelayEnvironment = require('./useRelayEnvironment');
 
 const {useMemo} = React;
+
+/**
+ * Cache for dynamically loaded components when using the default loader.
+ * Keyed by the componentModuleProvider function reference.
+ */
+type CacheEntry =
+  | {status: 'pending', promise: Promise<void>}
+  | {status: 'fulfilled', value: React$AbstractComponent<{...}>}
+  | {status: 'rejected', reason: mixed};
+
+const _dynamicImportCache: WeakMap<
+  () => Promise<{default?: mixed, ...}>,
+  CacheEntry,
+> = new WeakMap();
+
+/**
+ * Default loader for componentModuleProvider functions. Uses the
+ * environment's OperationLoader cache for sync resolution (populated by
+ * the prefetch in RelayResponseNormalizer), falling back to calling the
+ * import function and suspending until it resolves.
+ */
+function loadModuleComponent(
+  moduleRef: unknown,
+  operationLoader: ?{
+    get(reference: unknown): mixed,
+    load(reference: unknown): Promise<mixed>,
+  },
+): React$AbstractComponent<{...}> {
+  if (typeof moduleRef !== 'function') {
+    // Legacy string ref from a custom loader — pass through.
+    return (moduleRef: $FlowFixMe);
+  }
+
+  // Try the OperationLoader cache first (populated at normalization time).
+  if (operationLoader != null) {
+    const cached = operationLoader.get(moduleRef);
+    if (cached != null) {
+      return (cached: $FlowFixMe);
+    }
+  }
+
+  // Check our own Suspense cache.
+  const providerFn: () => Promise<{default?: mixed}> = (moduleRef: $FlowFixMe);
+  const entry = _dynamicImportCache.get(providerFn);
+  if (entry != null) {
+    if (entry.status === 'fulfilled') {
+      return entry.value;
+    }
+    if (entry.status === 'rejected') {
+      throw entry.reason;
+    }
+    // Still pending — suspend.
+    throw entry.promise;
+  }
+
+  // First call — start loading and suspend.
+  const newEntry: CacheEntry = ({status: 'pending', promise: (null: $FlowFixMe)}: $FlowFixMe);
+  newEntry.promise = providerFn().then(
+    mod => {
+      newEntry.status = 'fulfilled';
+      newEntry.value = (mod != null && mod.default != null ? mod.default : mod: $FlowFixMe);
+    },
+    err => {
+      newEntry.status = 'rejected';
+      newEntry.reason = err;
+    },
+  );
+  _dynamicImportCache.set(providerFn, newEntry);
+  throw newEntry.promise;
+}
 
 /**
  * Renders the results of a data-driven dependency fetched with the `@match`
@@ -98,7 +169,7 @@ export type MatchContainerProps<
   TFallback extends React.Node,
 > = {
   readonly fallback?: ?TFallback,
-  readonly loader: (module: unknown) => component(...TProps),
+  readonly loader?: ?(module: unknown) => component(...TProps),
   readonly match: ?MatchPointer | ?TypenameOnlyPointer,
   readonly props?: TProps,
 };
@@ -138,8 +209,14 @@ component MatchContainer<
     );
   }
 
+  const environment = useRelayEnvironment();
+  const operationLoader = environment.getStore().getOperationLoader();
   const LoadedContainer =
-    __module_component != null ? loader(__module_component) : null;
+    __module_component != null
+      ? loader != null
+        ? loader(__module_component)
+        : loadModuleComponent(__module_component, operationLoader)
+      : null;
 
   const fragmentProps = useMemo(() => {
     // TODO: Perform this transformation in RelayReader so that unchanged

@@ -213,6 +213,7 @@ export { fetchQuery_DEPRECATED } from './query/fetchQuery_DEPRECATED';
 export { isRelayModernEnvironment } from './store/isRelayModernEnvironment';
 export { requestSubscription } from './subscription/requestSubscription';
 // Utilities
+export { default as createOperationLoader } from './util/createOperationLoader';
 export { default as createPayloadFor3DField } from './util/createPayloadFor3DField';
 export { default as getFragmentIdentifier } from './util/getFragmentIdentifier';
 export { default as getPaginationMetadata } from './util/getPaginationMetadata';

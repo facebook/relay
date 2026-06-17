@@ -250,11 +250,24 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
     prefetchingLoadMoreOptions?.UNSTABLE_extraVariables;
   const prefetchingOnComplete = prefetchingLoadMoreOptions?.onComplete;
 
+  // Normalize the cap to a usable upper bound. A non-positive `maxFetchSize` is
+  // treated as "no cap" rather than clamping requests to `first: 0`, which would
+  // make no progress and re-introduce the infinite prefetch loop this cap exists
+  // to prevent.
+  const effectiveMaxFetchSize =
+    maxFetchSize != null && maxFetchSize > 0 ? maxFetchSize : Infinity;
+
   const showMore = useCallback(
     (numToAdd: number, options?: LoadMoreOptions<TVariables>) => {
       // Matches the behavior of `usePaginationFragment`. If there is a `loadMore` ongoing,
       // the hook handles making the `loadMore` a no-op.
       if (!isLoadingMoreRef.current || availableSizeRef.current >= 0) {
+        // An explicit `loadNext` is a deliberate user action, so clear any
+        // previous prefetch error and re-enable automatic prefetching — even
+        // when this call is served entirely from the buffer and issues no
+        // network request.
+        hasPrefetchErroredRef.current = false;
+
         // Preemtively update `availableSizeRef`, so if two `loadMore` is called in the same tick,
         // a second `loadMore` can be no-op
         availableSizeRef.current -= numToAdd;
@@ -266,9 +279,6 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
         // If the product needs more items from network, load the amount needed to fullfil
         // the requirement and cache, capped at the current amount defined by product
         if (!isLoadingMoreRef.current && availableSizeRef.current < 0) {
-          // An explicit `loadNext` is a deliberate user action, so clear any
-          // previous prefetch error and attempt to fetch again.
-          hasPrefetchErroredRef.current = false;
           loadMore(
             // Cap the request at `maxFetchSize` so we never generate a query
             // large enough to overwhelm the backend.
@@ -277,7 +287,7 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
                 minimalFetchSize,
                 Math.min(numToAdd, bufferSize - availableSizeRef.current),
               ),
-              maxFetchSize ?? Infinity,
+              effectiveMaxFetchSize,
             ),
             // Keep options For backward compatibility
             options ?? {
@@ -319,7 +329,7 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
       bufferSize,
       loadMore,
       minimalFetchSize,
-      maxFetchSize,
+      effectiveMaxFetchSize,
       edgeKeys,
       fragmentData,
       prefetchingUNSTABLE_extraVariables,
@@ -363,7 +373,7 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
             numInUse - sourceSize,
             minimalFetchSize,
           ),
-          maxFetchSize ?? Infinity,
+          effectiveMaxFetchSize,
         ),
         {
           onComplete,
@@ -406,7 +416,7 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
     edgeKeys,
     isLoadingMore,
     minimalFetchSize,
-    maxFetchSize,
+    effectiveMaxFetchSize,
     environment,
     edgesFragment,
   ]);

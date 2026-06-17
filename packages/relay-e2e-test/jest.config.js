@@ -56,6 +56,9 @@ module.exports = {
     '<rootDir>/node_modules',
     path.join(mainRoot, 'node_modules'),
   ],
+  // Treat TypeScript files as ESM so dynamic import() returns clean modules
+  // without nested CJS default-wrapping.
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   // Use jsdom for DOM testing with @testing-library
   testEnvironment: 'jest-environment-jsdom',
   roots: ['<rootDir>'],

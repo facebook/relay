@@ -24,11 +24,12 @@ const {
   expectConsoleWarningWillFire,
 } = require('./consoleWarning');
 const describeWithFeatureFlags = require('./describeWithFeatureFlags');
+const flushAsyncWork = require('./flushAsyncWork');
+const flushMicrotasks = require('./flushMicrotasks');
 const {
   FIXTURE_TAG,
   generateTestsFromFixtures,
 } = require('./generateTestsFromFixtures');
-const injectPromisePolyfill__DEPRECATED = require('./injectPromisePolyfill__DEPRECATED');
 const Matchers = require('./Matchers');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
@@ -86,8 +87,9 @@ module.exports = {
   expectToWarnMany,
   expectWarningWillFire,
   FIXTURE_TAG,
+  flushAsyncWork,
+  flushMicrotasks,
   generateTestsFromFixtures,
-  injectPromisePolyfill__DEPRECATED,
   matchers: Matchers,
   printAST,
   simpleClone,

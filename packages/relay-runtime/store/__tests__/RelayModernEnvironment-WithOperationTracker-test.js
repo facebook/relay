@@ -27,10 +27,9 @@ const {
 } = require('relay-test-utils');
 const {
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe.each([true, false])(
@@ -260,7 +259,7 @@ describe.each([true, false])(
       ).toBe(null);
     });
 
-    it('should return a promise for operation affecting owner that resolves when operation completes', () => {
+    it('should return a promise for operation affecting owner that resolves when operation completes', async () => {
       invariant(tracker != null, 'Tracker should be defined');
       environment
         .execute({
@@ -318,7 +317,7 @@ describe.each([true, false])(
       result.promise.then(promiseCallback);
       expect(promiseCallback).not.toBeCalled();
       environment.mock.complete(MutationOperation.request.node);
-      jest.runAllTimers();
+      await flushMicrotasks();
       expect(promiseCallback).toBeCalled();
     });
 
@@ -495,7 +494,7 @@ describe.each([true, false])(
     });
 
     describe('with @match', () => {
-      it('should return a promise for affecting operations', () => {
+      it('should return a promise for affecting operations', async () => {
         //const {Query, Mutation, FeedbackFragment} =
         const Query = graphql`
           query RelayModernEnvironmentWithOperationTrackerTestQuery($id: ID)
@@ -631,7 +630,7 @@ describe.each([true, false])(
           tracker.getPendingOperationsAffectingOwner(QueryOperation1.request)
             ?.promise,
         ).toBeInstanceOf(Promise);
-        jest.runAllTimers();
+        await flushMicrotasks();
 
         // All followup completed, operation tracker should be completed
         expect(
@@ -683,7 +682,7 @@ describe.each([true, false])(
 
         environment.mock.complete(MutationOperation);
         expect(operationLoader.load).toBeCalled();
-        jest.runAllTimers();
+        await flushMicrotasks();
         expect(
           tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
         ).toBe(null);

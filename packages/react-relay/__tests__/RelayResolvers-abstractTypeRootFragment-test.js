@@ -21,10 +21,8 @@ const {createMockEnvironment} = require('relay-test-utils');
 const {
   disallowConsoleErrors,
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 disallowConsoleErrors();
 
@@ -75,7 +73,7 @@ test('Can read a resolver with a rootFragment on an abstract type', async () => 
   expect(renderer?.toJSON()).toEqual('Loading...');
   expect(logEvents).toEqual([]);
 
-  await TestRenderer.act(() => {
+  await TestRenderer.act(async () => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -85,7 +83,6 @@ test('Can read a resolver with a rootFragment on an abstract type', async () => 
         },
       },
     });
-    jest.runAllImmediates();
   });
 
   expect(logEvents).toEqual([]);

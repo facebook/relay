@@ -28,11 +28,7 @@ const {
   MockPayloadGenerator,
   createMockEnvironment,
 } = require('relay-test-utils');
-const {
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
+const {flushAsyncWork} = require('relay-test-utils-internal');
 
 describe('when using queuePendingOperation, queueOperationResolver and preloadQuery in tests', () => {
   const query = graphql`
@@ -210,7 +206,7 @@ describe('when generating multiple payloads for deferred data', () => {
      * roll out. See https://fburl.com/workplace/4oq3zi07. */
     const isSuspended = () => renderer.toJSON() === 'Fallback';
 
-    const generateData = (resolvers: MockResolvers) => {
+    const generateData = async (resolvers: MockResolvers) => {
       const operation = mockEnvironment.mock.getMostRecentOperation();
       const mockData = MockPayloadGenerator.generateWithDefer(
         operation,
@@ -219,7 +215,9 @@ describe('when generating multiple payloads for deferred data', () => {
       );
       mockEnvironment.mock.resolve(operation, mockData);
 
-      act(() => jest.runAllTimers());
+      await act(async () => {
+        await flushAsyncWork();
+      });
     };
 
     return {
@@ -229,12 +227,12 @@ describe('when generating multiple payloads for deferred data', () => {
     };
   };
 
-  it('renders the initial and deferred payloads', () => {
+  it('renders the initial and deferred payloads', async () => {
     const {renderer, isSuspended, generateData} = render();
 
     expect(isSuspended()).toEqual(true);
 
-    generateData({
+    await generateData({
       ID() {
         return '4';
       },

@@ -21,14 +21,12 @@ const {createMockEnvironment} = require('relay-test-utils');
 const {
   disallowConsoleErrors,
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 disallowConsoleErrors();
 
-it('should catch a server field error', () => {
+it('should catch a server field error', async () => {
   const environment = createMockEnvironment();
   function TestComponent() {
     return (
@@ -59,7 +57,7 @@ it('should catch a server field error', () => {
     renderer = TestRenderer.create(<TestComponent />);
   });
 
-  TestRenderer.act(() => {
+  await TestRenderer.act(async () => {
     environment.mock.resolveMostRecentOperation(() => {
       return {
         data: {me: {id: '1', name: null}},
@@ -72,12 +70,11 @@ it('should catch a server field error', () => {
         ],
       };
     });
-    jest.runAllImmediates();
   });
   expect(renderer?.toJSON()).toBe('Error');
 });
 
-it('should catch a @required(action: THROW) error', () => {
+it('should catch a @required(action: THROW) error', async () => {
   const environment = createMockEnvironment();
   function TestComponent() {
     return (
@@ -108,16 +105,15 @@ it('should catch a @required(action: THROW) error', () => {
     renderer = TestRenderer.create(<TestComponent />);
   });
 
-  TestRenderer.act(() => {
+  await TestRenderer.act(async () => {
     environment.mock.resolveMostRecentOperation(() => {
       return {data: {me: {id: '1', name: null}}};
     });
-    jest.runAllImmediates();
   });
   expect(renderer?.toJSON()).toBe('Error');
 });
 
-it('should catch Relay Resolver errors', () => {
+it('should catch Relay Resolver errors', async () => {
   const environment = createMockEnvironment({
     store: new RelayModernStore(new RelayRecordSource()),
   });
@@ -152,11 +148,10 @@ it('should catch Relay Resolver errors', () => {
     renderer = TestRenderer.create(<TestComponent />);
   });
 
-  TestRenderer.act(() => {
+  await TestRenderer.act(async () => {
     environment.mock.resolveMostRecentOperation(() => {
       return {data: {me: {id: '1', __typename: 'User'}}};
     });
-    jest.runAllImmediates();
   });
   expect(renderer?.toJSON()).toBe(
     '[{"message":"Relay: Error in resolver for field at me.always_throws in CatchTestResolverErrorThrowQuery"}]',

@@ -59,11 +59,7 @@ const {
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
-const {
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
+const {flushMicrotasks} = require('relay-test-utils-internal');
 
 const {useMemo, useState} = React;
 
@@ -165,7 +161,7 @@ function assertCall(
   expect(actualHasPrevious).toEqual(expected.hasPrevious);
 }
 
-function expectFragmentResults(
+async function expectFragmentResults(
   expectedCalls: ReadonlyArray<{
     data: $FlowFixMe,
     isLoadingNext: boolean,
@@ -175,20 +171,20 @@ function expectFragmentResults(
   }>,
 ) {
   // This ensures that useEffect runs
-  TestRenderer.act(() => jest.runAllImmediates());
+  await TestRenderer.act(() => flushMicrotasks());
   expect(renderSpy).toBeCalledTimes(expectedCalls.length);
   expectedCalls.forEach((expected, idx) => assertCall(expected, idx));
   renderSpy.mockClear();
 }
 
-function expectFragmentLastResult(expectedCall: {
+async function expectFragmentLastResult(expectedCall: {
   data: $FlowFixMe,
   isLoadingNext: boolean,
   isLoadingPrevious: boolean,
   hasNext: boolean,
   hasPrevious: boolean,
 }) {
-  TestRenderer.act(() => jest.runAllImmediates());
+  await TestRenderer.act(() => flushMicrotasks());
   const lastIdx = renderSpy.mock.calls.length - 1;
   assertCall(expectedCall, lastIdx);
   renderSpy.mockClear();
@@ -730,9 +726,9 @@ describe.each([
       ).toEqual(true);
     });
 
-    it('should render fragment without error when data is available', () => {
+    it('should render fragment without error when data is available', async () => {
       renderFragment();
-      expectFragmentResults([
+      await expectFragmentResults([
         {
           data: initialUser,
           hasNext: true,
@@ -743,9 +739,9 @@ describe.each([
       ]);
     });
 
-    it('should render fragment without error when ref is null', () => {
+    it('should render fragment without error when ref is null', async () => {
       renderFragment({userRef: null});
-      expectFragmentResults([
+      await expectFragmentResults([
         {
           data: null,
           hasNext: false,
@@ -756,9 +752,9 @@ describe.each([
       ]);
     });
 
-    it('should render fragment without error when ref is undefined', () => {
+    it('should render fragment without error when ref is undefined', async () => {
       renderFragment({userRef: undefined});
-      expectFragmentResults([
+      await expectFragmentResults([
         {
           data: null,
           hasNext: false,
@@ -769,9 +765,9 @@ describe.each([
       ]);
     });
 
-    it('should update when fragment data changes', () => {
+    it('should update when fragment data changes', async () => {
       renderFragment();
-      expectFragmentResults([
+      await expectFragmentResults([
         {
           data: initialUser,
           hasNext: true,
@@ -792,7 +788,7 @@ describe.each([
           },
         });
       });
-      expectFragmentResults([
+      await expectFragmentResults([
         {
           data: {
             ...initialUser,
@@ -818,7 +814,7 @@ describe.each([
         });
       });
 
-      expectFragmentResults([
+      await expectFragmentResults([
         {
           data: {
             ...initialUser,
@@ -939,13 +935,13 @@ describe.each([
     describe('loadNext', () => {
       const direction = 'forward';
 
-      it('does not load more if component has unmounted', () => {
+      it('does not load more if component has unmounted', async () => {
         const warning = require('warning');
         // $FlowFixMe[prop-missing]
         warning.mockClear();
 
         const renderer = renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -971,13 +967,13 @@ describe.each([
         expect(fetch).toHaveBeenCalledTimes(0);
       });
 
-      it('does not load more if fragment ref passed to usePaginationFragment() was null', () => {
+      it('does not load more if fragment ref passed to usePaginationFragment() was null', async () => {
         const warning = require('warning');
         // $FlowFixMe[prop-missing]
         warning.mockClear();
 
         renderFragment({userRef: null});
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: null,
             hasNext: false,
@@ -1001,10 +997,10 @@ describe.each([
         expect(fetch).toHaveBeenCalledTimes(0);
       });
 
-      it('does not load more if request is already in flight', () => {
+      it('does not load more if request is already in flight', async () => {
         const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -1045,7 +1041,7 @@ describe.each([
         expect(renderSpy).toBeCalledTimes(0);
       });
 
-      it('does not load more if parent query is already active (i.e. during streaming)', () => {
+      it('does not load more if parent query is already active (i.e. during streaming)', async () => {
         // This prevents console.error output in the test, which is expected
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
         const {
@@ -1058,7 +1054,7 @@ describe.each([
         fetch.mockClear();
         renderFragment();
 
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -1076,7 +1072,7 @@ describe.each([
         expect(renderSpy).toBeCalledTimes(0);
       });
 
-      it('attempts to load more even if there are no more items to load', () => {
+      it('attempts to load more even if there are no more items to load', async () => {
         (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
@@ -1114,7 +1110,7 @@ describe.each([
             pageInfo: expect.objectContaining({hasNextPage: false}),
           },
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: expectedUser,
             hasNext: false,
@@ -1166,7 +1162,7 @@ describe.each([
             },
           },
         });
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: expectedUser,
             hasNext: false,
@@ -1178,10 +1174,10 @@ describe.each([
         expect(callback).toBeCalledTimes(1);
       });
 
-      it('loads and renders next items in connection', () => {
+      it('loads and renders next items in connection', async () => {
         const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -1274,7 +1270,7 @@ describe.each([
             },
           },
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             // First update has updated connection
             data: expectedUser,
@@ -1295,7 +1291,7 @@ describe.each([
         expect(callback).toBeCalledTimes(1);
       });
 
-      it('loads more correctly using fragment variables from literal @argument values', () => {
+      it('loads more correctly using fragment variables from literal @argument values', async () => {
         let expectedUser = {
           ...initialUser,
           friends: {
@@ -1316,7 +1312,7 @@ describe.each([
 
         const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment({owner: queryWithLiteralArgs});
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: expectedUser,
             hasNext: true,
@@ -1412,7 +1408,7 @@ describe.each([
             },
           },
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             // First update has updated connection
             data: expectedUser,
@@ -1433,7 +1429,7 @@ describe.each([
         expect(callback).toBeCalledTimes(1);
       });
 
-      it('loads more correctly when original variables do not include an id', () => {
+      it('loads more correctly when original variables do not include an id', async () => {
         const callback = jest.fn<[Error | null], void>();
         const viewer = environment.lookup(queryWithoutID.fragment).data?.viewer;
         const userRef =
@@ -1459,7 +1455,7 @@ describe.each([
         };
 
         const renderer = renderFragment({owner: queryWithoutID, userRef});
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: expectedUser,
             hasNext: true,
@@ -1552,7 +1548,7 @@ describe.each([
             },
           },
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             // First update has updated connection
             data: expectedUser,
@@ -1573,7 +1569,7 @@ describe.each([
         expect(callback).toBeCalledTimes(1);
       });
 
-      it('loads more with correct id from refetchable fragment when using a nested fragment', () => {
+      it('loads more with correct id from refetchable fragment when using a nested fragment', async () => {
         const callback = jest.fn<[Error | null], void>();
 
         // Populate store with data for query using nested fragment
@@ -1641,7 +1637,7 @@ describe.each([
           owner: queryNestedFragment,
           userRef,
         });
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -1736,7 +1732,7 @@ describe.each([
             },
           },
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             // First update has updated connection
             data: expectedUser,
@@ -1757,10 +1753,10 @@ describe.each([
         expect(callback).toBeCalledTimes(1);
       });
 
-      it('calls callback with error when error occurs during fetch', () => {
+      it('calls callback with error when error occurs during fetch', async () => {
         const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -1795,7 +1791,7 @@ describe.each([
         const error = new Error('Oops');
         dataSource.error(error);
 
-        TestRenderer.act(() => jest.runAllImmediates());
+        await TestRenderer.act(() => flushMicrotasks());
         // We pass the error in the callback, but do not throw during render
         // since we want to continue rendering the existing items in the
         // connection
@@ -1803,10 +1799,10 @@ describe.each([
         expect(callback).toBeCalledWith(error);
       });
 
-      it('preserves pagination request if re-rendered with same fragment ref', () => {
+      it('preserves pagination request if re-rendered with same fragment ref', async () => {
         const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -1914,7 +1910,7 @@ describe.each([
             },
           },
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             // First update has updated connection
             data: expectedUser,
@@ -1936,10 +1932,10 @@ describe.each([
       });
 
       describe('extra variables', () => {
-        it('loads and renders the next items in the connection when passing extra variables', () => {
+        it('loads and renders the next items in the connection when passing extra variables', async () => {
           const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
-          expectFragmentResults([
+          await expectFragmentResults([
             {
               data: initialUser,
               hasNext: true,
@@ -2037,7 +2033,7 @@ describe.each([
               },
             },
           };
-          expectFragmentResults([
+          await expectFragmentResults([
             {
               // First update has updated connection
               data: expectedUser,
@@ -2058,10 +2054,10 @@ describe.each([
           expect(callback).toBeCalledTimes(1);
         });
 
-        it('loads the next items in the connection and ignores any pagination vars passed as extra vars', () => {
+        it('loads the next items in the connection and ignores any pagination vars passed as extra vars', async () => {
           const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
-          expectFragmentResults([
+          await expectFragmentResults([
             {
               data: initialUser,
               hasNext: true,
@@ -2159,7 +2155,7 @@ describe.each([
               },
             },
           };
-          expectFragmentResults([
+          await expectFragmentResults([
             {
               // First update has updated connection
               data: expectedUser,
@@ -2183,11 +2179,11 @@ describe.each([
 
       describe('disposing', () => {
         if (!ENABLE_ACTIVITY_COMPATIBILITY) {
-          it('cancels load more if component unmounts (legacy behavior, incompatible with <Activity>)', () => {
+          it('cancels load more if component unmounts (legacy behavior, incompatible with <Activity>)', async () => {
             unsubscribe.mockClear();
             const callback = jest.fn<[Error | null], void>();
             const renderer = renderFragment();
-            expectFragmentResults([
+            await expectFragmentResults([
               {
                 data: initialUser,
                 hasNext: true,
@@ -2262,7 +2258,7 @@ describe.each([
 
             // Check that the pagination data was not written to the store
             renderFragment();
-            expectFragmentResults([
+            await expectFragmentResults([
               {
                 data: initialUser,
                 hasNext: true,
@@ -2273,11 +2269,11 @@ describe.each([
             ]);
           });
         } else {
-          it('cancels load more if component unmounts (new behavior, compatible with <Activity>)', () => {
+          it('cancels load more if component unmounts (new behavior, compatible with <Activity>)', async () => {
             unsubscribe.mockClear();
             const callback = jest.fn<[Error | null], void>();
             const renderer = renderFragment();
-            expectFragmentResults([
+            await expectFragmentResults([
               {
                 data: initialUser,
                 hasNext: true,
@@ -2384,7 +2380,7 @@ describe.each([
               },
             };
             renderFragment();
-            expectFragmentResults([
+            await expectFragmentResults([
               {
                 data: expectedUser,
                 hasNext: true,
@@ -2396,11 +2392,11 @@ describe.each([
           });
         }
 
-        it('cancels load more if refetch is called', () => {
+        it('cancels load more if refetch is called', async () => {
           unsubscribe.mockClear();
           const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
-          expectFragmentResults([
+          await expectFragmentResults([
             {
               data: initialUser,
               hasNext: true,
@@ -2443,10 +2439,10 @@ describe.each([
           expect(renderSpy).toBeCalledTimes(0);
         });
 
-        it('disposes ongoing request if environment changes', () => {
+        it('disposes ongoing request if environment changes', async () => {
           const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
-          expectFragmentResults([
+          await expectFragmentResults([
             {
               data: initialUser,
               hasNext: true,
@@ -2521,7 +2517,7 @@ describe.each([
           expect(fetch).toBeCalledTimes(0);
 
           // Assert newly rendered data
-          expectFragmentResults([
+          await expectFragmentResults([
             {
               data: {
                 ...initialUser,
@@ -2545,10 +2541,10 @@ describe.each([
           ]);
         });
 
-        it('disposes ongoing request if fragment ref changes', () => {
+        it('disposes ongoing request if fragment ref changes', async () => {
           const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
-          expectFragmentResults([
+          await expectFragmentResults([
             {
               data: initialUser,
               hasNext: true,
@@ -2640,7 +2636,7 @@ describe.each([
               ],
             },
           };
-          expectFragmentResults([
+          await expectFragmentResults([
             {
               data: expectedUser,
               hasNext: true,
@@ -2659,10 +2655,10 @@ describe.each([
         });
 
         if (!ENABLE_ACTIVITY_COMPATIBILITY) {
-          it('disposes ongoing request if dispose is called manually', () => {
+          it('disposes ongoing request if dispose is called manually', async () => {
             const callback = jest.fn<[Error | null], void>();
             const renderer = renderFragment();
-            expectFragmentResults([
+            await expectFragmentResults([
               {
                 data: initialUser,
                 hasNext: true,
@@ -2737,10 +2733,10 @@ describe.each([
             expect(callback).toBeCalledTimes(0); // callback is not called
           });
         } else {
-          it('does not dispose ongoing request even if dispose is called manually', () => {
+          it('does not dispose ongoing request even if dispose is called manually', async () => {
             const callback = jest.fn<[Error | null], void>();
             const renderer = renderFragment();
-            expectFragmentResults([
+            await expectFragmentResults([
               {
                 data: initialUser,
                 hasNext: true,
@@ -2847,7 +2843,7 @@ describe.each([
                 },
               },
             };
-            expectFragmentResults([
+            await expectFragmentResults([
               {
                 data: expectedUser,
                 hasNext: true,
@@ -2879,7 +2875,7 @@ describe.each([
           });
         });
 
-        it('does not start pagination request even if query is no longer active but loadNext is bound to snapshot of data while query was active', () => {
+        it('does not start pagination request even if query is no longer active but loadNext is bound to snapshot of data while query was active', async () => {
           const {
             __internal: {fetchQuery},
           } = require('relay-runtime');
@@ -2932,7 +2928,7 @@ describe.each([
           ).toEqual(true);
 
           // Assert fragment rendered with correct data
-          expectFragmentResults([
+          await expectFragmentResults([
             {
               data: {
                 ...initialUser,
@@ -2995,7 +2991,7 @@ describe.each([
           ).toEqual(false);
 
           // Assert fragment rendered with correct data
-          expectFragmentResults([
+          await expectFragmentResults([
             {
               data: {
                 ...initialUser,
@@ -3057,7 +3053,7 @@ describe.each([
     describe('hasNext', () => {
       const direction = 'forward';
 
-      it('returns true if it has more items', () => {
+      it('returns true if it has more items', async () => {
         (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
@@ -3087,7 +3083,7 @@ describe.each([
         });
 
         renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: {
               ...initialUser,
@@ -3105,7 +3101,7 @@ describe.each([
         ]);
       });
 
-      it('returns false if edges are null', () => {
+      it('returns false if edges are null', async () => {
         (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
@@ -3125,7 +3121,7 @@ describe.each([
         });
 
         renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: {
               ...initialUser,
@@ -3144,7 +3140,7 @@ describe.each([
         ]);
       });
 
-      it('returns false if edges are undefined', () => {
+      it('returns false if edges are undefined', async () => {
         (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
@@ -3164,7 +3160,7 @@ describe.each([
         });
 
         renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: {
               ...initialUser,
@@ -3183,7 +3179,7 @@ describe.each([
         ]);
       });
 
-      it('returns false if end cursor is null', () => {
+      it('returns false if end cursor is null', async () => {
         (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
@@ -3215,7 +3211,7 @@ describe.each([
         });
 
         renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: {
               ...initialUser,
@@ -3236,7 +3232,7 @@ describe.each([
         ]);
       });
 
-      it('returns false if end cursor is undefined', () => {
+      it('returns false if end cursor is undefined', async () => {
         (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
@@ -3268,7 +3264,7 @@ describe.each([
         });
 
         renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: {
               ...initialUser,
@@ -3289,7 +3285,7 @@ describe.each([
         ]);
       });
 
-      it('returns false if pageInfo.hasNextPage is false-ish', () => {
+      it('returns false if pageInfo.hasNextPage is false-ish', async () => {
         (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
@@ -3319,7 +3315,7 @@ describe.each([
         });
 
         renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: {
               ...initialUser,
@@ -3339,7 +3335,7 @@ describe.each([
         ]);
       });
 
-      it('returns false if pageInfo.hasNextPage is false', () => {
+      it('returns false if pageInfo.hasNextPage is false', async () => {
         (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
@@ -3369,7 +3365,7 @@ describe.each([
         });
 
         renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: {
               ...initialUser,
@@ -3389,10 +3385,10 @@ describe.each([
         ]);
       });
 
-      it('updates after pagination if more results are available', () => {
+      it('updates after pagination if more results are available', async () => {
         const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -3485,7 +3481,7 @@ describe.each([
             },
           },
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             // First update has updated connection
             data: expectedUser,
@@ -3508,10 +3504,10 @@ describe.each([
         expect(callback).toBeCalledTimes(1);
       });
 
-      it('updates after pagination if no more results are available', () => {
+      it('updates after pagination if no more results are available', async () => {
         const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -3604,7 +3600,7 @@ describe.each([
             },
           },
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             // First update has updated connection
             data: expectedUser,
@@ -3689,9 +3685,9 @@ describe.each([
         );
       }
 
-      it('refetches new variables correctly when refetching new id', () => {
+      it('refetches new variables correctly when refetching new id', async () => {
         const renderer = renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -3784,7 +3780,7 @@ describe.each([
           id: '4',
           name: 'Mark',
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: expectedUser,
             hasNext: true,
@@ -3809,9 +3805,9 @@ describe.each([
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
-      it('refetches new variables correctly when refetching same id', () => {
+      it('refetches new variables correctly when refetching same id', async () => {
         const renderer = renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -3904,7 +3900,7 @@ describe.each([
           id: '1',
           name: 'Alice',
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: expectedUser,
             hasNext: true,
@@ -3929,7 +3925,7 @@ describe.each([
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
-      it('refetches with correct id from refetchable fragment when using nested fragment', () => {
+      it('refetches with correct id from refetchable fragment when using nested fragment', async () => {
         // Populate store with data for query using nested fragment
         environment.commitPayload(queryNestedFragment, {
           node: {
@@ -3995,7 +3991,7 @@ describe.each([
           owner: queryNestedFragment,
           userRef,
         });
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -4090,7 +4086,7 @@ describe.each([
           id: '1',
           name: 'Alice',
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: expectedUser,
             hasNext: true,
@@ -4115,9 +4111,9 @@ describe.each([
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
-      it('loads more items correctly after refetching', () => {
+      it('loads more items correctly after refetching', async () => {
         const renderer = renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -4210,7 +4206,7 @@ describe.each([
           id: '1',
           name: 'Alice',
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: expectedUser,
             hasNext: true,
@@ -4318,7 +4314,7 @@ describe.each([
             },
           },
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             // First update has updated connection
             data: paginatedUser,
@@ -4338,10 +4334,10 @@ describe.each([
         ]);
       });
 
-      it('resets `isLoading` to false, hen loadMore gets interrupted by refresh, and useLoadMore does not trigger a reset', () => {
+      it('resets `isLoading` to false, hen loadMore gets interrupted by refresh, and useLoadMore does not trigger a reset', async () => {
         RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX = true;
         renderFragment();
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -4355,7 +4351,7 @@ describe.each([
           loadNext(1);
         });
 
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialUser,
             hasNext: true,
@@ -4448,7 +4444,7 @@ describe.each([
         };
 
         // loadNext gets interrupted by refetch, and `reset()` in useLoadMore triggers
-        expectFragmentLastResult({
+        await expectFragmentLastResult({
           data: expectedUser,
           hasNext: true,
           hasPrevious: false,
@@ -4473,7 +4469,7 @@ describe.each([
         });
 
         resolveQuery(REFETCH_DATA);
-        expectFragmentLastResult({
+        await expectFragmentLastResult({
           data: expectedUser,
           hasNext: true,
           hasPrevious: false,
@@ -4545,7 +4541,7 @@ describe.each([
         });
       });
 
-      it('loads and renders next items in connection', () => {
+      it('loads and renders next items in connection', async () => {
         const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();
         const initialData = {
@@ -4566,7 +4562,7 @@ describe.each([
           },
           fetch_id: 'fetch:a',
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             data: initialData,
             hasNext: true,
@@ -4636,7 +4632,7 @@ describe.each([
             },
           },
         };
-        expectFragmentResults([
+        await expectFragmentResults([
           {
             // First update has updated connection
             data: expectedData,

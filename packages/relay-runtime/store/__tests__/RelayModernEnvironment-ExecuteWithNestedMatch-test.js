@@ -36,10 +36,9 @@ const nullthrows = require('nullthrows');
 const {
   cannotReadPropertyOfUndefined__DEPRECATED,
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() a query with nested @match', () => {
@@ -171,7 +170,7 @@ describe('execute() a query with nested @match', () => {
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
-  it('calls next() and publishes the initial payload to the store', () => {
+  it('calls next() and publishes the initial payload to the store', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -207,7 +206,7 @@ describe('execute() a query with nested @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(next.mock.calls.length).toBe(1);
     expect(complete).not.toBeCalled();
@@ -246,7 +245,7 @@ describe('execute() a query with nested @match', () => {
     });
   });
 
-  it('loads the @match fragments and normalizes/publishes payloads', () => {
+  it('loads the @match fragments and normalizes/publishes payloads', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -285,7 +284,7 @@ describe('execute() a query with nested @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
     next.mockClear();
 
     expect(operationLoader.load).toBeCalledTimes(1);
@@ -310,7 +309,7 @@ describe('execute() a query with nested @match', () => {
     environment.subscribe(initialOuterMatchSnapshot, outerMatchCallback);
 
     resolveFragment(markdownRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
     // next() should not be called when @match resolves, no new GraphQLResponse
     // was received for this case
     expect(next).toBeCalledTimes(0);
@@ -353,7 +352,7 @@ describe('execute() a query with nested @match', () => {
     environment.subscribe(initialInnerMatchSnapshot, innerMatchCallback);
 
     resolveFragment(plaintextRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(innerMatchCallback).toBeCalledTimes(1);
     const innerMatchSnapshot = innerMatchCallback.mock.calls[0][0];
@@ -366,7 +365,7 @@ describe('execute() a query with nested @match', () => {
     });
   });
 
-  it('calls complete() if the network completes before processing the match', () => {
+  it('calls complete() if the network completes before processing the match', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -405,7 +404,7 @@ describe('execute() a query with nested @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
     dataSource.complete();
     expect(callbacks.complete).toBeCalledTimes(0);
     expect(callbacks.error).toBeCalledTimes(0);
@@ -416,7 +415,7 @@ describe('execute() a query with nested @match', () => {
       'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(callbacks.complete).toBeCalledTimes(0);
     expect(callbacks.error).toBeCalledTimes(0);
@@ -427,14 +426,14 @@ describe('execute() a query with nested @match', () => {
       'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(plaintextRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(callbacks.complete).toBeCalledTimes(1);
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
   });
 
-  it('calls complete() if the network completes after processing the match', () => {
+  it('calls complete() if the network completes after processing the match', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -473,14 +472,14 @@ describe('execute() a query with nested @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toBe(
       'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
     expect(callbacks.complete).toBeCalledTimes(0);
     expect(callbacks.error).toBeCalledTimes(0);
     expect(callbacks.next).toBeCalledTimes(1);
@@ -494,7 +493,7 @@ describe('execute() a query with nested @match', () => {
       'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(plaintextRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     dataSource.complete();
     expect(callbacks.complete).toBeCalledTimes(1);
@@ -502,7 +501,7 @@ describe('execute() a query with nested @match', () => {
     expect(callbacks.next).toBeCalledTimes(1);
   });
 
-  it('calls error() if processing a nested match payload throws', () => {
+  it('calls error() if processing a nested match payload throws', async () => {
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -553,7 +552,7 @@ describe('execute() a query with nested @match', () => {
       // incorrectly still get reasonable error handling
       return Promise.resolve({} as any);
     });
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(callbacks.error).toBeCalledTimes(1);
     expect(callbacks.error.mock.calls[0][0].message).toBe(
@@ -561,7 +560,7 @@ describe('execute() a query with nested @match', () => {
     );
   });
 
-  it('cancels @match processing if unsubscribed before top-level match resolves', () => {
+  it('cancels @match processing if unsubscribed before top-level match resolves', async () => {
     const subscription = environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -598,7 +597,7 @@ describe('execute() a query with nested @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     next.mockClear();
     complete.mockClear();
@@ -611,7 +610,7 @@ describe('execute() a query with nested @match', () => {
     // Cancel before the fragment resolves; normalization should be skipped
     subscription.unsubscribe();
     resolveFragment(markdownRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(operationCallback).toBeCalledTimes(1);
     // result shape tested above
@@ -633,7 +632,7 @@ describe('execute() a query with nested @match', () => {
     });
   });
 
-  it('cancels @match processing if unsubscribed before inner match resolves', () => {
+  it('cancels @match processing if unsubscribed before inner match resolves', async () => {
     const subscription = environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -672,7 +671,7 @@ describe('execute() a query with nested @match', () => {
       },
     };
     dataSource.next(payload);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     next.mockClear();
     complete.mockClear();
@@ -683,12 +682,12 @@ describe('execute() a query with nested @match', () => {
       'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     // Cancel before the inner fragment resolves; normalization should be skipped
     subscription.unsubscribe();
     resolveFragment(plaintextRendererNormalizationFragment);
-    jest.runAllTimers();
+    await flushMicrotasks();
 
     expect(operationCallback).toBeCalledTimes(1);
     // result shape tested above

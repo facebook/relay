@@ -48,20 +48,19 @@ const {
   disallowWarnings,
   expectToWarn,
   expectWarningWillFire,
-  injectPromisePolyfill__DEPRECATED,
+  flushAsyncWork,
+  flushMicrotasks,
 } = jest.requireActual('relay-test-utils-internal') as $FlowFixMe;
-
-injectPromisePolyfill__DEPRECATED();
 
 const defaultFetchPolicy = 'network-only';
 
-function expectToBeRendered(
+async function expectToBeRendered(
   renderFn: JestMockFn<ReadonlyArray<any>, any>,
   readyState: ?SelectorData,
 ) {
   // Ensure useEffect is called before other timers
-  ReactTestRenderer.act(() => {
-    jest.runAllImmediates();
+  await ReactTestRenderer.act(async () => {
+    await flushMicrotasks();
   });
   expect(renderFn).toBeCalledTimes(1);
   expect(renderFn.mock.calls[0][0]).toEqual(readyState);
@@ -223,7 +222,7 @@ beforeEach(() => {
   renderFn = jest.fn((result: any) => result?.node?.name ?? 'Empty');
 });
 
-it('fetches and renders the query data', () => {
+it('fetches and renders the query data', async () => {
   const instance = render(environment, <Container variables={variables} />);
 
   expect(instance?.toJSON()).toEqual('Fallback');
@@ -232,7 +231,7 @@ it('fetches and renders the query data', () => {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.retain).toHaveBeenCalledTimes(1);
 
-  ReactTestRenderer.act(() => {
+  await ReactTestRenderer.act(async () => {
     environment.mock.resolve(gqlQuery, {
       data: {
         node: {
@@ -242,15 +241,15 @@ it('fetches and renders the query data', () => {
         },
       },
     });
-    jest.runAllImmediates();
+    await flushMicrotasks();
   });
 
   const data = environment.lookup(query.fragment).data;
   // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
-  expectToBeRendered(renderFn, data);
+  await expectToBeRendered(renderFn, data);
 });
 
-it('subscribes to query fragment results and preserves object identity', () => {
+it('subscribes to query fragment results and preserves object identity', async () => {
   const instance = render(environment, <Container variables={variables} />);
 
   expect(instance?.toJSON()).toEqual('Fallback');
@@ -269,15 +268,15 @@ it('subscribes to query fragment results and preserves object identity', () => {
     },
   });
 
-  ReactTestRenderer.act(() => {
-    jest.runAllImmediates();
+  await ReactTestRenderer.act(async () => {
+    await flushMicrotasks();
   });
   expect(renderFn).toBeCalledTimes(1);
   const prevData = renderFn.mock.calls[0][0];
   expect(prevData.node.name).toBe('Alice');
   renderFn.mockClear();
-  ReactTestRenderer.act(() => {
-    jest.runAllImmediates();
+  await ReactTestRenderer.act(async () => {
+    await flushMicrotasks();
   });
 
   ReactTestRenderer.act(() => {
@@ -297,7 +296,7 @@ it('subscribes to query fragment results and preserves object identity', () => {
   expect(nextData.node.__fragments).toBe(prevData.node.__fragments);
 });
 
-it('fetches and renders correctly even if fetched query data still has missing data', () => {
+it('fetches and renders correctly even if fetched query data still has missing data', async () => {
   // This scenario might happen if for example we are making selections on
   // abstract types which the concrete type doesn't implement
 
@@ -327,10 +326,10 @@ it('fetches and renders correctly even if fetched query data still has missing d
 
   const data = environment.lookup(query.fragment).data;
   // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
-  expectToBeRendered(renderFn, data);
+  await expectToBeRendered(renderFn, data);
 });
 
-it('fetches and renders correctly if component unmounts before it can commit', () => {
+it('fetches and renders correctly if component unmounts before it can commit', async () => {
   const payload = {
     data: {
       node: {
@@ -361,9 +360,12 @@ it('fetches and renders correctly if component unmounts before it can commit', (
 
   // Running all immediates makes sure all useEffects run and GC isn't
   // Triggered by mistake
-  ReactTestRenderer.act(() => jest.runAllImmediates());
+  await ReactTestRenderer.act(() => flushMicrotasks());
   // Trigger timeout and GC to clear all references
-  ReactTestRenderer.act(() => jest.runAllTimers());
+  // GC scheduling uses resolveImmediate (microtask), so we need to flush
+  await ReactTestRenderer.act(async () => {
+    await flushAsyncWork();
+  });
   // Verify GC has run
   expect(environment.getStore().getSource().toJSON()).toEqual({});
 
@@ -387,10 +389,10 @@ it('fetches and renders correctly if component unmounts before it can commit', (
 
   const data = environment.lookup(query.fragment).data;
   // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
-  expectToBeRendered(renderFn, data);
+  await expectToBeRendered(renderFn, data);
 });
 
-it('fetches and renders correctly when switching between queries', () => {
+it('fetches and renders correctly when switching between queries', async () => {
   // Render the component
   const initialQuery = createOperationDescriptor(gqlQuery, {
     id: 'first-render',
@@ -463,16 +465,16 @@ it('fetches and renders correctly when switching between queries', () => {
       },
     },
   };
-  ReactTestRenderer.act(() => {
+  await ReactTestRenderer.act(async () => {
     environment.mock.resolve(gqlQuery, payload);
-    jest.runAllImmediates();
+    await flushMicrotasks();
   });
   const data = environment.lookup(query.fragment).data;
   expect(renderFn.mock.calls[0][0]).toEqual(data);
   expect(instance?.toJSON()).toEqual('Alice');
 });
 
-it('fetches and renders correctly when re-mounting the same query (even if GC runs synchronously)', () => {
+it('fetches and renders correctly when re-mounting the same query (even if GC runs synchronously)', async () => {
   const store = new Store(new RecordSource(), {
     gcReleaseBufferSize: 0,
     gcScheduler: run => run(),
@@ -496,7 +498,7 @@ it('fetches and renders correctly when re-mounting the same query (even if GC ru
   environment.execute.mockClear();
   renderFn.mockClear();
 
-  ReactTestRenderer.act(() => {
+  await ReactTestRenderer.act(async () => {
     environment.mock.resolve(gqlQuery, {
       data: {
         node: {
@@ -506,21 +508,21 @@ it('fetches and renders correctly when re-mounting the same query (even if GC ru
         },
       },
     });
-    jest.runAllImmediates();
+    await flushMicrotasks();
   });
 
   const data = environment.lookup(query.fragment).data;
   // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
-  expectToBeRendered(renderFn, data);
+  await expectToBeRendered(renderFn, data);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.retain).toHaveBeenCalledTimes(1);
   renderFn.mockClear();
 
-  ReactTestRenderer.act(() => {
+  await ReactTestRenderer.act(async () => {
     // Pass a new key to force a re-mount
     setProps({variables});
     setKey(1);
-    jest.runAllImmediates();
+    await flushMicrotasks();
   });
 
   // Assert that GC doesn't run since the query doesn't
@@ -534,12 +536,12 @@ it('fetches and renders correctly when re-mounting the same query (even if GC ru
 
   // Expect to still be able to render the same data
   // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
-  expectToBeRendered(renderFn, data);
+  await expectToBeRendered(renderFn, data);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.retain).toHaveBeenCalledTimes(1);
 });
 
-it('disposes the temporary retain when the component is re-rendered and switches to another query', () => {
+it('disposes the temporary retain when the component is re-rendered and switches to another query', async () => {
   // Render the component
   const instance = render(
     environment,
@@ -555,7 +557,7 @@ it('disposes the temporary retain when the component is re-rendered and switches
   environment.execute.mockClear();
   renderFn.mockClear();
 
-  ReactTestRenderer.act(() => {
+  await ReactTestRenderer.act(async () => {
     environment.mock.resolve(gqlQuery, {
       data: {
         node: {
@@ -565,12 +567,12 @@ it('disposes the temporary retain when the component is re-rendered and switches
         },
       },
     });
-    jest.runAllImmediates();
+    await flushMicrotasks();
   });
 
   const data = environment.lookup(query.fragment).data;
   // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
-  expectToBeRendered(renderFn, data);
+  await expectToBeRendered(renderFn, data);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.retain).toHaveBeenCalledTimes(1);
   renderFn.mockClear();
@@ -590,7 +592,7 @@ it('disposes the temporary retain when the component is re-rendered and switches
 
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toHaveBeenCalledTimes(1);
-  ReactTestRenderer.act(() => {
+  await ReactTestRenderer.act(async () => {
     environment.mock.resolve(gqlQuery, {
       data: {
         node: {
@@ -600,7 +602,7 @@ it('disposes the temporary retain when the component is re-rendered and switches
         },
       },
     });
-    jest.runAllImmediates();
+    await flushMicrotasks();
   });
 
   // Variables were changed and the retain for the previous query
@@ -608,7 +610,7 @@ it('disposes the temporary retain when the component is re-rendered and switches
   expect(release).toHaveBeenCalledTimes(1);
 });
 
-it('does not cancel ongoing network request when component unmounts while suspended', () => {
+it('does not cancel ongoing network request when component unmounts while suspended', async () => {
   const initialVariables = {id: 'first-render'};
   const initialQuery = createOperationDescriptor(gqlQuery, initialVariables);
   environment.commitPayload(initialQuery, {
@@ -661,7 +663,7 @@ it('does not cancel ongoing network request when component unmounts while suspen
   );
 });
 
-it('does not cancel ongoing network request when component unmounts after committing', () => {
+it('does not cancel ongoing network request when component unmounts after committing', async () => {
   const instance = render(environment, <Container variables={variables} />);
 
   expect(instance?.toJSON()).toEqual('Fallback');
@@ -684,7 +686,7 @@ it('does not cancel ongoing network request when component unmounts after commit
   // Assert that the component unsuspended and mounted
   const data = environment.lookup(query.fragment).data;
   // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
-  expectToBeRendered(renderFn, data);
+  await expectToBeRendered(renderFn, data);
 
   // Assert request was created
   expect(environment.mock.isLoading(query.request.node, variables, {})).toEqual(
@@ -703,7 +705,7 @@ it('does not cancel ongoing network request when component unmounts after commit
   );
 });
 
-it('does not cancel network request when temporarily retained component that never commits is disposed of after timeout', () => {
+it('does not cancel network request when temporarily retained component that never commits is disposed of after timeout', async () => {
   const instance = render(environment, <Container variables={variables} />);
 
   expect(instance?.toJSON()).toEqual('Fallback');
@@ -715,14 +717,17 @@ it('does not cancel network request when temporarily retained component that nev
     instance?.unmount();
   });
   // Resolve a payload but don't complete the network request
-  environment.mock.nextValue(gqlQuery, {
-    data: {
-      node: {
-        __typename: 'User',
-        id: variables.id,
-        name: 'Alice',
+  await ReactTestRenderer.act(async () => {
+    environment.mock.nextValue(gqlQuery, {
+      data: {
+        node: {
+          __typename: 'User',
+          id: variables.id,
+          name: 'Alice',
+        },
       },
-    },
+    });
+    await flushMicrotasks();
   });
   // Assert request in created
   expect(environment.mock.isLoading(query.request.node, variables, {})).toEqual(
@@ -730,8 +735,8 @@ it('does not cancel network request when temporarily retained component that nev
   );
 
   // Trigger releasing of the temporary retain
-  ReactTestRenderer.act(() => {
-    jest.runAllTimers();
+  await ReactTestRenderer.act(async () => {
+    await flushAsyncWork();
   });
   // Assert data is released
   expect(release).toBeCalledTimes(1);
@@ -762,7 +767,7 @@ describe('with @defer and re-rendering', () => {
     query = createOperationDescriptor(gqlQuery, variables);
   });
 
-  it.skip('should handle errors ', () => {
+  it.skip('should handle errors ', async () => {
     const instance = render(
       environment,
       <Container key={0} variables={variables} />,
@@ -781,10 +786,10 @@ describe('with @defer and re-rendering', () => {
 
     // force re-rendering of the component, to read from the QueryResource
     // by default, error responses do not trigger react updates
-    ReactTestRenderer.act(() => {
+    await ReactTestRenderer.act(async () => {
       setProps({variables});
       setKey(1);
-      jest.runAllImmediates();
+      await flushMicrotasks();
     });
 
     // This time, error boundary will render the error
@@ -792,7 +797,7 @@ describe('with @defer and re-rendering', () => {
     expect(renderFn).not.toBeCalled();
   });
 
-  it('should render the query with defer payloads without errors for defer payloads', () => {
+  it('should render the query with defer payloads without errors for defer payloads', async () => {
     const instance = render(
       environment,
       <Container key={0} variables={variables} />,
@@ -801,7 +806,7 @@ describe('with @defer and re-rendering', () => {
     expect(instance?.toJSON()).toEqual('Fallback');
     expect(renderFn).not.toBeCalled();
 
-    ReactTestRenderer.act(() => {
+    await ReactTestRenderer.act(async () => {
       environment.mock.nextValue(query, {
         data: {
           node: {
@@ -810,22 +815,26 @@ describe('with @defer and re-rendering', () => {
           },
         },
       });
+      await flushMicrotasks();
     });
 
     const data = environment.lookup(query.fragment).data;
 
     // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
-    expectToBeRendered(renderFn, data);
+    await expectToBeRendered(renderFn, data);
 
     expect(errorBoundaryDidCatchFn).not.toBeCalled();
 
     const payloadError = new Error('Invalid Payload');
-    expectToWarn(
-      'QueryResource: An incremental payload for query `useLazyLoadQueryNodeTest1Query` returned an error: `Invalid Payload`.',
-      () => {
-        environment.mock.reject(query, payloadError);
-      },
-    );
+    await ReactTestRenderer.act(async () => {
+      expectToWarn(
+        'QueryResource: An incremental payload for query `useLazyLoadQueryNodeTest1Query` returned an error: `Invalid Payload`.',
+        () => {
+          environment.mock.reject(query, payloadError);
+        },
+      );
+      await flushMicrotasks();
+    });
 
     // force re-rendering of the component, to read from the QueryResource
     // by default, error responses do not trigger react updates
@@ -839,12 +848,12 @@ describe('with @defer and re-rendering', () => {
 
     // and we also should re-render the same view as for the initial response
     // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
-    expectToBeRendered(renderFn, data);
+    await expectToBeRendered(renderFn, data);
   });
 });
 
 describe('partial rendering', () => {
-  it('does not suspend at the root if query does not have direct data dependencies', () => {
+  it('does not suspend at the root if query does not have direct data dependencies', async () => {
     const gqlFragment = graphql`
       fragment useLazyLoadQueryNodeTestRootFragment on Query {
         node(id: $id) {
@@ -910,7 +919,7 @@ describe('partial rendering', () => {
     });
 
     // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
-    expectToBeRendered(renderFn, {
+    await expectToBeRendered(renderFn, {
       node: {
         id: variables.id,
         name: 'Alice',
@@ -920,7 +929,7 @@ describe('partial rendering', () => {
 });
 
 describe('logging', () => {
-  test.skip('simple fetch', () => {
+  test.skip('simple fetch', async () => {
     render(environment, <Container variables={variables} />);
 
     environment.mock.resolve(gqlQuery, {
@@ -933,8 +942,8 @@ describe('logging', () => {
       },
     });
 
-    ReactTestRenderer.act(() => {
-      jest.runAllImmediates();
+    await ReactTestRenderer.act(async () => {
+      await flushMicrotasks();
     });
 
     expect(logs).toMatchObject([
@@ -997,7 +1006,7 @@ describe('logging', () => {
     ]);
   });
 
-  test.skip('log when switching queries', () => {
+  test.skip('log when switching queries', async () => {
     const initialVariables = {id: 'first-render'};
     const variablesOne = {id: '1'};
     const variablesTwo = {id: '2'};
@@ -1033,7 +1042,7 @@ describe('logging', () => {
       setProps({variables: variablesOne});
     });
 
-    ReactTestRenderer.act(() => {
+    await ReactTestRenderer.act(async () => {
       const queryOne = createOperationDescriptor(gqlQuery, variablesOne);
       const payload = {
         data: {
@@ -1045,7 +1054,7 @@ describe('logging', () => {
         },
       };
       environment.mock.resolve(queryOne, payload);
-      jest.runAllImmediates();
+      await flushMicrotasks();
     });
 
     expect(logs).toMatchObject([

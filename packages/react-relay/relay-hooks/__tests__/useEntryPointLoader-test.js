@@ -17,12 +17,7 @@ import type {IEnvironment} from 'relay-runtime/store/RelayStoreTypes';
 const useEntryPointLoader = require('../useEntryPointLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {
-  createMockEnvironment,
-  injectPromisePolyfill__DEPRECATED,
-} = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 let loadedEntryPoint;
 let instance;
@@ -170,7 +165,7 @@ afterEach(() => {
   jest.dontMock('scheduler');
 });
 
-it('does not dispose the entry point before the new component tree unsuspends in concurrent mode', () => {
+it('does not dispose the entry point before the new component tree unsuspends in concurrent mode', async () => {
   if (typeof React.startTransition === 'function') {
     let resolve;
     let resolved = false;
@@ -244,18 +239,17 @@ it('does not dispose the entry point before the new component tree unsuspends in
     // currentDispose will have been called in non-concurrent mode
     expect(currentDispose).not.toHaveBeenCalled();
 
-    ReactTestRenderer.act(() => {
+    await ReactTestRenderer.act(async () => {
       /* $FlowFixMe[constant-condition] Error discovered during Constant
        * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       resolve && resolve();
-      jest.runAllImmediates();
     });
 
     expect(currentDispose).toHaveBeenCalled();
   }
 });
 
-it('disposes entry point references associated with previous suspensions when multiple state changes trigger suspense and the final suspension concludes', () => {
+it('disposes entry point references associated with previous suspensions when multiple state changes trigger suspense and the final suspension concludes', async () => {
   // Three state changes and calls to loadEntryPoint: A, B, C, each causing suspense
   // When C unsuspends, A and B's entry points are disposed.
 
@@ -348,9 +342,8 @@ it('disposes entry point references associated with previous suspensions when mu
     expect(firstDispose).not.toHaveBeenCalled();
     expect(secondDispose).not.toHaveBeenCalled();
 
-    ReactTestRenderer.act(() => {
+    await ReactTestRenderer.act(async () => {
       resolve();
-      jest.runAllImmediates();
     });
     expect(firstDispose).toHaveBeenCalledTimes(1);
     expect(secondDispose).toHaveBeenCalledTimes(1);
@@ -358,7 +351,7 @@ it('disposes entry point references associated with previous suspensions when mu
   }
 });
 
-it('disposes entry point references associated with subsequent suspensions when multiple state changes trigger suspense and the initial suspension concludes', () => {
+it('disposes entry point references associated with subsequent suspensions when multiple state changes trigger suspense and the initial suspension concludes', async () => {
   // Three state changes and calls to loadEntryPoint: A, B, C, each causing suspense
   // When A unsuspends, B and C's entry points do not get disposed.
 
@@ -448,9 +441,8 @@ it('disposes entry point references associated with subsequent suspensions when 
     });
     const thirdDispose = dispose;
 
-    ReactTestRenderer.act(() => {
+    await ReactTestRenderer.act(async () => {
       resolve();
-      jest.runAllImmediates();
     });
     expect(innerUnsuspendedCorrectly).toEqual(true);
     expect(firstDispose).not.toHaveBeenCalled();
@@ -471,7 +463,7 @@ it('should dispose of prior entry points if the callback is called multiple time
   expect(firstDispose).toHaveBeenCalledTimes(1);
 });
 
-it('should dispose of entry points on unmount if the callback is called, the component suspends and then unmounts', () => {
+it('should dispose of entry points on unmount if the callback is called, the component suspends and then unmounts', async () => {
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});
@@ -498,7 +490,6 @@ it('should dispose of entry points on unmount if the callback is called, the com
   ReactTestRenderer.act(() => {
     outerInstance = ReactTestRenderer.create(<Outer />);
   });
-  ReactTestRenderer.act(() => jest.runAllImmediates());
   expect(renderCount).toEqual(1);
   ReactTestRenderer.act(() => {
     entryPointLoaderCallback({});

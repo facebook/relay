@@ -23,10 +23,9 @@ const {ROOT_ID} = require('../RelayStoreUtils');
 const {graphql} = require('relay-runtime');
 const {
   disallowWarnings,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('retain()', () => {
@@ -85,7 +84,7 @@ describe('retain()', () => {
     });
   });
 
-  it('releases data when disposed', () => {
+  it('releases data when disposed', async () => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = environment.retain(operation);
     const selector = createReaderSelector(
@@ -102,7 +101,7 @@ describe('retain()', () => {
         name: 'Zuck',
       },
     });
-    jest.runAllTimers();
+    await flushMicrotasks();
     // After GC runs data is missing
     expect(environment.lookup(selector).data).toBe(undefined);
   });

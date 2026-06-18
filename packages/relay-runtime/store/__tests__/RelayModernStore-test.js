@@ -50,11 +50,9 @@ const {
 } = require('../RelayStoreUtils');
 const {
   createMockEnvironment,
-  injectPromisePolyfill__DEPRECATED,
+  flushMicrotasks,
   simpleClone,
 } = require('relay-test-utils-internal');
-
-injectPromisePolyfill__DEPRECATED();
 
 function assertIsDeeplyFrozen(value: ?{...} | ?ReadonlyArray<{...}>): void {
   if (!value) {
@@ -190,26 +188,26 @@ function cloneEventWithSets(event: LogEvent) {
           `;
         });
 
-        it('prevents data from being collected', () => {
+        it('prevents data from being collected', async () => {
           store.retain(
             createOperationDescriptor(UserQuery, {id: '4', size: 32}),
           );
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
         });
 
-        it('frees data when disposed', () => {
+        it('frees data when disposed', async () => {
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           const {dispose} = store.retain(
             createOperationDescriptor(UserQuery, {id: '4', size: 32}),
           );
           dispose();
           expect(data).toEqual(initialData);
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual({});
         });
 
-        it('only collects unreferenced data', () => {
+        it('only collects unreferenced data', async () => {
           const JoeQuery = graphql`
             query RelayModernStoreTestJoeQuery($id: ID!) {
               ...RelayModernStoreTestJoeFragment @arguments(id: $id)
@@ -246,7 +244,7 @@ function cloneEventWithSets(event: LogEvent) {
           store.retain(createOperationDescriptor(JoeQuery, {id: '842472'}));
 
           dispose(); // release one of the holds but not the other
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(nextSource.toJSON());
         });
       });
@@ -2217,23 +2215,23 @@ function cloneEventWithSets(event: LogEvent) {
           `;
         });
 
-        it('keeps the data retained in the release buffer after released by caller', () => {
+        it('keeps the data retained in the release buffer after released by caller', async () => {
           const disposable = store.retain(
             createOperationDescriptor(UserQuery, {id: '4', size: 32}),
           );
 
-          jest.runAllTimers();
+          await flushMicrotasks();
           // Assert data is not collected
           expect(source.toJSON()).toEqual(initialData);
 
           // Assert data is still not collected since it's still
           // retained in the release buffer
           disposable.dispose();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
         });
 
-        it('immediately releases disposed items that are stale', () => {
+        it('immediately releases disposed items that are stale', async () => {
           let fetchTime = Date.now();
           jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
@@ -2242,7 +2240,7 @@ function cloneEventWithSets(event: LogEvent) {
             size: 32,
           });
           const disposable = store.retain(operation);
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
 
           store.publish(source);
@@ -2252,13 +2250,13 @@ function cloneEventWithSets(event: LogEvent) {
           // released and garbage collection scheduled, as the operation is stale.
           fetchTime += QUERY_CACHE_EXPIRATION_TIME;
           disposable.dispose();
-          jest.runAllTimers();
+          await flushMicrotasks();
 
           // After gc and immediate removal, the store is empty.
           expect(source.toJSON()).toEqual({});
         });
 
-        it('keeps published data retained in the release buffer if the data is not stale', () => {
+        it('keeps published data retained in the release buffer if the data is not stale', async () => {
           let fetchTime = Date.now();
           jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
@@ -2267,7 +2265,7 @@ function cloneEventWithSets(event: LogEvent) {
             size: 32,
           });
           const disposable = store.retain(operation);
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
 
           store.publish(source);
@@ -2276,18 +2274,18 @@ function cloneEventWithSets(event: LogEvent) {
           // The operation is not stale, therefore it will not be disposed when released.
           fetchTime += QUERY_CACHE_EXPIRATION_TIME - 1;
           disposable.dispose();
-          jest.runAllTimers();
+          await flushMicrotasks();
 
           // The item is retained in the release buffer, and not released from the source.
           expect(source.toJSON()).toEqual(initialData);
         });
 
-        it('keeps the data retained in the release buffer after double-released by caller', () => {
+        it('keeps the data retained in the release buffer after double-released by caller', async () => {
           const disposable = store.retain(
             createOperationDescriptor(UserQuery, {id: '4', size: 32}),
           );
 
-          jest.runAllTimers();
+          await flushMicrotasks();
           // Assert data is not collected
           expect(source.toJSON()).toEqual(initialData);
 
@@ -2295,31 +2293,31 @@ function cloneEventWithSets(event: LogEvent) {
           // retained in the release buffer
           disposable.dispose();
           disposable.dispose(); // <-- Dispose should be idempotent
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
         });
 
-        it('releases the operation and collects data after release buffer reaches capacity', () => {
+        it('releases the operation and collects data after release buffer reaches capacity', async () => {
           let fetchTime = Date.now();
           jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
           const disposable = store.retain(
             createOperationDescriptor(UserQuery, {id: '4', size: 32}),
           );
-          jest.runAllTimers();
+          await flushMicrotasks();
           // Assert data is not collected
           expect(source.toJSON()).toEqual(initialData);
 
           // Assert data is still not collected since it's still
           // retained in the release buffer
           disposable.dispose();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
 
           const disposable2 = store.retain(
             createOperationDescriptor(UserQuery, {id: '5', size: 32}),
           );
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
 
           // Releasing second operation should cause release buffer to
@@ -2329,7 +2327,7 @@ function cloneEventWithSets(event: LogEvent) {
           // TTL for all operations has passed
           fetchTime += QUERY_CACHE_EXPIRATION_TIME;
 
-          jest.runAllTimers();
+          await flushMicrotasks();
           // Assert that the data for the first operation is collected, while
           // data for second operation is still retained via the release buffer
           expect(source.toJSON()).toEqual({
@@ -2353,40 +2351,40 @@ function cloneEventWithSets(event: LogEvent) {
           });
         });
 
-        it('when same operation retained multiple times, data is only collected until fully released from buffer', () => {
+        it('when same operation retained multiple times, data is only collected until fully released from buffer', async () => {
           let fetchTime = Date.now();
           jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
           const disposable = store.retain(
             createOperationDescriptor(UserQuery, {id: '4', size: 32}),
           );
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
 
           // Retain the same operation again
           const disposable2 = store.retain(
             createOperationDescriptor(UserQuery, {id: '4', size: 32}),
           );
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
 
           // Retain different operation
           const disposable3 = store.retain(
             createOperationDescriptor(UserQuery, {id: '5', size: 32}),
           );
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
 
           // Assert data is still not collected since it's still
           // retained in the release buffer
           disposable.dispose();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
 
           // Assert data is still not collected since it's still
           // retained in the release buffer via the equivalent operation
           disposable2.dispose();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
 
           // Releasing different operation should cause release buffer to
@@ -2396,7 +2394,7 @@ function cloneEventWithSets(event: LogEvent) {
           // TTL for all operations has passed
           fetchTime += QUERY_CACHE_EXPIRATION_TIME;
 
-          jest.runAllTimers();
+          await flushMicrotasks();
           // Assert that the data for the first operation is collected, while
           // data for secont operation is still retained via the release buffer
           expect(source.toJSON()).toEqual({
@@ -2420,7 +2418,7 @@ function cloneEventWithSets(event: LogEvent) {
           });
         });
 
-        it('does not free data if previously disposed query is retained again', () => {
+        it('does not free data if previously disposed query is retained again', async () => {
           // Disposing and re-retaining an operation should cause that query to *not* count
           // toward the release buffer capacity.
           store = new RelayModernStore(source, {
@@ -2442,13 +2440,13 @@ function cloneEventWithSets(event: LogEvent) {
 
           // Retain and immediately release: this will be the first item in the release buffer
           const disposable = store.retain(operation1);
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
           disposable.dispose();
 
           // Retain a second operation
           const disposable2 = store.retain(operation2);
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
           disposable2.dispose();
 
@@ -2457,13 +2455,13 @@ function cloneEventWithSets(event: LogEvent) {
 
           // Retain and release a third operation
           const disposable3 = store.retain(operation3);
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
           disposable3.dispose();
 
           // One of the disposed operations was retained again before the buffer size
           // was exceeded, so no data needs to be freed.
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
         });
       });
@@ -2682,7 +2680,7 @@ function cloneEventWithSets(event: LogEvent) {
           `;
         });
 
-        it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {
+        it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', async () => {
           const gcHold = store.holdGC();
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           const {dispose} = store.retain(
@@ -2690,10 +2688,10 @@ function cloneEventWithSets(event: LogEvent) {
           );
           dispose();
           expect(data).toEqual(initialData);
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual(initialData);
           gcHold.dispose();
-          jest.runAllTimers();
+          await flushMicrotasks();
           expect(source.toJSON()).toEqual({});
         });
       });

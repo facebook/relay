@@ -437,6 +437,14 @@ export interface StoreSubscriptions {
    * returns the number of subscriptions
    */
   size(): number;
+
+  /**
+   * Adds every record id read by an active subscription's latest snapshot
+   * (`seenRecords`) into `references`. Used by the store GC so that a record a
+   * live reader still depends on is not collected, even if the operation that
+   * originally retained it has been released.
+   */
+  markActiveSubscriptionRecords(references: DataIDSet): void;
 }
 
 /**

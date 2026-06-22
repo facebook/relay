@@ -263,6 +263,14 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
   size(): number {
     return this._subscriptions.size;
   }
+
+  markActiveSubscriptionRecords(references: DataIDSet): void {
+    this._subscriptions.forEach(subscription => {
+      subscription.snapshot.seenRecords.forEach(dataID => {
+        references.add(dataID);
+      });
+    });
+  }
 }
 
 module.exports = RelayStoreSubscriptions;

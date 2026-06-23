@@ -1,8 +1,10 @@
 ---
 name: relay-e2e-test
-oncalls: ['relay']
 description: Write and run markdown-driven e2e tests for Relay. Covers fixture format, server/client code patterns, interaction DSL, snapshots, and running tests.
 allowed-tools: Bash, Read, Edit, Write, AskUserQuestion, mcp__plugin_meta_mux__search_files
+metadata:
+  oncalls: ['relay']
+  strict: true
 ---
 
 # Relay E2E Tests

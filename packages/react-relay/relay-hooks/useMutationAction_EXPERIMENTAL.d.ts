@@ -5,8 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {GraphQLTaggedNode, MutationParameters, VariablesOf} from 'relay-runtime';
+import {GraphQLTaggedNode, OperationType, VariablesOf} from 'relay-runtime';
 
-export function useMutationAction_EXPERIMENTAL<TMutation extends MutationParameters>(
+// Constrained to `OperationType` (response: unknown), not `MutationParameters`
+// (response: Record<string, unknown>): the Flow source places no constraint on
+// the response/`TData`, and the stricter bag rejects `@catch` mutations whose
+// response is a `Result<…>` union. This also matches the other modern hooks.
+export function useMutationAction_EXPERIMENTAL<TMutation extends OperationType>(
     mutation: GraphQLTaggedNode,
 ): (variables: VariablesOf<TMutation>) => Promise<TMutation['response']>;

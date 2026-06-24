@@ -5,7 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+pub(crate) mod catchable_node;
+mod validation_message;
+
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use ::intern::string_key::StringKey;
 use common::ArgumentName;
@@ -25,9 +29,6 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::associated_data_impl;
 use intern::intern;
-use lazy_static::lazy_static;
-pub(crate) mod catchable_node;
-mod validation_message;
 
 use self::catchable_node::CatchMetadata;
 use self::catchable_node::CatchableNode;
@@ -36,12 +37,11 @@ use crate::REQUIRED_DIRECTIVE_NAME;
 use crate::catch_directive::validation_message::ValidationMessage;
 use crate::catch_directive::validation_message::ValidationMessageWithData;
 
-lazy_static! {
-    pub static ref CATCH_DIRECTIVE_NAME: DirectiveName = DirectiveName(intern!("catch"));
-    pub static ref NULL_TO: StringKey = intern!("NULL");
-    pub static ref RESULT_TO: StringKey = intern!("RESULT");
-    pub static ref TO_ARGUMENT: ArgumentName = ArgumentName(intern!("to"));
-}
+pub static CATCH_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName(intern!("catch")));
+pub static NULL_TO: LazyLock<StringKey> = LazyLock::new(|| intern!("NULL"));
+pub static RESULT_TO: LazyLock<StringKey> = LazyLock::new(|| intern!("RESULT"));
+pub static TO_ARGUMENT: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName(intern!("to")));
 
 // Possible @catch `to` enum values ordered by severity.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Debug, Hash)]

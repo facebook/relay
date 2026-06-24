@@ -7,6 +7,7 @@
 
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use ::intern::Lookup;
 use ::intern::intern;
@@ -37,7 +38,6 @@ use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
-use lazy_static::lazy_static;
 use md5::Digest;
 use md5::Md5;
 use relay_config::JsModuleFormat;
@@ -102,15 +102,13 @@ use crate::ast::ResolverModuleReference;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
 
-lazy_static! {
-    pub static ref THROW_ON_FIELD_ERROR_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("throwOnFieldError".intern());
-    pub static ref EXEC_TIME_RESOLVERS: DirectiveName =
-        DirectiveName("exec_time_resolvers".intern());
-    static ref EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT: ArgumentName =
-        ArgumentName("enabledProvider".intern());
-    static ref FRAGMENT_KEY: StringKey = "fragment".intern();
-}
+pub static THROW_ON_FIELD_ERROR_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));
+pub static EXEC_TIME_RESOLVERS: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("exec_time_resolvers".intern()));
+static EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("enabledProvider".intern()));
+static FRAGMENT_KEY: LazyLock<StringKey> = LazyLock::new(|| "fragment".intern());
 
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,

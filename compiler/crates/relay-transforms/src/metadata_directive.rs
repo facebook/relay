@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::ArgumentName;
 use common::DirectiveName;
 use common::Location;
@@ -14,12 +16,9 @@ use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Value;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 
-lazy_static! {
-    pub static ref INTERNAL_METADATA_DIRECTIVE: DirectiveName =
-        DirectiveName("__metadata".intern());
-}
+pub static INTERNAL_METADATA_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("__metadata".intern()));
 
 /// Creates a directive that is used during codegen to generate a "metadata"
 /// key in the generated AST.

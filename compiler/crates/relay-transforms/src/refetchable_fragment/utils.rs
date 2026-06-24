@@ -6,6 +6,7 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::ArgumentName;
 use common::Diagnostic;
@@ -27,7 +28,6 @@ use graphql_ir::VariableDefinition;
 use graphql_ir::associated_data_impl;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 
 use super::validation_message::ValidationMessage;
 use crate::extract_connection_metadata_from_directive;
@@ -57,16 +57,14 @@ pub struct Constants {
     pub viewer_type_name: StringKey,
 }
 
-lazy_static! {
-    pub static ref CONSTANTS: Constants = Constants {
-        fetchable: DirectiveName("fetchable".intern()),
-        field_name: ArgumentName("field_name".intern()),
-        node_field_name: "node".intern(),
-        node_type_name: "Node".intern(),
-        viewer_field_name: "viewer".intern(),
-        viewer_type_name: "Viewer".intern(),
-    };
-}
+pub static CONSTANTS: LazyLock<Constants> = LazyLock::new(|| Constants {
+    fetchable: DirectiveName("fetchable".intern()),
+    field_name: ArgumentName("field_name".intern()),
+    node_field_name: "node".intern(),
+    node_type_name: "Node".intern(),
+    viewer_field_name: "viewer".intern(),
+    viewer_type_name: "Viewer".intern(),
+});
 
 pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
     Selection::FragmentSpread(Arc::new(FragmentSpread {

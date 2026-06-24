@@ -15,11 +15,12 @@
 //!
 //! The resulting schema is the base schema with all references to exclude-defined items removed.
 
+use std::sync::LazyLock;
+
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
-use lazy_static::lazy_static;
 
 use crate::SchemaSet;
 use crate::SetArgument;
@@ -39,9 +40,7 @@ use crate::schema_set::SetDirectiveValue;
 use crate::schema_set::SetRootSchema;
 use crate::schema_set::StringKeyNamed;
 
-lazy_static! {
-    static ref EMPTY_STRING_KEY_SET: StringKeySet = StringKeySet::default();
-}
+static EMPTY_STRING_KEY_SET: LazyLock<StringKeySet> = LazyLock::new(StringKeySet::default);
 
 impl SchemaSet {
     /// Removes references from this schema to items that are *defined* in the exclude schema.

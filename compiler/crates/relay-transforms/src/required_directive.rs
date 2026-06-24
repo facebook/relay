@@ -11,6 +11,7 @@ mod validation_message;
 use std::borrow::Cow;
 use std::mem;
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::ArgumentName;
 use common::Diagnostic;
@@ -38,7 +39,6 @@ use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
-use lazy_static::lazy_static;
 use requireable_field::RequireableField;
 use requireable_field::RequiredMetadata;
 use schema::Schema;
@@ -48,20 +48,19 @@ use self::validation_message::RequiredDirectiveValidationMessageWithData;
 use crate::DirectiveFinder;
 use crate::FragmentAliasMetadata;
 
-lazy_static! {
-    pub static ref REQUIRED_DIRECTIVE_NAME: DirectiveName = DirectiveName("required".intern());
-    pub static ref ACTION_ARGUMENT: ArgumentName = ArgumentName("action".intern());
-    pub static ref CHILDREN_CAN_BUBBLE_METADATA_KEY: DirectiveName =
-        DirectiveName("__childrenCanBubbleNull".intern());
-    pub static ref THROW_ACTION: StringKey = "THROW".intern();
-    static ref LOG_ACTION: StringKey = "LOG".intern();
-    static ref NONE_ACTION: StringKey = "NONE".intern();
-    static ref DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD_ACTION: StringKey =
-        "DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD".intern();
-    static ref INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("inline".intern());
-    static ref SEMANTIC_NON_NULL_DIRECTIVE: DirectiveName =
-        DirectiveName("semanticNonNull".intern());
-}
+pub static REQUIRED_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("required".intern()));
+pub static ACTION_ARGUMENT: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("action".intern()));
+pub static CHILDREN_CAN_BUBBLE_METADATA_KEY: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("__childrenCanBubbleNull".intern()));
+pub static THROW_ACTION: LazyLock<StringKey> = LazyLock::new(|| "THROW".intern());
+static LOG_ACTION: LazyLock<StringKey> = LazyLock::new(|| "LOG".intern());
+static NONE_ACTION: LazyLock<StringKey> = LazyLock::new(|| "NONE".intern());
+static DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD_ACTION: LazyLock<StringKey> =
+    LazyLock::new(|| "DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD".intern());
+static INLINE_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("inline".intern()));
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RequiredMetadataDirective {

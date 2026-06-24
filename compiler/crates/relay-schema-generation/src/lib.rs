@@ -18,6 +18,7 @@ use std::collections::hash_map::Entry;
 use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
+use std::sync::LazyLock;
 
 use ::errors::try_all;
 use ::intern::Lookup;
@@ -83,7 +84,6 @@ use hermes_parser::ParserDialect;
 use hermes_parser::ParserFlags;
 use hermes_parser::parse;
 use indexmap::IndexMap;
-use lazy_static::lazy_static;
 use relay_config::CustomType;
 use relay_config::CustomTypeImport;
 use relay_docblock::Argument;
@@ -1443,11 +1443,12 @@ fn generated_token() -> Token {
     }
 }
 
-lazy_static! {
-    static ref FLOW_PRIMATIVES: HashSet<&'static str> = HashSet::from([
+static FLOW_PRIMATIVES: LazyLock<HashSet<&str>> = LazyLock::new(|| {
+    HashSet::from([
         "boolean", "string", "number", "null", "void", "symbol", "bigint",
-    ]);
-}
+    ])
+});
+
 fn invert_custom_scalar_map(
     custom_scalar_types: &FnvIndexMap<ScalarName, CustomType>,
 ) -> DiagnosticsResult<FnvIndexMap<CustomType, ScalarName>> {

@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -25,7 +27,6 @@ use graphql_ir::Value;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use regex::Regex;
 use schema::EnumValue;
 use schema::Field;
@@ -37,19 +38,19 @@ use crate::DIRECTIVE_SPLIT_OPERATION;
 use crate::ValidationMessage;
 use crate::create_metadata_directive;
 
-lazy_static! {
-    pub static ref TEST_OPERATION_DIRECTIVE: DirectiveName =
-        DirectiveName("relay_test_operation".intern());
-    static ref TEST_OPERATION_METADATA_KEY: ArgumentName =
-        ArgumentName("relayTestingSelectionTypeInfo".intern());
-    static ref ENUM_VALUES_KEY: ArgumentName = ArgumentName("enumValues".intern());
-    static ref NULLABLE_KEY: ArgumentName = ArgumentName("nullable".intern());
-    static ref PLURAL_KEY: ArgumentName = ArgumentName("plural".intern());
-    static ref TYPE_KEY: ArgumentName = ArgumentName("type".intern());
-    static ref DO_NOT_USE_USE_IN_PRODUCTION_ARG: ArgumentName =
-        ArgumentName("DO_NOT_USE_use_in_production".intern());
-    pub static ref EMIT_RAW_TEXT_ARG: ArgumentName = ArgumentName("emitRawText".intern());
-}
+pub static TEST_OPERATION_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("relay_test_operation".intern()));
+static TEST_OPERATION_METADATA_KEY: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("relayTestingSelectionTypeInfo".intern()));
+static ENUM_VALUES_KEY: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("enumValues".intern()));
+static NULLABLE_KEY: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName("nullable".intern()));
+static PLURAL_KEY: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName("plural".intern()));
+static TYPE_KEY: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName("type".intern()));
+static DO_NOT_USE_USE_IN_PRODUCTION_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("DO_NOT_USE_use_in_production".intern()));
+pub static EMIT_RAW_TEXT_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("emitRawText".intern()));
 
 /// Transforms the @relay_test_operation directive to @__metadata thats printed
 /// as runtime data during codegen.

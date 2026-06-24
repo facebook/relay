@@ -20,7 +20,6 @@ graphql-ir = { path = "../graphql-ir" }
 indexmap = { version = "2.14.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 itertools = "0.15.0"
-lazy_static = "1.5"
 relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }

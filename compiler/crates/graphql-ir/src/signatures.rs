@@ -7,6 +7,7 @@
 
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use ::intern::Lookup;
 use ::intern::intern;
@@ -22,7 +23,6 @@ use common::SourceLocationKey;
 use common::WithLocation;
 use errors::par_try_map;
 use errors::try3;
-use lazy_static::lazy_static;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -48,14 +48,12 @@ use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::VariableDefinition;
 use crate::ir::alias_arg_as;
 
-lazy_static! {
-    static ref TYPE: StringKey = "type".intern();
-    static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
-    static ref PROVIDER: StringKey = "provider".intern();
-    pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: DirectiveName =
-        DirectiveName("unusedLocalVariable_DEPRECATED".intern());
-    static ref DIRECTIVES: StringKey = "directives".intern();
-}
+static TYPE: LazyLock<StringKey> = LazyLock::new(|| "type".intern());
+static DEFAULT_VALUE: LazyLock<StringKey> = LazyLock::new(|| "defaultValue".intern());
+static PROVIDER: LazyLock<StringKey> = LazyLock::new(|| "provider".intern());
+pub static UNUSED_LOCAL_VARIABLE_DEPRECATED: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("unusedLocalVariable_DEPRECATED".intern()));
+static DIRECTIVES: LazyLock<StringKey> = LazyLock::new(|| "directives".intern());
 
 pub type FragmentSignatures = FragmentDefinitionNameMap<FragmentSignature>;
 

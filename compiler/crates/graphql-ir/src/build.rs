@@ -7,6 +7,7 @@
 
 use core::cmp::Ordering;
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
 use common::ArgumentName;
 use common::Diagnostic;
@@ -36,7 +37,6 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
-use lazy_static::lazy_static;
 use schema::ArgumentDefinitions;
 use schema::Enum;
 use schema::FieldID;
@@ -59,20 +59,20 @@ use crate::signatures::FragmentSignatures;
 use crate::signatures::ProvidedVariableMetadata;
 use crate::signatures::build_signatures;
 
-lazy_static! {
-    static ref TYPENAME_FIELD_NAME: StringKey = "__typename".intern();
-    static ref FETCH_TOKEN_FIELD_NAME: StringKey = "__token".intern();
+static TYPENAME_FIELD_NAME: LazyLock<StringKey> = LazyLock::new(|| "__typename".intern());
+static FETCH_TOKEN_FIELD_NAME: LazyLock<StringKey> = LazyLock::new(|| "__token".intern());
 
-    /// Relay extension field that's available on all types.
-    static ref CLIENT_ID_FIELD_NAME: StringKey = "__id".intern();
-    static ref MATCH_NAME: DirectiveName = DirectiveName("match".intern());
-    static ref SUPPORTED_NAME: StringKey = "supported".intern();
+/// Relay extension field that's available on all types.
+static CLIENT_ID_FIELD_NAME: LazyLock<StringKey> = LazyLock::new(|| "__id".intern());
+static MATCH_NAME: LazyLock<DirectiveName> = LazyLock::new(|| DirectiveName("match".intern()));
+static SUPPORTED_NAME: LazyLock<StringKey> = LazyLock::new(|| "supported".intern());
 
-    pub static ref FIXME_FAT_INTERFACE: DirectiveName = DirectiveName("fixme_fat_interface".intern());
+pub static FIXME_FAT_INTERFACE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("fixme_fat_interface".intern()));
 
-    static ref DIRECTIVE_UNCHECKED_ARGUMENTS: StringKey = "uncheckedArguments_DEPRECATED".intern();
-    pub static ref DIRECTIVE_ARGUMENTS: StringKey = "arguments".intern();
-}
+static DIRECTIVE_UNCHECKED_ARGUMENTS: LazyLock<StringKey> =
+    LazyLock::new(|| "uncheckedArguments_DEPRECATED".intern());
+pub static DIRECTIVE_ARGUMENTS: LazyLock<StringKey> = LazyLock::new(|| "arguments".intern());
 
 /// The semantic of defining variables on a fragment definition.
 #[derive(Copy, Clone, PartialEq)]

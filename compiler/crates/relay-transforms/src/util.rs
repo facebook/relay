@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::DirectiveName;
 use graphql_ir::ARGUMENT_DEFINITION;
 use graphql_ir::Argument;
@@ -17,7 +19,6 @@ use graphql_ir::VariableName;
 use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use regex::Regex;
 use schema::SDLSchema;
 use schema::Schema;
@@ -86,8 +87,8 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
     }
 }
 
-lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 21] = [
+static CUSTOM_METADATA_DIRECTIVES: LazyLock<[DirectiveName; 21]> = LazyLock::new(|| {
+    [
         *CATCH_DIRECTIVE_NAME,
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
@@ -109,8 +110,11 @@ lazy_static! {
         FragmentAliasMetadata::directive_name(),
         *RAW_TEXT_DIRECTIVE_NAME,
         ShadowReturnMarker::directive_name(),
-    ];
-    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [DirectiveName; 11] = [
+    ]
+});
+
+static DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: LazyLock<[DirectiveName; 11]> = LazyLock::new(|| {
+    [
         *CATCH_DIRECTIVE_NAME,
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
@@ -125,19 +129,27 @@ lazy_static! {
         // field; it must not affect field identity so the generic spread-derived
         // `page { id __typename }` merges with the transplanted consumer copy.
         ShadowReturnMarker::directive_name(),
-    ];
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [DirectiveName; 7] = [
-        *CLIENT_EXTENSION_DIRECTIVE_NAME,
-        ModuleMetadata::directive_name(),
-        InlineDirectiveMetadata::directive_name(),
-        ClientEdgeMetadataDirective::directive_name(),
-        DirectiveName("defer".intern()),
-        FragmentAliasMetadata::directive_name(),
-        RelayResolverMetadata::directive_name(),
-    ];
-    static ref VALID_PROVIDED_VARIABLE_NAME: Regex = Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap();
-    pub static ref INTERNAL_RELAY_VARIABLES_PREFIX: StringKey = "__relay_internal".intern();
-}
+    ]
+});
+
+static RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: LazyLock<[DirectiveName; 7]> =
+    LazyLock::new(|| {
+        [
+            *CLIENT_EXTENSION_DIRECTIVE_NAME,
+            ModuleMetadata::directive_name(),
+            InlineDirectiveMetadata::directive_name(),
+            ClientEdgeMetadataDirective::directive_name(),
+            DirectiveName("defer".intern()),
+            FragmentAliasMetadata::directive_name(),
+            RelayResolverMetadata::directive_name(),
+        ]
+    });
+
+static VALID_PROVIDED_VARIABLE_NAME: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap());
+
+pub static INTERNAL_RELAY_VARIABLES_PREFIX: LazyLock<StringKey> =
+    LazyLock::new(|| "__relay_internal".intern());
 
 pub struct CustomMetadataDirectives;
 

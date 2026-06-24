@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
@@ -14,13 +16,11 @@ use graphql_ir::Program;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use schema::Schema;
 
-lazy_static! {
-    pub static ref RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE: DirectiveName =
-        DirectiveName("__belongs_to_base_schema".intern());
-}
+pub static RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("__belongs_to_base_schema".intern()));
+
 /// This transform removes the given list of base fragments from the Program.
 /// This is useful if earlier steps need access to fragments from some base
 /// project, but we don't want to write output files for them and can skip over

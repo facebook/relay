@@ -6,6 +6,7 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::ArgumentName;
 use common::Diagnostic;
@@ -42,7 +43,6 @@ use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
-use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
 use relay_schema::definitions::ResolverType;
 use schema::DirectiveValue;
@@ -65,14 +65,15 @@ use crate::relay_resolvers::ResolverInfo;
 use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::relay_resolvers::get_resolver_info;
 
-lazy_static! {
-    // This gets attached to the generated query
-    pub static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
-    pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
-    pub static ref CLIENT_EDGE_SOURCE_NAME: ArgumentName = ArgumentName("clientEdgeSourceDocument".intern());
-    pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
-    pub static ref EXEC_TIME_RESOLVERS_DIRECTIVE_NAME: DirectiveName = DirectiveName("exec_time_resolvers".intern());
-}
+// This gets attached to the generated query
+pub static QUERY_NAME_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("queryName".intern()));
+pub static CLIENT_EDGE_SOURCE_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("clientEdgeSourceDocument".intern()));
+pub static CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("waterfall".intern()));
+pub static EXEC_TIME_RESOLVERS_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("exec_time_resolvers".intern()));
 
 /// Directive added to inline fragments created by the transform. The inline
 /// fragment groups together the client edge's backing field as well as a linked

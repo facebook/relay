@@ -47,16 +47,14 @@ macro_rules! intern {
 #[macro_export]
 macro_rules! make_intern {
     ($name:ident as $alias:ident) => {
-        use lazy_static::lazy_static;
         use $crate::Intern;
         use $crate::InternKey;
         use $crate::InternTable;
         use $crate::RawInternKey;
 
-        lazy_static! {
-            /// Global interning table for this type
-            static ref INTERN_TABLE: InternTable<$alias, $name> = InternTable::new();
-        }
+        /// Global interning table for this type
+        static INTERN_TABLE: std::sync::LazyLock<InternTable<$alias, $name>> =
+            std::sync::LazyLock::new(InternTable::new);
 
         /// Wrapper type for the intern key
         #[derive(Copy, Clone, Debug, Eq, Ord, Hash, PartialEq, PartialOrd)]

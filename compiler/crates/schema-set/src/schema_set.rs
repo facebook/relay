@@ -7,6 +7,7 @@
 
 use std::collections::BTreeMap;
 use std::fmt;
+use std::sync::LazyLock;
 
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -32,7 +33,6 @@ use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
-use lazy_static::lazy_static;
 use program_with_dependencies::ProgramWithDependencies;
 use schema::ArgumentValue;
 use schema::DirectiveValue;
@@ -67,11 +67,9 @@ use crate::set_exclude::SetExclude;
 use crate::set_merges::Merges;
 use crate::set_merges::MergesFromAbstractDefinition;
 
-lazy_static! {
-    static ref QUERY: StringKey = "Query".intern();
-    static ref SUBSCRIPTION: StringKey = "Subscription".intern();
-    static ref MUTATION: StringKey = "Mutation".intern();
-}
+static QUERY: LazyLock<StringKey> = LazyLock::new(|| "Query".intern());
+static SUBSCRIPTION: LazyLock<StringKey> = LazyLock::new(|| "Subscription".intern());
+static MUTATION: LazyLock<StringKey> = LazyLock::new(|| "Mutation".intern());
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SchemaSet {

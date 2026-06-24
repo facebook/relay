@@ -1096,6 +1096,158 @@ mod test {
         );
     }
 
+    #[tokio::test]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    async fn test_restart_signals_detects_config_change() {
+        let tmp = tempfile::NamedTempFile::new().expect("create tempfile");
+        std::fs::write(tmp.path(), b"original config").expect("write tempfile");
+
+        let signals = DaemonRestartSignals::try_capture(tmp.path(), None)
+            .expect("config file exists, capture should succeed");
+
+        // No change → no restart reason.
+        assert!(
+            signals.check().await.is_none(),
+            "fresh signals should report no change"
+        );
+
+        // Bump bytes + mtime so the cheap (mtime,size) pre-filter is
+        // forced through to the hash comparison.
+        std::fs::write(tmp.path(), b"different config bytes").expect("rewrite tempfile");
+        set_mtime_in_future(tmp.path());
+
+        match signals.check().await {
+            Some(RestartReason::ConfigChanged {
+                path,
+                before,
+                after,
+            }) => {
+                assert_eq!(path, tmp.path());
+                assert_ne!(before, after, "hashes must differ when content differs");
+            }
+            other => panic!("expected ConfigChanged, got {other:?}"),
+        }
+    }
+
+    /// Pre-filter must fall through to the hash comparison when mtime
+    /// drifts but content is identical (e.g. `touch` of an unchanged
+    /// file, or a build-system tag that bumps mtime without rewriting).
+    /// If this regresses (e.g. the pre-filter starts returning `None`
+    /// based on mtime alone, or the hash comparison gets inverted), the
+    /// daemon will spuriously restart on every `touch` of the config
+    /// file. Existing tests cover the "both content AND mtime changed"
+    /// path; this one specifically exercises the "mtime changed but
+    /// content didn't" case the pre-filter is designed to handle.
+    #[tokio::test]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    async fn test_restart_signals_mtime_bump_without_content_change() {
+        let tmp = tempfile::NamedTempFile::new().expect("create tempfile");
+        std::fs::write(tmp.path(), b"stable content").expect("write tempfile");
+        let signals = DaemonRestartSignals::try_capture(tmp.path(), None).expect("capture");
+
+        // Bump only mtime; bytes unchanged. The pre-filter sees the
+        // mtime drift and falls through to the hash comparison, which
+        // sees the bytes match and returns `None`.
+        set_mtime_in_future(tmp.path());
+
+        assert!(
+            signals.check().await.is_none(),
+            "mtime drift without content change must fall through pre-filter \
+             to hash compare and return None — otherwise daemon restarts \
+             spuriously on every `touch` of the config file"
+        );
+    }
+
+    #[tokio::test]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    async fn test_restart_signals_detects_binary_change() {
+        let config = tempfile::NamedTempFile::new().expect("create config tempfile");
+        std::fs::write(config.path(), b"config").expect("write config");
+
+        let binary = tempfile::NamedTempFile::new().expect("create binary tempfile");
+        std::fs::write(binary.path(), b"binary v1").expect("write binary");
+
+        let signals =
+            DaemonRestartSignals::try_capture(config.path(), Some(binary.path().to_owned()))
+                .expect("capture should succeed");
+
+        assert!(signals.check().await.is_none(), "no drift yet");
+
+        // Simulate a deploy under the running daemon by bumping mtime.
+        set_mtime_in_future(binary.path());
+
+        match signals.check().await {
+            Some(RestartReason::BinaryChanged { path }) => assert_eq!(path, binary.path()),
+            other => panic!("expected BinaryChanged, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn test_restart_signals_missing_config_returns_none() {
+        // Pointing at a path that doesn't exist must not panic — production
+        // tests and `from_string_for_test` rely on this behavior to silently
+        // disable restart detection for virtual config paths.
+        let signals = DaemonRestartSignals::try_capture(
+            Path::new("/definitely/does/not/exist/relay-restart-test.json"),
+            None,
+        );
+        assert!(signals.is_none(), "missing file should disable detection");
+    }
+
+    #[tokio::test]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    async fn test_check_restart_if_daemon_gating() {
+        // SingleProjectConfigFile → Config gives us a Config with
+        // `daemon_build_status = None` and `restart_signals = None` (the
+        // virtual config path doesn't exist on disk). We mutate the two
+        // relevant fields to cover the three combinations.
+        let mut config: Config = SingleProjectConfigFile::default().into();
+
+        let tmp = tempfile::NamedTempFile::new().expect("create tempfile");
+        std::fs::write(tmp.path(), b"orig").expect("write tempfile");
+
+        // Case 1: daemon_build_status = None → never report a restart.
+        config.restart_signals = DaemonRestartSignals::try_capture(tmp.path(), None);
+        assert!(
+            config.check_restart_if_daemon().await.is_none(),
+            "non-daemon mode must never report a restart"
+        );
+
+        // Case 2: daemon mode, no signals → no restart.
+        config.daemon_build_status = Some(Arc::new(BuildStatus::new(
+            Box::new(ConsoleStatusReporter::new(PathBuf::from("/tmp"), false)),
+            PathBuf::from("/tmp"),
+            false,
+        )));
+        config.restart_signals = None;
+        assert!(
+            config.check_restart_if_daemon().await.is_none(),
+            "daemon mode without signals must not report a restart"
+        );
+
+        // Case 3: daemon mode + signals that will fire → Some(reason).
+        config.restart_signals = DaemonRestartSignals::try_capture(tmp.path(), None);
+        std::fs::write(tmp.path(), b"different bytes here").expect("rewrite tempfile");
+        set_mtime_in_future(tmp.path());
+        match config.check_restart_if_daemon().await {
+            Some(RestartReason::ConfigChanged { .. }) => {}
+            other => panic!("expected ConfigChanged, got {other:?}"),
+        }
+    }
+
+    /// Force `path`'s mtime forward so tests aren't sensitive to the host
+    /// filesystem's mtime resolution (some FSes round to 1s).
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    fn set_mtime_in_future(path: &Path) {
+        use std::time::Duration;
+        let f = std::fs::OpenOptions::new()
+            .write(true)
+            .open(path)
+            .expect("open for mtime bump");
+        f.set_modified(SystemTime::now() + Duration::from_secs(10))
+            .expect("set_modified");
+    }
+
     #[test]
     fn test_unify_roots() {
         assert_eq!(unify_roots(vec![]).len(), 0);

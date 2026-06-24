@@ -665,3 +665,118 @@ impl StatusReporter for JSONStatusReporter {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn fresh_build_status() -> BuildStatus {
+        BuildStatus::new(
+            Box::new(ConsoleStatusReporter::new(PathBuf::from("/tmp"), false)),
+            PathBuf::from("/tmp"),
+            false,
+        )
+    }
+
+    /// `take_restart_reason` must consume so the `server_daemon` select
+    /// arm only fires the "Daemon restarting" path once per restart.
+    #[test]
+    fn test_restart_reason_round_trip_and_consume() {
+        let bs = fresh_build_status();
+        assert!(
+            bs.take_restart_reason().is_none(),
+            "fresh BuildStatus has no restart reason"
+        );
+
+        bs.restart_initiated("ConfigChanged { path: /tmp/r.json }".to_string());
+        assert_eq!(
+            bs.take_restart_reason().as_deref(),
+            Some("ConfigChanged { path: /tmp/r.json }"),
+            "first take returns the initiated reason verbatim"
+        );
+        assert!(
+            bs.take_restart_reason().is_none(),
+            "second take must return None — `server_daemon::start_server`'s \
+             `compiler_handle` select arm depends on this to distinguish a \
+             planned restart from an unrelated compiler exit"
+        );
+    }
+
+    /// `restart_initiated` is allowed to be called twice (last-writer-wins);
+    /// this isn't load-bearing for the production flow but pinning the
+    /// behavior prevents surprises if someone refactors the Mutex
+    /// semantics later.
+    #[test]
+    fn test_restart_reason_last_writer_wins() {
+        let bs = fresh_build_status();
+        bs.restart_initiated("first".to_string());
+        bs.restart_initiated("second".to_string());
+        assert_eq!(bs.take_restart_reason().as_deref(), Some("second"));
+    }
+
+    /// `daemon_restarting` stores a `BuildResult::Restarting` (NOT
+    /// `BuildResult::Errors`) so the daemon write handler maps it to an
+    /// `Info`-severity client message. If this regresses to `Errors`,
+    /// every planned restart will be surfaced to connected clients as a
+    /// failed build → `process::exit(1)` from `log_daemon_response`.
+    #[test]
+    fn test_daemon_restarting_stores_restarting_result() {
+        let bs = fresh_build_status();
+        bs.daemon_restarting("BinaryChanged { path: /tmp/r.bin }".to_string());
+        match bs.take_build_result() {
+            Some(BuildResult::Restarting(reason)) => {
+                assert_eq!(reason, "BinaryChanged { path: /tmp/r.bin }");
+            }
+            other => panic!(
+                "expected BuildResult::Restarting (so the handler maps it to \
+                 an Info-severity client message); got {other:?} — this would \
+                 surface to clients as a build failure"
+            ),
+        }
+    }
+
+    /// `daemon_restarting` must call `build_completed()` so any client
+    /// already blocked in `handle_write`'s `wait_for_idle().await` wakes
+    /// up and receives the `BuildResult::Restarting` info message —
+    /// instead of hanging on a dead `BuildStatus` until the daemon's
+    /// socket connection drops.
+    ///
+    /// **Test shape matters here.** A naive `changes_pending() →
+    /// daemon_restarting() → wait_for_idle().await` sequence passes
+    /// spuriously: by the time `wait_for_idle` runs, `is_building` is
+    /// already false (set by `build_completed()` inside `daemon_restarting`)
+    /// so the `if self.is_building.load(SeqCst)` guard short-circuits and
+    /// the `notified.await` branch is never exercised. That shape would
+    /// pass even if a refactor dropped the `notify_waiters()` call. To
+    /// actually pin the notify path, the waiter must reach
+    /// `notified.await` BEFORE `daemon_restarting` fires
+    /// `notify_waiters()` — hence spawn-the-waiter-then-yield.
+    #[tokio::test]
+    async fn test_daemon_restarting_unblocks_wait_for_idle() {
+        let bs = Arc::new(fresh_build_status());
+        bs.changes_pending();
+
+        let bs_clone = Arc::clone(&bs);
+        let waiter = tokio::spawn(async move { bs_clone.wait_for_idle().await });
+
+        // Sleep (not `yield_now`) so the spawned task is guaranteed to have
+        // reached `notified.await` and registered against
+        // `build_complete_notify`. A single `yield_now` is insufficient on
+        // multi-threaded runtimes; 20ms is overkill but the test still runs
+        // in <100ms total.
+        tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+
+        bs.daemon_restarting("ConfigChanged".to_string());
+
+        tokio::time::timeout(std::time::Duration::from_secs(1), waiter)
+            .await
+            .expect(
+                "wait_for_idle() must wake when daemon_restarting fires \
+                 notify_waiters(); if this times out, daemon_restarting \
+                 stopped calling build_completed() (or build_completed \
+                 stopped calling notify_waiters) and in-flight handle_write \
+                 callers will hang silently until the socket drops",
+            )
+            .expect("waiter task panicked");
+    }
+}

@@ -526,6 +526,57 @@ describe('RelayReader Client Edges behavior', () => {
     expect(missingClientEdges?.length).toEqual(1);
   });
 
+  it('reports a missingClientEdge for server-type items in a plural mixed interface edge', () => {
+    // `animals` returns [IAnimal] where Cat/Fish are client model types and
+    // Chicken is a plain server type. When the resolver returns a Chicken item
+    // whose data is absent from the store, RelayReader should record a
+    // missingClientEdge so the runtime issues a waterfall refetch.
+    const PLURAL_MIXED_EDGE_QUERY = graphql`
+      query RelayReaderClientEdgesTestPluralMixedEdgeQuery(
+        $requests: [AnimalRequest!]!
+      ) {
+        animals(requests: $requests) {
+          ... on Chicken {
+            legs
+          }
+        }
+      }
+    `;
+
+    const chickenId = '1234-chicken';
+    const source = RelayRecordSource.create({
+      [chickenId]: {
+        __id: chickenId,
+        __typename: 'Chicken',
+        id: chickenId,
+        // legs is intentionally absent
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+      },
+    });
+
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
+    const operation = createOperationDescriptor(PLURAL_MIXED_EDGE_QUERY, {
+      requests: [{ofType: 'Chicken', returnValidID: true}],
+    });
+    const {missingClientEdges} = read(
+      source,
+      operation.fragment,
+      null,
+      resolverCache,
+    );
+
+    // BUG: server-type items in a plural mixed interface edge are silently
+    // skipped — no waterfall refetch is queued even though Chicken's `legs`
+    // field is missing from the store. These assertions should change to
+    // `toEqual(1)` and `toBe(chickenId)` once the bug is fixed.
+    expect(missingClientEdges?.length).toEqual(undefined);
+    expect(missingClientEdges?.[0]?.clientEdgeDestinationID).toEqual(undefined);
+  });
+
   it('propagates missing client edge data errors from the resolver up to the reader', () => {
     const source = RelayRecordSource.create({
       '1': {

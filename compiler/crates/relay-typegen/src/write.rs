@@ -8,6 +8,7 @@
 use std::collections::HashSet;
 use std::fmt::Result as FmtResult;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use ::intern::Lookup;
 use ::intern::intern;
@@ -23,7 +24,6 @@ use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
 use indexmap::IndexMap;
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use relay_config::CustomTypeImport;
 use relay_config::JsModuleFormat;
 use relay_config::TypegenLanguage;
@@ -79,10 +79,8 @@ use crate::writer::Writer;
 
 pub(crate) type CustomScalarsImports = HashSet<(StringKey, PathBuf)>;
 
-lazy_static! {
-    static ref THROW_ON_FIELD_ERROR_DIRECTIVE: DirectiveName =
-        DirectiveName("throwOnFieldError".intern());
-}
+static THROW_ON_FIELD_ERROR_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));
 
 pub(crate) fn write_operation_type_exports_section(
     typegen_context: &'_ TypegenContext<'_>,

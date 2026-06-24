@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eb932a682f9bc6a5518f8eb007150460>>
+ * @generated SignedSource<<b51175ddbeb3a9fdc249b8f367d95c00>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -99,7 +99,14 @@ return {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "fetch_id",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "tracking",
             "storageKey": null
           },
           {
@@ -109,67 +116,46 @@ return {
                 "kind": "InlineFragment",
                 "selections": [
                   {
-                    "alias": null,
+                    "name": "description",
                     "args": null,
-                    "kind": "ScalarField",
-                    "name": "__typename",
-                    "storageKey": null
-                  },
-                  {
-                    "kind": "InlineFragment",
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "tracking",
-                        "storageKey": null
-                      }
-                    ],
-                    "type": "NonNodeStory",
-                    "abstractKey": null
-                  },
-                  {
-                    "kind": "InlineFragment",
-                    "selections": [
-                      {
-                        "name": "description",
-                        "args": null,
-                        "fragment": {
-                          "kind": "InlineFragment",
-                          "selections": [
-                            {
-                              "name": "__relay_model_instance",
-                              "args": null,
-                              "fragment": {
-                                "kind": "InlineFragment",
-                                "selections": [
-                                  (v2/*:: as any*/)
-                                ],
-                                "type": "Hovercraft",
-                                "abstractKey": null
-                              },
-                              "kind": "RelayResolver",
-                              "storageKey": null,
-                              "isOutputType": false
-                            }
-                          ],
-                          "type": "Hovercraft",
-                          "abstractKey": null
-                        },
-                        "kind": "RelayResolver",
-                        "storageKey": null,
-                        "isOutputType": true
-                      }
-                    ],
-                    "type": "Hovercraft",
-                    "abstractKey": null
+                    "fragment": {
+                      "kind": "InlineFragment",
+                      "selections": [
+                        {
+                          "name": "__relay_model_instance",
+                          "args": null,
+                          "fragment": {
+                            "kind": "InlineFragment",
+                            "selections": [
+                              (v2/*:: as any*/)
+                            ],
+                            "type": "Hovercraft",
+                            "abstractKey": null
+                          },
+                          "kind": "RelayResolver",
+                          "storageKey": null,
+                          "isOutputType": false
+                        }
+                      ],
+                      "type": "Hovercraft",
+                      "abstractKey": null
+                    },
+                    "kind": "RelayResolver",
+                    "storageKey": null,
+                    "isOutputType": true
                   }
                 ],
-                "type": "MixedVehicle",
-                "abstractKey": "__isMixedVehicle"
+                "type": "Hovercraft",
+                "abstractKey": null
               }
             ]
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "fetch_id",
+            "storageKey": null
           },
           (v2/*:: as any*/)
         ],
@@ -184,12 +170,12 @@ return {
     }
   },
   "params": {
-    "cacheID": "c1397634c7656d48f34636357ef3f3fb",
+    "cacheID": "9f8bbf314348d8b9641ed6abb6fc4fcb",
     "id": null,
     "metadata": {},
     "name": "ClientEdgeQuery_RelayResolverMixedUnionFetchableTestHovercraftQuery_mixed_vehicle",
     "operationKind": "query",
-    "text": "query ClientEdgeQuery_RelayResolverMixedUnionFetchableTestHovercraftQuery_mixed_vehicle(\n  $id: ID!\n) {\n  fetch__NonNodeStory(input_fetch_id: $id) {\n    ...RefetchableClientEdgeQuery_RelayResolverMixedUnionFetchableTestHovercraftQuery_mixed_vehicle\n    id\n  }\n}\n\nfragment RefetchableClientEdgeQuery_RelayResolverMixedUnionFetchableTestHovercraftQuery_mixed_vehicle on NonNodeStory {\n  fetch_id\n}\n"
+    "text": "query ClientEdgeQuery_RelayResolverMixedUnionFetchableTestHovercraftQuery_mixed_vehicle(\n  $id: ID!\n) {\n  fetch__NonNodeStory(input_fetch_id: $id) {\n    ...RefetchableClientEdgeQuery_RelayResolverMixedUnionFetchableTestHovercraftQuery_mixed_vehicle\n    id\n  }\n}\n\nfragment RefetchableClientEdgeQuery_RelayResolverMixedUnionFetchableTestHovercraftQuery_mixed_vehicle on NonNodeStory {\n  __typename\n  tracking\n  fetch_id\n}\n"
   }
 };
 })();

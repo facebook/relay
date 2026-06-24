@@ -22,11 +22,12 @@ mod set_merges;
 mod set_remove_defined_references;
 mod set_type_reference;
 
+use std::sync::LazyLock;
+
 use common::ArgumentName;
 use common::DirectiveName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use schema_coordinates::SchemaCoordinate;
 
 pub use crate::build_schema_document::ToSDLDefinition;
@@ -70,15 +71,16 @@ pub use crate::schema_set_collection_options::UsedSchemaCollectionOptions;
 pub use crate::set_type_reference::OutputNonNull;
 pub use crate::set_type_reference::OutputTypeReference;
 
-lazy_static! {
-    static ref SEMANTIC_NON_NULL: DirectiveName = DirectiveName("semanticNonNull".intern());
-    static ref SEMANTIC_NON_NULL_LEVELS_ARG: ArgumentName = ArgumentName("levels".intern());
+static SEMANTIC_NON_NULL: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("semanticNonNull".intern()));
+static SEMANTIC_NON_NULL_LEVELS_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("levels".intern()));
 
-    // GraphQL Spec built-in directives (https://spec.graphql.org/draft/#sec-Type-System.Directives.Built-in-Directives)
-    static ref DEPRECATED: DirectiveName = DirectiveName("deprecated".intern());
-    static ref SPECIFIED_BY: DirectiveName = DirectiveName("specifiedBy".intern());
-    static ref ONE_OF: DirectiveName = DirectiveName("oneOf".intern());
-}
+// GraphQL Spec built-in directives (https://spec.graphql.org/draft/#sec-Type-System.Directives.Built-in-Directives)
+static DEPRECATED: LazyLock<DirectiveName> = LazyLock::new(|| DirectiveName("deprecated".intern()));
+static SPECIFIED_BY: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("specifiedBy".intern()));
+static ONE_OF: LazyLock<DirectiveName> = LazyLock::new(|| DirectiveName("oneOf".intern()));
 
 fn is_graphql_builtin_directive(name: DirectiveName) -> bool {
     name == *DEPRECATED || name == *SPECIFIED_BY || name == *ONE_OF

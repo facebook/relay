@@ -6,6 +6,7 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::DirectiveName;
 use common::Location;
@@ -22,8 +23,8 @@ use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use schema::Schema;
+use schema::Type;
 
 use crate::ClientEdgeMetadata;
 
@@ -39,14 +40,16 @@ pub fn client_extensions(program: &Program) -> Program {
 
 type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
-lazy_static! {
-    pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("__clientExtension".intern());
-}
+pub static CLIENT_EXTENSION_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("__clientExtension".intern()));
 
 struct ClientExtensionsTransform<'program> {
     program: &'program Program,
     seen: Seen,
+    // Per-abstract-type cache: for each extension-type abstract type (Interface or
+    // Union), whether any concrete implementor is a server type. Lazily populated
+    // on first encounter so we only pay the schema walk once per type.
+    extension_type_has_server_implementor: FnvHashMap<Type, bool>,
 }
 
 impl<'program> ClientExtensionsTransform<'program> {
@@ -54,7 +57,36 @@ impl<'program> ClientExtensionsTransform<'program> {
         Self {
             program,
             seen: Default::default(),
+            extension_type_has_server_implementor: Default::default(),
         }
+    }
+
+    /// Returns true if `type_condition` is an abstract extension type that has at
+    /// least one server-type (non-extension) concrete implementor. Caches the
+    /// result per type so the schema walk runs at most once per abstract type.
+    fn extension_type_has_server_implementor(&mut self, type_condition: Type) -> bool {
+        let program = self.program; // copy the reference before the mutable borrow below
+        *self
+            .extension_type_has_server_implementor
+            .entry(type_condition)
+            .or_insert_with_key(|tc| match *tc {
+                Type::Interface(interface_id) => {
+                    let interface = program.schema.interface(interface_id);
+                    let implementing_objects =
+                        interface.recursively_implementing_objects(Arc::as_ref(&program.schema));
+                    implementing_objects
+                        .iter()
+                        .any(|object_id| !program.schema.object(*object_id).is_extension)
+                }
+                Type::Union(union_id) => {
+                    let union_ = program.schema.union(union_id);
+                    union_
+                        .members
+                        .iter()
+                        .any(|object_id| !program.schema.object(*object_id).is_extension)
+                }
+                _ => false,
+            })
     }
 
     fn transform_client_edge(
@@ -203,7 +235,38 @@ impl<'a> Transformer<'a> for ClientExtensionsTransform<'a> {
         if let Some(type_condition) = fragment.type_condition
             && self.program.schema.is_extension_type(type_condition)
         {
-            return Transformed::Delete;
+            // Only recurse into this extension-type inline fragment if the type has at
+            // least one server-type concrete implementor. This handles mixed-interface
+            // fragments like
+            // `... on IPerson { ... on DogPerson { pet { ... } }, ... on CatPerson { @resolver } }`
+            // where DogPerson is a server type: the DogPerson sub-fragment must survive
+            // so the normalizer writes those fields to the store from the server response.
+            // The outer client-abstract-type condition is stripped since the server does
+            // not know about client-defined types like IPerson.
+            //
+            // Pure client-extension types (all implementors are extension types) are
+            // deleted as before — recursing into those would alter their representation
+            // without benefit.
+            if !self.extension_type_has_server_implementor(type_condition) {
+                return Transformed::Delete;
+            }
+            let new_selections = match self.transform_selections(&fragment.selections) {
+                TransformedValue::Keep => fragment.selections.to_vec(),
+                TransformedValue::Replace(sels) => sels,
+            };
+            let has_server = new_selections.iter().any(|s| {
+                !matches!(s, Selection::InlineFragment(f) if
+                    f.directives.iter().any(|d| d.name.item == *CLIENT_EXTENSION_DIRECTIVE_NAME))
+            });
+            return if has_server {
+                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                    type_condition: None,
+                    selections: new_selections,
+                    ..fragment.clone()
+                })))
+            } else {
+                Transformed::Delete
+            };
         }
         self.default_transform_inline_fragment(fragment)
     }

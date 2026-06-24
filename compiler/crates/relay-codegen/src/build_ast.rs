@@ -7,6 +7,7 @@
 
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use ::intern::Lookup;
 use ::intern::intern;
@@ -37,7 +38,6 @@ use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
-use lazy_static::lazy_static;
 use md5::Digest;
 use md5::Md5;
 use relay_config::JsModuleFormat;
@@ -102,15 +102,13 @@ use crate::ast::ResolverModuleReference;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
 
-lazy_static! {
-    pub static ref THROW_ON_FIELD_ERROR_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("throwOnFieldError".intern());
-    pub static ref EXEC_TIME_RESOLVERS: DirectiveName =
-        DirectiveName("exec_time_resolvers".intern());
-    static ref EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT: ArgumentName =
-        ArgumentName("enabledProvider".intern());
-    static ref FRAGMENT_KEY: StringKey = "fragment".intern();
-}
+pub static THROW_ON_FIELD_ERROR_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));
+pub static EXEC_TIME_RESOLVERS: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("exec_time_resolvers".intern()));
+static EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("enabledProvider".intern()));
+static FRAGMENT_KEY: LazyLock<StringKey> = LazyLock::new(|| "fragment".intern());
 
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,
@@ -2024,6 +2022,18 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 };
                 Primitive::Key(self.object(obj))
             }
+            ClientEdgeMetadataDirective::StoreRefObject { .. } => {
+                // Pointer-design shadow resolver. No waterfall, no model
+                // resolvers: the consumer's selections were transplanted onto
+                // the shadowed server field in the main op, and the resolver
+                // returns a pointer (DataID) read off that record.
+                let obj = object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                    client_edge_backing_field_key: backing_field,
+                    client_edge_selections_key: selections_item,
+                };
+                Primitive::Key(self.object(obj))
+            }
             ClientEdgeMetadataDirective::ServerObject { query_name, .. } => {
                 // C2S (client-to-server) edges need to emit ClientEdgeToServerObject
                 // with the operation reference so the executor can trigger the waterfall fetch.
@@ -2192,6 +2202,29 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                              client_edge_backing_field_key: backing_field,
                              client_edge_selections_key: selections_item,
                          }))
+                 }
+             }
+
+             ClientEdgeMetadataDirective::StoreRefObject { .. } => {
+                 // Pointer-design shadow resolver. The resolver returns a pointer
+                 // (DataID) to an already-normalized record; the consumer reads
+                 // its selections off that record via a store-ref edge. There is
+                 // no waterfall, so we emit NO `serverObjectOperations` and NO
+                 // model resolvers. The `isStoreRefEdge` flag emitted here tells
+                 // the runtime to read the raw store id and push a null traversal
+                 // segment instead of fetching via a waterfall.
+                 if self.project_config.feature_flags.disable_resolver_reader_ast {
+                     selections_item
+                 } else {
+                     Primitive::Key(self.object(object! {
+                         kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                         concrete_type: Primitive::Null,
+                         is_store_ref_edge: Primitive::Bool(true),
+                         client_edge_model_resolvers: Primitive::Null,
+                         server_object_operations: Primitive::Null,
+                         client_edge_backing_field_key: backing_field,
+                         client_edge_selections_key: selections_item,
+                     }))
                  }
              }
          };

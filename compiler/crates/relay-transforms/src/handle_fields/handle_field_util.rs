@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::ArgumentName;
 use common::DirectiveName;
 use common::Location;
@@ -15,19 +17,20 @@ use graphql_ir::Directive;
 use graphql_ir::Value;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 
-lazy_static! {
-    pub static ref CONNECTION_HANDLER_ARG_NAME: ArgumentName = ArgumentName("handler".intern());
-    pub static ref HANDLE_FIELD_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("__clientField".intern());
-    pub static ref HANDLER_ARG_NAME: ArgumentName = ArgumentName("handle".intern());
-    pub static ref FILTERS_ARG_NAME: ArgumentName = ArgumentName("filters".intern());
-    pub static ref KEY_ARG_NAME: ArgumentName = ArgumentName("key".intern());
-    pub static ref DYNAMIC_KEY_ARG_NAME: ArgumentName =
-        ArgumentName("dynamicKey_UNSTABLE".intern());
-    static ref HANLDE_ARGS_NAME: ArgumentName = ArgumentName("handleArgs".intern());
-}
+pub static CONNECTION_HANDLER_ARG_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("handler".intern()));
+pub static HANDLE_FIELD_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("__clientField".intern()));
+pub static HANDLER_ARG_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("handle".intern()));
+pub static FILTERS_ARG_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("filters".intern()));
+pub static KEY_ARG_NAME: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName("key".intern()));
+pub static DYNAMIC_KEY_ARG_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("dynamicKey_UNSTABLE".intern()));
+static HANLDE_ARGS_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("handleArgs".intern()));
 
 pub struct HandleFieldDirectiveArgs<'s> {
     pub handler_arg: Option<(&'s Argument, &'s ConstantValue)>,

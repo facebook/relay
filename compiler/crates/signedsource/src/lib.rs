@@ -9,14 +9,14 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
+
 use md5::Digest;
 use md5::Md5;
 use regex::Regex;
 
-lazy_static! {
-    static ref RE: Regex = Regex::new("\x40generated (?:SignedSource<<([a-f0-9]{32})>>)").unwrap();
-}
+static RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new("\x40generated (?:SignedSource<<([a-f0-9]{32})>>)").unwrap());
 
 fn hash(data: &str) -> String {
     let mut md5 = Md5::new();

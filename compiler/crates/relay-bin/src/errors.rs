@@ -23,4 +23,8 @@ pub enum Error {
 
     #[error("Unable to run relay codemod. Error details: \n{details}")]
     CodemodError { details: String },
+
+    #[cfg(unix)]
+    #[error("Daemon command failed")]
+    DaemonCommandFailed,
 }

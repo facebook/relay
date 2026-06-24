@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+//- foo.js
+
+// `@__relay_shadow_return` is internal to the compiler (injected when it
+// converts a shadow resolver's `@returnFragment` placeholder before `build_ir`). A
+// product author must not be able to hand-write it: doing so would let them mint
+// the trusted shadow-return marker and bypass the `...ReturnFragment` authoring
+// form. The compiler rejects any user-authored occurrence.
+graphql`query fooQuery {
+  me @__relay_shadow_return(fragment: "Bar") {
+    id
+  }
+}`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+}
+==================================== OUTPUT ===================================
+✖︎ The `@__relay_shadow_return` directive is internal to the Relay compiler and cannot be used in source. Shadow resolver return data is marked by spreading the resolver's `@returnFragment` placeholder inside its `@rootFragment`; the compiler generates this directive automatically.
+
+  foo.js:8:7
+    7 │ query fooQuery {
+    8 │   me @__relay_shadow_return(fragment: "Bar") {
+      │       ^^^^^^^^^^^^^^^^^^^^^
+    9 │     id

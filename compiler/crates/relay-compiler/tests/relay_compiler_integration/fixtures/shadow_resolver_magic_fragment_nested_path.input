@@ -1,0 +1,63 @@
+//- UserCombinedPage.js
+// Path-preservation for the pointer-design "magic fragment" shadow resolver
+// (guards the D2 transplant fix).
+//
+// The resolver's @rootFragment does NOT navigate the shadowed server field
+// directly under the root. Instead it reaches the @returnFragment placeholder
+// through a NESTED linked field (`best_friend`):
+//
+//   User { best_friend { page { ...Return } } }
+//
+// The transplant must reproduce the WHOLE ancestor path in the main operation:
+// `best_friend { page { id __typename title } }`. The NESTING is preserved: the
+// consumer's `title` normalizes under `best_friend.page`, NOT hoisted to `me`
+// (which would fetch `page { title }` off the wrong record). This guards the D2
+// fix where `clone_shadowed_path` recurses through every ancestor LinkedField
+// instead of hoisting the shadowed field to the consumer's parent.
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  best_friend {
+    page {
+      ...UserCombinedPageReturnFragment
+    }
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, best_friend: User, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

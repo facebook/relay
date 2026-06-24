@@ -13,3 +13,8 @@ function live_generic_user(user: User): LiveState<Generic<User>> {}
 
 //extract
 function live_array_generic_optinal_user(user: User): LiveState<Array<Generic<?User>>> {}
+
+//extract
+function resolver_value_with_nested_unknown(
+  user: User,
+): RelayResolverValue<ReadonlyArray<AdsGenericFilter<unknown>>> {}

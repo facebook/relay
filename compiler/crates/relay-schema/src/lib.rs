@@ -13,6 +13,7 @@
 
 pub mod definitions;
 use std::iter::once;
+use std::sync::LazyLock;
 
 use ::intern::string_key::StringKey;
 use common::ArgumentName;
@@ -21,21 +22,21 @@ use common::DirectiveName;
 use common::SourceLocationKey;
 use graphql_syntax::SchemaDocument;
 use intern::intern;
-use lazy_static::lazy_static;
 use schema::ArgumentDefinitions;
 use schema::SDLSchema;
 use schema::TypeReference;
 
 const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
 
-lazy_static! {
-    static ref DEFER: DirectiveName = DirectiveName(intern!("defer"));
-    static ref STREAM: DirectiveName = DirectiveName(intern!("stream"));
-    static ref LABEL: ArgumentName = ArgumentName(intern!("label"));
-    pub static ref CUSTOM_SCALAR_DIRECTIVE_NAME: StringKey = intern!("__RelayCustomScalar");
-    pub static ref PATH_CUSTOM_SCALAR_ARGUMENT_NAME: StringKey = intern!("path");
-    pub static ref EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME: StringKey = intern!("export_name");
-}
+static DEFER: LazyLock<DirectiveName> = LazyLock::new(|| DirectiveName(intern!("defer")));
+static STREAM: LazyLock<DirectiveName> = LazyLock::new(|| DirectiveName(intern!("stream")));
+static LABEL: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName(intern!("label")));
+pub static CUSTOM_SCALAR_DIRECTIVE_NAME: LazyLock<StringKey> =
+    LazyLock::new(|| intern!("__RelayCustomScalar"));
+pub static PATH_CUSTOM_SCALAR_ARGUMENT_NAME: LazyLock<StringKey> =
+    LazyLock::new(|| intern!("path"));
+pub static EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME: LazyLock<StringKey> =
+    LazyLock::new(|| intern!("export_name"));
 
 pub fn build_schema_with_extensions_parallel<
     T: AsRef<str> + std::marker::Sync,

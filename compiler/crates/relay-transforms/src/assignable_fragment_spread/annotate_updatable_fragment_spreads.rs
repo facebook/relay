@@ -6,6 +6,7 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::DirectiveName;
 use common::Location;
@@ -18,14 +19,11 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 
 use crate::UPDATABLE_DIRECTIVE;
 
-lazy_static! {
-    pub static ref UPDATABLE_DIRECTIVE_FOR_TYPEGEN: DirectiveName =
-        DirectiveName("__updatable".intern());
-}
+pub static UPDATABLE_DIRECTIVE_FOR_TYPEGEN: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("__updatable".intern()));
 
 pub fn annotate_updatable_fragment_spreads(program: &Program) -> Program {
     let mut transform = AnnotateUpdatableFragmentSpreads { program };

@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+//- User_foo.js
+// Test that @returnFragment requires the resolver to have a @rootFragment.
+/**
+ * @relayField User.foo: RelayResolverValue
+ * @returnFragment UserFooExternalFragment
+ */
+
+//- UserFragment.js
+graphql`fragment UserFragment on User {
+  foo
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+==================================== OUTPUT ===================================
+✖︎ @returnFragment requires the resolver to define a @rootFragment. Resolvers with @returnFragment must read data from the graph using a root fragment.
+
+  User_foo.js:4:20
+    3 │  * @relayField User.foo: RelayResolverValue
+    4 │  * @returnFragment UserFooExternalFragment
+      │                    ^^^^^^^^^^^^^^^^^^^^^^^
+    5 │

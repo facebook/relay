@@ -7,11 +7,11 @@
 
 use std::collections::HashSet;
 use std::fmt;
+use std::sync::LazyLock;
 
 use common::InterfaceName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
 use rustc_hash::FxHashSet;
 use schema::SDLSchema;
@@ -250,10 +250,9 @@ impl SchemaChange {
     }
 }
 
-lazy_static! {
-    static ref JS_FIELD_KEY: StringKey = "js".intern();
-    static ref NODE_INTERFACE_KEY: InterfaceName = InterfaceName("Node".intern());
-}
+static JS_FIELD_KEY: LazyLock<StringKey> = LazyLock::new(|| "js".intern());
+static NODE_INTERFACE_KEY: LazyLock<InterfaceName> =
+    LazyLock::new(|| InterfaceName("Node".intern()));
 
 /// If the type has an `id` field and the type implements interfaces
 /// other than `Node`, then the change isn't safe:

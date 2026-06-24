@@ -19,7 +19,6 @@ flatbuffers = "25.12.19"
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = "1.5"
 ouroboros = "0.18.5"
 rayon = "1.11.0"
 rmp-serde = "1.3.1"

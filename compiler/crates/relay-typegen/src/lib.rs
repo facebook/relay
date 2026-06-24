@@ -18,6 +18,8 @@ mod visit;
 mod write;
 mod writer;
 
+use std::sync::LazyLock;
+
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::DirectiveName;
@@ -26,7 +28,6 @@ use common::ScalarName;
 use common::WithLocation;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
-use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
 pub use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
@@ -45,34 +46,32 @@ static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
 static VALIDATOR_EXPORT_NAME: &str = "validate";
 static LIVE_RESOLVERS_LIVE_STATE: &str = "LiveState";
 
-lazy_static! {
-    static ref KEY_CLIENTID: StringKey = "__id".intern();
-    pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
-    static ref KEY_FRAGMENT_SPREADS: StringKey = "$fragmentSpreads".intern();
-    static ref KEY_UPDATABLE_FRAGMENT_SPREADS: StringKey = "$updatableFragmentSpreads".intern();
-    pub(crate) static ref KEY_FRAGMENT_TYPE: StringKey = "$fragmentType".intern();
-    static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
-    static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
-    static ref JS_FIELD_NAME: StringKey = "js".intern();
-    static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
-    static ref KEY_TYPENAME: StringKey = "__typename".intern();
-    static ref KEY_DATA_ID: StringKey = "DataID".intern();
-    static ref KEY_NODE: StringKey = "node".intern();
-    static ref KEY_NODES: StringKey = "nodes".intern();
-    static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
-    static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("raw_response_type".intern());
-    static ref RESPONSE: StringKey = "response".intern();
-    static ref TYPE_BOOLEAN: ScalarName = ScalarName("Boolean".intern());
-    static ref TYPE_FLOAT: ScalarName = ScalarName("Float".intern());
-    static ref TYPE_ID: ScalarName = ScalarName("ID".intern());
-    static ref TYPE_INT: ScalarName = ScalarName("Int".intern());
-    static ref TYPE_STRING: ScalarName = ScalarName("String".intern());
-    static ref VARIABLES: StringKey = "variables".intern();
-    static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
-    static ref RESULT_TYPE_NAME: StringKey = "Result".intern();
-    static ref LIVE_STATE_TYPE: StringKey = "LiveState".intern();
-}
+static KEY_CLIENTID: LazyLock<StringKey> = LazyLock::new(|| "__id".intern());
+pub(crate) static KEY_DATA: LazyLock<StringKey> = LazyLock::new(|| "$data".intern());
+static KEY_FRAGMENT_SPREADS: LazyLock<StringKey> = LazyLock::new(|| "$fragmentSpreads".intern());
+static KEY_UPDATABLE_FRAGMENT_SPREADS: LazyLock<StringKey> =
+    LazyLock::new(|| "$updatableFragmentSpreads".intern());
+pub(crate) static KEY_FRAGMENT_TYPE: LazyLock<StringKey> =
+    LazyLock::new(|| "$fragmentType".intern());
+static FRAGMENT_PROP_NAME: LazyLock<StringKey> = LazyLock::new(|| "__fragmentPropName".intern());
+static FUTURE_ENUM_VALUE: LazyLock<StringKey> = LazyLock::new(|| "%future added value".intern());
+static JS_FIELD_NAME: LazyLock<StringKey> = LazyLock::new(|| "js".intern());
+static KEY_RAW_RESPONSE: LazyLock<StringKey> = LazyLock::new(|| "rawResponse".intern());
+static KEY_TYPENAME: LazyLock<StringKey> = LazyLock::new(|| "__typename".intern());
+static KEY_DATA_ID: LazyLock<StringKey> = LazyLock::new(|| "DataID".intern());
+static MODULE_COMPONENT: LazyLock<StringKey> = LazyLock::new(|| "__module_component".intern());
+static RAW_RESPONSE_TYPE_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("raw_response_type".intern()));
+static RESPONSE: LazyLock<StringKey> = LazyLock::new(|| "response".intern());
+static TYPE_BOOLEAN: LazyLock<ScalarName> = LazyLock::new(|| ScalarName("Boolean".intern()));
+static TYPE_FLOAT: LazyLock<ScalarName> = LazyLock::new(|| ScalarName("Float".intern()));
+static TYPE_ID: LazyLock<ScalarName> = LazyLock::new(|| ScalarName("ID".intern()));
+static TYPE_INT: LazyLock<ScalarName> = LazyLock::new(|| ScalarName("Int".intern()));
+static TYPE_STRING: LazyLock<ScalarName> = LazyLock::new(|| ScalarName("String".intern()));
+static VARIABLES: LazyLock<StringKey> = LazyLock::new(|| "variables".intern());
+static SPREAD_KEY: LazyLock<StringKey> = LazyLock::new(|| "\0SPREAD".intern());
+static RESULT_TYPE_NAME: LazyLock<StringKey> = LazyLock::new(|| "Result".intern());
+static LIVE_STATE_TYPE: LazyLock<StringKey> = LazyLock::new(|| "LiveState".intern());
 
 /// Determines whether a generated data type is "unmasked", which controls whether
 /// the generated AST objects are exact (e.g. `{ foo: Foo }`) or inexact

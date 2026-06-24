@@ -6,6 +6,7 @@
  */
 
 use std::collections::HashSet;
+use std::sync::LazyLock;
 
 use common::ArgumentName;
 use common::DirectiveName;
@@ -13,7 +14,6 @@ use common::SourceLocationKey;
 use graphql_ir::*;
 use intern::Lookup;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use rayon::prelude::*;
 use relay_transforms::REFETCHABLE_NAME;
 use rustc_hash::FxHashSet;
@@ -25,9 +25,8 @@ use schema_diff::check::IncrementalBuildSchemaChange;
 
 use crate::ExecutableDefinitionNameSet;
 
-lazy_static! {
-    static ref DIRECTIVES_ARG: ArgumentName = ArgumentName("directives".intern());
-}
+static DIRECTIVES_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("directives".intern()));
 
 pub fn get_affected_definitions(
     schema: &SDLSchema,

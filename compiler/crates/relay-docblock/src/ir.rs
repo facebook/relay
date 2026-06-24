@@ -6,6 +6,7 @@
  */
 
 use std::collections::HashSet;
+use std::sync::LazyLock;
 
 use common::ArgumentName;
 use common::Diagnostic;
@@ -61,7 +62,6 @@ use graphql_syntax::TypeAnnotation;
 use graphql_syntax::TypeSystemDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
@@ -78,16 +78,14 @@ use schema::suggestion_list::GraphQLSuggestions;
 use crate::errors::ErrorMessagesWithData;
 use crate::errors::SchemaValidationErrorMessages;
 
-lazy_static! {
-    static ref INT_TYPE: StringKey = "Int".intern();
-    static ref ID_TYPE: StringKey = "ID".intern();
-    static ref OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("RelayOutputType".intern());
-    static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("deprecated".intern());
-    static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
-    static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
-}
+static ID_TYPE: LazyLock<StringKey> = LazyLock::new(|| "ID".intern());
+static OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("RelayOutputType".intern()));
+static DEPRECATED_RESOLVER_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("deprecated".intern()));
+static DEPRECATED_REASON_ARGUMENT_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("reason".intern()));
+static MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: LazyLock<StringKey> = LazyLock::new(|| "Model".intern());
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ResolverTypeDocblockIr {

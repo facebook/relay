@@ -85,7 +85,7 @@ export type UseQueryLoaderHookReturnType<
   () => void,
 ];
 
-declare function useQueryLoader<
+declare hook useQueryLoader<
   TVariables extends Variables,
   TData,
   TRawResponse extends ?{...} = void,
@@ -93,7 +93,7 @@ declare function useQueryLoader<
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
 ): UseQueryLoaderHookReturnType<TVariables, TData>;
 
-declare function useQueryLoader<
+declare hook useQueryLoader<
   TVariables extends Variables,
   TData,
   TRawResponse extends ?{...} = void,
@@ -106,7 +106,7 @@ declare function useQueryLoader<
   }>,
 ): UseQueryLoaderHookReturnType<TVariables, TData>;
 
-declare function useQueryLoader<TQuery extends OperationType>(
+declare hook useQueryLoader<TQuery extends OperationType>(
   preloadableRequest: PreloadableConcreteRequest<TQuery>,
   initialQueryReference?: ?PreloadedQuery<TQuery>,
 ): UseQueryLoaderHookReturnType<TQuery['variables'], TQuery['response']>;

@@ -6,6 +6,7 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::ArgumentName;
 use common::Diagnostic;
@@ -23,7 +24,6 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -54,17 +54,23 @@ pub fn transform_declarative_connection(
     }
 }
 
-lazy_static! {
-    static ref APPEND_EDGE: DirectiveName = DirectiveName("appendEdge".intern());
-    static ref APPEND_NODE: DirectiveName = DirectiveName("appendNode".intern());
-    static ref CONNECTIONS_ARG_NAME: ArgumentName = ArgumentName("connections".intern());
-    static ref DELETE_RECORD: DirectiveName = DirectiveName("deleteRecord".intern());
-    static ref DELETE_EDGE: DirectiveName = DirectiveName("deleteEdge".intern());
-    static ref PREPEND_EDGE: DirectiveName = DirectiveName("prependEdge".intern());
-    static ref PREPEND_NODE: DirectiveName = DirectiveName("prependNode".intern());
-    static ref EDGE_TYPENAME_ARG: ArgumentName = ArgumentName("edgeTypeName".intern());
-    static ref EMPTY_STRING: StringKey = "".intern();
-}
+static APPEND_EDGE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("appendEdge".intern()));
+static APPEND_NODE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("appendNode".intern()));
+static CONNECTIONS_ARG_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("connections".intern()));
+static DELETE_RECORD: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("deleteRecord".intern()));
+static DELETE_EDGE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("deleteEdge".intern()));
+static PREPEND_EDGE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("prependEdge".intern()));
+static PREPEND_NODE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("prependNode".intern()));
+static EDGE_TYPENAME_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("edgeTypeName".intern()));
+static EMPTY_STRING: LazyLock<StringKey> = LazyLock::new(|| "".intern());
 
 struct DeclarativeConnectionMutationTransform<'a> {
     schema: &'a SDLSchema,

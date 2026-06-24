@@ -1,0 +1,64 @@
+//- src/ConnectionQuery.js
+graphql`
+  query ConnectionQuery($id: ID!, $first: Int, $after: ID) {
+    node(id: $id) {
+      ... on User {
+        friends(first: $first, after: $after)
+          @connection(key: "ConnectionQuery_friends") {
+          edges {
+            node {
+              id
+              name
+            }
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+  friends(first: Int, after: ID, last: Int, before: ID): FriendsConnection
+}
+
+type FriendsConnection {
+  edges: [FriendsEdge]
+  pageInfo: PageInfo
+}
+
+type FriendsEdge {
+  cursor: String
+  node: User
+}
+
+type PageInfo {
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+  endCursor: String
+  startCursor: String
+}

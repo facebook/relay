@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use ::intern::string_key::Intern;
 use common::ArgumentName;
 use common::DiagnosticsResult;
@@ -22,14 +24,12 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_text_printer::OperationPrinter;
 use intern::intern;
-use lazy_static::lazy_static;
 
 use crate::test_operation_metadata::EMIT_RAW_TEXT_ARG;
 use crate::test_operation_metadata::TEST_OPERATION_DIRECTIVE;
 
-lazy_static! {
-    pub static ref RAW_TEXT_DIRECTIVE_NAME: DirectiveName = DirectiveName(intern!("rawText"));
-}
+pub static RAW_TEXT_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName(intern!("rawText")));
 
 struct RawTextTransform<'program> {
     printer: OperationPrinter<'program>,

@@ -14,7 +14,7 @@
 /* eslint-disable no-unused-vars */
 
 import type {JSResourceReference} from 'JSResourceReference';
-import type {ComponentType, ElementConfig} from 'react';
+import type {ElementConfig} from 'react';
 import type {
   CacheConfig,
   FetchPolicy,

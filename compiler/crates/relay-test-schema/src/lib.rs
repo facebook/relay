@@ -10,34 +10,37 @@
 #![deny(clippy::all)]
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::SourceLocationKey;
-use lazy_static::lazy_static;
 use relay_schema::build_schema_with_extensions_parallel;
 use schema::SDLSchema;
 
 const TEST_SCHEMA_DATA: &str = include_str!("testschema.graphql");
 const TEST_SCHEMA_WITH_CUSTOM_ID_DATA: &str = include_str!("testschema_with_custom_id.graphql");
 
-lazy_static! {
-    pub static ref TEST_SCHEMA: Arc<SDLSchema> = Arc::new(
+pub static TEST_SCHEMA: LazyLock<Arc<SDLSchema>> = LazyLock::new(|| {
+    Arc::new(
         build_schema_with_extensions_parallel::<_, &str>(
             &[(TEST_SCHEMA_DATA, SourceLocationKey::generated())],
-            &[]
+            &[],
         )
-        .expect("Expected test schema to be valid")
-    );
-    pub static ref TEST_SCHEMA_WITH_CUSTOM_ID: Arc<SDLSchema> = Arc::new(
+        .expect("Expected test schema to be valid"),
+    )
+});
+
+pub static TEST_SCHEMA_WITH_CUSTOM_ID: LazyLock<Arc<SDLSchema>> = LazyLock::new(|| {
+    Arc::new(
         build_schema_with_extensions_parallel::<_, &str>(
             &[(
                 TEST_SCHEMA_WITH_CUSTOM_ID_DATA,
-                SourceLocationKey::generated()
+                SourceLocationKey::generated(),
             )],
-            &[]
+            &[],
         )
-        .expect("Expected test schema to be valid")
-    );
-}
+        .expect("Expected test schema to be valid"),
+    )
+});
 
 pub fn get_test_schema() -> Arc<SDLSchema> {
     Arc::clone(&TEST_SCHEMA)

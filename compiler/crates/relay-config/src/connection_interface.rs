@@ -16,7 +16,7 @@ use serde::Serialize;
 /// **Important**: When you configure this option in the compiler, you must also configure
 /// the Relay runtime to match by calling `ConnectionInterface.inject()` with the same values.
 /// See: <https://relay.dev/docs/api-reference/runtime-config/#connectioninterface>
-#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ConnectionInterface {
     pub cursor: StringKey,

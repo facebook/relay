@@ -9,6 +9,7 @@ use std::collections::HashSet;
 use std::hash::Hash;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use ::intern::Lookup;
 use ::intern::intern;
@@ -37,7 +38,6 @@ use indexmap::IndexMap;
 use indexmap::IndexSet;
 use indexmap::map::Entry;
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use relay_config::CustomType;
 use relay_config::CustomTypeImport;
 use relay_config::OneOfGeneration;
@@ -128,13 +128,12 @@ use crate::writer::SortedStringKeyList;
 use crate::writer::SpreadProp;
 use crate::writer::StringLiteral;
 
-lazy_static! {
-    static ref THROW_ON_FIELD_ERROR_DIRECTIVE: DirectiveName =
-        DirectiveName("throwOnFieldError".intern());
-    static ref SEMANTIC_NON_NULL_DIRECTIVE: DirectiveName =
-        DirectiveName("semanticNonNull".intern());
-    static ref ONE_OF_DIRECTIVE_NAME: DirectiveName = DirectiveName("oneOf".intern());
-}
+static THROW_ON_FIELD_ERROR_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));
+static SEMANTIC_NON_NULL_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("semanticNonNull".intern()));
+static ONE_OF_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("oneOf".intern()));
 
 pub fn is_result_type_directive(directives: &[Directive]) -> bool {
     match CatchMetadataDirective::find(directives) {

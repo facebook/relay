@@ -6,6 +6,7 @@
  */
 
 use std::collections::BTreeMap;
+use std::sync::LazyLock;
 
 use common::ArgumentName;
 use common::DirectiveName;
@@ -20,7 +21,6 @@ use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
-use lazy_static::lazy_static;
 use schema::TypeReference;
 use schema_coordinates::SchemaCoordinate;
 
@@ -43,11 +43,10 @@ use crate::SetType;
 use crate::SetUnion;
 use crate::schema_set::SetRootSchema;
 
-lazy_static! {
-    pub static ref MISSING_REQUIRED_DIRECTIVE: DirectiveName =
-        DirectiveName("missing_required_directive".intern());
-    pub static ref MISSING_REQUIRED_DIRECTIVE_NAME: ArgumentName = ArgumentName("name".intern());
-}
+pub static MISSING_REQUIRED_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("missing_required_directive".intern()));
+pub static MISSING_REQUIRED_DIRECTIVE_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("name".intern()));
 
 /// These options can be used to describe changes that may not be "classically" GraphQL breaking changes:
 /// old apps will not break if an output type changes from Nullable to NonNull.

@@ -243,6 +243,50 @@ pub enum ValidationMessage {
         module_name: String,
         fragment_name: StringKey,
     },
+
+    #[error(
+        "@returnFragment requires the resolver to define a @rootFragment. Resolvers with @returnFragment must read data from the graph using a root fragment."
+    )]
+    ReturnFragmentRequiresRootFragment,
+
+    #[error(
+        "The @returnFragment '{return_fragment_name}' must be spread within the @rootFragment '{root_fragment_name}'. Add `...{return_fragment_name}` to your root fragment."
+    )]
+    ReturnFragmentNotSpreadInRootFragment {
+        return_fragment_name: FragmentDefinitionName,
+        root_fragment_name: FragmentDefinitionName,
+    },
+
+    #[error(
+        "The selection '{field_name}' on shadow resolver field cannot be transplanted onto the shadowed server type '{type_name}'. The shadowed server type must define a field with the same name so the consumer's selections can be fetched in the main query."
+    )]
+    ShadowReturnSelectionNotOnShadowedType {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
+        "Fragment spreads in selections on a shadow resolver field are not yet supported. Inline the selection instead."
+    )]
+    ShadowReturnUnsupportedFragmentSpread,
+
+    #[error(
+        "The inline fragment type condition '{type_condition_name}' cannot be transplanted onto the shadowed server type '{type_name}'. Shadow resolver selections are fetched from the shadowed server field, so a type condition must overlap that server type (client-extension type conditions like client-only members are not supported in v1)."
+    )]
+    ShadowReturnIncompatibleInlineFragmentType {
+        type_condition_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
+        "Plural shadow resolvers (whose return type is a list) are not yet supported. The `@returnFragment` pointer design currently only supports singular shadow resolver fields. Remove the list from the resolver's return type, or split into a singular field."
+    )]
+    ShadowResolverPluralUnsupported,
+
+    #[error(
+        "The `@__relay_shadow_return` directive is internal to the Relay compiler and cannot be used in source. Shadow resolver return data is marked by spreading the resolver's `@returnFragment` placeholder inside its `@rootFragment`; the compiler generates this directive automatically."
+    )]
+    InternalShadowReturnDirectiveNotAllowed,
 }
 
 #[derive(

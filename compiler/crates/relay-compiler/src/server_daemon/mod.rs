@@ -19,19 +19,31 @@ pub mod vcs_state;
 use std::collections::hash_map::DefaultHasher;
 use std::env;
 use std::fs;
+use std::fs::File;
 use std::hash::Hash;
 use std::hash::Hasher;
 use std::os::unix::net::UnixStream;
 use std::path::Path;
 use std::path::PathBuf;
+use std::process::Command;
+use std::process::Stdio;
 use std::sync::Arc;
+use std::sync::Mutex;
 
+use log::error;
+use log::info;
+use log::warn;
 use serde::Deserialize;
 use serde::Serialize;
 pub use socket::send_request;
 pub use socket::start_server;
 
 use crate::ArtifactWriter;
+use crate::config::Config;
+use crate::server_daemon::protocol::DaemonRequest;
+use crate::server_daemon::protocol::DaemonResponse;
+use crate::server_daemon::protocol::MessageSeverity;
+use crate::server_daemon::protocol::ResponseResult;
 
 /// Builds the [`ArtifactWriter`] used when a [`protocol::DaemonRequest::Write`]
 /// supplies both `flush_manifest_path` and `flush_shard_dir`.
@@ -42,6 +54,51 @@ use crate::ArtifactWriter;
 /// `DeferredArtifactCache::flush_to_disk`.
 pub type FlushWriterFactory =
     Arc<dyn Fn(PathBuf, PathBuf) -> Box<dyn ArtifactWriter + Send + Sync> + Send + Sync>;
+
+/// Seed the daemon's first-build state from client-provided hints.
+///
+/// When the client (e.g. Meerkat) invokes `relay build` with `--import-state`
+/// and `--changed-files-list`, those paths are forwarded to the spawned
+/// daemon as `--initial-import-state` / `--initial-changed-files-list`. The
+/// daemon's `Start` handler calls this helper to wire the paths into
+/// [`Config::load_saved_state_file`] and
+/// [`Config::initial_external_changed_files_list`], which `compiler.watch()`'s
+/// first iteration consumes via [`crate::file_source::watchman_file_source`]'s
+/// fast-path. Both slots are consumed once; subsequent iterations fall back
+/// to the normal Watchman / `try_saved_state` path.
+pub fn apply_initial_external_state_hints(
+    config: &mut Config,
+    initial_import_state: Option<PathBuf>,
+    initial_changed_files_list: Option<PathBuf>,
+) {
+    if initial_import_state.is_some() {
+        config.load_saved_state_file = Mutex::new(initial_import_state);
+    }
+    if initial_changed_files_list.is_some() {
+        config.initial_external_changed_files_list = Mutex::new(initial_changed_files_list);
+    }
+}
+
+/// Build the `--initial-import-state` / `--initial-changed-files-list` args
+/// to pass as `start_extra_args` to [`start_daemon_process`]. Mirrors the
+/// `requires("initial_import_state")` clap constraint on the daemon's
+/// `Start` subcommand: `--initial-changed-files-list` is only forwarded
+/// when a saved-state path is also present.
+pub fn build_initial_external_state_args(
+    initial_import_state: Option<&Path>,
+    initial_changed_files_list: Option<&Path>,
+) -> Vec<String> {
+    let mut args = Vec::new();
+    if let Some(path) = initial_import_state {
+        args.push("--initial-import-state".to_string());
+        args.push(path.to_string_lossy().into_owned());
+        if let Some(changes) = initial_changed_files_list {
+            args.push("--initial-changed-files-list".to_string());
+            args.push(changes.to_string_lossy().into_owned());
+        }
+    }
+    args
+}
 
 /// Status of a daemon's socket.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -211,6 +268,57 @@ pub fn log_path_for_socket(socket_path: &Path) -> PathBuf {
     socket_path.with_extension("log")
 }
 
+/// Print a one-line summary for every discovered daemon and optionally
+/// `shutdown` active daemons / `cleanup` stale or gone ones.
+pub async fn list_daemons(cleanup: bool, shutdown: bool) -> std::io::Result<()> {
+    let daemons = DaemonMetadata::list()?;
+    if daemons.is_empty() {
+        println!("No daemons found.");
+        return Ok(());
+    }
+    for metadata in &daemons {
+        let status = metadata.status();
+        let status_str = match status {
+            DaemonStatus::Active => "active",
+            DaemonStatus::Stale => "stale",
+            DaemonStatus::Gone => "gone",
+        };
+        println!(
+            "[{}] pid={} socket={} config={} projects=[{}] version={}",
+            status_str,
+            metadata.pid,
+            metadata.socket_path.display(),
+            metadata.config_path.display(),
+            metadata.projects.join(", "),
+            metadata.compiler_version,
+        );
+        if shutdown && matches!(status, DaemonStatus::Active) {
+            info!(
+                "Shutting down active daemon: {}",
+                metadata.socket_path.display()
+            );
+            if send_request(&metadata.socket_path, protocol::DaemonRequest::Shutdown)
+                .await
+                .is_none()
+            {
+                warn!(
+                    "Failed to shut down daemon: {}",
+                    metadata.socket_path.display()
+                );
+            }
+        }
+        if cleanup && matches!(status, DaemonStatus::Stale | DaemonStatus::Gone) {
+            info!(
+                "Cleaning up {} daemon: {}",
+                status_str,
+                metadata.socket_path.display()
+            );
+            metadata.cleanup();
+        }
+    }
+    Ok(())
+}
+
 pub fn get_socket_path(config_path: &Path, projects: &[String]) -> PathBuf {
     let mut hasher = DefaultHasher::new();
 
@@ -238,6 +346,238 @@ pub fn get_socket_path(config_path: &Path, projects: &[String]) -> PathBuf {
         .unwrap_or_else(|_| std::env::temp_dir());
 
     base_dir.join(format!("relay-server-{}.sock", hash_str))
+}
+
+/// Spawn the current binary as a background daemon and wait for its socket
+/// to come up. The child is invoked as
+/// `<current_exe> server <extra_args> --project <p>... start --foreground <start_extra_args>`,
+/// with stdout/stderr redirected to the daemon log file derived from
+/// `config_path` and `projects`.
+///
+/// Polls the daemon socket once per second for up to 60 seconds. Exits the
+/// caller process with code 1 if the child exits during startup or fails
+/// to bind the socket within the timeout. `extra_args` is inserted before
+/// the project flags so callers can pass `Server`-subcommand-level options
+/// (e.g. the OSS relay-bin passes `--config <path>`). `start_extra_args`
+/// is appended after `--foreground` so callers can pass `Start`-subcommand-
+/// level options (e.g. `--initial-import-state <path>`).
+pub async fn start_daemon_process(
+    config_path: &Path,
+    projects: &[String],
+    extra_args: &[String],
+    start_extra_args: &[String],
+) {
+    let current_exe = std::env::current_exe().expect("Failed to get current exe path");
+    let mut args = vec!["server".to_string()];
+    args.extend(extra_args.iter().cloned());
+    for project in projects {
+        args.push("--project".to_string());
+        args.push(project.clone());
+    }
+    args.push("start".to_string());
+    args.push("--foreground".to_string());
+    args.extend(start_extra_args.iter().cloned());
+
+    let log_path = get_log_file_path(config_path, projects);
+    let log_file = File::options()
+        .create(true)
+        .append(true)
+        .open(&log_path)
+        .expect("Failed to open daemon log file");
+    let log_file_clone = log_file
+        .try_clone()
+        .expect("Failed to clone daemon log file handle");
+
+    let mut child = Command::new(current_exe)
+        .args(&args)
+        .stdin(Stdio::null())
+        .stdout(Stdio::from(log_file))
+        .stderr(Stdio::from(log_file_clone))
+        .spawn()
+        .expect("Failed to spawn daemon process");
+
+    let socket_path = get_socket_path(config_path, projects);
+    let max_attempts = 60;
+    for i in 0..max_attempts {
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+
+        // Detect early daemon-process exit (e.g. invalid project name).
+        if let Some(status) = child
+            .try_wait()
+            .expect("Failed to check daemon process status")
+        {
+            error!("Daemon process exited during startup with {status}");
+            log_daemon_file(&log_path);
+            std::process::exit(1);
+        }
+
+        if send_request(&socket_path, DaemonRequest::Version)
+            .await
+            .is_some()
+        {
+            info!("Daemon is ready.");
+            return;
+        }
+        if i % 10 == 9 {
+            info!("Still waiting for daemon to start ({} seconds)...", i + 1);
+        }
+    }
+
+    error!("Daemon failed to start after {max_attempts} seconds");
+    log_daemon_file(&log_path);
+    std::process::exit(1);
+}
+
+/// Log the contents of a daemon log file at the error level.
+fn log_daemon_file(log_path: &Path) {
+    if let Ok(log_contents) = std::fs::read_to_string(log_path)
+        && !log_contents.is_empty()
+    {
+        error!("Daemon log ({}):\n{}", log_path.display(), log_contents);
+    }
+}
+
+/// Outcome of [`ensure_daemon_running`] — exposed so callers can log
+/// or branch on whether the daemon was already running, freshly started,
+/// or restarted due to a version mismatch.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DaemonStartOutcome {
+    AlreadyRunning,
+    Started,
+    Restarted,
+}
+
+impl std::fmt::Display for DaemonStartOutcome {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            DaemonStartOutcome::AlreadyRunning => "already_running",
+            DaemonStartOutcome::Started => "started",
+            DaemonStartOutcome::Restarted => "restarted",
+        })
+    }
+}
+
+/// Check whether a [`DaemonRequest::Version`] response indicates that the
+/// daemon's compiler version differs from `client_version`. Returns `true`
+/// on protocol errors too — the safe default is to assume mismatch and let
+/// callers restart.
+pub fn has_version_mismatch(response: &DaemonResponse, client_version: &str) -> bool {
+    match response {
+        DaemonResponse::Success {
+            result:
+                ResponseResult::Version {
+                    compiler_version: daemon_version,
+                },
+        } => daemon_version != client_version,
+        DaemonResponse::Error { code, message } => {
+            error!("Daemon returned error ({code:?}): {message}");
+            true
+        }
+        _ => {
+            error!("Unexpected response from daemon version check");
+            true
+        }
+    }
+}
+
+/// Shut down a running daemon and start a fresh one in its place. Waits
+/// for the new daemon to become ready before returning. `extra_args` and
+/// `start_extra_args` are forwarded verbatim to [`start_daemon_process`].
+pub async fn restart_daemon(
+    socket_path: &Path,
+    config_path: &Path,
+    projects: &[String],
+    extra_args: &[String],
+    start_extra_args: &[String],
+) {
+    info!("Compiler version mismatch detected, restarting daemon...");
+    send_request(socket_path, DaemonRequest::Shutdown).await;
+    // Brief wait for the old daemon to release the socket.
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    start_daemon_process(config_path, projects, extra_args, start_extra_args).await;
+}
+
+/// Ensure a daemon with a matching compiler version is running for the
+/// given config + projects.
+///
+/// If no daemon is running, a fresh one is started. If a daemon is running
+/// but reports a different `client_version`, it is shut down and replaced.
+/// Returns the socket path (for sending subsequent requests) and the start
+/// outcome (for telemetry).
+///
+/// `extra_args` and `start_extra_args` are forwarded to
+/// [`start_daemon_process`] so callers can pass binary-specific
+/// `Server`-level and `Start`-subcommand-level args respectively.
+pub async fn ensure_daemon_running(
+    config_path: &Path,
+    projects: &[String],
+    client_version: &str,
+    extra_args: &[String],
+    start_extra_args: &[String],
+) -> (PathBuf, DaemonStartOutcome) {
+    let socket_path = get_socket_path(config_path, projects);
+    let outcome = match send_request(&socket_path, DaemonRequest::Version).await {
+        Some(response) if has_version_mismatch(&response, client_version) => {
+            restart_daemon(
+                &socket_path,
+                config_path,
+                projects,
+                extra_args,
+                start_extra_args,
+            )
+            .await;
+            DaemonStartOutcome::Restarted
+        }
+        Some(_) => DaemonStartOutcome::AlreadyRunning,
+        None => {
+            info!("Starting daemon...");
+            start_daemon_process(config_path, projects, extra_args, start_extra_args).await;
+            DaemonStartOutcome::Started
+        }
+    };
+    (socket_path, outcome)
+}
+
+/// Log a daemon response at the appropriate severity. Returns `true` if
+/// the response indicates success and `false` if it indicates an error
+/// (e.g. build errors in a `WriteAck`, an explicit `Error` response, or
+/// no response at all). Callers can use the return value to decide whether
+/// to `std::process::exit(1)`.
+pub fn log_daemon_response(response: Option<DaemonResponse>) -> bool {
+    match response {
+        Some(DaemonResponse::Success { result }) => match result {
+            ResponseResult::WriteAck { messages } => {
+                let mut has_error = false;
+                for msg in &messages {
+                    match msg.severity {
+                        MessageSeverity::Error => {
+                            error!("{}", msg.text);
+                            has_error = true;
+                        }
+                        MessageSeverity::Warning => warn!("{}", msg.text),
+                        MessageSeverity::Info => info!("{}", msg.text),
+                    }
+                }
+                !has_error
+            }
+            ResponseResult::Version { compiler_version } => {
+                println!("{}", compiler_version);
+                true
+            }
+            ResponseResult::ShutdownAck => {
+                info!("Daemon shut down successfully.");
+                true
+            }
+        },
+        Some(DaemonResponse::Error { code, message }) => {
+            error!("Error ({code:?}): {message}");
+            false
+        }
+        None => {
+            error!("No server response");
+            false
+        }
+    }
 }
 
 #[cfg(test)]

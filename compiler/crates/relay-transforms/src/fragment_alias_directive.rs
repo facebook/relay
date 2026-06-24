@@ -6,8 +6,8 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
-use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -29,7 +29,6 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::transform_list;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use schema::Schema;
 use schema::Type;
 
@@ -38,12 +37,10 @@ use crate::RelayDirective;
 use crate::ValidationMessage;
 use crate::ValidationMessageWithData;
 
-lazy_static! {
-    pub static ref FRAGMENT_ALIAS_DIRECTIVE_NAME: DirectiveName = DirectiveName("alias".intern());
-    pub static ref FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("dangerously_unaliased_fixme".intern());
-    pub static ref FRAGMENT_ALIAS_ARGUMENT_NAME: ArgumentName = ArgumentName("as".intern());
-}
+pub static FRAGMENT_ALIAS_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("alias".intern()));
+pub static FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("dangerously_unaliased_fixme".intern()));
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct FragmentAliasMetadata {

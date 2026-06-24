@@ -7,6 +7,7 @@
 
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use ::errors::try_all;
 use common::Diagnostic;
@@ -23,7 +24,6 @@ use graphql_ir::Selection;
 use graphql_ir::Validator;
 use graphql_ir::reexport::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use schema::SDLSchema;
 use schema::Schema;
 
@@ -32,12 +32,10 @@ use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::REQUIRED_DIRECTIVE_NAME;
 use crate::ValidationMessageWithData;
 
-lazy_static! {
-    static ref SEMANTIC_NON_NULL_DIRECTIVE: DirectiveName =
-        DirectiveName("semanticNonNull".intern());
-    static ref THROW_ON_FIELD_ERROR_DIRECTIVE: DirectiveName =
-        DirectiveName("throwOnFieldError".intern());
-}
+static SEMANTIC_NON_NULL_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("semanticNonNull".intern()));
+static THROW_ON_FIELD_ERROR_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));
 
 pub fn disallow_required_on_non_null_field(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowRequiredOnNonNullField::new(&program.schema);

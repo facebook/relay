@@ -190,7 +190,19 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         }
                     }
 
-                    let output_type_info = if resolver_info.has_output_type {
+                    // Pointer-design shadow resolvers (those declaring a
+                    // `@returnFragment`) must NEVER be treated as `@outputType`
+                    // values. Doing so would emit a `$normalization` split
+                    // operation and `isOutputType: true`, re-normalizing the
+                    // returned value into a second set of records. Instead the
+                    // resolver returns a pointer (DataID) and the consumer reads
+                    // its selections off the already-normalized record via a
+                    // store-ref edge. So `return_fragment.is_some()` dominates
+                    // `has_output_type` and forces the `EdgeTo` path below.
+                    let has_output_type =
+                        resolver_info.has_output_type && resolver_info.return_fragment.is_none();
+
+                    let output_type_info = if has_output_type {
                         if inner_type.is_composite_type() {
                             let normalization_operation = generate_name_for_nested_object_operation(
                                 self.project_name,

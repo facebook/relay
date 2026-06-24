@@ -13,9 +13,14 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use common::ConsoleLogger;
+use intern::string_key::StringKey;
 use program_with_dependencies::ProgramWithDependencies;
+use relay_config::ConnectionInterface;
 use relay_transforms::Programs;
+use schema::SDLSchema;
+use schema::Schema;
 use schema_set::SchemaSet;
+use schema_set::SetType;
 use schema_set::UsedSchemaCollectionOptions;
 use thiserror::Error;
 
@@ -141,6 +146,11 @@ pub async fn compile_and_extract_subschema(
         .unwrap()
         .schema_location = schema_location;
 
+    let connection_interface = config.projects[&project_name]
+        .schema_config
+        .connection_interface
+        .clone();
+
     // Compile the project to get IR
     let root_dir = config.root_dir.clone();
     let programs_result = get_programs(config, Arc::new(ConsoleLogger))
@@ -160,7 +170,7 @@ pub async fn compile_and_extract_subschema(
         .expect("Expected exactly one program");
 
     // Extract the used subschema
-    let schema_content = extract_subschema(&programs)?;
+    let schema_content = extract_subschema(&programs, &connection_interface)?;
 
     Ok(SubschemaResult {
         schema_content,
@@ -171,8 +181,13 @@ pub async fn compile_and_extract_subschema(
 /// Extract the used subschema from compiled programs.
 ///
 /// This takes the compiled programs and extracts only the schema types
-/// that are actually used by the project's operations and fragments.
-pub fn extract_subschema(programs: &Programs) -> Result<String, SubschemaError> {
+/// that are actually used by the project's operations and fragments, then
+/// re-hydrates connection `PageInfo` fields required by `@connection`
+/// validation (see `hydrate_connection_page_info_fields`).
+pub(crate) fn extract_subschema(
+    programs: &Programs,
+    connection_interface: &ConnectionInterface,
+) -> Result<String, SubschemaError> {
     let program_with_deps = ProgramWithDependencies::from_full_program(
         &programs.source.schema,
         // Pass the operation text program since it has had all the Relay-specific
@@ -197,6 +212,19 @@ pub fn extract_subschema(programs: &Programs) -> Result<String, SubschemaError> 
         .fix_all_types()
         .map_err(|diagnostics| SubschemaError::CompilationFailed(format!("{:?}", diagnostics)))?;
 
+    let page_info_sub_fields = [
+        connection_interface.end_cursor,
+        connection_interface.has_next_page,
+        connection_interface.has_previous_page,
+        connection_interface.start_cursor,
+    ];
+    hydrate_connection_page_info_fields(
+        &mut used_schema,
+        &programs.source.schema,
+        connection_interface.page_info,
+        &page_info_sub_fields,
+    );
+
     let (printed_base_schema, _printed_client_schema) = used_schema
         .print_base_and_client_definitions()
         .map_err(|diagnostics| SubschemaError::CompilationFailed(format!("{:?}", diagnostics)))?;
@@ -208,4 +236,49 @@ pub fn extract_subschema(programs: &Programs) -> Result<String, SubschemaError> 
     output.push('\n');
 
     Ok(output)
+}
+
+/// Re-hydrate connection PageInfo fields that may have been pruned by the
+/// subschema minimizer. The `@connection` validator requires all four
+/// pagination sub-fields on the PageInfo type, but the minimizer only keeps
+/// fields that are explicitly selected. This pass restores any missing
+/// sub-fields from the full schema.
+fn hydrate_connection_page_info_fields(
+    used_schema: &mut SchemaSet,
+    full_schema: &SDLSchema,
+    page_info_field_name: StringKey,
+    page_info_sub_fields: &[StringKey],
+) {
+    // First pass: find page_info type names from connection-like object types
+    let page_info_type_names: Vec<StringKey> = used_schema
+        .types
+        .values()
+        .filter_map(|set_type| {
+            if let SetType::Object(obj) = set_type {
+                obj.fields
+                    .get(&page_info_field_name)
+                    .map(|field| field.type_.inner())
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    // Second pass: ensure all required sub-fields exist on each page_info type
+    for page_info_type_name in page_info_type_names {
+        let Some(page_info_schema_type) = full_schema.get_type(page_info_type_name) else {
+            continue;
+        };
+
+        let Some(set_type) = used_schema.types.get_mut(&page_info_type_name) else {
+            continue;
+        };
+
+        for sub_field_name in page_info_sub_fields {
+            if let Some(field_id) = full_schema.named_field(page_info_schema_type, *sub_field_name)
+            {
+                set_type.field_definition_or_inserted(field_id, full_schema);
+            }
+        }
+    }
 }

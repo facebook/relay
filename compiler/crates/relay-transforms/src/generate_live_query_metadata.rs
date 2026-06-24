@@ -6,6 +6,7 @@
  */
 
 use std::str::FromStr;
+use std::sync::LazyLock;
 
 use ::intern::string_key::StringKey;
 use common::ArgumentName;
@@ -25,21 +26,20 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use thiserror::Error;
 
 use crate::create_metadata_directive;
 
-lazy_static! {
-    static ref CLIENT_POLLING_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("client_polling".intern());
-    static ref LIVE_DIRECTIVE_NAME: DirectiveName = DirectiveName("live".intern());
-    static ref CLIENT_POLLING_INTERVAL_ARG: ArgumentName = ArgumentName("interval".intern());
-    static ref CONFIG_ID_ARG: ArgumentName = ArgumentName("config_id".intern());
-    static ref LIVE_METADATA_KEY: ArgumentName = ArgumentName("live".intern());
-    static ref POLLING_INTERVAL_METADATA_KEY: ArgumentName =
-        ArgumentName("polling_interval".intern());
-}
+static CLIENT_POLLING_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("client_polling".intern()));
+static LIVE_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("live".intern()));
+static CLIENT_POLLING_INTERVAL_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("interval".intern()));
+static CONFIG_ID_ARG: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName("config_id".intern()));
+static LIVE_METADATA_KEY: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName("live".intern()));
+static POLLING_INTERVAL_METADATA_KEY: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("polling_interval".intern()));
 
 pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = GenerateLiveQueryMetadata::default();

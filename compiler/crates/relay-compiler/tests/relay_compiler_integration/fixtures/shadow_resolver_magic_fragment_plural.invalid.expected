@@ -1,0 +1,61 @@
+==================================== INPUT ====================================
+//- UserCombinedPages.js
+// A PLURAL shadow-resolver field (return type `[IPage]`) is a HARD ERROR in v1.
+// The pointer design transplants the consumer's selections onto the shadowed
+// server field and reads them off a single returned DataID via a SINGULAR
+// store-ref edge. A list return type would route to the plural client-edge path,
+// which calls `ensureClientRecord` and silently mis-namespaces the records. This
+// fixture asserts the compiler rejects plural shadow resolvers.
+/**
+ * @relayField User.combined_pages: [IPage]
+ * @rootFragment UserCombinedPagesResolverFragment
+ * @returnFragment UserCombinedPagesReturnFragment
+ */
+graphql`fragment UserCombinedPagesResolverFragment on User {
+  page {
+    ...UserCombinedPagesReturnFragment
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_pages {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage
+==================================== OUTPUT ===================================
+✖︎ Plural shadow resolvers (whose return type is a list) are not yet supported. The `@returnFragment` pointer design currently only supports singular shadow resolver fields. Remove the list from the resolver's return type, or split into a singular field.
+
+  UserCombinedPages.js:10:20
+    9 │  * @rootFragment UserCombinedPagesResolverFragment
+   10 │  * @returnFragment UserCombinedPagesReturnFragment
+      │                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   11 │

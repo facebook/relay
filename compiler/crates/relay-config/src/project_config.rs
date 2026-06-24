@@ -477,7 +477,7 @@ impl ProjectConfig {
             "create_path_for_extra_artifact called without `extraArtifactsOutput` set on the project config",
         );
         if should_shard && self.shard_output {
-            if let Some(ref regex) = self.shard_strip_regex {
+            let sharded_dir = if let Some(ref regex) = self.shard_strip_regex {
                 let full_source_path = regex.replace_all(source_file.path(), "");
                 let mut path = output.join(full_source_path.to_string());
                 // `full_source_path` still includes the source file name; pop it to get the directory.
@@ -485,8 +485,16 @@ impl ProjectConfig {
                 path
             } else {
                 output.join(source_file.get_dir())
+            };
+            // Sharding mirrors the source directory structure into the output path. Some source
+            // dirs (e.g. Comet RSC `[id]` route dirs) contain characters disallowed by the
+            // `invalid-filename` path linter; emitting such a path would make the artifact
+            // unlandable. Fall back to the flat layout for those sources.
+            if path_has_disallowed_filename_chars(&sharded_dir) {
+                output.join(artifact_file_name)
+            } else {
+                sharded_dir.join(artifact_file_name)
             }
-            .join(artifact_file_name)
         } else {
             output.join(artifact_file_name)
         }
@@ -590,6 +598,16 @@ impl ProjectConfig {
     }
 }
 
+/// Returns true if `path` contains any character the `invalid-filename` path linter
+/// rejects. The linter allows only `[A-Za-z0-9._@+/$-]`; anything else (e.g. the `[`/`]`
+/// in Comet RSC `[id]` route dirs) would make a sharded artifact path unlandable.
+fn path_has_disallowed_filename_chars(path: &Path) -> bool {
+    !path
+        .to_string_lossy()
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_' | '@' | '+' | '/' | '$'))
+}
+
 // Stringify a path such that it is stable across operating systems.
 fn format_normalized_path(path: &Path) -> String {
     path.to_string_lossy()
@@ -655,6 +673,25 @@ mod tests {
         assert_eq!(
             path,
             PathBuf::from("out/extra/a/b/c/BarOperation.graphql.js"),
+        );
+    }
+
+    #[test]
+    fn extra_artifact_path_with_disallowed_chars_falls_back_to_flat_layout() {
+        // Comet RSC route directories such as `[id]` contain `[`/`]`, which the
+        // `invalid-filename` path linter rejects. Mirroring such a source directory into
+        // the sharded output would write an unlandable bracketed path, so sharding must
+        // fall back to the flat layout for these sources.
+        let config = project_with_extra(Some("out/extra"), true, Some("^src/"));
+        let path = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("src/comet/routes/[id]/Bar.js"),
+            "BarOperation.graphql.js".to_owned(),
+            true,
+        );
+        assert_eq!(
+            path,
+            PathBuf::from("out/extra/BarOperation.graphql.js"),
+            "a source dir with disallowed filename chars (brackets) must not be sharded"
         );
     }
 

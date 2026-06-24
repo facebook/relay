@@ -327,17 +327,49 @@ impl From<SingleProjectConfigFile> for Config {
 
 impl Config {
     pub fn search(start_dir: &Path) -> Result<Self> {
-        Self::load_config(
-            start_dir,
-            &[
-                LoaderSource::PackageJson("relay".to_string()),
-                LoaderSource::Json("relay.config.json".to_string()),
-                LoaderSource::Js("relay.config.js".to_string()),
-            ],
-        )
+        Self::load_config(start_dir, &Self::default_loader_sources())
+    }
+
+    /// Find the path to a Relay config file by walking up from `start_dir`,
+    /// using the same loaders as [`Self::search`] but without parsing the
+    /// config. Useful when only the path is needed (e.g. deriving a stable
+    /// hash for the daemon socket path).
+    pub fn find_path(start_dir: &Path) -> Result<Option<PathBuf>> {
+        match js_config_loader::load::<Value>(start_dir, &Self::default_loader_sources()) {
+            Ok(found) => Ok(found.map(|c| c.path)),
+            Err(error) => Err(Error::ConfigError {
+                details: format!("Error searching config: {error}"),
+            }),
+        }
+    }
+
+    fn default_loader_sources() -> [LoaderSource; 3] {
+        [
+            LoaderSource::PackageJson("relay".to_string()),
+            LoaderSource::Json("relay.config.json".to_string()),
+            LoaderSource::Js("relay.config.js".to_string()),
+        ]
     }
 
     pub fn load(config_path: PathBuf) -> Result<Self> {
+        // `package.json` is a Relay config only via its `"relay"` sub-key —
+        // dispatch to `PackageJsonLoader` so the rest of the file (e.g.
+        // `browserslist`) isn't parsed as the Relay config. Ancestor walk
+        // starts at the file's parent so the explicitly-requested file is
+        // found first.
+        if config_path.file_name() == Some(OsStr::new("package.json")) {
+            let start_dir = config_path
+                .parent()
+                .map(Path::to_path_buf)
+                .unwrap_or_else(|| {
+                    current_dir().expect("Unable to get current working directory.")
+                });
+            return Self::load_config(
+                &start_dir,
+                &[LoaderSource::PackageJson("relay".to_string())],
+            );
+        }
+
         let loader = if config_path.extension() == Some(OsStr::new("js")) {
             LoaderSource::Js(config_path.display().to_string())
         } else if config_path.extension() == Some(OsStr::new("json")) {
@@ -1206,6 +1238,7 @@ impl SingleProjectConfigFile {
             js_module_format: self.js_module_format,
             feature_flags: self.feature_flags,
             module_import_config: self.module_import_config,
+            relativize_js_module_paths: self.relativize_js_module_paths,
             resolvers_schema_module: self.resolvers_schema_module,
             extra: self.extra,
             ..Default::default()

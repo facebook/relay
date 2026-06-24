@@ -12,11 +12,12 @@
 //!
 //! See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
 
+use std::sync::LazyLock;
+
 use common::DiagnosticsResult;
 use common::ScalarName;
 use intern::string_key::Intern;
 use intern::string_key::StringKeySet;
-use lazy_static::lazy_static;
 use schema_coordinates::SchemaCoordinate;
 
 use crate::schema_set::SchemaDefinitionItem;
@@ -25,29 +26,27 @@ use crate::schema_set::SetScalar;
 use crate::schema_set::SetType;
 use crate::set_merges::Merges;
 
-lazy_static! {
-    /// A SchemaSet containing only the built-in GraphQL scalar types.
-    /// This set has no root types (Query, Mutation, Subscription), no directives,
-    /// and only the 5 built-in scalars.
-    /// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
-    pub static ref BUILTIN_SCALAR_SET: SchemaSet = {
-        let mut set = SchemaSet::new();
+/// A SchemaSet containing only the built-in GraphQL scalar types.
+/// This set has no root types (Query, Mutation, Subscription), no directives,
+/// and only the 5 built-in scalars.
+/// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
+pub static BUILTIN_SCALAR_SET: LazyLock<SchemaSet> = LazyLock::new(|| {
+    let mut set = SchemaSet::new();
 
-        for name in ["Int", "Float", "String", "Boolean", "ID"] {
-            let key = name.intern();
-            set.types.insert(
-                key,
-                SetType::Scalar(SetScalar {
-                    name: ScalarName(key),
-                    directives: vec![],
-                    definition: SchemaDefinitionItem::default(),
-                    coordinate: Some(SchemaCoordinate::Type { name: key }),
-                }),
-            );
-        }
-        set
-    };
-}
+    for name in ["Int", "Float", "String", "Boolean", "ID"] {
+        let key = name.intern();
+        set.types.insert(
+            key,
+            SetType::Scalar(SetScalar {
+                name: ScalarName(key),
+                directives: vec![],
+                definition: SchemaDefinitionItem::default(),
+                coordinate: Some(SchemaCoordinate::Type { name: key }),
+            }),
+        );
+    }
+    set
+});
 
 /// Adds built-in scalar types (Int, Float, String, Boolean, ID) to the schema.
 ///

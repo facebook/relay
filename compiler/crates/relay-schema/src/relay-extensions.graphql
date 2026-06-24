@@ -314,6 +314,24 @@ directive @relay_resolver(
 ) on FIELD_DEFINITION
 
 """
+(Relay Only - internal)
+
+Compiler-internal marker for "shadow resolvers". The `@returnFragment`
+placeholder spread (the "magic fragment") inside a shadow resolver's
+`@rootFragment` is converted into this directive on the enclosing shadowed
+field before `build_ir` runs, so that `build_ir` never sees an undefined fragment
+spread. The directive is then converted into typed IR associated-data
+(`ShadowReturnMarker`) and stripped before codegen, so it never leaks into
+emitted artifacts.
+
+Unlike most compiler-internal directives (which are attached to the IR after
+`build_ir` and so need no schema definition), this one is introduced *before*
+`build_ir`, which validates directives against the schema -- so it must be
+declared here for that validation to accept it. Not for use in product code.
+"""
+directive @__relay_shadow_return(fragment: String!) on FIELD
+
+"""
 (Relay Only)
 
 Reading this Client Edge field triggers a network roundtrip or "waterfall". The

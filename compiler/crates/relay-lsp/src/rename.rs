@@ -9,6 +9,7 @@
 
 use std::collections::HashMap;
 use std::path::Path;
+use std::sync::LazyLock;
 
 use common::DirectiveName;
 use common::Location as IRLocation;
@@ -23,7 +24,6 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::OperationDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use lsp_types::PrepareRenameResponse;
 use lsp_types::TextEdit;
 use lsp_types::Uri;
@@ -56,10 +56,9 @@ use crate::LSPRuntimeError;
 use crate::LSPRuntimeResult;
 use crate::location::transform_relay_location_on_disk_to_lsp_location;
 
-lazy_static! {
-    static ref ARGUMENTS_DIRECTIVE: StringKey = "arguments".intern();
-    static ref ARGUMENTDEFINITIONS_DIRECTIVE: StringKey = "argumentDefinitions".intern();
-}
+static ARGUMENTS_DIRECTIVE: LazyLock<StringKey> = LazyLock::new(|| "arguments".intern());
+static ARGUMENTDEFINITIONS_DIRECTIVE: LazyLock<StringKey> =
+    LazyLock::new(|| "argumentDefinitions".intern());
 
 /// Resolve a [`Rename`] request to workspace edits
 pub fn on_rename(

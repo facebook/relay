@@ -6,6 +6,7 @@
  */
 
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -14,7 +15,6 @@ use graphql_ir::Program;
 use graphql_ir::ValidationMessage;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use relay_config::NonNodeIdFieldsConfig;
 use relay_config::SchemaConfig;
 use schema::Field;
@@ -23,14 +23,15 @@ use schema::Object;
 use schema::Schema;
 use schema::Type;
 
-lazy_static! {
-    static ref DEFAULT_CONFIG: NonNodeIdFieldsConfig = NonNodeIdFieldsConfig::default();
-    static ref NON_STRING_SCALARS: [ScalarName; 3] = [
+static DEFAULT_CONFIG: LazyLock<NonNodeIdFieldsConfig> =
+    LazyLock::new(NonNodeIdFieldsConfig::default);
+static NON_STRING_SCALARS: LazyLock<[ScalarName; 3]> = LazyLock::new(|| {
+    [
         ScalarName("Int".intern()),
         ScalarName("Float".intern()),
-        ScalarName("Boolean".intern())
-    ];
-}
+        ScalarName("Boolean".intern()),
+    ]
+});
 
 pub fn disallow_non_node_id_fields(
     program: &Program,

@@ -1,0 +1,68 @@
+//- UserCombinedPage.js
+// Multi-consumer isolation for the pointer-design "magic fragment" shadow
+// resolver. Two queries select DIFFERENT fields off the same shadow-resolver
+// field `combined_page`: query A selects `title`, query B selects `name`.
+//
+// Each query's main operation must get ONLY its own transplanted selection on
+// the shadowed server field `page` (A -> `page { id __typename title }`, B ->
+// `page { id __typename name }`); the consumers must NOT collide. The single
+// shared resolver root fragment `UserCombinedPageResolverFragment` must stay
+// GENERIC (`page { id __typename }`, neither `title` nor `name`) -- it carries
+// only the pointer the resolver reads. This guards the D2 collision flaw: the
+// transplant happens on a per-use-site copy, never the shared root-fragment
+// definition.
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- UserConsumerA.js
+graphql`query UserConsumerAQuery {
+  me {
+    combined_page {
+      title
+    }
+  }
+}`
+
+//- UserConsumerB.js
+graphql`query UserConsumerBQuery {
+  me {
+    combined_page {
+      name
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String, name: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+  name: String
+}
+
+extend type Page implements IPage

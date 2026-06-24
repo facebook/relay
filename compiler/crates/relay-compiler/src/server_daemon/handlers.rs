@@ -100,6 +100,9 @@ pub async fn handle_write(
                 .into_iter()
                 .map(|(severity, msg)| BuildMessage::from_diagnostic(severity, msg))
                 .collect()),
+            Some(BuildResult::Restarting(reason)) => Ok(vec![BuildMessage::info(format!(
+                "Daemon restarting to pick up new binary/config: {reason}. Retry this command."
+            ))]),
             None => Ok(vec![BuildMessage::info(
                 "No changes to compile".to_string(),
             )]),

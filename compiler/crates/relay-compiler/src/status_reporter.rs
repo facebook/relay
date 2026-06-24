@@ -63,6 +63,13 @@ pub enum BuildResult {
     Success(Vec<(DiagnosticSeverity, String)>),
     /// Failed build with pre-formatted error messages and their severities.
     Errors(Vec<(DiagnosticSeverity, String)>),
+    /// Build was aborted because the daemon is exiting to pick up a new
+    /// on-disk Relay binary or config (see `DaemonRestartSignals`). The
+    /// payload is a human-readable description of *why* the restart was
+    /// triggered, intended to surface to clients as an informational
+    /// message so they retry against the freshly-spawned daemon instead
+    /// of reporting a build failure.
+    Restarting(String),
 }
 
 /// Outcome of a Watchman sync — what the caller should do next.
@@ -115,6 +122,14 @@ pub struct BuildStatus {
     /// and let `watch()` reinitialize from saved state (or a full build).
     /// Read-and-cleared by the build loop via [`Self::take_reset_requested`].
     needs_reset: AtomicBool,
+    /// Set when `Compiler::watch` is exiting intentionally for a daemon
+    /// restart (binary/config drift detected). The value is the
+    /// `Debug`-formatted `RestartReason` for logging. Read-and-cleared by
+    /// `server_daemon::start_server` via [`Self::take_restart_reason`] so
+    /// the watch-task-completion handler can distinguish a planned restart
+    /// from an unexpected crash. Stored as `String` to keep
+    /// [`status_reporter`] free of a dependency on [`crate::config`].
+    restart_reason: Mutex<Option<String>>,
 }
 
 /// State guarded by the `watchman_sync` mutex in [`BuildStatus`].
@@ -161,6 +176,7 @@ impl BuildStatus {
                 build_notify: None,
             }),
             needs_reset: AtomicBool::new(false),
+            restart_reason: Mutex::new(None),
         }
     }
 
@@ -265,6 +281,22 @@ impl BuildStatus {
         self.needs_reset.swap(false, SeqCst)
     }
 
+    /// Signal that `Compiler::watch` is exiting because the on-disk Relay
+    /// binary or config drifted from the daemon's snapshot. Called from
+    /// the watch loop immediately before it breaks out so the surrounding
+    /// `start_server` task can distinguish a planned restart from a crash
+    /// when it observes the compiler task completing.
+    pub fn restart_initiated(&self, reason: String) {
+        *self.restart_reason.lock().unwrap() = Some(reason);
+    }
+
+    /// Take the restart reason set by [`Self::restart_initiated`], if any.
+    /// Returns `None` if no restart was initiated (i.e. the compiler task
+    /// completed for some other reason).
+    pub fn take_restart_reason(&self) -> Option<String> {
+        self.restart_reason.lock().unwrap().take()
+    }
+
     /// Called when pending changes were determined to not require a build.
     pub fn no_pending_changes(&self) {
         self.is_building.store(false, SeqCst);
@@ -280,6 +312,19 @@ impl BuildStatus {
             DiagnosticSeverity::ERROR,
             message,
         )]));
+        self.build_completed();
+    }
+
+    /// Signal that the daemon is exiting to pick up a new on-disk binary
+    /// or config (see [`DaemonRestartSignals`](crate::config::DaemonRestartSignals)).
+    ///
+    /// Distinct from [`Self::compiler_crashed`] because the resulting
+    /// `BuildResult::Restarting` is mapped by the daemon write handler to
+    /// an `Info`-severity client message — the connected client should
+    /// retry against the freshly-spawned daemon rather than treating this
+    /// build as a failure (which `BuildResult::Errors` would cause).
+    pub fn daemon_restarting(&self, message: String) {
+        self.set_build_result(BuildResult::Restarting(message));
         self.build_completed();
     }
 

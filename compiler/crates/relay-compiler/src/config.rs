@@ -13,6 +13,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::time::SystemTime;
 use std::vec;
 
 use async_trait::async_trait;
@@ -32,6 +33,7 @@ use graphql_ir::Program;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
+use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
@@ -119,6 +121,185 @@ type CustomExtractRelayResolvers = Box<
 
 type CustomOverrideSchemaDeterminator =
     Box<dyn Fn(&ProjectConfig, &OperationDefinition) -> Option<String> + Send + Sync>;
+
+/// Reason the daemon should exit and be restarted by its supervisor.
+#[derive(Debug, Clone)]
+pub enum RestartReason {
+    /// The on-disk config file's bytes differ from the snapshot taken at
+    /// daemon startup. `before`/`after` are SHA1 hex digests for logging.
+    ConfigChanged {
+        path: PathBuf,
+        before: String,
+        after: String,
+    },
+    /// The on-disk binary at `path` has a different mtime than at startup,
+    /// implying a deploy landed under the running daemon.
+    BinaryChanged { path: PathBuf },
+}
+
+/// Snapshot of the inputs that contribute to a saved-state version match,
+/// captured at daemon startup. Used by [`Compiler::watch`] to detect when
+/// the running daemon has drifted from the on-disk Relay binary or config
+/// and should exit so a fresh process can match the current saved state.
+///
+/// Motivation: the dominant source of saved-state version mismatches on
+/// user OD instances is a Relay binary or config change landing after the
+/// daemon was started (during OD warmup), so the warmed cache on disk no
+/// longer matches what the long-lived daemon expects. Restarting the
+/// daemon when the on-disk binary/config drifts eliminates that class of
+/// mismatch — the next client invocation respawns a fresh daemon via
+/// `ensure_daemon_running` against the current `current_exe()`.
+#[derive(Debug, Clone)]
+pub struct DaemonRestartSignals {
+    /// Path to the on-disk config file the daemon was started with.
+    config_path: PathBuf,
+    /// SHA1 hex of `config_path`'s raw bytes at daemon startup. Compared
+    /// only as a fallback when [`Self::startup_config_mtime`] /
+    /// [`Self::startup_config_size`] indicate a possible change, to avoid
+    /// re-reading the full file on every check.
+    startup_config_hash: String,
+    /// mtime of `config_path` at startup, used as a cheap pre-filter.
+    startup_config_mtime: Option<SystemTime>,
+    /// Size of `config_path` at startup, used as a cheap pre-filter.
+    startup_config_size: Option<u64>,
+    /// Path to the running binary (`std::env::current_exe()`), if detectable.
+    /// On non-Linux platforms or unusual launch paths this can be `None`,
+    /// in which case binary-change detection is skipped.
+    binary_path: Option<PathBuf>,
+    /// mtime of `binary_path` at startup, if detectable.
+    startup_binary_mtime: Option<SystemTime>,
+}
+
+impl DaemonRestartSignals {
+    /// Snapshot the config bytes and binary mtime. Returns `None` if the
+    /// config file at `config_path` can't be read (e.g. tests using a
+    /// virtual path); detection is silently disabled in that case.
+    ///
+    /// `binary_path` is normally [`std::env::current_exe`] in production —
+    /// taking it as a parameter lets tests inject a controllable tempfile
+    /// for `BinaryChanged` coverage. Pass `None` to disable binary
+    /// detection (the daemon will only react to config changes).
+    pub fn try_capture(config_path: &Path, binary_path: Option<PathBuf>) -> Option<Self> {
+        let config_bytes = std::fs::read(config_path).ok()?;
+        let mut hasher = Sha1::new();
+        hasher.update(&config_bytes);
+        let startup_config_hash = hex::encode(hasher.finalize());
+
+        let config_metadata = std::fs::metadata(config_path).ok();
+        let startup_config_mtime = config_metadata.as_ref().and_then(|m| m.modified().ok());
+        let startup_config_size = config_metadata.as_ref().map(|m| m.len());
+
+        let startup_binary_mtime = binary_path
+            .as_deref()
+            .and_then(|p| std::fs::metadata(p).ok())
+            .and_then(|m| m.modified().ok());
+
+        Some(Self {
+            config_path: config_path.to_owned(),
+            startup_config_hash,
+            startup_config_mtime,
+            startup_config_size,
+            binary_path,
+            startup_binary_mtime,
+        })
+    }
+
+    /// Re-read the on-disk config and binary metadata; return the first
+    /// detected change, or `None` if nothing relevant has drifted.
+    ///
+    /// The config-side path uses an `(mtime, size)` pre-filter so the
+    /// steady-state cost is a single `stat` syscall; only if mtime or size
+    /// drifted do we re-read and re-hash the file. This is important
+    /// because [`crate::Compiler::watch`]'s `incremental_build_loop` calls
+    /// this on every Watchman notify — see knowledge entry
+    /// `flag-performance-impact-of-file-io-in-the-compiler-hot-path-*`.
+    ///
+    /// Uses `tokio::fs` because the caller runs inside the Tokio runtime;
+    /// blocking `std::fs` here would block the worker thread for the
+    /// duration of the stat/read syscalls.
+    pub async fn check(&self) -> Option<RestartReason> {
+        if let Some(reason) = self.check_config().await {
+            return Some(reason);
+        }
+        self.check_binary().await
+    }
+
+    async fn check_config(&self) -> Option<RestartReason> {
+        // Cheap pre-filter: if both mtime and size match the startup
+        // snapshot, the file is overwhelmingly likely unchanged. Skip the
+        // expensive read+hash in the common case.
+        //
+        // False-negative caveat: if a writer preserves mtime AND keeps
+        // the same file length (e.g. `cp --preserve=timestamps`, `touch
+        // -r`, in-place edit that ends at the same offset), this branch
+        // returns `None` and the hash comparison that would have caught
+        // the change is skipped. In practice, builds spawn fresh daemons
+        // routinely, so any missed change is caught at next daemon spawn
+        // at the latest. If false negatives become a real problem,
+        // remove the pre-filter and always hash.
+        if let (Some(startup_mtime), Some(startup_size)) =
+            (self.startup_config_mtime, self.startup_config_size)
+            && let Ok(metadata) = tokio::fs::metadata(&self.config_path).await
+            && let Ok(now_mtime) = metadata.modified()
+            && now_mtime == startup_mtime
+            && metadata.len() == startup_size
+        {
+            return None;
+        }
+
+        let bytes = match tokio::fs::read(&self.config_path).await {
+            Ok(bytes) => bytes,
+            Err(e) => {
+                // Don't silently disable detection — the config file used
+                // to be readable (we read it in `try_capture`), so a read
+                // failure here is unexpected and worth surfacing in logs.
+                warn!(
+                    "DaemonRestartSignals: could not re-read config at {}: {e}; \
+                     restart detection skipped for this iteration",
+                    self.config_path.display()
+                );
+                return None;
+            }
+        };
+        let mut hasher = Sha1::new();
+        hasher.update(&bytes);
+        let now_hash = hex::encode(hasher.finalize());
+        if now_hash == self.startup_config_hash {
+            return None;
+        }
+        Some(RestartReason::ConfigChanged {
+            path: self.config_path.clone(),
+            before: self.startup_config_hash.clone(),
+            after: now_hash,
+        })
+    }
+
+    async fn check_binary(&self) -> Option<RestartReason> {
+        let (Some(path), Some(startup_mtime)) =
+            (self.binary_path.as_deref(), self.startup_binary_mtime)
+        else {
+            return None;
+        };
+        let metadata = match tokio::fs::metadata(path).await {
+            Ok(m) => m,
+            Err(e) => {
+                // Same rationale as `check_config` above — surface the
+                // unexpected failure rather than silently disabling
+                // detection. The binary path was readable at startup.
+                warn!(
+                    "DaemonRestartSignals: could not stat binary at {}: {e}; \
+                     restart detection skipped for this iteration",
+                    path.display()
+                );
+                return None;
+            }
+        };
+        let now_mtime = metadata.modified().ok()?;
+        (now_mtime != startup_mtime).then(|| RestartReason::BinaryChanged {
+            path: path.to_owned(),
+        })
+    }
+}
 
 /// The full compiler config. This is a combination of:
 /// - the configuration file
@@ -223,6 +404,13 @@ pub struct Config {
 
     /// Names of directives that will be automatically copied from the parent fragment to refetchable queries
     pub transferrable_refetchable_query_directives: Vec<DirectiveName>,
+
+    /// Inputs the daemon polls each iteration to decide whether to exit so
+    /// a fresh process can pick up a new binary/config. `None` when the
+    /// config came from in-memory data (tests, `SingleProjectConfigFile`
+    /// → virtual path) or when the config file isn't readable.
+    /// Only consulted by [`Compiler::watch`] in daemon mode.
+    pub restart_signals: Option<DaemonRestartSignals>,
 }
 
 pub enum FileSourceKind {
@@ -636,6 +824,10 @@ impl Config {
             custom_extract_relay_resolvers: None,
             should_extract_full_source: None,
             transferrable_refetchable_query_directives: vec![],
+            restart_signals: DaemonRestartSignals::try_capture(
+                &config_path,
+                std::env::current_exe().ok(),
+            ),
         };
 
         let mut validation_errors = Vec::new();
@@ -651,6 +843,22 @@ impl Config {
                 validation_errors,
             })
         }
+    }
+
+    /// Daemon-only restart-signal check. Returns `Some(reason)` if the
+    /// daemon should exit so a fresh process can pick up the current
+    /// on-disk binary/config; `None` otherwise (including in non-daemon
+    /// mode and when no signals were captured at startup).
+    ///
+    /// Extracted into a `Config` method so the gating logic
+    /// (`daemon_build_status.is_some() && signals.is_some()`) can be unit
+    /// tested without spinning up the watch loop. The caller —
+    /// [`crate::Compiler::watch`]'s `incremental_build_loop` — only needs
+    /// to await this and act on the returned reason.
+    pub async fn check_restart_if_daemon(&self) -> Option<RestartReason> {
+        self.daemon_build_status.as_ref()?;
+        let signals = self.restart_signals.as_ref()?;
+        signals.check().await
     }
 
     /// Iterator over projects that are enabled.

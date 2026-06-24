@@ -14,6 +14,8 @@
 //! * Generating output files based on the transformed AST
 use std::collections::HashSet;
 use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering::SeqCst;
 
 use common::Diagnostic;
 use common::PerfLogEvent;
@@ -47,6 +49,12 @@ use crate::file_source::FileSourceSubscriptionNextChange;
 use crate::file_source::LocatedDocblockSource;
 use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
+
+/// Output of the per-iteration watch-mode setup block in [`Compiler::watch`]:
+/// the freshly built compiler state, the notify receiver the build loop awaits
+/// on, the spawned Watchman subscription task handle, and the cross-task flag
+/// the build loop sets to request a Leave-arm re-wake after a deferred restart.
+type WatchSetupOutput = (CompilerState, Arc<Notify>, JoinHandle<()>, Arc<AtomicBool>);
 
 pub struct Compiler<TPerfLogger>
 where
@@ -145,6 +153,24 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         }
     }
 
+    /// Run the compiler in watch mode, looping until either a setup
+    /// error occurs (`Err`) or — in daemon mode only — the on-disk Relay
+    /// binary or config file has drifted from what this daemon was
+    /// started with and a clean restart is required (`Ok(())`).
+    ///
+    /// Non-daemon callers (`fb-relay-compiler` Watch, `relay-bin`) can
+    /// treat `Ok(())` as unreachable: the restart-on-drift check is
+    /// gated on `Config::daemon_build_status.is_some()`, so the loop
+    /// never exits cleanly outside daemon mode.
+    ///
+    /// In daemon mode, when this returns `Ok(())`, the surrounding
+    /// `server_daemon::start_server` task observes the completion, takes
+    /// the restart reason via [`BuildStatus::take_restart_reason`],
+    /// unblocks any in-flight clients via [`BuildStatus::daemon_restarting`]
+    /// (so they receive an info-severity "daemon restarting, retry"
+    /// message rather than a crash error), and exits cleanly. The next
+    /// client invocation respawns a fresh daemon via
+    /// `ensure_daemon_running` against the current `current_exe()`.
     pub async fn watch(&self) -> Result<()> {
         'watch: loop {
             // Clear any stale cached artifact operations from a previous watch
@@ -161,7 +187,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 build_status.changes_pending();
             }
 
-            let result: Result<(CompilerState, Arc<Notify>, JoinHandle<()>)> = async {
+            let result: Result<WatchSetupOutput> = async {
                 // In daemon mode, skip `initialize_resources` (e.g. dumping
                 // GraphQL schemas via `phps GraphQLDumpSchemas`). The client is
                 // responsible for re-dumping schemas before each operation, and
@@ -190,6 +216,16 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
                 let notify_sender = Arc::new(Notify::new());
                 let notify_receiver = notify_sender.clone();
+                // Cross-task flag: set by the build loop's post-await
+                // guard when it drops a restart due to `is_started`, read
+                // (and cleared) by the subscription task's Leave arms.
+                // Only Leaves that follow a deferred restart wake the
+                // loop — clean rebases (the common case) stay silent so
+                // `wait_for_idle()` callers aren't briefly blocked on
+                // every `hg up .` / no-op `hg pull --rebase`.
+                let restart_recheck_pending = Arc::new(AtomicBool::new(false));
+                let restart_recheck_pending_for_subscription =
+                    Arc::clone(&restart_recheck_pending);
                 let is_daemon = self.config.daemon_build_status.is_some();
 
                 // In daemon mode, initialize the synchronized Watchman state so
@@ -233,6 +269,18 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                                     WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateLeave => {
                                         info!("hg.update completed.");
                                         source_control_update_status.set_to_default();
+                                        // Only wake the build loop if a prior
+                                        // iteration's post-await guard deferred a
+                                        // restart due to `is_started` — otherwise
+                                        // there's nothing to recheck and the wake
+                                        // would briefly flip `is_building=true`
+                                        // (blocking any concurrent `wait_for_idle`
+                                        // caller) on every clean rebase event.
+                                        if restart_recheck_pending_for_subscription
+                                            .swap(false, SeqCst)
+                                        {
+                                            notify_sender.notify_one();
+                                        }
                                     }
                                     WatchmanFileSourceSubscriptionNextChange::SourceControlUpdate => {
                                         info!("hg.update completed. Detected new base revision...");
@@ -257,6 +305,9 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                             Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateLeave) => {
                                 info!("Test: source control update completed.");
                                 source_control_update_status.set_to_default();
+                                if restart_recheck_pending_for_subscription.swap(false, SeqCst) {
+                                    notify_sender.notify_one();
+                                }
                             }
                             Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdate) => {
                                 info!("Test: source control update with new base revision...");
@@ -271,13 +322,18 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     }
                 });
 
-                Ok((compiler_state, notify_receiver, subscription_handle))
+                Ok((compiler_state, notify_receiver, subscription_handle, restart_recheck_pending))
 
             }
             .await;
 
             match result {
-                Ok((mut compiler_state, notify_receiver, subscription_handle)) => {
+                Ok((
+                    mut compiler_state,
+                    notify_receiver,
+                    subscription_handle,
+                    restart_recheck_pending,
+                )) => {
                     let mut red_to_green = RedToGreen::new();
                     match self.build_projects(&mut compiler_state, &setup_event).await {
                         Ok(diagnostics) => {
@@ -292,12 +348,34 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     setup_event.complete();
                     info!("Watching for new changes...");
 
-                    self.incremental_build_loop(
-                        compiler_state,
-                        notify_receiver,
-                        &subscription_handle,
-                    )
-                    .await;
+                    if let Some(reason) = self
+                        .incremental_build_loop(
+                            compiler_state,
+                            notify_receiver,
+                            &subscription_handle,
+                            restart_recheck_pending,
+                        )
+                        .await
+                    {
+                        info!(
+                            "Relay daemon exiting so a fresh process picks up the current binary/config: {reason:?}"
+                        );
+                        // Side-channel signal to `server_daemon::start_server`
+                        // so its `compiler_handle` select arm can distinguish
+                        // this intentional restart from an unexpected crash
+                        // (`take_restart_reason` returns `Some` here, so the
+                        // arm logs `info!` instead of `error!` and avoids
+                        // misattributing the restart in client telemetry).
+                        // The watch loop returns `Ok(())`; the surrounding
+                        // server task observes the completion and breaks the
+                        // accept loop. The next client invocation respawns
+                        // the daemon through `ensure_daemon_running` with the
+                        // now-current `current_exe()`.
+                        if let Some(build_status) = &self.config.daemon_build_status {
+                            build_status.restart_initiated(format!("{reason:?}"));
+                        }
+                        break 'watch Ok(());
+                    }
                 }
                 Err(err) => {
                     self.config.status_reporter.build_errors(&err);
@@ -307,16 +385,34 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         }
     }
 
+    /// Returns `Some(reason)` if the daemon should shut down so a fresh
+    /// process can reload the on-disk binary/config; `None` otherwise (the
+    /// caller — `watch()` — will then re-enter the outer initialization
+    /// loop as usual).
     async fn incremental_build_loop(
         &self,
         mut compiler_state: CompilerState,
         notify_receiver: Arc<Notify>,
         subscription_handle: &JoinHandle<()>,
-    ) {
+        restart_recheck_pending: Arc<AtomicBool>,
+    ) -> Option<crate::config::RestartReason> {
         let mut red_to_green = RedToGreen::new();
 
         loop {
             notify_receiver.notified().await;
+
+            // Clear any deferred-restart wake-request from a prior iteration.
+            // Without this, a deferred restart that gets woken by a non-Leave
+            // notify and then recovers without re-firing (signal=None on the
+            // next check — e.g. config bytes reverted, or mtime/size pre-filter
+            // matches again) would leave the flag set on this Arc for the rest
+            // of the build-loop lifetime. Every subsequent Leave would then
+            // fire a spurious notify and briefly flip `is_building=true` for
+            // any `wait_for_idle()` caller — exactly the latency cost the
+            // narrower-Leave-notify design was supposed to avoid. Clearing
+            // here is safe: if Leave woke us, swap already cleared it; if the
+            // wake was from a file change, we want a fresh per-iteration arm.
+            restart_recheck_pending.store(false, SeqCst);
 
             // Signal that changes have been detected and processing may occur.
             // This must happen before any checks/debouncing so that clients
@@ -333,7 +429,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 if build_status.take_reset_requested() {
                     info!("Reset requested: reinitializing compiler state from saved state...");
                     subscription_handle.abort();
-                    return;
+                    return None;
                 }
             }
 
@@ -347,7 +443,89 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
             if compiler_state.source_control_update_status.is_completed() {
                 subscription_handle.abort();
-                return;
+                return None;
+            }
+
+            // Daemon mode only: if the on-disk Relay binary or config file
+            // has drifted from what this daemon was started with, signal
+            // the outer `watch()` to exit so a fresh process can pick up
+            // the current binary/config. The in-memory compiler state —
+            // including `Config::saved_state_version` — is bound to the
+            // startup-time binary+config and would otherwise produce a
+            // "Saved state version mismatch" against a freshly-warmed
+            // cache. See `DaemonRestartSignals` for motivation.
+            //
+            // Placement matters: this runs AFTER the source-control
+            // update guards above so a mid-rebase config edit (e.g.
+            // `hg goto` across a commit that touches the config file)
+            // goes through the existing reset path rather than racing
+            // with our (mtime, size) pre-filter while the working copy
+            // is in a transient state.
+            //
+            // `check_restart_if_daemon` is awaited (uses `tokio::fs`) and
+            // uses an mtime+size pre-filter so the steady-state cost is
+            // ~one `stat` per file — see knowledge entry
+            // `flag-performance-impact-of-file-io-in-the-compiler-hot-path-*`.
+            // Note: `tokio::fs::metadata` dispatches to `spawn_blocking`,
+            // so the userspace cost is stat-syscall + thread-pool round
+            // trip. The wrapping perf event captures this for observability
+            // per `new-daemon-code-paths-that-are-called-in-performance-sensitive-loops-should`.
+            let restart_signal = self.config.check_restart_if_daemon().await;
+            // Only log the perf event when the check actually fires — the
+            // production `PerfpipeLogger` allocates a per-event DashMap +
+            // HashMap clone + scribe write inside `complete()`, which would
+            // dominate the steady-state cost (target: ~2 stat syscalls per
+            // notify; an unconditional event is dozens of allocations + a
+            // scribe write per notify). Restart events are rare (once per
+            // daemon lifetime) so logging on the trigger path only is the
+            // right tradeoff — we lose steady-state timing visibility but
+            // keep visibility on what matters.
+            if restart_signal.is_some() {
+                let check_event = self.perf_logger.create_event("check_restart_signals");
+                check_event.bool("triggered", true);
+                check_event.complete();
+            }
+            if let Some(reason) = restart_signal {
+                // Re-check the source-control guards: `check_restart_if_daemon`
+                // dispatches `tokio::fs::metadata` through `spawn_blocking`, so
+                // the subscription task can interleave during the await and flip
+                // `is_started()` to true on a fresh `state-enter("hg.update")`.
+                // If that happened, the bytes we just read may be mid-rebase
+                // transient state — drop the restart and let the next iteration's
+                // top-of-loop guards handle the source-control update.
+                //
+                // Pre-arm the Leave-arm wake-up signal BEFORE checking
+                // `is_started()` to close a thread-preemption race: without this
+                // ordering, a `state-leave` landing between the `is_started()`
+                // read and the `.store()` would see the flag still false, skip
+                // the notify, and leave the daemon parked on
+                // `notify_receiver.notified()` with a known-stale snapshot. If
+                // `is_started()` turns out to be false (we end up firing the
+                // restart instead of deferring), the flag staying set is
+                // harmless — either `watch()` exits (the `AtomicBool` is GC'd
+                // along with its `Arc`s) or the outer loop reinits and a fresh
+                // `AtomicBool` is created.
+                restart_recheck_pending.store(true, SeqCst);
+                if compiler_state.source_control_update_status.is_started() {
+                    info!(
+                        "Restart signal dropped: source-control update started during \
+                         check; will re-check after rebase settles: {reason:?}"
+                    );
+                    if let Some(build_status) = &self.config.daemon_build_status {
+                        build_status.no_pending_changes();
+                    }
+                    continue;
+                }
+                if compiler_state.source_control_update_status.is_completed() {
+                    info!(
+                        "Restart signal deferred: source-control update completed during \
+                         check; will re-check after compiler reinit: {reason:?}"
+                    );
+                    subscription_handle.abort();
+                    return None;
+                }
+                subscription_handle.abort();
+                return Some(reason);
             }
 
             // Single change to file sometimes produces 2 watchman change events for the same file
@@ -384,7 +562,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         let error_event = self.perf_logger.create_event("watch_build_error");
                         error_event.string("error", format!("Ignored Compilation Error: {err}"));
                         error_event.complete();
-                        return;
+                        return None;
                     }
                 };
 

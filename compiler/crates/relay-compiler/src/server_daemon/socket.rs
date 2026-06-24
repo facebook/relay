@@ -124,6 +124,12 @@ pub async fn start_server<TPerfLogger: PerfLogger + 'static>(
     });
 
     let mut client_tasks = JoinSet::new();
+    // Set when the `compiler_handle` select arm drives the JoinHandle to
+    // completion. Awaiting a JoinHandle a second time panics with
+    // `JoinHandle polled after completion`, so the post-loop `abort + await`
+    // below must be skipped in that case. Without this guard, every
+    // intentional restart (and every compiler crash) panics on shutdown.
+    let mut compiler_completed = false;
 
     loop {
         tokio::select! {
@@ -156,6 +162,22 @@ pub async fn start_server<TPerfLogger: PerfLogger + 'static>(
                 }
             }
             result = &mut compiler_handle => {
+                compiler_completed = true;
+                // Was this an intentional restart from `Compiler::watch`
+                // detecting binary/config drift? `restart_initiated` is
+                // called there immediately before the loop exits cleanly
+                // with `Ok(())`, so a non-None reason here means the
+                // task's `Ok(())` is by-design — log at `info!` and route
+                // the unblock through `daemon_restarting` (which stores a
+                // `BuildResult::Restarting` and is mapped by the write
+                // handler to an `Info`-severity client message so the
+                // client retries against the freshly-spawned daemon
+                // instead of reporting a build failure).
+                if let Some(reason) = build_status.take_restart_reason() {
+                    info!("Daemon restarting to pick up new binary/config: {reason}");
+                    build_status.daemon_restarting(reason);
+                    break;
+                }
                 let message = match result {
                     Ok(()) => "Compiler exited unexpectedly".to_string(),
                     Err(e) if e.is_panic() => {
@@ -207,8 +229,12 @@ pub async fn start_server<TPerfLogger: PerfLogger + 'static>(
     }
 
     // Abort the compiler task (no-op if it already exited) and wait for cleanup.
-    compiler_handle.abort();
-    let _ = compiler_handle.await;
+    // Skip when the `compiler_handle` select arm above already drove the handle
+    // to completion — awaiting a JoinHandle twice panics.
+    if !compiler_completed {
+        compiler_handle.abort();
+        let _ = compiler_handle.await;
+    }
 
     metadata.cleanup();
 

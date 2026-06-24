@@ -30,6 +30,7 @@ use crate::DIRECTIVE_SPLIT_OPERATION;
 use crate::FragmentAliasMetadata;
 use crate::INTERNAL_METADATA_DIRECTIVE;
 use crate::ModuleMetadata;
+use crate::PrefetchablePaginationEdgesFragmentMetadata;
 use crate::RefetchableDerivedFromMetadata;
 use crate::RelayResolverMetadata;
 use crate::RequiredMetadataDirective;
@@ -87,13 +88,14 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
     }
 }
 
-static CUSTOM_METADATA_DIRECTIVES: LazyLock<[DirectiveName; 21]> = LazyLock::new(|| {
+static CUSTOM_METADATA_DIRECTIVES: LazyLock<[DirectiveName; 22]> = LazyLock::new(|| {
     [
         *CATCH_DIRECTIVE_NAME,
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
         ModuleMetadata::directive_name(),
+        PrefetchablePaginationEdgesFragmentMetadata::directive_name(),
         *DIRECTIVE_SPLIT_OPERATION,
         RefetchableMetadata::directive_name(),
         RefetchableDerivedFromMetadata::directive_name(),

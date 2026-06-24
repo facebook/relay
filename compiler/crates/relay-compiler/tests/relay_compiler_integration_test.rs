@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ccf218f77f57a996f01047fa52e1736d>>
+ * @generated SignedSource<<09098b68e663388d55e03e4967c45c82>>
  */
 
 mod relay_compiler_integration;
@@ -444,6 +444,13 @@ async fn non_relay_file_in_generated_dir_with_custom_output() {
     let input = include_str!("relay_compiler_integration/fixtures/non_relay_file_in_generated_dir_with_custom_output.input");
     let expected = include_str!("relay_compiler_integration/fixtures/non_relay_file_in_generated_dir_with_custom_output.expected");
     test_fixture(transform_fixture, file!(), "non_relay_file_in_generated_dir_with_custom_output.input", "relay_compiler_integration/fixtures/non_relay_file_in_generated_dir_with_custom_output.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn prefetchable_pagination_rename_fragment_removes_edges() {
+    let input = include_str!("relay_compiler_integration/fixtures/prefetchable_pagination_rename_fragment_removes_edges.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/prefetchable_pagination_rename_fragment_removes_edges.expected");
+    test_fixture(transform_fixture, file!(), "prefetchable_pagination_rename_fragment_removes_edges.input", "relay_compiler_integration/fixtures/prefetchable_pagination_rename_fragment_removes_edges.expected", input, expected).await;
 }
 
 #[tokio::test]

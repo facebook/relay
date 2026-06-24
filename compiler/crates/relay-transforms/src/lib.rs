@@ -207,6 +207,7 @@ pub use skip_unreachable_node::skip_unreachable_node_loose;
 pub use skip_unreachable_node::skip_unreachable_node_strict;
 pub use sort_selections::sort_selections;
 pub use test_operation_metadata::generate_test_operation_metadata;
+pub use transform_connections::PrefetchablePaginationEdgesFragmentMetadata;
 pub use transform_connections::transform_connections;
 pub use unwrap_custom_directive_selection::unwrap_custom_directive_selection;
 pub use util::extract_variable_name;

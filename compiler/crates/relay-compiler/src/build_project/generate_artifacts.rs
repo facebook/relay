@@ -24,6 +24,7 @@ use relay_codegen::QueryID;
 use relay_config::ResolversSchemaModuleConfig;
 use relay_transforms::ArtifactSourceKeyData;
 use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
+use relay_transforms::PrefetchablePaginationEdgesFragmentMetadata;
 use relay_transforms::Programs;
 use relay_transforms::RawResponseGenerationMode;
 use relay_transforms::RefetchableDerivedFromMetadata;
@@ -198,6 +199,12 @@ pub fn generate_artifacts(
                 vec![
                     ArtifactSourceKey::ResolverHash(artifact_source.0)
                 ]
+            } else if let Some(edges_metadata) = PrefetchablePaginationEdgesFragmentMetadata::find(&reader_fragment.directives) {
+                // The synthetic `{name}__edges` fragment is attributed to the
+                // document its connection field belonged to, so its artifact is
+                // removed together with that source definition rather than being
+                // orphaned under its own synthetic name (e.g. on rename).
+                vec![ArtifactSourceKey::ExecutableDefinition(edges_metadata.parent_document_name)]
             } else {
                 vec![ArtifactSourceKey::ExecutableDefinition(source_name)]
             };

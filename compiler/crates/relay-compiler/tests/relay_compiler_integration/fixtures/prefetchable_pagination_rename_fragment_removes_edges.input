@@ -1,0 +1,87 @@
+//- foo.js
+graphql`
+  fragment fooFragment_viewer on Viewer @refetchable(queryName: "FooFragmentPaginationQuery") {
+    posts(first: $count, after: $cursor) @connection(key: "fooFragment_posts", prefetchable_pagination: true) {
+      edges {
+        node {
+          title
+        }
+      }
+    }
+  }
+`;
+
+graphql`
+  query fooQuery($count: Int, $cursor: String) {
+    viewer {
+      ...fooFragment_viewer
+    }
+  }
+`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "jsModuleFormat": "haste",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query {
+   me: Viewer
+   viewer: Viewer
+   node(id: ID!): Node
+}
+
+interface Node {
+   id: ID!
+}
+
+type Viewer implements Node {
+   id: ID!
+   posts(first: Int, after: String): PostsConnection
+}
+
+type PostsConnection {
+  count: Int
+  edges: [PostEdge]
+  pageInfo: PageInfo
+}
+
+type PostEdge {
+  cursor: String
+  node: Page
+}
+
+type PageInfo {
+  hasPreviousPage: Boolean
+  hasNextPage: Boolean
+  endCursor: String
+  startCursor: String
+}
+
+type Page implements Node {
+    title: String
+    id: ID!
+}
+
+//-++ foo.js
+graphql`
+  fragment fooFragment_me on Viewer @refetchable(queryName: "FooFragmentPaginationQuery") {
+    posts(first: $count, after: $cursor) @connection(key: "fooFragment_posts", prefetchable_pagination: true) {
+      edges {
+        node {
+          title
+        }
+      }
+    }
+  }
+`;
+
+graphql`
+  query fooQuery($count: Int, $cursor: String) {
+    me {
+      ...fooFragment_me
+    }
+  }
+`

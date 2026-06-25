@@ -120,9 +120,9 @@ impl FromStr for StringKey {
 #[macro_export]
 macro_rules! intern {
     ($value:literal) => {{
-        use $crate::string::Lazy;
-        use $crate::string_key::Intern;
-        static INSTANCE: Lazy<$crate::string_key::StringKey> = Lazy::new(|| $value.intern());
+        use $crate::string_key::Intern as _;
+        static INSTANCE: std::sync::LazyLock<$crate::string_key::StringKey> =
+            std::sync::LazyLock::new(|| $value.intern());
         *INSTANCE
     }};
     ($_:expr) => {

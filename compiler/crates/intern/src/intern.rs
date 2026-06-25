@@ -13,10 +13,10 @@ use std::fmt::Debug;
 use std::hash::Hash;
 use std::hash::Hasher;
 use std::num::NonZeroU32;
+use std::sync::OnceLock;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
 
-use once_cell::sync::OnceCell;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
@@ -198,7 +198,7 @@ type Shards<Id> = ShardedSet<AsInterned<Id>, std::hash::BuildHasherDefault<fnv::
 /// An `InternTable` manages all the storage associated with the `Id`.
 #[derive(Default)]
 pub struct InternTable<Id, Type> {
-    shards: OnceCell<Shards<Id>>,      // Allocated lazily.
+    shards: OnceLock<Shards<Id>>,      // Allocated lazily.
     arena: AtomicArena<'static, Type>, // Static.
     serdes_type_index: AtomicU32,      // Initialized lazily.
 }
@@ -210,7 +210,7 @@ impl<Id, Type> InternTable<Id, Type> {
     #[doc(hidden)]
     pub const fn new() -> Self {
         InternTable {
-            shards: OnceCell::new(),
+            shards: OnceLock::new(),
             arena: AtomicArena::new(),
             serdes_type_index: AtomicU32::new(u32::MAX),
         }
@@ -221,7 +221,7 @@ impl<Id, Type> InternTable<Id, Type> {
     #[doc(hidden)]
     pub const fn with_zero(z: &'static atomic_arena::Zero<Type>) -> Self {
         InternTable {
-            shards: OnceCell::new(),
+            shards: OnceLock::new(),
             arena: AtomicArena::with_zero(z),
             serdes_type_index: AtomicU32::new(u32::MAX),
         }

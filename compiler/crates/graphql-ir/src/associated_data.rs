@@ -91,8 +91,8 @@ macro_rules! associated_data_impl {
 
         impl $name {
             pub fn directive_name() -> common::DirectiveName {
-                static DIRECTIVE_NAME: $crate::reexport::Lazy<common::DirectiveName> =
-                    $crate::reexport::Lazy::new(|| {
+                static DIRECTIVE_NAME: $crate::reexport::LazyLock<common::DirectiveName> =
+                    $crate::reexport::LazyLock::new(|| {
                         use common::DirectiveName;
                         use $crate::reexport::string_key::Intern;
                         DirectiveName(concat!("__", stringify!($name)).intern())
@@ -146,8 +146,7 @@ impl<T: Any> AsAny for T {
 mod tests {
     use std::collections::hash_map::RandomState;
     use std::hash::BuildHasher;
-
-    use once_cell::sync::Lazy;
+    use std::sync::LazyLock;
 
     use super::*;
 
@@ -165,7 +164,7 @@ mod tests {
         let boxed_foo_2: Box<dyn AssociatedData> = Box::new(Foo(2));
         let boxed_bar_1: Box<dyn AssociatedData> = Box::new(Bar(1));
 
-        static BUILD_HASHER: Lazy<RandomState> = Lazy::new(RandomState::new);
+        static BUILD_HASHER: LazyLock<RandomState> = LazyLock::new(RandomState::new);
         fn hash<T: Hash>(x: T) -> u64 {
             BUILD_HASHER.hash_one(&x)
         }

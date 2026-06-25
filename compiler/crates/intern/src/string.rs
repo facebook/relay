@@ -16,8 +16,6 @@ use std::hash::Hash;
 use std::str::FromStr;
 use std::str::Utf8Error;
 
-#[doc(hidden)]
-pub use once_cell::sync::Lazy; // For macros
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
 
@@ -278,8 +276,8 @@ where
 #[macro_export]
 macro_rules! string_id {
     ($value:literal) => {{
-        static INSTANCE: $crate::string::Lazy<$crate::string::StringId> =
-            $crate::string::Lazy::new(|| $crate::string::intern($value));
+        static INSTANCE: $crate::string::LazyLock<$crate::string::StringId> =
+            $crate::string::LazyLock::new(|| $crate::string::intern($value));
         *INSTANCE
     }};
     ($_:expr) => {
@@ -291,8 +289,8 @@ macro_rules! string_id {
 #[macro_export]
 macro_rules! bytes_id {
     ($value:literal) => {{
-        static INSTANCE: $crate::string::Lazy<$crate::string::BytesId> =
-            $crate::string::Lazy::new(|| $crate::string::intern_bytes($value as &[u8]));
+        static INSTANCE: $crate::string::LazyLock<$crate::string::BytesId> =
+            $crate::string::LazyLock::new(|| $crate::string::intern_bytes($value as &[u8]));
         *INSTANCE
     }};
     ($_:expr) => {

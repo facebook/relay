@@ -9,7 +9,7 @@ import {KeyType, KeyTypeData, RefetchFnDynamic} from '../ReactRelayTypes';
 import {LoadMoreFn} from './useLoadMoreFunction';
 import {GraphQLTaggedNode, OperationType, VariablesOf} from 'relay-runtime';
 
-export interface PrefetchableForwardPaginationReturn<
+export interface usePrefetchableForwardPaginationFragmentHookType<
     TQuery extends OperationType,
     TKey extends KeyType | null | undefined,
     TFragmentData,
@@ -49,7 +49,7 @@ export function usePrefetchableForwardPaginationFragment<
     prefetchingLoadMoreOptions?: PrefetchingLoadMoreOptions<TQuery, KeyTypeData<TKey>, TEdgeData>,
     minimalFetchSize?: number,
     disablePrefetching?: boolean,
-): PrefetchableForwardPaginationReturn<TQuery, TKey, KeyTypeData<TKey>, TEdgeData>;
+): usePrefetchableForwardPaginationFragmentHookType<TQuery, TKey, KeyTypeData<TKey>, TEdgeData>;
 export function usePrefetchableForwardPaginationFragment<
     TQuery extends OperationType,
     TKey extends KeyType,
@@ -66,4 +66,4 @@ export function usePrefetchableForwardPaginationFragment<
     >,
     minimalFetchSize?: number,
     disablePrefetching?: boolean,
-): PrefetchableForwardPaginationReturn<TQuery, TKey | null, KeyTypeData<TKey> | null | undefined, TEdgeData>;
+): usePrefetchableForwardPaginationFragmentHookType<TQuery, TKey | null, KeyTypeData<TKey> | null | undefined, TEdgeData>;

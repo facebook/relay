@@ -35,6 +35,7 @@ export interface EnvironmentConfig {
     readonly configName?: string | undefined;
     readonly handlerProvider?: HandlerProvider | null | undefined;
     readonly treatMissingFieldsAsNull?: boolean | undefined;
+    readonly deferDeduplicatedFields?: boolean | undefined,
     readonly log?: LogFunction | null | undefined;
     readonly operationLoader?: OperationLoader | null | undefined;
     readonly network: Network;

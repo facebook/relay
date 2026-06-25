@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7411e13e378d84ce987860106d33a265>>
+ * @generated SignedSource<<a5e260dba2fe69007ef4a665da566afb>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -34,6 +34,7 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleF
   "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider')
 } as {
   readonly __relay_internal__pv__RelayProvider_returnsTruerelayprovider: {
+    readonly dynamic?: boolean,
     readonly get: () => boolean,
   },
 });

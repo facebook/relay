@@ -112,9 +112,10 @@ export const RelayConcreteNode: {
 };
 
 export interface ProvidedVariablesType {
-    readonly [key: string]: { get(): unknown };
+    readonly [key: string]: ProvidedVariableType;
 }
 
 export interface ProvidedVariableType {
     get(): unknown;
+    readonly dynamic?: boolean;
 }

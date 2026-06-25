@@ -307,4 +307,55 @@ describe('withProvidedVariables', () => {
       ).toEqual(0);
     });
   });
+
+  describe('When a provider is marked dynamic', () => {
+    it('resolves a fresh value on every call and never warns', () => {
+      const userQuery = graphql`
+        query withProvidedVariablesTest7Query {
+          node(id: 4) {
+            ...withProvidedVariablesTest7Fragment @dangerously_unaliased_fixme
+          }
+        }
+      `;
+      graphql`
+        fragment withProvidedVariablesTest7Fragment on User
+        @argumentDefinitions(
+          dynamicProvider: {
+            type: "Float!"
+            provider: "./provideDynamicValue.relayprovider"
+          }
+        ) {
+          profile_picture(scale: $dynamicProvider) {
+            uri
+          }
+        }
+      `;
+
+      const userVariables = {};
+      // disallowWarnings() (top of file) fails the test if the pure-function
+      // warning fires, so this also asserts that a dynamic provider never warns
+      // even though it returns a different value each call.
+      let vars = withProvidedVariables(
+        userVariables,
+        userQuery.params.providedVariables,
+      );
+      expect(
+        vars.__relay_internal__pv__provideDynamicValuerelayprovider,
+      ).toEqual(0);
+      vars = withProvidedVariables(
+        userVariables,
+        userQuery.params.providedVariables,
+      );
+      expect(
+        vars.__relay_internal__pv__provideDynamicValuerelayprovider,
+      ).toEqual(1);
+      vars = withProvidedVariables(
+        userVariables,
+        userQuery.params.providedVariables,
+      );
+      expect(
+        vars.__relay_internal__pv__provideDynamicValuerelayprovider,
+      ).toEqual(2);
+    });
+  });
 });

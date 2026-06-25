@@ -77,6 +77,12 @@ To add a provided variable:
 - ensure that `[JSModule].relayprovider.js` exists and exports a `get()`
   function
   - `get` should return the same value on every call for a given run.
+  - if the value can legitimately differ between runs (for example, it depends
+    on per-request or per-session state), also export `dynamic: true`. Relay
+    then resolves the provider fresh on every operation instead of memoizing the
+    first value, which is important when one runtime serves many requests, such
+    as during server-side rendering. `get` should still return a consistent
+    value within a single run.
 
 ```graphql
 fragment TodoItem_item on TodoList
@@ -97,6 +103,19 @@ export default {
   get(): boolean {
     // must always return true or false for a given run
     return check('todo_should_include_timestamp');
+  },
+};
+```
+
+A `dynamic` provider whose value depends on the current run:
+
+```javascript
+// Viewer_IsLoggedIn.relayprovider.js
+export default {
+  // resolved fresh on every operation rather than memoized
+  dynamic: true,
+  get(): boolean {
+    return getCurrentViewer().isLoggedIn;
   },
 };
 ```

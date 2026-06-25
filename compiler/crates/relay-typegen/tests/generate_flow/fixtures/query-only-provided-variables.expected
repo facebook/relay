@@ -56,9 +56,11 @@ export type queryOnlyProvidedVar_MultiFragment = {
   "__relay_internal__pv__numberOfFriendsProvider": require('numberOfFriendsProvider')
 } as {
   readonly __relay_internal__pv__includeNameProvider: {
+    readonly dynamic?: boolean,
     readonly get: () => CustomBoolean,
   },
   readonly __relay_internal__pv__numberOfFriendsProvider: {
+    readonly dynamic?: boolean,
     readonly get: () => number,
   },
 });
@@ -80,6 +82,7 @@ export type queryOnlyProvidedVar_OneFragment = {
   "__relay_internal__pv__includeNameProvider": require('includeNameProvider')
 } as {
   readonly __relay_internal__pv__includeNameProvider: {
+    readonly dynamic?: boolean,
     readonly get: () => CustomBoolean,
   },
 });

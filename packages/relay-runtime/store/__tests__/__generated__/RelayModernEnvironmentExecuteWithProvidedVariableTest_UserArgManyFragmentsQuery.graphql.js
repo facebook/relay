@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<318514b39e468b63b6cbb3b363a1694d>>
+ * @generated SignedSource<<5f09388e6e61ccaf12629c6385deb2e4>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -37,9 +37,11 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFra
   "__relay_internal__pv__RelayProvider_pictureScalerelayprovider": require('../RelayProvider_pictureScale.relayprovider')
 } as {
   readonly __relay_internal__pv__RelayProvider_pictureScalerelayprovider: {
+    readonly dynamic?: boolean,
     readonly get: () => number,
   },
   readonly __relay_internal__pv__RelayProvider_returnsTruerelayprovider: {
+    readonly dynamic?: boolean,
     readonly get: () => boolean,
   },
 });

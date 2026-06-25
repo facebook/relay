@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ab35219d46342e358d67648550350eb0>>
+ * @generated SignedSource<<880939da02cd9c9ec14b1d0c1ea82775>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -32,6 +32,7 @@ export type RelayModernOperationDescriptorTestCycleWithPVQuery = {
   "__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider": require('../RelayProvider_returnsCyclic.relayprovider')
 } as {
   readonly __relay_internal__pv__RelayProvider_returnsCyclicrelayprovider: {
+    readonly dynamic?: boolean,
     readonly get: () => boolean,
   },
 });

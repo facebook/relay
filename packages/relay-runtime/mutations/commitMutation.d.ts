@@ -8,13 +8,18 @@
 import {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
 import { GraphQLTaggedNode } from '../query/GraphQLTag';
 import {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
-import {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
+import {CacheConfig, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import { DeclarativeMutationConfig } from './RelayDeclarativeMutationConfig';
 
+// Mirrors the Flow type `{response: {...}, variables: {...}, rawResponse?: {...}}`,
+// where `{...}` is Flow's inexact empty object ("any object"). `object` is the
+// faithful TS equivalent; `Record<string, unknown>` would be too strict — it
+// requires an implicit index signature, which `@catch` mutations (whose response
+// is a `Result<…>` union) and interface-typed responses do not have.
 export interface MutationParameters {
-    readonly response: Record<string, unknown>;
-    readonly variables: Record<string, unknown>;
-    readonly rawResponse?: Record<string, unknown> | undefined;
+    readonly response: object;
+    readonly variables: Variables;
+    readonly rawResponse?: object | undefined;
 }
 
 export interface MutationConfig<TOperation extends MutationParameters> {

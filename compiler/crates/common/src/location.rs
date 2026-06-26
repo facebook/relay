@@ -80,6 +80,10 @@ impl SourceLocationKey {
     pub fn is_generated(&self) -> bool {
         matches!(self, SourceLocationKey::Generated)
     }
+
+    pub fn is_embedded(&self) -> bool {
+        matches!(self, SourceLocationKey::Embedded { .. })
+    }
 }
 
 /// An absolute source location describing both the file and position (span)
@@ -206,6 +210,13 @@ mod tests {
     #[test]
     fn with_location_memory() {
         assert_eq!(20, std::mem::size_of::<WithLocation<StringKey>>());
+    }
+
+    #[test]
+    fn source_location_key_is_embedded() {
+        assert!(SourceLocationKey::embedded("example/file.kt", 0).is_embedded());
+        assert!(!SourceLocationKey::standalone("example/file.graphql").is_embedded());
+        assert!(!SourceLocationKey::generated().is_embedded());
     }
 
     #[test]

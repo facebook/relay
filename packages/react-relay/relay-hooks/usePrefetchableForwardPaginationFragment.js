@@ -16,6 +16,7 @@ import type {Options} from './useRefetchableFragmentInternal';
 import type {FragmentType, Variables} from 'relay-runtime';
 import type {PrefetchableRefetchableFragment} from 'relay-runtime';
 
+const getFragmentInternalData = require('./getFragmentInternalData');
 const useFragment = require('./useFragment');
 const useLoadMoreFunction = require('./useLoadMoreFunction');
 const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal');
@@ -126,7 +127,7 @@ hook usePrefetchableForwardPaginationFragment<
 
   const edgeKeys = useMemo(() => {
     const connection = getValueAtPath(
-      fragmentData,
+      getFragmentInternalData(fragmentNode, fragmentData),
       connectionPathInFragmentData,
     );
     if (connection == null) {
@@ -135,7 +136,7 @@ hook usePrefetchableForwardPaginationFragment<
     const {EDGES} = ConnectionInterface.get();
     // $FlowFixMe[incompatible-use]
     return connection[EDGES];
-  }, [connectionPathInFragmentData, fragmentData]);
+  }, [connectionPathInFragmentData, fragmentData, fragmentNode]);
 
   const sourceSize = edgeKeys == null ? -1 : edgeKeys.length;
 

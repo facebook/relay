@@ -43,7 +43,7 @@ pub fn get_resolver_fragment_dependency_name(field: &Field) -> Option<FragmentDe
 }
 
 /// If the field is a shadow resolver (a resolver that declares a
-/// `@returnFragment` "magic fragment"), return the name of that return
+/// `@returnFragment`), return the name of that return
 /// fragment. This is the placeholder spread (`...Bar`) that the product authors
 /// inside the resolver's `@rootFragment` to mark the shadowed server field.
 pub fn get_resolver_return_fragment_name(field: &Field) -> Option<FragmentDefinitionName> {

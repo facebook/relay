@@ -1,0 +1,53 @@
+==================================== INPUT ====================================
+//- UserShadowPage.js
+// RED: a magic fragment (`@returnFragment`) whose return type is a CONCRETE
+// object (`Page`), not an interface. The routing fans the consumer's selection
+// per concrete implementor and dispatches at read time on the resolver's
+// returned `__typename`; a concrete object has no implementors to fan, so
+// `client_edges` would find no abstract members and silently drop the
+// magic-fragment routing. The compiler rejects it with
+// MagicFragmentNonInterfaceReturnUnsupported instead.
+/**
+ * @relayField User.shadow_page: Page
+ * @rootFragment UserShadowPageResolverFragment
+ * @returnFragment UserShadowPageReturnFragment
+ */
+graphql`fragment UserShadowPageResolverFragment on User {
+  page {
+    ...UserShadowPageReturnFragment
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    shadow_page {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+==================================== OUTPUT ===================================
+✖︎ Magic fragment (`@returnFragment`) shadow resolver field `shadow_page` returns `Page`, which is a concrete object type. A magic fragment's return type must be an interface: the consumer's selection is fanned per concrete implementor and dispatched at read time on the resolver's returned `__typename`, so a concrete object (which has no implementors to fan) would silently drop the magic-fragment routing. Use an interface return type.
+
+  UserShadowPage.js:11:20
+   10 │  * @rootFragment UserShadowPageResolverFragment
+   11 │  * @returnFragment UserShadowPageReturnFragment
+      │                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   12 │

@@ -44,12 +44,12 @@ use super::ValidationMessage;
 
 /// Which artifact pipeline a `relay_resolvers` run is feeding.
 ///
-/// This only affects the shadow-resolver transplant (pointer design): the
-/// consumer's selections are transplanted onto the shadowed server field so they
-/// are fetched by the *main operation* (`ForOperation`). The transplant must NOT
-/// reach the reader fragment or the consumer's public `$data` (`ForReader`),
-/// where it would defeat masking -- the consumer reads those selections off the
-/// resolver-returned pointer via the store-ref edge, not off a sibling field.
+/// This only affects the shadow-resolver transplant: the consumer's selections
+/// are transplanted onto the shadowed server field so they are fetched by the
+/// *main operation* (`ForOperation`). The transplant must NOT reach the reader
+/// fragment or the consumer's public `$data` (`ForReader`), where it would defeat
+/// masking -- the consumer reads those selections off the resolver-returned
+/// pointer via the client-edge reader selections, not off a sibling field.
 /// Non-shadow resolvers are unaffected by this distinction.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ResolversPipeline {
@@ -144,7 +144,7 @@ associated_data_impl!(RelayResolverFieldMetadata);
 
 /// Typed IR associated-data marker for shadow resolvers.
 ///
-/// The `@returnFragment` placeholder spread (the "magic fragment") authored
+/// The `@returnFragment` placeholder spread authored
 /// inside a shadow resolver's `@rootFragment` is converted, before `build_ir`
 /// runs, into the schema-known `@__relay_shadow_return` directive on the enclosing
 /// shadowed field, so that `build_ir` never sees an undefined fragment spread. The

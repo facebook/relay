@@ -1,11 +1,11 @@
+// A shadow resolver whose return type is a UNION with a client-extension member
+// is a HARD ERROR. relay_resolvers_abstract_types only expands interfaces into
+// per-member typed inline arms, not unions, so the client member's selections
+// would have nowhere to be routed. The union gate in shadow_transform rejects it
+// with ShadowResolverUnionReturnUnsupported; use an interface return instead.
 //- UserCombinedPage.js
-// @waterfall on a shadow-resolver field is a HARD ERROR: the field is explicitly
-// NOT a waterfall. Its consumer selections are transplanted
-// onto the shadowed server field in the MAIN operation, so the data is already
-// fetched -- there is no separate client query to gate. This fixture asserts the
-// error is reported when a consumer annotates the shadow field with @waterfall.
 /**
- * @relayField User.combined_page: IPage
+ * @relayField User.combined_page: PageOrClientPage
  * @rootFragment UserCombinedPageResolverFragment
  * @returnFragment UserCombinedPageReturnFragment
  */
@@ -15,11 +15,17 @@ graphql`fragment UserCombinedPageResolverFragment on User {
   }
 }`
 
+//- ClientPageResolver.js
+/**
+ * @relayType ClientPage
+ */
+export function ClientPage() {}
+
 //- UserConsumer.js
 graphql`query UserConsumerQuery {
   me {
-    combined_page @waterfall {
-      title
+    combined_page {
+      __typename
     }
   }
 }`
@@ -43,9 +49,4 @@ type User { name: String, page: Page }
 type Page implements Node { id: ID!, title: String }
 
 //- schema-extensions/extension.graphql
-interface IPage implements Node {
-  id: ID!
-  title: String
-}
-
-extend type Page implements IPage
+union PageOrClientPage = Page | ClientPage

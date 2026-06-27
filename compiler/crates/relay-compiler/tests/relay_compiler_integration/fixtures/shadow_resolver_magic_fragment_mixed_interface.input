@@ -1,9 +1,15 @@
 //- UserCombinedPage.js
-// @waterfall on a shadow-resolver field is a HARD ERROR: the field is explicitly
-// NOT a waterfall. Its consumer selections are transplanted
-// onto the shadowed server field in the MAIN operation, so the data is already
-// fetched -- there is no separate client query to gate. This fixture asserts the
-// error is reported when a consumer annotates the shadow field with @waterfall.
+// Shadow resolver whose return interface has BOTH a server and a client
+// implementor.
+//
+// `combined_page` returns the client interface `IPage`, implemented by the SERVER
+// type `Page` AND the CLIENT model type `ClientPage`. The shadow edge routes
+// through the `ClientObject` machinery in suppress mode: the client `ClientPage`
+// arm gets its model resolver in `modelResolvers` (read via the @edgeTo
+// dispatch), while the server `Page` arm is transplanted onto the shadowed server
+// field `page` in the main operation. No `ClientEdgeQuery` is generated and
+// `serverObjectOperations` stays empty (the server data is fetched by the
+// transplant, not a refetch).
 /**
  * @relayField User.combined_page: IPage
  * @rootFragment UserCombinedPageResolverFragment
@@ -15,10 +21,22 @@ graphql`fragment UserCombinedPageResolverFragment on User {
   }
 }`
 
+//- ClientPageResolver.js
+/**
+ * @relayType ClientPage implements IPage
+ */
+export function ClientPage() {}
+
+//- ClientPageTitleResolver.js
+/**
+ * @relayField ClientPage.title: String
+ */
+export function title() {}
+
 //- UserConsumer.js
 graphql`query UserConsumerQuery {
   me {
-    combined_page @waterfall {
+    combined_page {
       title
     }
   }

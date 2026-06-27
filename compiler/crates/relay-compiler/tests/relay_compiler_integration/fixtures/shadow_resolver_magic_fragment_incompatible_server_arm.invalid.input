@@ -1,9 +1,12 @@
+// A non-overlapping SERVER-type inline arm under a shadow resolver field STILL
+// hard-errors with ShadowReturnIncompatibleInlineFragmentType. The interface
+// `IPage` is implemented by two server types, `Page` and `Article`, but the
+// resolver shadows the server field `User.page` (concrete type `Page`). The
+// consumer's `... on Article` arm cannot overlap the shadowed `Page` type, so it
+// cannot be transplanted onto the shadowed server field. This proves the
+// partition narrows the drop ONLY to client-extension arms and does not silently
+// drop a genuinely-incompatible server arm.
 //- UserCombinedPage.js
-// @waterfall on a shadow-resolver field is a HARD ERROR: the field is explicitly
-// NOT a waterfall. Its consumer selections are transplanted
-// onto the shadowed server field in the MAIN operation, so the data is already
-// fetched -- there is no separate client query to gate. This fixture asserts the
-// error is reported when a consumer annotates the shadow field with @waterfall.
 /**
  * @relayField User.combined_page: IPage
  * @rootFragment UserCombinedPageResolverFragment
@@ -18,8 +21,10 @@ graphql`fragment UserCombinedPageResolverFragment on User {
 //- UserConsumer.js
 graphql`query UserConsumerQuery {
   me {
-    combined_page @waterfall {
-      title
+    combined_page {
+      ... on Article {
+        title
+      }
     }
   }
 }`
@@ -41,6 +46,7 @@ type Query { me: User, node(id: ID!): Node }
 interface Node { id: ID! }
 type User { name: String, page: Page }
 type Page implements Node { id: ID!, title: String }
+type Article implements Node { id: ID!, title: String }
 
 //- schema-extensions/extension.graphql
 interface IPage implements Node {
@@ -49,3 +55,4 @@ interface IPage implements Node {
 }
 
 extend type Page implements IPage
+extend type Article implements IPage

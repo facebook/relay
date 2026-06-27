@@ -1,16 +1,21 @@
 //- UserCombinedPage.js
-// @waterfall on a shadow-resolver field is a HARD ERROR: the field is explicitly
-// NOT a waterfall. Its consumer selections are transplanted
-// onto the shadowed server field in the MAIN operation, so the data is already
-// fetched -- there is no separate client query to gate. This fixture asserts the
-// error is reported when a consumer annotates the shadow field with @waterfall.
+// A CLIENT-extension refinement (e.g. `... on ClientPage`) is dropped from the
+// transplant and served by the model edge -- it does NOT error.
+// `ShadowReturnSelectionNotOnShadowedType` must still fire for a GENUINE
+// mismatch: a consumer field that the shadowed SERVER field's type does not
+// define.
+//
+// Here the resolver declares it returns `IPage`, but its @rootFragment shadows
+// `User.account` (type `Account`), which does not define `title`. Transplanting
+// the consumer's `title` selection onto `Account` is a genuine authoring error,
+// not a client refinement, so it must still be reported.
 /**
  * @relayField User.combined_page: IPage
  * @rootFragment UserCombinedPageResolverFragment
  * @returnFragment UserCombinedPageReturnFragment
  */
 graphql`fragment UserCombinedPageResolverFragment on User {
-  page {
+  account {
     ...UserCombinedPageReturnFragment
   }
 }`
@@ -18,7 +23,7 @@ graphql`fragment UserCombinedPageResolverFragment on User {
 //- UserConsumer.js
 graphql`query UserConsumerQuery {
   me {
-    combined_page @waterfall {
+    combined_page {
       title
     }
   }
@@ -39,8 +44,9 @@ graphql`query UserConsumerQuery {
 //- schema.graphql
 type Query { me: User, node(id: ID!): Node }
 interface Node { id: ID! }
-type User { name: String, page: Page }
+type User { name: String, page: Page, account: Account }
 type Page implements Node { id: ID!, title: String }
+type Account implements Node { id: ID! }
 
 //- schema-extensions/extension.graphql
 interface IPage implements Node {

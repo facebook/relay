@@ -25,6 +25,7 @@ use graphql_syntax::is_valid_identifier;
 use intern::Lookup;
 use schema::FieldID;
 use schema::Schema;
+use schema::Type;
 
 use super::RelayResolverFieldMetadata;
 use super::ShadowReturnMarker;
@@ -107,17 +108,57 @@ impl<'program> ShadowResolversTransform<'program> {
             return;
         }
 
-        // Validate: plural shadow resolvers are NOT supported in v1. The pointer
-        // design transplants the consumer's selections onto the shadowed server
-        // field and reads them off a single returned DataID via a SINGULAR
-        // store-ref edge. A list return type would route to the plural client
-        // edge path, which calls `ensureClientRecord` and silently
-        // mis-namespaces the records. Gate it at the compiler so it can never
-        // reach the runtime (see also the runtime invariant in `RelayReader.js`).
+        // Plural magic fragments (list return type) are not supported. The
+        // consumer's selections are transplanted onto the shadowed server field
+        // and read off a single returned DataID, so a list return type has no
+        // singular record to read from. Gate it at the compiler so it can never
+        // reach the runtime.
         let schema_field = self.program.schema.field(field_id);
         if schema_field.type_.is_list() {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::ShadowResolverPluralUnsupported,
+                location,
+            ));
+            return;
+        }
+
+        // Union magic fragment return types are not supported. A union member
+        // can be a client-extension type, whose data must be read through the
+        // model-resolver edge in `client_edges`. That edge needs the consumer's
+        // selection expanded into per-member typed inline fragments, but
+        // `relay_resolvers_abstract_types` only expands interfaces, not unions,
+        // so the client member's selections would have nowhere to go. Gate it at
+        // the compiler; use an interface return type instead.
+        if let Type::Union(union_id) = schema_field.type_.inner() {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::MagicFragmentUnionReturnUnsupported {
+                    field_name: schema_field.name.item,
+                    union_name: self.program.schema.union(union_id).name.item.0,
+                },
+                location,
+            ));
+            return;
+        }
+
+        // A magic fragment's return type must be an interface, not a CONCRETE
+        // OBJECT. The routing fans the consumer's selection per concrete
+        // implementor (via `relay_resolvers_abstract_types`) and dispatches at
+        // read time on the resolver's returned `__typename`. A concrete object
+        // has no implementors to fan, so `client_edges` finds no abstract members
+        // (`abstract_type_members` returns `None`) and would silently drop the
+        // magic-fragment routing. Gate it here with a focused error instead of
+        // emitting a broken artifact. (List and union returns are already
+        // rejected above; non-composite returns like `RelayResolverValue` fail
+        // their own validation paths.)
+        if matches!(schema_field.type_.inner(), Type::Object(_)) {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::MagicFragmentConcreteObjectReturnUnsupported {
+                    field_name: schema_field.name.item,
+                    type_name: self
+                        .program
+                        .schema
+                        .get_type_name(schema_field.type_.inner()),
+                },
                 location,
             ));
             return;

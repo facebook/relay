@@ -48,15 +48,15 @@ use crate::ClientEdgeMetadata;
 /// arguments) the field is transformed into a `__id` field with the
 /// `RelayResolverMetadata` IR directive attached.
 ///
-/// # Shadow-resolver transplant (pointer design)
+/// # Magic-fragment transplant
 ///
-/// For a shadow resolver (one declaring a `@returnFragment`), the consumer's
+/// For a magic fragment (one declaring a `@returnFragment`), the consumer's
 /// selections on the resolver field must be fetched from the *shadowed server
 /// field* in the main operation -- not via a waterfall. To do that, this
 /// transform transplants the consumer's selections onto a per-use-site copy of
 /// the shadowed field from the resolver's (generic, shared) root fragment.
 ///
-/// Concretely, when a client-edge use site backs a shadow resolver, we keep the
+/// Concretely, when a client-edge use site backs a magic fragment, we keep the
 /// backing field as the named spread of the generic root fragment (so the
 /// resolver still reads `page { id __typename }` for its pointer) and *also*
 /// emit a sibling copy of the shadowed field filled with `id __typename` plus
@@ -72,7 +72,8 @@ use crate::ClientEdgeMetadata;
 /// suppressed, so the transplanted server field never reaches the consumer's
 /// reader fragment or its public `$data` (which would defeat masking -- the
 /// consumer selected only the resolver field, not `page`). The consumer reads
-/// its selections off the resolver-returned pointer via the store-ref edge.
+/// its selections off the resolver-returned pointer via the client-edge reader
+/// selections.
 pub(super) fn relay_resolvers_spread_transform(
     program: &Program,
     pipeline: ResolversPipeline,
@@ -94,7 +95,7 @@ pub(super) fn relay_resolvers_spread_transform(
 struct RelayResolverSpreadTransform<'program> {
     program: &'program Program,
     pipeline: ResolversPipeline,
-    /// Whether the shadow-resolver feature is enabled for this project. When
+    /// Whether the magic-fragment feature is enabled for this project. When
     /// false, the shadow transplant is skipped entirely and this transform
     /// produces the same output as the default (lazy) selection transform.
     enable_shadow_resolvers: bool,
@@ -191,10 +192,10 @@ impl<'program> RelayResolverSpreadTransform<'program> {
         })
     }
 
-    /// If `metadata` describes a shadow-resolver client edge, build the
+    /// If `metadata` describes a magic-fragment client edge, build the
     /// per-use-site transplant: a clone of the **full root-fragment path** from
     /// the root fragment down to the shadowed server field, with the consumer's
-    /// selections appended at the marked field. Returns `None` for non-shadow
+    /// selections appended at the marked field. Returns `None` for non-magic-fragment
     /// edges, or an empty `Vec` only on a (validated) error.
     ///
     /// The returned selections are emitted as *siblings* of the client-edge
@@ -227,7 +228,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
     ) -> Option<Vec<Selection>> {
         let field_metadata = RelayResolverFieldMetadata::find(metadata.backing_field.directives())?;
         let return_fragment = field_metadata.return_fragment?;
-        // A shadow resolver (one declaring a `@returnFragment`) is required to
+        // A magic fragment (one declaring a `@returnFragment`) is required to
         // also declare a `@rootFragment` (enforced by the
         // `ReturnFragmentRequiresRootFragment` validation), and that root fragment
         // must be present in the program by the time the spread transform runs. A
@@ -247,7 +248,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
         // condition along with its directives and arguments. At the marked field
         // we splice in the consumer's selections (re-bound onto the shadowed
         // server type). Returns `None` (no marker found) only on an unvalidated
-        // shadow edge, which earlier validation passes prevent.
+        // magic-fragment edge, which earlier validation passes prevent.
         self.clone_shadowed_path(
             &root_fragment.selections,
             return_fragment.item,
@@ -390,21 +391,38 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                 })))
             }
             Selection::InlineFragment(fragment) => {
-                // Validate any explicit type condition before rebinding. The
-                // transplant fetches from the shadowed SERVER field, so a type
-                // condition must be able to overlap the shadowed server type. For
-                // v1 (server-only) we reject client-extension type conditions
-                // (e.g. `... on ClientPage`) and server types that can never
-                // match (e.g. `... on Comment` under a `Page`), with a focused
-                // diagnostic rather than transplanting an impossible fragment.
-                if let Some(type_condition) = fragment.type_condition
-                    && !self.validate_inline_fragment_type(
-                        type_condition,
-                        parent_type,
-                        fragment.spread_location,
-                    )
-                {
-                    return None;
+                // Sort an explicit type condition before rebinding. The transplant
+                // fetches from the shadowed SERVER field, so where an inline
+                // fragment goes depends on how its type condition relates to that
+                // server type:
+                //
+                // - A client-extension arm (e.g. `... on ClientPage`) is DROPPED
+                //   from the transplant. Its data is read through the model edge
+                //   minted in `client_edges` and stays in the client-edge reader
+                //   selections; the server never returns that client-only
+                //   refinement, so transplanting it would be meaningless.
+                // - A server arm that overlaps the shadowed type is transplanted
+                //   unchanged.
+                // - A non-overlapping server arm (e.g. `... on Comment` under a
+                //   `Page`) can never match and is a genuine error.
+                if let Some(type_condition) = fragment.type_condition {
+                    match self.classify_inline_fragment_type(type_condition, parent_type) {
+                        MagicFragmentInlineFragmentArm::DropClientExtension => return None,
+                        MagicFragmentInlineFragmentArm::Incompatible => {
+                            self.errors.push(Diagnostic::error(
+                                ValidationMessage::ShadowReturnIncompatibleInlineFragmentType {
+                                    type_condition_name: self
+                                        .program
+                                        .schema
+                                        .get_type_name(type_condition),
+                                    type_name: self.program.schema.get_type_name(parent_type),
+                                },
+                                fragment.spread_location,
+                            ));
+                            return None;
+                        }
+                        MagicFragmentInlineFragmentArm::TransplantServer => {}
+                    }
                 }
                 // Keep the type condition; recurse using it (or the parent type
                 // when there is no explicit condition).
@@ -456,33 +474,48 @@ impl<'program> RelayResolverSpreadTransform<'program> {
         }
     }
 
-    /// Validate that an inline fragment's `type_condition` can be transplanted
-    /// onto `parent_type` (the shadowed server type, e.g. `Page`). Since the
-    /// transplant fetches from the shadowed server field, the condition must be
-    /// able to overlap that server type. For v1 (server-only) a client-extension
-    /// condition (e.g. `... on ClientPage`) or a server type that can never match
-    /// (e.g. `... on Comment` under `Page`) is rejected with a focused error.
-    /// Returns `true` if the condition is compatible.
-    fn validate_inline_fragment_type(
-        &mut self,
+    /// Classify how an inline fragment's `type_condition` relates to
+    /// `parent_type` (the shadowed server type, e.g. `Page`) for the transplant.
+    ///
+    /// The shadowed return type is an interface that can be implemented by both
+    /// server types and client-extension model types. `relay_resolvers_abstract_types`
+    /// expands the consumer's selection into one typed inline arm per concrete
+    /// implementor, so the transplant sees each arm separately:
+    ///
+    /// - A client-extension condition (e.g. `... on ClientPage`,
+    ///   `is_extension_type`) is DROPPED from the transplant — it is satisfied by
+    ///   the model edge minted in `client_edges` and read off the client-edge
+    ///   reader selections, never fetched from the server.
+    /// - A server condition that overlaps the shadowed type is TRANSPLANTED.
+    /// - A server condition that can never match (e.g. `... on Comment` under a
+    ///   `Page`) is INCOMPATIBLE — a genuine error.
+    fn classify_inline_fragment_type(
+        &self,
         type_condition: Type,
         parent_type: Type,
-        location: Location,
-    ) -> bool {
+    ) -> MagicFragmentInlineFragmentArm {
         let schema = &self.program.schema;
-        let is_compatible = !schema.is_extension_type(type_condition)
-            && schema.are_overlapping_types(type_condition, parent_type);
-        if !is_compatible {
-            self.errors.push(Diagnostic::error(
-                ValidationMessage::ShadowReturnIncompatibleInlineFragmentType {
-                    type_condition_name: schema.get_type_name(type_condition),
-                    type_name: schema.get_type_name(parent_type),
-                },
-                location,
-            ));
+        if schema.is_extension_type(type_condition) {
+            MagicFragmentInlineFragmentArm::DropClientExtension
+        } else if schema.are_overlapping_types(type_condition, parent_type) {
+            MagicFragmentInlineFragmentArm::TransplantServer
+        } else {
+            MagicFragmentInlineFragmentArm::Incompatible
         }
-        is_compatible
     }
+}
+
+/// How a consumer inline-fragment arm relates to the shadowed server type during
+/// the magic-fragment transplant. See `classify_inline_fragment_type`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum MagicFragmentInlineFragmentArm {
+    /// Client-extension refinement: dropped from the server transplant, served by
+    /// the model edge minted in `client_edges`.
+    DropClientExtension,
+    /// Server refinement overlapping the shadowed type: transplanted unchanged.
+    TransplantServer,
+    /// Server refinement that can never match the shadowed type: a genuine error.
+    Incompatible,
 }
 
 impl<'program> Transformer<'program> for RelayResolverSpreadTransform<'program> {
@@ -504,7 +537,7 @@ impl<'program> Transformer<'program> for RelayResolverSpreadTransform<'program> 
         // changed).
         let mut next_selections: Option<Vec<Selection>> = None;
         for (index, selection) in selections.iter().enumerate() {
-            // For a shadow-resolver client edge, emit the transplant copy of the
+            // For a magic-fragment client edge, emit the transplant copy of the
             // shadowed server field as a sibling of the (normally-transformed)
             // client-edge inline fragment, so the consumer's selections reach
             // the main operation's normalization (merging via flatten with the
@@ -515,12 +548,12 @@ impl<'program> Transformer<'program> for RelayResolverSpreadTransform<'program> 
             // (`ForReader`) the transplant is suppressed so it stays out of the
             // reader fragment and the consumer's public `$data` -- there the
             // consumer reads its selections off the resolver-returned pointer via
-            // the store-ref edge, never off this sibling field. Emitting it in the
-            // reader would pollute `$data` and defeat masking.
+            // the client-edge reader selections, never off this sibling field.
+            // Emitting it in the reader would pollute `$data` and defeat masking.
             //
             // Gated on `enable_shadow_resolvers` so non-adopting projects pay
             // nothing here (no `ClientEdgeMetadata::find` / transplant probe per
-            // inline fragment): a valid shadow resolver can only exist when the
+            // inline fragment): a valid magic fragment can only exist when the
             // feature is enabled.
             if self.enable_shadow_resolvers
                 && self.pipeline == ResolversPipeline::ForOperation

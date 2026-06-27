@@ -1,11 +1,9 @@
 ==================================== INPUT ====================================
 //- UserCombinedPages.js
-// A PLURAL shadow-resolver field (return type `[IPage]`) is a HARD ERROR in v1.
-// The pointer design transplants the consumer's selections onto the shadowed
-// server field and reads them off a single returned DataID via a SINGULAR
-// store-ref edge. A list return type would route to the plural client-edge path,
-// which calls `ensureClientRecord` and silently mis-namespaces the records. This
-// fixture asserts the compiler rejects plural shadow resolvers.
+// A PLURAL shadow-resolver field (return type `[IPage]`) is a HARD ERROR. The
+// consumer's selections are transplanted onto the shadowed server field and read
+// off a single returned DataID, so a list return type has no singular record to
+// read from. This fixture asserts the compiler rejects plural shadow resolvers.
 /**
  * @relayField User.combined_pages: [IPage]
  * @rootFragment UserCombinedPagesResolverFragment
@@ -52,10 +50,10 @@ interface IPage implements Node {
 
 extend type Page implements IPage
 ==================================== OUTPUT ===================================
-✖︎ Plural shadow resolvers (whose return type is a list) are not yet supported. The `@returnFragment` pointer design currently only supports singular shadow resolver fields. Remove the list from the resolver's return type, or split into a singular field.
+✖︎ Plural shadow resolvers (whose return type is a list) are not yet supported. `@returnFragment` currently only supports singular shadow resolver fields. Remove the list from the resolver's return type, or split into a singular field.
 
-  UserCombinedPages.js:10:20
-    9 │  * @rootFragment UserCombinedPagesResolverFragment
-   10 │  * @returnFragment UserCombinedPagesReturnFragment
+  UserCombinedPages.js:8:20
+    7 │  * @rootFragment UserCombinedPagesResolverFragment
+    8 │  * @returnFragment UserCombinedPagesReturnFragment
       │                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   11 │
+    9 │

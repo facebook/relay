@@ -1,0 +1,61 @@
+==================================== INPUT ====================================
+// A shadow resolver whose return type is a UNION with a client-extension member
+// is a HARD ERROR. relay_resolvers_abstract_types only expands interfaces into
+// per-member typed inline arms, not unions, so the client member's selections
+// would have nowhere to be routed. The union gate in shadow_transform rejects it
+// with ShadowResolverUnionReturnUnsupported; use an interface return instead.
+//- UserCombinedPage.js
+/**
+ * @relayField User.combined_page: PageOrClientPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- ClientPageResolver.js
+/**
+ * @relayType ClientPage
+ */
+export function ClientPage() {}
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      __typename
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+union PageOrClientPage = Page | ClientPage
+==================================== OUTPUT ===================================
+✖︎ Union shadow resolver return types are not yet supported. The shadow resolver field `combined_page` returns the union `PageOrClientPage`, which may have a client-extension member. Unions are not expanded into per-member typed inline fragments, so a client member's selections cannot be routed to its model resolver. Use an interface return type instead, or remove the client-extension member.
+
+  UserCombinedPage.js:4:20
+    3 │  * @rootFragment UserCombinedPageResolverFragment
+    4 │  * @returnFragment UserCombinedPageReturnFragment
+      │                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │

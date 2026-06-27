@@ -1,10 +1,8 @@
 //- UserCombinedPages.js
-// A PLURAL shadow-resolver field (return type `[IPage]`) is a HARD ERROR in v1.
-// The pointer design transplants the consumer's selections onto the shadowed
-// server field and reads them off a single returned DataID via a SINGULAR
-// store-ref edge. A list return type would route to the plural client-edge path,
-// which calls `ensureClientRecord` and silently mis-namespaces the records. This
-// fixture asserts the compiler rejects plural shadow resolvers.
+// A PLURAL shadow-resolver field (return type `[IPage]`) is a HARD ERROR. The
+// consumer's selections are transplanted onto the shadowed server field and read
+// off a single returned DataID, so a list return type has no singular record to
+// read from. This fixture asserts the compiler rejects plural shadow resolvers.
 /**
  * @relayField User.combined_pages: [IPage]
  * @rootFragment UserCombinedPagesResolverFragment

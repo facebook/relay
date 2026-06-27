@@ -271,7 +271,7 @@ pub enum ValidationMessage {
     ShadowReturnUnsupportedFragmentSpread,
 
     #[error(
-        "The inline fragment type condition '{type_condition_name}' cannot be transplanted onto the shadowed server type '{type_name}'. Shadow resolver selections are fetched from the shadowed server field, so a type condition must overlap that server type (client-extension type conditions like client-only members are not supported in v1)."
+        "The inline fragment type condition '{type_condition_name}' cannot be transplanted onto the shadowed server type '{type_name}'. Shadow resolver selections are fetched from the shadowed server field, so a server type condition must overlap that type. (Client-extension type conditions are served separately by the model-resolver edge.)"
     )]
     ShadowReturnIncompatibleInlineFragmentType {
         type_condition_name: StringKey,
@@ -279,9 +279,33 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "Plural shadow resolvers (whose return type is a list) are not yet supported. The `@returnFragment` pointer design currently only supports singular shadow resolver fields. Remove the list from the resolver's return type, or split into a singular field."
+        "Plural shadow resolvers (whose return type is a list) are not yet supported. `@returnFragment` currently only supports singular shadow resolver fields. Remove the list from the resolver's return type, or split into a singular field."
     )]
     ShadowResolverPluralUnsupported,
+
+    #[error(
+        "Union shadow resolver return types are not yet supported. The shadow resolver field `{field_name}` returns the union `{union_name}`, which may have a client-extension member. Unions are not expanded into per-member typed inline fragments, so a client member's selections cannot be routed to its model resolver. Use an interface return type instead, or remove the client-extension member."
+    )]
+    MagicFragmentUnionReturnUnsupported {
+        field_name: StringKey,
+        union_name: StringKey,
+    },
+
+    #[error(
+        "Magic fragment (`@returnFragment`) shadow resolver field `{field_name}` returns `{type_name}`, which is a concrete object type. A magic fragment's return type must be an interface: the consumer's selection is fanned per concrete implementor and dispatched at read time on the resolver's returned `__typename`, so a concrete object (which has no implementors to fan) would silently drop the magic-fragment routing. Use an interface return type."
+    )]
+    MagicFragmentConcreteObjectReturnUnsupported {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
+        "The shadow resolver field `{field_name}` returns the interface `{interface_name}`, which has a client-extension implementor, so its client data is read through the model-resolver edge. That edge requires the consumer's interface selection to be expanded into per-implementor typed inline fragments, which only happens when `relay_resolver_enable_interface_output_type` is enabled. Enable `relay_resolver_enable_interface_output_type` for this project, or remove the client-extension implementor."
+    )]
+    MagicFragmentClientImplementorRequiresInterfaceOutputType {
+        field_name: StringKey,
+        interface_name: StringKey,
+    },
 
     #[error(
         "The `@__relay_shadow_return` directive is internal to the Relay compiler and cannot be used in source. Shadow resolver return data is marked by spreading the resolver's `@returnFragment` placeholder inside its `@rootFragment`; the compiler generates this directive automatically."

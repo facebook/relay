@@ -1,6 +1,6 @@
 //- UserCombinedPage.js
-// Path-preservation for the pointer-design "magic fragment" shadow resolver
-// (guards the D2 transplant fix).
+// Path-preservation for a shadow resolver whose @rootFragment reaches the
+// shadowed field through a nested ancestor.
 //
 // The resolver's @rootFragment does NOT navigate the shadowed server field
 // directly under the root. Instead it reaches the @returnFragment placeholder
@@ -11,9 +11,9 @@
 // The transplant must reproduce the WHOLE ancestor path in the main operation:
 // `best_friend { page { id __typename title } }`. The NESTING is preserved: the
 // consumer's `title` normalizes under `best_friend.page`, NOT hoisted to `me`
-// (which would fetch `page { title }` off the wrong record). This guards the D2
-// fix where `clone_shadowed_path` recurses through every ancestor LinkedField
-// instead of hoisting the shadowed field to the consumer's parent.
+// (which would fetch `page { title }` off the wrong record). `clone_shadowed_path`
+// recurses through every ancestor LinkedField instead of hoisting the shadowed
+// field to the consumer's parent.
 /**
  * @relayField User.combined_page: IPage
  * @rootFragment UserCombinedPageResolverFragment

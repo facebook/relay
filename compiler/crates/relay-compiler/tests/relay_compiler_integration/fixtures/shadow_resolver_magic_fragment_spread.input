@@ -1,21 +1,23 @@
 //- UserCombinedPage.js
-// Pointer-based "magic fragment" shadow resolver.
+// Shadow resolver returning an interface whose only implementor is a server type.
 //
 // `combined_page` is a resolver field whose return type is the client interface
 // `IPage` (implemented by the SERVER type `Page`). Its @rootFragment navigates
 // the SERVER field `User.page` and spreads the @returnFragment placeholder
 // `...UserCombinedPageReturnFragment` at the shadowed field.
 //
-// DESIRED (pointer design): the consumer's selections on `combined_page` are
-// TRANSPLANTED onto the shadowed server field `page` in the MAIN operation, so
+// The consumer's selections on `combined_page` are TRANSPLANTED onto the
+// shadowed server field `page` in the MAIN operation, so
 // `me { page { id __typename title } }` is fetched in the main query. The
-// resolver returns a POINTER (DataID) and the consumer reads its selections off
-// that already-normalized record via a store-ref edge -- NO waterfall, NO split
-// op, NO generated stub fragment.
+// resolver returns a pointer (DataID) and the consumer reads its selections off
+// that already-normalized record -- NO waterfall, NO split op, NO generated stub
+// fragment. The edge is a `ClientEdgeToClientObject` with EMPTY `modelResolvers`
+// and EMPTY `serverObjectOperations` (no client-extension implementor, no
+// refetch query).
 //
-// The consumer does NOT annotate `combined_page` with @waterfall: a pointer
-// shadow field is explicitly not a waterfall (its selections are fetched in the
-// main op). @waterfall on a shadow field is a hard error -- see the
+// The consumer does NOT annotate `combined_page` with @waterfall: a shadow field
+// is explicitly not a waterfall (its selections are fetched in the main op).
+// @waterfall on a shadow field is a hard error -- see the
 // `shadow_resolver_magic_fragment_waterfall.invalid` fixture.
 /**
  * @relayField User.combined_page: IPage

@@ -1,10 +1,11 @@
 ==================================== INPUT ====================================
+// @waterfall on a shadow field is a HARD ERROR even when the return interface has
+// a client-extension implementor. A shadow field is never a waterfall: its
+// consumer selections are fetched in the main operation (server arm transplanted,
+// client arm read via the model edge), so there is no client query to gate. The
+// waterfall-forbidden check fires before the routing splits on the implementor
+// set, so the mixed (server + client) case errors just like the pure-server case.
 //- UserCombinedPage.js
-// @waterfall on a shadow-resolver field is a HARD ERROR: the field is explicitly
-// NOT a waterfall. Its consumer selections are transplanted
-// onto the shadowed server field in the MAIN operation, so the data is already
-// fetched -- there is no separate client query to gate. This fixture asserts the
-// error is reported when a consumer annotates the shadow field with @waterfall.
 /**
  * @relayField User.combined_page: IPage
  * @rootFragment UserCombinedPageResolverFragment
@@ -15,6 +16,18 @@ graphql`fragment UserCombinedPageResolverFragment on User {
     ...UserCombinedPageReturnFragment
   }
 }`
+
+//- ClientPageResolver.js
+/**
+ * @relayType ClientPage implements IPage
+ */
+export function ClientPage() {}
+
+//- ClientPageTitleResolver.js
+/**
+ * @relayField ClientPage.title: String
+ */
+export function title() {}
 
 //- UserConsumer.js
 graphql`query UserConsumerQuery {

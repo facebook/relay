@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1202650c9e42a6b47175ff4550f58ab5>>
+ * @generated SignedSource<<9602bd522b394ff8a13ae5f756f3035a>>
  */
 
 mod defer_stream;
@@ -24,4 +24,11 @@ async fn fragment_with_stream_default_label() {
     let input = include_str!("defer_stream/fixtures/fragment-with-stream-default-label.graphql");
     let expected = include_str!("defer_stream/fixtures/fragment-with-stream-default-label.expected");
     test_fixture(transform_fixture, file!(), "fragment-with-stream-default-label.graphql", "defer_stream/fixtures/fragment-with-stream-default-label.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_with_stream_on_scalar_list_field() {
+    let input = include_str!("defer_stream/fixtures/fragment-with-stream-on-scalar-list-field.graphql");
+    let expected = include_str!("defer_stream/fixtures/fragment-with-stream-on-scalar-list-field.expected");
+    test_fixture(transform_fixture, file!(), "fragment-with-stream-on-scalar-list-field.graphql", "defer_stream/fixtures/fragment-with-stream-on-scalar-list-field.expected", input, expected).await;
 }

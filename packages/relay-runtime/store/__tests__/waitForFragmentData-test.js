@@ -218,6 +218,6 @@ test('data goes missing due to unrelated query response (@throwOnFieldErrro)', a
     result = e;
   }
   expect(result?.message).toEqual(
-    "Relay: Missing expected data at path 'me.name' in 'waitForFragmentDataTestMissingDataThrowOnFieldErrorFragment'.",
+    "Relay: Missing expected data at path 'me.name' in 'waitForFragmentDataTestMissingDataThrowOnFieldErrorFragment'. See https://relay.dev/docs/next/debugging/why-null/ for likely causes.",
   );
 });

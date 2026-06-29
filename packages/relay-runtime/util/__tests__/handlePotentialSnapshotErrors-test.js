@@ -136,7 +136,9 @@ describe('handlePotentialSnapshotErrors', () => {
             uiContext: undefined,
           },
         ]);
-      }).toThrowError(/^Relay: Missing expected data at path '' in ''./);
+      }).toThrowError(
+        "Relay: Missing expected data at path '' in ''. See https://relay.dev/docs/next/debugging/why-null/ for likely causes.",
+      );
 
       expect(relayFieldLogger).toHaveBeenCalledTimes(1);
       expect(relayFieldLogger).toHaveBeenCalledWith({
@@ -424,7 +426,7 @@ describe('handlePotentialSnapshotErrors', () => {
           },
         ]);
       }).toThrowError(
-        /^Relay: Unexpected response payload - check server logs for details./,
+        "Relay: Received a field error in the server response for field 'testPath' in 'testOwner'. Message: testMessage",
       );
 
       const eventsLogged = relayFieldLogger.mock.calls.map(call => call[0]);

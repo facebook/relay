@@ -50,11 +50,11 @@ function handleFieldErrors(
           );
         case 'relay_field_payload.error':
           throw new Error(
-            `Relay: Unexpected response payload - check server logs for details.`,
+            `Relay: Received a field error in the server response for field '${fieldError.fieldPath}' in '${fieldError.owner}'. Message: ${fieldError.error.message}`,
           );
         case 'missing_expected_data.throw':
           throw new Error(
-            `Relay: Missing expected data at path '${fieldError.fieldPath}' in '${fieldError.owner}'.`,
+            `Relay: Missing expected data at path '${fieldError.fieldPath}' in '${fieldError.owner}'. See https://relay.dev/docs/next/debugging/why-null/ for likely causes.`,
           );
         case 'missing_required_field.throw':
           throw new Error(

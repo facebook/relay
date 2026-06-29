@@ -605,7 +605,11 @@ fn path_has_disallowed_filename_chars(path: &Path) -> bool {
     !path
         .to_string_lossy()
         .chars()
-        .all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_' | '@' | '+' | '/' | '$'))
+        .all(|c| {
+            c.is_ascii_alphanumeric()
+                || std::path::is_separator(c)
+                || matches!(c, '.' | '-' | '_' | '@' | '+' | '$')
+        })
 }
 
 // Stringify a path such that it is stable across operating systems.

@@ -484,7 +484,7 @@ impl Hash for InlineFragment {
 impl InlineFragment {
     /// Get the alias of this inline fragment from the optional `@alias` directive.
     /// If the `as` argument is not present, the type condition is used as the fallback.
-    /// Is is an error to omit the `as` argument if the inline fragment does not
+    /// It is an error to omit the `as` argument if the inline fragment does not
     /// have a type condition.
     pub fn alias(&self, schema: &SDLSchema) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
         if let Some(directive) = self.directives.named(DirectiveName(intern!("alias"))) {

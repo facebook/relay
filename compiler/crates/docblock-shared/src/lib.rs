@@ -149,7 +149,7 @@ pub static LIVE_FIELD: LazyLock<StringKey> = LazyLock::new(|| "live".intern());
 /// context.
 pub static SEMANTIC_NON_NULL_FIELD: LazyLock<StringKey> =
     LazyLock::new(|| "semanticNonNull".intern());
-/// Resolver models are are JS values that back a resolver type. In the
+/// Resolver models are JS values that back a resolver type. In the
 /// Relay runtime they are currently modeled as hidden fields on their
 /// parent type. This is the name of that field.
 ///

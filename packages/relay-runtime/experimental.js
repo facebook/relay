@@ -37,7 +37,7 @@ export type IdOf<A extends string, Typename extends void | string = void> = [
  * https://relay.dev/docs/next/guides/relay-resolvers/return-types/#javascript-values
  *
  * Note: This type forces the value to be non-maybe. This is required in order
- * to allow the Relay compiler to to "see", via static analysis, if the field
+ * to allow the Relay compiler to "see", via static analysis, if the field
  * can return null or not. If the field is nullable, you can type it as
  * returning `?RelayResolverValue<T>`.
  */

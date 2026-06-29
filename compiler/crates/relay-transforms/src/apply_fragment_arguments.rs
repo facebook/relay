@@ -485,7 +485,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             return;
         }
 
-        // We do not need to to write normalization files for base fragments
+        // We do not need to write normalization files for base fragments
         let is_base = self.base_fragment_names.contains(&fragment.name.item);
         if !is_base && !self.no_inline_feature.is_enabled_for(fragment.name.item.0) {
             self.errors.push(Diagnostic::error(

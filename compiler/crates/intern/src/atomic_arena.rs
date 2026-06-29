@@ -361,7 +361,7 @@ impl<'a, T> AtomicArena<'a, T> {
         )
     }
 
-    /// Returns `Ref` to the the added value, which can safely be
+    /// Returns `Ref` to the added value, which can safely be
     /// passed to `get`.  `self.get(self.add(t)) == &t`
     pub fn add(&self, element: T) -> Ref<'a, T> {
         let (biased_index, _) = self.add_get(element);

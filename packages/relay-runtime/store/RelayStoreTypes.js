@@ -156,7 +156,7 @@ export type Snapshot = {
  * - `root`: a selector intended for processing server results or retaining
  *   response data in the store.
  * - `fragment`: a selector intended for use in reading or subscribing to
- *   the results of the the operation.
+ *   the results of the operation.
  */
 export type OperationDescriptor = {
   readonly fragment: SingularReaderSelector,

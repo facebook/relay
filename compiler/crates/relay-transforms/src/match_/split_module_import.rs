@@ -98,7 +98,7 @@ impl Transformer<'_> for SplitModuleImportTransform<'_, '_> {
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if let Some(module_metadata) = self.inline_module_metadata(fragment) {
-            // We do not need to to write normalization files for base fragments.
+            // We do not need to write normalization files for base fragments.
             // This is because when we process the base project, the normalization fragment will
             // be written, and we do not want to emit multiple normalization fragments with
             // the same name. If we did, Haste would complain about a duplicate module definition.

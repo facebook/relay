@@ -177,7 +177,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
                 // SC Update completed, we need to abort current subscription, and re-initialize resource for LSP
                 if compiler_state.source_control_update_status.is_completed() {
-                    debug!("Watchman indicated the the source control update has completed!");
+                    debug!("Watchman indicated the source control update has completed!");
                     subscription_handle.abort();
                     continue 'outer;
                 }

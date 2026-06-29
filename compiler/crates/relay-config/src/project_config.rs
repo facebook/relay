@@ -602,10 +602,11 @@ impl ProjectConfig {
 /// rejects. The linter allows only `[A-Za-z0-9._@+/$-]`; anything else (e.g. the `[`/`]`
 /// in Comet RSC `[id]` route dirs) would make a sharded artifact path unlandable.
 fn path_has_disallowed_filename_chars(path: &Path) -> bool {
-    !path
-        .to_string_lossy()
-        .chars()
-        .all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_' | '@' | '+' | '/' | '$'))
+    !path.to_string_lossy().chars().all(|c| {
+        c.is_ascii_alphanumeric()
+            || std::path::is_separator(c)
+            || matches!(c, '.' | '-' | '_' | '@' | '+' | '$')
+    })
 }
 
 // Stringify a path such that it is stable across operating systems.

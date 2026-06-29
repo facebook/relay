@@ -450,7 +450,6 @@ dependencies = [
  "graphql-ir",
  "graphql-syntax",
  "intern",
- "lazy_static",
  "rayon",
  "relay-test-schema",
  "relay-transforms",
@@ -504,7 +503,6 @@ dependencies = [
  "common",
  "hex",
  "intern",
- "lazy_static",
  "md-5",
  "serde",
 ]
@@ -605,7 +603,6 @@ dependencies = [
  "clap",
  "colored",
  "diff",
- "lazy_static",
  "signedsource",
  "tokio",
 ]
@@ -831,8 +828,6 @@ dependencies = [
  "graphql-syntax",
  "indexmap",
  "intern",
- "lazy_static",
- "once_cell",
  "relay-test-schema",
  "schema",
  "serde",
@@ -1005,9 +1000,9 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "http"
-version = "1.4.0"
+version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3ba2a386d7f85a81f119ad7498ebe444d2e22c2af0b86b069416ace48b3311a"
+checksum = "6970f50e31d6fc17d3fa27329444bfa74e196cf62e95052a3f6fee181dba6425"
 dependencies = [
  "bytes",
  "itoa",
@@ -1282,7 +1277,6 @@ dependencies = [
  "fnv",
  "hashbrown 0.17.1",
  "indexmap",
- "once_cell",
  "parking_lot",
  "rand",
  "schemars",
@@ -1298,8 +1292,6 @@ name = "interner"
 version = "0.0.0"
 dependencies = [
  "fnv",
- "lazy_static",
- "once_cell",
  "parking_lot",
  "serde",
 ]
@@ -1321,9 +1313,9 @@ checksum = "7943c866cc5cd64cbc25b2e01621d07fa8eb2a1a23160ee81ce38704e97b8ecf"
 
 [[package]]
 name = "itertools"
-version = "0.14.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
+checksum = "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc"
 dependencies = [
  "either",
 ]
@@ -1878,9 +1870,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.12.3"
+version = "1.12.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e10754a14b9137dd7b1e3e5b0493cc9171fdd105e0ab477f51b72e7f3ac0e276"
+checksum = "f1292b7759ae1cb9ec195452d1390a074f0cd8541ab7a5a8c31cd6db45d4a6ba"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -1901,9 +1893,9 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
-version = "0.8.5"
+version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
+checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 
 [[package]]
 name = "relay"
@@ -1938,7 +1930,6 @@ dependencies = [
  "hex",
  "indexmap",
  "intern",
- "lazy_static",
  "md-5",
  "relay-config",
  "relay-test-schema",
@@ -1991,7 +1982,6 @@ dependencies = [
  "indexmap",
  "intern",
  "js-config-loader",
- "lazy_static",
  "log",
  "md-5",
  "persist-query",
@@ -2082,7 +2072,6 @@ dependencies = [
  "graphql-syntax",
  "graphql-test-helpers",
  "intern",
- "lazy_static",
  "relay-config",
  "relay-schema",
  "relay-test-schema",
@@ -2112,7 +2101,6 @@ dependencies = [
  "graphql-watchman",
  "intern",
  "itertools",
- "lazy_static",
  "log",
  "lsp-server",
  "lsp-types",
@@ -2149,7 +2137,6 @@ dependencies = [
  "docblock-shared",
  "graphql-syntax",
  "intern",
- "lazy_static",
  "schema",
 ]
 
@@ -2158,7 +2145,6 @@ name = "relay-test-schema"
 version = "0.0.0"
 dependencies = [
  "common",
- "lazy_static",
  "relay-schema",
  "schema",
 ]
@@ -2182,7 +2168,6 @@ dependencies = [
  "indexmap",
  "intern",
  "itertools",
- "lazy_static",
  "parking_lot",
  "regex",
  "relay-config",
@@ -2209,7 +2194,6 @@ dependencies = [
  "indexmap",
  "intern",
  "itertools",
- "lazy_static",
  "regex",
  "relay-codegen",
  "relay-config",
@@ -2321,7 +2305,6 @@ dependencies = [
  "graphql-cli",
  "graphql-syntax",
  "intern",
- "lazy_static",
  "ouroboros",
  "rayon",
  "rmp-serde",
@@ -2348,7 +2331,6 @@ dependencies = [
  "fnv",
  "graphql-syntax",
  "intern",
- "lazy_static",
  "rayon",
  "relay-config",
  "rustc-hash",
@@ -2394,7 +2376,6 @@ dependencies = [
  "graphql-syntax",
  "indoc",
  "intern",
- "lazy_static",
  "program-with-dependencies",
  "schema",
  "schema-coordinates",
@@ -2412,7 +2393,6 @@ dependencies = [
  "fnv",
  "graphql-cli",
  "intern",
- "lazy_static",
  "rayon",
  "regex",
  "schema",
@@ -2626,7 +2606,6 @@ name = "signedsource"
 version = "0.0.0"
 dependencies = [
  "hex",
- "lazy_static",
  "md-5",
  "regex",
 ]
@@ -2653,9 +2632,9 @@ dependencies = [
 
 [[package]]
 name = "smallvec"
-version = "1.15.0"
+version = "1.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8917285742e9f3e1683f0a9c4e6b57960b7314d0b08d30d1ecd426713ee2eee9"
+checksum = "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90"
 dependencies = [
  "serde",
 ]

@@ -7,6 +7,7 @@
 
 mod build_schema_document;
 mod builtin_scalars;
+pub mod directive_policies;
 pub mod find_subset_violations;
 mod from_schema;
 mod ir_collector;
@@ -34,6 +35,8 @@ pub use crate::build_schema_document::ToSDLDefinition;
 pub use crate::build_schema_document::ToTypeSystemDefinition;
 pub use crate::builtin_scalars::add_built_in_scalars;
 pub use crate::builtin_scalars::remove_built_in_scalars;
+pub use crate::directive_policies::DirectivePolicies;
+pub use crate::directive_policies::DirectivePolicy;
 pub use crate::from_schema::SchemaDefault;
 pub use crate::from_schema::SchemaInsertArgument;
 pub use crate::from_schema::SchemaInsertDirectiveValue;
@@ -71,6 +74,7 @@ pub use crate::schema_set_collection_options::UsedSchemaCollectionOptions;
 pub use crate::set_type_reference::OutputNonNull;
 pub use crate::set_type_reference::OutputTypeReference;
 
+static DIVERGENCE: LazyLock<DirectiveName> = LazyLock::new(|| DirectiveName("divergence".intern()));
 static SEMANTIC_NON_NULL: LazyLock<DirectiveName> =
     LazyLock::new(|| DirectiveName("semanticNonNull".intern()));
 static SEMANTIC_NON_NULL_LEVELS_ARG: LazyLock<ArgumentName> =

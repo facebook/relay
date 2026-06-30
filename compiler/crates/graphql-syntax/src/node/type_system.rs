@@ -82,6 +82,22 @@ impl TypeSystemDefinition {
             TypeSystemDefinition::ScalarTypeExtension(extension) => extension.name.span,
         }
     }
+
+    /// Returns `true` if this is an `extend ...` definition (e.g.
+    /// `extend type Foo`) rather than a base definition.
+    pub fn is_extension(&self) -> bool {
+        matches!(
+            self,
+            TypeSystemDefinition::SchemaExtension(_)
+                | TypeSystemDefinition::EnumTypeExtension(_)
+                | TypeSystemDefinition::InterfaceTypeExtension(_)
+                | TypeSystemDefinition::ObjectTypeExtension(_)
+                | TypeSystemDefinition::UnionTypeExtension(_)
+                | TypeSystemDefinition::InputObjectTypeExtension(_)
+                | TypeSystemDefinition::ScalarTypeExtension(_)
+                | TypeSystemDefinition::DirectiveDefinitionExtension(_)
+        )
+    }
 }
 
 impl fmt::Display for TypeSystemDefinition {
@@ -907,5 +923,35 @@ impl fmt::Display for ConstantDirective {
             write_arguments(f, &arguments.items)?;
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use common::SourceLocationKey;
+
+    use crate::parse_schema_document;
+
+    #[test]
+    fn is_extension_distinguishes_extensions_from_definitions() {
+        let doc = parse_schema_document(
+            r#"
+                type Foo { id: ID }
+                extend type Foo { name: String }
+                interface Bar { id: ID }
+                extend interface Bar { name: String }
+                scalar Baz
+                extend scalar Baz @deprecated
+            "#,
+            SourceLocationKey::generated(),
+        )
+        .expect("schema should parse");
+
+        let is_extension: Vec<bool> = doc.definitions.iter().map(|d| d.is_extension()).collect();
+        assert_eq!(
+            is_extension,
+            vec![false, true, false, true, false, true],
+            "base definitions should be false and `extend` definitions true, in source order",
+        );
     }
 }

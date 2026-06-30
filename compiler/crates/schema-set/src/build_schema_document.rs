@@ -93,7 +93,7 @@ impl ToSDLDefinition<SchemaDocument> for SchemaSet {
         let mut sorted_types = self.types.values().collect::<Vec<_>>();
         sorted_types.sort_by_key(|a| a.string_key_name());
 
-        let definitions = directives
+        let mut definitions: Vec<TypeSystemDefinition> = directives
             .into_iter()
             .map(|d| d.to_type_system_definition())
             .chain(root_schema_definitions)
@@ -103,6 +103,12 @@ impl ToSDLDefinition<SchemaDocument> for SchemaSet {
                     .map(|set_type| set_type.to_type_system_definition()),
             )
             .collect();
+
+        // Extensions must be emitted after the base definitions they reference.
+        // `sort_by_key` is stable, so this keeps the alphabetical order within
+        // the base and extension groups while moving every `extend ...` after
+        // all of the base definitions.
+        definitions.sort_by_key(|definition| definition.is_extension());
 
         SchemaDocument {
             location: Location::generated(),
@@ -911,6 +917,36 @@ mod tests {
             }
         "#});
         assert!(sdl.contains("@deprecated"), "Got: {}", sdl);
+    }
+
+    /// `extend type A` sorts alphabetically before its base `interface B`, but
+    /// an extension must not be printed before the definition it references.
+    /// The printer must emit base definitions first, then extensions.
+    #[test]
+    fn test_extensions_print_after_definitions() {
+        let doc = parse_schema_document(
+            indoc! {r#"
+                extend type A implements B {
+                  id: ID
+                }
+
+                interface B {
+                  id: ID
+                }
+            "#},
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        let set = SchemaSet::from_schema_documents_with_extensions(&[], &[doc]).unwrap();
+        let sdl = format!("{}", set.to_sdl_definition());
+
+        let interface_pos = sdl.find("interface B").expect("interface B not found");
+        let extension_pos = sdl.find("extend type A").expect("extend type A not found");
+        assert!(
+            interface_pos < extension_pos,
+            "Definitions should print before extensions: {}",
+            sdl,
+        );
     }
 
     #[test]

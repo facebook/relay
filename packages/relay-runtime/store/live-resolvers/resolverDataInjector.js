@@ -29,7 +29,7 @@ type ResolverFn = ($FlowFixMe, ?$FlowFixMe, ResolverContext) => unknown;
  * - (optional) fieldName: individual field that needs to be read out of the fragment.
  *
  * This will not call the `resolverFn` if the fragment data for it is null/undefined.
- * The the compiler generates calls to this function, ensuring the correct set of arguments.
+ * The compiler generates calls to this function, ensuring the correct set of arguments.
  */
 function resolverDataInjector<
   TFragmentType extends FragmentType,

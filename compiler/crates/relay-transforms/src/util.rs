@@ -77,7 +77,7 @@ pub fn replace_directive(directives: &[Directive], replacement: Directive) -> Ve
 }
 
 /// The function that will return a variable name for an argument
-/// it it uses a variable (and it the argument is available)
+/// if it uses a variable (and if the argument is available)
 pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
     match argument {
         Some(arg) => match &arg.value.item {

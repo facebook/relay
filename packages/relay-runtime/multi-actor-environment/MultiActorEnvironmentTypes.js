@@ -54,7 +54,7 @@ export interface IActorEnvironment extends IEnvironment {
   readonly actorIdentifier: ActorIdentifier;
 
   /**
-   * TODO: this needs to move the the MultiActorEnvironment with different API.
+   * TODO: this needs to move to the MultiActorEnvironment with different API.
    */
   getPublishQueue(): RelayPublishQueue;
 

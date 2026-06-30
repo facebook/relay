@@ -705,7 +705,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 // where there are multiple selections with `@module` in the same document.
                 //
                 // If the directive does not have a `key` argument, and is not on a field with a
-                // `supported` argument, then it is is not doing anything and is
+                // `supported` argument, then it is not doing anything and is
                 // therefore an error.
                 if key_arg.is_none() {
                     return Err(Diagnostic::error(

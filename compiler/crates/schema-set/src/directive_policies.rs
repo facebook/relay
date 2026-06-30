@@ -60,6 +60,23 @@ impl DirectivePolicy {
         client_only_ok: false,
         args_may_differ: false,
     };
+
+    /// Policy for directives that are authoritative on the service schema:
+    /// service-only usages are accepted, client-only usages are stripped, and
+    /// args are overwritten from the service.
+    pub const SERVICE_FIRST: Self = Self {
+        service_only_ok: true,
+        client_only_ok: false,
+        args_may_differ: false,
+    };
+
+    /// Policy for directives that may freely diverge between service and
+    /// client schemas.
+    pub const ANY_DIVERGENCE: Self = Self {
+        service_only_ok: true,
+        client_only_ok: true,
+        args_may_differ: true,
+    };
 }
 
 /// The reconciliation policy for every directive, read once from the
@@ -98,24 +115,29 @@ impl DirectivePolicies {
             .copied()
             .unwrap_or(DirectivePolicy::EXACT_MATCH)
     }
+}
 
-    /// Builds policies directly from
-    /// `(directive_name, service_only_ok, client_only_ok, args_may_differ)`
-    /// tuples, bypassing schema parsing. Primarily for tests.
-    pub fn from_pairs(pairs: &[(&str, bool, bool, bool)]) -> Self {
+impl<'a> FromIterator<(&'a str, DirectivePolicy)> for DirectivePolicies {
+    /// Builds policies directly from `(directive_name, policy)` pairs,
+    /// bypassing schema parsing. Intern each name as we collect.
+    fn from_iter<I: IntoIterator<Item = (&'a str, DirectivePolicy)>>(iter: I) -> Self {
         Self {
-            by_name: pairs
-                .iter()
-                .map(|(name, service_only_ok, client_only_ok, args_may_differ)| {
-                    (
-                        name.intern(),
-                        DirectivePolicy {
-                            service_only_ok: *service_only_ok,
-                            client_only_ok: *client_only_ok,
-                            args_may_differ: *args_may_differ,
-                        },
-                    )
-                })
+            by_name: iter
+                .into_iter()
+                .map(|(name, policy)| (name.intern(), policy))
+                .collect(),
+        }
+    }
+}
+
+impl FromIterator<(DirectiveName, DirectivePolicy)> for DirectivePolicies {
+    /// Builds policies directly from `(directive_name, policy)` pairs,
+    /// bypassing schema parsing.
+    fn from_iter<I: IntoIterator<Item = (DirectiveName, DirectivePolicy)>>(iter: I) -> Self {
+        Self {
+            by_name: iter
+                .into_iter()
+                .map(|(name, policy)| (name.0, policy))
                 .collect(),
         }
     }
@@ -192,19 +214,11 @@ mod tests {
 
         assert_eq!(
             policies.policy_for(&DirectiveName("cdn_url".intern())),
-            DirectivePolicy {
-                service_only_ok: true,
-                client_only_ok: false,
-                args_may_differ: false,
-            },
+            DirectivePolicy::SERVICE_FIRST,
         );
         assert_eq!(
             policies.policy_for(&DirectiveName("fb_owner".intern())),
-            DirectivePolicy {
-                service_only_ok: true,
-                client_only_ok: true,
-                args_may_differ: true,
-            },
+            DirectivePolicy::ANY_DIVERGENCE,
         );
         // No @divergence on @source → defaults to EXACT_MATCH.
         assert_eq!(

@@ -113,7 +113,9 @@ test('@required(action: LOG) gets logged even if no data is "missing"', async ()
   expect(relayFieldLogger.mock.calls).toEqual([
     [
       {
+        fieldError: null,
         fieldPath: 'name',
+        fieldValue: null,
         kind: 'missing_required_field.log',
         owner: 'useFragmentWithRequiredTestUserFragment',
       },

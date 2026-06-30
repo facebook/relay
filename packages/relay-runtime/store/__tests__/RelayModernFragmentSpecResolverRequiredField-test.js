@@ -86,7 +86,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       true /* rootIsQueryRenderer */,
     );
     expect(() => resolver.resolve()).toThrowError(
-      "Relay: Missing @required value at path 'name' in 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment'.",
+      "Relay: Missing @required value at path 'name' in 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment': the server returned null.",
     );
   });
 
@@ -101,7 +101,9 @@ describe('RelayModernFragmentSpecResolver', () => {
     );
     resolver.resolve();
     expect(relayFieldLogger).toHaveBeenCalledWith({
+      fieldError: null,
       fieldPath: 'alternate_name',
+      fieldValue: null,
       kind: 'missing_required_field.log',
       owner: 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment',
     });
@@ -120,11 +122,13 @@ describe('RelayModernFragmentSpecResolver', () => {
     setUserField('4', 'name', null);
 
     expect(() => resolver.resolve()).toThrowError(
-      "Relay: Missing @required value at path 'name' in 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment'.",
+      "Relay: Missing @required value at path 'name' in 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment': the server returned null.",
     );
 
     expect(relayFieldLogger).toHaveBeenCalledWith({
+      fieldError: null,
       fieldPath: 'name',
+      fieldValue: null,
       kind: 'missing_required_field.throw',
       owner: 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment',
       handled: false,

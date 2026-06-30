@@ -353,7 +353,10 @@ class RelayReader {
     return this._variables[name];
   }
 
-  _maybeReportUnexpectedNull(selection: ReaderRequiredField) {
+  _maybeReportUnexpectedNull(
+    selection: ReaderRequiredField,
+    fieldValue: null | void,
+  ) {
     if (selection.action === 'NONE') {
       return;
     }
@@ -371,10 +374,24 @@ class RelayReader {
       fieldName = selection.field.alias ?? selection.field.name;
     }
 
+    // When the field was null (not missing from the store), check whether the
+    // server also attached a field error to it. _maybeAddFieldErrors runs in
+    // the same call stack just before this method, so any companion error for
+    // this field is always the last entry pushed to this._fieldErrors.
+    let fieldError = null;
+    if (fieldValue === null && this._fieldErrors.length > 0) {
+      const lastError = this._fieldErrors[this._fieldErrors.length - 1];
+      if (lastError.kind === 'relay_field_payload.error') {
+        fieldError = lastError.error;
+      }
+    }
+
     switch (selection.action) {
       case 'THROW':
         this._fieldErrors.push({
+          fieldError,
           fieldPath: fieldName,
+          fieldValue,
           handled: false,
           kind: 'missing_required_field.throw',
           owner,
@@ -385,7 +402,9 @@ class RelayReader {
         return;
       case 'LOG':
         this._fieldErrors.push({
+          fieldError,
           fieldPath: fieldName,
+          fieldValue,
           kind: 'missing_required_field.log',
           owner,
           // the uiContext is always undefined here.
@@ -403,7 +422,7 @@ class RelayReader {
     value: unknown,
   ): boolean /*should continue to siblings*/ {
     if (value == null) {
-      this._maybeReportUnexpectedNull(selection);
+      this._maybeReportUnexpectedNull(selection, value);
       // We are going to throw, or our parent is going to get nulled out.
       // Either way, sibling values are going to be ignored, so we can
       // bail early here as an optimization.
@@ -499,12 +518,23 @@ class RelayReader {
             return {
               message: `Relay: Error in resolver for field at ${error.fieldPath} in ${error.owner}`,
             };
-          case 'missing_required_field.throw':
+          case 'missing_required_field.throw': {
             // If we have a nested @required(THROW) that will throw,
             // we want to catch that error and provide it
+            let reason: string;
+            if (error.fieldValue === null) {
+              reason =
+                error.fieldError != null
+                  ? `the server returned null with an error: ${error.fieldError.message}`
+                  : 'the server returned null';
+            } else {
+              reason =
+                'the field was missing in the store (data may not have been fetched, or was removed by a graph relationship change: https://relay.dev/docs/next/debugging/why-null/#graph-relationship-change)';
+            }
             return {
-              message: `Relay: Missing @required value at path '${error.fieldPath}' in '${error.owner}'.`,
+              message: `Relay: Missing @required value at path '${error.fieldPath}' in '${error.owner}': ${reason}.`,
             };
+          }
           case 'missing_required_field.log':
             // For backwards compatibility, we don't surface log level missing required fields
             return null;

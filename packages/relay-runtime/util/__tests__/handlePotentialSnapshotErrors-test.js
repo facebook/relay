@@ -32,19 +32,60 @@ describe('handlePotentialSnapshotErrors', () => {
   });
 
   describe('missing required field handling', () => {
-    it('throws', () => {
+    it('throws with "server returned null" reason when fieldValue is null and no field error', () => {
       expect(() => {
         handlePotentialSnapshotErrors(environment, [
           {
             kind: 'missing_required_field.throw',
             owner: 'testOwner',
             fieldPath: 'testPath',
+            // null means the server returned null for this field
+            fieldValue: null,
+            fieldError: null,
             handled: false,
             uiContext: undefined,
           },
         ]);
       }).toThrowError(
-        /^Relay: Missing @required value at path 'testPath' in 'testOwner'./,
+        "Relay: Missing @required value at path 'testPath' in 'testOwner': the server returned null.",
+      );
+    });
+
+    it('throws with server error message when fieldValue is null and server attached a field error', () => {
+      expect(() => {
+        handlePotentialSnapshotErrors(environment, [
+          {
+            kind: 'missing_required_field.throw',
+            owner: 'testOwner',
+            fieldPath: 'testPath',
+            fieldValue: null,
+            // the server attached an error explaining why the field was null
+            fieldError: {message: 'Something went wrong on the server'},
+            handled: false,
+            uiContext: undefined,
+          },
+        ]);
+      }).toThrowError(
+        "Relay: Missing @required value at path 'testPath' in 'testOwner': the server returned null with an error: Something went wrong on the server.",
+      );
+    });
+
+    it('throws with "missing in store" reason when fieldValue is undefined', () => {
+      expect(() => {
+        handlePotentialSnapshotErrors(environment, [
+          {
+            kind: 'missing_required_field.throw',
+            owner: 'testOwner',
+            fieldPath: 'testPath',
+            // undefined means the field was absent from the store entirely
+            fieldValue: undefined,
+            fieldError: null,
+            handled: false,
+            uiContext: undefined,
+          },
+        ]);
+      }).toThrowError(
+        "Relay: Missing @required value at path 'testPath' in 'testOwner': the field was missing in the store (data may not have been fetched, or was removed by a graph relationship change: https://relay.dev/docs/next/debugging/why-null/#graph-relationship-change).",
       );
     });
 
@@ -55,6 +96,8 @@ describe('handlePotentialSnapshotErrors', () => {
             kind: 'missing_required_field.throw',
             owner: 'testOwner',
             fieldPath: 'testPath',
+            fieldValue: null,
+            fieldError: null,
             handled: false,
             uiContext: undefined,
           },
@@ -66,17 +109,19 @@ describe('handlePotentialSnapshotErrors', () => {
           },
         ]);
       }).toThrowError(
-        /^Relay: Missing @required value at path 'testPath' in 'testOwner'./,
+        "Relay: Missing @required value at path 'testPath' in 'testOwner': the server returned null.",
       );
     });
 
-    it('throws required even when missingData exists in errors array', () => {
+    it('throws required even when missingData and field payload error exist in errors array', () => {
       expect(() => {
         handlePotentialSnapshotErrors(environment, [
           {
             kind: 'missing_required_field.throw',
             owner: 'testOwner',
             fieldPath: 'testPath',
+            fieldValue: null,
+            fieldError: null,
             handled: false,
             uiContext: undefined,
           },
@@ -101,7 +146,7 @@ describe('handlePotentialSnapshotErrors', () => {
           },
         ]);
       }).toThrowError(
-        /^Relay: Missing @required value at path 'testPath' in 'testOwner'./,
+        "Relay: Missing @required value at path 'testPath' in 'testOwner': the server returned null.",
       );
     });
 
@@ -111,13 +156,17 @@ describe('handlePotentialSnapshotErrors', () => {
           kind: 'missing_required_field.log',
           owner: 'testOwner',
           fieldPath: 'testPath',
+          fieldValue: null,
+          fieldError: null,
           uiContext: undefined,
         },
       ]);
 
       expect(relayFieldLogger).toHaveBeenCalledTimes(1);
       expect(relayFieldLogger).toHaveBeenCalledWith({
+        fieldError: null,
         fieldPath: 'testPath',
+        fieldValue: null,
         kind: 'missing_required_field.log',
         owner: 'testOwner',
       });

@@ -1048,7 +1048,9 @@ describe('Inline Fragments', () => {
           'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
       },
       {
+        fieldError: null,
         fieldPath: 'node.aliased_fragment.name',
+        fieldValue: undefined,
         kind: 'missing_required_field.log',
         owner:
           'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
@@ -1109,10 +1111,12 @@ describe('Inline Fragments', () => {
           'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',
       },
       {
+        fieldError: null,
+        fieldPath: 'node.aliased_fragment.name',
+        fieldValue: null,
         kind: 'missing_required_field.log',
         owner:
           'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',
-        fieldPath: 'node.aliased_fragment.name',
       },
     ]);
     expect(isMissingData).toBe(true);

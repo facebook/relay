@@ -199,7 +199,7 @@ describe('RelayReader @catch', () => {
         errors: [
           {
             message:
-              "Relay: Missing @required value at path 'me.firstName' in 'RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery'.",
+              "Relay: Missing @required value at path 'me.firstName' in 'RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery': the server returned null.",
           },
         ],
       },
@@ -207,12 +207,16 @@ describe('RelayReader @catch', () => {
 
     expect(fieldErrors).toEqual([
       {
-        kind: 'missing_required_field.log',
+        fieldError: null,
         fieldPath: 'alsoMe.lastName',
+        fieldValue: null,
+        kind: 'missing_required_field.log',
         owner: 'RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery',
       },
       {
+        fieldError: null,
         fieldPath: 'me.firstName',
+        fieldValue: null,
         handled: true,
         kind: 'missing_required_field.throw',
         owner: 'RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery',
@@ -250,7 +254,9 @@ describe('RelayReader @catch', () => {
 
     expect(fieldErrors).toEqual([
       {
+        fieldError: null,
         fieldPath: 'me.firstName',
+        fieldValue: null,
         handled: true,
         kind: 'missing_required_field.throw',
         owner: 'RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery',
@@ -888,7 +894,7 @@ describe('RelayReader @catch', () => {
         errors: [
           {
             message:
-              "Relay: Missing @required value at path 'me.lastName' in 'RelayReaderCatchFieldsTest02Query'.",
+              "Relay: Missing @required value at path 'me.lastName' in 'RelayReaderCatchFieldsTest02Query': the server returned null.",
           },
         ],
         ok: false,
@@ -897,7 +903,9 @@ describe('RelayReader @catch', () => {
 
     expect(fieldErrors).toEqual([
       {
+        fieldError: null,
         fieldPath: 'me.lastName',
+        fieldValue: null,
         handled: true,
         kind: 'missing_required_field.throw',
         owner: 'RelayReaderCatchFieldsTest02Query',

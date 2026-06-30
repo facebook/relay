@@ -294,7 +294,7 @@ describe.each([[true], [false]])(
           jest.runAllImmediates();
         });
       }).toThrow(
-        "Relay: Missing @required value at path 'me.client_node' in 'ClientEdgesTest3Query'.",
+        "Relay: Missing @required value at path 'me.client_node' in 'ClientEdgesTest3Query': the field was missing in the store (data may not have been fetched, or was removed by a graph relationship change: https://relay.dev/docs/next/debugging/why-null/#graph-relationship-change).",
       );
       expect(renderer?.toJSON()).toBe(null);
     });
@@ -332,7 +332,7 @@ describe.each([[true], [false]])(
           TestRenderer.create(<TestComponent />);
         });
       }).toThrow(
-        "Relay: Missing @required value at path 'me.client_object' in 'ClientEdgesTest4Query'.",
+        "Relay: Missing @required value at path 'me.client_object' in 'ClientEdgesTest4Query': the server returned null.",
       );
       expect(fetchFn.mock.calls.length).toEqual(0);
     });

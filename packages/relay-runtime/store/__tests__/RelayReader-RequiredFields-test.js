@@ -907,7 +907,7 @@ describe('RelayReader @required', () => {
             errors: [
               {
                 message:
-                  "Relay: Missing @required value at path 'me.client_object' in 'RelayReaderRequiredFieldsTest29Query'.",
+                  "Relay: Missing @required value at path 'me.client_object' in 'RelayReaderRequiredFieldsTest29Query': the server returned null.",
               },
             ],
             ok: false,
@@ -916,7 +916,9 @@ describe('RelayReader @required', () => {
         // these are "handled" because the field with the required error was caught
         expect(fieldErrors).toEqual([
           {
+            fieldError: null,
             fieldPath: 'me.client_object',
+            fieldValue: null,
             handled: true,
             kind: 'missing_required_field.throw',
             owner: 'RelayReaderRequiredFieldsTest29Query',
@@ -958,7 +960,9 @@ describe('RelayReader @required', () => {
       );
       expect(fieldErrors).toEqual([
         {
+          fieldError: null,
           fieldPath: 'me.client_object',
+          fieldValue: null,
           kind: 'missing_required_field.throw',
           owner: 'RelayReaderRequiredFieldsTest25Query',
           handled: false,

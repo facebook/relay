@@ -140,7 +140,8 @@ test('Missing required data', async () => {
     expect(results).toEqual([
       {
         error: new Error(
-          "Relay: Missing @required value at path 'name' in 'observeFragmentTestMissingRequiredFragment'.",
+          // fieldValue is null (server returned null), no server error
+          "Relay: Missing @required value at path 'name' in 'observeFragmentTestMissingRequiredFragment': the server returned null.",
         ),
         state: 'error',
       },
@@ -445,7 +446,8 @@ test('Missing required data on plural fragment', async () => {
     expect(results).toEqual([
       {
         error: new Error(
-          "Relay: Missing @required value at path 'name' in 'observeFragmentTestMissingRequiredPluralFragment'.",
+          // fieldValue is null (server returned null), no server error
+          "Relay: Missing @required value at path 'name' in 'observeFragmentTestMissingRequiredPluralFragment': the server returned null.",
         ),
         state: 'error',
       },

@@ -56,10 +56,21 @@ function handleFieldErrors(
           throw new Error(
             `Relay: Missing expected data at path '${fieldError.fieldPath}' in '${fieldError.owner}'. See https://relay.dev/docs/next/debugging/why-null/ for likely causes.`,
           );
-        case 'missing_required_field.throw':
+        case 'missing_required_field.throw': {
+          let reason: string;
+          if (fieldError.fieldValue === null) {
+            reason =
+              fieldError.fieldError != null
+                ? `the server returned null with an error: ${fieldError.fieldError.message}`
+                : 'the server returned null';
+          } else {
+            reason =
+              'the field was missing in the store (data may not have been fetched, or was removed by a graph relationship change: https://relay.dev/docs/next/debugging/why-null/#graph-relationship-change)';
+          }
           throw new Error(
-            `Relay: Missing @required value at path '${fieldError.fieldPath}' in '${fieldError.owner}'.`,
+            `Relay: Missing @required value at path '${fieldError.fieldPath}' in '${fieldError.owner}': ${reason}.`,
           );
+        }
         case 'missing_required_field.log':
         case 'missing_expected_data.log':
           // These should have already been filtered out. Sadly, Flow Type

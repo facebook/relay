@@ -153,7 +153,8 @@ test('Missing required data', async () => {
     expect(results).toEqual([
       {
         error: new Error(
-          "Relay: Missing @required value at path 'me.name' in 'observeQueryTestMissingRequiredQuery'.",
+          // fieldValue is null (server returned null), no server error
+          "Relay: Missing @required value at path 'me.name' in 'observeQueryTestMissingRequiredQuery': the server returned null.",
         ),
         state: 'error',
       },

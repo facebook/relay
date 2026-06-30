@@ -1411,6 +1411,22 @@ export type MissingRequiredFieldLogEvent = {
   readonly kind: 'missing_required_field.log',
   readonly owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
+  /**
+   * The value that was read for the @required field:
+   * - `null`: the server returned null for this field. If `fieldError` is also
+   *   set, the server attached an error explaining why.
+   * - `undefined` (void): the field was absent from the Relay store entirely.
+   *   This is commonly caused by a graph relationship change observed by another
+   *   query/mutation, or by an imperative store update that omitted this field.
+   *   See https://relay.dev/docs/next/debugging/why-null/#graph-relationship-change
+   */
+  readonly fieldValue: null | void,
+  /**
+   * When `fieldValue` is `null` and the server attached a field error to this
+   * field in the GraphQL response, this contains that error. This is the most
+   * likely explanation for why the field was null.
+   */
+  readonly fieldError: ?TRelayFieldError,
   // To populate this, you should pass the value to a ReactRelayLoggingContext
   readonly uiContext: unknown | void,
 };
@@ -1431,6 +1447,22 @@ export type MissingRequiredFieldThrowEvent = {
   readonly owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   readonly handled: boolean,
+  /**
+   * The value that was read for the @required field:
+   * - `null`: the server returned null for this field. If `fieldError` is also
+   *   set, the server attached an error explaining why.
+   * - `undefined` (void): the field was absent from the Relay store entirely.
+   *   This is commonly caused by a graph relationship change observed by another
+   *   query/mutation, or by an imperative store update that omitted this field.
+   *   See https://relay.dev/docs/next/debugging/why-null/#graph-relationship-change
+   */
+  readonly fieldValue: null | void,
+  /**
+   * When `fieldValue` is `null` and the server attached a field error to this
+   * field in the GraphQL response, this contains that error. This is the most
+   * likely explanation for why the field was null.
+   */
+  readonly fieldError: ?TRelayFieldError,
   // To populate this, you should pass the value to a ReactRelayLoggingContext
   readonly uiContext: unknown | void,
 };

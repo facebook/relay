@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod build_in_memory_schema;
 mod build_schema_document;
 mod builtin_scalars;
 pub mod directive_policies;
@@ -31,6 +32,8 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use schema_coordinates::SchemaCoordinate;
 
+pub use crate::build_in_memory_schema::build_in_memory_schema;
+pub use crate::build_in_memory_schema::build_sdl_schema;
 pub use crate::build_schema_document::ToSDLDefinition;
 pub use crate::build_schema_document::ToTypeSystemDefinition;
 pub use crate::builtin_scalars::add_built_in_scalars;

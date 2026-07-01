@@ -43,7 +43,6 @@ pub enum SubsetViolationType {
     TypeChangedKind,
     FieldRemoved,
     FieldChangedKind,
-    FieldArgAdded,
     TypeRemovedFromUnion,
     ValueRemovedFromEnum,
     RequiredInputFieldAdded,
@@ -374,22 +373,6 @@ fn walk_arg_violations(
                     violation_type: SubsetViolationType::RequiredArgAdded,
                     description: format!(
                         "A required arg {arg_name} on {type_name}.{field_name} is in base but missing from subset.",
-                    ),
-                    schema_coordinate: SchemaCoordinate::Member {
-                        parent_name: type_name,
-                        member_name: field_name,
-                    }
-                    .to_string(),
-                    base: None,
-                    subset: Some(arg_name.lookup().to_string()),
-                    base_locations: Vec::new(),
-                    subset_locations: Vec::new(),
-                });
-            } else {
-                violations.push(SubsetViolation {
-                    violation_type: SubsetViolationType::FieldArgAdded,
-                    description: format!(
-                        "An arg {arg_name} on {type_name}.{field_name} is not in base.",
                     ),
                     schema_coordinate: SchemaCoordinate::Member {
                         parent_name: type_name,
@@ -1001,6 +984,21 @@ mod tests {
         assert_no_violations(
             "type Query { myQ(a: Int): String }",
             "type Query { myQ: String }",
+        );
+    }
+
+    #[test]
+    fn test_optional_arg_in_base_only_with_restricted_directive_is_valid() {
+        let v = violations_with_base_restricted_directives(
+            r#"type Query { myQ(a: Int @source(name: "x")): String }"#,
+            "type Query { myQ: String }",
+            &["source"],
+        );
+        assert!(
+            !v.iter()
+                .any(|v| matches!(v.violation_type, SubsetViolationType::RequiredArgAdded)),
+            "Nullable base-only arg should not be flagged as RequiredArgAdded, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
         );
     }
 

@@ -10,7 +10,6 @@ use intern::Lookup;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
-use intern::string_key::StringKeySet;
 use schema::TypeReference;
 use schema_coordinates::SchemaCoordinate;
 use serde::Serialize;
@@ -29,6 +28,7 @@ pub struct SchemaFileLocation {
 }
 
 use crate::CanHaveDirectives;
+use crate::DirectivePolicies;
 use crate::OutputTypeReference;
 use crate::SchemaSet;
 use crate::SetArgument;
@@ -82,21 +82,21 @@ pub struct SubsetViolation {
 /// but not covered by base), then walks the remainder to produce structured
 /// violation objects.
 ///
-/// `subset_directives` lists directives that the subset is allowed to have
-/// even when the base does not. For example, `@deprecated` in this set means
-/// a subset field with `@deprecated` is still a valid subset of the same
-/// base field without it.
+/// `policies` describes how directives may diverge between base and subset:
 ///
-/// `base_restricted_directives` lists directives that, when present on a
-/// type or field in the base schema, must also be present on the corresponding
-/// type or field in the subset schema.
+/// * `client_only_ok = true` permits the subset to carry the directive even
+///   when the base does not — e.g. a typical `@deprecated` policy lets a
+///   subset field with `@deprecated` remain a valid subset of the same base
+///   field without it.
+/// * `service_only_ok = false` requires the subset to mirror the directive
+///   whenever the base has it; the missing application is reported as a
+///   `BaseDirectiveNotInSubset` violation.
 pub fn find_subset_violations(
     base: &SchemaSet,
     subset: &SchemaSet,
-    subset_directives: &StringKeySet,
-    base_restricted_directives: &StringKeySet,
+    policies: &DirectivePolicies,
 ) -> Vec<SubsetViolation> {
-    let remainder = subset.exclude_set(base, subset_directives, base_restricted_directives);
+    let remainder = subset.exclude_set(base, policies);
     let mut violations = Vec::new();
 
     for (type_name, rem_type) in &remainder.types {
@@ -735,9 +735,9 @@ fn same_type_kind(a: &SetType, b: &SetType) -> bool {
 mod tests {
     use common::SourceLocationKey;
     use graphql_syntax::parse_schema_document;
-    use intern::string_key::Intern;
 
     use super::*;
+    use crate::DirectivePolicy;
 
     fn set_from_str(sdl: &str) -> SchemaSet {
         SchemaSet::from_base_schema_documents(&[parse_schema_document(
@@ -751,12 +751,7 @@ mod tests {
     fn violations(base: &str, subset: &str) -> Vec<SubsetViolation> {
         let base_set = set_from_str(base);
         let subset_set = set_from_str(subset);
-        find_subset_violations(
-            &base_set,
-            &subset_set,
-            &StringKeySet::default(),
-            &StringKeySet::default(),
-        )
+        find_subset_violations(&base_set, &subset_set, &DirectivePolicies::default())
     }
 
     fn violations_with_subset_directives(
@@ -766,14 +761,15 @@ mod tests {
     ) -> Vec<SubsetViolation> {
         let base_set = set_from_str(base);
         let subset_set = set_from_str(subset);
-        let subset_set_directives: StringKeySet =
-            subset_directives.iter().map(|s| (*s).intern()).collect();
-        find_subset_violations(
-            &base_set,
-            &subset_set,
-            &subset_set_directives,
-            &StringKeySet::default(),
-        )
+        let bidirectional = DirectivePolicy {
+            service_only_ok: true,
+            client_only_ok: true,
+            args_may_differ: true,
+        };
+        let policies = DirectivePolicies::from_iter(
+            subset_directives.iter().map(|name| (*name, bidirectional)),
+        );
+        find_subset_violations(&base_set, &subset_set, &policies)
     }
 
     fn violations_with_base_restricted_directives(
@@ -783,13 +779,12 @@ mod tests {
     ) -> Vec<SubsetViolation> {
         let base_set = set_from_str(base);
         let subset_set = set_from_str(subset);
-        let restricted_set: StringKeySet = base_restricted.iter().map(|s| (*s).intern()).collect();
-        find_subset_violations(
-            &base_set,
-            &subset_set,
-            &StringKeySet::default(),
-            &restricted_set,
-        )
+        let policies = DirectivePolicies::from_iter(
+            base_restricted
+                .iter()
+                .map(|name| (*name, DirectivePolicy::EXACT_MATCH)),
+        );
+        find_subset_violations(&base_set, &subset_set, &policies)
     }
 
     #[allow(dead_code)]
@@ -1229,9 +1224,24 @@ mod tests {
 
     #[test]
     fn test_type_strengthened_is_valid() {
-        assert_no_violations(
-            "type T @strong(field: \"id\") { afield: String } type Query { myQ: T }",
-            "type T { afield: String } type Query { myQ: T }",
+        let base =
+            set_from_str("type T @strong(field: \"id\") { afield: String } type Query { myQ: T }");
+        let subset = set_from_str("type T { afield: String } type Query { myQ: T }");
+        let policies = DirectivePolicies::from_iter([(
+            "strong",
+            DirectivePolicy {
+                service_only_ok: true,
+                client_only_ok: false,
+                args_may_differ: false,
+            },
+        )]);
+        let v = find_subset_violations(&base, &subset, &policies);
+        assert!(
+            v.is_empty(),
+            "Expected no violations under @strong service_only_ok=true policy, got: {:?}",
+            v.iter()
+                .map(|v| format!("{}: {}", v.schema_coordinate, v.description))
+                .collect::<Vec<_>>()
         );
     }
 

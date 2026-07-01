@@ -24,6 +24,7 @@ use intern::string_key::StringKeySet;
 use schema::TypeReference;
 use schema_coordinates::SchemaCoordinate;
 
+use crate::DirectivePolicies;
 use crate::OutputNonNull;
 use crate::OutputTypeReference;
 use crate::SchemaDefinitionItem;
@@ -56,23 +57,24 @@ pub static MISSING_REQUIRED_DIRECTIVE_NAME: LazyLock<ArgumentName> =
 /// or if possible are made on the client *first*.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SafeExclusionOptions {
-    /// Some directives need to be applied to a subset *before* being applied to a superset,
-    /// for example `my_field: Foo @deprecated` is a SUBSET of `my_field: Foo`, just like
-    /// `my_field: Foo` is a subset of `my_field: Foo!`.
+    /// Per-directive policies controlling how a directive may diverge between
+    /// the two sides of the exclusion. For each tracked directive:
     ///
-    /// When the directive IS in the base schema, but NOT in the excluded schema,
-    /// we will still remove the directive during exclude.
-    /// So SchemaSet(`my_field: Foo @deprecated`) exclude SchemaSet(`my_field: Foo`) is an empty set.
+    /// * `client_only_ok = true` lets `self` carry the directive even when
+    ///   `other` does not — so e.g. `SchemaSet(my_field: Foo @deprecated)` minus
+    ///   `SchemaSet(my_field: Foo)` is empty when `@deprecated` has this policy.
+    /// * `service_only_ok = false` flags directives that, when present on
+    ///   `other` but missing from `self`, must be reported. The missing
+    ///   application is left in the remainder as a `@missing_required_directive`
+    ///   marker so the violation walker can emit `BaseDirectiveNotInSubset`.
+    /// * `args_may_differ = true` skips structural argument comparison when
+    ///   deciding whether one side's directive covers the other.
     ///
-    /// For *most* directives, if they are in the base schema but not in the to-exclude schema, they will be *left* in the
-    /// base schema. For instance `type Foo @strong(field: "id")` exclude `type Foo` will leave `@strong(field: "id")`,
-    /// so the resulting SchemaSet will not be empty.
-    pub subset_directives: StringKeySet,
-
-    /// Directives that, when present on a type or field in the superset schema,
-    /// must also be present on the corresponding type or field in the subset schema.
-    /// Missing ones are flagged with `@missing_required_directive` markers.
-    pub base_restricted_directives: StringKeySet,
+    /// Directives not tracked by `directive_policies` use
+    /// [`crate::DirectivePolicy::EXACT_MATCH`] in the forward pass (`self`-only
+    /// applications stay in the remainder), but are ignored in the reverse pass
+    /// (`other`-only applications do NOT generate `BaseDirectiveNotInSubset`).
+    pub directive_policies: DirectivePolicies,
 
     /// Even though adding new enum values is a safe change *at runtime*, it *may not* be a safe change
     /// depending on the compilation and type checking options. For instance, if our compiler
@@ -652,46 +654,54 @@ fn exclude_argument(
 // Given a list of directives and a list of directives from the exclude source, give the
 // directives that WERE NOT excluded.
 //
-// For base_restricted_directives: if a directive from other is in the restricted set and
-// this does not have it, insert a @missing_required_directive marker so the violation
-// walker can emit BaseDirectiveNotInSubset.
-//
 // We can't implement SetExclude for Vec<SetDirectiveValue>, because it's subtly NOT empty
-// if other has base_restricted directives that this is missing
+// when `other` carries directives whose policy requires `this` to mirror them.
 fn exclude_directives(
     this: &[SetDirectiveValue],
     other: &[SetDirectiveValue],
     options: &SafeExclusionOptions,
 ) -> Vec<SetDirectiveValue> {
     let mut not_excluded = Vec::new();
+    let policies = &options.directive_policies;
 
-    // Keep those directives NOT in the subset allowlist and NOT in other, or that are in other but is not a directive subset.
+    // Keep `this_directive` when its policy doesn't permit client-only usage AND
+    // `other` either doesn't carry it or carries an incompatible version.
     for this_directive in this {
-        if !options.subset_directives.contains(&this_directive.name.0)
-            && other
-                .named(this_directive.name)
-                .is_none_or(|other_directive| {
-                    !set_directive_value_is_subset_of(this_directive, other_directive)
-                })
-        {
+        let policy = policies.policy_for(&this_directive.name);
+        if policy.client_only_ok {
+            continue;
+        }
+        let args_may_differ = policy.args_may_differ;
+        let covered = other
+            .named(this_directive.name)
+            .is_some_and(|other_directive| {
+                set_directive_value_is_subset_of(this_directive, other_directive, args_may_differ)
+            });
+        if !covered {
             not_excluded.push(this_directive.clone());
         }
     }
 
-    // For base_restricted_directives: if the directive is on the base but
-    // missing from the subset, insert a @missing_required_directive marker so
-    // the violation walker can emit BaseDirectiveNotInSubset.
+    // For directives with an explicit policy that forbids service-only usage:
+    // if the directive is on `other` but missing from `this`, insert a
+    // @missing_required_directive marker so the violation walker can emit
+    // BaseDirectiveNotInSubset. Directives without an explicit policy are
+    // ignored — only tracked directives participate in reverse-pass checking.
     for other_directive in other {
-        if options
-            .base_restricted_directives
-            .contains(&other_directive.name.0)
-            && this
-                .named(other_directive.name)
-                .is_none_or(|this_directive| {
-                    !set_directive_value_is_subset_of(this_directive, other_directive)
-                })
-        {
-            not_excluded.push(build_missing_required_directive(other_directive))
+        let Some(policy) = policies.lookup(&other_directive.name) else {
+            continue;
+        };
+        if policy.service_only_ok {
+            continue;
+        }
+        let args_may_differ = policy.args_may_differ;
+        let covered = this
+            .named(other_directive.name)
+            .is_some_and(|this_directive| {
+                set_directive_value_is_subset_of(this_directive, other_directive, args_may_differ)
+            });
+        if !covered {
+            not_excluded.push(build_missing_required_directive(other_directive));
         }
     }
 
@@ -705,9 +715,20 @@ fn exclude_directives(
 /// which includes Token (containing Span { start, end }). Two semantically identical directives
 /// parsed at different byte offsets compare as unequal. This function compares only the semantic
 /// content: directive name, argument names, and argument values (ignoring source positions).
-fn set_directive_value_is_subset_of(this: &SetDirectiveValue, other: &SetDirectiveValue) -> bool {
+///
+/// When `args_may_differ` is true, matching names is enough — argument values
+/// are not compared.
+fn set_directive_value_is_subset_of(
+    this: &SetDirectiveValue,
+    other: &SetDirectiveValue,
+    args_may_differ: bool,
+) -> bool {
     if this.name != other.name {
         return false;
+    }
+
+    if args_may_differ {
+        return true;
     }
 
     if this.arguments.is_empty() {
@@ -860,6 +881,7 @@ pub mod tests {
     use graphql_syntax::parse_schema_document;
 
     use super::*;
+    use crate::DirectivePolicy;
     use crate::ToSDLDefinition;
 
     fn set_from_str(sdl: &str) -> SchemaSet {
@@ -955,7 +977,14 @@ pub mod tests {
             to_exclude,
             expected,
             SafeExclusionOptions {
-                subset_directives: ["deprecated".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "deprecated",
+                    DirectivePolicy {
+                        service_only_ok: true,
+                        client_only_ok: true,
+                        args_may_differ: true
+                    },
+                )]),
                 ..SafeExclusionOptions::default()
             }
         );
@@ -1256,12 +1285,15 @@ pub mod tests {
         assert_base_exclude_empty!(
             "enum T { One } type Query { myQ(arg: X): T } input X { field: String }",
             "enum T @deprecated { One @deprecated } type Query { myQ(arg: X @deprecated): T @deprecated } input X @deprecated { field: String @deprecated }",
-        );
-        assert_base_exclude_empty!(
-            "enum T { One } type Query { myQ(arg: X): T } input X { field: String }",
-            "enum T @deprecated { One @deprecated } type Query { myQ(arg: X @deprecated): T @deprecated } input X @deprecated { field: String @deprecated }",
             SafeExclusionOptions {
-                subset_directives: ["deprecated".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "deprecated",
+                    DirectivePolicy {
+                        service_only_ok: true,
+                        client_only_ok: true,
+                        args_may_differ: true
+                    },
+                )]),
                 ..SafeExclusionOptions::default()
             }
         );
@@ -1278,7 +1310,14 @@ pub mod tests {
             "enum T @deprecated { One @deprecated } type Query { myQ(arg: X @deprecated): T @deprecated } input X @deprecated { field: String @deprecated }",
             "enum T { One } type Query { myQ(arg: X): T } input X { field: String }",
             SafeExclusionOptions {
-                subset_directives: ["deprecated".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "deprecated",
+                    DirectivePolicy {
+                        service_only_ok: true,
+                        client_only_ok: true,
+                        args_may_differ: true
+                    },
+                )]),
                 ..SafeExclusionOptions::default()
             }
         );
@@ -1368,7 +1407,7 @@ pub mod tests {
         "#;
 
         // The directive argument value is different ("id" vs "name"),
-        // so MyType should appear in the diff
+        // so MyType should appear in the diff.
         assert_base_exclude_expected!(
             base,
             excluded,
@@ -1512,7 +1551,14 @@ pub mod tests {
             type Query { myQ: String @deprecated(reason: "use newQ") }
             "#,
             SafeExclusionOptions {
-                subset_directives: ["deprecated".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "deprecated",
+                    DirectivePolicy {
+                        service_only_ok: true,
+                        client_only_ok: true,
+                        args_may_differ: true
+                    },
+                )]),
                 ..SafeExclusionOptions::default()
             }
         );
@@ -1531,7 +1577,14 @@ pub mod tests {
             type Query { myQ: String @deprecated }
             "#,
             SafeExclusionOptions {
-                subset_directives: ["deprecated".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "deprecated",
+                    DirectivePolicy {
+                        service_only_ok: true,
+                        client_only_ok: true,
+                        args_may_differ: true
+                    },
+                )]),
                 ..SafeExclusionOptions::default()
             }
         );
@@ -1956,7 +2009,10 @@ pub mod tests {
             r#"type T @source(name: "x") { f: String } type Query { q: T }"#,
             r#"extend type T @missing_required_directive(name: "source")"#,
             SafeExclusionOptions {
-                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "source",
+                    DirectivePolicy::EXACT_MATCH,
+                )]),
                 ..SafeExclusionOptions::default()
             },
         );
@@ -1968,7 +2024,10 @@ pub mod tests {
             r#"type T @source(name: "x") { f: String } type Query { q: T }"#,
             r#"type T @source(name: "x") { f: String } type Query { q: T }"#,
             SafeExclusionOptions {
-                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "source",
+                    DirectivePolicy::EXACT_MATCH,
+                )]),
                 ..SafeExclusionOptions::default()
             },
         );
@@ -1981,7 +2040,10 @@ pub mod tests {
             r#"type Query { q: String @source(name: "x") }"#,
             r#"extend type Query { q: String @missing_required_directive(name: "source") }"#,
             SafeExclusionOptions {
-                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "source",
+                    DirectivePolicy::EXACT_MATCH,
+                )]),
                 ..SafeExclusionOptions::default()
             },
         );
@@ -1993,19 +2055,10 @@ pub mod tests {
             r#"type Query { q: String @source(name: "x") }"#,
             r#"type Query { q: String @source(name: "x") }"#,
             SafeExclusionOptions {
-                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
-                ..SafeExclusionOptions::default()
-            },
-        );
-    }
-
-    #[test]
-    fn base_restricted_does_not_affect_non_restricted_directives() {
-        assert_base_exclude_empty!(
-            r#"type T { f: String } type Query { q: T }"#,
-            r#"type T @other_directive { f: String } type Query { q: T }"#,
-            SafeExclusionOptions {
-                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "source",
+                    DirectivePolicy::EXACT_MATCH,
+                )]),
                 ..SafeExclusionOptions::default()
             },
         );
@@ -2018,7 +2071,10 @@ pub mod tests {
             r#"type T { a: String @source(name: "x"), b: Int @source(name: "y") } type Query { q: T }"#,
             r#"extend type T { b: Int @missing_required_directive(name: "source") }"#,
             SafeExclusionOptions {
-                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "source",
+                    DirectivePolicy::EXACT_MATCH,
+                )]),
                 ..SafeExclusionOptions::default()
             },
         );
@@ -2031,7 +2087,10 @@ pub mod tests {
             r#"interface I { f: String @source(name: "x") } type Query { q: I }"#,
             r#"extend interface I { f: String @missing_required_directive(name: "source") }"#,
             SafeExclusionOptions {
-                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "source",
+                    DirectivePolicy::EXACT_MATCH,
+                )]),
                 ..SafeExclusionOptions::default()
             },
         );
@@ -2044,7 +2103,10 @@ pub mod tests {
             r#"enum E @source(name: "x") { A, B } type Query { q: E }"#,
             r#"extend enum E @missing_required_directive(name: "source")"#,
             SafeExclusionOptions {
-                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "source",
+                    DirectivePolicy::EXACT_MATCH,
+                )]),
                 ..SafeExclusionOptions::default()
             },
         );
@@ -2057,7 +2119,10 @@ pub mod tests {
             r#"input I @source(name: "x") { f: String } type Query { q(i: I): String }"#,
             r#"extend input I @missing_required_directive(name: "source")"#,
             SafeExclusionOptions {
-                base_restricted_directives: ["source".intern()].iter().cloned().collect(),
+                directive_policies: DirectivePolicies::from_iter([(
+                    "source",
+                    DirectivePolicy::EXACT_MATCH,
+                )]),
                 ..SafeExclusionOptions::default()
             },
         );

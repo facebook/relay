@@ -17,9 +17,9 @@ use std::sync::LazyLock;
 use common::DiagnosticsResult;
 use common::ScalarName;
 use intern::string_key::Intern;
-use intern::string_key::StringKeySet;
 use schema_coordinates::SchemaCoordinate;
 
+use crate::DirectivePolicies;
 use crate::schema_set::SchemaDefinitionItem;
 use crate::schema_set::SchemaSet;
 use crate::schema_set::SetScalar;
@@ -65,11 +65,7 @@ pub fn add_built_in_scalars(schema_set: &mut SchemaSet) -> DiagnosticsResult<()>
 ///
 /// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
 pub fn remove_built_in_scalars(schema_set: &SchemaSet) -> SchemaSet {
-    schema_set.exclude_set(
-        &BUILTIN_SCALAR_SET,
-        &StringKeySet::default(),
-        &StringKeySet::default(),
-    )
+    schema_set.exclude_set(&BUILTIN_SCALAR_SET, &DirectivePolicies::default())
 }
 
 #[cfg(test)]

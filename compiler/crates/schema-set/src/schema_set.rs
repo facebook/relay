@@ -42,6 +42,7 @@ use schema::Schema;
 use schema::TypeReference;
 use schema_coordinates::SchemaCoordinate;
 
+use crate::DirectivePolicies;
 use crate::OutputTypeReference;
 use crate::SchemaDefault;
 use crate::SchemaInsertField;
@@ -90,26 +91,20 @@ impl SchemaSet {
     pub fn union_set(
         &self,
         to_union: &SchemaSet,
-        _subset_directives: &StringKeySet,
+        _policies: &DirectivePolicies,
     ) -> DiagnosticsResult<SchemaSet> {
-        // We don't currently use the subset_directives, which tells me the union logic used by merge
+        // We don't currently use the directive policies, which tells me the union logic used by merge
         // is *probably* subtly wrong. Need tests to verify.
         let mut union_set = self.clone();
         union_set.merge(to_union.clone())?;
         Ok(union_set)
     }
 
-    pub fn exclude_set(
-        &self,
-        to_exclude: &SchemaSet,
-        subset_directives: &StringKeySet,
-        base_restricted_directives: &StringKeySet,
-    ) -> SchemaSet {
+    pub fn exclude_set(&self, to_exclude: &SchemaSet, policies: &DirectivePolicies) -> SchemaSet {
         self.exclude(
             to_exclude,
             &SafeExclusionOptions {
-                subset_directives: subset_directives.clone(),
-                base_restricted_directives: base_restricted_directives.clone(),
+                directive_policies: policies.clone(),
                 ..Default::default()
             },
         )
@@ -118,7 +113,7 @@ impl SchemaSet {
     pub fn intersect_set(
         &self,
         to_intersect: &SchemaSet,
-        subset_directives: &StringKeySet,
+        policies: &DirectivePolicies,
     ) -> DiagnosticsResult<SchemaSet> {
         // An intersect is the same as:
         //  A.intersect(B) = A.exclude( A.exclude(B) )
@@ -132,9 +127,8 @@ impl SchemaSet {
         let a = self;
         let b = to_intersect;
 
-        let empty = StringKeySet::default();
-        let a_exclude_b = a.exclude_set(b, subset_directives, &empty);
-        Ok(a.exclude_set(&a_exclude_b, subset_directives, &empty))
+        let a_exclude_b = a.exclude_set(b, policies);
+        Ok(a.exclude_set(&a_exclude_b, policies))
     }
 
     // We don't want to make custom logic for "expanding" the SchemaSet at IR collection time,
@@ -1420,7 +1414,7 @@ mod tests {
     fn test_union_set() {
         let a = set_from_sdl("type Foo { id: ID! }");
         let b = set_from_sdl("type Bar { name: String }");
-        let empty_directives = intern::string_key::StringKeySet::default();
+        let empty_directives = DirectivePolicies::default();
         let union = a.union_set(&b, &empty_directives).unwrap();
         assert!(union.types.contains_key(&"Foo".intern()));
         assert!(union.types.contains_key(&"Bar".intern()));
@@ -1430,7 +1424,7 @@ mod tests {
     fn test_union_set_with_overlapping_types() {
         let a = set_from_sdl("type Foo { id: ID! }");
         let b = set_from_sdl("type Foo { name: String }");
-        let empty_directives = intern::string_key::StringKeySet::default();
+        let empty_directives = DirectivePolicies::default();
         let union = a.union_set(&b, &empty_directives).unwrap();
         // Foo should be merged with both fields
         assert!(union.types.contains_key(&"Foo".intern()));
@@ -1454,8 +1448,8 @@ mod tests {
     fn test_exclude_set() {
         let a = set_from_sdl("type Foo { id: ID! } type Bar { name: String }");
         let b = set_from_sdl("type Foo { id: ID! }");
-        let empty_directives = intern::string_key::StringKeySet::default();
-        let excluded = a.exclude_set(&b, &empty_directives, &empty_directives);
+        let empty_directives = DirectivePolicies::default();
+        let excluded = a.exclude_set(&b, &empty_directives);
         // Foo should be excluded, Bar should remain
         assert!(!excluded.types.contains_key(&"Foo".intern()));
         assert!(excluded.types.contains_key(&"Bar".intern()));
@@ -1467,7 +1461,7 @@ mod tests {
     fn test_intersect_set() {
         let a = set_from_sdl("type Foo { id: ID! } type Bar { name: String }");
         let b = set_from_sdl("type Foo { id: ID! } type Baz { age: Int }");
-        let empty_directives = intern::string_key::StringKeySet::default();
+        let empty_directives = DirectivePolicies::default();
         let intersected = a.intersect_set(&b, &empty_directives).unwrap();
         // Only Foo should be in the intersection
         assert!(
@@ -1543,7 +1537,7 @@ mod tests {
             "extend type Query { client_field: Int extra_client: String }",
         );
 
-        let empty_directives = intern::string_key::StringKeySet::default();
+        let empty_directives = DirectivePolicies::default();
         let intersected = a.intersect_set(&b, &empty_directives).unwrap();
 
         assert_base_and_extensions_eq!(
@@ -1565,7 +1559,7 @@ mod tests {
             "extend type Query { client_b: String }",
         );
 
-        let empty_directives = intern::string_key::StringKeySet::default();
+        let empty_directives = DirectivePolicies::default();
         let unioned = a.union_set(&b, &empty_directives).unwrap();
 
         assert_base_and_extensions_eq!(

@@ -83,7 +83,7 @@ impl DirectivePolicy {
 /// `@divergence` applications on the directive definitions in a service
 /// schema. Directives without `@divergence` default to
 /// [`DirectivePolicy::EXACT_MATCH`].
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Eq, PartialEq)]
 pub struct DirectivePolicies {
     by_name: StringKeyMap<DirectivePolicy>,
 }
@@ -114,6 +114,14 @@ impl DirectivePolicies {
             .get(&name.0)
             .copied()
             .unwrap_or(DirectivePolicy::EXACT_MATCH)
+    }
+
+    /// The explicit policy for `name`, or `None` if the directive is not
+    /// tracked. Use this when callers need to distinguish "no policy specified"
+    /// from "policy specified as EXACT_MATCH" — for example, when an absent
+    /// policy should keep legacy behavior rather than apply the strict default.
+    pub fn lookup(&self, name: &DirectiveName) -> Option<DirectivePolicy> {
+        self.by_name.get(&name.0).copied()
     }
 }
 

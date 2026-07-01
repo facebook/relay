@@ -840,7 +840,7 @@ mod tests {
                 }
             "#,
         );
-        let excluded = original.exclude_set(&to_exclude, &Default::default(), &Default::default());
+        let excluded = original.exclude_set(&to_exclude, &Default::default());
 
         let (base, extensions) = partition_schema_set_base_and_extensions(&excluded).unwrap();
 

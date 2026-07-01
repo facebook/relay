@@ -572,7 +572,7 @@ fn write_import_custom_type(
             let names = &[custom_type_import.name.lookup()];
             let path = &custom_type_import.path.to_str();
             match path {
-                Some(path) => writer.write_import_type(names, path),
+                Some(path) => writer.write_import_type(names, path, false),
                 _ => Ok(()),
             }
         }
@@ -670,6 +670,7 @@ fn write_relay_resolver_imports(
                     name.lookup(),
                     Some(import_as.lookup()),
                     resolver.import_path.lookup(),
+                    true,
                 )?;
             }
         }
@@ -680,6 +681,7 @@ fn write_relay_resolver_imports(
             writer.write_import_type(
                 &[live_resolver_context_import.name.lookup()],
                 live_resolver_context_import.import_path.lookup(),
+                true,
             )?;
             live_resolver_context_import_written = true;
         }
@@ -765,6 +767,7 @@ fn write_enum_definitions(
             writer.write_import_type(
                 &[enum_type.name.item.lookup()],
                 &format!("{}{}", enum_type.name.item, suffix),
+                false,
             )?;
         } else {
             let mut members: Vec<AST> = enum_type
@@ -1116,7 +1119,7 @@ fn write_custom_scalar_imports(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     for (name, path) in custom_scalars.iter().sorted_by_key(|(key, _)| *key) {
-        writer.write_import_type(&[name.lookup()], path.to_str().unwrap())?
+        writer.write_import_type(&[name.lookup()], path.to_str().unwrap(), false)?
     }
 
     Ok(())

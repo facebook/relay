@@ -67,6 +67,8 @@ use schema::UnionID;
 use crate::SEMANTIC_NON_NULL;
 use crate::SEMANTIC_NON_NULL_LEVELS_ARG;
 use crate::builtin_scalars::BUILTIN_SCALAR_SET;
+use crate::schema_set::HasCoordinate;
+use crate::schema_set::HasDefinitionItem;
 use crate::schema_set::SchemaDefinitionItem;
 use crate::schema_set::SchemaSet;
 use crate::schema_set::SetArgument;
@@ -74,12 +76,15 @@ use crate::schema_set::SetDirectiveValue;
 use crate::schema_set::SetField;
 use crate::schema_set::SetMemberType;
 use crate::schema_set::SetType;
+use crate::schema_set::StringKeyNamed;
 use crate::set_type_reference::OutputNonNull;
 use crate::set_type_reference::OutputTypeReference;
 
 /// Build an [`InMemorySchema`] from this [`SchemaSet`], preserving the original
 /// source [`Location`]s recorded on the set.
 pub fn build_in_memory_schema(schema_set: &SchemaSet) -> DiagnosticsResult<InMemorySchema> {
+    validate_no_extension_only_types(schema_set)?;
+
     // ---- Pass 1: assign type ids and build the name -> Type map. ----
     // A BTreeMap gives stable key-ordered iteration (and `StringKey` is `Copy`,
     // so no `&StringKey`s leak out), which makes id assignment deterministic. The
@@ -220,13 +225,14 @@ pub fn build_in_memory_schema(schema_set: &SchemaSet) -> DiagnosticsResult<InMem
         .iter()
         .map(|u| {
             let union_location = first_location(&u.definition);
+            let mut members: Vec<_> = u.members.keys().copied().collect();
+            members.sort();
             Ok(Union {
                 name: WithLocation::new(union_location, u.name),
                 is_extension: u.definition.is_client_definition,
-                members: u
-                    .members
-                    .keys()
-                    .map(|member| resolve_object_id(*member, union_location, &type_map))
+                members: members
+                    .into_iter()
+                    .map(|member| resolve_object_id(member, union_location, &type_map))
                     .collect::<DiagnosticsResult<_>>()?,
                 directives: build_directive_values(&u.directives),
                 description: u.definition.description,
@@ -340,6 +346,28 @@ fn first_location(item: &SchemaDefinitionItem) -> Location {
         .first()
         .copied()
         .unwrap_or_else(Location::generated)
+}
+
+fn validate_no_extension_only_types(schema_set: &SchemaSet) -> DiagnosticsResult<()> {
+    let diagnostics = schema_set
+        .types
+        .values()
+        .filter(|set_type| set_type.coordinate().is_none())
+        .map(|set_type| {
+            Diagnostic::error(
+                format!(
+                    "Cannot build schema because type `{}` only has extension definitions",
+                    set_type.string_key_name()
+                ),
+                first_location(set_type.definition_item()),
+            )
+        })
+        .collect::<Vec<_>>();
+    if diagnostics.is_empty() {
+        Ok(())
+    } else {
+        Err(diagnostics)
+    }
 }
 
 fn build_fields(
@@ -620,6 +648,7 @@ fn resolve_root_type(
 
 #[cfg(test)]
 mod tests {
+    use common::DiagnosticsResult;
     use common::Location;
     use common::SourceLocationKey;
     use graphql_syntax::parse_schema_document;
@@ -627,6 +656,7 @@ mod tests {
     use schema::Schema;
 
     use super::build_in_memory_schema;
+    use super::build_sdl_schema;
     use crate::schema_set::SchemaSet;
 
     fn schema_set_from(sdl: &str, source: SourceLocationKey) -> SchemaSet {
@@ -641,6 +671,18 @@ mod tests {
         let diagnostics = result.expect_err("schema set should fail to build");
         assert_eq!(diagnostics[0].message().to_string(), expected_message);
         assert_eq!(diagnostics[0].location().source_location(), source);
+    }
+
+    fn schema_set_from_base_and_extensions(
+        base_sdl: &str,
+        base_source: SourceLocationKey,
+        extension_sdl: &str,
+        extension_source: SourceLocationKey,
+    ) -> DiagnosticsResult<SchemaSet> {
+        SchemaSet::from_schema_documents_with_extensions(
+            &[parse_schema_document(base_sdl, base_source).unwrap()],
+            &[parse_schema_document(extension_sdl, extension_source).unwrap()],
+        )
     }
 
     #[test]
@@ -804,6 +846,44 @@ type Query { account(filter: Filter): Account }";
         expect_build_error(
             "type Query implements Missing { id: ID }",
             "Type `Missing` is referenced but not defined in the schema set",
+        );
+    }
+
+    #[test]
+    fn errors_on_extension_only_type_at_extension_source() {
+        let base = "type Query { id: ID }";
+        let extension = "extend type Missing { id: ID }";
+        let base_source = SourceLocationKey::standalone("base.graphql");
+        let extension_source = SourceLocationKey::standalone("extension.graphql");
+        let schema_set =
+            schema_set_from_base_and_extensions(base, base_source, extension, extension_source)
+                .unwrap();
+
+        let diagnostics =
+            build_sdl_schema(&schema_set).expect_err("extension-only type should error");
+
+        assert_eq!(
+            diagnostics[0].location().source_location(),
+            extension_source,
+            "the error should point back at the source extension, not generated SDL"
+        );
+    }
+
+    #[test]
+    fn field_type_merge_error_uses_incoming_source() {
+        let base = "type Query { node: Node }\n\ntype Node { id: ID }";
+        let extension = "extend type Query { node: String }";
+        let base_source = SourceLocationKey::standalone("base.graphql");
+        let extension_source = SourceLocationKey::standalone("extension.graphql");
+
+        let diagnostics =
+            schema_set_from_base_and_extensions(base, base_source, extension, extension_source)
+                .expect_err("changing a field's object type to a scalar should error");
+
+        assert_eq!(
+            diagnostics[0].location().source_location(),
+            extension_source,
+            "the error should point back at the changed field source, not generated SDL"
         );
     }
 }

@@ -1,0 +1,53 @@
+//- UserCombinedPage.js
+// The `@returnFragment` placeholder is MISPLACED: it is spread at the TOP LEVEL
+// of the `@rootFragment` (directly on `User`) instead of inside the shadowed
+// server field `page`. The conversion only rewrites a placeholder that is a
+// direct child of the shadowed `LinkedField`, so this one survives and would
+// otherwise reach `build_ir` and fail with a generic "Undefined fragment"
+// error. This fixture asserts the compiler emits a focused diagnostic instead.
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  ...UserCombinedPageReturnFragment
+  page {
+    title
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

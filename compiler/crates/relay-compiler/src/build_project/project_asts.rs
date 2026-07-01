@@ -123,7 +123,12 @@ pub fn get_project_asts(
         .enable_shadow_resolvers
         .is_fully_enabled()
     {
-        convert_shadow_return_fragment_spreads(schema, &mut definitions);
+        convert_shadow_return_fragment_spreads(schema, &mut definitions).map_err(|errors| {
+            BuildProjectError::ValidationErrors {
+                errors,
+                project_name: project_config.name,
+            }
+        })?;
     }
 
     Ok(ProjectAstData {

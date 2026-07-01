@@ -32,10 +32,10 @@ graphql`fragment UserFragment on User {
 type Query { me: User }
 type User { id: ID!, name: String }
 ==================================== OUTPUT ===================================
-✖︎ Undefined fragment 'UserFooExternalFragment'.
+✖︎ The `@returnFragment` placeholder `...UserFooExternalFragment` must be spread directly inside the shadowed server field of the resolver's `@rootFragment`. It cannot appear at the top level of the fragment, or inside an inline fragment or condition.
 
-  UserFoo.js:11:6
+  UserFoo.js:11:3
    10 │   id
    11 │   ...UserFooExternalFragment
-      │      ^^^^^^^^^^^^^^^^^^^^^^^
+      │   ^^^^^^^^^^^^^^^^^^^^^^^^^^
    12 │ }

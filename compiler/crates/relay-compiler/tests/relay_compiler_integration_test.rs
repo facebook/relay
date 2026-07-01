@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<baa09f0d4a4f275268990ab3c4f1420e>>
+ * @generated SignedSource<<b6e38a751ec237a6be704122bf142495>>
  */
 
 mod relay_compiler_integration;
@@ -878,6 +878,13 @@ async fn shadow_resolver_magic_fragment_incompatible_server_arm_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_incompatible_server_arm.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_incompatible_server_arm.invalid.expected");
     test_fixture(transform_fixture, file!(), "shadow_resolver_magic_fragment_incompatible_server_arm.invalid.input", "relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_incompatible_server_arm.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn shadow_resolver_magic_fragment_misplaced_placeholder_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_misplaced_placeholder.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_misplaced_placeholder.invalid.expected");
+    test_fixture(transform_fixture, file!(), "shadow_resolver_magic_fragment_misplaced_placeholder.invalid.input", "relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_misplaced_placeholder.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

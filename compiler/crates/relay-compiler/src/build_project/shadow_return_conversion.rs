@@ -166,21 +166,89 @@ fn shadow_return_fragments_by_root_fragment(
 /// never defined — does not reach `build_ir` and trip its undefined-fragment
 /// validation. Covers both project definitions and the appended base resolver
 /// fragments.
+///
+/// The conversion only rewrites a placeholder spread that is a direct child of
+/// the shadowed `LinkedField`. Any placeholder that survives the conversion (one
+/// placed at the top level of the `@rootFragment`, or inside an inline fragment
+/// or condition) would otherwise reach `build_ir` and fail with a generic
+/// "Undefined fragment" error. We detect those remaining placeholders here and
+/// return a focused diagnostic instead.
 pub(crate) fn convert_shadow_return_fragment_spreads(
     schema: &SDLSchema,
     definitions: &mut [ExecutableDefinition],
-) {
+) -> Result<(), Vec<Diagnostic>> {
     let return_fragments_by_root = shadow_return_fragments_by_root_fragment(schema);
     if return_fragments_by_root.is_empty() {
-        return;
+        return Ok(());
     }
 
+    let mut errors = Vec::new();
     for definition in definitions.iter_mut() {
+        // Capture the location before the mutable borrow of `fragment` below.
+        let location = definition.location();
         if let ExecutableDefinition::Fragment(fragment) = definition
             && let Some(return_fragments) =
                 return_fragments_by_root.get(&FragmentDefinitionName(fragment.name.value))
         {
             convert_spreads_in_selections(&mut fragment.selections.items, return_fragments);
+            collect_misplaced_placeholder_errors(
+                &fragment.selections.items,
+                return_fragments,
+                location,
+                &mut errors,
+            );
+        }
+    }
+
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors)
+    }
+}
+
+/// Recursively walk a (post-conversion) selection set and push a focused
+/// diagnostic for every `@returnFragment` placeholder spread that survived the
+/// conversion. A surviving placeholder is necessarily misplaced: the conversion
+/// only rewrites placeholders that are direct children of the shadowed
+/// `LinkedField`, so anything left over sits at the top level of the
+/// `@rootFragment`, or inside an inline fragment or condition.
+fn collect_misplaced_placeholder_errors(
+    selections: &[Selection],
+    return_fragments: &FnvHashSet<FragmentDefinitionName>,
+    location: Location,
+    errors: &mut Vec<Diagnostic>,
+) {
+    for selection in selections {
+        match selection {
+            Selection::FragmentSpread(spread) => {
+                if let Some(return_fragment_name) = matched_placeholder(selection, return_fragments)
+                {
+                    errors.push(Diagnostic::error(
+                        ValidationMessage::ShadowReturnPlaceholderMisplaced {
+                            return_fragment_name,
+                        },
+                        location.with_span(spread.span),
+                    ));
+                }
+            }
+            Selection::LinkedField(linked_field) => {
+                collect_misplaced_placeholder_errors(
+                    &linked_field.selections.items,
+                    return_fragments,
+                    location,
+                    errors,
+                );
+            }
+            Selection::InlineFragment(inline_fragment) => {
+                collect_misplaced_placeholder_errors(
+                    &inline_fragment.selections.items,
+                    return_fragments,
+                    location,
+                    errors,
+                );
+            }
+            Selection::ScalarField(_) => {}
         }
     }
 }

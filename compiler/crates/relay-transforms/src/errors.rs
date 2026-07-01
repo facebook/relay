@@ -311,6 +311,13 @@ pub enum ValidationMessage {
         "The `@__relay_shadow_return` directive is internal to the Relay compiler and cannot be used in source. Shadow resolver return data is marked by spreading the resolver's `@returnFragment` placeholder inside its `@rootFragment`; the compiler generates this directive automatically."
     )]
     InternalShadowReturnDirectiveNotAllowed,
+
+    #[error(
+        "The `@returnFragment` placeholder `...{return_fragment_name}` must be spread directly inside the shadowed server field of the resolver's `@rootFragment`. It cannot appear at the top level of the fragment, or inside an inline fragment or condition."
+    )]
+    ShadowReturnPlaceholderMisplaced {
+        return_fragment_name: FragmentDefinitionName,
+    },
 }
 
 #[derive(

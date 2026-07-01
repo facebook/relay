@@ -112,6 +112,12 @@ impl<T: HasInterfaces> SchemaInsertInterface for T {
         self.interfaces_mut()
             .entry(interface_name)
             .or_insert_with(|| SetMemberType {
+                definition: SchemaDefinitionItem {
+                    locations: vec![schema_interface.name.location],
+                    is_client_definition: schema_interface.is_extension,
+                    description: None,
+                    hack_source: None,
+                },
                 name: interface_name,
                 is_extension: schema_interface.is_extension,
             })

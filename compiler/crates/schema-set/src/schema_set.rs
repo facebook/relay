@@ -795,6 +795,7 @@ impl_traits!(
 // or for union member types.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SetMemberType {
+    pub definition: SchemaDefinitionItem,
     pub name: StringKey,
     // It is an extension when either:
     //  - the member is added via an `extend type Foo implements This`

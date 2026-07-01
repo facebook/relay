@@ -191,6 +191,12 @@ impl SchemaSet {
                     (
                         schema_interface.name.item.0,
                         SetMemberType {
+                            definition: SchemaDefinitionItem {
+                                locations: vec![schema_interface.name.location],
+                                is_client_definition: schema_interface.is_extension,
+                                description: None,
+                                hack_source: None,
+                            },
                             name: schema_interface.name.item.0,
                             is_extension: schema_interface.is_extension,
                         },
@@ -245,6 +251,12 @@ impl SchemaSet {
                     (
                         schema_interface.name.item.0,
                         SetMemberType {
+                            definition: SchemaDefinitionItem {
+                                locations: vec![schema_interface.name.location],
+                                is_client_definition: schema_interface.is_extension,
+                                description: None,
+                                hack_source: None,
+                            },
                             name: schema_interface.name.item.0,
                             is_extension: schema_interface.is_extension,
                         },
@@ -299,6 +311,12 @@ impl SchemaSet {
                             (
                                 member.name.item.0,
                                 SetMemberType {
+                                    definition: SchemaDefinitionItem {
+                                        locations: vec![member.name.location],
+                                        is_client_definition: member.is_extension,
+                                        description: None,
+                                        hack_source: None,
+                                    },
                                     name: member.name.item.0,
                                     is_extension: member.is_extension,
                                 },

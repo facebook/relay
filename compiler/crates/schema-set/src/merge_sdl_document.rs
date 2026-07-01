@@ -320,7 +320,7 @@ impl ToSetDefinition<SetType> for InterfaceTypeDefinition {
             }),
             name: InterfaceName(self.name.value),
             fields,
-            interfaces: build_members(&self.interfaces, is_client_definition),
+            interfaces: build_members(&self.interfaces, source, is_client_definition),
             directives: build_directive_values(&self.directives, source, is_client_definition),
         })
     }
@@ -352,7 +352,7 @@ impl ToSetDefinition<SetType> for ObjectTypeDefinition {
             coordinate: (!is_extends).then_some(base_coordinate),
             name: ObjectName(self.name.value),
             fields,
-            interfaces: build_members(&self.interfaces, is_client_definition),
+            interfaces: build_members(&self.interfaces, source, is_client_definition),
             directives: build_directive_values(&self.directives, source, is_client_definition),
         })
     }
@@ -375,7 +375,7 @@ impl ToSetDefinition<SetType> for UnionTypeDefinition {
             coordinate: (!is_extends).then_some(SchemaCoordinate::Type {
                 name: self.name.value,
             }),
-            members: build_members(&self.members, is_client_definition),
+            members: build_members(&self.members, source, is_client_definition),
             name: UnionName(self.name.value),
             directives: build_directive_values(&self.directives, source, is_client_definition),
         })
@@ -572,13 +572,23 @@ fn build_directive_values(
         .collect()
 }
 
-fn build_members(members: &[Identifier], is_extension: bool) -> StringKeyIndexMap<SetMemberType> {
+fn build_members(
+    members: &[Identifier],
+    source: SourceLocationKey,
+    is_extension: bool,
+) -> StringKeyIndexMap<SetMemberType> {
     members
         .iter()
         .map(|i| {
             (
                 i.value,
                 SetMemberType {
+                    definition: SchemaDefinitionItem {
+                        locations: vec![Location::new(source, i.span)],
+                        is_client_definition: is_extension,
+                        description: None,
+                        hack_source: None,
+                    },
                     name: i.value,
                     is_extension,
                 },

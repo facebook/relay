@@ -167,7 +167,7 @@ pub fn build_in_memory_schema(schema_set: &SchemaSet) -> DiagnosticsResult<InMem
                     &mut fields,
                     &type_map,
                 )?,
-                interfaces: resolve_interface_ids(&o.interfaces, object_location, &type_map)?,
+                interfaces: resolve_interface_ids(&o.interfaces, &type_map)?,
                 directives: build_directive_values(&o.directives),
                 description: o.definition.description,
                 hack_source: o.definition.hack_source,
@@ -193,7 +193,7 @@ pub fn build_in_memory_schema(schema_set: &SchemaSet) -> DiagnosticsResult<InMem
                     &type_map,
                 )?,
                 directives: build_directive_values(&i.directives),
-                interfaces: resolve_interface_ids(&i.interfaces, interface_location, &type_map)?,
+                interfaces: resolve_interface_ids(&i.interfaces, &type_map)?,
                 description: i.definition.description,
                 hack_source: i.definition.hack_source,
             })
@@ -224,15 +224,20 @@ pub fn build_in_memory_schema(schema_set: &SchemaSet) -> DiagnosticsResult<InMem
     let unions: Vec<Union> = union_refs
         .iter()
         .map(|u| {
-            let union_location = first_location(&u.definition);
-            let mut members: Vec<_> = u.members.keys().copied().collect();
-            members.sort();
+            let mut members: Vec<_> = u.members.values().collect();
+            members.sort_by_key(|member| member.name);
             Ok(Union {
-                name: WithLocation::new(union_location, u.name),
+                name: WithLocation::new(first_location(&u.definition), u.name),
                 is_extension: u.definition.is_client_definition,
                 members: members
                     .into_iter()
-                    .map(|member| resolve_object_id(member, union_location, &type_map))
+                    .map(|member| {
+                        resolve_object_id(
+                            member.name,
+                            first_location(&member.definition),
+                            &type_map,
+                        )
+                    })
                     .collect::<DiagnosticsResult<_>>()?,
                 directives: build_directive_values(&u.directives),
                 description: u.definition.description,
@@ -601,20 +606,23 @@ fn resolve_object_id(
 
 fn resolve_interface_ids(
     members: &StringKeyIndexMap<SetMemberType>,
-    location: Location,
     type_map: &HashMap<StringKey, Type>,
 ) -> DiagnosticsResult<Vec<InterfaceID>> {
     members
-        .keys()
-        .map(|name| match type_map.get(name) {
+        .values()
+        .map(|member| match type_map.get(&member.name) {
             Some(Type::Interface(id)) => Ok(*id),
             Some(_) => Err(vec![Diagnostic::error(
                 format!(
-                    "Implemented interface `{name}` is not an interface type in the schema set"
+                    "Implemented interface `{}` is not an interface type in the schema set",
+                    member.name
                 ),
-                location,
+                first_location(&member.definition),
             )]),
-            None => Err(vec![missing_type_diagnostic(*name, location)]),
+            None => Err(vec![missing_type_diagnostic(
+                member.name,
+                first_location(&member.definition),
+            )]),
         })
         .collect()
 }
@@ -651,6 +659,7 @@ mod tests {
     use common::DiagnosticsResult;
     use common::Location;
     use common::SourceLocationKey;
+    use common::Span;
     use graphql_syntax::parse_schema_document;
     use intern::string_key::Intern;
     use schema::Schema;
@@ -662,6 +671,19 @@ mod tests {
     fn schema_set_from(sdl: &str, source: SourceLocationKey) -> SchemaSet {
         SchemaSet::from_base_schema_documents(&[parse_schema_document(sdl, source).unwrap()])
             .unwrap()
+    }
+
+    fn schema_set_from_two_sources(
+        first_sdl: &str,
+        first_source: SourceLocationKey,
+        second_sdl: &str,
+        second_source: SourceLocationKey,
+    ) -> SchemaSet {
+        SchemaSet::from_base_schema_documents(&[
+            parse_schema_document(first_sdl, first_source).unwrap(),
+            parse_schema_document(second_sdl, second_source).unwrap(),
+        ])
+        .unwrap()
     }
 
     fn expect_build_error(sdl: &str, expected_message: &str) {
@@ -846,6 +868,60 @@ type Query { account(filter: Filter): Account }";
         expect_build_error(
             "type Query implements Missing { id: ID }",
             "Type `Missing` is referenced but not defined in the schema set",
+        );
+    }
+
+    #[test]
+    fn errors_on_missing_implemented_interface_at_member_source() {
+        let first_source = SourceLocationKey::standalone("first.graphql");
+        let second_source = SourceLocationKey::standalone("second.graphql");
+        let second_sdl = "type Shared implements Missing { name: String }";
+        let schema_set = schema_set_from_two_sources(
+            "type Query { id: ID }\n\ntype Shared { id: ID }",
+            first_source,
+            second_sdl,
+            second_source,
+        );
+        let missing_start = second_sdl.find("Missing").unwrap();
+
+        let diagnostics =
+            build_in_memory_schema(&schema_set).expect_err("missing interface should error");
+
+        assert_eq!(
+            diagnostics[0].location().source_location(),
+            second_source,
+            "the error should point at the `implements` member source, not the merged type's first definition"
+        );
+        assert_eq!(
+            diagnostics[0].location().span(),
+            Span::from_usize(missing_start, missing_start + "Missing".len()),
+        );
+    }
+
+    #[test]
+    fn errors_on_missing_union_member_at_member_source() {
+        let first_source = SourceLocationKey::standalone("first.graphql");
+        let second_source = SourceLocationKey::standalone("second.graphql");
+        let second_sdl = "union Result = Missing";
+        let schema_set = schema_set_from_two_sources(
+            "type Query { id: ID }\n\ntype Known { id: ID }\n\nunion Result = Known",
+            first_source,
+            second_sdl,
+            second_source,
+        );
+        let missing_start = second_sdl.find("Missing").unwrap();
+
+        let diagnostics =
+            build_in_memory_schema(&schema_set).expect_err("missing union member should error");
+
+        assert_eq!(
+            diagnostics[0].location().source_location(),
+            second_source,
+            "the error should point at the union member source, not the merged union's first definition"
+        );
+        assert_eq!(
+            diagnostics[0].location().span(),
+            Span::from_usize(missing_start, missing_start + "Missing".len()),
         );
     }
 

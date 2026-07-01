@@ -417,6 +417,7 @@ impl MergesFromAbstractDefinition<Self> for SetField {
 
 impl Merges for SetMemberType {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
+        merge_definition(&mut self.definition, &other.definition);
         self.is_extension = other.is_extension && self.is_extension;
         Ok(())
     }

@@ -460,7 +460,10 @@ class RelayReader {
         value = this._asResult(_value);
         break;
       case 'NULL':
-        if (this._fieldErrors != null && this._fieldErrors.length > 0) {
+        if (
+          this._fieldErrors != null &&
+          this._fieldErrors.some(e => !e.handled)
+        ) {
           value = null;
         }
         break;
@@ -498,12 +501,16 @@ class RelayReader {
    * responsibility to ensure that errors are marked as handled.
    */
   _asResult<T>(value: T): Result<T, unknown> {
-    if (this._fieldErrors == null || this._fieldErrors.length === 0) {
+    // Errors already handled by an inner @catch must not influence this
+    // @catch's outcome — they have been consumed by their own boundary and
+    // are only flowing through `_fieldErrors` for logging.
+    const unhandled = this._fieldErrors?.filter(e => !e.handled);
+    if (unhandled == null || unhandled.length === 0) {
       return {ok: true, value};
     }
 
     // TODO: Should we be hiding log level events here?
-    const errors = this._fieldErrors
+    const errors = unhandled
       .map(error => {
         switch (error.kind) {
           case 'relay_field_payload.error':

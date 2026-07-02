@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0cae3d9ae2292e1fcd67286661d1d350>>
+ * @generated SignedSource<<df1be6dc17d550445e4385cad31c5ae8>>
  */
 
 mod generate_typescript;
@@ -661,6 +661,13 @@ async fn simple_use_import_type_syntax() {
     let input = include_str!("generate_typescript/fixtures/simple-use-import-type-syntax.graphql");
     let expected = include_str!("generate_typescript/fixtures/simple-use-import-type-syntax.expected");
     test_fixture(transform_fixture, file!(), "simple-use-import-type-syntax.graphql", "generate_typescript/fixtures/simple-use-import-type-syntax.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn spread_interface_fragment_on_concrete_raw_type() {
+    let input = include_str!("generate_typescript/fixtures/spread-interface-fragment-on-concrete-raw-type.graphql");
+    let expected = include_str!("generate_typescript/fixtures/spread-interface-fragment-on-concrete-raw-type.expected");
+    test_fixture(transform_fixture, file!(), "spread-interface-fragment-on-concrete-raw-type.graphql", "generate_typescript/fixtures/spread-interface-fragment-on-concrete-raw-type.expected", input, expected).await;
 }
 
 #[tokio::test]

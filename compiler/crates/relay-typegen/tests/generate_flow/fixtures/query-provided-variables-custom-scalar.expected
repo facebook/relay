@@ -32,6 +32,7 @@ export type testQuery = {
   "__relay_internal__pv__includeNameProvider": require('includeNameProvider')
 } as {
   readonly __relay_internal__pv__includeNameProvider: {
+    readonly dynamic?: boolean,
     readonly get: () => ?JSON,
   },
 });

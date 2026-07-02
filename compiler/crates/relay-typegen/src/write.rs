@@ -822,17 +822,26 @@ fn generate_provided_variables_type(
                 encountered_enums,
                 custom_scalars,
             )));
-            let provider_module = Prop::KeyValuePair(KeyValuePairProp {
+            let provider_get = Prop::KeyValuePair(KeyValuePairProp {
                 key: "get".intern(),
                 read_only: true,
                 optional: false,
                 value: provider_func,
             });
+            let provider_dynamic = Prop::KeyValuePair(KeyValuePairProp {
+                key: "dynamic".intern(),
+                read_only: true,
+                optional: true,
+                value: AST::Boolean,
+            });
             Some(Prop::KeyValuePair(KeyValuePairProp {
                 key: def.name.item.0,
                 read_only: true,
                 optional: false,
-                value: AST::ExactObject(ExactObject::new(vec![provider_module])),
+                value: AST::ExactObject(ExactObject::new(vec![
+                    provider_get,
+                    provider_dynamic,
+                ])),
             }))
         })
         .collect_vec();

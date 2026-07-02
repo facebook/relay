@@ -80,12 +80,15 @@ export type queryMixedProvidedVar_MultiFragment = {
   "__relay_internal__pv__skipFirstnameProvider": require('skipFirstnameProvider')
 } as {
   readonly __relay_internal__pv__includeNameProvider: {
+    readonly dynamic?: boolean,
     readonly get: () => CustomBoolean,
   },
   readonly __relay_internal__pv__numberOfFriendsProvider: {
+    readonly dynamic?: boolean,
     readonly get: () => number,
   },
   readonly __relay_internal__pv__skipFirstnameProvider: {
+    readonly dynamic?: boolean,
     readonly get: () => CustomBoolean,
   },
 });
@@ -109,6 +112,7 @@ export type queryMixedProvidedVar_OneFragment = {
   "__relay_internal__pv__includeNameProvider": require('includeNameProvider')
 } as {
   readonly __relay_internal__pv__includeNameProvider: {
+    readonly dynamic?: boolean,
     readonly get: () => CustomBoolean,
   },
 });

@@ -39,9 +39,14 @@ export type NormalizationRootNode =
   | ConcreteRequest
   | NormalizationSplitOperation;
 
-export type ProvidedVariableType = {get(): unknown};
+export type ProvidedVariableType = {
+  get(): unknown,
+  readonly dynamic?: boolean,
+};
 
-export type ProvidedVariablesType = {readonly [key: string]: {get(): unknown}};
+export type ProvidedVariablesType = {
+  readonly [key: string]: ProvidedVariableType,
+};
 
 /**
  * Contains the parameters required for executing a GraphQL request.

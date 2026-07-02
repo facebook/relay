@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<154e699ff79d825f082b33db712f5075>>
+ * @generated SignedSource<<427d49bf4ca9a9f731f6785d9a52f5e3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -36,9 +36,11 @@ export type RelayResponseNormalizerTest_pvQuery = {
   "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('../RelayProvider_returnsFalse.relayprovider')
 } as {
   readonly __relay_internal__pv__RelayProvider_returnsFalserelayprovider: {
+    readonly dynamic?: boolean,
     readonly get: () => boolean,
   },
   readonly __relay_internal__pv__RelayProvider_returnsTruerelayprovider: {
+    readonly dynamic?: boolean,
     readonly get: () => boolean,
   },
 });

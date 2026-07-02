@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<06e2c710ac749f0507546980efb5c5d1>>
+ * @generated SignedSource<<99e55f6e388da364b10dcc8b5a1c73d7>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -32,6 +32,7 @@ export type withProvidedVariablesTest6Query = {
   "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('../provideRandomNumber_invalid1.relayprovider')
 } as {
   readonly __relay_internal__pv__provideRandomNumber_invalid1relayprovider: {
+    readonly dynamic?: boolean,
     readonly get: () => number,
   },
 });

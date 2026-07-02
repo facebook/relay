@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<28410ebf64ee51ccfba092c7bf62d537>>
+ * @generated SignedSource<<106bcd3da2641e16cd6a98cb6921ba96>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -39,6 +39,7 @@ export type LiveResolversTestWithProvidedVariablesQuery = {
   "__relay_internal__pv__HelloWorldProviderrelayprovider": require('../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider.relayprovider')
 } as {
   readonly __relay_internal__pv__HelloWorldProviderrelayprovider: {
+    readonly dynamic?: boolean,
     readonly get: () => string,
   },
 });

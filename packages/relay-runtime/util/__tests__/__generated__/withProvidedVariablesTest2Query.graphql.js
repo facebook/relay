@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<39e43ed725c5981c4d76d6e0475cce83>>
+ * @generated SignedSource<<77bf5e4ac0556906fb3979abff953ae3>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -34,6 +34,7 @@ export type withProvidedVariablesTest2Query = {
   "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider')
 } as {
   readonly __relay_internal__pv__provideNumberOfFriendsrelayprovider: {
+    readonly dynamic?: boolean,
     readonly get: () => number,
   },
 });

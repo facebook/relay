@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0717812b1d5daf0b971dc2ec19a608f0>>
+ * @generated SignedSource<<d5bad07e2bab506cbbdd342962238929>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,21 +17,21 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { withProvidedVariablesTest1Fragment$fragmentType } from "./withProvidedVariablesTest1Fragment.graphql";
-export type withProvidedVariablesTest1Query$variables = {};
-export type withProvidedVariablesTest1Query$data = {
+import type { withProvidedVariablesTest7Fragment$fragmentType } from "./withProvidedVariablesTest7Fragment.graphql";
+export type withProvidedVariablesTest7Query$variables = {};
+export type withProvidedVariablesTest7Query$data = {
   readonly node: ?{
-    readonly $fragmentSpreads: withProvidedVariablesTest1Fragment$fragmentType,
+    readonly $fragmentSpreads: withProvidedVariablesTest7Fragment$fragmentType,
   },
 };
-export type withProvidedVariablesTest1Query = {
-  response: withProvidedVariablesTest1Query$data,
-  variables: withProvidedVariablesTest1Query$variables,
+export type withProvidedVariablesTest7Query = {
+  response: withProvidedVariablesTest7Query$data,
+  variables: withProvidedVariablesTest7Query$variables,
 };
 ({
-  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider')
+  "__relay_internal__pv__provideDynamicValuerelayprovider": require('../provideDynamicValue.relayprovider')
 } as {
-  readonly __relay_internal__pv__provideNumberOfFriendsrelayprovider: {
+  readonly __relay_internal__pv__provideDynamicValuerelayprovider: {
     readonly dynamic?: boolean,
     readonly get: () => number,
   },
@@ -51,7 +51,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "withProvidedVariablesTest1Query",
+    "name": "withProvidedVariablesTest7Query",
     "selections": [
       {
         "alias": null,
@@ -64,7 +64,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "withProvidedVariablesTest1Fragment"
+            "name": "withProvidedVariablesTest7Fragment"
           }
         ],
         "storageKey": "node(id:4)"
@@ -79,11 +79,11 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__provideNumberOfFriendsrelayprovider"
+        "name": "__relay_internal__pv__provideDynamicValuerelayprovider"
       }
     ],
     "kind": "Operation",
-    "name": "withProvidedVariablesTest1Query",
+    "name": "withProvidedVariablesTest7Query",
     "selections": [
       {
         "alias": null,
@@ -108,20 +108,20 @@ return {
                 "args": [
                   {
                     "kind": "Variable",
-                    "name": "first",
-                    "variableName": "__relay_internal__pv__provideNumberOfFriendsrelayprovider"
+                    "name": "scale",
+                    "variableName": "__relay_internal__pv__provideDynamicValuerelayprovider"
                   }
                 ],
-                "concreteType": "FriendsConnection",
+                "concreteType": "Image",
                 "kind": "LinkedField",
-                "name": "friends",
+                "name": "profile_picture",
                 "plural": false,
                 "selections": [
                   {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "count",
+                    "name": "uri",
                     "storageKey": null
                   }
                 ],
@@ -144,24 +144,24 @@ return {
     ]
   },
   "params": {
-    "cacheID": "cf8c5214da5208986ab1ba46c6c49148",
+    "cacheID": "cccc8d13add9921b3325b27527df8a08",
     "id": null,
     "metadata": {},
-    "name": "withProvidedVariablesTest1Query",
+    "name": "withProvidedVariablesTest7Query",
     "operationKind": "query",
-    "text": "query withProvidedVariablesTest1Query(\n  $__relay_internal__pv__provideNumberOfFriendsrelayprovider: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest1Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest1Fragment on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriendsrelayprovider) {\n    count\n  }\n}\n",
+    "text": "query withProvidedVariablesTest7Query(\n  $__relay_internal__pv__provideDynamicValuerelayprovider: Float!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest7Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest7Fragment on User {\n  profile_picture(scale: $__relay_internal__pv__provideDynamicValuerelayprovider) {\n    uri\n  }\n}\n",
     "providedVariables": {
-      "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider')
+      "__relay_internal__pv__provideDynamicValuerelayprovider": require('../provideDynamicValue.relayprovider')
     }
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*:: as any*/).hash = "c5f46e63be71ffd76d40c58b53dc2c3a";
+  (node/*:: as any*/).hash = "38546e2e378acd0148f4293aa159519c";
 }
 
 module.exports = ((node/*:: as any*/)/*:: as Query<
-  withProvidedVariablesTest1Query$variables,
-  withProvidedVariablesTest1Query$data,
+  withProvidedVariablesTest7Query$variables,
+  withProvidedVariablesTest7Query$data,
 >*/);

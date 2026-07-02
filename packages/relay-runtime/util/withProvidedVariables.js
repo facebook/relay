@@ -35,8 +35,16 @@ function withProvidedVariables(
     // $FlowFixMe[unsafe-object-assign]
     Object.assign(operationVariables, userSuppliedVariables);
     Object.keys(providedVariables).forEach((varName: string) => {
-      const providerFunction = providedVariables[varName].get;
+      const provider = providedVariables[varName];
+      const providerFunction = provider.get;
       const providerResult = providerFunction();
+
+      // `dynamic` providers are not expected to be pure, so use the fresh value
+      // and skip the memoization cache (and its purity warning)
+      if (provider.dynamic === true) {
+        operationVariables[varName] = providerResult;
+        return;
+      }
 
       // people like to ignore these warnings, so use the cache to
       // enforce that we only compute the value the first time

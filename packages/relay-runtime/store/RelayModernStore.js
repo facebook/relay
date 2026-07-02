@@ -907,6 +907,23 @@ class RelayModernStore implements Store {
         }
       }
 
+      // Records read by an active subscription must survive GC even if the
+      // operation that originally retained them has been released. Otherwise a
+      // record can be collected out from under a live reader (e.g. a mounted
+      // useFragment whose owner query's retention was released while the
+      // consuming subtree is kept mounted by React <Activity>), regressing it to
+      // a partial read on the next store read. See
+      // RelayModernStore-SubscriptionGc-test.js.
+      //
+      // This is intentionally skipped under shouldRetainWithinTTL_EXPERIMENTAL:
+      // that mode deliberately frees an Activity-hidden subtree's data once its
+      // query passes the cache TTL even though the subtree stays mounted (and thus
+      // subscribed), and protecting subscription records here would defeat that
+      // time-based release.
+      if (!this._shouldRetainWithinTTL_EXPERIMENTAL) {
+        this._storeSubscriptions.markActiveSubscriptionRecords(references);
+      }
+
       // NOTE: It may be tempting to use `this._recordSource.clear()`
       // when no references are found, but that would prevent calling
       // maybeResolverSubscription() on any records that have an active

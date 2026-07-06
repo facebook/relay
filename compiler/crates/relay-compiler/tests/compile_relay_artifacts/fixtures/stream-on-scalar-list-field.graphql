@@ -1,0 +1,11 @@
+query streamOnScalarListField_QueryWithStreamQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...streamOnScalarListField_UserFragment @alias
+  }
+}
+
+fragment streamOnScalarListField_UserFragment on User {
+  id
+  emailAddresses @stream(initialCount: 1, label: "StreamedEmailAddressesLabel")
+}

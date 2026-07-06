@@ -1,0 +1,11 @@
+query QueryWithFragmentWithStreamOnScalarList($id: ID!) {
+  node(id: $id) {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses @stream(initialCount: 1, label: "StreamedEmailAddressesLabel")
+}

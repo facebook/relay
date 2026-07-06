@@ -1,0 +1,193 @@
+==================================== INPUT ====================================
+query streamOnScalarListField_QueryWithStreamQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...streamOnScalarListField_UserFragment @alias
+  }
+}
+
+fragment streamOnScalarListField_UserFragment on User {
+  id
+  emailAddresses @stream(initialCount: 1, label: "StreamedEmailAddressesLabel")
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "streamOnScalarListField_QueryWithStreamQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "streamOnScalarListField_UserFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
+            "name": "streamOnScalarListField_UserFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "streamOnScalarListField_QueryWithStreamQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "if": null,
+                "kind": "Stream",
+                "label": "streamOnScalarListField_UserFragment$stream$StreamedEmailAddressesLabel",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "emailAddresses",
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "fff4bbd2685193f2e5fc717df664fccc",
+    "id": null,
+    "metadata": {},
+    "name": "streamOnScalarListField_QueryWithStreamQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query streamOnScalarListField_QueryWithStreamQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    id
+    ...streamOnScalarListField_UserFragment
+  }
+}
+
+fragment streamOnScalarListField_UserFragment on User {
+  id
+  emailAddresses @stream(label: "streamOnScalarListField_UserFragment$stream$StreamedEmailAddressesLabel", initialCount: 1)
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "streamOnScalarListField_UserFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "kind": "Stream",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "emailAddresses",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

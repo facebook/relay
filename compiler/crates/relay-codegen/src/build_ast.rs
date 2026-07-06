@@ -934,7 +934,19 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         CodegenVariant::Normalization => vec![self.build_type_discriminator(field)],
                     }
                 } else {
-                    self.build_scalar_field_and_handles(context, field)
+                    let stream = field.directives.named(
+                        self.project_config
+                            .schema_config
+                            .defer_stream_interface
+                            .stream_name,
+                    );
+
+                    match stream {
+                        Some(stream) => {
+                            vec![self.build_stream_on_scalar(context, field, stream)]
+                        }
+                        None => self.build_scalar_field_and_handles(context, field),
+                    }
                 }
             }
         }
@@ -1918,6 +1930,59 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         .stream_name,
                 ),
                 ..linked_field.to_owned()
+            },
+        );
+        let next_selections = Primitive::Key(self.array(next_selections));
+        Primitive::Key(match self.variant {
+            CodegenVariant::Reader => self.object(object! {
+                kind: Primitive::String(CODEGEN_CONSTANTS.stream),
+                selections: next_selections,
+            }),
+            CodegenVariant::Normalization => {
+                let StreamDirective {
+                    if_arg,
+                    label_arg,
+                    use_customized_batch_arg: _,
+                    initial_count_arg: _,
+                } = StreamDirective::from(
+                    stream,
+                    &self.project_config.schema_config.defer_stream_interface,
+                );
+                let if_variable_name = if_arg.and_then(|arg| match &arg.value.item {
+                    // `true` is the default, remove as the AST is typed just as a variable name string
+                    // `false` constant values should've been transformed away in skip_unreachable_node
+                    Value::Constant(ConstantValue::Boolean(true)) => None,
+                    Value::Variable(var) => Some(var.name.item),
+                    other => panic!("unexpected value for @stream if argument: {other:?}"),
+                });
+                let label_name = label_arg.unwrap().value.item.expect_string_literal();
+                self.object(object! {
+                     if_: Primitive::string_or_null(if_variable_name.map(|variable_name| variable_name.0)),
+                     kind: Primitive::String(CODEGEN_CONSTANTS.stream),
+                     label: Primitive::String(label_name),
+                     selections: next_selections,
+                 })
+            }
+        })
+    }
+
+    fn build_stream_on_scalar(
+        &mut self,
+        context: &mut ContextualMetadata,
+        scalar_field: &ScalarField,
+        stream: &Directive,
+    ) -> Primitive {
+        let next_selections = self.build_scalar_field_and_handles(
+            context,
+            &ScalarField {
+                directives: remove_directive(
+                    &scalar_field.directives,
+                    self.project_config
+                        .schema_config
+                        .defer_stream_interface
+                        .stream_name,
+                ),
+                ..scalar_field.to_owned()
             },
         );
         let next_selections = Primitive::Key(self.array(next_selections));

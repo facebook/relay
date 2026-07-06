@@ -268,6 +268,98 @@ impl DeferStreamTransform<'_> {
             next_stream,
         )))
     }
+
+    fn transform_stream_on_scalar(
+        &mut self,
+        scalar_field: &ScalarField,
+        stream: &Directive,
+        defer_stream_interface: &DeferStreamInterface,
+    ) -> Result<Transformed<Selection>, Diagnostic> {
+        let schema_field = self.program.schema.field(scalar_field.definition.item);
+        if !schema_field.type_.is_list() {
+            return Err(Diagnostic::error(
+                ValidationMessage::StreamFieldIsNotAList {
+                    field_name: schema_field.name.item,
+                },
+                stream.name.location,
+            ));
+        }
+
+        let StreamDirective {
+            if_arg,
+            label_arg,
+            initial_count_arg,
+            use_customized_batch_arg: _,
+        } = StreamDirective::from(stream, defer_stream_interface);
+
+        let get_next_selection = |directives| {
+            Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
+                directives,
+                ..scalar_field.clone()
+            })))
+        };
+        if is_literal_false_arg(if_arg) {
+            return Ok(get_next_selection(remove_directive(
+                &scalar_field.directives,
+                stream.name.item,
+            )));
+        }
+
+        if initial_count_arg.is_none() {
+            return Err(Diagnostic::error(
+                ValidationMessage::StreamInitialCountRequired,
+                stream.name.location,
+            ));
+        }
+
+        let label_value = get_literal_string_argument(stream, label_arg)?;
+        let label = label_value.unwrap_or_else(|| {
+            get_applied_fragment_name(
+                FragmentDefinitionName(scalar_field.alias_or_name(&self.program.schema)),
+                &scalar_field.arguments,
+            )
+            .0
+        });
+        let transformed_label = transform_label(
+            self.current_document_name
+                .expect("We expect the parent name to be defined here."),
+            defer_stream_interface.stream_name,
+            label,
+        );
+        self.record_label(transformed_label, stream);
+        let next_label_value = Value::Constant(ConstantValue::String(transformed_label));
+        let next_label_arg = Argument {
+            name: WithLocation {
+                item: defer_stream_interface.label_arg,
+                location: label_arg.map_or(stream.name.location, |arg| arg.name.location),
+            },
+            value: WithLocation {
+                item: next_label_value,
+                location: label_arg.map_or(stream.name.location, |arg| arg.value.location),
+            },
+        };
+
+        let mut next_arguments = Vec::with_capacity(3);
+        next_arguments.push(next_label_arg);
+        if let Some(if_arg) = if_arg {
+            next_arguments.push(if_arg.clone());
+        }
+        if let Some(initial_count_arg) = initial_count_arg {
+            next_arguments.push(initial_count_arg.clone());
+        }
+
+        let next_stream = Directive {
+            name: stream.name,
+            arguments: next_arguments,
+            data: None,
+            location: stream.location,
+        };
+
+        Ok(get_next_selection(replace_directive(
+            &scalar_field.directives,
+            next_stream,
+        )))
+    }
 }
 
 impl Transformer<'_> for DeferStreamTransform<'_> {
@@ -336,20 +428,24 @@ impl Transformer<'_> for DeferStreamTransform<'_> {
         }
     }
 
-    /// Validates @stream is not allowed on scalar fields.
+    /// Transforms @stream on scalar fields.
+    /// Transform of scalar field with @stream is delegated to `transform_stream_on_scalar`.
     fn transform_scalar_field(&mut self, scalar_field: &ScalarField) -> Transformed<Selection> {
-        let stream_directive = &scalar_field
+        let stream_directive = scalar_field
             .directives
             .named(self.defer_stream_interface.stream_name);
-        if let Some(directive) = stream_directive {
-            self.errors.push(Diagnostic::error(
-                ValidationMessage::InvalidStreamOnScalarField {
-                    field_name: scalar_field.alias_or_name(&self.program.schema),
-                },
-                directive.location,
-            ));
+        if let Some(stream) = stream_directive {
+            match self.transform_stream_on_scalar(scalar_field, stream, self.defer_stream_interface)
+            {
+                Ok(transformed) => transformed,
+                Err(err) => {
+                    self.errors.push(err);
+                    self.default_transform_scalar_field(scalar_field)
+                }
+            }
+        } else {
+            self.default_transform_scalar_field(scalar_field)
         }
-        self.default_transform_scalar_field(scalar_field)
     }
 
     /// Transform of linked field with @stream is delegated to `transform_stream`.
@@ -429,9 +525,6 @@ enum ValidationMessage {
         "Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads."
     )]
     InvalidDeferOnInlineFragment,
-
-    #[error("Invalid use of @stream on scalar field '{field_name}'")]
-    InvalidStreamOnScalarField { field_name: StringKey },
 
     #[error(
         "Expected the '{arg_name}' value to @{directive_name} to be a string literal if provided."

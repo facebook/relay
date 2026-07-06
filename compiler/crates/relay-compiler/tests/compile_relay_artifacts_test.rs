@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a0afe2b86cc3e80c53e8ac9f7e5bb66f>>
+ * @generated SignedSource<<59d80b792d083f89367a04b4195ea195>>
  */
 
 mod compile_relay_artifacts;
@@ -1984,6 +1984,13 @@ async fn stream_if_arguments() {
     let input = include_str!("compile_relay_artifacts/fixtures/stream_if_arguments.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/stream_if_arguments.expected");
     test_fixture(transform_fixture, file!(), "stream_if_arguments.graphql", "compile_relay_artifacts/fixtures/stream_if_arguments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn stream_on_scalar_list_field() {
+    let input = include_str!("compile_relay_artifacts/fixtures/stream-on-scalar-list-field.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/stream-on-scalar-list-field.expected");
+    test_fixture(transform_fixture, file!(), "stream-on-scalar-list-field.graphql", "compile_relay_artifacts/fixtures/stream-on-scalar-list-field.expected", input, expected).await;
 }
 
 #[tokio::test]

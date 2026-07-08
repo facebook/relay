@@ -1932,6 +1932,7 @@ dependencies = [
  "intern",
  "md-5",
  "relay-config",
+ "relay-schema",
  "relay-test-schema",
  "relay-transforms",
  "schema",

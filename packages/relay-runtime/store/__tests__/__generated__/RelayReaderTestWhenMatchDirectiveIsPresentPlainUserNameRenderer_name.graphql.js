@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e2d4cddc1a5f9f6d32500a9af4e04b7c>>
+ * @generated SignedSource<<ce7d637da4c1d5e112f0bf5d47ded117>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data = {|
-  +plaintext: ?string,
-  +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
-|};
+export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data = {
+  readonly plaintext: ?string,
+  readonly $fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
+};
 export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$key = {
-  +$data?: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data,
-  +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
+  readonly $data?: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data,
+  readonly $fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */

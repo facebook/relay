@@ -27,43 +27,43 @@ query UnionTypeTest {
   }
 }
 ==================================== OUTPUT ===================================
-export type UnionTypeTest$variables = {||};
-export type UnionTypeTest$data = {|
-  +neverNode: ?({|
-    +__typename: "FakeNode",
-    +id: string,
-  |} | {|
+export type UnionTypeTest$variables = {};
+export type UnionTypeTest$data = {
+  readonly neverNode: ?({
+    readonly __typename: "FakeNode",
+    readonly id: string,
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type UnionTypeTest = {|
+    readonly __typename: "%other",
+  }),
+};
+export type UnionTypeTest = {
   response: UnionTypeTest$data,
   variables: UnionTypeTest$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type LinkedField$fragmentType: FragmentType;
-export type LinkedField$data = {|
-  +actor: ?{|
-    +id: string,
-  |},
-  +hometown: ?{|
-    +id: string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-  +profilePicture: ?{|
-    +height: ?number,
-    +uri: ?string,
-    +width: ?number,
-  |},
-  +$fragmentType: LinkedField$fragmentType,
-|};
+export type LinkedField$data = {
+  readonly actor: ?{
+    readonly id: string,
+  },
+  readonly hometown: ?{
+    readonly id: string,
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+  readonly profilePicture: ?{
+    readonly height: ?number,
+    readonly uri: ?string,
+    readonly width: ?number,
+  },
+  readonly $fragmentType: LinkedField$fragmentType,
+};
 export type LinkedField$key = {
-  +$data?: LinkedField$data,
-  +$fragmentSpreads: LinkedField$fragmentType,
+  readonly $data?: LinkedField$data,
+  readonly $fragmentSpreads: LinkedField$fragmentType,
   ...
 };

@@ -1,0 +1,88 @@
+==================================== INPUT ====================================
+//- UserMixedStats.js
+// Shadow resolver whose return interface MIXES a non-Node server VALUE type and an
+// UNRELATED strong server Node — a HARD ERROR (R5 guard).
+//
+// `mixed_stats` returns the client interface `IStats`, implemented by BOTH the
+// non-Node server VALUE type `PageStats` (no `id`) AND the strong server Node
+// `Page` (has `id`). The shadowed field is the Node `page`. The consumer refines
+// `... on PageStats { likeCount }` and `... on Page @waterfall { name }`.
+//
+// This is rejected: the magic-fragment transplant fetches every server member's
+// selections from ONE shadowed server field (`page`, type `Page`). The value
+// member `PageStats` does not overlap `Page`, so its `... on PageStats`
+// selections cannot be transplanted there — the incompatible-server-arm gate in
+// `relay_resolvers_spread_transform` fires.
+//
+// R5 is upheld the SAFE way: the value member never reaches
+// `server_type_object_ids` (so no `node(id:)` `ClientEdgeQuery` is ever emitted on
+// the non-refetchable `PageStats`); the whole mixed return is rejected up front
+// instead. A coherent mixed VALUE+Node return would need each member transplanted
+// at its OWN shadowed location (distinct `@rootFragment` leaves) — out of scope
+// for this magic-fragment transplant, which transplants a single shadowed field. (The WEAK+Node mix is
+// supported because a `@weak` member is read off its model instance, not the
+// shadowed-field transplant -- see shadow_resolver_magic_fragment_mixed_weak_strong.)
+//
+// The strong Node member (`Page`) may cross-object waterfall, so the resolver
+// declares `@mayWaterfall` (required for the consumer's `@waterfall`); the mixed
+// return is still rejected up front by the mixed-inline+server gate.
+/**
+ * @relayField User.mixed_stats: IStats
+ * @rootFragment UserMixedStatsResolverFragment
+ * @returnFragment UserMixedStatsReturnFragment
+ * @mayWaterfall
+ */
+graphql`fragment UserMixedStatsResolverFragment on User {
+  page {
+    ...UserMixedStatsReturnFragment
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    mixed_stats @waterfall {
+      ... on PageStats {
+        likeCount
+      }
+      ... on Page {
+        name
+      }
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String, name: String }
+type PageStats { likeCount: Int, name: String }
+
+//- schema-extensions/extension.graphql
+interface IStats {
+  name: String
+}
+
+extend type Page implements IStats
+extend type PageStats implements IStats
+==================================== OUTPUT ===================================
+✖︎ A magic fragment returning interface `IStats` that mixes inline (weak or non-Node value) implementors with refetchable server-object (Node) implementors is not yet supported. The inline arm reads in place while the server arm needs a `node(id:)` refetch, which requires per-`__typename` dispatch. Use an all-inline or all-server interface for now.
+
+  UserConsumer.js:3:5
+    2 │   me {
+    3 │     mixed_stats @waterfall {
+      │     ^^^^^^^^^^^
+    4 │       ... on PageStats {

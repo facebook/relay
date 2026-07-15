@@ -133,10 +133,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const snapshot = environment.lookup(selector);
         expect(snapshot.fieldErrors).toEqual([
           {
+            fieldError: null,
+            fieldPath: 'comments',
+            fieldValue: null,
             kind: 'missing_required_field.log',
             owner:
               'RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment',
-            fieldPath: 'comments',
           },
         ]);
         expect(snapshot.data).toEqual(null);

@@ -43,12 +43,13 @@ fragment Foo_node on Node {
        {
         ...BestFriendResolverFragment_name @__RelayResolverMetadata
         # RelayResolverMetadata {
-        #     field_id: FieldID(529),
+        #     field_id: FieldID(532),
         #     import_path: "BestFriendResolver",
         #     import_name: None,
         #     field_alias: None,
         #     field_path: "author.best_friend",
         #     field_arguments: [],
+        #     fragment_arguments: [],
         #     live: false,
         #     output_type_info: EdgeTo,
         #     fragment_data_injection_mode: None,
@@ -75,12 +76,13 @@ fragment Foo_node on Node {
        {
         ...BestFriendResolverFragment_name @__RelayResolverMetadata
         # RelayResolverMetadata {
-        #     field_id: FieldID(529),
+        #     field_id: FieldID(532),
         #     import_path: "BestFriendResolver",
         #     import_name: None,
         #     field_alias: None,
         #     field_path: "author.best_friend",
         #     field_arguments: [],
+        #     fragment_arguments: [],
         #     live: false,
         #     output_type_info: EdgeTo,
         #     fragment_data_injection_mode: None,

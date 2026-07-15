@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e445ca12c4afd79427e4549a89f0abe5>>
+ * @generated SignedSource<<1d2f0468de48576df78ced1aea08e8cf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,41 +21,31 @@
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name.graphql";
 import type { RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name.graphql";
-export type CommentCreateSubscriptionInput = {|
+export type CommentCreateSubscriptionInput = {
   feedbackId?: ?string,
   text?: ?string,
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables = {|
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables = {
   input: CommentCreateSubscriptionInput,
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$data = {|
-  +commentCreateSubscribe: ?{|
-    +comment: ?{|
-      +actor: ?{|
-        +name: ?string,
-        +nameRenderer: ?({|
-          +__typename: "MarkdownUserNameRenderer",
-          +__fragmentPropName: ?string,
-          +__module_component: ?string,
-          +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
-        |} | {|
-          +__typename: "PlainUserNameRenderer",
-          +__fragmentPropName: ?string,
-          +__module_component: ?string,
-          +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
-        |} | {|
-          // This will never be '%other', but we need some
-          // value in case none of the concrete values match.
-          +__typename: "%other",
-        |}),
-      |},
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription = {|
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$data = {
+  readonly commentCreateSubscribe: ?{
+    readonly comment: ?{
+      readonly actor: ?{
+        readonly name: ?string,
+        readonly nameRenderer: ?{
+          readonly __fragmentPropName?: ?string,
+          readonly __module_component?: ?string,
+          readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
+        },
+      },
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription = {
   response: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$data,
   variables: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

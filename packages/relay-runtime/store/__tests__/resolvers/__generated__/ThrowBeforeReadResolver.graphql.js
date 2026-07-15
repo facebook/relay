@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1df798bb2ee5971d046910f5b1899e22>>
+ * @generated SignedSource<<2de501f805d9243cd1b8ef672b88cc5f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ThrowBeforeReadResolver$fragmentType: FragmentType;
-export type ThrowBeforeReadResolver$data = {|
-  +me: ?{|
-    +__id: string,
-  |},
-  +$fragmentType: ThrowBeforeReadResolver$fragmentType,
-|};
+export type ThrowBeforeReadResolver$data = {
+  readonly me: ?{
+    readonly __id: string,
+  },
+  readonly $fragmentType: ThrowBeforeReadResolver$fragmentType,
+};
 export type ThrowBeforeReadResolver$key = {
-  +$data?: ThrowBeforeReadResolver$data,
-  +$fragmentSpreads: ThrowBeforeReadResolver$fragmentType,
+  readonly $data?: ThrowBeforeReadResolver$data,
+  readonly $fragmentSpreads: ThrowBeforeReadResolver$fragmentType,
   ...
 };
 */

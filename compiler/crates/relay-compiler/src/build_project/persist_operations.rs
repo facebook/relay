@@ -8,10 +8,10 @@
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use common::PerfLogEvent;
 use common::sync::ParallelIterator;
-use lazy_static::lazy_static;
 use log::debug;
 use md5::Digest;
 use md5::Md5;
@@ -28,10 +28,10 @@ use crate::config::Config;
 use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
 
-lazy_static! {
-    static ref RELAY_HASH_REGEX: Regex = Regex::new(r#"@relayHash (\w{32})\n"#).unwrap();
-    static ref REQUEST_ID_REGEX: Regex = Regex::new(r#"@relayRequestID (.+)\n"#).unwrap();
-}
+static RELAY_HASH_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"@relayHash (\w{32})\n"#).unwrap());
+static REQUEST_ID_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"@relayRequestID (.+)\n"#).unwrap());
 
 pub async fn persist_operations(
     artifacts: &mut [Artifact],

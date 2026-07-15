@@ -307,8 +307,7 @@ function createContainerWithFragments<
 
     _refetch = (
       refetchVariables:
-        | Variables
-        | ((fragmentVariables: Variables) => Variables),
+        Variables | ((fragmentVariables: Variables) => Variables),
       renderVariables: ?Variables,
       observerOrCallback: ?ObserverOrCallback,
       options: ?RefetchOptions,

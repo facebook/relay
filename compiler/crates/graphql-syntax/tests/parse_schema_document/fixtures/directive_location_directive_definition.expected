@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+directive @onDirectiveDef on DIRECTIVE_DEFINITION
+==================================== OUTPUT ===================================
+SchemaDocument {
+    location: directive_location_directive_definition.graphql:0:50,
+    definitions: [
+        DirectiveDefinition(
+            DirectiveDefinition {
+                name: Identifier {
+                    span: 11:25,
+                    token: Token {
+                        span: 11:25,
+                        kind: Identifier,
+                    },
+                    value: "onDirectiveDef",
+                },
+                arguments: None,
+                repeatable: false,
+                locations: [
+                    DirectiveDefinition,
+                ],
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 0:50,
+            },
+        ),
+    ],
+}

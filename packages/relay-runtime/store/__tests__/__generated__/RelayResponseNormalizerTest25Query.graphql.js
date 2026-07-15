@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<00f279dbe1ff0c1f003c8c2281738627>>
+ * @generated SignedSource<<b3f646946da39697ff65accf4b788d84>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,42 +17,38 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayResponseNormalizerTest25Query$variables = {|
+export type RelayResponseNormalizerTest25Query$variables = {
   id?: ?string,
-|};
-export type RelayResponseNormalizerTest25Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +friends: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +node: ?{|
-          +comments: ?{|
-            +edges: ?ReadonlyArray<?{|
-              +node: ?{|
-                +body: ?{|
-                  +text: ?string,
-                |},
-                +id: string,
-              |},
-            |}>,
-          |},
-          +firstName: ?string,
-          +id: string,
-        |},
-      |}>,
-    |},
-    +id: string,
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayResponseNormalizerTest25Query = {|
+};
+export type RelayResponseNormalizerTest25Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly comments: ?{
+            readonly edges: ?ReadonlyArray<?{
+              readonly node: ?{
+                readonly body: ?{
+                  readonly text: ?string,
+                },
+                readonly id: string,
+              },
+            }>,
+          },
+          readonly firstName: ?string,
+          readonly id: string,
+        },
+      }>,
+    },
+    readonly id: string,
+    readonly name?: ?string,
+  },
+};
+export type RelayResponseNormalizerTest25Query = {
   response: RelayResponseNormalizerTest25Query$data,
   variables: RelayResponseNormalizerTest25Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

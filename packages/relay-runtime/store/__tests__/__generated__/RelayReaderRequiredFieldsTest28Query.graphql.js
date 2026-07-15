@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6334b2b9672c116a7a4ae9a5d73cde28>>
+ * @generated SignedSource<<f53585da2a5a8b46c5bcfb2db7951b68>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -26,19 +25,19 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 (queryLiveUserResolverAlwaysSuspendResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?{|
-  +id: DataID,
-|}>);
-export type RelayReaderRequiredFieldsTest28Query$variables = {||};
-export type RelayReaderRequiredFieldsTest28Query$data = {|
-  +live_user_resolver_always_suspend: {|
-    +name: ?string,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest28Query = {|
+) => LiveState<?{
+  readonly id: DataID,
+}>);
+export type RelayReaderRequiredFieldsTest28Query$variables = {};
+export type RelayReaderRequiredFieldsTest28Query$data = {
+  readonly live_user_resolver_always_suspend: {
+    readonly name: ?string,
+  },
+};
+export type RelayReaderRequiredFieldsTest28Query = {
   response: RelayReaderRequiredFieldsTest28Query$data,
   variables: RelayReaderRequiredFieldsTest28Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

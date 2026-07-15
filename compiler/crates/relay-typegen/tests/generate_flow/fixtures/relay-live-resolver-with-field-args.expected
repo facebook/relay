@@ -27,30 +27,30 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType as (
   rootKey: relayResolver_PopStarNameResolverFragment_name$key,
-  args: {|
+  args: {
     count: ?number,
     greeting: string,
-  |},
+  },
 ) => LiveState<?unknown>);
-export type relayResolver_Query$variables = {||};
-export type relayResolver_Query$data = {|
-  +me: ?{|
-    +pop_star_name: ?ReturnType<ReturnType<typeof userPopStarNameResolverType>["read"]>,
-  |},
-|};
-export type relayResolver_Query = {|
+export type relayResolver_Query$variables = {};
+export type relayResolver_Query$data = {
+  readonly me: ?{
+    readonly pop_star_name: ?ReturnType<ReturnType<typeof userPopStarNameResolverType>["read"]>,
+  },
+};
+export type relayResolver_Query = {
   response: relayResolver_Query$data,
   variables: relayResolver_Query$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type relayResolver_PopStarNameResolverFragment_name$fragmentType: FragmentType;
-export type relayResolver_PopStarNameResolverFragment_name$data = {|
-  +name: ?string,
-  +$fragmentType: relayResolver_PopStarNameResolverFragment_name$fragmentType,
-|};
+export type relayResolver_PopStarNameResolverFragment_name$data = {
+  readonly name: ?string,
+  readonly $fragmentType: relayResolver_PopStarNameResolverFragment_name$fragmentType,
+};
 export type relayResolver_PopStarNameResolverFragment_name$key = {
-  +$data?: relayResolver_PopStarNameResolverFragment_name$data,
-  +$fragmentSpreads: relayResolver_PopStarNameResolverFragment_name$fragmentType,
+  readonly $data?: relayResolver_PopStarNameResolverFragment_name$data,
+  readonly $fragmentSpreads: relayResolver_PopStarNameResolverFragment_name$fragmentType,
   ...
 };

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<760c406f47abe57e13f993e52ebb6761>>
+ * @generated SignedSource<<635ceb04845fc7db51121aac4e000618>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data = {|
-  +comments: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
-|};
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data = {
+  readonly comments: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
+};
 export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$key = {
-  +$data?: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
   ...
 };
 */

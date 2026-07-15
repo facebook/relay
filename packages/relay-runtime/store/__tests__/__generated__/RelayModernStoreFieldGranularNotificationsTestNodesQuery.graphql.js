@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7120b2c8f2bf6e1ae4b80cfc0fab30e3>>
+ * @generated SignedSource<<e237922b8104d36353d6d4808fb81823>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,24 +17,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernStoreFieldGranularNotificationsTestNodesQuery$variables = {|
+export type RelayModernStoreFieldGranularNotificationsTestNodesQuery$variables = {
   ids: ReadonlyArray<string>,
-|};
-export type RelayModernStoreFieldGranularNotificationsTestNodesQuery$data = {|
-  +nodes: ?ReadonlyArray<?({|
-    +__typename: "User",
-    +id: string,
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |})>,
-|};
-export type RelayModernStoreFieldGranularNotificationsTestNodesQuery = {|
+};
+export type RelayModernStoreFieldGranularNotificationsTestNodesQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly __typename: string,
+    readonly id: string,
+    readonly name?: ?string,
+  }>,
+};
+export type RelayModernStoreFieldGranularNotificationsTestNodesQuery = {
   response: RelayModernStoreFieldGranularNotificationsTestNodesQuery$data,
   variables: RelayModernStoreFieldGranularNotificationsTestNodesQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -41,22 +41,20 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 type PendingCommit<TMutation extends MutationParameters> =
-  | PendingRelayPayload<TMutation>
-  | PendingRecordSource
-  | PendingUpdater;
+  PendingRelayPayload<TMutation> | PendingRecordSource | PendingUpdater;
 type PendingRelayPayload<TMutation extends MutationParameters> = {
-  +kind: 'payload',
-  +operation: OperationDescriptor,
-  +payload: RelayResponsePayload,
-  +updater: ?SelectorStoreUpdater<TMutation['response']>,
+  readonly kind: 'payload',
+  readonly operation: OperationDescriptor,
+  readonly payload: RelayResponsePayload,
+  readonly updater: ?SelectorStoreUpdater<TMutation['response']>,
 };
 type PendingRecordSource = {
-  +kind: 'source',
-  +source: RecordSource,
+  readonly kind: 'source',
+  readonly source: RecordSource,
 };
 type PendingUpdater = {
-  +kind: 'updater',
-  +updater: StoreUpdater,
+  readonly kind: 'updater',
+  readonly updater: StoreUpdater,
 };
 
 const _global: typeof global | $FlowFixMe =

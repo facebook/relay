@@ -47,11 +47,11 @@ fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 hex = { version = "0.4.3", features = ["alloc"] }
-indexmap = { version = "2.13.0", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.14.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
-lazy_static = "1.5"
 md-5 = "0.10"
 relay-config = { path = "../relay-config" }
+relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
 
@@ -59,4 +59,4 @@ schema = { path = "../schema" }
 fixture-tests = { path = "../fixture-tests" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }
-tokio = { version = "1.50.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.52.3", features = ["full", "test-util", "tracing"] }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ab8ff8e477c97bf20eb29f203e92f8e7>>
+ * @generated SignedSource<<8c2971d3c35c5b4c084c7077df10a5a1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,25 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsFragment.graphql";
-export type RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +id: string,
-    +name: ?string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsFragment$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery$data = {
+  readonly node: ?{
+    readonly id?: string,
+    readonly name?: ?string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery = {
   response: RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery$data,
   variables: RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

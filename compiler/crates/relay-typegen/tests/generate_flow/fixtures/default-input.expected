@@ -7,21 +7,21 @@ mutation feedbackUnLikeMutation($input: FeedbackUnLikeInput) {
   }
 }
 ==================================== OUTPUT ===================================
-export type FeedbackUnLikeInput = {|
+export type FeedbackUnLikeInput = {
   feedbackId?: ?string,
   silent?: CustomBoolean,
-|};
-export type feedbackUnLikeMutation$variables = {|
+};
+export type feedbackUnLikeMutation$variables = {
   input?: ?FeedbackUnLikeInput,
-|};
-export type feedbackUnLikeMutation$data = {|
-  +feedbackUnLike: ?{|
-    +feedback: ?{|
-      +id: string,
-    |},
-  |},
-|};
-export type feedbackUnLikeMutation = {|
+};
+export type feedbackUnLikeMutation$data = {
+  readonly feedbackUnLike: ?{
+    readonly feedback: ?{
+      readonly id: string,
+    },
+  },
+};
+export type feedbackUnLikeMutation = {
   response: feedbackUnLikeMutation$data,
   variables: feedbackUnLikeMutation$variables,
-|};
+};

@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::Path;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use ::intern::Lookup;
 use ::intern::intern;
@@ -36,10 +38,10 @@ use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
-use lazy_static::lazy_static;
 use md5::Digest;
 use md5::Md5;
 use relay_config::JsModuleFormat;
+use relay_config::ModuleProvider;
 use relay_config::ProjectConfig;
 use relay_config::Surface;
 use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
@@ -100,15 +102,13 @@ use crate::ast::ResolverModuleReference;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
 
-lazy_static! {
-    pub static ref THROW_ON_FIELD_ERROR_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("throwOnFieldError".intern());
-    pub static ref EXEC_TIME_RESOLVERS: DirectiveName =
-        DirectiveName("exec_time_resolvers".intern());
-    static ref EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT: ArgumentName =
-        ArgumentName("enabledProvider".intern());
-    static ref FRAGMENT_KEY: StringKey = "fragment".intern();
-}
+pub static THROW_ON_FIELD_ERROR_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));
+pub static EXEC_TIME_RESOLVERS: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("exec_time_resolvers".intern()));
+static EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("enabledProvider".intern()));
+static FRAGMENT_KEY: LazyLock<StringKey> = LazyLock::new(|| "fragment".intern());
 
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,
@@ -238,11 +238,13 @@ pub fn build_resolvers_schema(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> AstKey {
-    let artifact_path = &project_config
+    let artifact_path = project_config
         .resolvers_schema_module
         .as_ref()
         .unwrap()
-        .path;
+        .path
+        .as_ref()
+        .expect("build_resolvers_schema called without a resolversSchemaModule path");
 
     let mut map = vec![];
     for object in schema.get_objects() {
@@ -426,45 +428,44 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         // `exec_time_resolvers_enabled_provider` make the query use exec time resolvers, for a query with
         //  @exec_time_resolvers but without the exec time provider argument, exec time is enabled by default.
         // `use_experimental_provider` make the exec time query use the experimental exec time exeuctor in runtime
-        let (exec_time_resolvers_enabled_provider, use_experimental_provider) = if let Some(
-            directive,
-        ) =
-            operation.directives.named(*EXEC_TIME_RESOLVERS)
-        {
-            (directive
+        // `use_network_normalization_provider` make the query opt in to the executeWithNetwork coordinated
+        //  publish path at runtime. Used to explicitly route variable-gated S2C queries.
+        let (
+            exec_time_resolvers_enabled_provider,
+            use_experimental_provider,
+            use_network_normalization_provider,
+        ) = if let Some(directive) = operation.directives.named(*EXEC_TIME_RESOLVERS) {
+            let parse_provider_arg = |arg_name: ArgumentName| {
+                directive
                     .arguments
-                    .named(*EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT)
+                    .named(arg_name)
                     .map(|arg| match &arg.value.item {
                         Value::Constant(ConstantValue::String(cons)) => WithLocation {
                             item: *cons,
                             location: arg.value.location,
                         },
                         _ => panic!(
-                            "The enabled argument in exec_time_resolvers directive should be the string name of your provider file."
+                            "The {} argument in exec_time_resolvers directive should be the string name of your provider file.",
+                            arg_name.0.lookup()
                         ),
-                    }),
-                    directive
-                    .arguments
-                    .named(ArgumentName(intern!("useExperimentalProvider")))
-                    .map(|arg| match &arg.value.item {
-                        Value::Constant(ConstantValue::String(cons)) => WithLocation {
-                            item: *cons,
-                            location: arg.value.location,
-                        },
-                        _ => panic!(
-                            "The enabled argument in exec_time_resolvers directive should be the string name of your provider file."
-                        ),
-                    }),
-                )
+                    })
+            };
+            (
+                parse_provider_arg(*EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT),
+                parse_provider_arg(ArgumentName(intern!("useExperimentalProvider"))),
+                parse_provider_arg(ArgumentName(intern!("useNetworkNormalizationProvider"))),
+            )
         } else {
-            (None, None)
+            (None, None, None)
         };
 
         let mut context = ContextualMetadata {
             has_client_edges: false,
+            has_client_to_server_resolvers: false,
             has_exec_time_resolvers_directive,
             has_exec_time_resolvers_enabled_provider: exec_time_resolvers_enabled_provider
                 .is_some(),
+            has_server_to_client_resolvers: false,
             use_experimental_provider,
         };
         match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
@@ -538,6 +539,36 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             }),
                         })
                     }
+                    if let Some(provider) = use_network_normalization_provider {
+                        let mut provider_path =
+                            PathBuf::from(provider.location.source_location().path());
+                        provider_path.pop();
+                        provider_path.push(PathBuf::from(provider.item.lookup()));
+                        let artifact_path = self
+                            .project_config
+                            .artifact_path_for_definition(self.definition_source_location);
+                        fields.push(ObjectEntry {
+                            key: "use_network_normalization_provider".intern(),
+                            value: Primitive::JSModuleDependency(JSModuleDependency {
+                                path: self
+                                    .project_config
+                                    .js_module_import_identifier(&artifact_path, &provider_path),
+                                import_name: ModuleImportName::Default(provider.item),
+                            }),
+                        })
+                    }
+                }
+                if context.has_client_to_server_resolvers {
+                    fields.push(ObjectEntry {
+                        key: "has_client_to_server_resolvers".intern(),
+                        value: Primitive::Bool(true),
+                    });
+                }
+                if context.has_server_to_client_resolvers {
+                    fields.push(ObjectEntry {
+                        key: "has_server_to_client_resolvers".intern(),
+                        value: Primitive::Bool(true),
+                    });
                 }
                 if let Some(client_abstract_types) =
                     self.maybe_build_client_abstract_types(operation)
@@ -949,6 +980,20 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         resolver_metadata: &RelayResolverMetadata,
         inline_fragment: Option<Primitive>,
     ) -> Primitive {
+        // Detect S2C resolvers: client extension field on a non-Query server
+        // type with a rootFragment. Query-rooted resolvers don't traverse a
+        // server-to-client boundary, so they don't need network normalization.
+        // Only relevant for exec-time resolver queries.
+        if !context.has_server_to_client_resolvers && context.has_exec_time_resolvers_directive {
+            let field = resolver_metadata.field(self.schema);
+            if let Some(parent_type) = field.parent_type
+                && !self.schema.is_extension_type(parent_type)
+                && Some(parent_type) != self.schema.query_type()
+                && get_resolver_fragment_dependency_name(field).is_some()
+            {
+                context.has_server_to_client_resolvers = true;
+            }
+        }
         if self
             .project_config
             .resolvers_schema_module
@@ -987,8 +1032,17 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         exec_resolvers_only: bool,
     ) -> Primitive {
         let field_name = resolver_metadata.field_name(self.schema);
-        let field_arguments = &resolver_metadata.field_arguments;
-        let args = self.build_arguments(field_arguments);
+        // Include both field_arguments and fragment_arguments so the
+        // exec-time executor can see variable mappings (e.g.,
+        // include_friend → $my_flag) that would otherwise be lost since
+        // the normalization AST has no FragmentSpread to carry them.
+        let all_arguments: Vec<_> = resolver_metadata
+            .field_arguments
+            .iter()
+            .chain(resolver_metadata.fragment_arguments.iter())
+            .cloned()
+            .collect();
+        let args = self.build_arguments(&all_arguments);
         let is_output_type = resolver_metadata
             .output_type_info
             .normalization_ast_should_have_is_output_type_true();
@@ -1026,7 +1080,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             storage_key: match args {
                 None => Primitive::SkippableNull,
                 Some(key) => {
-                    if is_static_storage_key_available(&resolver_metadata.field_arguments) {
+                    if is_static_storage_key_available(&all_arguments) {
                         Primitive::StorageKey(field_name, key)
                     } else {
                         Primitive::SkippableNull
@@ -1092,8 +1146,15 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
         let field_name = resolver_metadata.field_name(self.schema);
-        let field_arguments = &resolver_metadata.field_arguments;
-        let args = self.build_arguments(field_arguments);
+        // Include both field_arguments and fragment_arguments (see comment
+        // in build_normalization_relay_resolver_exec_and_read_time).
+        let all_arguments: Vec<_> = resolver_metadata
+            .field_arguments
+            .iter()
+            .chain(resolver_metadata.fragment_arguments.iter())
+            .cloned()
+            .collect();
+        let args = self.build_arguments(&all_arguments);
         let is_output_type = resolver_metadata
             .output_type_info
             .normalization_ast_should_have_is_output_type_true();
@@ -1120,7 +1181,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             storage_key: match args {
                 None => Primitive::SkippableNull,
                 Some(key) => {
-                    if is_static_storage_key_available(&resolver_metadata.field_arguments) {
+                    if is_static_storage_key_available(&all_arguments) {
                         Primitive::StorageKey(field_name, key)
                     } else {
                         Primitive::SkippableNull
@@ -1573,6 +1634,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             field_alias: None,
             field_path: path,
             field_arguments: vec![], // The model resolver field does not take GraphQL arguments.
+            fragment_arguments: vec![],
             live: resolver_info.live,
             output_type_info: ResolverOutputTypeInfo::ScalarField,
             fragment_data_injection_mode: resolver_info
@@ -1602,7 +1664,23 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         if field.arguments.is_empty() {
             Primitive::SkippableNull
         } else {
-            self.build_arguments(&relay_resolver_metadata.field_arguments)
+            // For shadow resolvers (magic fragments), the consumer's field arguments that
+            // match the root fragment's @argumentDefinitions (e.g. `ids`) are partitioned
+            // into fragment_arguments to parameterize the root-fragment spread. Those same
+            // values must also reach the resolver function at read time, so include both
+            // buckets — mirroring the normalization path. Non-shadow resolvers continue to
+            // receive field_arguments only.
+            let read_time_arguments: Vec<&Argument> =
+                if relay_resolver_metadata.return_fragment.is_some() {
+                    relay_resolver_metadata
+                        .field_arguments
+                        .iter()
+                        .chain(relay_resolver_metadata.fragment_arguments.iter())
+                        .collect()
+                } else {
+                    relay_resolver_metadata.field_arguments.iter().collect()
+                };
+            self.build_arguments_from_refs(read_time_arguments)
                 .map_or_else(
                     || {
                         // Passing an empty array here, rather than `null`, allows the runtime
@@ -1729,7 +1807,89 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 Primitive::String(self.schema.get_type_name(normalization_info.inner_type))
             };
 
-            let normalization_info = if normalization_info.weak_object_instance_field.is_some() {
+            // A shadow (`@returnFragment`) resolver returning a non-Node SERVER
+            // VALUE type is read INLINE IN PLACE off the transplanted
+            // `client:<parentid>:<field>` record. It takes the same
+            // inline reader branch as `OutputType`/`WeakModel` (no
+            // `ensureClientRecord`, no refetch) but must NOT carry a
+            // `normalizationNode`: the value is already normalized once by the
+            // transplant, so a second normalization would double-store it. We emit
+            // a dedicated `ServerWeak` kind WITHOUT a `normalizationNode`;
+            // `LiveResolverCache._setResolverValue` skips re-normalization for it,
+            // and the reader sources `storeID` from the resolver-returned `__id`.
+            // This read-in-place classification is the single source of truth in
+            // `relay_schema::definitions::is_server_weak_shadow_return`, shared
+            // with `field_transform` (which routed it to this `Composite` arm),
+            // the nested-objects pass (which skips its normalization operation),
+            // and `relay-typegen` (which emits a `{__typename, __id}` identity
+            // return type rather than a dangling `$normalization` import). A
+            // `@weak` model is a client-extension type, so the helper returns
+            // `false` for it and the `weak_object_instance_field` branch below
+            // still handles weak returns.
+            let is_server_weak = relay_schema::definitions::is_server_weak_shadow_return(
+                self.schema,
+                normalization_info.inner_type,
+                self.project_config.schema_config.node_interface_id_field,
+                relay_resolver_metadata.return_fragment.is_some(),
+            );
+
+            // An INTERFACE/UNION shadow return with inline (weak/value)
+            // implementors. The abstract type has no object id, so each
+            // implementor's kind is emitted per `__typename` in an `inlineKinds`
+            // map (`WeakModel` for an `@weak` member, `ServerWeak` for a non-Node
+            // server-value member) and the runtime dispatches per concrete
+            // `__typename` at read time. Like the concrete weak/value arms it
+            // carries NO `normalizationNode` (no abstract normalization operation
+            // exists), so it never falls into the `OutputType` branch below (which
+            // would emit a dangling `$normalization` import). `concrete_type` is
+            // `null` (abstract). Every abstract inline return — pure-weak,
+            // pure-value, AND mixed — takes this one first-class `AbstractInline`
+            // shape, so the concrete `WeakModel`/`ServerWeak` arms below stay
+            // untouched (the concrete `@weak` path stores its model as-is, no
+            // per-`__typename` unwrap overload).
+            let abstract_inline_kinds = if relay_resolver_metadata.return_fragment.is_some()
+                && normalization_info.inner_type.is_abstract_type()
+            {
+                relay_schema::definitions::abstract_shadow_return_inline_kinds_by_typename(
+                    self.schema,
+                    normalization_info.inner_type,
+                    self.project_config.schema_config.node_interface_id_field,
+                )
+            } else {
+                None
+            };
+
+            let normalization_info = if let Some(kinds_by_typename) = abstract_inline_kinds {
+                let inline_kind_entries: Vec<ObjectEntry> = kinds_by_typename
+                    .iter()
+                    .map(|(type_name, kind)| {
+                        let kind_constant = match kind {
+                            relay_schema::definitions::AbstractInlineKind::WeakModel => {
+                                CODEGEN_CONSTANTS.weak_model
+                            }
+                            relay_schema::definitions::AbstractInlineKind::ServerWeak => {
+                                CODEGEN_CONSTANTS.server_weak
+                            }
+                        };
+                        ObjectEntry {
+                            key: *type_name,
+                            value: Primitive::String(kind_constant),
+                        }
+                    })
+                    .collect();
+                object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.abstract_inline),
+                    concrete_type: concrete_type,
+                    plural: Primitive::Bool(normalization_info.plural),
+                    inline_kinds: Primitive::Key(self.object(inline_kind_entries)),
+                }
+            } else if is_server_weak {
+                object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.server_weak),
+                    concrete_type: concrete_type,
+                    plural: Primitive::Bool(normalization_info.plural),
+                }
+            } else if normalization_info.weak_object_instance_field.is_some() {
                 object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.weak_model),
                     concrete_type: concrete_type,
@@ -1894,8 +2054,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     // This function creates a node that is the UNION of the nodes that would be created for read time resolvers
     // and for exec time resolvers (so runtime has ALL the information it needs to run for both resolver modes.)
-    // Surprisingly, this function can stay exactly the same as build_client_edge_with_enabled_resolver_normalization_ast
-    // (the function for exec time resolver nodes).
+    // For C2C (client-to-client) edges, we emit ClientEdgeToClientObject with model resolvers.
+    // For C2S (client-to-server) edges, we emit ClientEdgeToServerObject with the operation reference.
     fn build_client_edge_exec_and_read_time(
         &mut self,
         context: &mut ContextualMetadata,
@@ -1911,7 +2071,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
         let backing_field = backing_field_primitives.into_iter().next().unwrap();
 
-        let client_edge_model_resolvers = match &client_edge_metadata.metadata_directive {
+        let selections_item = self.build_linked_field(context, client_edge_metadata.linked_field);
+
+        match &client_edge_metadata.metadata_directive {
             ClientEdgeMetadataDirective::ClientObject {
                 model_resolvers, ..
             } => {
@@ -1925,7 +2087,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         client_edge_metadata.backing_field
                     ),
                 };
-                field_directives.and_then(|field_directives| {
+                let client_edge_model_resolvers = field_directives.and_then(|field_directives| {
                     let resolver_metadata = RelayResolverMetadata::find(field_directives).unwrap();
                     let is_weak_resolver = matches!(
                         resolver_metadata.output_type_info,
@@ -1941,27 +2103,36 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     } else {
                         Some(Primitive::Key(self.object(model_resolver_primitives)))
                     }
-                })
+                });
+
+                let obj = match client_edge_model_resolvers {
+                    Some(model_resolvers) => object! {
+                        kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                        client_edge_model_resolvers: model_resolvers,
+                        client_edge_backing_field_key: backing_field,
+                        client_edge_selections_key: selections_item,
+                    },
+                    None => object! {
+                        kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                        client_edge_backing_field_key: backing_field,
+                        client_edge_selections_key: selections_item,
+                    },
+                };
+                Primitive::Key(self.object(obj))
             }
-            ClientEdgeMetadataDirective::ServerObject { .. } => None,
-        };
-
-        let selections_item = self.build_linked_field(context, client_edge_metadata.linked_field);
-
-        let obj = match client_edge_model_resolvers {
-            Some(model_resolvers) => object! {
-                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                client_edge_model_resolvers: model_resolvers,
-                client_edge_backing_field_key: backing_field,
-                client_edge_selections_key: selections_item,
-            },
-            None => object! {
-                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                client_edge_backing_field_key: backing_field,
-                client_edge_selections_key: selections_item,
-            },
-        };
-        Primitive::Key(self.object(obj))
+            ClientEdgeMetadataDirective::ServerObject { query_name, .. } => {
+                // C2S (client-to-server) edges need to emit ClientEdgeToServerObject
+                // with the operation reference so the executor can trigger the waterfall fetch.
+                context.has_client_to_server_resolvers = true;
+                let obj = object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
+                    operation: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Name(ExecutableDefinitionName::OperationDefinitionName(*query_name))),
+                    client_edge_backing_field_key: backing_field,
+                    client_edge_selections_key: selections_item,
+                };
+                Primitive::Key(self.object(obj))
+            }
+        }
     }
 
     fn build_normalization_client_edge(
@@ -1994,10 +2165,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 client_edge_selections_key: selections_item,
             }))
         } else {
-            // If a Client Edge models an edge to the server, its generated
-            // query's normalization AST will take care of
-            // normalization/retention of selections hanging off the edge. So,
-            // we just need to include the backing field.
+            // For read-time C2S edges, the waterfall query is handled by the
+            // OperationExecutor using the reader AST's ClientEdgeToServerObject node.
+            // The normalization AST only needs the backing resolver field.
             backing_field
         }
     }
@@ -2091,7 +2261,22 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                          });
                          let client_edge_model_resolvers = if let Some(model_resolver_field) = model_resolver_field {
                              Primitive::Key(model_resolver_field)
+                         } else if type_name.is_none() {
+                             // Abstract edge (`concreteType: null`): the concrete
+                             // type is only known at read time from the resolver's
+                             // returned `__typename`. Emit an empty (non-null)
+                             // dispatch map so the runtime takes the `modelResolvers
+                             // != null` path -- a returned server `__typename` is
+                             // absent from the map and reads off the raw store id
+                             // (the transplanted record), while a client
+                             // `__typename` would route to its model resolver. A
+                             // `null` map would instead send the read down the
+                             // concrete-client-object path (`ensureClientRecord`),
+                             // which mis-namespaces a server pointer.
+                             Primitive::Key(self.object(vec![]))
                          } else {
+                             // Concrete client object edge (`concreteType` set):
+                             // `ensureClientRecord(id, concreteType)` is correct.
                              Primitive::Null
                          };
                          let server_op = if server_object_operations.is_empty() {
@@ -2120,6 +2305,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                          }))
                  }
              }
+
          };
 
         if let Some(required_metadata) = required_metadata {
@@ -2371,7 +2557,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             ));
         }
 
-        var_defs.sort_unstable_by(|(name_a, _), (name_b, _)| name_a.cmp(name_b));
+        var_defs.sort_unstable_by_key(|(name_a, _)| *name_a);
         let mut sorted_var_defs = Vec::with_capacity(var_defs.len());
 
         for (_, var_def) in var_defs {
@@ -2382,7 +2568,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     }
 
     fn build_arguments(&mut self, arguments: &[Argument]) -> Option<AstKey> {
-        let mut sorted_args: Vec<&Argument> = arguments.iter().collect();
+        self.build_arguments_from_refs(arguments.iter().collect())
+    }
+
+    fn build_arguments_from_refs(&mut self, mut sorted_args: Vec<&Argument>) -> Option<AstKey> {
         sorted_args.sort_unstable_by_key(|arg| arg.name.item);
 
         let args = sorted_args
@@ -2512,6 +2701,69 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
     }
 
+    fn resolve_module_import_name(
+        &self,
+        module_name: StringKey,
+        module_source_location: common::SourceLocationKey,
+        provider: ModuleProvider,
+    ) -> StringKey {
+        if !matches!(provider, ModuleProvider::Custom { .. }) {
+            return module_name;
+        }
+        let module_name_str = module_name.lookup();
+        let is_relative = module_name_str.starts_with("./") || module_name_str.starts_with("../");
+
+        if matches!(self.project_config.js_module_format, JsModuleFormat::Haste) || !is_relative {
+            module_name
+        } else {
+            assert!(
+                !module_source_location.is_generated(),
+                "Cannot resolve relative @module path '{}' from a generated source location",
+                module_name_str
+            );
+            let mut source_dir = PathBuf::from(module_source_location.path());
+            source_dir.pop();
+            let module_path = normalize_path(&source_dir.join(PathBuf::from(module_name_str)));
+
+            self.project_config.js_module_import_identifier(
+                &self
+                    .project_config
+                    .artifact_path_for_definition(self.definition_source_location),
+                &module_path,
+            )
+        }
+    }
+
+    fn resolve_normalization_import(
+        &self,
+        fragment_name: FragmentDefinitionName,
+        fragment_source_location: common::SourceLocationKey,
+        provider: ModuleProvider,
+    ) -> StringKey {
+        if !matches!(provider, ModuleProvider::Custom { .. })
+            || matches!(self.project_config.js_module_format, JsModuleFormat::Haste)
+        {
+            return get_normalization_fragment_filename(fragment_name);
+        }
+        assert!(
+            !fragment_source_location.is_generated(),
+            "Cannot resolve normalization import path for fragment '{}' from a generated source location",
+            fragment_name
+        );
+        let normalization_filename = format!(
+            "{}.graphql",
+            get_normalization_operation_name(fragment_name.0)
+        );
+        let artifact_path = self
+            .project_config
+            .artifact_path_for_definition(self.definition_source_location);
+        let norm_artifact_path = self
+            .project_config
+            .path_for_language_specific_artifact(fragment_source_location, normalization_filename);
+        self.project_config
+            .js_module_import_identifier(&artifact_path, &norm_artifact_path)
+    }
+
     fn build_module_import_selections(
         &mut self,
         module_metadata: &ModuleMetadata,
@@ -2556,49 +2808,58 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 if (module_metadata.read_time_resolvers || should_use_reader_module_imports)
                     && let Some(dynamic_module_provider) = self
                         .project_config
-                        .module_import_config
+                        .effective_module_import_config()
                         .dynamic_module_provider
                 {
+                    let resolved_component_module = self.resolve_module_import_name(
+                        module_metadata.module_name,
+                        module_metadata.module_source_location,
+                        dynamic_module_provider,
+                    );
                     module_import.push(ObjectEntry {
                         key: CODEGEN_CONSTANTS.component_module_provider,
                         value: Primitive::DynamicImport {
                             provider: dynamic_module_provider,
-                            module: module_metadata.module_name,
+                            module: resolved_component_module,
                         },
                     });
                 }
             }
             CodegenVariant::Normalization => {
-                if let Some(dynamic_module_provider) = self
-                    .project_config
-                    .module_import_config
-                    .dynamic_module_provider
-                    && (self.project_config.module_import_config.surface.is_none()
-                        || self.project_config.module_import_config.surface == Some(Surface::All)
-                        || (self.project_config.module_import_config.surface
-                            == Some(Surface::Resolvers)
+                let effective_config = self.project_config.effective_module_import_config();
+                if let Some(dynamic_module_provider) = effective_config.dynamic_module_provider
+                    && (effective_config.surface.is_none()
+                        || effective_config.surface == Some(Surface::All)
+                        || (effective_config.surface == Some(Surface::Resolvers)
                             && module_metadata.read_time_resolvers))
                 {
-                    let operation_module_provider = match self
-                        .project_config
-                        .module_import_config
-                        .operation_module_provider
+                    let operation_module_provider = match effective_config.operation_module_provider
                     {
                         Some(operation_module_provider) => operation_module_provider,
                         None => dynamic_module_provider,
                     };
+                    let resolved_component_module = self.resolve_module_import_name(
+                        module_metadata.module_name,
+                        module_metadata.module_source_location,
+                        dynamic_module_provider,
+                    );
+                    let resolved_operation_module = self.resolve_normalization_import(
+                        fragment_name,
+                        module_metadata.fragment_source_location.source_location(),
+                        operation_module_provider,
+                    );
                     module_import.push(ObjectEntry {
                         key: CODEGEN_CONSTANTS.component_module_provider,
                         value: Primitive::DynamicImport {
                             provider: dynamic_module_provider,
-                            module: module_metadata.module_name,
+                            module: resolved_component_module,
                         },
                     });
                     module_import.push(ObjectEntry {
                         key: CODEGEN_CONSTANTS.operation_module_provider,
                         value: Primitive::DynamicImport {
                             provider: operation_module_provider,
-                            module: get_normalization_fragment_filename(fragment_name),
+                            module: resolved_operation_module,
                         },
                     });
                 }
@@ -2808,6 +3069,32 @@ fn build_alias(alias: Option<StringKey>, name: StringKey) -> ObjectEntry {
     }
 }
 
+/// Collapse `.` and `..` segments in a path without touching the filesystem.
+/// Unlike `Path::canonicalize`, this works on paths that don't exist on disk
+/// and doesn't resolve symlinks.
+fn normalize_path(path: &Path) -> PathBuf {
+    let mut normalized = PathBuf::new();
+    for component in path.components() {
+        match component {
+            std::path::Component::ParentDir => {
+                // If the path is empty or already ends with `..`, we can't collapse
+                // further — accumulate another `..`. Otherwise pop the last segment.
+                match normalized.components().next_back() {
+                    Some(std::path::Component::ParentDir) | None => {
+                        normalized.push(component);
+                    }
+                    _ => {
+                        normalized.pop();
+                    }
+                }
+            }
+            std::path::Component::CurDir => {}
+            _ => normalized.push(component),
+        }
+    }
+    normalized
+}
+
 /// Computes the md5 hash of a string.
 pub fn md5(data: &str) -> String {
     let mut md5 = Md5::new();
@@ -2819,7 +3106,52 @@ pub fn md5(data: &str) -> String {
 #[derive(Default)]
 struct ContextualMetadata {
     has_client_edges: bool,
+    has_client_to_server_resolvers: bool,
     has_exec_time_resolvers_directive: bool,
     has_exec_time_resolvers_enabled_provider: bool,
+    has_server_to_client_resolvers: bool,
     use_experimental_provider: Option<WithLocation<StringKey>>,
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::Path;
+
+    use super::normalize_path;
+
+    #[test]
+    fn normalize_path_simple_parent() {
+        // `src/foo/../bar` → `src/bar`
+        assert_eq!(
+            normalize_path(Path::new("src/foo/../bar")),
+            Path::new("src/bar")
+        );
+    }
+
+    #[test]
+    fn normalize_path_exceeds_root() {
+        // `src/foo/../../../../B`: four `..` against two normal segments yields `../../B`
+        assert_eq!(
+            normalize_path(Path::new("src/foo/../../../../B")),
+            Path::new("../../B"),
+        );
+    }
+
+    #[test]
+    fn normalize_path_consecutive_parent_dirs() {
+        // Accumulated `..` segments must not cancel each other out.
+        assert_eq!(
+            normalize_path(Path::new("../../foo")),
+            Path::new("../../foo")
+        );
+    }
+
+    #[test]
+    fn normalize_path_cur_dir_ignored() {
+        // `.` components are dropped.
+        assert_eq!(
+            normalize_path(Path::new("./src/./foo")),
+            Path::new("src/foo")
+        );
+    }
 }

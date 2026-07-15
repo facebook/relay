@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f175e16e26abb79521330b5095fa8f42>>
+ * @generated SignedSource<<e5b55c77d03f3f214d619e9555cc3d5f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,13 +29,13 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   context: TestResolverContextType,
 ) => LiveState<?unknown>);
 declare export opaque type TodoBlockedByResolverFragment$fragmentType: FragmentType;
-export type TodoBlockedByResolverFragment$data = {|
-  +self: ?ReturnType<ReturnType<typeof todoSelfResolverType>["read"]>,
-  +$fragmentType: TodoBlockedByResolverFragment$fragmentType,
-|};
+export type TodoBlockedByResolverFragment$data = {
+  readonly self: ?ReturnType<ReturnType<typeof todoSelfResolverType>["read"]>,
+  readonly $fragmentType: TodoBlockedByResolverFragment$fragmentType,
+};
 export type TodoBlockedByResolverFragment$key = {
-  +$data?: TodoBlockedByResolverFragment$data,
-  +$fragmentSpreads: TodoBlockedByResolverFragment$fragmentType,
+  readonly $data?: TodoBlockedByResolverFragment$data,
+  readonly $fragmentSpreads: TodoBlockedByResolverFragment$fragmentType,
   ...
 };
 */

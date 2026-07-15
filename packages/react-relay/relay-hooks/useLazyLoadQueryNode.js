@@ -52,8 +52,7 @@ export type LazyLoadQueryNodeParamsWithoutQuery = Readonly<{
 }>;
 
 export type LazyLoadQueryNodeParams =
-  | LazyLoadQueryNodeParamsWithQuery
-  | LazyLoadQueryNodeParamsWithoutQuery;
+  LazyLoadQueryNodeParamsWithQuery | LazyLoadQueryNodeParamsWithoutQuery;
 
 hook useLazyLoadQueryNode<
   TQuery extends OperationType,

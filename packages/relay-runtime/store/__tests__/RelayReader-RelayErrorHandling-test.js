@@ -27,7 +27,7 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -75,7 +75,7 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -133,7 +133,7 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         nodes: {__refs: ['1']},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -191,7 +191,7 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -258,7 +258,7 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -312,7 +312,7 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -360,13 +360,13 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
         name: 'Proto Mark', // Read by the resolver fragment
       },
-      '1337': {
+      1337: {
         __id: '1337',
         id: '1337',
         __typename: 'User',
@@ -406,13 +406,13 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
         birthdate: {__ref: '2'},
       },
-      '2': {
+      2: {
         __id: '2',
         id: '2',
         __typename: 'Date',
@@ -456,7 +456,7 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User', // Read by the all_astrological_signs resolver fragment
@@ -492,13 +492,13 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
         name: 'Proto Mark', // Read by the resolver fragment
       },
-      '1337': {
+      1337: {
         __id: '1337',
         id: '1337',
         __typename: 'User',
@@ -535,13 +535,13 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
         name: 'Proto Mark', // Read by the resolver fragment
       },
-      '1337': {
+      1337: {
         __id: '1337',
         id: '1337',
         __typename: 'User',
@@ -588,13 +588,13 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
         name: 'Proto Mark',
       },
-      '1337': {
+      1337: {
         __id: '1337',
         id: '1337',
         __typename: 'User',
@@ -654,13 +654,13 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
         birthdate: {__ref: '2'},
       },
-      '2': {
+      2: {
         __id: '2',
         id: '2',
         __typename: 'Date',
@@ -713,7 +713,7 @@ describe('RelayReader error fields', () => {
       'client:__type:User': {
         __isMaybeNodeInterface: false,
       },
-      '4': {
+      4: {
         __id: '4',
         id: '4',
         __typename: 'User',
@@ -749,7 +749,7 @@ describe('RelayReader error fields', () => {
       'client:__type:User': {
         __isMaybeNodeInterface: true,
       },
-      '4': {
+      4: {
         __id: '4',
         id: '4',
         __typename: 'NonNodeNoID',
@@ -799,7 +799,7 @@ describe('RelayReader error fields', () => {
         __typename: '__Root',
         me: {__ref: '4'},
       },
-      '4': {
+      4: {
         __id: '4',
         id: '4',
         __typename: 'User',
@@ -868,7 +868,7 @@ describe('RelayReader error fields', () => {
     describe('when query has @throwOnFieldError directive', () => {
       it('has errors that will throw when the linked field is an empty list', () => {
         const source = RelayRecordSource.create({
-          '1': {
+          1: {
             __id: '1',
             __typename: 'User',
             'friends(first:3)': {
@@ -931,7 +931,7 @@ describe('RelayReader error fields', () => {
 
       it('has errors that will throw when the scalar field is an empty list', () => {
         const source = RelayRecordSource.create({
-          '1': {
+          1: {
             __id: '1',
             __typename: 'User',
             __errors: {
@@ -983,7 +983,7 @@ describe('RelayReader error fields', () => {
     describe('when query does not have the @throwOnFieldError directive', () => {
       it('has errors that wont throw when the linked field is an empty list', () => {
         const source = RelayRecordSource.create({
-          '1': {
+          1: {
             __id: '1',
             __typename: 'User',
             'friends(first:3)': {
@@ -1046,7 +1046,7 @@ describe('RelayReader error fields', () => {
 
       it('has errors that wont throw when the scalar field is an empty list', () => {
         const source = RelayRecordSource.create({
-          '1': {
+          1: {
             __id: '1',
             __typename: 'User',
             __errors: {

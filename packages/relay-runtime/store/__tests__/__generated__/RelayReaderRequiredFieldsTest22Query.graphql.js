@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<34a8e5c981b73a327c4943494ce7eda0>>
+ * @generated SignedSource<<57449e1ec5dbc424ca09464616adbbce>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,17 +18,17 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderRequiredFieldsTest4Fragment$fragmentType } from "./RelayReaderRequiredFieldsTest4Fragment.graphql";
-export type RelayReaderRequiredFieldsTest22Query$variables = {||};
-export type RelayReaderRequiredFieldsTest22Query$data = ?{|
-  +me: {|
-    +firstName: ?string,
-  |},
-  +$fragmentSpreads: RelayReaderRequiredFieldsTest4Fragment$fragmentType,
-|};
-export type RelayReaderRequiredFieldsTest22Query = {|
+export type RelayReaderRequiredFieldsTest22Query$variables = {};
+export type RelayReaderRequiredFieldsTest22Query$data = ?{
+  readonly me: {
+    readonly firstName: ?string,
+  },
+  readonly $fragmentSpreads: RelayReaderRequiredFieldsTest4Fragment$fragmentType,
+};
+export type RelayReaderRequiredFieldsTest22Query = {
   response: RelayReaderRequiredFieldsTest22Query$data,
   variables: RelayReaderRequiredFieldsTest22Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -28,6 +28,16 @@ extend type Query {
 }
 ==================================== OUTPUT ===================================
 fragment conditionOnSelectionOnInterfaceWithoutResolverFragment on Cat {
-  description @include(if: $has_owner)
-  name
+  ... on Tabby @include(if: $has_owner) {
+    description
+  }
+  ... on Persian @include(if: $has_owner) {
+    description
+  }
+  ... on Tabby {
+    name
+  }
+  ... on Persian {
+    name
+  }
 }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2903003baae8a735d854d316642d21fb>>
+ * @generated SignedSource<<829c96b0b09954e8d7fc6548807f4970>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,22 +17,22 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentsDeleteInput = {|
+export type CommentsDeleteInput = {
   commentIds?: ?ReadonlyArray<?string>,
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation$variables = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation$variables = {
   connections: ReadonlyArray<string>,
   input?: ?CommentsDeleteInput,
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation$data = {|
-  +commentsDelete: ?{|
-    +deletedCommentIds: ?ReadonlyArray<?string>,
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation$data = {
+  readonly commentsDelete: ?{
+    readonly deletedCommentIds: ?ReadonlyArray<?string>,
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation = {
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation$data,
   variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -1,0 +1,64 @@
+==================================== INPUT ====================================
+//- UserCombinedPage.js
+// RED: a `@no_inline` consumer fragment spread on a magic-fragment field is
+// rejected. A `@no_inline` fragment is promoted to its own normalization
+// operation and never inlined, so its fields would not reach the transplanted
+// server selection in the main operation.
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- PageFields.js
+graphql`fragment PageFields on Page @no_inline {
+  title
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      ...PageFields @alias(as: "pageFields")
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage
+==================================== OUTPUT ===================================
+✖︎ Fragment spread `PageFields` in selections on a shadow resolver field cannot be a `@no_inline` fragment. The spread's fields must be inlined into the main operation. Remove `@no_inline` from the fragment, or inline the selection.
+
+  UserConsumer.js:4:10
+    3 │     combined_page {
+    4 │       ...PageFields @alias(as: "pageFields")
+      │          ^^^^^^^^^^
+    5 │     }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a2f1f47e404e791365a099a51538e240>>
+ * @generated SignedSource<<4c9d9971ad0309f855c7cfc8af2cabc5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,21 +17,21 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$variables = {|
+export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$variables = {
   size?: ?ReadonlyArray<?number>,
-|};
-export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$data = {|
-  +nodes: ?ReadonlyArray<?{|
-    +lastName: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |}>,
-|};
-export type RelayReaderRelayErrorHandlingTestMissingPluralQuery = {|
+};
+export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly lastName: ?string,
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  }>,
+};
+export type RelayReaderRelayErrorHandlingTestMissingPluralQuery = {
   response: RelayReaderRelayErrorHandlingTestMissingPluralQuery$data,
   variables: RelayReaderRelayErrorHandlingTestMissingPluralQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

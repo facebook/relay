@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1f35977418a17814ed8c09ee027841fd>>
+ * @generated SignedSource<<0724aa38b8a709bd539a617203b588cf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteMutationTestCommentFragment.graphql";
-export type RelayModernEnvironmentExecuteMutationTestCommentQuery$variables = {|
+export type RelayModernEnvironmentExecuteMutationTestCommentQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteMutationTestCommentQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationTestCommentQuery = {|
+};
+export type RelayModernEnvironmentExecuteMutationTestCommentQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteMutationTestCommentQuery = {
   response: RelayModernEnvironmentExecuteMutationTestCommentQuery$data,
   variables: RelayModernEnvironmentExecuteMutationTestCommentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

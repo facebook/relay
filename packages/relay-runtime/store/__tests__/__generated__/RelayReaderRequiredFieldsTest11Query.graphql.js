@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<00d72e0826e554a61284c06e780e131e>>
+ * @generated SignedSource<<b06a35e14c70efee24b118dc4786c7d9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest11Query$variables = {||};
-export type RelayReaderRequiredFieldsTest11Query$data = {|
-  +viewer: ?{|
-    +allTimezones: ReadonlyArray<?{|
-      +timezone: ?string,
-    |}>,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest11Query = {|
+export type RelayReaderRequiredFieldsTest11Query$variables = {};
+export type RelayReaderRequiredFieldsTest11Query$data = {
+  readonly viewer: ?{
+    readonly allTimezones: ReadonlyArray<?{
+      readonly timezone: ?string,
+    }>,
+  },
+};
+export type RelayReaderRequiredFieldsTest11Query = {
   response: RelayReaderRequiredFieldsTest11Query$data,
   variables: RelayReaderRequiredFieldsTest11Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

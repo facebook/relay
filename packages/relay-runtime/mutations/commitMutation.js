@@ -49,7 +49,7 @@ export type MutationConfig<TMutation extends MutationParameters> = Readonly<{
   onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
   optimisticResponse?: {
-    +rawResponse?: {...},
+    readonly rawResponse?: {...},
     ...TMutation,
     ...
   }['rawResponse'],

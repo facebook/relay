@@ -529,9 +529,37 @@ class LiveResolverCache implements ResolverCache {
   ): DataIDSet | null {
     const normalizationInfo = field.normalizationInfo;
     let updatedDataIDs = null;
+    // An `AbstractInline` (interface/union) shadow return dispatches per concrete
+    // `__typename`: a member listed as `ServerWeak` in `inlineKinds` is read in
+    // place (already normalized once by the transplant — skip re-normalization
+    // here, exactly like the scalar `ServerWeak` arm) while a `WeakModel` member
+    // is normalized into its model instance. An abstract inline return is always
+    // singular (the compiler rejects plural inline returns), so `value` is a
+    // single object at this gate.
+    let effectiveKind = normalizationInfo?.kind;
+    if (
+      normalizationInfo != null &&
+      normalizationInfo.kind === 'AbstractInline' &&
+      value != null &&
+      typeof value === 'object'
+    ) {
+      effectiveKind =
+        normalizationInfo.inlineKinds[
+          getConcreteTypename(normalizationInfo, value)
+        ] === 'ServerWeak'
+          ? 'ServerWeak'
+          : 'WeakModel';
+    }
     if (
       value != null &&
       normalizationInfo != null &&
+      // A `ServerWeak` shadow server-value arm is already normalized
+      // exactly once by the magic-fragment transplant in the main operation. It
+      // must NOT be re-normalized here: doing so would create a SECOND copy under
+      // a resolver-path id (`client:<typename>:<resolverRecordID>`) — the
+      // `@outputType` double-store. The reader sources the storeID from the
+      // resolver-returned `__id` and reads the transplanted record in place.
+      effectiveKind !== 'ServerWeak' &&
       !isSuspenseSentinel(value)
     ) {
       let resolverValue: DataID | Array<DataID>;
@@ -772,7 +800,7 @@ class LiveResolverCache implements ResolverCache {
   // containing only "weak" records.
   _normalizeOutputTypeValue(
     outputTypeDataID: DataID,
-    value: {+[key: string]: unknown},
+    value: {readonly [key: string]: unknown},
     variables: Variables,
     normalizationInfo: ResolverNormalizationInfo,
     fieldPath: Array<string>,
@@ -821,6 +849,35 @@ class LiveResolverCache implements ResolverCache {
 
         source.set(outputTypeDataID, record);
         return source;
+      }
+      case 'AbstractInline': {
+        // An abstract (interface/union) inline return reaches here only for its
+        // `WeakModel` members — `ServerWeak` members are read in place and are
+        // short-circuited in `_setResolverValue`. A weak member's resolver return
+        // is a `{__typename, __relay_model_instance}` wrapper (the `__typename`
+        // drove `getConcreteTypename`/`outputTypeDataID` above). Store only the
+        // inner model instance: the model's field resolvers are wired via
+        // `resolverDataInjector(..., '__relay_model_instance', ...)`, which reads
+        // `MODEL_PROPERTY_NAME` and passes it to the resolver as the model — so
+        // storing the wrapper would make every field resolve to `undefined`.
+        const record = RelayModernRecord.create(outputTypeDataID, typename);
+
+        const modelValue =
+          MODEL_PROPERTY_NAME in value ? value[MODEL_PROPERTY_NAME] : value;
+        RelayModernRecord.setValue(record, MODEL_PROPERTY_NAME, modelValue);
+
+        source.set(outputTypeDataID, record);
+        return source;
+      }
+      case 'ServerWeak': {
+        // A read-in-place shadow server-value arm is never normalized:
+        // `_setResolverValue` short-circuits before reaching here, because the
+        // value is already normalized once by the magic-fragment transplant.
+        // Reaching this case would mean that guard was bypassed.
+        throw new Error(
+          'LiveResolverCache: `ServerWeak` normalization info must not be ' +
+            'normalized; it is read in place off the transplanted record.',
+        );
       }
       default:
         normalizationInfo.kind as empty;

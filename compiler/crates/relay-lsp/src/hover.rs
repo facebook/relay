@@ -73,7 +73,7 @@ pub fn on_hover(
     let resolution_path = document.resolve((), position_span);
 
     let project_name = state
-        .extract_project_name_from_url(&params.text_document_position_params.text_document.uri)?;
+        .extract_project_name_from_uri(&params.text_document_position_params.text_document.uri)?;
 
     let schema = state.get_schema(&project_name)?;
 

@@ -80,8 +80,8 @@ if (__DEV__) {
     const isRecord = (o: $FlowFixMe) => o != null && typeof o.__id === 'string';
 
     class RecordEntry {
-      +key: string;
-      +value: unknown;
+      readonly key: string;
+      readonly value: unknown;
       constructor(key: string, value: unknown) {
         this.key = key;
         this.value = value;

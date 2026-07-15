@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<756fd6329550517baeac5d4790113807>>
+ * @generated SignedSource<<6ad1ad3a5769106f31b632979d98d44f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -33,27 +32,27 @@ import {weak_animal as queryWeakAnimalResolverType} from "../../../relay-runtime
 // Type assertion validating that `queryWeakAnimalResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryWeakAnimalResolverType as (
-  args: {|
+  args: {
     request: WeakAnimalRequest,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?Query__weak_animal$normalization);
 import type { Query__weak_animal$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__weak_animal$normalization.graphql";
-export type WeakAnimalRequest = {|
+export type WeakAnimalRequest = {
   ofType: string,
-|};
-export type RelayResolverInterfaceTestWeakAnimalGreetingQuery$variables = {|
+};
+export type RelayResolverInterfaceTestWeakAnimalGreetingQuery$variables = {
   request: WeakAnimalRequest,
-|};
-export type RelayResolverInterfaceTestWeakAnimalGreetingQuery$data = {|
-  +weak_animal: ?{|
-    +greeting: ?string,
-  |},
-|};
-export type RelayResolverInterfaceTestWeakAnimalGreetingQuery = {|
+};
+export type RelayResolverInterfaceTestWeakAnimalGreetingQuery$data = {
+  readonly weak_animal: ?{
+    readonly greeting: ?string,
+  },
+};
+export type RelayResolverInterfaceTestWeakAnimalGreetingQuery = {
   response: RelayResolverInterfaceTestWeakAnimalGreetingQuery$data,
   variables: RelayResolverInterfaceTestWeakAnimalGreetingQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -92,7 +91,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": null,
-        "modelResolvers": null,
+        "modelResolvers": {},
         "serverObjectOperations": null,
         "backingField": {
           "alias": null,

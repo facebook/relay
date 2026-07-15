@@ -1,0 +1,56 @@
+==================================== INPUT ====================================
+query ExampleQuery @raw_response_type {
+  node(id: "test-id") {
+    __typename
+    ... on Story {
+      name
+    }
+    ... on PhotoStory {
+      photo {
+        uri
+      }
+    }
+    ... on FeedUnit {
+      tracking
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = Record<PropertyKey, never>;
+export type ExampleQuery$data = {
+  readonly node: {
+    readonly __typename: string;
+    readonly name?: string | null | undefined;
+    readonly photo?: {
+      readonly uri: string | null | undefined;
+    } | null | undefined;
+    readonly tracking?: string | null | undefined;
+  } | null | undefined;
+};
+export type ExampleQuery$rawResponse = {
+  readonly node: {
+    readonly __typename: "PhotoStory";
+    readonly __isFeedUnit: "PhotoStory";
+    readonly id: string;
+    readonly photo: {
+      readonly uri: string | null | undefined;
+    } | null | undefined;
+    readonly tracking: string | null | undefined;
+  } | {
+    readonly __typename: "Story";
+    readonly __isFeedUnit: "Story";
+    readonly id: string;
+    readonly name: string | null | undefined;
+    readonly tracking: string | null | undefined;
+  } | {
+    readonly __typename: string;
+    readonly __isFeedUnit?: string;
+    readonly id: string;
+    readonly tracking?: string | null | undefined;
+  } | null | undefined;
+};
+export type ExampleQuery = {
+  rawResponse: ExampleQuery$rawResponse;
+  response: ExampleQuery$data;
+  variables: ExampleQuery$variables;
+};

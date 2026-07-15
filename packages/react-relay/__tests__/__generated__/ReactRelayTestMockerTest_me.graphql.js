@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c8b951257996ab6cc4ad324e29515f23>>
+ * @generated SignedSource<<884d879440f95ff7fe38e02885675a0e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayTestMockerTest_me$fragmentType: FragmentType;
-export type ReactRelayTestMockerTest_me$data = {|
-  +name: ?string,
-  +$fragmentType: ReactRelayTestMockerTest_me$fragmentType,
-|};
+export type ReactRelayTestMockerTest_me$data = {
+  readonly name: ?string,
+  readonly $fragmentType: ReactRelayTestMockerTest_me$fragmentType,
+};
 export type ReactRelayTestMockerTest_me$key = {
-  +$data?: ReactRelayTestMockerTest_me$data,
-  +$fragmentSpreads: ReactRelayTestMockerTest_me$fragmentType,
+  readonly $data?: ReactRelayTestMockerTest_me$data,
+  readonly $fragmentSpreads: ReactRelayTestMockerTest_me$fragmentType,
   ...
 };
 */

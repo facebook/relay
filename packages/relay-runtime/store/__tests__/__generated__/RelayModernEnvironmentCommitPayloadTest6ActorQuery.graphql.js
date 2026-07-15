@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e7b8f5ccf9f065d8a47285c730174af9>>
+ * @generated SignedSource<<418ceb640d60cf1443341437aeb4fe69>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,27 +21,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name.graphql";
 import type { RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType } from "./RelayModernEnvironmentCommitPayloadTest6UserFragment.graphql";
-export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables = {||};
-export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$data = {|
-  +me: ?{|
-    +name: ?string,
-    +nameRenderer: ?({|
-      +__typename: "MarkdownUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-    +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentCommitPayloadTest6ActorQuery = {|
+export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables = {};
+export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$data = {
+  readonly me: ?{
+    readonly name: ?string,
+    readonly nameRenderer: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
+    },
+    readonly $fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentCommitPayloadTest6ActorQuery = {
   response: RelayModernEnvironmentCommitPayloadTest6ActorQuery$data,
   variables: RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

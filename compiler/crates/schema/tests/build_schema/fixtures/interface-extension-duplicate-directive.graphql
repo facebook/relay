@@ -1,0 +1,13 @@
+# expected-to-throw
+
+directive @bar on INTERFACE
+
+interface Foo @bar {
+  id: ID
+}
+
+type Query {
+  foo: Foo
+}
+%extensions%
+extend interface Foo @bar

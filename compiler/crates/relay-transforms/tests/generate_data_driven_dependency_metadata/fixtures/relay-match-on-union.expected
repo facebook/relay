@@ -61,6 +61,10 @@ fragment NameRendererFragment on User @__RelayDataDrivenDependencyMetadata
       #         "PlainUserNameRenderer_name",
       #     ),
       #     fragment_source_location: relay-match-on-union.graphql:255:281,
+      #     module_source_location: Embedded {
+      #         path: "relay-match-on-union.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -86,6 +90,10 @@ fragment NameRendererFragment on User @__RelayDataDrivenDependencyMetadata
       #         "MarkdownUserNameRenderer_name",
       #     ),
       #     fragment_source_location: relay-match-on-union.graphql:355:384,
+      #     module_source_location: Embedded {
+      #         path: "relay-match-on-union.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

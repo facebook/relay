@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<092e254036c24f916d930fae9357d4c7>>
+ * @generated SignedSource<<d95ddbfa656da4d1dc02f15cc3ef9840>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,20 +29,20 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type UserBestFriendShoutedGreetingResolver$fragmentType: FragmentType;
-export type UserBestFriendShoutedGreetingResolver$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +greeting: ?string,
-      |},
-    |}>,
-  |},
-  +$fragmentType: UserBestFriendShoutedGreetingResolver$fragmentType,
-|};
+export type UserBestFriendShoutedGreetingResolver$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly greeting: ?string,
+      },
+    }>,
+  },
+  readonly $fragmentType: UserBestFriendShoutedGreetingResolver$fragmentType,
+};
 export type UserBestFriendShoutedGreetingResolver$key = {
-  +$data?: UserBestFriendShoutedGreetingResolver$data,
-  +$fragmentSpreads: UserBestFriendShoutedGreetingResolver$fragmentType,
+  readonly $data?: UserBestFriendShoutedGreetingResolver$data,
+  readonly $fragmentSpreads: UserBestFriendShoutedGreetingResolver$fragmentType,
   ...
 };
 */

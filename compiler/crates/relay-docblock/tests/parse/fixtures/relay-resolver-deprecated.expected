@@ -76,6 +76,7 @@ Field(
             ),
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: /path/to/test/fixture/relay-resolver-deprecated.js:0:122,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

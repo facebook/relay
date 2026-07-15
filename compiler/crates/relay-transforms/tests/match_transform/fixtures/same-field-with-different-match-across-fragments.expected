@@ -79,6 +79,10 @@ fragment RootFragment on User {
       #         "PlainUserNameRenderer_root",
       #     ),
       #     fragment_source_location: same-field-with-different-match-across-fragments.graphql:858:884,
+      #     module_source_location: Embedded {
+      #         path: "same-field-with-different-match-across-fragments.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -104,6 +108,10 @@ fragment RootFragment on User {
       #         "MarkdownUserNameRenderer_root",
       #     ),
       #     fragment_source_location: same-field-with-different-match-across-fragments.graphql:946:975,
+      #     module_source_location: Embedded {
+      #         path: "same-field-with-different-match-across-fragments.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -136,6 +144,10 @@ fragment RowFragment on User {
       #         "PlainUserNameRenderer_row",
       #     ),
       #     fragment_source_location: same-field-with-different-match-across-fragments.graphql:781:806,
+      #     module_source_location: Embedded {
+      #         path: "same-field-with-different-match-across-fragments.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

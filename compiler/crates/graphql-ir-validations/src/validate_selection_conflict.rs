@@ -16,6 +16,9 @@ use common::DiagnosticsResult;
 use common::Location;
 use common::NamedItem;
 use common::PointerAddress;
+#[cfg(not(target_arch = "wasm32"))]
+use common::sync::ParallelIterator;
+use common::sync::par_iter;
 use dashmap::DashMap;
 use dashmap::DashSet;
 use errors::par_try_map;
@@ -33,6 +36,7 @@ use graphql_ir::node_identifier::LocationAgnosticBehavior;
 use intern::Lookup;
 use intern::string_key::StringKey;
 use relay_config::ProjectConfig;
+use rustc_hash::FxBuildHasher;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
@@ -60,13 +64,25 @@ enum Field<'s> {
 
 type Fields<'s> = HashMap<StringKey, Vec<Field<'s>>, intern::BuildIdHasher<u32>>;
 
+/// Bundles the inputs `validate_field_pair` needs for one (existing, new) field
+/// comparison. Grouped to keep the function under clippy's argument-count limit
+/// and to make call sites read like a single logical "pair to validate".
+struct FieldPairCtx<'a, 's> {
+    existing_field: &'a Field<'s>,
+    field: &'a Field<'s>,
+    key: StringKey,
+    fields_mutually_exclusive: bool,
+    l_definition: &'a schema::definitions::Field,
+    r_definition: &'a schema::definitions::Field,
+}
+
 struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
     project_config: &'s ProjectConfig,
     fragment_cache: DashMap<StringKey, Arc<Fields<'s>>, intern::BuildIdHasher<u32>>,
-    fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
+    fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>, FxBuildHasher>,
     further_optimization: bool,
-    verified_fields_pair: DashSet<(PointerAddress, PointerAddress, bool)>,
+    verified_fields_pair: DashSet<(PointerAddress, PointerAddress, bool), FxBuildHasher>,
     _behavior: PhantomData<TBehavior>,
 }
 
@@ -80,9 +96,9 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             program,
             project_config,
             fragment_cache: Default::default(),
-            fields_cache: Default::default(),
+            fields_cache: DashMap::with_hasher(FxBuildHasher),
             further_optimization,
-            verified_fields_pair: Default::default(),
+            verified_fields_pair: DashSet::with_hasher(FxBuildHasher),
             _behavior: PhantomData::<B>,
         }
     }
@@ -128,24 +144,46 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             }
         }
 
+        let mut all_errors = vec![];
         let dummy_hashset = HashSet::new();
-        while let Some(visiting) = unclaimed_fragment_queue.pop_front() {
-            self.validate_and_collect_fragment(
-                program
-                    .fragment(visiting)
-                    .expect("fragment must have been registered"),
-            )?;
+        // Process the topology-ordered fragment queue one BFS level at a time.
+        // Within a level, every fragment has all its dependencies validated and
+        // cached (in `fragment_cache`, a DashMap), so the fragments at this
+        // level are independent of each other and can validate in parallel.
+        // Dependency-graph maintenance (queue updates) stays sequential — it's
+        // cheap and avoids needing concurrent `dag_spreading`.
+        while !unclaimed_fragment_queue.is_empty() {
+            let level: Vec<FragmentDefinitionName> = unclaimed_fragment_queue.drain(..).collect();
+            let level_errors: Vec<Diagnostic> = par_iter(&level)
+                .filter_map(|visiting| {
+                    self.validate_and_collect_fragment(
+                        program
+                            .fragment(*visiting)
+                            .expect("fragment must have been registered"),
+                    )
+                    .err()
+                })
+                .flatten()
+                .collect();
+            all_errors.extend(level_errors);
 
-            for used_by in dag_used_by.get(&visiting).unwrap_or(&dummy_hashset) {
-                // fragment "used_by" now can assume "...now" cached.
-                let entries = dag_spreading.entry(*used_by).or_default();
-                entries.remove(&visiting);
-                if entries.is_empty() {
-                    unclaimed_fragment_queue.push_back(*used_by);
+            for visiting in level {
+                for used_by in dag_used_by.get(&visiting).unwrap_or(&dummy_hashset) {
+                    // fragment "used_by" now can assume "...now" cached.
+                    let entries = dag_spreading.entry(*used_by).or_default();
+                    entries.remove(&visiting);
+                    if entries.is_empty() {
+                        unclaimed_fragment_queue.push_back(*used_by);
+                    }
                 }
             }
         }
-        Ok(())
+        if all_errors.is_empty() {
+            Ok(())
+        } else {
+            all_errors.sort_by_key(|d| d.location());
+            Err(all_errors)
+        }
     }
 
     fn validate_operation(&self, operation: &'s OperationDefinition) -> DiagnosticsResult<()> {
@@ -217,10 +255,22 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         if let Some(cached) = self.fragment_cache.get(&fragment.name.item.0) {
             return Ok(Arc::clone(&cached));
         }
-        let fields = Arc::new(self.validate_selections(&fragment.selections)?);
-        self.fragment_cache
-            .insert(fragment.name.item.0, Arc::clone(&fields));
-        Ok(fields)
+        match self.validate_selections(&fragment.selections) {
+            Ok(fields) => {
+                let fields = Arc::new(fields);
+                self.fragment_cache
+                    .insert(fragment.name.item.0, Arc::clone(&fields));
+                Ok(fields)
+            }
+            Err(errors) => {
+                // Cache empty fields to avoid redundant re-validation of this
+                // fragment by dependent fragments or operations.
+                let fields: Arc<Fields<'s>> = Arc::new(Default::default());
+                self.fragment_cache
+                    .insert(fragment.name.item.0, Arc::clone(&fields));
+                Err(errors)
+            }
+        }
     }
 
     fn validate_linked_field_selections(
@@ -247,25 +297,151 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         })
     }
 
-    fn validate_and_insert_field_selection(
+    /// Validates cross-compatibility between two Fields maps without mutating
+    /// either. Used when the merged result will be discarded, e.g. recursive
+    /// linked field sub-selection validation. Both maps are already
+    /// self-consistent, so we only need to check fields from `right` against
+    /// matching entries in `left`.
+    fn validate_fields_overlap(
         &self,
-        fields: &mut Fields<'s>,
-        field: &Field<'s>,
+        left: &Fields<'s>,
+        right: &Fields<'s>,
         parent_fields_mutually_exclusive: bool,
     ) -> DiagnosticsResult<()> {
-        let key = field.get_response_key(&self.program.schema);
-        if !fields.contains_key(&key) {
-            fields.entry(key).or_default().push(field.clone());
-            return Ok(());
-        }
+        validate_map(right.values().flatten(), |field| {
+            self.validate_field_overlap(left, field, parent_fields_mutually_exclusive)
+        })
+    }
 
+    fn ambiguous_field_type_error(
+        &self,
+        key: StringKey,
+        l_definition: &schema::definitions::Field,
+        r_definition: &schema::definitions::Field,
+        l_loc: Location,
+        r_loc: Location,
+    ) -> Diagnostic {
+        Diagnostic::error(
+            ValidationMessage::AmbiguousFieldType {
+                response_key: key,
+                l_name: l_definition.name.item,
+                r_name: r_definition.name.item,
+                l_type_string: self.program.schema.get_type_string(&l_definition.type_),
+                r_type_string: self.program.schema.get_type_string(&r_definition.type_),
+            },
+            l_loc,
+        )
+        .annotate("the other field", r_loc)
+    }
+
+    /// Validates a single (existing_field, field) pair for selection conflicts.
+    /// Pushes any validation errors into `errors`. Returns `Err` only for fatal
+    /// errors from recursive sub-selection validation (propagated with `?`).
+    fn validate_field_pair(
+        &self,
+        pair: FieldPairCtx<'_, 's>,
+        errors: &mut Vec<Diagnostic>,
+    ) -> DiagnosticsResult<()> {
+        let FieldPairCtx {
+            existing_field,
+            field,
+            key,
+            fields_mutually_exclusive,
+            l_definition,
+            r_definition,
+        } = pair;
+        match (existing_field, &field) {
+            (Field::LinkedField(l), Field::LinkedField(r)) => {
+                if !fields_mutually_exclusive
+                    && let Err(err) = self.validate_same_field(
+                        key,
+                        l_definition.name.item,
+                        r_definition.name.item,
+                        *l,
+                        *r,
+                    )
+                {
+                    errors.push(err);
+                };
+                if !fields_mutually_exclusive
+                    && let Err(err) = self.validate_match_conflict(key, l, r)
+                {
+                    errors.push(err);
+                }
+                if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
+                    let l_fields = self.validate_linked_field_selections(l)?;
+                    let r_fields = self.validate_linked_field_selections(r)?;
+
+                    if let Err(errs) = self.validate_fields_overlap(
+                        &l_fields,
+                        &r_fields,
+                        fields_mutually_exclusive,
+                    ) {
+                        errors.extend(errs);
+                    }
+                } else {
+                    errors.push(self.ambiguous_field_type_error(
+                        key,
+                        l_definition,
+                        r_definition,
+                        l.definition.location,
+                        r.definition.location,
+                    ));
+                }
+            }
+            (Field::ScalarField(l), Field::ScalarField(r)) => {
+                if !fields_mutually_exclusive {
+                    if let Err(err) = self.validate_same_field(
+                        key,
+                        l_definition.name.item,
+                        r_definition.name.item,
+                        *l,
+                        *r,
+                    ) {
+                        errors.push(err);
+                    };
+                } else if l_definition.type_ != r_definition.type_ {
+                    errors.push(self.ambiguous_field_type_error(
+                        key,
+                        l_definition,
+                        r_definition,
+                        l.definition.location,
+                        r.definition.location,
+                    ));
+                }
+            }
+            (existing_field, _) => {
+                errors.push(self.ambiguous_field_type_error(
+                    key,
+                    l_definition,
+                    r_definition,
+                    existing_field.loc(),
+                    field.loc(),
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Validates a field against all existing fields under its response key.
+    /// Returns `Ok(true)` if an exact match was found (field already exists),
+    /// `Ok(false)` if all pairs validated successfully, or `Err` on validation
+    /// errors.
+    fn validate_field_in_set(
+        &self,
+        existing: &[Field<'s>],
+        field: &Field<'s>,
+        key: StringKey,
+        parent_fields_mutually_exclusive: bool,
+    ) -> Result<bool, Vec<Diagnostic>> {
         let mut errors = vec![];
         let addr1 = field.pointer_address();
+        let mut validated_mutually_exclusive_pair = false;
 
-        for existing_field in fields.get(&key).unwrap() {
+        for existing_field in existing {
             if field == existing_field {
                 return if errors.is_empty() {
-                    Ok(())
+                    Ok(true)
                 } else {
                     Err(errors)
                 };
@@ -285,131 +461,92 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             let l_definition = existing_field.get_field_definition(&self.program.schema);
             let r_definition = field.get_field_definition(&self.program.schema);
 
-            let is_parent_fields_mutually_exclusive = || {
-                parent_fields_mutually_exclusive
-                    || l_definition.parent_type != r_definition.parent_type
-                        && matches!(
-                            (l_definition.parent_type, r_definition.parent_type),
-                            (Some(Type::Object(_)), Some(Type::Object(_)))
-                        )
-            };
-
-            match (existing_field, &field) {
-                (Field::LinkedField(l), Field::LinkedField(r)) => {
-                    let fields_mutually_exclusive = is_parent_fields_mutually_exclusive();
-                    if !fields_mutually_exclusive
-                        && let Err(err) = self.validate_same_field(
-                            key,
-                            l_definition.name.item,
-                            r_definition.name.item,
-                            *l,
-                            *r,
-                        )
-                    {
-                        errors.push(err);
-                    };
-                    if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
-                        let mut l_fields = self.validate_linked_field_selections(l)?;
-                        let r_fields = self.validate_linked_field_selections(r)?;
-
-                        if let Err(errs) = self.validate_and_merge_fields(
-                            Arc::make_mut(&mut l_fields),
-                            &r_fields,
-                            fields_mutually_exclusive,
-                        ) {
-                            errors.extend(errs);
-                        }
-                    } else {
-                        errors.push(
-                            Diagnostic::error(
-                                ValidationMessage::AmbiguousFieldType {
-                                    response_key: key,
-                                    l_name: l_definition.name.item,
-                                    r_name: r_definition.name.item,
-                                    l_type_string: self
-                                        .program
-                                        .schema
-                                        .get_type_string(&l_definition.type_),
-                                    r_type_string: self
-                                        .program
-                                        .schema
-                                        .get_type_string(&r_definition.type_),
-                                },
-                                l.definition.location,
-                            )
-                            .annotate("the other field", r.definition.location),
-                        );
-                    }
-                }
-                (Field::ScalarField(l), Field::ScalarField(r)) => {
-                    if !is_parent_fields_mutually_exclusive() {
-                        if let Err(err) = self.validate_same_field(
-                            key,
-                            l_definition.name.item,
-                            r_definition.name.item,
-                            *l,
-                            *r,
-                        ) {
-                            errors.push(err);
-                        };
-                    } else if l_definition.type_ != r_definition.type_ {
-                        errors.push(
-                            Diagnostic::error(
-                                ValidationMessage::AmbiguousFieldType {
-                                    response_key: key,
-                                    l_name: l_definition.name.item,
-                                    r_name: r_definition.name.item,
-                                    l_type_string: self
-                                        .program
-                                        .schema
-                                        .get_type_string(&l_definition.type_),
-                                    r_type_string: self
-                                        .program
-                                        .schema
-                                        .get_type_string(&r_definition.type_),
-                                },
-                                l.definition.location,
-                            )
-                            .annotate("the other field", r.definition.location),
-                        );
-                    }
-                }
-                (existing_field, _) => {
-                    errors.push(
-                        Diagnostic::error(
-                            ValidationMessage::AmbiguousFieldType {
-                                response_key: key,
-                                l_name: l_definition.name.item,
-                                r_name: r_definition.name.item,
-                                l_type_string: self
-                                    .program
-                                    .schema
-                                    .get_type_string(&l_definition.type_),
-                                r_type_string: self
-                                    .program
-                                    .schema
-                                    .get_type_string(&r_definition.type_),
-                            },
-                            existing_field.loc(),
-                        )
-                        .annotate("the other field", field.loc()),
+            let fields_mutually_exclusive = parent_fields_mutually_exclusive
+                || l_definition.parent_type != r_definition.parent_type
+                    && matches!(
+                        (l_definition.parent_type, r_definition.parent_type),
+                        (Some(Type::Object(_)), Some(Type::Object(_)))
                     );
-                }
+
+            if self.further_optimization
+                && fields_mutually_exclusive
+                && validated_mutually_exclusive_pair
+            {
+                self.verified_fields_pair
+                    .insert((addr1, addr2, parent_fields_mutually_exclusive));
+                continue;
             }
 
-            // Save the verified pair into cache. The same pair of fields can appear under different parent
-            // fields, and the validation rule differs according to `parent_fields_mutually_exclusive`.
+            self.validate_field_pair(
+                FieldPairCtx {
+                    existing_field,
+                    field,
+                    key,
+                    fields_mutually_exclusive,
+                    l_definition,
+                    r_definition,
+                },
+                &mut errors,
+            )?;
+
+            if fields_mutually_exclusive {
+                validated_mutually_exclusive_pair = true;
+            }
+
             if self.further_optimization {
                 self.verified_fields_pair
                     .insert((addr1, addr2, parent_fields_mutually_exclusive));
             }
         }
         if errors.is_empty() {
-            fields.entry(key).or_default().push(field.clone());
-            Ok(())
+            Ok(false)
         } else {
             Err(errors)
         }
+    }
+
+    /// Like `validate_and_insert_field_selection` but read-only: validates a
+    /// field against existing fields under the same response key without
+    /// inserting it. For linked field pairs, recurses via
+    /// `validate_fields_overlap` to avoid `Arc::make_mut` clones.
+    fn validate_field_overlap(
+        &self,
+        fields: &Fields<'s>,
+        field: &Field<'s>,
+        parent_fields_mutually_exclusive: bool,
+    ) -> DiagnosticsResult<()> {
+        let key = field.get_response_key(&self.program.schema);
+        let existing = match fields.get(&key) {
+            Some(existing) => existing,
+            None => return Ok(()),
+        };
+        self.validate_field_in_set(existing, field, key, parent_fields_mutually_exclusive)?;
+        Ok(())
+    }
+
+    fn validate_and_insert_field_selection(
+        &self,
+        fields: &mut Fields<'s>,
+        field: &Field<'s>,
+        parent_fields_mutually_exclusive: bool,
+    ) -> DiagnosticsResult<()> {
+        let key = field.get_response_key(&self.program.schema);
+        if !fields.contains_key(&key) {
+            fields.entry(key).or_default().push(field.clone());
+            return Ok(());
+        }
+
+        let already_exists = self.validate_field_in_set(
+            fields.get(&key).unwrap(),
+            field,
+            key,
+            parent_fields_mutually_exclusive,
+        )?;
+
+        if !already_exists {
+            fields.entry(key).or_default().push(field.clone());
+        }
+        Ok(())
     }
 
     fn validate_same_field<F: IRField>(
@@ -466,6 +603,65 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 (None, None) => Ok(()),
             }
         }
+    }
+
+    /// Check if two linked fields both have @match but with different matched
+    /// type sets.  When two fragments are composed in a query and both use
+    /// @match on the same field with different type configurations, the
+    /// resulting supported arguments or module selections will conflict.
+    fn validate_match_conflict(
+        &self,
+        response_key: StringKey,
+        l: &LinkedField,
+        r: &LinkedField,
+    ) -> Result<(), Diagnostic> {
+        let l_has_match = l
+            .directives
+            .iter()
+            .any(|d| d.name.item.0.lookup() == "match");
+        let r_has_match = r
+            .directives
+            .iter()
+            .any(|d| d.name.item.0.lookup() == "match");
+        if !l_has_match || !r_has_match {
+            return Ok(());
+        }
+
+        let l_types = Self::collect_match_types(self.program, &l.selections);
+        let r_types = Self::collect_match_types(self.program, &r.selections);
+
+        if l_types != r_types {
+            Err(Diagnostic::error(
+                ValidationMessage::MatchConflictUsedInMultiplePlaces { response_key },
+                l.definition.location,
+            )
+            .annotate("the other field", r.definition.location))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Collect the set of matched type conditions from a @match field's
+    /// selections.  Handles both pre-transform (FragmentSpread with @module)
+    /// and post-transform (InlineFragment with type_condition) IR.
+    fn collect_match_types(program: &Program, selections: &[Selection]) -> HashSet<Type> {
+        let mut types = HashSet::new();
+        for selection in selections {
+            match selection {
+                Selection::InlineFragment(f) => {
+                    if let Some(type_condition) = f.type_condition {
+                        types.insert(type_condition);
+                    }
+                }
+                Selection::FragmentSpread(spread) => {
+                    if let Some(fragment) = program.fragment(spread.fragment.item) {
+                        types.insert(fragment.type_condition);
+                    }
+                }
+                _ => {}
+            }
+        }
+        types
     }
 
     fn create_conflicting_fields_error(
@@ -659,4 +855,9 @@ enum ValidationMessage {
         "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them."
     )]
     StreamConflictUsedInMultiplePlaces { response_key: StringKey },
+
+    #[error(
+        "Field '{response_key}' is marked with @match in multiple places. Please use an alias to distinguish them."
+    )]
+    MatchConflictUsedInMultiplePlaces { response_key: StringKey },
 }

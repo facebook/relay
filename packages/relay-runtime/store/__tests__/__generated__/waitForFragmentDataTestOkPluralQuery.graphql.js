@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<16e86755f2cb3f0b4e3b0339da309900>>
+ * @generated SignedSource<<a835561c7aa4a3206acb3b4b36e310f0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { waitForFragmentDataTestOkPluralFragment$fragmentType } from "./waitForFragmentDataTestOkPluralFragment.graphql";
-export type waitForFragmentDataTestOkPluralQuery$variables = {||};
-export type waitForFragmentDataTestOkPluralQuery$data = {|
-  +nodes: ?ReadonlyArray<?{|
-    +$fragmentSpreads: waitForFragmentDataTestOkPluralFragment$fragmentType,
-  |}>,
-|};
-export type waitForFragmentDataTestOkPluralQuery = {|
+export type waitForFragmentDataTestOkPluralQuery$variables = {};
+export type waitForFragmentDataTestOkPluralQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: waitForFragmentDataTestOkPluralFragment$fragmentType,
+  }>,
+};
+export type waitForFragmentDataTestOkPluralQuery = {
   response: waitForFragmentDataTestOkPluralQuery$data,
   variables: waitForFragmentDataTestOkPluralQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

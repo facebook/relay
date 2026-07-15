@@ -37,6 +37,7 @@ impl Writer for FlowPrinter {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
             AST::Mixed => write!(&mut self.result, "unknown"),
+            AST::Empty => write!(&mut self.result, "empty"),
             AST::String => write!(&mut self.result, "string"),
             AST::StringLiteral(literal) => self.write_string_literal(**literal),
             AST::OtherTypename => self.write_other_string(),
@@ -225,15 +226,11 @@ impl FlowPrinter {
 
     fn write_object(&mut self, props: &[Prop], exact: bool) -> FmtResult {
         if props.is_empty() && exact {
-            write!(&mut self.result, "{{||}}")?;
+            write!(&mut self.result, "{{}}")?;
             return Ok(());
         }
 
-        if exact {
-            writeln!(&mut self.result, "{{|")?;
-        } else {
-            writeln!(&mut self.result, "{{")?;
-        }
+        writeln!(&mut self.result, "{{")?;
         self.indentation += 1;
 
         for prop in props {
@@ -259,7 +256,7 @@ impl FlowPrinter {
                         self.write_indentation()?;
                     }
                     if key_value_pair.read_only {
-                        write!(&mut self.result, "+")?;
+                        write!(&mut self.result, "readonly ")?;
                     }
                     write!(&mut self.result, "{}", key_value_pair.key)?;
                     if key_value_pair.optional {
@@ -293,11 +290,7 @@ impl FlowPrinter {
         }
         self.indentation -= 1;
         self.write_indentation()?;
-        if exact {
-            write!(&mut self.result, "|}}")?;
-        } else {
-            write!(&mut self.result, "}}")?;
-        }
+        write!(&mut self.result, "}}")?;
         Ok(())
     }
 
@@ -435,7 +428,7 @@ mod tests {
     fn exact_object() {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(Vec::new()))),
-            r"{||}".to_string()
+            r"{}".to_string()
         );
 
         assert_eq!(
@@ -447,9 +440,9 @@ mod tests {
                     value: AST::String,
                 }),
             ],))),
-            r"{|
+            r"{
   single: string,
-|}"
+}"
             .to_string()
         );
         assert_eq!(
@@ -467,10 +460,10 @@ mod tests {
                     value: AST::Number,
                 }),
             ],))),
-            r"{|
-  +bar: number,
+            r"{
+  readonly bar: number,
   foo?: string,
-|}"
+}"
             .to_string()
         );
     }
@@ -505,13 +498,13 @@ mod tests {
                     value: AST::Number,
                 }),
             ],))),
-            r"{|
-  +bar: number,
-  foo?: {|
+            r"{
+  readonly bar: number,
+  foo?: {
     nested_foo?: string,
-    +nested_foo2: number,
-  |},
-|}"
+    readonly nested_foo2: number,
+  },
+}"
             .to_string()
         );
     }
@@ -558,11 +551,80 @@ mod tests {
                 })
             ]))),
             r"{
-  +bar?: number,
+  readonly bar?: number,
   foo: string,
   ...
 }"
             .to_string()
+        );
+    }
+
+    #[test]
+    fn inexact_object_preserves_spread() {
+        assert_eq!(
+            print_type(&AST::InexactObject(InexactObject::new(vec![
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: intern!("foo"),
+                    optional: false,
+                    read_only: false,
+                    value: AST::String,
+                }),
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: intern!("bar"),
+                    optional: true,
+                    read_only: true,
+                    value: AST::Number,
+                })
+            ]))),
+            r"{
+  readonly bar?: number,
+  foo: string,
+  ...
+}"
+            .to_string()
+        );
+    }
+
+    #[test]
+    fn one_of_input_object() {
+        assert_eq!(
+            print_type(&AST::Union(SortedASTList::new(vec![
+                AST::ExactObject(ExactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("foo"),
+                        value: AST::String,
+                        read_only: false,
+                        optional: false
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("bar"),
+                        value: AST::Empty,
+                        read_only: false,
+                        optional: true
+                    })
+                ])),
+                AST::ExactObject(ExactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("foo"),
+                        value: AST::Empty,
+                        read_only: false,
+                        optional: true
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("bar"),
+                        value: AST::String,
+                        read_only: false,
+                        optional: false
+                    })
+                ]))
+            ]))),
+            r"{
+  bar?: empty,
+  foo: string,
+} | {
+  bar: string,
+  foo?: empty,
+}"
         );
     }
 
@@ -577,11 +639,11 @@ mod tests {
                     value: AST::OtherTypename,
                 })
             ],))),
-            r#"{|
+            r#"{
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   with_comment: "%other",
-|}"#
+}"#
             .to_string()
         );
     }

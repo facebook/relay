@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<963e33bfaa1a2c903b988d4f1455c813>>
+ * @generated SignedSource<<4345ed9e5b0697629142a175f8ebfc20>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType } from "./RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile.graphql";
-export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserQuery$variables = {||};
-export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType,
-  |},
-|};
-export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserQuery = {|
+export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserQuery$variables = {};
+export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType,
+  },
+};
+export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserQuery = {
   response: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserQuery$data,
   variables: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

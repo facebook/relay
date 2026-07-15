@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6304eeff1222743cdad625f6c0df6cb9>>
+ * @generated SignedSource<<7224b46cdbb1b888390443704cf9f08b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment.graphql";
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$variables = {|
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery = {
   response: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$data,
   variables: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

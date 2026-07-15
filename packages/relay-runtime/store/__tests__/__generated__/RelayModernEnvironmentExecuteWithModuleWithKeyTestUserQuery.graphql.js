@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8ebbdb531d7f3f8a83149a8db70b71a7>>
+ * @generated SignedSource<<3dc442a00834f0eea0bc693c29f40b2c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,37 +21,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name.graphql";
 import type { RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name.graphql";
-export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +nameRenderer: ?({|
-      +__typename: "MarkdownUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$fragmentType,
-    |} | {|
-      +__typename: "PlainUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType,
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$data,
   variables: RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

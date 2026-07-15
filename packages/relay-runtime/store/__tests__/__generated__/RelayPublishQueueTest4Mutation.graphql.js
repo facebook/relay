@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7687faa13be0ea647e2f511bdaf534e3>>
+ * @generated SignedSource<<5959e86444bdc45bebf974c6321e9be2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,23 +17,23 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type RelayPublishQueueTest4Mutation$variables = {|
+};
+export type RelayPublishQueueTest4Mutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type RelayPublishQueueTest4Mutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +lastName: ?string,
-    |},
-  |},
-|};
-export type RelayPublishQueueTest4Mutation = {|
+};
+export type RelayPublishQueueTest4Mutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly lastName: ?string,
+    },
+  },
+};
+export type RelayPublishQueueTest4Mutation = {
   response: RelayPublishQueueTest4Mutation$data,
   variables: RelayPublishQueueTest4Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

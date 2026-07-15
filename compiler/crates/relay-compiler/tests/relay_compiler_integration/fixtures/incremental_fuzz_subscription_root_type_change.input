@@ -1,0 +1,53 @@
+// expected-to-throw
+# Test: Changing subscription root type should trigger recompilation of subscriptions
+
+//- foo.js
+graphql`
+  subscription fooSubscription {
+    onUserChanged {
+      name
+    }
+  }
+`
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+schema {
+  query: Query
+  subscription: Subscription
+}
+
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+}
+
+type Subscription {
+  onUserChanged: User
+}
+
+//-++ schema.graphql
+schema {
+  query: Query
+  subscription: SubscriptionV2
+}
+
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+}
+
+type SubscriptionV2 {
+  onUserChanged: User
+}

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2c9f9e75558d3c7639e0b59a203e0a9d>>
+ * @generated SignedSource<<6957746fe777a23b9fc300c52b467b8f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -38,15 +37,15 @@ import {outer as queryOuterResolverType} from "../../../relay-runtime/store/__te
   args: void,
   context: TestResolverContextType,
 ) => ?number);
-export type LiveResolversTestNestedQuery$variables = {||};
-export type LiveResolversTestNestedQuery$data = {|
-  +inner: ?number,
-  +outer: ?number,
-|};
-export type LiveResolversTestNestedQuery = {|
+export type LiveResolversTestNestedQuery$variables = {};
+export type LiveResolversTestNestedQuery$data = {
+  readonly inner: ?number,
+  readonly outer: ?number,
+};
+export type LiveResolversTestNestedQuery = {
   response: LiveResolversTestNestedQuery$data,
   variables: LiveResolversTestNestedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

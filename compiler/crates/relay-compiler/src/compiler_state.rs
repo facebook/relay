@@ -26,7 +26,6 @@ use std::sync::Arc;
 use std::sync::RwLock;
 use std::vec;
 
-use bincode::Options;
 use common::PerfLogEvent;
 use common::PerfLogger;
 use common::SourceLocationKey;
@@ -348,6 +347,12 @@ pub struct CompilerState {
     pub source_control_update_status: Arc<SourceControlUpdateStatus>,
     #[serde(default)]
     pub compact_schemas: FnvHashMap<ProjectName, CompactSchemaSources>,
+    /// Cache of pre-parsed server schema ASTs, keyed by schema location path.
+    /// Populated before the parallel project build loop so that multiple projects
+    /// sharing the same schema source can reuse the parsed ASTs instead of
+    /// re-parsing the same SDL text independently.
+    #[serde(skip)]
+    pub parsed_server_asts_cache: FnvHashMap<PathBuf, Arc<Vec<graphql_syntax::SchemaDocument>>>,
 }
 
 /// Stringify a path such that it's stable across operating systems.
@@ -796,8 +801,18 @@ impl CompilerState {
                     }
                     FileSourceIntermediateResult::Generated(project_name, files) => {
                         if should_collect_changed_artifacts {
-                            self.dirty_artifact_paths
-                                .insert(project_name, files.into_iter().collect());
+                            let dirty_files: DashSet<PathBuf, FnvBuildHasher> = files
+                                .into_iter()
+                                .filter(|path| {
+                                    !config
+                                        .artifact_writer
+                                        .content_matches_last_write(&config.root_dir.join(path))
+                                })
+                                .collect();
+
+                            if !dirty_files.is_empty() {
+                                self.dirty_artifact_paths.insert(project_name, dirty_files);
+                            }
                         }
                     }
                     FileSourceIntermediateResult::Ignore => {}
@@ -903,12 +918,14 @@ impl CompilerState {
             })?
             .auto_finish();
 
-        let writer =
+        let mut writer =
             BufWriter::with_capacity(ZstdEncoder::<FsFile>::recommended_input_size(), writer);
-        bincode::serialize_into(writer, self).map_err(|err| Error::SerializationError {
-            file: path.clone(),
-            source: err,
-        })
+        bincode::serde::encode_into_std_write(self, &mut writer, bincode::config::legacy())
+            .map(|_| ())
+            .map_err(|err| Error::SerializationError {
+                file: path.clone(),
+                source: err,
+            })
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
@@ -922,7 +939,7 @@ impl CompilerState {
             source: err,
         })?;
 
-        let reader: Box<dyn std::io::Read> = if is_already_decompressed {
+        let mut reader: Box<dyn std::io::Read> = if is_already_decompressed {
             Box::new(BufReader::new(file))
         } else {
             let zstd_decoder = ZstdDecoder::new(file).map_err(|err| Error::ReadFileError {
@@ -935,24 +952,12 @@ impl CompilerState {
             ))
         };
 
-        let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT").map_or_else(
-            |_| 10_u64.pow(10), /* 10GB */
-            |limit| {
-                limit.parse::<u64>().expect(
-                    "Expected RELAY_SAVED_STATE_MEMORY_LIMIT environment variable to be a number.",
-                )
-            },
-        );
-
-        bincode::DefaultOptions::new()
-            .with_fixint_encoding()
-            .allow_trailing_bytes()
-            .with_limit(memory_limit)
-            .deserialize_from(reader)
-            .map_err(|err| Error::DeserializationError {
+        bincode::serde::decode_from_std_read(&mut reader, bincode::config::legacy()).map_err(
+            |err| Error::DeserializationError {
                 file: path.clone(),
                 source: err,
-            })
+            },
+        )
     }
 
     pub fn has_pending_file_source_changes(&self) -> bool {

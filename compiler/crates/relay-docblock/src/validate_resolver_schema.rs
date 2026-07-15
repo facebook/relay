@@ -15,8 +15,11 @@ use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
+use docblock_shared::RETURN_FRAGMENT_ARGUMENT_NAME;
 use errors::try_all;
 use errors::try3;
+use intern::string_key::StringKey;
+use relay_schema::definitions::is_server_value_object;
 use schema::Object;
 use schema::SDLSchema;
 use schema::Schema;
@@ -28,10 +31,15 @@ use crate::errors::SchemaValidationErrorMessages;
 pub fn validate_resolver_schema(
     schema: &SDLSchema,
     feature_flags: &FeatureFlags,
+    id_field_name: StringKey,
 ) -> DiagnosticsResult<()> {
     try3(
         validate_strong_resolver_types(schema),
-        validate_output_type_resolver_types(schema, &feature_flags.allow_output_type_resolvers),
+        validate_output_type_resolver_types(
+            schema,
+            &feature_flags.allow_output_type_resolvers,
+            id_field_name,
+        ),
         validate_mutation_resolvers(schema, feature_flags.enable_relay_resolver_mutations),
     )?;
 
@@ -56,6 +64,7 @@ fn validate_strong_resolver_types(schema: &SDLSchema) -> DiagnosticsResult<()> {
 fn validate_output_type_resolver_types(
     schema: &SDLSchema,
     allow_output_type_resolvers: &FeatureFlag,
+    id_field_name: StringKey,
 ) -> DiagnosticsResult<()> {
     try_all(schema.fields().map(|field| -> DiagnosticsResult<()> {
         if let Some(resolver_directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
@@ -64,12 +73,25 @@ fn validate_output_type_resolver_types(
                 .named(*HAS_OUTPUT_TYPE_ARGUMENT_NAME)
                 .is_some()
             {
+                // A shadow (`@returnFragment`) resolver returning a non-Node
+                // SERVER VALUE type is read INLINE in place off the transplanted
+                // record via its `__id`. It is force-tagged
+                // `@outputType` upstream (a non-strong object return), but it is a
+                // server type, not a client weak/output type, so the
+                // weak-required check does not apply.
+                let is_shadow_server_value_return = resolver_directive
+                    .arguments
+                    .named(*RETURN_FRAGMENT_ARGUMENT_NAME)
+                    .is_some()
+                    && is_server_value_object(schema, field.type_.inner(), id_field_name);
+
                 if let Some(obj_id) = field.type_.inner().get_object_id() {
                     if schema
                         .object(obj_id)
                         .directives
                         .named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE)
                         .is_none()
+                        && !is_shadow_server_value_return
                     {
                         if !allow_output_type_resolvers.is_enabled_for(field.name.item) {
                             return DiagnosticsResult::Err(vec![Diagnostic::error(

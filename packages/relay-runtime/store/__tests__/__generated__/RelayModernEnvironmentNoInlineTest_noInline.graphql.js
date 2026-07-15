@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8606d19a982904b27713af77732ba1bc>>
+ * @generated SignedSource<<e7d000b44608ec1d0d336183e151561d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,22 +20,16 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTest_inner$fragmentType } from "./RelayModernEnvironmentNoInlineTest_inner.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTest_noInline$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTest_noInline$data = {|
-  +__typename: "User",
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
-  +$fragmentType: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
-|};
+export type RelayModernEnvironmentNoInlineTest_noInline$data = {
+  readonly profile_picture?: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
+};
 export type RelayModernEnvironmentNoInlineTest_noInline$key = {
-  +$data?: RelayModernEnvironmentNoInlineTest_noInline$data,
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
+  readonly $data?: RelayModernEnvironmentNoInlineTest_noInline$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
   ...
 };
 */

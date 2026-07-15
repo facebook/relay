@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3e5171d85b343238dbd607e1d4692943>>
+ * @generated SignedSource<<9de01c76004aa94590519025acdbd33d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,14 +19,14 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayRefetchContainerTestUserFragment$fragmentType: FragmentType;
-export type ReactRelayRefetchContainerTestUserFragment$data = {|
-  +id: string,
-  +name?: ?string,
-  +$fragmentType: ReactRelayRefetchContainerTestUserFragment$fragmentType,
-|};
+export type ReactRelayRefetchContainerTestUserFragment$data = {
+  readonly id: string,
+  readonly name?: ?string,
+  readonly $fragmentType: ReactRelayRefetchContainerTestUserFragment$fragmentType,
+};
 export type ReactRelayRefetchContainerTestUserFragment$key = {
-  +$data?: ReactRelayRefetchContainerTestUserFragment$data,
-  +$fragmentSpreads: ReactRelayRefetchContainerTestUserFragment$fragmentType,
+  readonly $data?: ReactRelayRefetchContainerTestUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayRefetchContainerTestUserFragment$fragmentType,
   ...
 };
 */

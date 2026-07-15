@@ -1,0 +1,52 @@
+//- UserPageStats.js
+// Shadow resolver whose @returnFragment return type is a non-Node server VALUE
+// type (`PageStats`: no `id`, does NOT implement Node). A server value type
+// normalizes to `client:<parentid>:<field>` and has no DataID pointer to return
+// and no separate record to refetch, so the magic fragment must route to the
+// read-in-place INLINE arm: the edge is a `ClientEdgeToClientObject` with
+// `serverObjectOperations: null`, and the consumer's `likeCount` selection reads
+// inline off the TRANSPLANTED `page { stats { ... } }` record. The backing field
+// carries a `normalizationInfo.kind: "ServerWeak"` (NOT "OutputType" — no
+// `normalizationNode` is emitted, so LiveResolverCache does NOT re-normalize a
+// second copy). The injected identity selection on the shadowed field is `__id`
+// (the DataID/store key), NOT `id` (a value type has no `id`).
+/**
+ * @relayField User.page_stats: PageStats
+ * @rootFragment UserPageStatsResolverFragment
+ * @returnFragment UserPageStatsReturnFragment
+ */
+graphql`fragment UserPageStatsResolverFragment on User {
+  page {
+    stats {
+      ...UserPageStatsReturnFragment
+    }
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    page_stats {
+      likeCount
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" },
+    "enable_resolver_normalization_ast": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String, stats: PageStats }
+type PageStats { likeCount: Int }

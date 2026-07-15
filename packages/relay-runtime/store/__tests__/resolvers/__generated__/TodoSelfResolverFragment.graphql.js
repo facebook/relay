@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<60bacd344c17362bd3f3edc2641e8f5b>>
+ * @generated SignedSource<<4f4f16c4c6950dd123030657bd73ee03>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TodoSelfResolverFragment$fragmentType: FragmentType;
-export type TodoSelfResolverFragment$data = {|
-  +todo_id: string,
-  +$fragmentType: TodoSelfResolverFragment$fragmentType,
-|};
+export type TodoSelfResolverFragment$data = {
+  readonly todo_id: string,
+  readonly $fragmentType: TodoSelfResolverFragment$fragmentType,
+};
 export type TodoSelfResolverFragment$key = {
-  +$data?: TodoSelfResolverFragment$data,
-  +$fragmentSpreads: TodoSelfResolverFragment$fragmentType,
+  readonly $data?: TodoSelfResolverFragment$data,
+  readonly $fragmentSpreads: TodoSelfResolverFragment$fragmentType,
   ...
 };
 */

@@ -2,6 +2,9 @@ name: Publish Relay VS Code Extension
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   vscode-release:
     name: VSCode Extension Release

@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# Deeply nested linked fields with a conflict in the leaf subselection.
+query TestQuery {
+  me {
+    author {
+      profile_picture {
+        same_alias: width
+      }
+    }
+  }
+  me {
+    author {
+      profile_picture {
+        same_alias: height
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'width' and 'height'
+
+  linked-field-deeply-nested-conflict.graphql:7:21
+    6 │       profile_picture {
+    7 │         same_alias: width
+      │                     ^^^^^
+    8 │       }
+
+  ℹ︎ the other field
+
+  linked-field-deeply-nested-conflict.graphql:14:21
+   13 │       profile_picture {
+   14 │         same_alias: height
+      │                     ^^^^^^
+   15 │       }

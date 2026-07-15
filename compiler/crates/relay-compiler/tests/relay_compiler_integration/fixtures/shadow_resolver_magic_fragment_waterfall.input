@@ -1,0 +1,63 @@
+//- UserCombinedPage.js
+// The resolver declares `@mayWaterfall` (it may return a pointer to a different
+// server object), so every consumer must acknowledge the possible cross-object
+// refetch with `@waterfall`. `@waterfall` keeps BOTH arms of a shadow-resolver
+// server return, because they are complementary rather than mutually exclusive:
+//   1. the main-operation transplant (the consumer's `title` is spliced onto the
+//      shadowed `page` field, see the `UserConsumerQuery` operation `text`
+//      below) — the COMMON case, where the resolver's pointer targets the same
+//      record `page` navigates to, is then served entirely from the store with
+//      no network roundtrip; and
+//   2. a generated `ClientEdgeQuery` backstop (wired via `serverObjectOperations`)
+//      — the DRAFT case, where the pointer targets a DIFFERENT server object
+//      absent from the store, triggers the runtime's client-edge availability
+//      check and refetches.
+// The runtime selects between them per read based on what is in the store, so
+// the transplant must NOT be suppressed under `@waterfall` (regression guard: a
+// re-added skip-guard would drop `title` from the main operation below).
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ * @mayWaterfall
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page @waterfall {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

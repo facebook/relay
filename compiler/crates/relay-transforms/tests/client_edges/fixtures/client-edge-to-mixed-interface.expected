@@ -43,7 +43,7 @@ fragment Foo_user on User {
   #     unique_id: 0,
   #     model_resolvers: [
   #         ClientEdgeModelResolver {
-  #             model_field_id: FieldID(531),
+  #             model_field_id: FieldID(534),
   #             type_name: WithLocation {
   #                 location: <generated>:68:78,
   #                 item: ObjectName(
@@ -71,6 +71,7 @@ fragment Foo_user on User {
   #                 type_confirmed: false,
   #                 resolver_type: ResolverModule,
   #                 return_fragment: None,
+  #                 may_waterfall: false,
   #             },
   #         },
   #     ],
@@ -88,12 +89,13 @@ fragment Foo_user on User {
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(532),
+    #     field_id: FieldID(535),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,
     #     field_path: "best_friend",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: false,
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,

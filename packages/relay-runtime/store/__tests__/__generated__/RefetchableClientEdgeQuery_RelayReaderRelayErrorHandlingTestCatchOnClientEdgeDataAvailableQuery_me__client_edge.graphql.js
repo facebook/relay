@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bf64cc8069932ba008e431b0e83699ec>>
+ * @generated SignedSource<<68e63bf1d5a6761fc7fd7a28de726682>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery_me__client_edge$variables = any;
-export type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery_me__client_edge$data = {|
-  +firstName: ?string,
-  +id: string,
-  +$fragmentType: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery_me__client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery_me__client_edge$data = {
+  readonly firstName: ?string,
+  readonly id: string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery_me__client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery_me__client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery_me__client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery_me__client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery_me__client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeDataAvailableQuery_me__client_edge$fragmentType,
   ...
 };
 */

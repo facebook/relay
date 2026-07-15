@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<984b72363f1562fb67037c5a7b76f244>>
+ * @generated SignedSource<<caa3b3194718a4d0f7d57c75ca34d313>>
  */
 
 mod operation_printer;
@@ -31,6 +31,13 @@ async fn query_variables() {
     let input = include_str!("operation_printer/fixtures/query-variables.graphql");
     let expected = include_str!("operation_printer/fixtures/query-variables.expected");
     test_fixture(transform_fixture, file!(), "query-variables.graphql", "operation_printer/fixtures/query-variables.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_conditional_fragment_spreads() {
+    let input = include_str!("operation_printer/fixtures/query-with-conditional-fragment-spreads.graphql");
+    let expected = include_str!("operation_printer/fixtures/query-with-conditional-fragment-spreads.expected");
+    test_fixture(transform_fixture, file!(), "query-with-conditional-fragment-spreads.graphql", "operation_printer/fixtures/query-with-conditional-fragment-spreads.expected", input, expected).await;
 }
 
 #[tokio::test]

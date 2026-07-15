@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9045d7b31e27a0259038d1d8d18344a1>>
+ * @generated SignedSource<<3d5e436e0402d25939d68f1133805bcd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,24 +18,24 @@
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment.graphql";
-export type CommentCreateSubscriptionInput = {|
+export type CommentCreateSubscriptionInput = {
   feedbackId?: ?string,
   text?: ?string,
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables = {|
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables = {
   input: CommentCreateSubscriptionInput,
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data = {|
-  +commentCreateSubscribe: ?{|
-    +feedback: ?{|
-      +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription = {|
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data = {
+  readonly commentCreateSubscribe: ?{
+    readonly feedback: ?{
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription = {
   response: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data,
   variables: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -92,6 +92,7 @@ Field(
             ),
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: module.js:312:315,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
@@ -152,6 +153,7 @@ Field(
             ),
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: module.js:404:409,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

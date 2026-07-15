@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# `extend input` requires directives or fields per the spec.
+input Foo { a: Int }
+
+extend input Foo
+==================================== ERROR ====================================
+✖︎ Input object extension should define one of directives or fields.
+
+  input_object_extension_empty.graphql:5:14
+    4 │ 
+    5 │ extend input Foo
+      │              ^^^

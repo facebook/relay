@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<159ff1bb4d38cdcccb2f776ed7e2c93a>>
+ * @generated SignedSource<<f6b8045690bcaffe95bd5031e2642ba7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,18 +19,18 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { ResolverTest2Fragment$fragmentType } from "./ResolverTest2Fragment.graphql";
-export type ResolverTest1FragmentRefetchableQuery$variables = {|
+export type ResolverTest1FragmentRefetchableQuery$variables = {
   id: string,
-|};
-export type ResolverTest1FragmentRefetchableQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: ResolverTest2Fragment$fragmentType,
-  |},
-|};
-export type ResolverTest1FragmentRefetchableQuery = {|
+};
+export type ResolverTest1FragmentRefetchableQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: ResolverTest2Fragment$fragmentType,
+  },
+};
+export type ResolverTest1FragmentRefetchableQuery = {
   response: ResolverTest1FragmentRefetchableQuery$data,
   variables: ResolverTest1FragmentRefetchableQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -31,7 +31,13 @@ extend type Query {
 ==================================== OUTPUT ===================================
 fragment inlineFragmentNoTypeWithoutResolverSelectionsOnInterfaceFragment on Cat {
   ... {
-    description
-    name
+    ... on Tabby {
+      description
+      name
+    }
+    ... on Persian {
+      description
+      name
+    }
   }
 }

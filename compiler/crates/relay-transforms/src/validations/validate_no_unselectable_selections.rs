@@ -6,6 +6,7 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::ArgumentName;
 use common::Diagnostic;
@@ -17,7 +18,6 @@ use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Validator;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
 use schema::FieldID;
 use schema::SDLSchema;
@@ -25,9 +25,7 @@ use schema::Schema;
 
 use crate::ValidationMessage;
 
-lazy_static! {
-    static ref ARGUMENT_REASON: ArgumentName = ArgumentName("reason".intern());
-}
+static ARGUMENT_REASON: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName("reason".intern()));
 
 pub fn validate_no_unselectable_selections(
     program: &Program,

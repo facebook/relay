@@ -41,9 +41,9 @@ export type QueryResource = QueryResourceImpl;
 
 type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {
-  +id: number,
-  +cacheIdentifier: string,
-  +operationAvailability: ?OperationAvailability,
+  readonly id: number,
+  readonly cacheIdentifier: string,
+  readonly operationAvailability: ?OperationAvailability,
   // The number of received payloads for the operation.
   // We want to differentiate the initial graphql response for the operation
   // from the incremental responses, so later we can choose how to handle errors

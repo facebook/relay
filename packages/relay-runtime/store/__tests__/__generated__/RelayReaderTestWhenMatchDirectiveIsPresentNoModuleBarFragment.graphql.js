@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f2fe86f3756a46b719ea83a6f406881>>
+ * @generated SignedSource<<28edd5e8928f8efcb2910c96ae9fb760>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,28 +23,18 @@ import type { RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserName
 import type { RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType } from "./RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType: FragmentType;
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data = {|
-  +id: string,
-  +nameRenderer: ?({|
-    +__typename: "MarkdownUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType,
-  |} | {|
-    +__typename: "PlainUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
-|};
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType & RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
+};
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$key = {
-  +$data?: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data,
-  +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
+  readonly $data?: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data,
+  readonly $fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
   ...
 };
 */

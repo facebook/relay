@@ -50,8 +50,7 @@ function requestIsLiveQuery<
   },
 >(
   preloadableRequest:
-    | Query<TVariables, TData, TRawResponse>
-    | PreloadableConcreteRequest<TQuery>,
+    Query<TVariables, TData, TRawResponse> | PreloadableConcreteRequest<TQuery>,
 ): boolean {
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
     return preloadableRequest.params.metadata.live !== undefined;
@@ -172,9 +171,7 @@ hook useQueryLoader_EXPERIMENTAL<
     function disposeAllRemainingQueryReferences(
       preloadableRequest: Query<TVariables, TData, TRawResponse>,
       currentQueryReference:
-        | PreloadedQuery<QueryType>
-        | NullQueryReference
-        | null,
+        PreloadedQuery<QueryType> | NullQueryReference | null,
     ) {
       const undisposedQueryReferences =
         undisposedQueryReferencesRef.current ?? new Set();

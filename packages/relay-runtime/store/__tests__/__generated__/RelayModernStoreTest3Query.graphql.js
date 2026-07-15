@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c97636cf1c6ef848d38f5e984dee4aa1>>
+ * @generated SignedSource<<c092a8d6f5ca2fd09a4aee95acf68154>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernStoreTest3Fragment$fragmentType } from "./RelayModernStoreTest3Fragment.graphql";
-export type RelayModernStoreTest3Query$variables = {|
+export type RelayModernStoreTest3Query$variables = {
   size?: ?ReadonlyArray<?number>,
-|};
-export type RelayModernStoreTest3Query$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayModernStoreTest3Fragment$fragmentType,
-  |},
-|};
-export type RelayModernStoreTest3Query = {|
+};
+export type RelayModernStoreTest3Query$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayModernStoreTest3Fragment$fragmentType,
+  },
+};
+export type RelayModernStoreTest3Query = {
   response: RelayModernStoreTest3Query$data,
   variables: RelayModernStoreTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9d0481774354f7c660c269a5b449cbd9>>
+ * @generated SignedSource<<3d6e219b79028025af535defa6ac45c6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,9 +24,9 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryLiveTodoDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveTodoDescriptionResolverType as (
-  args: {|
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => LiveState<?TodoDescription>);
 import {live_color as todoDescriptionLiveColorResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
@@ -47,19 +46,19 @@ import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/st
   context: TestResolverContextType,
 ) => ?string);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
-export type RelayResolverModelTestWeakLiveColorFieldQuery$variables = {|
+export type RelayResolverModelTestWeakLiveColorFieldQuery$variables = {
   id: string,
-|};
-export type RelayResolverModelTestWeakLiveColorFieldQuery$data = {|
-  +live_todo_description: ?{|
-    +live_color: ?ReturnType<ReturnType<typeof todoDescriptionLiveColorResolverType>["read"]>,
-    +text: ?string,
-  |},
-|};
-export type RelayResolverModelTestWeakLiveColorFieldQuery = {|
+};
+export type RelayResolverModelTestWeakLiveColorFieldQuery$data = {
+  readonly live_todo_description: ?{
+    readonly live_color: ?ReturnType<ReturnType<typeof todoDescriptionLiveColorResolverType>["read"]>,
+    readonly text: ?string,
+  },
+};
+export type RelayResolverModelTestWeakLiveColorFieldQuery = {
   response: RelayResolverModelTestWeakLiveColorFieldQuery$data,
   variables: RelayResolverModelTestWeakLiveColorFieldQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cc98b38cfac486a4d0fa1119080ba5e9>>
+ * @generated SignedSource<<361529a16d574c61ceb6958014672906>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,28 +23,18 @@ import type { RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$fragmentTyp
 import type { RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType } from "./RelayReferenceMarkerTest2PlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReferenceMarkerTest4Fragment$fragmentType: FragmentType;
-export type RelayReferenceMarkerTest4Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?({|
-    +__typename: "MarkdownUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$fragmentType,
-  |} | {|
-    +__typename: "PlainUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: RelayReferenceMarkerTest4Fragment$fragmentType,
-|};
+export type RelayReferenceMarkerTest4Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$fragmentType & RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayReferenceMarkerTest4Fragment$fragmentType,
+};
 export type RelayReferenceMarkerTest4Fragment$key = {
-  +$data?: RelayReferenceMarkerTest4Fragment$data,
-  +$fragmentSpreads: RelayReferenceMarkerTest4Fragment$fragmentType,
+  readonly $data?: RelayReferenceMarkerTest4Fragment$data,
+  readonly $fragmentSpreads: RelayReferenceMarkerTest4Fragment$fragmentType,
   ...
 };
 */

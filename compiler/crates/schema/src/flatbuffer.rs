@@ -186,12 +186,17 @@ impl<'fb> FlatBufferSchema<'fb> {
             .iter()
             .map(get_mapped_location)
             .collect::<Vec<_>>();
+        let directives = match directive.directives() {
+            Some(dirs) => self.parse_directive_values(dirs)?,
+            None => Vec::new(),
+        };
         let parsed_directive = Directive {
             name: WithLocation::generated(DirectiveName(directive.name()?.intern())),
             is_extension: directive.is_extension(),
             arguments: self.parse_arguments(directive.arguments()?)?,
             locations,
             repeatable: directive.repeatable(),
+            directives,
             description: None,
             hack_source: None,
         };
@@ -615,6 +620,7 @@ fn get_mapped_location(location: schema_flatbuffer::DirectiveLocation) -> Direct
         FDL::InputObject => DL::InputObject,
         FDL::InputFieldDefinition => DL::InputFieldDefinition,
         FDL::VariableDefinition => DL::VariableDefinition,
+        FDL::DirectiveDefinition => DL::DirectiveDefinition,
         unknown => panic!("unknown DirectiveLocation value: {unknown:?}"),
     }
 }
@@ -680,6 +686,41 @@ mod tests {
             fb_schema
                 .read_directive(DirectiveName("zzzz".intern()))
                 .is_none()
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn directive_applied_directives_round_trip() -> DiagnosticsResult<()> {
+        let sdl = "
+        directive @bar on DIRECTIVE_DEFINITION
+        directive @foo @bar on FIELD
+
+        type Query { id: ID }
+        ";
+        let sdl_schema = build_schema(sdl)?;
+        let bytes = serialize_as_flatbuffer(&sdl_schema);
+        let fb_schema = FlatBufferSchema::build(&bytes);
+
+        let foo = fb_schema
+            .read_directive(DirectiveName("foo".intern()))
+            .expect("@foo should be present in the flatbuffer schema");
+        let applied: Vec<&str> = foo.directives.iter().map(|d| d.name.0.lookup()).collect();
+        assert_eq!(
+            applied,
+            vec!["bar"],
+            "applied directives on @foo should round-trip through the flatbuffer format"
+        );
+
+        // A directive declared `on DIRECTIVE_DEFINITION` should also round-trip.
+        let bar = fb_schema
+            .read_directive(DirectiveName("bar".intern()))
+            .expect("@bar should be present in the flatbuffer schema");
+        assert!(
+            bar.locations
+                .contains(&DirectiveLocation::DirectiveDefinition),
+            "@bar should keep its DIRECTIVE_DEFINITION location"
         );
 
         Ok(())

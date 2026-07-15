@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<478ac8059fd68db50cb354f2b02dea37>>
+ * @generated SignedSource<<4db489a191a6b515dc8ffbfef5ccd373>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,13 +29,13 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   context: TestResolverContextType,
 ) => ?number);
 declare export opaque type UserConstantDependentResolver$fragmentType: FragmentType;
-export type UserConstantDependentResolver$data = {|
-  +constant: ?number,
-  +$fragmentType: UserConstantDependentResolver$fragmentType,
-|};
+export type UserConstantDependentResolver$data = {
+  readonly constant: ?number,
+  readonly $fragmentType: UserConstantDependentResolver$fragmentType,
+};
 export type UserConstantDependentResolver$key = {
-  +$data?: UserConstantDependentResolver$data,
-  +$fragmentSpreads: UserConstantDependentResolver$fragmentType,
+  readonly $data?: UserConstantDependentResolver$data,
+  readonly $fragmentSpreads: UserConstantDependentResolver$fragmentType,
   ...
 };
 */

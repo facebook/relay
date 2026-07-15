@@ -1,0 +1,23 @@
+query ExampleQuery @raw_response_type {
+  maybeNode {
+    __typename
+    ... on MaybeNodeInterface {
+      name
+      ... on FeedUnit {
+        tracking
+      }
+    }
+    ... on Story {
+      body {
+        text
+      }
+    }
+    ... on NonNodeNoID {
+      name
+    }
+  }
+}
+
+%extensions%
+
+extend union MaybeNode = NonNodeNoID

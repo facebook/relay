@@ -89,6 +89,7 @@ Field(
                 },
             ),
             live: None,
+            may_waterfall: None,
             location: module.js:162:167,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
@@ -175,6 +176,7 @@ Field(
                 },
             ),
             live: None,
+            may_waterfall: None,
             location: module.js:245:255,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
@@ -259,6 +261,7 @@ Field(
                 },
             ),
             live: None,
+            may_waterfall: None,
             location: module.js:119:123,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
@@ -335,6 +338,7 @@ Field(
                 },
             ),
             live: None,
+            may_waterfall: None,
             location: module.js:286:296,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

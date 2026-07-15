@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<05e416f51acf5c03d2d7db3aed1e0417>>
+ * @generated SignedSource<<996ccb250842939d00dca93833d399c6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -37,16 +36,16 @@ import {base_counter_context as queryBaseCounterContextResolverType} from "../..
   context: TestResolverContextType,
 ) => LiveState<?BaseCounter>);
 import type { BaseCounter } from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterContextResolver.js";
-export type LiveResolversTestCounterContextBaseQuery$variables = {||};
-export type LiveResolversTestCounterContextBaseQuery$data = {|
-  +base_counter_context: ?{|
-    +count_plus_one: ?number,
-  |},
-|};
-export type LiveResolversTestCounterContextBaseQuery = {|
+export type LiveResolversTestCounterContextBaseQuery$variables = {};
+export type LiveResolversTestCounterContextBaseQuery$data = {
+  readonly base_counter_context: ?{
+    readonly count_plus_one: ?number,
+  },
+};
+export type LiveResolversTestCounterContextBaseQuery = {
   response: LiveResolversTestCounterContextBaseQuery$data,
   variables: LiveResolversTestCounterContextBaseQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

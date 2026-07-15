@@ -24,40 +24,40 @@ fragment Assignable_page on Page @assignable {
 ==================================== OUTPUT ===================================
 import type { Assignable_page$fragmentType } from "Assignable_page.graphql";
 import type { Assignable_user$fragmentType } from "Assignable_user.graphql";
-export type UpdatableQuery$variables = {||};
-export type UpdatableQuery$data = {|
-  get me(): ?{|
-    get actor(): ?({|
-      +__typename: "Page",
-      get Assignable_page(): ?{||},
+export type UpdatableQuery$variables = {};
+export type UpdatableQuery$data = {
+  get me(): ?{
+    get actor(): ?({
+      readonly __typename: "Page",
+      get Assignable_page(): ?{},
       set Assignable_page(value: ?{
-        +__typename: "Page",
-        +__id: string,
-        +$fragmentSpreads: Assignable_page$fragmentType,
+        readonly __typename: "Page",
+        readonly __id: string,
+        readonly $fragmentSpreads: Assignable_page$fragmentType,
         ...
       }): void,
-    |} | {|
-      +__typename: "User",
-      get Assignable_user(): ?{||},
+    } | {
+      readonly __typename: "User",
+      get Assignable_user(): ?{},
       set Assignable_user(value: ?{
-        +__typename: "User",
-        +__id: string,
-        +$fragmentSpreads: Assignable_user$fragmentType,
+        readonly __typename: "User",
+        readonly __id: string,
+        readonly $fragmentSpreads: Assignable_user$fragmentType,
         ...
       }): void,
-    |} | {|
+    } | {
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
+      readonly __typename: "%other",
+    }),
     set actor(value: null | void): void,
-  |},
+  },
   set me(value: null | void): void,
-|};
-export type UpdatableQuery = {|
+};
+export type UpdatableQuery = {
   response: UpdatableQuery$data,
   variables: UpdatableQuery$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_page$fragmentType: FragmentType;

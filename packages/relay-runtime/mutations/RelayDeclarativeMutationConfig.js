@@ -78,9 +78,7 @@ type NodeDeleteConfig = {
 };
 
 export type DeclarativeMutationConfig =
-  | RangeAddConfig
-  | RangeDeleteConfig
-  | NodeDeleteConfig;
+  RangeAddConfig | RangeDeleteConfig | NodeDeleteConfig;
 
 function convert<TMutation extends MutationParameters>(
   configs: Array<DeclarativeMutationConfig>,

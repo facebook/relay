@@ -47,6 +47,13 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
   const packageJson = require(path.join(packagePath, 'package.json'));
   const packageName = path.basename(packagePath);
 
+  // relay-e2e-test uses intentionally different dependency versions
+  // (React 19 stable, graphql-experimental, grats, etc.) and manages
+  // its own node_modules via a separate yarn install.
+  if (packageName === 'relay-e2e-test') {
+    return errors;
+  }
+
   expectEqual(
     errors,
     packageJson.name,

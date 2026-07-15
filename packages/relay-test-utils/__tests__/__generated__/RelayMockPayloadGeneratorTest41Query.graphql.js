@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7f17cbffd760a37ab7cd2d575bc08021>>
+ * @generated SignedSource<<89d869c033f1a544923541ac7dcb0d6f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,22 +18,17 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type Environment = "MOBILE" | "WEB" | "%future added value";
-export type RelayMockPayloadGeneratorTest41Query$variables = {||};
-export type RelayMockPayloadGeneratorTest41Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +environment: ?Environment,
-    +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayMockPayloadGeneratorTest41Query = {|
+export type RelayMockPayloadGeneratorTest41Query$variables = {};
+export type RelayMockPayloadGeneratorTest41Query$data = {
+  readonly node: ?{
+    readonly environment?: ?Environment,
+    readonly id?: string,
+  },
+};
+export type RelayMockPayloadGeneratorTest41Query = {
   response: RelayMockPayloadGeneratorTest41Query$data,
   variables: RelayMockPayloadGeneratorTest41Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+fragment UserFragment on User {
+  name
+}
+
+fragment ActorFragment on Actor {
+  id
+}
+
+query MyQuery($id: ID, $cond: Boolean!) {
+  node(id: $id) {
+    ...UserFragment @include(if: $cond)
+    ...ActorFragment @skip(if: $cond)
+  }
+}
+==================================== OUTPUT ===================================
+query MyQuery(
+  $id: ID
+  $cond: Boolean!
+) {
+  node(id: $id) {
+    ...UserFragment @include(if: $cond)
+    ...ActorFragment @skip(if: $cond)
+  }
+}
+
+fragment ActorFragment on Actor {
+  id
+}
+
+fragment UserFragment on User {
+  name
+}

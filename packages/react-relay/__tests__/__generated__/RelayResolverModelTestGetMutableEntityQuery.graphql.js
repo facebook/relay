@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bd0235ab778287458c1b86e550bd6b5e>>
+ * @generated SignedSource<<c949449f4d5f3c942a17270d11bff40f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -27,14 +26,14 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?unknown>);
-export type RelayResolverModelTestGetMutableEntityQuery$variables = {||};
-export type RelayResolverModelTestGetMutableEntityQuery$data = {|
-  +mutable_entity: ?ReturnType<ReturnType<typeof queryMutableEntityResolverType>["read"]>,
-|};
-export type RelayResolverModelTestGetMutableEntityQuery = {|
+export type RelayResolverModelTestGetMutableEntityQuery$variables = {};
+export type RelayResolverModelTestGetMutableEntityQuery$data = {
+  readonly mutable_entity: ?ReturnType<ReturnType<typeof queryMutableEntityResolverType>["read"]>,
+};
+export type RelayResolverModelTestGetMutableEntityQuery = {
   response: RelayResolverModelTestGetMutableEntityQuery$data,
   variables: RelayResolverModelTestGetMutableEntityQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

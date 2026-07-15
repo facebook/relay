@@ -86,7 +86,7 @@ test('Throws if a @required(action: THROW) field is null', () => {
       componentDisplayName,
     );
   }).toThrowError(
-    "Relay: Missing @required value at path 'name' in 'FragmentResourceRequiredFieldTestUserFragment'.",
+    "Relay: Missing @required value at path 'name' in 'FragmentResourceRequiredFieldTestUserFragment': the server returned null.",
   );
 });
 
@@ -111,7 +111,9 @@ test('Logs if a @required(action: LOG) field is null', () => {
     componentDisplayName,
   );
   expect(relayFieldLogger).toHaveBeenCalledWith({
+    fieldError: null,
     fieldPath: 'alternate_name',
+    fieldValue: null,
     kind: 'missing_required_field.log',
     owner: 'FragmentResourceRequiredFieldTestUserFragment',
   });
@@ -170,11 +172,13 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
       componentDisplayName,
     ),
   ).toThrowError(
-    "Relay: Missing @required value at path 'name' in 'FragmentResourceRequiredFieldTestUserFragment'.",
+    "Relay: Missing @required value at path 'name' in 'FragmentResourceRequiredFieldTestUserFragment': the server returned null.",
   );
 
   expect(relayFieldLogger).toHaveBeenCalledWith({
+    fieldError: null,
     fieldPath: 'name',
+    fieldValue: null,
     kind: 'missing_required_field.throw',
     owner: 'FragmentResourceRequiredFieldTestUserFragment',
     handled: false,
@@ -220,6 +224,6 @@ it('should throw promise if reading missing data and network request for parent 
   expect(() =>
     FragmentResource.read(UserFragment, fragmentRef, componentDisplayName),
   ).toThrowError(
-    "Relay: Missing @required value at path 'name' in 'FragmentResourceRequiredFieldTestUserFragment'.",
+    "Relay: Missing @required value at path 'name' in 'FragmentResourceRequiredFieldTestUserFragment': the server returned null.",
   );
 });

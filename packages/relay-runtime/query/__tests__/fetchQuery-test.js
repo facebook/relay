@@ -268,7 +268,9 @@ describe('fetchQuery with missing @required value', () => {
     subscription.unsubscribe();
     expect(observer.next).toHaveBeenCalledWith({me: null});
     expect(relayFieldLogger).toHaveBeenCalledWith({
+      fieldError: null,
       fieldPath: 'me.name',
+      fieldValue: null,
       kind: 'missing_required_field.log',
       owner: 'fetchQueryTest2Query',
     });
@@ -300,14 +302,16 @@ describe('fetchQuery with missing @required value', () => {
     });
     subscription.unsubscribe();
     expect(relayFieldLogger).toHaveBeenCalledWith({
+      fieldError: null,
       fieldPath: 'me.name',
+      fieldValue: null,
       kind: 'missing_required_field.throw',
       owner: 'fetchQueryTest3Query',
       handled: false,
     });
     expect(observer.error).toHaveBeenCalledWith(
       Error(
-        "Relay: Missing @required value at path 'me.name' in 'fetchQueryTest3Query'.",
+        "Relay: Missing @required value at path 'me.name' in 'fetchQueryTest3Query': the server returned null.",
       ),
     );
     expect(observer.next).not.toHaveBeenCalled();

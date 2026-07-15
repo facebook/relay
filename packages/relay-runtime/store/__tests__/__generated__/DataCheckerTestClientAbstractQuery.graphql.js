@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d1e0d70fe7258fb7efd01ff366508cda>>
+ * @generated SignedSource<<b51322e027b2f57fd37984e72c194604>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,29 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataCheckerTestClientInterface$fragmentType } from "./DataCheckerTestClientInterface.graphql";
-export type DataCheckerTestClientAbstractQuery$variables = {||};
-export type DataCheckerTestClientAbstractQuery$data = {|
-  +client_interface: ?{|
-    +$fragmentSpreads: DataCheckerTestClientInterface$fragmentType,
-  |},
-|};
-export type DataCheckerTestClientAbstractQuery = {|
+export type DataCheckerTestClientAbstractQuery$variables = {};
+export type DataCheckerTestClientAbstractQuery$data = {
+  readonly client_interface: ?{
+    readonly $fragmentSpreads: DataCheckerTestClientInterface$fragmentType,
+  },
+};
+export type DataCheckerTestClientAbstractQuery = {
   response: DataCheckerTestClientAbstractQuery$data,
   variables: DataCheckerTestClientAbstractQuery$variables,
-|};
+};
 */
 
-var node/*: ClientRequest*/ = {
+var node/*: ClientRequest*/ = (function(){
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
+  }
+];
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -88,11 +97,16 @@ var node/*: ClientRequest*/ = {
                 "storageKey": null
               },
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "description",
-                "storageKey": null
+                "kind": "InlineFragment",
+                "selections": (v0/*:: as any*/),
+                "type": "ClientTypeImplementingClientInterface",
+                "abstractKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": (v0/*:: as any*/),
+                "type": "OtherClientTypeImplementingClientInterface",
+                "abstractKey": null
               }
             ],
             "storageKey": null
@@ -116,6 +130,7 @@ var node/*: ClientRequest*/ = {
     "text": null
   }
 };
+})();
 
 if (__DEV__) {
   (node/*:: as any*/).hash = "621e19afb09991109622110ee40f5f61";

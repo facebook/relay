@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8785288022131be061612f1c2f8502d9>>
+ * @generated SignedSource<<19a8d318f400e1058e5214bf9092e7db>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,16 +20,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType } from "./RelayReaderTestWhenMatchDirectiveIsPresentBarFragment.graphql";
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables = {||};
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
-  |},
-|};
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery = {|
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables = {};
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
+  },
+};
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery = {
   response: RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data,
   variables: RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

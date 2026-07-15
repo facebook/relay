@@ -20,9 +20,9 @@ import type {
 import type {OperationType} from 'relay-runtime';
 
 type Query = {
-  +variables: {foo: string, bar: number},
-  +response: unknown,
-  +rawResponse?: {...},
+  readonly variables: {foo: string, bar: number},
+  readonly response: unknown,
+  readonly rawResponse?: {...},
 };
 
 const _good: ExtractQueryTypes<

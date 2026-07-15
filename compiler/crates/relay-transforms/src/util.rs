@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::DirectiveName;
 use graphql_ir::ARGUMENT_DEFINITION;
 use graphql_ir::Argument;
@@ -17,7 +19,6 @@ use graphql_ir::VariableName;
 use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use regex::Regex;
 use schema::SDLSchema;
 use schema::Schema;
@@ -29,9 +30,11 @@ use crate::DIRECTIVE_SPLIT_OPERATION;
 use crate::FragmentAliasMetadata;
 use crate::INTERNAL_METADATA_DIRECTIVE;
 use crate::ModuleMetadata;
+use crate::PrefetchablePaginationEdgesFragmentMetadata;
 use crate::RefetchableDerivedFromMetadata;
 use crate::RelayResolverMetadata;
 use crate::RequiredMetadataDirective;
+use crate::ShadowReturnMarker;
 use crate::catch_directive::CATCH_DIRECTIVE_NAME;
 use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use crate::connections::ConnectionMetadataDirective;
@@ -74,7 +77,7 @@ pub fn replace_directive(directives: &[Directive], replacement: Directive) -> Ve
 }
 
 /// The function that will return a variable name for an argument
-/// it it uses a variable (and it the argument is available)
+/// if it uses a variable (and if the argument is available)
 pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
     match argument {
         Some(arg) => match &arg.value.item {
@@ -85,13 +88,14 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
     }
 }
 
-lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 20] = [
+static CUSTOM_METADATA_DIRECTIVES: LazyLock<[DirectiveName; 22]> = LazyLock::new(|| {
+    [
         *CATCH_DIRECTIVE_NAME,
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
         ModuleMetadata::directive_name(),
+        PrefetchablePaginationEdgesFragmentMetadata::directive_name(),
         *DIRECTIVE_SPLIT_OPERATION,
         RefetchableMetadata::directive_name(),
         RefetchableDerivedFromMetadata::directive_name(),
@@ -107,8 +111,12 @@ lazy_static! {
         ProvidedVariableMetadata::directive_name(),
         FragmentAliasMetadata::directive_name(),
         *RAW_TEXT_DIRECTIVE_NAME,
-    ];
-    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [DirectiveName; 10] = [
+        ShadowReturnMarker::directive_name(),
+    ]
+});
+
+static DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: LazyLock<[DirectiveName; 11]> = LazyLock::new(|| {
+    [
         *CATCH_DIRECTIVE_NAME,
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
@@ -118,20 +126,32 @@ lazy_static! {
         *INTERNAL_METADATA_DIRECTIVE,
         *ARGUMENT_DEFINITION,
         *REQUIRED_DIRECTIVE_NAME,
-        *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME
-    ];
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [DirectiveName; 7] = [
-        *CLIENT_EXTENSION_DIRECTIVE_NAME,
-        ModuleMetadata::directive_name(),
-        InlineDirectiveMetadata::directive_name(),
-        ClientEdgeMetadataDirective::directive_name(),
-        DirectiveName("defer".intern()),
-        FragmentAliasMetadata::directive_name(),
-        RelayResolverMetadata::directive_name(),
-    ];
-    static ref VALID_PROVIDED_VARIABLE_NAME: Regex = Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap();
-    pub static ref INTERNAL_RELAY_VARIABLES_PREFIX: StringKey = "__relay_internal".intern();
-}
+        *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME,
+        // The shadow-return marker is internal metadata on the shadowed server
+        // field; it must not affect field identity so the generic spread-derived
+        // `page { id __typename }` merges with the transplanted consumer copy.
+        ShadowReturnMarker::directive_name(),
+    ]
+});
+
+static RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: LazyLock<[DirectiveName; 7]> =
+    LazyLock::new(|| {
+        [
+            *CLIENT_EXTENSION_DIRECTIVE_NAME,
+            ModuleMetadata::directive_name(),
+            InlineDirectiveMetadata::directive_name(),
+            ClientEdgeMetadataDirective::directive_name(),
+            DirectiveName("defer".intern()),
+            FragmentAliasMetadata::directive_name(),
+            RelayResolverMetadata::directive_name(),
+        ]
+    });
+
+static VALID_PROVIDED_VARIABLE_NAME: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap());
+
+pub static INTERNAL_RELAY_VARIABLES_PREFIX: LazyLock<StringKey> =
+    LazyLock::new(|| "__relay_internal".intern());
 
 pub struct CustomMetadataDirectives;
 

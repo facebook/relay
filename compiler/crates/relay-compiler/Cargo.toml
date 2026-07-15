@@ -30,10 +30,10 @@ path = "tests/subschema_extraction_test.rs"
 
 [dependencies]
 async-trait = "0.1.86"
-bincode = "1.3.3"
+bincode = { version = "2", features = ["serde"] }
 common = { path = "../common" }
 common-path = "1.0.0"
-dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
+dashmap = { version = "6.2.1", features = ["rayon", "serde"] }
 dependency-analyzer = { path = "../dependency-analyzer" }
 docblock-shared = { path = "../docblock-shared" }
 docblock-syntax = { path = "../docblock-syntax" }
@@ -50,17 +50,16 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
 hex = { version = "0.4.3", features = ["alloc"] }
-indexmap = { version = "2.13.0", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.14.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 js-config-loader = { path = "../js-config-loader" }
-lazy_static = "1.5"
-log = { version = "0.4.29", features = ["kv_unstable", "kv_unstable_std"] }
+log = { version = "0.4.33", features = ["kv_unstable", "kv_unstable_std"] }
 md-5 = "0.10"
 persist-query = { path = "../persist-query" }
 petgraph = { version = "0.8", features = ["serde-1"] }
 program-with-dependencies = { path = "../program-with-dependencies" }
 rayon = "1.11.0"
-regex = "1.12.3"
+regex = "1.13.0"
 relay-codegen = { path = "../relay-codegen" }
 relay-config = { path = "../relay-config" }
 relay-docblock = { path = "../relay-docblock" }
@@ -68,7 +67,7 @@ relay-saved-state-loader = { path = "../relay-saved-state-loader" }
 relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
-rustc-hash = "2.1.1"
+rustc-hash = "2.1.3"
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
 schema-set = { path = "../schema-set" }
@@ -77,11 +76,11 @@ schemars = { version = "1.2.1", features = ["indexmap2"] }
 serde = { version = "1.0.219", features = ["derive", "rc"] }
 serde_bser = "0.4"
 serde_json = { version = "1.0.140", features = ["alloc", "float_roundtrip", "raw_value", "unbounded_depth"] }
-sha1 = "0.10.5"
+sha1 = "0.10.7"
 sha2 = "0.10.6"
 signedsource = { path = "../signedsource" }
 thiserror = "2.0.18"
-tokio = { version = "1.50.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.52.3", features = ["full", "test-util", "tracing"] }
 walkdir = "2.3"
 watchman_client = "0.9.0"
 zstd = { version = "0.13.3", features = ["experimental", "zstdmt"] }
@@ -91,3 +90,9 @@ fixture-tests = { path = "../fixture-tests" }
 futures-util = { version = "0.3.30", features = ["compat"] }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }
+
+[target.'cfg(target_os = "linux")'.dev-dependencies]
+tempfile = "3.27.0"
+
+[target.'cfg(target_os = "macos")'.dev-dependencies]
+tempfile = "3.27.0"

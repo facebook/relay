@@ -1,0 +1,50 @@
+//- UserPageStats.js
+// A shadow (`@returnFragment`) resolver whose return type is a PLURAL (list-of)
+// non-Node server VALUE type (`[PageStats]`). The read-in-place arm transplants
+// the consumer's selections onto a SINGLE shadowed server field and reads the
+// value off a single returned `__id`, so a list return type has no DataID to
+// surface and cannot reach the runtime. The compiler must HARD-ERROR with
+// `ShadowResolverPluralUnsupported`. This locks the singular-only contract that
+// justifies the missing plural dev guard in the read-in-place reader branch
+// (RelayReader: "singular-only at the compiler, so it never reaches this plural
+// branch").
+/**
+ * @relayField User.page_stats: [PageStats]
+ * @rootFragment UserPageStatsResolverFragment
+ * @returnFragment UserPageStatsReturnFragment
+ */
+graphql`fragment UserPageStatsResolverFragment on User {
+  page {
+    stats {
+      ...UserPageStatsReturnFragment
+    }
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    page_stats {
+      likeCount
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" },
+    "enable_resolver_normalization_ast": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String, stats: PageStats }
+type PageStats { likeCount: Int }

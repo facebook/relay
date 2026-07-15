@@ -1,9 +1,16 @@
 //- UserFoo.js
 // Test that @returnFragment docblock tag is parsed on a resolver.
+// Note: @returnFragment requires @rootFragment to be present and
+// the return fragment must be spread within the root fragment.
 /**
  * @relayField User.foo: RelayResolverValue
+ * @rootFragment UserFoo__id
  * @returnFragment UserFooExternalFragment
  */
+graphql`fragment UserFoo__id on User {
+  id
+  ...UserFooExternalFragment
+}`
 
 //- UserFragment.js
 graphql`fragment UserFragment on User {
@@ -22,4 +29,5 @@ graphql`fragment UserFragment on User {
 
 //- schema.graphql
 type Query { me: User }
-type User { name: String }
+type User { id: ID!, name: String }
+

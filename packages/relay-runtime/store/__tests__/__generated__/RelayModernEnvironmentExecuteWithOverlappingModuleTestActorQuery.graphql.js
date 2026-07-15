@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9890b27c190ced634dcf8bc0bec08b53>>
+ * @generated SignedSource<<a6f001bd96dddb62b79227173d4475cc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,27 +20,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name.graphql";
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data = {|
-  +node: ?{|
-    +nameRenderer?: ?({|
-      +__typename: "MarkdownUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$fragmentType,
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery = {
   response: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data,
   variables: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

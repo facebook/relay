@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<22d2026950dcdbf21508219d8e8446c1>>
+ * @generated SignedSource<<829c78160d9787bec9934f2113684614>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayReferenceMarkerTestPlainUserNameRenderer_name$data = {|
-  +data: ?{|
-    +text: ?string,
-  |},
-  +plaintext: ?string,
-  +$fragmentType: RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType,
-|};
+export type RelayReferenceMarkerTestPlainUserNameRenderer_name$data = {
+  readonly data: ?{
+    readonly text: ?string,
+  },
+  readonly plaintext: ?string,
+  readonly $fragmentType: RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType,
+};
 export type RelayReferenceMarkerTestPlainUserNameRenderer_name$key = {
-  +$data?: RelayReferenceMarkerTestPlainUserNameRenderer_name$data,
-  +$fragmentSpreads: RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType,
+  readonly $data?: RelayReferenceMarkerTestPlainUserNameRenderer_name$data,
+  readonly $fragmentSpreads: RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */

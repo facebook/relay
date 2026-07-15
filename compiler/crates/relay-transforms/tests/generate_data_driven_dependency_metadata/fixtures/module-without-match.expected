@@ -61,6 +61,10 @@ fragment NameRendererFragment on User @__RelayDataDrivenDependencyMetadata
       #         "PlainUserNameRenderer_name",
       #     ),
       #     fragment_source_location: module-without-match.graphql:248:274,
+      #     module_source_location: Embedded {
+      #         path: "module-without-match.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -86,6 +90,10 @@ fragment NameRendererFragment on User @__RelayDataDrivenDependencyMetadata
       #         "MarkdownUserNameRenderer_name",
       #     ),
       #     fragment_source_location: module-without-match.graphql:348:377,
+      #     module_source_location: Embedded {
+      #         path: "module-without-match.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

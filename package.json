@@ -1,7 +1,7 @@
 {
   "name": "relay-github-root",
   "description": "A framework for building data-driven React applications.",
-  "version": "20.1.1",
+  "version": "21.0.1",
   "license": "MIT",
   "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",
@@ -17,6 +17,8 @@
     "prettier": "find . -name node_modules -prune -or -name dist -prune -or -name '*.js' -print | xargs prettier --write",
     "prettier-check": "find . -name node_modules -prune -or -name dist -prune -or -name '*.js' -print | xargs prettier --check",
     "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; npm run test-dependencies || EXIT=$?; npm run jest \"$@\" || EXIT=$?; exit $EXIT; }; f",
+    "test:e2e": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --config packages/relay-e2e-test/jest.config.js",
+    "test:e2e:install": "cd packages/relay-e2e-test && yarn install",
     "test-dependencies": "node ./scripts/testDependencies.js",
     "typecheck": "flow check"
   },
@@ -39,9 +41,11 @@
     "@jest/create-cache-key-function": "^29.7.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "babel-eslint": "^10.1.0",
     "babel-plugin-macros": "^2.0.0",
-    "babel-plugin-syntax-hermes-parser": "0.35.0",
+    "babel-plugin-syntax-hermes-parser": "0.37.0",
     "babel-plugin-tester": "^6.0.1",
     "babel-preset-fbjs": "^3.4.0",
     "cosmiconfig": "^5.0.5",
@@ -60,24 +64,24 @@
     "eslint-plugin-relay": "1.8.3",
     "eslint-plugin-relay-internal": "link:./packages/eslint-plugin-relay-internal",
     "fbjs": "^3.0.2",
-    "flow-bin": "^0.309.0",
+    "flow-bin": "^0.322.0",
     "graphql": "15.3.0",
     "gulp": "4.0.2",
     "gulp-babel": "8.0.0",
     "gulp-chmod": "3.0.0",
     "gulp-rename": "^2.0.0",
-    "hermes-eslint": "0.35.0",
+    "hermes-eslint": "0.37.0",
     "invariant": "^2.2.4",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "nullthrows": "^1.1.1",
-    "prettier": "3.6.2",
-    "prettier-plugin-hermes-parser": "0.34.1",
+    "prettier": "3.9.4",
     "promise-polyfill": "6.1.0",
     "react": "0.0.0-experimental-7670501b-20241124",
     "react-dom": "0.0.0-experimental-7670501b-20241124",
     "react-refresh": "0.0.0-experimental-7670501b-20241124",
-    "react-test-renderer": "0.0.0-experimental-7670501b-20241124"
+    "react-test-renderer": "0.0.0-experimental-7670501b-20241124",
+    "typescript": "5.8.3"
   },
   "resolutions": {
     "glob-watcher": "^6.0.0",
@@ -91,7 +95,8 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
       "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/))",
-      "<rootDir>/packages/relay-flight-experimental/"
+      "<rootDir>/packages/relay-flight-experimental/",
+      "<rootDir>/packages/relay-e2e-test/"
     ],
     "rootDir": "",
     "roots": [

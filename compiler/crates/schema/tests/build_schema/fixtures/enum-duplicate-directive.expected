@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+directive @bar on ENUM
+
+enum E @bar @bar {
+  A
+  B
+}
+
+type Query {
+  e: E
+}
+==================================== ERROR ====================================
+✖︎ The directive `@bar` can only be used once at this location, but was used 2 times.
+
+  enum-duplicate-directive.graphql:5:6
+    4 │ 
+    5 │ enum E @bar @bar {
+      │      ^
+    6 │   A

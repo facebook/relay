@@ -59,7 +59,7 @@ fragment NameRendererFragment on Persona @__RelayDataDrivenDependencyMetadata
 #         [
 #             (
 #                 "NameRendererFragment.basicUser",
-#                 "{\"branches\":{\"ClientUser\":{\"component\":\"ClientUser.react\",\"fragment\":\"ClientUser_Fragment$normalization.graphql\"},\"SpecialUser\":{\"component\":\"SpecialUser.react\",\"fragment\":\"SpecialUser_Fragment$normalization.graphql\"}},\"plural\":false}",
+#                 "{\"branches\":{\"ClientUser\":{\"component\":\"ClientUser.react\",\"fragment\":\"ClientUser_Fragment$normalization.graphql\",\"read_time_resolvers\":true},\"SpecialUser\":{\"component\":\"SpecialUser.react\",\"fragment\":\"SpecialUser_Fragment$normalization.graphql\",\"read_time_resolvers\":true}},\"plural\":false}",
 #             ),
 #         ],
 #     ),
@@ -85,6 +85,10 @@ fragment NameRendererFragment on Persona @__RelayDataDrivenDependencyMetadata
       #         "ClientUser_Fragment",
       #     ),
       #     fragment_source_location: client-resolver-3D-module-on-interface.graphql:202:221,
+      #     module_source_location: Embedded {
+      #         path: "client-resolver-3D-module-on-interface.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -108,6 +112,10 @@ fragment NameRendererFragment on Persona @__RelayDataDrivenDependencyMetadata
       #         "SpecialUser_Fragment",
       #     ),
       #     fragment_source_location: client-resolver-3D-module-on-interface.graphql:281:301,
+      #     module_source_location: Embedded {
+      #         path: "client-resolver-3D-module-on-interface.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

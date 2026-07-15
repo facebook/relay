@@ -40,12 +40,13 @@ type Persian implements Cat {
 fragment PersianDescriptionFragment on Persian {
   ...PersianDescriptionFragment @__RelayResolverMetadata
   # RelayResolverMetadata {
-  #     field_id: FieldID(532),
+  #     field_id: FieldID(535),
   #     import_path: "PersianDescriptionResolver",
   #     import_name: None,
   #     field_alias: None,
   #     field_path: "description",
   #     field_arguments: [],
+  #     fragment_arguments: [],
   #     live: false,
   #     output_type_info: Legacy,
   #     fragment_data_injection_mode: None,
@@ -59,12 +60,13 @@ fragment PersianDescriptionFragment on Persian {
 fragment PersianDescriptionFragment2 on Persian {
   ...PersianDescriptionFragment2 @__RelayResolverMetadata
   # RelayResolverMetadata {
-  #     field_id: FieldID(533),
+  #     field_id: FieldID(536),
   #     import_path: "PersianDescriptionResolver2",
   #     import_name: None,
   #     field_alias: None,
   #     field_path: "color",
   #     field_arguments: [],
+  #     fragment_arguments: [],
   #     live: false,
   #     output_type_info: Legacy,
   #     fragment_data_injection_mode: None,
@@ -78,12 +80,13 @@ fragment PersianDescriptionFragment2 on Persian {
 fragment TabbyDescriptionFragment on Tabby {
   ...TabbyDescriptionFragment @__RelayResolverMetadata
   # RelayResolverMetadata {
-  #     field_id: FieldID(530),
+  #     field_id: FieldID(533),
   #     import_path: "TabbyDescriptionResolver",
   #     import_name: None,
   #     field_alias: None,
   #     field_path: "description",
   #     field_arguments: [],
+  #     fragment_arguments: [],
   #     live: false,
   #     output_type_info: Legacy,
   #     fragment_data_injection_mode: None,
@@ -97,12 +100,13 @@ fragment TabbyDescriptionFragment on Tabby {
 fragment TabbyDescriptionFragment2 on Tabby {
   ...TabbyDescriptionFragment2 @__RelayResolverMetadata
   # RelayResolverMetadata {
-  #     field_id: FieldID(531),
+  #     field_id: FieldID(534),
   #     import_path: "TabbyDescriptionResolver2",
   #     import_name: None,
   #     field_alias: None,
   #     field_path: "color",
   #     field_arguments: [],
+  #     fragment_arguments: [],
   #     live: false,
   #     output_type_info: Legacy,
   #     fragment_data_injection_mode: None,
@@ -117,12 +121,13 @@ fragment resolverFieldOnConcreteTypesWithFragmentsFragment on Cat {
   ... on Tabby {
     ...TabbyDescriptionFragment @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(530),
+    #     field_id: FieldID(533),
     #     import_path: "TabbyDescriptionResolver",
     #     import_name: None,
     #     field_alias: None,
     #     field_path: "description",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: false,
     #     output_type_info: Legacy,
     #     fragment_data_injection_mode: None,
@@ -135,12 +140,13 @@ fragment resolverFieldOnConcreteTypesWithFragmentsFragment on Cat {
   ... on Persian {
     ...PersianDescriptionFragment @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(532),
+    #     field_id: FieldID(535),
     #     import_path: "PersianDescriptionResolver",
     #     import_name: None,
     #     field_alias: None,
     #     field_path: "description",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: false,
     #     output_type_info: Legacy,
     #     fragment_data_injection_mode: None,

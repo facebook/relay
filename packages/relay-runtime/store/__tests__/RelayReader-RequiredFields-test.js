@@ -33,7 +33,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -61,7 +61,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -96,7 +96,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -131,7 +131,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -158,7 +158,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -186,7 +186,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -226,7 +226,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -259,7 +259,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -285,7 +285,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -333,7 +333,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -360,7 +360,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -402,7 +402,7 @@ describe('RelayReader @required', () => {
 
   it('bubbles when encountering a missing plural linked field', () => {
     const source = RelayRecordSource.create({
-      '2': {
+      2: {
         __id: '2',
         id: '2',
         __typename: 'Viewer',
@@ -430,7 +430,7 @@ describe('RelayReader @required', () => {
 
   it('@required(action: LOG) within an inline fragment on a concrete type bubbles if the type matches', () => {
     const source = RelayRecordSource.create({
-      '3': {
+      3: {
         __id: '3',
         id: '3',
         __typename: 'NonNodeNoID',
@@ -459,7 +459,7 @@ describe('RelayReader @required', () => {
 
   it('@required(action: LOG) within an inline fragment does not bubble if type does not match', () => {
     const source = RelayRecordSource.create({
-      '3': {
+      3: {
         __id: '3',
         id: '3',
         __typename: 'NonNodeNoID',
@@ -495,7 +495,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -525,7 +525,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -555,7 +555,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -587,7 +587,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -619,7 +619,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -648,7 +648,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -682,7 +682,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -723,7 +723,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -757,7 +757,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -799,7 +799,7 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -836,13 +836,13 @@ describe('RelayReader @required', () => {
         __typename: '__Root',
         'nodes(ids:["1","2"])': {__refs: ['1', '2']},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
         username: 'Wendy',
       },
-      '2': {
+      2: {
         __id: '2',
         id: '2',
         __typename: 'User',
@@ -878,7 +878,7 @@ describe('RelayReader @required', () => {
             __typename: '__Root',
             me: {__ref: '1'},
           },
-          '1': {
+          1: {
             __id: '1',
             id: '1',
             __typename: 'User',
@@ -907,7 +907,7 @@ describe('RelayReader @required', () => {
             errors: [
               {
                 message:
-                  "Relay: Missing @required value at path 'me.client_object' in 'RelayReaderRequiredFieldsTest29Query'.",
+                  "Relay: Missing @required value at path 'me.client_object' in 'RelayReaderRequiredFieldsTest29Query': the server returned null.",
               },
             ],
             ok: false,
@@ -916,7 +916,9 @@ describe('RelayReader @required', () => {
         // these are "handled" because the field with the required error was caught
         expect(fieldErrors).toEqual([
           {
+            fieldError: null,
             fieldPath: 'me.client_object',
+            fieldValue: null,
             handled: true,
             kind: 'missing_required_field.throw',
             owner: 'RelayReaderRequiredFieldsTest29Query',
@@ -932,7 +934,7 @@ describe('RelayReader @required', () => {
           __typename: '__Root',
           me: {__ref: '1'},
         },
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __typename: 'User',
@@ -958,7 +960,9 @@ describe('RelayReader @required', () => {
       );
       expect(fieldErrors).toEqual([
         {
+          fieldError: null,
           fieldPath: 'me.client_object',
+          fieldValue: null,
           kind: 'missing_required_field.throw',
           owner: 'RelayReaderRequiredFieldsTest25Query',
           handled: false,
@@ -973,7 +977,7 @@ describe('RelayReader @required', () => {
           __typename: '__Root',
           me: {__ref: '1'},
         },
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __typename: 'User',
@@ -1014,7 +1018,7 @@ describe('RelayReader @required', () => {
           __typename: '__Root',
           me: {__ref: '1'},
         },
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __typename: 'User',

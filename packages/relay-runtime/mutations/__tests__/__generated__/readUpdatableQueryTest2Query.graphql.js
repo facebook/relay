@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<de8e74adb92abbf3daa679f17ce8ebd3>>
+ * @generated SignedSource<<b79a923baca96720d2f9e450b3e22b44>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,14 +18,14 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { OpaqueScalarType } from "../OpaqueScalarType";
-export type readUpdatableQueryTest2Query$variables = {||};
-export type readUpdatableQueryTest2Query$data = {|
-  +updatable_scalar_field: ?OpaqueScalarType,
-|};
-export type readUpdatableQueryTest2Query = {|
+export type readUpdatableQueryTest2Query$variables = {};
+export type readUpdatableQueryTest2Query$data = {
+  readonly updatable_scalar_field: ?OpaqueScalarType,
+};
+export type readUpdatableQueryTest2Query = {
   response: readUpdatableQueryTest2Query$data,
   variables: readUpdatableQueryTest2Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

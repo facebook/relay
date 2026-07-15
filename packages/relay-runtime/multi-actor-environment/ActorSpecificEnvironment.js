@@ -61,15 +61,15 @@ export type ActorSpecificEnvironmentConfig = Readonly<{
 
 class ActorSpecificEnvironment implements IActorEnvironment {
   __log: LogFunction;
-  +_defaultRenderPolicy: RenderPolicy;
-  +_network: INetwork;
-  +_operationTracker: OperationTracker;
-  +_publishQueue: RelayPublishQueue;
-  +_store: Store;
-  +actorIdentifier: ActorIdentifier;
-  +configName: ?string;
-  +multiActorEnvironment: IMultiActorEnvironment;
-  +options: unknown;
+  readonly _defaultRenderPolicy: RenderPolicy;
+  readonly _network: INetwork;
+  readonly _operationTracker: OperationTracker;
+  readonly _publishQueue: RelayPublishQueue;
+  readonly _store: Store;
+  readonly actorIdentifier: ActorIdentifier;
+  readonly configName: ?string;
+  readonly multiActorEnvironment: IMultiActorEnvironment;
+  readonly options: unknown;
   relayFieldLogger: RelayFieldLogger;
 
   constructor(config: ActorSpecificEnvironmentConfig) {

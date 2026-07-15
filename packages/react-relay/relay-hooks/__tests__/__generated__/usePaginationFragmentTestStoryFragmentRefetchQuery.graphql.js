@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<902d8bbe25ed6807e6575e93029528ba>>
+ * @generated SignedSource<<a96379170b2f7a697648821c90a0826e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { usePaginationFragmentTestStoryFragment$fragmentType } from "./usePaginationFragmentTestStoryFragment.graphql";
-export type usePaginationFragmentTestStoryFragmentRefetchQuery$variables = {|
+export type usePaginationFragmentTestStoryFragmentRefetchQuery$variables = {
   count?: ?number,
   cursor?: ?string,
   id: string,
-|};
-export type usePaginationFragmentTestStoryFragmentRefetchQuery$data = {|
-  +fetch__NonNodeStory: ?{|
-    +$fragmentSpreads: usePaginationFragmentTestStoryFragment$fragmentType,
-  |},
-|};
-export type usePaginationFragmentTestStoryFragmentRefetchQuery = {|
+};
+export type usePaginationFragmentTestStoryFragmentRefetchQuery$data = {
+  readonly fetch__NonNodeStory: ?{
+    readonly $fragmentSpreads: usePaginationFragmentTestStoryFragment$fragmentType,
+  },
+};
+export type usePaginationFragmentTestStoryFragmentRefetchQuery = {
   response: usePaginationFragmentTestStoryFragmentRefetchQuery$data,
   variables: usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<70aa215a8d1702f49d8f0b8b8e3120cb>>
+ * @generated SignedSource<<e03b19035f54c0f394bb908ad50ac03a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,36 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type useMutationTest2Mutation$variables = {|
+};
+export type useMutationTest2Mutation$variables = {
   input?: ?CommentCreateInput,
-|};
-export type useMutationTest2Mutation$data = {|
-  +commentCreate: ?{|
-    +feedbackCommentEdge: ?{|
-      +cursor: ?string,
-      +node: ?{|
-        +body: ?{|
-          +text: ?string,
-        |},
-        +id: string,
-      |},
-    |},
-  |},
-|};
-export type useMutationTest2Mutation = {|
+};
+export type useMutationTest2Mutation$data = {
+  readonly commentCreate: ?{
+    readonly feedbackCommentEdge: ?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly body: ?{
+          readonly text: ?string,
+        },
+        readonly id: string,
+      },
+    },
+  },
+};
+export type useMutationTest2Mutation = {
   response: useMutationTest2Mutation$data,
   variables: useMutationTest2Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

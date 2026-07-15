@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<76672be86e709c1bab3303ff3e378fa7>>
+ * @generated SignedSource<<7a885c6e0ba885e668955b367478ca02>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType } from "./RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment.graphql";
-export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$variables = {|
+export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$variables = {
   id: string,
-|};
-export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$data = {|
-  +feedback: ?{|
-    +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery = {|
+};
+export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$data = {
+  readonly feedback: ?{
+    readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery = {
   response: RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$data,
   variables: RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

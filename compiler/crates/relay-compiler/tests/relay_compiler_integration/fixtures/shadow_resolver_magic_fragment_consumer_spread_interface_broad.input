@@ -1,0 +1,62 @@
+//- UserCombinedPage.js
+// A consumer spreads a fragment on a BROADER interface (`Node`) than the
+// magic-fragment field's return interface (`IPage`). `Node` is implemented by
+// server types `User` and `Page`; the spread is valid on `combined_page: IPage`
+// because `Node` overlaps `IPage` through `Page`. The `... on User` arm is a dead
+// polymorphic arm for this use site (the field can never be a `User`).
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- NodeFields.js
+graphql`fragment NodeFields on Node {
+  id
+  ... on User {
+    name
+  }
+  ... on Page {
+    title
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      ...NodeFields @alias(as: "nodeFields")
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User implements Node { id: ID!, name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

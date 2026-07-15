@@ -197,7 +197,7 @@ fn apply_common_transforms(
         transform_match(
             &program,
             &project_config.feature_flags,
-            project_config.module_import_config,
+            project_config.effective_module_import_config(),
             project_config.schema_config.defer_stream_interface,
         )
     })?;
@@ -280,15 +280,17 @@ fn apply_reader_transforms(
     program = log_event.time("catch_directive", || catch_directive(&program))?;
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names, false)
+        client_edges(&program, project_config, &base_fragment_names, false, false)
     })?;
 
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(project_config.name, &program)
-    })?;
-
-    log_event.time("shadow_resolvers_transform", || {
-        shadow_resolvers_transform(&program, &project_config.feature_flags)
+        relay_resolvers(
+            project_config.name,
+            &program,
+            &project_config.feature_flags,
+            ResolversPipeline::ForReader,
+            project_config.schema_config.node_interface_id_field,
+        )
     })?;
 
     program = log_event.time("client_extensions", || client_extensions(&program));
@@ -371,14 +373,17 @@ fn apply_operation_transforms(
     });
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names, true)
-    })?;
-    program = log_event.time("relay_resolvers", || {
-        relay_resolvers(project_config.name, &program)
+        client_edges(&program, project_config, &base_fragment_names, true, false)
     })?;
 
-    log_event.time("shadow_resolvers_transform", || {
-        shadow_resolvers_transform(&program, &project_config.feature_flags)
+    program = log_event.time("relay_resolvers", || {
+        relay_resolvers(
+            project_config.name,
+            &program,
+            &project_config.feature_flags,
+            ResolversPipeline::ForOperation,
+            project_config.schema_config.node_interface_id_field,
+        )
     })?;
 
     if project_config.resolvers_schema_module.is_some() {
@@ -702,7 +707,7 @@ fn apply_typegen_transforms(
         transform_match(
             &program,
             &project_config.feature_flags,
-            project_config.module_import_config,
+            project_config.effective_module_import_config(),
             project_config.schema_config.defer_stream_interface,
         )
     })?;
@@ -745,15 +750,17 @@ fn apply_typegen_transforms(
     });
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names, false)
+        client_edges(&program, project_config, &base_fragment_names, false, true)
     })?;
 
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(project_config.name, &program)
-    })?;
-
-    log_event.time("shadow_resolvers_transform", || {
-        shadow_resolvers_transform(&program, &project_config.feature_flags)
+        relay_resolvers(
+            project_config.name,
+            &program,
+            &project_config.feature_flags,
+            ResolversPipeline::ForReader,
+            project_config.schema_config.node_interface_id_field,
+        )
     })?;
 
     log_event.time("flatten", || flatten(&mut program, false, false))?;

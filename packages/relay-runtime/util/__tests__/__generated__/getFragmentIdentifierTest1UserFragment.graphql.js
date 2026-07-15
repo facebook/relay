@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7bfac849d3e5094c16f3be4f8b146750>>
+ * @generated SignedSource<<90ad9399e8b03215724dd7edd4db9a2c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,18 +20,18 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { getFragmentIdentifierTest1NestedUserFragment$fragmentType } from "./getFragmentIdentifierTest1NestedUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type getFragmentIdentifierTest1UserFragment$fragmentType: FragmentType;
-export type getFragmentIdentifierTest1UserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: getFragmentIdentifierTest1NestedUserFragment$fragmentType,
-  +$fragmentType: getFragmentIdentifierTest1UserFragment$fragmentType,
-|};
+export type getFragmentIdentifierTest1UserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: getFragmentIdentifierTest1NestedUserFragment$fragmentType,
+  readonly $fragmentType: getFragmentIdentifierTest1UserFragment$fragmentType,
+};
 export type getFragmentIdentifierTest1UserFragment$key = {
-  +$data?: getFragmentIdentifierTest1UserFragment$data,
-  +$fragmentSpreads: getFragmentIdentifierTest1UserFragment$fragmentType,
+  readonly $data?: getFragmentIdentifierTest1UserFragment$data,
+  readonly $fragmentSpreads: getFragmentIdentifierTest1UserFragment$fragmentType,
   ...
 };
 */

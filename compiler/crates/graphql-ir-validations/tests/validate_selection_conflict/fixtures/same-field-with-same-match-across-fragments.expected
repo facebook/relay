@@ -1,0 +1,45 @@
+==================================== INPUT ====================================
+# Two fragments select a field (with `supported` arg) with @match
+# and the same @module type conditions. This is valid because the
+# matched type sets are identical.
+query TestQuery {
+  me {
+    ...RowFragment
+  }
+}
+
+fragment RowFragment on User {
+  id
+  ...RootFragment
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) @match {
+    ...PlainUserNameRenderer_row @module(name: "PlainRow.react")
+    ...MarkdownUserNameRenderer_row @module(name: "MarkdownRow.react")
+  }
+}
+
+fragment RootFragment on User {
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) @match {
+    ...PlainUserNameRenderer_root @module(name: "PlainRoot.react")
+    ...MarkdownUserNameRenderer_root @module(name: "MarkdownRoot.react")
+  }
+}
+
+fragment PlainUserNameRenderer_row on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment PlainUserNameRenderer_root on PlainUserNameRenderer {
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_row on MarkdownUserNameRenderer {
+  markdown
+}
+
+fragment MarkdownUserNameRenderer_root on MarkdownUserNameRenderer {
+  markdown
+}
+==================================== OUTPUT ===================================
+OK

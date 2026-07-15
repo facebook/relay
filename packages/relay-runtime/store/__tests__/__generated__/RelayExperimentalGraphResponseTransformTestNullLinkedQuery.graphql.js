@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b0ea7232af705282a0c2977d50854212>>
+ * @generated SignedSource<<015b492a8f231514e0bb79fdda9eea29>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayExperimentalGraphResponseTransformTestNullLinkedQuery$variables = {||};
-export type RelayExperimentalGraphResponseTransformTestNullLinkedQuery$data = {|
-  +fetch__User: ?{|
-    +name: ?string,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestNullLinkedQuery = {|
+export type RelayExperimentalGraphResponseTransformTestNullLinkedQuery$variables = {};
+export type RelayExperimentalGraphResponseTransformTestNullLinkedQuery$data = {
+  readonly fetch__User: ?{
+    readonly name: ?string,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestNullLinkedQuery = {
   response: RelayExperimentalGraphResponseTransformTestNullLinkedQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestNullLinkedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

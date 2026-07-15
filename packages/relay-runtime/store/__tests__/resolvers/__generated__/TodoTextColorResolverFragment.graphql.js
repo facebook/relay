@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ab76c5f38907f58cc34ff922e966e65e>>
+ * @generated SignedSource<<da47f560935cb9ebc162736fbec714a8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TodoTextColorResolverFragment$fragmentType: FragmentType;
-export type TodoTextColorResolverFragment$data = {|
-  +hex: ?string,
-  +$fragmentType: TodoTextColorResolverFragment$fragmentType,
-|};
+export type TodoTextColorResolverFragment$data = {
+  readonly hex: ?string,
+  readonly $fragmentType: TodoTextColorResolverFragment$fragmentType,
+};
 export type TodoTextColorResolverFragment$key = {
-  +$data?: TodoTextColorResolverFragment$data,
-  +$fragmentSpreads: TodoTextColorResolverFragment$fragmentType,
+  readonly $data?: TodoTextColorResolverFragment$data,
+  readonly $fragmentSpreads: TodoTextColorResolverFragment$fragmentType,
   ...
 };
 */

@@ -1275,7 +1275,7 @@ fn scalar_definition_directive() {
 #[test]
 fn scalar_extension_name() {
     let source = r#"
-        extend scalar Foo
+        extend scalar Foo @bar
         "#;
     test_schema_resolution(source, "Foo", |resolved| {
         assert_matches!(

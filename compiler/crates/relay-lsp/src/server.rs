@@ -277,7 +277,7 @@ async fn handle_daemon_request<
             type_name,
             string_filter,
         } => {
-            let Ok(project_name) = state.extract_project_name_from_url(&file_uri) else {
+            let Ok(project_name) = state.extract_project_name_from_uri(&file_uri) else {
                 return Err(format!(
                     "Unable to map {file_uri:?} to Relay GraphQL project."
                 ));

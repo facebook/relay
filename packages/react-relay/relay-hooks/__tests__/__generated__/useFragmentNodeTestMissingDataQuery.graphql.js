@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<135c079bb48cbfdf2157b324e47fb24e>>
+ * @generated SignedSource<<18cbcbb339b05e648aef81320021c1fd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type useFragmentNodeTestMissingDataQuery$variables = {|
+export type useFragmentNodeTestMissingDataQuery$variables = {
   id: string,
-|};
-export type useFragmentNodeTestMissingDataQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +id: string,
-  |},
-|};
-export type useFragmentNodeTestMissingDataQuery = {|
+};
+export type useFragmentNodeTestMissingDataQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly id: string,
+  },
+};
+export type useFragmentNodeTestMissingDataQuery = {
   response: useFragmentNodeTestMissingDataQuery$data,
   variables: useFragmentNodeTestMissingDataQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

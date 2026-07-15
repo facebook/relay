@@ -8,15 +8,15 @@ fragment FragmentSpread on Node {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentSpread$fragmentType: FragmentType;
-export type FragmentSpread$data = {|
-  +FragmentSpread?: ?{|
-    +$fragmentSpreads: FragmentSpread$fragmentType,
-  |},
-  +id: string,
-  +$fragmentType: FragmentSpread$fragmentType,
-|};
+export type FragmentSpread$data = {
+  readonly FragmentSpread?: ?{
+    readonly $fragmentSpreads: FragmentSpread$fragmentType,
+  },
+  readonly id: string,
+  readonly $fragmentType: FragmentSpread$fragmentType,
+};
 export type FragmentSpread$key = {
-  +$data?: FragmentSpread$data,
-  +$fragmentSpreads: FragmentSpread$fragmentType,
+  readonly $data?: FragmentSpread$data,
+  readonly $fragmentSpreads: FragmentSpread$fragmentType,
   ...
 };

@@ -24,6 +24,7 @@ use crate::errors::Result;
 /// The purpose of this module is to handle saved state and list of changed files
 /// from the external source, and not from the watchman
 pub struct ExternalFileSource {
+    saved_state_path: PathBuf,
     changed_files_list: PathBuf,
     pub config: Arc<Config>,
 }
@@ -74,16 +75,25 @@ impl ExternalFileSourceResult {
 }
 
 impl ExternalFileSource {
-    pub fn new(changed_files_list: PathBuf, config: Arc<Config>) -> Self {
+    /// Construct an `ExternalFileSource`. Both paths are owned by this struct
+    /// for the duration of one `create_compiler_state` call; the caller is
+    /// responsible for sourcing them (e.g. from `config.load_saved_state_file`).
+    /// Keeping the paths in the struct avoids any coupling between the
+    /// External source and Config's shared mutex state.
+    pub fn new(
+        saved_state_path: PathBuf,
+        changed_files_list: PathBuf,
+        config: Arc<Config>,
+    ) -> Self {
         Self {
-            config,
+            saved_state_path,
             changed_files_list,
+            config,
         }
     }
 
     pub fn create_compiler_state(&self, perf_logger: &impl PerfLogger) -> Result<CompilerState> {
-        let load_saved_state_file = self.config.load_saved_state_file.as_ref().unwrap();
-        let mut compiler_state = CompilerState::deserialize_from_file(load_saved_state_file)?;
+        let mut compiler_state = CompilerState::deserialize_from_file(&self.saved_state_path)?;
         if std::env::var("RELAY_COMPILER_IGNORE_SAVED_STATE_VERSION").is_err()
             && compiler_state.saved_state_version != self.config.saved_state_version
         {

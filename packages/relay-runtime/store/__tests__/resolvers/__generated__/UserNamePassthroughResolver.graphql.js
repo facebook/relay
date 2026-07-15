@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3c0bb2394f95a272700e97f3c3120584>>
+ * @generated SignedSource<<908c64764a684963c391dc0efabbf070>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserNamePassthroughResolver$fragmentType: FragmentType;
-export type UserNamePassthroughResolver$data = {|
-  +name: ?string,
-  +$fragmentType: UserNamePassthroughResolver$fragmentType,
-|};
+export type UserNamePassthroughResolver$data = {
+  readonly name: ?string,
+  readonly $fragmentType: UserNamePassthroughResolver$fragmentType,
+};
 export type UserNamePassthroughResolver$key = {
-  +$data?: UserNamePassthroughResolver$data,
-  +$fragmentSpreads: UserNamePassthroughResolver$fragmentType,
+  readonly $data?: UserNamePassthroughResolver$data,
+  readonly $fragmentSpreads: UserNamePassthroughResolver$fragmentType,
   ...
 };
 */

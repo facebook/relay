@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+directive @bar on UNION
+
+type Member {
+  id: ID
+}
+
+union U @bar @bar = Member
+
+type Query {
+  u: U
+}
+==================================== ERROR ====================================
+✖︎ The directive `@bar` can only be used once at this location, but was used 2 times.
+
+  union-duplicate-directive.graphql:9:7
+    8 │ 
+    9 │ union U @bar @bar = Member
+      │       ^
+   10 │

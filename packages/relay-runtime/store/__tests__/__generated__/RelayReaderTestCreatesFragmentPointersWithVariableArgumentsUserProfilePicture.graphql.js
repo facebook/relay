@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4269a9910c05a2c373f4d99bdd6925e4>>
+ * @generated SignedSource<<49d12bd7e68fc4a64743b36f3fd94b3f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType: FragmentType;
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$data = {|
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
-|};
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$data = {
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
+};
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$key = {
-  +$data?: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$data,
-  +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
+  readonly $data?: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$data,
+  readonly $fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
   ...
 };
 */

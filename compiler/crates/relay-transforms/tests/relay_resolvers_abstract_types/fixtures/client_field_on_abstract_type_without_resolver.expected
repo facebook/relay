@@ -34,7 +34,12 @@ query clientFieldOnAbstractTypeWithoutResolver {
   cat {
     ... on Tabby {
       parent {
-        description
+        ... on Tabby {
+          description
+        }
+        ... on Persian {
+          description
+        }
       }
     }
   }

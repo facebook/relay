@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<739d39506d972a9c0989be544b3930a9>>
+ * @generated SignedSource<<57a6dd46541e44fa0bafc17a272d907b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserProfilePictureWithDefaultValueResolver$fragmentType: FragmentType;
-export type UserProfilePictureWithDefaultValueResolver$data = {|
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: UserProfilePictureWithDefaultValueResolver$fragmentType,
-|};
+export type UserProfilePictureWithDefaultValueResolver$data = {
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: UserProfilePictureWithDefaultValueResolver$fragmentType,
+};
 export type UserProfilePictureWithDefaultValueResolver$key = {
-  +$data?: UserProfilePictureWithDefaultValueResolver$data,
-  +$fragmentSpreads: UserProfilePictureWithDefaultValueResolver$fragmentType,
+  readonly $data?: UserProfilePictureWithDefaultValueResolver$data,
+  readonly $fragmentSpreads: UserProfilePictureWithDefaultValueResolver$fragmentType,
   ...
 };
 */

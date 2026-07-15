@@ -1,0 +1,68 @@
+//- UserThing.js
+// Shadow resolver whose return INTERFACE has BOTH a @weak CLIENT implementor
+// (WeakThing) AND a non-Node server VALUE implementor (PageStats). Both are
+// INLINE members (no Node, no node(id:) refetch), so this is the supported
+// all-inline case -- NOT the gated mixed-with-Node case. The single resolver
+// returns a per-__typename identity pointer {__typename, __id}; the weak arm
+// reads off the model instance, the value arm reads in place off the transplanted
+// `page.stats` record. The injected identity is `__id` (the universal DataID),
+// NOT `id`: the shadowed value leaf has no `id`, and an all-inline return never
+// refetches.
+/**
+ * @relayField User.thing: IThing
+ * @rootFragment UserThingResolverFragment
+ * @returnFragment UserThingReturnFragment
+ */
+graphql`fragment UserThingResolverFragment on User {
+  page {
+    stats {
+      ...UserThingReturnFragment
+    }
+  }
+}`
+
+//- WeakThingTypeResolvers.js
+/**
+ * @relayType WeakThing implements IThing
+ * @weak
+ */
+export type WeakThing {};
+
+/**
+ * @relayField WeakThing.label: String
+ */
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    thing {
+      label
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, stats: PageStats }
+type PageStats { label: String }
+
+//- schema-extensions/extension.graphql
+interface IThing {
+  label: String
+}
+
+extend type PageStats implements IThing

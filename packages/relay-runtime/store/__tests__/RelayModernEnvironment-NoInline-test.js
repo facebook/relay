@@ -11,12 +11,20 @@
 
 'use strict';
 import type {
+  GraphQLResponse,
+  GraphQLResponseWithData,
   LogRequestInfoFunction,
   UploadableMap,
 } from '../../network/RelayNetworkTypes';
-import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
-import type {RequestParameters} from '../../util/RelayConcreteNode';
+import type {Sink} from '../../network/RelayObservable';
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {
+  ConcreteRequest,
+  RequestParameters,
+} from '../../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
+import type {NormalizationResult} from '../NormalizationEngine';
+import type {OperationLoader, RecordSource} from '../RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -25,6 +33,8 @@ const {
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const {graphql} = require('../../query/GraphQLTag');
+const NormalizationEngine = require('../NormalizationEngine');
+const normalizeResponse = require('../normalizeResponse');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -40,6 +50,144 @@ const {
 
 injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
+
+// Inline parity-test helpers: drive a (query, variables, loadFragment,
+// response) tuple through both code paths (OperationExecutor and
+// NormalizationEngine) and return uniform `ParityResult`s. Used by the
+// `parity (%s)` describe.each blocks below.
+type ParityArgs = Readonly<{
+  query: ConcreteRequest,
+  variables: Variables,
+  loadFragment: (operationReference: unknown) => ?NormalizationRootNode,
+  // Optional: when set, .get() always returns null (forcing the async path)
+  // and .load() delegates here. Use to test async load semantics — including
+  // rejection — that can't be expressed via the sync `loadFragment` alone.
+  loadFragmentAsync?: (
+    operationReference: unknown,
+  ) => Promise<?NormalizationRootNode>,
+  response: GraphQLResponseWithData,
+}>;
+
+type ParityResult = Readonly<{
+  // Record-source view of normalized records.
+  //   - executor: env's store source post-commit (all payloads merged in).
+  //   - engine:   the LAST payload's source (typically the followup that
+  //               populates the parent record's fields). Tests needing other
+  //               payloads should reach into `engineResult.payloads[N].source`
+  //               directly.
+  source: RecordSource,
+  // Wraps `normalizeResponse` so tests can introspect per-call args (e.g.,
+  // find @module followup invocations by `selector.node.kind`).
+  normalizeResponseSpy: JestMockFn<
+    Parameters<typeof normalizeResponse>,
+    ReturnType<typeof normalizeResponse>,
+  >,
+  // Engine-only: the raw NormalizationResult. Null for the executor path.
+  engineResult: NormalizationResult | null,
+  // Errors surfaced during processing, normalized across both paths:
+  //   - executor: invocations of `subscribe({error})` (e.g., async @module
+  //               load failures forwarded by `OperationExecutor.js:1121`).
+  //   - engine:   `Promise.allSettled(pendingModules)` rejection reasons.
+  errors: ReadonlyArray<unknown>,
+}>;
+
+async function runViaOperationExecutor(
+  args: ParityArgs,
+): Promise<ParityResult> {
+  const normalizeResponseSpy = jest.fn(normalizeResponse);
+  let dataSource: ?Sink<GraphQLResponse>;
+  const localFetch = (
+    _query: RequestParameters,
+    _variables: Variables,
+    _cacheConfig: CacheConfig,
+  ) =>
+    RelayObservable.create((sink: Sink<GraphQLResponse>) => {
+      dataSource = sink;
+    });
+  const localStore = new RelayModernStore(RelayRecordSource.create(), {
+    gcReleaseBufferSize: 0,
+  });
+  const localEnv = new RelayModernEnvironment({
+    // $FlowFixMe[invalid-tuple-arity] error found when enabling Flow LTI mode
+    network: RelayNetwork.create(localFetch),
+    normalizeResponse: normalizeResponseSpy,
+    operationLoader: buildOperationLoader(
+      args.loadFragment,
+      args.loadFragmentAsync,
+    ),
+    store: localStore,
+  });
+  const errorCallback = jest.fn<[Error], unknown>();
+  const op = createOperationDescriptor(args.query, args.variables);
+  localEnv.execute({operation: op}).subscribe({
+    complete: jest.fn<[], unknown>(),
+    error: errorCallback,
+    next: jest.fn<[unknown], unknown>(),
+  });
+  // dataSource is assigned synchronously inside RelayObservable.create above.
+  // $FlowFixMe[incompatible-use]
+  dataSource.next(args.response);
+  jest.runAllTimers();
+  return {
+    engineResult: null,
+    errors: errorCallback.mock.calls.map(call => call[0]),
+    normalizeResponseSpy,
+    source: localStore.getSource(),
+  };
+}
+
+async function runViaNormalizationEngine(
+  args: ParityArgs,
+): Promise<ParityResult> {
+  const normalizeResponseSpy = jest.fn(normalizeResponse);
+  const op = createOperationDescriptor(args.query, args.variables);
+  const engine = new NormalizationEngine({
+    normalizeResponse: normalizeResponseSpy,
+    operation: op.request.node.operation,
+    operationLoader: buildOperationLoader(
+      args.loadFragment,
+      args.loadFragmentAsync,
+    ),
+    variables: op.request.variables,
+  });
+  const engineResult = engine.processResponse(args.response);
+  // Drain pendingModules to surface async @module load failures uniformly
+  // with the executor path's `subscribe({error})` channel. Hand-rolled
+  // settle (Promise.allSettled isn't in the test env's Promise polyfill).
+  const settled = await Promise.all(
+    engineResult.pendingModules.map(p =>
+      p.then<{kind: 'ok'} | {kind: 'err', reason: unknown}>(
+        () => ({kind: 'ok'}),
+        (reason: unknown) => ({kind: 'err', reason}),
+      ),
+    ),
+  );
+  const errors = settled
+    .filter(s => s.kind === 'err')
+    .map(s => (s as $FlowFixMe).reason);
+  return {
+    engineResult,
+    errors,
+    normalizeResponseSpy,
+    source: engineResult.payloads[engineResult.payloads.length - 1].source,
+  };
+}
+
+function buildOperationLoader(
+  loadFragment: (ref: unknown) => ?NormalizationRootNode,
+  loadFragmentAsync: ?(ref: unknown) => Promise<?NormalizationRootNode>,
+): OperationLoader {
+  if (loadFragmentAsync != null) {
+    return {
+      get: jest.fn(() => null),
+      load: jest.fn(loadFragmentAsync),
+    };
+  }
+  return {
+    get: jest.fn(loadFragment),
+    load: jest.fn((ref: unknown) => Promise.resolve(loadFragment(ref))),
+  };
+}
 
 const Query = graphql`
   query RelayModernEnvironmentNoInlineTestQuery(
@@ -1244,6 +1392,83 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           jest.runAllTimers();
           expect(environment.check(operation)).toEqual({
             status: 'missing',
+          });
+        });
+
+        // Parity tests: behaviors that must be identical between the
+        // established OperationExecutor path and the exec-time
+        // NormalizationEngine path. Each test passes a fresh
+        // (query, variables, loadFragment, response) tuple to the runner and
+        // asserts on the uniform `ParityResult`.
+        describe.each([
+          ['OperationExecutor', runViaOperationExecutor],
+          ['NormalizationEngine', runViaNormalizationEngine],
+        ])('parity (%s)', (_runnerName, runner) => {
+          it('SplitOperation followup binds @arguments via getLocalVariables', async () => {
+            const {source} = await runner({
+              query: QueryWithModule,
+              variables: {cond: true},
+              loadFragment: () => markdownRendererNormalizationFragment,
+              response: {
+                data: {
+                  node: {
+                    __typename: 'User',
+                    id: '1',
+                    nameRenderer: {
+                      __module_component_RelayModernEnvironmentNoInlineTestModuleQuery:
+                        'MarkdownUserNameRenderer.react',
+                      __module_operation_RelayModernEnvironmentNoInlineTestModuleQuery:
+                        'RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$normalization.graphql',
+                      __typename: 'MarkdownUserNameRenderer',
+                      data: {id: 'data-1', markup: '<markup/>'},
+                      markdown: 'markdown payload',
+                    },
+                  },
+                },
+                extensions: {is_final: true as unknown},
+              },
+            });
+            const renderer = source.get('client:1:nameRenderer') as $FlowFixMe;
+            expect(renderer).toBeDefined();
+            // With cond=true: `data` is selected (@include) and `markdown` is
+            // skipped (@skip). Both depend on the SplitOperation's own
+            // argumentDefinitions resolving against the call-site args.
+            expect(renderer.data).toBeDefined();
+            expect(renderer.markdown).toBeUndefined();
+          });
+
+          it('async @module load failure surfaces (does not get swallowed)', async () => {
+            // The @module fragment fails to load (e.g., network error). Both
+            // paths must surface the error: the executor via
+            // `subscribe({error})`, the engine via `pendingModules` rejection.
+            // Without the fix, NormalizationEngine wrapped its load chain in
+            // `.catch(() => emptyResult)`, silently dropping the error.
+            const loadError = new Error('forced @module load failure');
+            const {errors} = await runner({
+              query: QueryWithModule,
+              variables: {cond: true},
+              loadFragment: () => null, // not used when loadFragmentAsync is set
+              loadFragmentAsync: () => Promise.reject(loadError),
+              response: {
+                data: {
+                  node: {
+                    __typename: 'User',
+                    id: '1',
+                    nameRenderer: {
+                      __module_component_RelayModernEnvironmentNoInlineTestModuleQuery:
+                        'MarkdownUserNameRenderer.react',
+                      __module_operation_RelayModernEnvironmentNoInlineTestModuleQuery:
+                        'RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$normalization.graphql',
+                      __typename: 'MarkdownUserNameRenderer',
+                      data: {id: 'data-1', markup: '<markup/>'},
+                      markdown: 'markdown payload',
+                    },
+                  },
+                },
+                extensions: {is_final: true as unknown},
+              },
+            });
+            expect(errors).toContain(loadError);
           });
         });
       });

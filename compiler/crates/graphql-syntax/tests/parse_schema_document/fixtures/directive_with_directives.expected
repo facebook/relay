@@ -1,0 +1,103 @@
+==================================== INPUT ====================================
+directive @foo(arg: Int) @deprecated @bar repeatable on FIELD | OBJECT
+==================================== OUTPUT ===================================
+SchemaDocument {
+    location: directive_with_directives.graphql:0:71,
+    definitions: [
+        DirectiveDefinition(
+            DirectiveDefinition {
+                name: Identifier {
+                    span: 11:14,
+                    token: Token {
+                        span: 11:14,
+                        kind: Identifier,
+                    },
+                    value: "foo",
+                },
+                arguments: Some(
+                    List {
+                        span: 14:24,
+                        start: Token {
+                            span: 14:15,
+                            kind: OpenParen,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 15:18,
+                                    token: Token {
+                                        span: 15:18,
+                                        kind: Identifier,
+                                    },
+                                    value: "arg",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 20:23,
+                                            token: Token {
+                                                span: 20:23,
+                                                kind: Identifier,
+                                            },
+                                            value: "Int",
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                description: None,
+                                span: 15:23,
+                            },
+                        ],
+                        end: Token {
+                            span: 23:24,
+                            kind: CloseParen,
+                        },
+                    },
+                ),
+                repeatable: true,
+                locations: [
+                    Field,
+                    Object,
+                ],
+                directives: [
+                    ConstantDirective {
+                        span: 25:36,
+                        at: Token {
+                            span: 25:26,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 26:36,
+                            token: Token {
+                                span: 26:36,
+                                kind: Identifier,
+                            },
+                            value: "deprecated",
+                        },
+                        arguments: None,
+                    },
+                    ConstantDirective {
+                        span: 37:41,
+                        at: Token {
+                            span: 37:38,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 38:41,
+                            token: Token {
+                                span: 38:41,
+                                kind: Identifier,
+                            },
+                            value: "bar",
+                        },
+                        arguments: None,
+                    },
+                ],
+                description: None,
+                hack_source: None,
+                span: 0:71,
+            },
+        ),
+    ],
+}

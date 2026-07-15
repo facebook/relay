@@ -1,0 +1,11 @@
+query ExampleQuery @raw_response_type {
+  node(id: "test-id") {
+    __typename
+    id
+    ... on Story {
+      body {
+        text
+      }
+    }
+  }
+}

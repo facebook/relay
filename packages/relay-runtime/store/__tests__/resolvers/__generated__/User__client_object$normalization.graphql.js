@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<22dc25b8f52894b80d06618f7066a3ce>>
+ * @generated SignedSource<<939766e4f7251197815f73163529f048>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,9 +18,9 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type User__client_object$normalization = {|
-  +description: ?string,
-|};
+export type User__client_object$normalization = {
+  readonly description: ?string,
+};
 
 */
 

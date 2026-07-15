@@ -1,0 +1,66 @@
+==================================== INPUT ====================================
+//- UserCombinedPage.js
+// A CLIENT-extension refinement (e.g. `... on ClientPage`) is dropped from the
+// transplant and served by the model edge -- it does NOT error.
+// `ShadowReturnSelectionNotOnShadowedType` must still fire for a GENUINE
+// mismatch: a consumer field that the shadowed SERVER field's type does not
+// define.
+//
+// Here the resolver declares it returns `IPage`, but its @rootFragment shadows
+// `User.account` (type `Account`), which does not define `title`. Transplanting
+// the consumer's `title` selection onto `Account` is a genuine authoring error,
+// not a client refinement, so it must still be reported.
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  account {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page, account: Account }
+type Page implements Node { id: ID!, title: String }
+type Account implements Node { id: ID! }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage
+==================================== OUTPUT ===================================
+✖︎ The selection 'title' on shadow resolver field cannot be transplanted onto the shadowed server type 'Account'. The shadowed server type must define a field with the same name so the consumer's selections can be fetched in the main query.
+
+  UserConsumer.js:4:7
+    3 │     combined_page {
+    4 │       title
+      │       ^^^^^
+    5 │     }

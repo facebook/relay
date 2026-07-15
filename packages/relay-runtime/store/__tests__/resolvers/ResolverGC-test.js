@@ -187,7 +187,9 @@ test('Regular resolver with fragment reads live resovler with fragment', async (
           owner: 'LiveCounterResolver',
         },
         {
+          fieldError: null,
           fieldPath: 'counter',
+          fieldValue: undefined,
           kind: 'missing_required_field.throw',
           owner: 'CounterPlusOneResolver',
           handled: true,

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<95d7a0b12f7fc30d3a3629f8c20eb6e2>>
+ * @generated SignedSource<<f1ea3fb0e66ac1e15a9ec21802f17219>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,17 +19,17 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ResolverFragmentSpreadsTestUnmaskedFragmentSpread$fragmentType: FragmentType;
-export type ResolverFragmentSpreadsTestUnmaskedFragmentSpread$data = {|
-  +profile_picture: ?{|
-    +height: ?number,
-    +uri: ?string,
-    +width: ?number,
-  |},
-  +$fragmentType: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$fragmentType,
-|};
+export type ResolverFragmentSpreadsTestUnmaskedFragmentSpread$data = {
+  readonly profile_picture: ?{
+    readonly height: ?number,
+    readonly uri: ?string,
+    readonly width: ?number,
+  },
+  readonly $fragmentType: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$fragmentType,
+};
 export type ResolverFragmentSpreadsTestUnmaskedFragmentSpread$key = {
-  +$data?: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$data,
-  +$fragmentSpreads: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$fragmentType,
+  readonly $data?: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$data,
+  readonly $fragmentSpreads: ResolverFragmentSpreadsTestUnmaskedFragmentSpread$fragmentType,
   ...
 };
 */

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b340f3aa3d333b4cefc26c21ed3660b5>>
+ * @generated SignedSource<<66088f059cf3a4b366c33280ad9f7311>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,18 +19,28 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTestClient2Interface$fragmentType: FragmentType;
-export type DataCheckerTestClient2Interface$data = {|
-  +description: ?string,
-  +$fragmentType: DataCheckerTestClient2Interface$fragmentType,
-|};
+export type DataCheckerTestClient2Interface$data = {
+  readonly description: ?string,
+  readonly $fragmentType: DataCheckerTestClient2Interface$fragmentType,
+};
 export type DataCheckerTestClient2Interface$key = {
-  +$data?: DataCheckerTestClient2Interface$data,
-  +$fragmentSpreads: DataCheckerTestClient2Interface$fragmentType,
+  readonly $data?: DataCheckerTestClient2Interface$data,
+  readonly $fragmentSpreads: DataCheckerTestClient2Interface$fragmentType,
   ...
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
+  }
+];
+return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
@@ -41,11 +50,16 @@ var node/*: ReaderFragment*/ = {
       "kind": "ClientExtension",
       "selections": [
         {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "description",
-          "storageKey": null
+          "kind": "InlineFragment",
+          "selections": (v0/*:: as any*/),
+          "type": "ClientTypeImplementingClientInterface",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": (v0/*:: as any*/),
+          "type": "OtherClientTypeImplementingClientInterface",
+          "abstractKey": null
         }
       ]
     }
@@ -53,6 +67,7 @@ var node/*: ReaderFragment*/ = {
   "type": "ClientInterface",
   "abstractKey": "__isClientInterface"
 };
+})();
 
 if (__DEV__) {
   (node/*:: as any*/).hash = "9650b9ade2708e969935ffb73b26a4c8";

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<70f0e62e1672e31ef3e540af2839563b>>
+ * @generated SignedSource<<7adf4ce411a9576098a0d6cae689a0e4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,24 +19,19 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResponseNormalizerTest10Fragment$fragmentType: FragmentType;
-export type RelayResponseNormalizerTest10Fragment$data = {|
-  +actors: ?ReadonlyArray<?({|
-    +__typename: "User",
-    +actors: ?ReadonlyArray<?{|
-      +name: ?string,
-    |}>,
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |})>,
-  +id: string,
-  +$fragmentType: RelayResponseNormalizerTest10Fragment$fragmentType,
-|};
+export type RelayResponseNormalizerTest10Fragment$data = {
+  readonly actors: ?ReadonlyArray<?{
+    readonly actors?: ?ReadonlyArray<?{
+      readonly name: ?string,
+    }>,
+    readonly name?: ?string,
+  }>,
+  readonly id: string,
+  readonly $fragmentType: RelayResponseNormalizerTest10Fragment$fragmentType,
+};
 export type RelayResponseNormalizerTest10Fragment$key = {
-  +$data?: RelayResponseNormalizerTest10Fragment$data,
-  +$fragmentSpreads: RelayResponseNormalizerTest10Fragment$fragmentType,
+  readonly $data?: RelayResponseNormalizerTest10Fragment$data,
+  readonly $fragmentSpreads: RelayResponseNormalizerTest10Fragment$fragmentType,
   ...
 };
 */

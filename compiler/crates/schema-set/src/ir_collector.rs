@@ -7,6 +7,7 @@
 
 use std::collections::HashSet;
 
+use common::DiagnosticsResult;
 use common::NamedItem;
 use graphql_ir::ConstantValue;
 use graphql_ir::FragmentDefinition;
@@ -79,7 +80,10 @@ impl<'a> UsedSchemaIRCollector<'a> {
         }
     }
 
-    pub fn add_used_type_definitions(&mut self, type_definitions_doc: SchemaDocument) {
+    pub fn add_used_type_definitions(
+        &mut self,
+        type_definitions_doc: SchemaDocument,
+    ) -> DiagnosticsResult<()> {
         for type_def in type_definitions_doc.definitions.iter() {
             // When encountering *extensions* of potentially unused-by-the-library type,
             // make sure we mark the original type as a server schema type, not an extension.
@@ -120,7 +124,7 @@ impl<'a> UsedSchemaIRCollector<'a> {
         }
 
         self.used_schema
-            .merge_sdl_document(&type_definitions_doc, true);
+            .merge_sdl_document(&type_definitions_doc, true)
     }
 
     // Visitors that need extra information passed from above

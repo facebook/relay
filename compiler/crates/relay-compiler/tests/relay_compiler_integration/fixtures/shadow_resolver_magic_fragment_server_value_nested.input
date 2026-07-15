@@ -1,0 +1,55 @@
+//- UserPageStats.js
+// A shadow (`@returnFragment`) resolver returning a non-Node server VALUE type
+// (`PageStats`) that itself CONTAINS another non-Node server value type
+// (`PageStats.topPost: PostStats`). The whole nested value tree normalizes once
+// under the transplanted `client:<parentid>:<field>` records, so read-in-place
+// must hold AT DEPTH: NO `$normalization` artifact is generated for the resolver
+// return (the resolver returns only the `{__typename, __id}` identity of the
+// outer record), and the consumer's nested `topPost { viewCount }` selection is
+// read off the transplanted records in place. The Artifact Map must list only
+// the consumer query and the resolver root fragment — no nested-object
+// normalization operation at any depth.
+/**
+ * @relayField User.page_stats: PageStats
+ * @rootFragment UserPageStatsResolverFragment
+ * @returnFragment UserPageStatsReturnFragment
+ */
+graphql`fragment UserPageStatsResolverFragment on User {
+  page {
+    stats {
+      ...UserPageStatsReturnFragment
+    }
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    page_stats {
+      likeCount
+      topPost {
+        viewCount
+      }
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" },
+    "enable_resolver_normalization_ast": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String, stats: PageStats }
+type PageStats { likeCount: Int, topPost: PostStats }
+type PostStats { viewCount: Int }

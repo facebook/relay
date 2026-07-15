@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bf67c1f77d1bfed4bdd69366e03f76c6>>
+ * @generated SignedSource<<c7cea70db4d65240e9ecbbce245b986b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestToResolverSuspenseFragment$fragmentType } from "./observeFragmentTestToResolverSuspenseFragment.graphql";
-export type observeFragmentTestToResolverSuspenseQuery$variables = {||};
-export type observeFragmentTestToResolverSuspenseQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: observeFragmentTestToResolverSuspenseFragment$fragmentType,
-  |},
-|};
-export type observeFragmentTestToResolverSuspenseQuery = {|
+export type observeFragmentTestToResolverSuspenseQuery$variables = {};
+export type observeFragmentTestToResolverSuspenseQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: observeFragmentTestToResolverSuspenseFragment$fragmentType,
+  },
+};
+export type observeFragmentTestToResolverSuspenseQuery = {
   response: observeFragmentTestToResolverSuspenseQuery$data,
   variables: observeFragmentTestToResolverSuspenseQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

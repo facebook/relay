@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0aab865fb07f59e92be883019e8fdfa5>>
+ * @generated SignedSource<<bc3f9fbf4fb7631ecd21bdbc4d87b11a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest22Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest22Fragment.graphql";
 export type PhotoSize = "LARGE" | "SMALL" | "%future added value";
-export type RelayMockPayloadGeneratorTest18Query$variables = {|
+export type RelayMockPayloadGeneratorTest18Query$variables = {
   RELAY_INCREMENTAL_DELIVERY?: ?boolean,
   first?: ?number,
   picturePreset?: ?PhotoSize,
-|};
-export type RelayMockPayloadGeneratorTest18Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest18Query = {|
+};
+export type RelayMockPayloadGeneratorTest18Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
+  },
+};
+export type RelayMockPayloadGeneratorTest18Query = {
   response: RelayMockPayloadGeneratorTest18Query$data,
   variables: RelayMockPayloadGeneratorTest18Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

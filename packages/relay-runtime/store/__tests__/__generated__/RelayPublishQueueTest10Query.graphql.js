@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fb662b40646db79afe7a4cf726cfa77f>>
+ * @generated SignedSource<<c8d738bbdc03eb970f558fb928be11b2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayPublishQueueTest10Query$variables = {||};
-export type RelayPublishQueueTest10Query$data = {|
-  +me: ?{|
-    +name: ?string,
-  |},
-|};
-export type RelayPublishQueueTest10Query = {|
+export type RelayPublishQueueTest10Query$variables = {};
+export type RelayPublishQueueTest10Query$data = {
+  readonly me: ?{
+    readonly name: ?string,
+  },
+};
+export type RelayPublishQueueTest10Query = {
   response: RelayPublishQueueTest10Query$data,
   variables: RelayPublishQueueTest10Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

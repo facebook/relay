@@ -45,12 +45,13 @@ fragment UserFragment on User {
    {
     ...ClientRecommendationResolverFragment @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(530),
+    #     field_id: FieldID(533),
     #     import_path: "ClientRecommendationResolver",
     #     import_name: None,
     #     field_alias: None,
     #     field_path: "client_recommendation",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: false,
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,

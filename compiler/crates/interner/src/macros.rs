@@ -14,10 +14,11 @@
 #[macro_export]
 macro_rules! intern {
     ($value:literal) => {{
+        use std::sync::LazyLock;
+
         use $crate::Intern;
         use $crate::StringKey;
-        use $crate::reexport::Lazy;
-        static KEY: Lazy<StringKey> = Lazy::new(|| Intern::intern($value));
+        static KEY: LazyLock<StringKey> = LazyLock::new(|| Intern::intern($value));
         *KEY
     }};
     ($_:expr) => {
@@ -47,16 +48,15 @@ macro_rules! intern {
 #[macro_export]
 macro_rules! make_intern {
     ($name:ident as $alias:ident) => {
-        use lazy_static::lazy_static;
+        use std::sync::LazyLock;
+
         use $crate::Intern;
         use $crate::InternKey;
         use $crate::InternTable;
         use $crate::RawInternKey;
 
-        lazy_static! {
-            /// Global interning table for this type
-            static ref INTERN_TABLE: InternTable<$alias, $name> = InternTable::new();
-        }
+        /// Global interning table for this type
+        static INTERN_TABLE: LazyLock<InternTable<$alias, $name>> = LazyLock::new(InternTable::new);
 
         /// Wrapper type for the intern key
         #[derive(Copy, Clone, Debug, Eq, Ord, Hash, PartialEq, PartialOrd)]

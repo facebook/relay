@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4621accd7424dcdfff04d6cf0e21caf0>>
+ * @generated SignedSource<<a3c1fe16aae9bae0db168b128a288fbd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,32 +20,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name.graphql";
-export type RelayModernEnvironmentNoInlineTestModuleQuery$variables = {|
+export type RelayModernEnvironmentNoInlineTestModuleQuery$variables = {
   cond: boolean,
-|};
-export type RelayModernEnvironmentNoInlineTestModuleQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +nameRenderer: ?({|
-      +__typename: "MarkdownUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayModernEnvironmentNoInlineTestModuleQuery = {|
+};
+export type RelayModernEnvironmentNoInlineTestModuleQuery$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentNoInlineTestModuleQuery = {
   response: RelayModernEnvironmentNoInlineTestModuleQuery$data,
   variables: RelayModernEnvironmentNoInlineTestModuleQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

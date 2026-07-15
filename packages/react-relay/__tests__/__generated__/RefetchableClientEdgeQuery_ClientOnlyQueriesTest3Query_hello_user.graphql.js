@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<72ed5322d6dfc55b7def3b10d1630668>>
+ * @generated SignedSource<<3be1ae598aafa2ec7814ab4ec04924c7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$fragmentType: FragmentType;
 type ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$variables = any;
-export type RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$fragmentType,
+};
 export type RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$key = {
-  +$data?: RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$fragmentType,
   ...
 };
 */

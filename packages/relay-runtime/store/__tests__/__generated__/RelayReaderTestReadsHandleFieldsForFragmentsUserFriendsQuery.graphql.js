@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<21e30f3f1eff545f326b825930a6e456>>
+ * @generated SignedSource<<a4436771a5aa70b79e8344faddab4142>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType } from "./RelayReaderTestReadsHandleFieldsForFragmentsUserFriends.graphql";
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$variables = {||};
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
-  |},
-|};
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery = {|
+export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$variables = {};
+export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
+  },
+};
+export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery = {
   response: RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$data,
   variables: RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

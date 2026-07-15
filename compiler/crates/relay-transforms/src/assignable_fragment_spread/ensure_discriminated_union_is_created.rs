@@ -62,7 +62,7 @@ pub(super) fn ensure_discriminated_union_is_created(
                     &mut encountered_type_conditions,
                     reason_message,
                 ) {
-                    errors.extend(e.into_iter());
+                    errors.extend(e);
                 }
             }
             _ => errors.push(

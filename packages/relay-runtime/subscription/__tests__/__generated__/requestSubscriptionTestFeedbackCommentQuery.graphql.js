@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df3a1026f73824982ba728d212f8c2b1>>
+ * @generated SignedSource<<d19e0baa27880b722557e04e837a6844>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,32 +17,27 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type requestSubscriptionTestFeedbackCommentQuery$variables = {|
+export type requestSubscriptionTestFeedbackCommentQuery$variables = {
   id?: ?string,
-|};
-export type requestSubscriptionTestFeedbackCommentQuery$data = {|
-  +node: ?({|
-    +__typename: "Feedback",
-    +comments: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +node: ?{|
-          +body: ?{|
-            +text: ?string,
-          |},
-          +id: string,
-        |},
-      |}>,
-    |},
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type requestSubscriptionTestFeedbackCommentQuery = {|
+};
+export type requestSubscriptionTestFeedbackCommentQuery$data = {
+  readonly node: ?{
+    readonly comments?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly body: ?{
+            readonly text: ?string,
+          },
+          readonly id: string,
+        },
+      }>,
+    },
+  },
+};
+export type requestSubscriptionTestFeedbackCommentQuery = {
   response: requestSubscriptionTestFeedbackCommentQuery$data,
   variables: requestSubscriptionTestFeedbackCommentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

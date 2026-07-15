@@ -7,14 +7,14 @@ fragment Foo on User {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Foo$fragmentType: FragmentType;
-export type Foo$data = {|
-  +aliased_fragment: {|
-    +name: ?string,
-  |},
-  +$fragmentType: Foo$fragmentType,
-|};
+export type Foo$data = {
+  readonly aliased_fragment: {
+    readonly name: ?string,
+  },
+  readonly $fragmentType: Foo$fragmentType,
+};
 export type Foo$key = {
-  +$data?: Foo$data,
-  +$fragmentSpreads: Foo$fragmentType,
+  readonly $data?: Foo$data,
+  readonly $fragmentSpreads: Foo$fragmentType,
   ...
 };

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b862f063ac8fbf5994441f7ca38dd736>>
+ * @generated SignedSource<<75f391ffa7a89c1e18a51af59f50f39a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,21 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data = {|
-  +__typename: "User",
-  +id: string,
-  +missing: ?string,
-  +name: ?string,
-  +$fragmentType: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
-|};
+export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data = {
+  readonly id?: string,
+  readonly missing?: ?string,
+  readonly name?: ?string,
+  readonly $fragmentType: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
+};
 export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$key = {
-  +$data?: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
   ...
 };
 */

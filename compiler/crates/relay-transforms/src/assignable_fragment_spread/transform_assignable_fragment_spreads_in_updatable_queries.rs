@@ -6,6 +6,7 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::DirectiveName;
 use common::Location;
@@ -22,17 +23,14 @@ use graphql_ir::Transformer;
 use graphql_ir::associated_data_impl;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
 use crate::UPDATABLE_DIRECTIVE;
 
-lazy_static! {
-    pub static ref ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN: DirectiveName =
-        DirectiveName("__assignable".intern());
-}
+pub static ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("__assignable".intern()));
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Copy)]
 pub enum TypeConditionInfo {

@@ -27,25 +27,25 @@ import {pop_star_name as userPopStarNameResolverType} from "PopStarNameResolver"
 (userPopStarNameResolverType as (
   rootKey: relayResolverNamedImport_PopStarNameResolverFragment_name$key,
 ) => ?unknown);
-export type relayResolverNamedImport_Query$variables = {||};
-export type relayResolverNamedImport_Query$data = {|
-  +me: ?{|
-    +pop_star_name: ?ReturnType<typeof userPopStarNameResolverType>,
-  |},
-|};
-export type relayResolverNamedImport_Query = {|
+export type relayResolverNamedImport_Query$variables = {};
+export type relayResolverNamedImport_Query$data = {
+  readonly me: ?{
+    readonly pop_star_name: ?ReturnType<typeof userPopStarNameResolverType>,
+  },
+};
+export type relayResolverNamedImport_Query = {
   response: relayResolverNamedImport_Query$data,
   variables: relayResolverNamedImport_Query$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type relayResolverNamedImport_PopStarNameResolverFragment_name$fragmentType: FragmentType;
-export type relayResolverNamedImport_PopStarNameResolverFragment_name$data = {|
-  +name: ?string,
-  +$fragmentType: relayResolverNamedImport_PopStarNameResolverFragment_name$fragmentType,
-|};
+export type relayResolverNamedImport_PopStarNameResolverFragment_name$data = {
+  readonly name: ?string,
+  readonly $fragmentType: relayResolverNamedImport_PopStarNameResolverFragment_name$fragmentType,
+};
 export type relayResolverNamedImport_PopStarNameResolverFragment_name$key = {
-  +$data?: relayResolverNamedImport_PopStarNameResolverFragment_name$data,
-  +$fragmentSpreads: relayResolverNamedImport_PopStarNameResolverFragment_name$fragmentType,
+  readonly $data?: relayResolverNamedImport_PopStarNameResolverFragment_name$data,
+  readonly $fragmentSpreads: relayResolverNamedImport_PopStarNameResolverFragment_name$fragmentType,
   ...
 };

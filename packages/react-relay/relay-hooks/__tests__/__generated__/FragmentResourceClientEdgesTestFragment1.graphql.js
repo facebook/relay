@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<14b1ddeddb5b6ffde4ede2833b2fbc2a>>
+ * @generated SignedSource<<18a8ae4e3bbb0f99c781ed25bd15c551>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,19 +27,19 @@ import type { TestResolverContextType } from "../../../../relay-runtime/mutation
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 declare export opaque type FragmentResourceClientEdgesTestFragment1$fragmentType: FragmentType;
-export type FragmentResourceClientEdgesTestFragment1$data = {|
-  +client_edge: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: FragmentResourceClientEdgesTestFragment1$fragmentType,
-|};
+export type FragmentResourceClientEdgesTestFragment1$data = {
+  readonly client_edge: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: FragmentResourceClientEdgesTestFragment1$fragmentType,
+};
 export type FragmentResourceClientEdgesTestFragment1$key = {
-  +$data?: FragmentResourceClientEdgesTestFragment1$data,
-  +$fragmentSpreads: FragmentResourceClientEdgesTestFragment1$fragmentType,
+  readonly $data?: FragmentResourceClientEdgesTestFragment1$data,
+  readonly $fragmentSpreads: FragmentResourceClientEdgesTestFragment1$fragmentType,
   ...
 };
 */

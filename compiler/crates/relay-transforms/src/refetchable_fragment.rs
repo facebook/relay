@@ -24,6 +24,7 @@ use common::Named;
 use common::NamedItem;
 use common::WithLocation;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
+use fnv::FnvHashMap;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -137,7 +138,10 @@ type ExistingRefetchOperations = StringKeyMap<WithLocation<FragmentDefinitionNam
 pub struct RefetchableFragment<'program, 'pc> {
     connection_constants: ConnectionConstants,
     existing_refetch_operations: ExistingRefetchOperations,
+    // O(1) operation-name lookup to avoid per-fragment linear scans.
+    existing_operations: FnvHashMap<OperationDefinitionName, &'program Arc<OperationDefinition>>,
     for_typegen: bool,
+    infer_variables_visitor: InferVariablesVisitor<'program>,
     program: &'program Program,
     project_config: &'pc ProjectConfig,
 }
@@ -148,10 +152,13 @@ impl<'program, 'pc> RefetchableFragment<'program, 'pc> {
         project_config: &'pc ProjectConfig,
         for_typegen: bool,
     ) -> Self {
+        let existing_operations = program.operations().map(|op| (op.name.item, op)).collect();
         RefetchableFragment {
             connection_constants: Default::default(),
             existing_refetch_operations: Default::default(),
+            existing_operations,
             for_typegen,
+            infer_variables_visitor: InferVariablesVisitor::new(program),
             program,
             project_config,
         }
@@ -217,8 +224,9 @@ impl<'program, 'pc> RefetchableFragment<'program, 'pc> {
             RefetchableDirective::from_directive(&self.program.schema, directive)?;
         self.validate_sibling_directives(fragment)?;
         self.validate_refetch_name(fragment, &refetchable_directive)?;
-        let variables_map =
-            InferVariablesVisitor::new(self.program).infer_fragment_variables(fragment);
+        let variables_map = self
+            .infer_variables_visitor
+            .infer_fragment_variables(fragment);
 
         let generators = get_query_generators(&refetchable_directive, self.project_config);
 
@@ -305,8 +313,9 @@ impl<'program, 'pc> RefetchableFragment<'program, 'pc> {
 
         // check for conflict with operations
         if let Some(existing_query) = self
-            .program
-            .operation(refetchable_directive.query_name.item)
+            .existing_operations
+            .get(&refetchable_directive.query_name.item)
+            .copied()
         {
             return Err(vec![
                 Diagnostic::error(

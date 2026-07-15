@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c80e2acc3062dd8fa8f004838d403dfa>>
+ * @generated SignedSource<<99b22d6ae55d43b4d4b4dcd2dca0334a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType: FragmentType;
-export type RelayExperimentalGraphResponseTransformTest_no_inline_user_name$data = {|
-  +name: ?string,
-  +$fragmentType: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
-|};
+export type RelayExperimentalGraphResponseTransformTest_no_inline_user_name$data = {
+  readonly name: ?string,
+  readonly $fragmentType: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
+};
 export type RelayExperimentalGraphResponseTransformTest_no_inline_user_name$key = {
-  +$data?: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$data,
-  +$fragmentSpreads: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
+  readonly $data?: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$data,
+  readonly $fragmentSpreads: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
   ...
 };
 */

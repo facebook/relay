@@ -31,6 +31,15 @@ impl Scope {
         }
     }
 
+    /// Returns true if the current (topmost) scope frame has any variable
+    /// bindings. When false, `get()` will return `None` for all names, so
+    /// argument/directive traversal for variable substitution can be skipped.
+    pub fn has_bindings(&self) -> bool {
+        self.bindings
+            .last()
+            .is_some_and(|bindings| !bindings.1.is_empty())
+    }
+
     pub fn get(&self, name: VariableName) -> Option<&Value> {
         self.bindings
             .last()

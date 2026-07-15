@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5af18bda20daa426d9eda02a0f7fd1f3>>
+ * @generated SignedSource<<3086fe547397b8fa5128a3a5475e321e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType } from "./observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment.graphql";
-export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$variables = {||};
-export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$data = {|
-  +nodes: ?ReadonlyArray<?{|
-    +$fragmentSpreads: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
-  |}>,
-|};
-export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery = {|
+export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$variables = {};
+export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
+  }>,
+};
+export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery = {
   response: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$data,
   variables: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df6732db4a952ab41add11223e2b0fd2>>
+ * @generated SignedSource<<4444729a93a6baab434d7f52e1641e3c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,43 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type DataCheckerTestQuery$variables = {|
+export type DataCheckerTestQuery$variables = {
   id?: ?string,
   size?: ?ReadonlyArray<?number>,
-|};
-export type DataCheckerTestQuery$data = {|
-  +node: ?({|
-    +__typename: "Page",
-    +actors: ?ReadonlyArray<?{|
-      +name: ?string,
-    |}>,
-    +id: string,
-  |} | {|
-    +__typename: "User",
-    +firstName: ?string,
-    +friends: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +firstName: ?string,
-          +id: string,
-        |},
-      |}>,
-    |},
-    +id: string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type DataCheckerTestQuery = {|
+};
+export type DataCheckerTestQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly actors?: ?ReadonlyArray<?{
+      readonly name: ?string,
+    }>,
+    readonly firstName?: ?string,
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly firstName: ?string,
+          readonly id: string,
+        },
+      }>,
+    },
+    readonly id: string,
+    readonly profilePicture?: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type DataCheckerTestQuery = {
   response: DataCheckerTestQuery$data,
   variables: DataCheckerTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

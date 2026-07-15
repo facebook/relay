@@ -134,6 +134,11 @@
           "type": "boolean",
           "default": false
         },
+        "oneOfType": {
+          "description": "How to generate a type for an input object marked as @oneOf.\nDefaults to \"strict\", which is to generate a union type which\npermits only a single property being set at a time. \"ignore\"\ngenerates the type as if the @oneOf annotation does not exist.",
+          "$ref": "#/$defs/OneOfGeneration",
+          "default": "strict"
+        },
         "optionalInputFields": {
           "title": "For Flow type generation",
           "description": "When set, generated input types will have the listed fields optional\neven if the schema defines them as required.",
@@ -622,6 +627,13 @@
             "kind": "disabled"
           }
         },
+        "disable_more_precise_abstract_selection_raw_response_type": {
+          "description": "Disable the generation of a more precise raw response type\nfor selections on abstract types.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "disable_resolver_reader_ast": {
           "description": "Mirror of `enable_resolver_normalization_ast`\nexcludes resolver metadata from reader ast",
           "type": "boolean",
@@ -634,6 +646,13 @@
         },
         "disallow_required_action_throw_on_semantically_nullable_fields": {
           "description": "Disallow @required action THROW on semantically nullable fields.\nWhen enabled, this will prevent the use of THROW action on fields\nthat are semantically nullable (e.g., fields that can legitimately\nbe null in normal operation).",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
+        "emit_nogrep_annotation": {
+          "description": "When enabled, the `@nogrep` annotation is included in the docblock\nheader of generated artifacts. This annotation was historically always\nemitted but is no longer needed. This flag allows incremental removal\nacross projects using the rollout variant keyed on the artifact name.",
           "$ref": "#/$defs/FeatureFlag",
           "default": {
             "kind": "disabled"
@@ -715,6 +734,13 @@
         },
         "relay_resolver_enable_interface_output_type": {
           "description": "Enable returning interfaces from Relay Resolvers without @outputType",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
+        "shard_extra_artifacts": {
+          "description": "Shard generated extra artifacts into subdirectories under\n`extraArtifactsOutput` that mirror the source file's relative path,\nhonoring `shardOutput` / `shardStripRegex`.",
           "$ref": "#/$defs/FeatureFlag",
           "default": {
             "kind": "disabled"
@@ -925,9 +951,15 @@
             "disable_full_argument_type_validation": {
               "kind": "disabled"
             },
+            "disable_more_precise_abstract_selection_raw_response_type": {
+              "kind": "disabled"
+            },
             "disable_resolver_reader_ast": false,
             "disable_schema_validation": false,
             "disallow_required_action_throw_on_semantically_nullable_fields": {
+              "kind": "disabled"
+            },
+            "emit_nogrep_annotation": {
               "kind": "disabled"
             },
             "enable_3d_branch_arg_generation": false,
@@ -954,6 +986,9 @@
             },
             "prefer_fetchable_in_refetch_queries": false,
             "relay_resolver_enable_interface_output_type": {
+              "kind": "disabled"
+            },
+            "shard_extra_artifacts": {
               "kind": "disabled"
             },
             "skip_printing_nulls": {
@@ -1058,6 +1093,20 @@
         }
       },
       "additionalProperties": false
+    },
+    "OneOfGeneration": {
+      "oneOf": [
+        {
+          "description": "Will generate a union type, which can have only a single property set",
+          "type": "string",
+          "const": "strict"
+        },
+        {
+          "description": "Will exhibit previous behaviour, where @oneOf types would generate a\npermissive object type that may include all, none, or some of the\nproperties set",
+          "type": "string",
+          "const": "ignore"
+        }
+      ]
     },
     "PersistConfig": {
       "description": "Configuration for how the Relay Compiler should persist GraphQL queries.",
@@ -1194,7 +1243,7 @@
       ]
     },
     "ResolversSchemaModuleConfig": {
-      "description": "Configuration for resolvers_schema_module generation",
+      "description": "Configuration for resolvers_schema_module generation.\n\nWhen `path` is provided, a monolithic resolver map file is generated at that\npath. When `path` is omitted, the map file is not generated but root\nfragment normalization split operations are still produced.",
       "type": "object",
       "properties": {
         "applyToNormalizationAst": {
@@ -1202,8 +1251,11 @@
           "default": false
         },
         "path": {
-          "type": "string",
-          "default": ""
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
         }
       },
       "additionalProperties": false
@@ -1473,6 +1525,11 @@
             "null"
           ],
           "default": null
+        },
+        "oneOfType": {
+          "description": "How to generate a type for an input object marked as @oneOf.\nDefaults to \"strict\", which is to generate a union type which\npermits only a single property being set at a time. \"ignore\"\ngenerates the type as if the @oneOf annotation does not exist.",
+          "$ref": "#/$defs/OneOfGeneration",
+          "default": "strict"
         },
         "optionalInputFields": {
           "title": "For Flow type generation",

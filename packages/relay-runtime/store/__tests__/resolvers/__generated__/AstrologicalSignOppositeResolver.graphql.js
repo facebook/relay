@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5b040452e5503521b1dd30dc9d4a95d4>>
+ * @generated SignedSource<<e8a6ee9cb631c31f0983d7853ae74af7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,13 +29,13 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   context: TestResolverContextType,
 ) => ?unknown);
 declare export opaque type AstrologicalSignOppositeResolver$fragmentType: FragmentType;
-export type AstrologicalSignOppositeResolver$data = {|
-  +self: ?ReturnType<typeof astrologicalSignSelfResolverType>,
-  +$fragmentType: AstrologicalSignOppositeResolver$fragmentType,
-|};
+export type AstrologicalSignOppositeResolver$data = {
+  readonly self: ?ReturnType<typeof astrologicalSignSelfResolverType>,
+  readonly $fragmentType: AstrologicalSignOppositeResolver$fragmentType,
+};
 export type AstrologicalSignOppositeResolver$key = {
-  +$data?: AstrologicalSignOppositeResolver$data,
-  +$fragmentSpreads: AstrologicalSignOppositeResolver$fragmentType,
+  readonly $data?: AstrologicalSignOppositeResolver$data,
+  readonly $fragmentSpreads: AstrologicalSignOppositeResolver$fragmentType,
   ...
 };
 */

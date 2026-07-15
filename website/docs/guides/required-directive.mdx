@@ -190,12 +190,6 @@ fragment MyFrag on Actor {
 
 In this situation Relay will generate a union type like: `{__typename: 'User', name: string} | {__typename: '%ignore this%}`. Now you can check the `__typename` field to narrow your object's type down to one that has a non-nullable `name`.
 
-<FbInternalOnly>
-
-Example diff showing the adoption of this strategy: D24370183
-
-</FbInternalOnly>
-
 ### Why not implement this at the schema/server level?
 
 The "requiredness" of a field is actually a product decision and not a schema question. Therefore we need to implement the handling of it at the product level. Individual components need to be able to decide for themselves how to handle a missing value.
@@ -222,19 +216,3 @@ We actually believe that in most cases LOG is the most ideal choice. It gives th
 We debated making LOG the default action for that reason, but I think that's confusing as well.
 
 So, for now we are planning to not offer a default argument. After all, it's still much less to write out than the equivalent manual null checks. Once we see how people use it we will consider what value (if any) should be the default.
-
-<FbInternalOnly>
-
-### Does @required change anything about the logger project field?
-
-When using recoverableViolation or unrecoverableViolation, the second argument is the FBLogger project name ([defined on Comet here](https://fburl.com/diffusion/rn99dl4s)):
-
-```javascript
-recoverableViolation('My error string', 'my_logger_project');
-```
-
-When you switch to using `@required`, any `THROW` or `LOG` actions will log to the `relay-required` logger project instead ([see here in logview](https://fburl.com/logview/l40t7cjv)).
-
-For most teams, this shouldn't be an issue; care has been taken to ensure tasks still get routed to the correct owner of the file that is using `@required`. However, if your team has any queries that utilize the logger project field, you may want to consider the implications.
-
-</FbInternalOnly>

@@ -12,6 +12,8 @@ use std::fmt;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::sync::Mutex;
+use std::time::SystemTime;
 use std::vec;
 
 use async_trait::async_trait;
@@ -31,6 +33,7 @@ use graphql_ir::Program;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
+use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
@@ -63,7 +66,7 @@ use serde::de::Error as DeError;
 use serde_json::Value;
 use sha1::Digest;
 use sha1::Sha1;
-use tokio::sync::Notify;
+use tokio::sync::broadcast;
 use watchman_client::pdu::ScmAwareClockData;
 
 use crate::GraphQLAsts;
@@ -119,6 +122,185 @@ type CustomExtractRelayResolvers = Box<
 type CustomOverrideSchemaDeterminator =
     Box<dyn Fn(&ProjectConfig, &OperationDefinition) -> Option<String> + Send + Sync>;
 
+/// Reason the daemon should exit and be restarted by its supervisor.
+#[derive(Debug, Clone)]
+pub enum RestartReason {
+    /// The on-disk config file's bytes differ from the snapshot taken at
+    /// daemon startup. `before`/`after` are SHA1 hex digests for logging.
+    ConfigChanged {
+        path: PathBuf,
+        before: String,
+        after: String,
+    },
+    /// The on-disk binary at `path` has a different mtime than at startup,
+    /// implying a deploy landed under the running daemon.
+    BinaryChanged { path: PathBuf },
+}
+
+/// Snapshot of the inputs that contribute to a saved-state version match,
+/// captured at daemon startup. Used by [`Compiler::watch`] to detect when
+/// the running daemon has drifted from the on-disk Relay binary or config
+/// and should exit so a fresh process can match the current saved state.
+///
+/// Motivation: the dominant source of saved-state version mismatches on
+/// user OD instances is a Relay binary or config change landing after the
+/// daemon was started (during OD warmup), so the warmed cache on disk no
+/// longer matches what the long-lived daemon expects. Restarting the
+/// daemon when the on-disk binary/config drifts eliminates that class of
+/// mismatch — the next client invocation respawns a fresh daemon via
+/// `ensure_daemon_running` against the current `current_exe()`.
+#[derive(Debug, Clone)]
+pub struct DaemonRestartSignals {
+    /// Path to the on-disk config file the daemon was started with.
+    config_path: PathBuf,
+    /// SHA1 hex of `config_path`'s raw bytes at daemon startup. Compared
+    /// only as a fallback when [`Self::startup_config_mtime`] /
+    /// [`Self::startup_config_size`] indicate a possible change, to avoid
+    /// re-reading the full file on every check.
+    startup_config_hash: String,
+    /// mtime of `config_path` at startup, used as a cheap pre-filter.
+    startup_config_mtime: Option<SystemTime>,
+    /// Size of `config_path` at startup, used as a cheap pre-filter.
+    startup_config_size: Option<u64>,
+    /// Path to the running binary (`std::env::current_exe()`), if detectable.
+    /// On non-Linux platforms or unusual launch paths this can be `None`,
+    /// in which case binary-change detection is skipped.
+    binary_path: Option<PathBuf>,
+    /// mtime of `binary_path` at startup, if detectable.
+    startup_binary_mtime: Option<SystemTime>,
+}
+
+impl DaemonRestartSignals {
+    /// Snapshot the config bytes and binary mtime. Returns `None` if the
+    /// config file at `config_path` can't be read (e.g. tests using a
+    /// virtual path); detection is silently disabled in that case.
+    ///
+    /// `binary_path` is normally [`std::env::current_exe`] in production —
+    /// taking it as a parameter lets tests inject a controllable tempfile
+    /// for `BinaryChanged` coverage. Pass `None` to disable binary
+    /// detection (the daemon will only react to config changes).
+    pub fn try_capture(config_path: &Path, binary_path: Option<PathBuf>) -> Option<Self> {
+        let config_bytes = std::fs::read(config_path).ok()?;
+        let mut hasher = Sha1::new();
+        hasher.update(&config_bytes);
+        let startup_config_hash = hex::encode(hasher.finalize());
+
+        let config_metadata = std::fs::metadata(config_path).ok();
+        let startup_config_mtime = config_metadata.as_ref().and_then(|m| m.modified().ok());
+        let startup_config_size = config_metadata.as_ref().map(|m| m.len());
+
+        let startup_binary_mtime = binary_path
+            .as_deref()
+            .and_then(|p| std::fs::metadata(p).ok())
+            .and_then(|m| m.modified().ok());
+
+        Some(Self {
+            config_path: config_path.to_owned(),
+            startup_config_hash,
+            startup_config_mtime,
+            startup_config_size,
+            binary_path,
+            startup_binary_mtime,
+        })
+    }
+
+    /// Re-read the on-disk config and binary metadata; return the first
+    /// detected change, or `None` if nothing relevant has drifted.
+    ///
+    /// The config-side path uses an `(mtime, size)` pre-filter so the
+    /// steady-state cost is a single `stat` syscall; only if mtime or size
+    /// drifted do we re-read and re-hash the file. This is important
+    /// because [`crate::Compiler::watch`]'s `incremental_build_loop` calls
+    /// this on every Watchman notify — see knowledge entry
+    /// `flag-performance-impact-of-file-io-in-the-compiler-hot-path-*`.
+    ///
+    /// Uses `tokio::fs` because the caller runs inside the Tokio runtime;
+    /// blocking `std::fs` here would block the worker thread for the
+    /// duration of the stat/read syscalls.
+    pub async fn check(&self) -> Option<RestartReason> {
+        if let Some(reason) = self.check_config().await {
+            return Some(reason);
+        }
+        self.check_binary().await
+    }
+
+    async fn check_config(&self) -> Option<RestartReason> {
+        // Cheap pre-filter: if both mtime and size match the startup
+        // snapshot, the file is overwhelmingly likely unchanged. Skip the
+        // expensive read+hash in the common case.
+        //
+        // False-negative caveat: if a writer preserves mtime AND keeps
+        // the same file length (e.g. `cp --preserve=timestamps`, `touch
+        // -r`, in-place edit that ends at the same offset), this branch
+        // returns `None` and the hash comparison that would have caught
+        // the change is skipped. In practice, builds spawn fresh daemons
+        // routinely, so any missed change is caught at next daemon spawn
+        // at the latest. If false negatives become a real problem,
+        // remove the pre-filter and always hash.
+        if let (Some(startup_mtime), Some(startup_size)) =
+            (self.startup_config_mtime, self.startup_config_size)
+            && let Ok(metadata) = tokio::fs::metadata(&self.config_path).await
+            && let Ok(now_mtime) = metadata.modified()
+            && now_mtime == startup_mtime
+            && metadata.len() == startup_size
+        {
+            return None;
+        }
+
+        let bytes = match tokio::fs::read(&self.config_path).await {
+            Ok(bytes) => bytes,
+            Err(e) => {
+                // Don't silently disable detection — the config file used
+                // to be readable (we read it in `try_capture`), so a read
+                // failure here is unexpected and worth surfacing in logs.
+                warn!(
+                    "DaemonRestartSignals: could not re-read config at {}: {e}; \
+                     restart detection skipped for this iteration",
+                    self.config_path.display()
+                );
+                return None;
+            }
+        };
+        let mut hasher = Sha1::new();
+        hasher.update(&bytes);
+        let now_hash = hex::encode(hasher.finalize());
+        if now_hash == self.startup_config_hash {
+            return None;
+        }
+        Some(RestartReason::ConfigChanged {
+            path: self.config_path.clone(),
+            before: self.startup_config_hash.clone(),
+            after: now_hash,
+        })
+    }
+
+    async fn check_binary(&self) -> Option<RestartReason> {
+        let (Some(path), Some(startup_mtime)) =
+            (self.binary_path.as_deref(), self.startup_binary_mtime)
+        else {
+            return None;
+        };
+        let metadata = match tokio::fs::metadata(path).await {
+            Ok(m) => m,
+            Err(e) => {
+                // Same rationale as `check_config` above — surface the
+                // unexpected failure rather than silently disabling
+                // detection. The binary path was readable at startup.
+                warn!(
+                    "DaemonRestartSignals: could not stat binary at {}: {e}; \
+                     restart detection skipped for this iteration",
+                    path.display()
+                );
+                return None;
+            }
+        };
+        let now_mtime = metadata.modified().ok()?;
+        (now_mtime != startup_mtime).then(|| RestartReason::BinaryChanged {
+            path: path.to_owned(),
+        })
+    }
+}
+
 /// The full compiler config. This is a combination of:
 /// - the configuration file
 /// - the absolute path to the root of the compiled projects
@@ -142,7 +324,17 @@ pub struct Config {
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
     /// If set, tries to initialize the compiler from the saved state file.
-    pub load_saved_state_file: Option<PathBuf>,
+    /// Consumed (taken) by the first file_source query so subsequent watch()
+    /// loop iterations (e.g. after a source-control update) don't re-deserialize
+    /// a now-stale snapshot — they fall back to the normal saved-state path.
+    pub load_saved_state_file: Mutex<Option<PathBuf>>,
+    /// Path to a JSON file listing files changed since `load_saved_state_file`'s
+    /// snapshot, in the format produced by Meerkat for `--changed-files-list`.
+    /// When BOTH this and `load_saved_state_file` are set, the first iteration
+    /// of `compiler.watch()` skips the Watchman query entirely and seeds initial
+    /// state from `(saved_state + changed_files)`. Subsequent iterations fall
+    /// back to the normal Watchman path. Consume-once via Mutex&lt;Option&gt;.
+    pub initial_external_changed_files_list: Mutex<Option<PathBuf>>,
     /// Function to generate extra
     pub generate_extra_artifacts: Option<GenerateExtraArtifactsFn>,
     pub generate_virtual_id_file_name: Option<GenerateVirtualIdFieldName>,
@@ -212,6 +404,13 @@ pub struct Config {
 
     /// Names of directives that will be automatically copied from the parent fragment to refetchable queries
     pub transferrable_refetchable_query_directives: Vec<DirectiveName>,
+
+    /// Inputs the daemon polls each iteration to decide whether to exit so
+    /// a fresh process can pick up a new binary/config. `None` when the
+    /// config came from in-memory data (tests, `SingleProjectConfigFile`
+    /// → virtual path) or when the config file isn't readable.
+    /// Only consulted by [`Compiler::watch`] in daemon mode.
+    pub restart_signals: Option<DaemonRestartSignals>,
 }
 
 pub enum FileSourceKind {
@@ -225,26 +424,54 @@ pub enum FileSourceKind {
     Test(TestFileSourceConfig),
 }
 
+/// Events that can be sent through the test file source to simulate
+/// various file system and source control scenarios.
+#[derive(Debug, Clone)]
+pub enum TestFileSourceEvent {
+    /// Regular file changes detected (triggers WalkDir rescan)
+    FileChanged,
+    /// Source control update started (e.g. hg.update in progress).
+    /// Pauses build processing until leave/complete.
+    SourceControlUpdateEnter,
+    /// Source control update finished without a base revision change.
+    /// Resumes normal build processing.
+    SourceControlUpdateLeave,
+    /// Source control update finished with a new base revision.
+    /// Triggers a full watch loop restart (new subscription, fresh initial build).
+    SourceControlUpdate,
+}
+
 /// Configuration for test file source.
 ///
 /// This enables testing of watch mode by allowing external code to trigger
-/// file rescans. When notified, the compiler does a WalkDir rescan to find
-/// what files changed.
+/// file rescans and source control events. Uses a broadcast channel so that
+/// watch loop restarts (after `SourceControlUpdate`) can create fresh
+/// receivers from the same sender.
 #[derive(Clone)]
 pub struct TestFileSourceConfig {
-    /// Shared notify used for signaling file changes
-    pub notify: Arc<Notify>,
+    sender: broadcast::Sender<TestFileSourceEvent>,
 }
 
 impl TestFileSourceConfig {
     pub fn new() -> Self {
-        Self {
-            notify: Arc::new(Notify::new()),
-        }
+        let (sender, _) = broadcast::channel(16);
+        Self { sender }
     }
 
+    /// Notify the compiler of file changes (backward-compatible).
     pub fn notify(&self) {
-        self.notify.notify_one();
+        let _ = self.sender.send(TestFileSourceEvent::FileChanged);
+    }
+
+    /// Send a specific event to the test subscription.
+    pub fn send_event(&self, event: TestFileSourceEvent) {
+        let _ = self.sender.send(event);
+    }
+
+    /// Create a new broadcast receiver. Called each time a subscription is created,
+    /// including after watch loop restarts.
+    pub fn subscribe(&self) -> broadcast::Receiver<TestFileSourceEvent> {
+        self.sender.subscribe()
     }
 }
 
@@ -288,17 +515,49 @@ impl From<SingleProjectConfigFile> for Config {
 
 impl Config {
     pub fn search(start_dir: &Path) -> Result<Self> {
-        Self::load_config(
-            start_dir,
-            &[
-                LoaderSource::PackageJson("relay".to_string()),
-                LoaderSource::Json("relay.config.json".to_string()),
-                LoaderSource::Js("relay.config.js".to_string()),
-            ],
-        )
+        Self::load_config(start_dir, &Self::default_loader_sources())
+    }
+
+    /// Find the path to a Relay config file by walking up from `start_dir`,
+    /// using the same loaders as [`Self::search`] but without parsing the
+    /// config. Useful when only the path is needed (e.g. deriving a stable
+    /// hash for the daemon socket path).
+    pub fn find_path(start_dir: &Path) -> Result<Option<PathBuf>> {
+        match js_config_loader::load::<Value>(start_dir, &Self::default_loader_sources()) {
+            Ok(found) => Ok(found.map(|c| c.path)),
+            Err(error) => Err(Error::ConfigError {
+                details: format!("Error searching config: {error}"),
+            }),
+        }
+    }
+
+    fn default_loader_sources() -> [LoaderSource; 3] {
+        [
+            LoaderSource::PackageJson("relay".to_string()),
+            LoaderSource::Json("relay.config.json".to_string()),
+            LoaderSource::Js("relay.config.js".to_string()),
+        ]
     }
 
     pub fn load(config_path: PathBuf) -> Result<Self> {
+        // `package.json` is a Relay config only via its `"relay"` sub-key —
+        // dispatch to `PackageJsonLoader` so the rest of the file (e.g.
+        // `browserslist`) isn't parsed as the Relay config. Ancestor walk
+        // starts at the file's parent so the explicitly-requested file is
+        // found first.
+        if config_path.file_name() == Some(OsStr::new("package.json")) {
+            let start_dir = config_path
+                .parent()
+                .map(Path::to_path_buf)
+                .unwrap_or_else(|| {
+                    current_dir().expect("Unable to get current working directory.")
+                });
+            return Self::load_config(
+                &start_dir,
+                &[LoaderSource::PackageJson("relay".to_string())],
+            );
+        }
+
         let loader = if config_path.extension() == Some(OsStr::new("js")) {
             LoaderSource::Js(config_path.display().to_string())
         } else if config_path.extension() == Some(OsStr::new("json")) {
@@ -541,7 +800,8 @@ impl Config {
             is_multi_project,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
-            load_saved_state_file: None,
+            load_saved_state_file: Mutex::new(None),
+            initial_external_changed_files_list: Mutex::new(None),
             generate_extra_artifacts: None,
             generate_virtual_id_file_name: None,
             get_artifacts_file_hash_map: None,
@@ -564,6 +824,10 @@ impl Config {
             custom_extract_relay_resolvers: None,
             should_extract_full_source: None,
             transferrable_refetchable_query_directives: vec![],
+            restart_signals: DaemonRestartSignals::try_capture(
+                &config_path,
+                std::env::current_exe().ok(),
+            ),
         };
 
         let mut validation_errors = Vec::new();
@@ -579,6 +843,22 @@ impl Config {
                 validation_errors,
             })
         }
+    }
+
+    /// Daemon-only restart-signal check. Returns `Some(reason)` if the
+    /// daemon should exit so a fresh process can pick up the current
+    /// on-disk binary/config; `None` otherwise (including in non-daemon
+    /// mode and when no signals were captured at startup).
+    ///
+    /// Extracted into a `Config` method so the gating logic
+    /// (`daemon_build_status.is_some() && signals.is_some()`) can be unit
+    /// tested without spinning up the watch loop. The caller —
+    /// [`crate::Compiler::watch`]'s `incremental_build_loop` — only needs
+    /// to await this and act on the returned reason.
+    pub async fn check_restart_if_daemon(&self) -> Option<RestartReason> {
+        self.daemon_build_status.as_ref()?;
+        let signals = self.restart_signals.as_ref()?;
+        signals.check().await
     }
 
     /// Iterator over projects that are enabled.
@@ -790,6 +1070,184 @@ fn unify_roots(mut paths: Vec<PathBuf>) -> Vec<PathBuf> {
 mod test {
     use super::*;
 
+    /// Asserts the consume-once invariant of `load_saved_state_file` and
+    /// `initial_external_changed_files_list` — once `take()`d, the slot is
+    /// empty so a re-entry of `compiler.watch()` (e.g. after a source-control
+    /// update) won't re-deserialize a now-stale snapshot from the same path.
+    #[test]
+    fn test_consume_once_mutex_option_path() {
+        let slot: Mutex<Option<PathBuf>> = Mutex::new(Some(PathBuf::from("/tmp/state.bin")));
+
+        // First take consumes the value.
+        let first = slot.lock().unwrap().take();
+        assert_eq!(first, Some(PathBuf::from("/tmp/state.bin")));
+
+        // Second take observes the now-empty slot.
+        let second = slot.lock().unwrap().take();
+        assert_eq!(second, None);
+
+        // Restoring the slot (the no-changes-list fallback in
+        // try_initial_external_state) puts the value back so the caller's
+        // fallback path can consume it.
+        *slot.lock().unwrap() = Some(PathBuf::from("/tmp/restored.bin"));
+        assert_eq!(
+            slot.lock().unwrap().take(),
+            Some(PathBuf::from("/tmp/restored.bin"))
+        );
+    }
+
+    #[tokio::test]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    async fn test_restart_signals_detects_config_change() {
+        let tmp = tempfile::NamedTempFile::new().expect("create tempfile");
+        std::fs::write(tmp.path(), b"original config").expect("write tempfile");
+
+        let signals = DaemonRestartSignals::try_capture(tmp.path(), None)
+            .expect("config file exists, capture should succeed");
+
+        // No change → no restart reason.
+        assert!(
+            signals.check().await.is_none(),
+            "fresh signals should report no change"
+        );
+
+        // Bump bytes + mtime so the cheap (mtime,size) pre-filter is
+        // forced through to the hash comparison.
+        std::fs::write(tmp.path(), b"different config bytes").expect("rewrite tempfile");
+        set_mtime_in_future(tmp.path());
+
+        match signals.check().await {
+            Some(RestartReason::ConfigChanged {
+                path,
+                before,
+                after,
+            }) => {
+                assert_eq!(path, tmp.path());
+                assert_ne!(before, after, "hashes must differ when content differs");
+            }
+            other => panic!("expected ConfigChanged, got {other:?}"),
+        }
+    }
+
+    /// Pre-filter must fall through to the hash comparison when mtime
+    /// drifts but content is identical (e.g. `touch` of an unchanged
+    /// file, or a build-system tag that bumps mtime without rewriting).
+    /// If this regresses (e.g. the pre-filter starts returning `None`
+    /// based on mtime alone, or the hash comparison gets inverted), the
+    /// daemon will spuriously restart on every `touch` of the config
+    /// file. Existing tests cover the "both content AND mtime changed"
+    /// path; this one specifically exercises the "mtime changed but
+    /// content didn't" case the pre-filter is designed to handle.
+    #[tokio::test]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    async fn test_restart_signals_mtime_bump_without_content_change() {
+        let tmp = tempfile::NamedTempFile::new().expect("create tempfile");
+        std::fs::write(tmp.path(), b"stable content").expect("write tempfile");
+        let signals = DaemonRestartSignals::try_capture(tmp.path(), None).expect("capture");
+
+        // Bump only mtime; bytes unchanged. The pre-filter sees the
+        // mtime drift and falls through to the hash comparison, which
+        // sees the bytes match and returns `None`.
+        set_mtime_in_future(tmp.path());
+
+        assert!(
+            signals.check().await.is_none(),
+            "mtime drift without content change must fall through pre-filter \
+             to hash compare and return None — otherwise daemon restarts \
+             spuriously on every `touch` of the config file"
+        );
+    }
+
+    #[tokio::test]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    async fn test_restart_signals_detects_binary_change() {
+        let config = tempfile::NamedTempFile::new().expect("create config tempfile");
+        std::fs::write(config.path(), b"config").expect("write config");
+
+        let binary = tempfile::NamedTempFile::new().expect("create binary tempfile");
+        std::fs::write(binary.path(), b"binary v1").expect("write binary");
+
+        let signals =
+            DaemonRestartSignals::try_capture(config.path(), Some(binary.path().to_owned()))
+                .expect("capture should succeed");
+
+        assert!(signals.check().await.is_none(), "no drift yet");
+
+        // Simulate a deploy under the running daemon by bumping mtime.
+        set_mtime_in_future(binary.path());
+
+        match signals.check().await {
+            Some(RestartReason::BinaryChanged { path }) => assert_eq!(path, binary.path()),
+            other => panic!("expected BinaryChanged, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn test_restart_signals_missing_config_returns_none() {
+        // Pointing at a path that doesn't exist must not panic — production
+        // tests and `from_string_for_test` rely on this behavior to silently
+        // disable restart detection for virtual config paths.
+        let signals = DaemonRestartSignals::try_capture(
+            Path::new("/definitely/does/not/exist/relay-restart-test.json"),
+            None,
+        );
+        assert!(signals.is_none(), "missing file should disable detection");
+    }
+
+    #[tokio::test]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    async fn test_check_restart_if_daemon_gating() {
+        // SingleProjectConfigFile → Config gives us a Config with
+        // `daemon_build_status = None` and `restart_signals = None` (the
+        // virtual config path doesn't exist on disk). We mutate the two
+        // relevant fields to cover the three combinations.
+        let mut config: Config = SingleProjectConfigFile::default().into();
+
+        let tmp = tempfile::NamedTempFile::new().expect("create tempfile");
+        std::fs::write(tmp.path(), b"orig").expect("write tempfile");
+
+        // Case 1: daemon_build_status = None → never report a restart.
+        config.restart_signals = DaemonRestartSignals::try_capture(tmp.path(), None);
+        assert!(
+            config.check_restart_if_daemon().await.is_none(),
+            "non-daemon mode must never report a restart"
+        );
+
+        // Case 2: daemon mode, no signals → no restart.
+        config.daemon_build_status = Some(Arc::new(BuildStatus::new(
+            Box::new(ConsoleStatusReporter::new(PathBuf::from("/tmp"), false)),
+            PathBuf::from("/tmp"),
+            false,
+        )));
+        config.restart_signals = None;
+        assert!(
+            config.check_restart_if_daemon().await.is_none(),
+            "daemon mode without signals must not report a restart"
+        );
+
+        // Case 3: daemon mode + signals that will fire → Some(reason).
+        config.restart_signals = DaemonRestartSignals::try_capture(tmp.path(), None);
+        std::fs::write(tmp.path(), b"different bytes here").expect("rewrite tempfile");
+        set_mtime_in_future(tmp.path());
+        match config.check_restart_if_daemon().await {
+            Some(RestartReason::ConfigChanged { .. }) => {}
+            other => panic!("expected ConfigChanged, got {other:?}"),
+        }
+    }
+
+    /// Force `path`'s mtime forward so tests aren't sensitive to the host
+    /// filesystem's mtime resolution (some FSes round to 1s).
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    fn set_mtime_in_future(path: &Path) {
+        use std::time::Duration;
+        let f = std::fs::OpenOptions::new()
+            .write(true)
+            .open(path)
+            .expect("open for mtime bump");
+        f.set_modified(SystemTime::now() + Duration::from_secs(10))
+            .expect("set_modified");
+    }
+
     #[test]
     fn test_unify_roots() {
         assert_eq!(unify_roots(vec![]).len(), 0);
@@ -833,6 +1291,7 @@ impl fmt::Debug for Config {
             header,
             codegen_command,
             load_saved_state_file,
+            initial_external_changed_files_list,
             generate_extra_artifacts,
             saved_state_config,
             saved_state_loader,
@@ -857,7 +1316,17 @@ impl fmt::Debug for Config {
             .field("projects", projects)
             .field("header", header)
             .field("codegen_command", codegen_command)
-            .field("load_saved_state_file", load_saved_state_file)
+            .field(
+                "load_saved_state_file",
+                &load_saved_state_file.lock().map(|guard| guard.clone()).ok(),
+            )
+            .field(
+                "initial_external_changed_files_list",
+                &initial_external_changed_files_list
+                    .lock()
+                    .map(|guard| guard.clone())
+                    .ok(),
+            )
             .field("saved_state_config", saved_state_config)
             .field(
                 "create_operation_persister",
@@ -1129,6 +1598,7 @@ impl SingleProjectConfigFile {
             js_module_format: self.js_module_format,
             feature_flags: self.feature_flags,
             module_import_config: self.module_import_config,
+            relativize_js_module_paths: self.relativize_js_module_paths,
             resolvers_schema_module: self.resolvers_schema_module,
             extra: self.extra,
             ..Default::default()

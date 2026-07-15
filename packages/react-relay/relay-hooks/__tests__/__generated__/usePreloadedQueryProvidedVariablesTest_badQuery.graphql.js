@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b3fa4bedfb17f34d7f52c4b1c79c615d>>
+ * @generated SignedSource<<52f5b26016dc43fa8fddd3c38d2c4558>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,25 +18,25 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType } from "./usePreloadedQueryProvidedVariablesTest_badFragment.graphql";
-export type usePreloadedQueryProvidedVariablesTest_badQuery$variables = {|
+export type usePreloadedQueryProvidedVariablesTest_badQuery$variables = {
   id: string,
-|};
-export type usePreloadedQueryProvidedVariablesTest_badQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
-  |},
-|};
-export type usePreloadedQueryProvidedVariablesTest_badQuery = {|
+};
+export type usePreloadedQueryProvidedVariablesTest_badQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
+  },
+};
+export type usePreloadedQueryProvidedVariablesTest_badQuery = {
   response: usePreloadedQueryProvidedVariablesTest_badQuery$data,
   variables: usePreloadedQueryProvidedVariablesTest_badQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__RelayProvider_impurerelayprovider": require('../RelayProvider_impure.relayprovider')
-} as {|
-  +__relay_internal__pv__RelayProvider_impurerelayprovider: {|
-    +get: () => number,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__RelayProvider_impurerelayprovider: {
+    readonly get: () => number,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -1,0 +1,76 @@
+//- UserCombinedPage.js
+// Consumer authors an INTERFACE-typed fragment spread on a magic-fragment field.
+// `combined_page` returns the client interface `IPage`, implemented by BOTH the
+// SERVER type `Page` AND the CLIENT model type `ClientPage`. The consumer spreads
+// `...IPageFields` where `fragment IPageFields on IPage`.
+//
+// `relay_resolvers_abstract_types` (run earlier, in the common pipeline)
+// fans the interface fragment's body into one concrete inline arm per implementor
+// (`... on Page` / `... on ClientPage`). The spread transform inline-expands that
+// fanned body onto the shadowed server type `Page`: the `Page` arm is transplanted
+// (its `title` is fetched from the server) and the `ClientPage` arm is dropped
+// (served by the model-resolver edge minted in `client_edges`). The reader keeps
+// `...IPageFields` as a masked `$fragmentSpreads` reference, so the child
+// `useFragment` reads `title` off whichever concrete record it resolves to.
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- ClientPageResolver.js
+/**
+ * @relayType ClientPage implements IPage
+ */
+export function ClientPage() {}
+
+//- ClientPageTitleResolver.js
+/**
+ * @relayField ClientPage.title: String
+ */
+export function title() {}
+
+//- IPageFields.js
+graphql`fragment IPageFields on IPage {
+  title
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      ...IPageFields
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

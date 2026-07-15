@@ -32,6 +32,10 @@ subscription CommentCreateSubscription(
       #         "CommentCreate_CommentCreateResponsePayload",
       #     ),
       #     fragment_source_location: subscription_transform.graphql:194:236,
+      #     module_source_location: Embedded {
+      #         path: "subscription_transform.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

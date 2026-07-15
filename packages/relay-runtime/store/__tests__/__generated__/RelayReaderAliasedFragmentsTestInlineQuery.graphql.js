@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3ec90b89bc6e6d8fa0e97ca58e0ef7e9>>
+ * @generated SignedSource<<c5910ae0cd7b1a14e940709f314324dc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTestInline_user$fragmentType } from "./RelayReaderAliasedFragmentsTestInline_user.graphql";
-export type RelayReaderAliasedFragmentsTestInlineQuery$variables = {||};
-export type RelayReaderAliasedFragmentsTestInlineQuery$data = {|
-  +me: ?{|
-    +aliased_fragment: {|
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestInline_user$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestInlineQuery = {|
+export type RelayReaderAliasedFragmentsTestInlineQuery$variables = {};
+export type RelayReaderAliasedFragmentsTestInlineQuery$data = {
+  readonly me: ?{
+    readonly aliased_fragment: {
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestInline_user$fragmentType,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestInlineQuery = {
   response: RelayReaderAliasedFragmentsTestInlineQuery$data,
   variables: RelayReaderAliasedFragmentsTestInlineQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

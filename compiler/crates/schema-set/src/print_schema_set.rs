@@ -11,8 +11,6 @@ use intern::Lookup;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
-use schema::ArgumentValue;
-use schema::DirectiveValue;
 use schema::TypeReference;
 
 use crate::OutputTypeReference;
@@ -20,15 +18,18 @@ use crate::build_schema_document::output_type_ref_to_semantic_sdl_type;
 use crate::partition_base_extensions::PartitionsBaseExtension;
 use crate::partition_schema_set_base_and_extensions;
 use crate::remove_built_in_scalars;
-use crate::schema_set::CanBeClientDefinition;
 use crate::schema_set::CanHaveDirectives;
+use crate::schema_set::HasDefinitionItem;
 use crate::schema_set::HasDescription;
 use crate::schema_set::HasFields;
 use crate::schema_set::HasInterfaces;
 use crate::schema_set::SchemaSet;
 use crate::schema_set::SetArgument;
+use crate::schema_set::SetArgumentValue;
 use crate::schema_set::SetDirective;
+use crate::schema_set::SetDirectiveValue;
 use crate::schema_set::SetEnum;
+use crate::schema_set::SetEnumValue;
 use crate::schema_set::SetField;
 use crate::schema_set::SetInputObject;
 use crate::schema_set::SetInterface;
@@ -47,7 +48,7 @@ impl SchemaSet {
         let without_builtin_definitions = remove_built_in_scalars(self);
 
         let (base_set, client_set) =
-            partition_schema_set_base_and_extensions(&without_builtin_definitions);
+            partition_schema_set_base_and_extensions(&without_builtin_definitions)?;
 
         let base_definitions: Vec<String> = base_set.print_definitions_for_used_schema(None);
         let client_definitions: Vec<String> =
@@ -192,7 +193,7 @@ pub trait PrintableDefinition {
     fn print_definition(&self) -> String;
 }
 trait PrintableExtendDefinition:
-    PrintableDefinition + CanBeClientDefinition + PartitionsBaseExtension
+    PrintableDefinition + HasDefinitionItem + PartitionsBaseExtension
 {
     fn print_extend_definition(&self) -> String {
         format!("extend {}", self.print_definition())
@@ -252,12 +253,6 @@ impl PrintableDefinition for SetScalar {
 }
 impl PrintableExtendDefinition for SetScalar {}
 
-#[allow(dead_code)]
-pub trait PrintableBaseAndClientDefinition: CanBeClientDefinition {
-    fn print_base_schema_definition(&self, schema_set: &SchemaSet) -> Option<String>;
-    fn print_client_schema_definition(&self, schema_set: &SchemaSet) -> Option<String>;
-}
-
 impl PrintableDefinition for SetEnum {
     fn print_definition(&self) -> String {
         let printed_values = if self.values.is_empty() {
@@ -288,12 +283,12 @@ impl PrintableDefinition for SetEnum {
 }
 impl PrintableExtendDefinition for SetEnum {}
 
-fn print_enum_value(value: &schema::EnumValue) -> String {
+fn print_enum_value(value: &SetEnumValue) -> String {
     format!(
         "{}{}{}",
         format_description_string(value.description, FIELD_INDENT),
         value.value.lookup(),
-        print_directive_value_items(&value.directives),
+        print_set_directive_value_items(&value.directives),
     )
 }
 
@@ -349,10 +344,11 @@ impl PrintableDefinition for SetDirective {
             .collect::<Vec<_>>()
             .join(" | ");
         format!(
-            "{}directive @{name}{arguments} on {locations}",
+            "{}directive @{name}{arguments}{directives} on {locations}",
             print_description(self),
             name = self.string_key_name(),
             arguments = print_arguments(&self.arguments),
+            directives = print_directive_values(self),
             locations = printed_locations
         )
     }
@@ -466,7 +462,7 @@ impl PrintableDefinition for SetArgument {
 fn sorted_from_map<T>(map: &StringKeyMap<T>) -> Vec<&T> {
     let mut to_sort: Vec<(&StringKey, &T)> = map.iter().collect();
     // Sort the (key, value) pairs by key
-    to_sort.sort_by(|(a_key, _a_v), (b_key, _b_v)| a_key.cmp(b_key));
+    to_sort.sort_by_key(|(a_key, _a_v)| *a_key);
     // Then collect a ref of values
     to_sort.into_iter().map(|(_, v)| v).collect()
 }
@@ -475,7 +471,7 @@ fn sorted_from_map<T>(map: &StringKeyMap<T>) -> Vec<&T> {
 fn sorted_from_index_map<T>(map: &StringKeyIndexMap<T>) -> Vec<&T> {
     let mut to_sort: Vec<(&StringKey, &T)> = map.iter().collect();
     // Sort the (key, value) pairs by key
-    to_sort.sort_by(|(a_key, _a_v), (b_key, _b_v)| a_key.cmp(b_key));
+    to_sort.sort_by_key(|(a_key, _a_v)| *a_key);
     // Then collect a ref of values
     to_sort.into_iter().map(|(_, v)| v).collect()
 }
@@ -483,7 +479,7 @@ fn sorted_from_index_map<T>(map: &StringKeyIndexMap<T>) -> Vec<&T> {
 fn sorted_from_pairs<'a, T>(to_sort: Vec<(&'a StringKey, &'a T)>) -> Vec<&'a T> {
     let mut to_sort = to_sort;
     // Sort the (key, value) pairs by key
-    to_sort.sort_by(|(a_key, _a_v), (b_key, _b_v)| a_key.cmp(b_key));
+    to_sort.sort_by_key(|(a_key, _a_v)| *a_key);
     // Then collect a ref of values
     to_sort.into_iter().map(|(_, v)| v).collect()
 }
@@ -595,35 +591,35 @@ fn print_argument_with_description(arg: &SetArgument, indent: &str) -> String {
         "{}{}{}",
         format_description_string(arg.description(), indent),
         arg.print_definition(),
-        print_directive_value_items(&arg.directives),
+        print_set_directive_value_items(&arg.directives),
     )
 }
 
 fn print_directive_values(item: &dyn CanHaveDirectives) -> String {
-    print_directive_value_items(item.directives())
+    print_set_directive_value_items(item.directives())
 }
 
-fn print_directive_value_items(directives: &[DirectiveValue]) -> String {
+fn print_set_directive_value_items(directives: &[SetDirectiveValue]) -> String {
     if directives.is_empty() {
         String::new()
     } else {
         let mut printed_directives = directives
             .iter()
-            .map(print_directive_value)
+            .map(print_set_directive_value)
             .collect::<Vec<_>>();
         printed_directives.sort();
         format!(" {}", printed_directives.join(" "))
     }
 }
 
-fn print_directive_value(directive: &DirectiveValue) -> String {
+pub fn print_set_directive_value(directive: &SetDirectiveValue) -> String {
     let printed_args = if directive.arguments.is_empty() {
         String::new()
     } else {
         let mut printed_values = directive
             .arguments
             .iter()
-            .map(print_argument_value)
+            .map(print_set_argument_value)
             .collect::<Vec<_>>();
         printed_values.sort();
         format!("({})", printed_values.join(", "))
@@ -636,7 +632,7 @@ fn print_directive_value(directive: &DirectiveValue) -> String {
     )
 }
 
-fn print_argument_value(arg: &ArgumentValue) -> String {
+fn print_set_argument_value(arg: &SetArgumentValue) -> String {
     format!("{}: {}", arg.name.0, arg.value)
 }
 
@@ -655,5 +651,309 @@ fn print_output_type_reference(type_reference: &OutputTypeReference<StringKey>) 
         format!("{} {}", type_reference_sdl, semantic_non_null_directive)
     } else {
         format!("{}", type_reference_sdl)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use common::SourceLocationKey;
+    use graphql_syntax::parse_schema_document;
+    use indoc::indoc;
+
+    use super::*;
+
+    fn set_from_str(sdl: &str) -> SchemaSet {
+        SchemaSet::from_base_schema_documents(&[parse_schema_document(
+            sdl,
+            SourceLocationKey::generated(),
+        )
+        .unwrap()])
+        .unwrap()
+    }
+
+    // --- PrintableDefinition for each type kind ---
+
+    #[test]
+    fn test_print_scalar() {
+        let set = set_from_str("scalar URL");
+        let scalar = set.types.values().next().unwrap();
+        let printed = scalar.print_definition();
+        assert_eq!(printed, "scalar URL");
+    }
+
+    #[test]
+    fn test_print_scalar_with_directive() {
+        let set = set_from_str("scalar JSON @deprecated");
+        let scalar = set.types.values().next().unwrap();
+        let printed = scalar.print_definition();
+        assert!(
+            printed.contains("scalar JSON") && printed.contains("@deprecated"),
+            "Got: {}",
+            printed
+        );
+    }
+
+    #[test]
+    fn test_print_enum() {
+        let set = set_from_str(indoc! {r#"
+            enum Color {
+              RED
+              GREEN
+              BLUE
+            }
+        "#});
+        let enum_type = set.types.values().next().unwrap();
+        let printed = enum_type.print_definition();
+        assert!(printed.contains("enum Color"), "Got: {}", printed);
+        assert!(printed.contains("RED"), "Got: {}", printed);
+        assert!(printed.contains("GREEN"), "Got: {}", printed);
+        assert!(printed.contains("BLUE"), "Got: {}", printed);
+    }
+
+    #[test]
+    fn test_print_enum_empty() {
+        let set = set_from_str("enum EmptyEnum");
+        let enum_type = set.types.values().next().unwrap();
+        let printed = enum_type.print_definition();
+        assert_eq!(printed, "enum EmptyEnum");
+    }
+
+    #[test]
+    fn test_print_object() {
+        let set = set_from_str(indoc! {r#"
+            type User {
+              id: ID!
+              name: String
+            }
+        "#});
+        let obj = set.types.values().next().unwrap();
+        let printed = obj.print_definition();
+        assert!(printed.contains("type User"), "Got: {}", printed);
+        assert!(printed.contains("id: ID!"), "Got: {}", printed);
+        assert!(printed.contains("name: String"), "Got: {}", printed);
+    }
+
+    #[test]
+    fn test_print_object_with_interface() {
+        let set = set_from_str(indoc! {r#"
+            interface Node {
+              id: ID!
+            }
+            type User implements Node {
+              id: ID!
+            }
+        "#});
+        let user = set
+            .types
+            .get(&"User".parse::<StringKey>().unwrap())
+            .unwrap();
+        let printed = user.print_definition();
+        assert!(
+            printed.contains("type User implements Node"),
+            "Got: {}",
+            printed
+        );
+    }
+
+    #[test]
+    fn test_print_interface() {
+        let set = set_from_str(indoc! {r#"
+            interface Node {
+              id: ID!
+            }
+        "#});
+        let iface = set.types.values().next().unwrap();
+        let printed = iface.print_definition();
+        assert!(printed.contains("interface Node"), "Got: {}", printed);
+        assert!(printed.contains("id: ID!"), "Got: {}", printed);
+    }
+
+    #[test]
+    fn test_print_union() {
+        let set = set_from_str(indoc! {r#"
+            type Dog {
+              name: String
+            }
+            type Cat {
+              name: String
+            }
+            union Animal = Cat | Dog
+        "#});
+        let union_type = set
+            .types
+            .get(&"Animal".parse::<StringKey>().unwrap())
+            .unwrap();
+        let printed = union_type.print_definition();
+        assert!(printed.contains("union Animal"), "Got: {}", printed);
+        assert!(printed.contains("Cat"), "Got: {}", printed);
+        assert!(printed.contains("Dog"), "Got: {}", printed);
+    }
+
+    #[test]
+    fn test_print_input_object() {
+        let set = set_from_str(indoc! {r#"
+            input CreateInput {
+              name: String!
+              age: Int
+            }
+        "#});
+        let input = set.types.values().next().unwrap();
+        let printed = input.print_definition();
+        assert!(printed.contains("input CreateInput"), "Got: {}", printed);
+        assert!(printed.contains("name: String!"), "Got: {}", printed);
+        assert!(printed.contains("age: Int"), "Got: {}", printed);
+    }
+
+    #[test]
+    fn test_print_directive() {
+        let set = set_from_str("directive @deprecated(reason: String) on FIELD_DEFINITION");
+        let directive = set.directives.values().next().unwrap();
+        let printed = directive.print_definition();
+        assert!(
+            printed.contains("directive @deprecated"),
+            "Got: {}",
+            printed
+        );
+        assert!(printed.contains("reason: String"), "Got: {}", printed);
+        assert!(printed.contains("FIELD_DEFINITION"), "Got: {}", printed);
+    }
+
+    // --- print_set_directive_value ---
+
+    #[test]
+    fn test_print_set_directive_value_no_args() {
+        let directive_value = SetDirectiveValue {
+            definition: Default::default(),
+            name: common::DirectiveName("deprecated".parse::<StringKey>().unwrap()),
+            arguments: vec![],
+        };
+        let printed = print_set_directive_value(&directive_value);
+        assert_eq!(printed, "@deprecated");
+    }
+
+    #[test]
+    fn test_print_set_directive_value_with_args() {
+        use graphql_syntax::StringNode;
+        use graphql_syntax::Token;
+        use graphql_syntax::TokenKind;
+        let directive_value = SetDirectiveValue {
+            definition: Default::default(),
+            name: common::DirectiveName("deprecated".parse::<StringKey>().unwrap()),
+            arguments: vec![SetArgumentValue {
+                definition: Default::default(),
+                name: common::ArgumentName("reason".parse::<StringKey>().unwrap()),
+                value: graphql_syntax::ConstantValue::String(StringNode {
+                    token: Token {
+                        span: common::Span::empty(),
+                        kind: TokenKind::StringLiteral,
+                    },
+                    value: "old".parse::<StringKey>().unwrap(),
+                }),
+            }],
+        };
+        let printed = print_set_directive_value(&directive_value);
+        assert!(
+            printed.contains("@deprecated") && printed.contains("reason"),
+            "Got: {}",
+            printed
+        );
+    }
+
+    // --- print_base_and_client_definitions ---
+
+    #[test]
+    fn test_print_base_and_client_definitions() {
+        let mut set = SchemaSet::new();
+        // Parse base schema
+        let base_doc = parse_schema_document(
+            "type Query { name: String }",
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        set.merge_sdl_document(&base_doc, false).unwrap();
+
+        // Parse client extension
+        let client_doc = parse_schema_document(
+            "extend type Query { client_field: Int }",
+            SourceLocationKey::generated(),
+        )
+        .unwrap();
+        set.merge_sdl_document(&client_doc, true).unwrap();
+
+        let (base_defs, client_defs) = set.print_base_and_client_definitions().unwrap();
+
+        // Base should contain Query with name
+        let base_str = base_defs.join("\n");
+        assert!(
+            base_str.contains("type Query"),
+            "Base should contain type Query, got: {}",
+            base_str
+        );
+        assert!(
+            base_str.contains("name: String"),
+            "Base should contain name field, got: {}",
+            base_str
+        );
+
+        // Client should contain extension with client_field
+        let client_str = client_defs.join("\n");
+        assert!(
+            client_str.contains("extend type Query"),
+            "Client should contain extend type Query, got: {}",
+            client_str
+        );
+        assert!(
+            client_str.contains("client_field: Int"),
+            "Client should contain client_field, got: {}",
+            client_str
+        );
+    }
+
+    // --- Field printing ---
+
+    #[test]
+    fn test_print_field_with_arguments() {
+        let set = set_from_str(indoc! {r#"
+            type Query {
+              user(id: ID!, name: String): String
+            }
+        "#});
+        let query = set.types.values().next().unwrap();
+        let printed = query.print_definition();
+        assert!(printed.contains("user("), "Got: {}", printed);
+        assert!(printed.contains("id: ID!"), "Got: {}", printed);
+    }
+
+    #[test]
+    fn test_print_argument_with_default_value() {
+        let set = set_from_str(indoc! {r#"
+            type Query {
+              items(limit: Int = 10): String
+            }
+        "#});
+        let query = set.types.values().next().unwrap();
+        let printed = query.print_definition();
+        assert!(printed.contains("limit: Int = 10"), "Got: {}", printed);
+    }
+
+    // --- Fields and directives sorted ---
+
+    #[test]
+    fn test_printed_fields_sorted() {
+        let set = set_from_str(indoc! {r#"
+            type Foo {
+              zebra: String
+              apple: Int
+            }
+        "#});
+        let foo = set.types.values().next().unwrap();
+        let printed = foo.print_definition();
+        let apple_pos = printed.find("apple").expect("apple missing");
+        let zebra_pos = printed.find("zebra").expect("zebra missing");
+        assert!(
+            apple_pos < zebra_pos,
+            "Fields should be sorted: {}",
+            printed
+        );
     }
 }

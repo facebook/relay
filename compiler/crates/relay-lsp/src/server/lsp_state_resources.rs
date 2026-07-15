@@ -177,7 +177,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
                 // SC Update completed, we need to abort current subscription, and re-initialize resource for LSP
                 if compiler_state.source_control_update_status.is_completed() {
-                    debug!("Watchman indicated the the source control update has completed!");
+                    debug!("Watchman indicated the source control update has completed!");
                     subscription_handle.abort();
                     continue 'outer;
                 }
@@ -614,7 +614,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         // do nothing? compiler should panic, and restart the lsp
                     }
                     Ok(FileSourceSubscriptionNextChange::Watchman(watchman_next_change)) => {
-                        match watchman_next_change {
+                        match *watchman_next_change {
                             WatchmanFileSourceSubscriptionNextChange::None => {}
                             WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateEnter => {
                                 source_code_update_status.mark_as_started();
@@ -633,13 +633,16 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                                 pending_file_source_changes
                                 .write()
                                 .expect("LSPState::watch_and_update_schemas: expect to acquire write lock on pending_file_source_changes")
-                                .push(FileSourceResult::Watchman(file_source_changes));
+                                .push(FileSourceResult::Watchman(Box::new(file_source_changes)));
 
                                 notify_sender.notify_one();
                             }
                         }
                     }
-                    Ok(FileSourceSubscriptionNextChange::Test(_)) => {
+                    Ok(FileSourceSubscriptionNextChange::Test(_))
+                    | Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateEnter)
+                    | Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateLeave)
+                    | Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdate) => {
                         panic!(
                             "LSP subscription should not be started with a test file watcher. Please use Watchman"
                         );

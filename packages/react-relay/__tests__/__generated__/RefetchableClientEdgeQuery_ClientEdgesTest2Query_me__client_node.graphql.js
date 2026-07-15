@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8822846dbcce62337d6f5052487cd2b1>>
+ * @generated SignedSource<<a62fd1da6f4bcb72a99bc9a91d743573>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,20 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType: FragmentType;
 type ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$variables = any;
-export type RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data = {|
-  +__typename: "User",
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data = {
+  readonly id: string,
+  readonly name?: ?string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
+};
 export type RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$key = {
-  +$data?: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
   ...
 };
 */

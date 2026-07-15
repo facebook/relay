@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b0fa96d35f81082ed50ab6f643f2d916>>
+ * @generated SignedSource<<f45de2536af3a6103dde2b026e93aaae>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,21 +20,21 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType } from "./ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-        +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +$fragmentType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
-|};
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+        readonly $fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly $fragmentType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+};
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$key = {
-  +$data?: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data,
-  +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  readonly $data?: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   ...
 };
 */

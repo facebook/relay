@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c406887f7dd86f7bd6ccb3aa204a94cc>>
+ * @generated SignedSource<<a3361cc8d34d7d7aa211954302187d1e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,18 +21,18 @@ import type { useRefetchableFragmentTestNestedUserFragment$fragmentType } from "
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useRefetchableFragmentTestUserFragment$fragmentType: FragmentType;
 type useRefetchableFragmentTestUserFragmentRefetchQuery$variables = any;
-export type useRefetchableFragmentTestUserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: useRefetchableFragmentTestNestedUserFragment$fragmentType,
-  +$fragmentType: useRefetchableFragmentTestUserFragment$fragmentType,
-|};
+export type useRefetchableFragmentTestUserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: useRefetchableFragmentTestNestedUserFragment$fragmentType,
+  readonly $fragmentType: useRefetchableFragmentTestUserFragment$fragmentType,
+};
 export type useRefetchableFragmentTestUserFragment$key = {
-  +$data?: useRefetchableFragmentTestUserFragment$data,
-  +$fragmentSpreads: useRefetchableFragmentTestUserFragment$fragmentType,
+  readonly $data?: useRefetchableFragmentTestUserFragment$data,
+  readonly $fragmentSpreads: useRefetchableFragmentTestUserFragment$fragmentType,
   ...
 };
 */

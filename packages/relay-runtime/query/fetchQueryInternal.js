@@ -25,10 +25,10 @@ const RelayReplaySubject = require('../util/RelayReplaySubject');
 const invariant = require('invariant');
 
 type RequestCacheEntry = {
-  +identifier: RequestIdentifier,
-  +subject: RelayReplaySubject<GraphQLResponse>,
-  +subjectForInFlightStatus: RelayReplaySubject<GraphQLResponse>,
-  +subscription: Subscription,
+  readonly identifier: RequestIdentifier,
+  readonly subject: RelayReplaySubject<GraphQLResponse>,
+  readonly subjectForInFlightStatus: RelayReplaySubject<GraphQLResponse>,
+  readonly subscription: Subscription,
   promise: ?Promise<void>,
 };
 

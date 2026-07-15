@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<91a9bae70176d3d755987877a11941ec>>
+ * @generated SignedSource<<6bc853d531f871f5a54ba71b28e6c748>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,25 +24,25 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType as (
-  args: {|
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverModelTestTodoWithPluralFieldQuery$variables = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverModelTestTodoWithPluralFieldQuery$variables = {
   id: string,
-|};
-export type RelayResolverModelTestTodoWithPluralFieldQuery$data = {|
-  +todo_model: ?{|
-    +$fragmentSpreads: RelayResolverModelTestWithPluralFragment$fragmentType,
-  |},
-|};
-export type RelayResolverModelTestTodoWithPluralFieldQuery = {|
+};
+export type RelayResolverModelTestTodoWithPluralFieldQuery$data = {
+  readonly todo_model: ?{
+    readonly $fragmentSpreads: RelayResolverModelTestWithPluralFragment$fragmentType,
+  },
+};
+export type RelayResolverModelTestTodoWithPluralFieldQuery = {
   response: RelayResolverModelTestTodoWithPluralFieldQuery$data,
   variables: RelayResolverModelTestTodoWithPluralFieldQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

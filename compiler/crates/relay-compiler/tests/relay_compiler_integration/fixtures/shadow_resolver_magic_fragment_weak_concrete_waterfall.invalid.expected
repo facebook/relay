@@ -1,0 +1,61 @@
+==================================== INPUT ====================================
+//- UserWeakPage.js
+// A @weak return cannot be refetched (no `id`, no separate store record), so
+// annotating the shadow field with @waterfall must be a hard error:
+// RelayResolversUnexpectedWaterfall.
+/**
+ * @relayField User.weak_page: WeakPage
+ * @rootFragment UserWeakPageResolverFragment
+ * @returnFragment UserWeakPageReturnFragment
+ */
+graphql`fragment UserWeakPageResolverFragment on User {
+  page {
+    ...UserWeakPageReturnFragment
+  }
+}`
+
+//- WeakPageTypeResolvers.js
+/**
+ * @relayType WeakPage
+ * @weak
+ */
+ export type WeakPage {};
+
+/**
+ * @relayField WeakPage.title: String
+ */
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    weak_page @waterfall {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" },
+    "enable_resolver_normalization_ast": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+==================================== OUTPUT ===================================
+✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
+
+  UserConsumer.js:3:15
+    2 │   me {
+    3 │     weak_page @waterfall {
+      │               ^^^^^^^^^^
+    4 │       title

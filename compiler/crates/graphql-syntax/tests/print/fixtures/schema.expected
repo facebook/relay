@@ -62,7 +62,7 @@ type XIGStory
 
 union Actor @source(schema: "instagram", name: "Story") = User | Page
 
-extend union Actor
+extend union Actor @deprecated
 
 enum AppStoreSectionContentTypeEnum
   @source(schema: "instagram", name: "Story") {
@@ -71,14 +71,14 @@ enum AppStoreSectionContentTypeEnum
   EARLY_ACCESS
 }
 
-extend enum AppStoreSectionContentTypeEnum
+extend enum AppStoreSectionContentTypeEnum @deprecated
 
 input AppVersions @source(schema: "instagram", name: "Story") {
   app_id: ID!
   version_code: Int
 }
 
-extend input AppVersions
+extend input AppVersions @deprecated
 
 type Page {
   id: ID
@@ -86,7 +86,7 @@ type Page {
 
 scalar ID @source(schema: "instagram", name: "Story")
 
-extend scalar ID
+extend scalar ID @deprecated
 ==================================== OUTPUT ===================================
 directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
 
@@ -151,7 +151,7 @@ type XIGStory @fetchable(field_name: "id") @source(schema: "instagram", name: "S
 
 union Actor @source(schema: "instagram", name: "Story") = User | Page
 
-extend union Actor
+extend union Actor @deprecated
 
 enum AppStoreSectionContentTypeEnum @source(schema: "instagram", name: "Story") {
   DEFAULT @deprecated(reason: "test")
@@ -159,14 +159,14 @@ enum AppStoreSectionContentTypeEnum @source(schema: "instagram", name: "Story") 
   EARLY_ACCESS
 }
 
-extend enum AppStoreSectionContentTypeEnum
+extend enum AppStoreSectionContentTypeEnum @deprecated
 
 input AppVersions @source(schema: "instagram", name: "Story") {
   app_id: ID!
   version_code: Int
 }
 
-extend input AppVersions
+extend input AppVersions @deprecated
 
 type Page {
   id: ID
@@ -174,4 +174,4 @@ type Page {
 
 scalar ID @source(schema: "instagram", name: "Story")
 
-extend scalar ID
+extend scalar ID @deprecated

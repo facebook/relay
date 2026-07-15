@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c7cb745eada3e8bee9834cc860b67008>>
+ * @generated SignedSource<<2f392f575125ac676ba402dacd94f989>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -29,24 +28,19 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?unknown>);
-export type LiveResolversTest8Query$variables = {|
+export type LiveResolversTest8Query$variables = {
   id: string,
-|};
-export type LiveResolversTest8Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +name: ?string,
-    +resolver_that_throws: ?ReturnType<ReturnType<typeof userResolverThatThrowsResolverType>["read"]>,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type LiveResolversTest8Query = {|
+};
+export type LiveResolversTest8Query$data = {
+  readonly node: ?{
+    readonly name?: ?string,
+    readonly resolver_that_throws?: ?ReturnType<ReturnType<typeof userResolverThatThrowsResolverType>["read"]>,
+  },
+};
+export type LiveResolversTest8Query = {
   response: LiveResolversTest8Query$data,
   variables: LiveResolversTest8Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

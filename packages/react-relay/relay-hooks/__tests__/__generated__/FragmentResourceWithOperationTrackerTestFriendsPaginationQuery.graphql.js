@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<44b2d396930513c3052195f59697baef>>
+ * @generated SignedSource<<2bf5704015f2b4e393034810487fdf5b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,29 +21,24 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceWithOperationTrackerTestUserFragment$fragmentType } from "./FragmentResourceWithOperationTrackerTestUserFragment.graphql";
-export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables = {|
+export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables = {
   id: string,
-|};
-export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +friends: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +node: ?{|
-          +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
-        |},
-      |}>,
-    |},
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery = {|
+};
+export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data = {
+  readonly node: ?{
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly $fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+        },
+      }>,
+    },
+  },
+};
+export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery = {
   response: FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data,
   variables: FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

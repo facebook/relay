@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0409d1ada098073f453e114b3b072f2b>>
+ * @generated SignedSource<<ceb9e905a12a654395471d32d9e724ef>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayFragmentContainerTestUserFragment$fragmentType } from "./ReactRelayFragmentContainerTestUserFragment.graphql";
-export type ReactRelayFragmentContainerTestUserQuery$variables = {|
+export type ReactRelayFragmentContainerTestUserQuery$variables = {
   id: string,
-|};
-export type ReactRelayFragmentContainerTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: ReactRelayFragmentContainerTestUserFragment$fragmentType,
-  |},
-|};
-export type ReactRelayFragmentContainerTestUserQuery = {|
+};
+export type ReactRelayFragmentContainerTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: ReactRelayFragmentContainerTestUserFragment$fragmentType,
+  },
+};
+export type ReactRelayFragmentContainerTestUserQuery = {
   response: ReactRelayFragmentContainerTestUserQuery$data,
   variables: ReactRelayFragmentContainerTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

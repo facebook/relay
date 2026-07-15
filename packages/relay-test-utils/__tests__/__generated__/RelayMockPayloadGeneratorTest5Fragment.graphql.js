@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8df0bf06a58e7448f679d2b772a0505d>>
+ * @generated SignedSource<<6a5d8d301716d390c63a02f30294eab2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,36 +20,32 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest4Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest4Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest5Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest5Fragment$data = {|
-  +actor: ?({|
-    +__typename: "User",
-    +friends: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +id: string,
-          +$fragmentSpreads: RelayMockPayloadGeneratorTest4Fragment$fragmentType,
-        |},
-      |}>,
-    |},
-    +id: string,
-    +myName: ?string,
-    +myType: "User",
-    +name: ?string,
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest4Fragment$fragmentType,
-  |} | {|
+export type RelayMockPayloadGeneratorTest5Fragment$data = {
+  readonly actor: ?({
+    readonly friends: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly id: string,
+          readonly $fragmentSpreads: RelayMockPayloadGeneratorTest4Fragment$fragmentType,
+        },
+      }>,
+    },
+    readonly id: string,
+    readonly myName: ?string,
+    readonly myType: "User",
+    readonly name: ?string,
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest4Fragment$fragmentType,
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +myType: "%other",
-  |}),
-  +$fragmentType: RelayMockPayloadGeneratorTest5Fragment$fragmentType,
-|};
+    readonly myType: "%other",
+  }),
+  readonly $fragmentType: RelayMockPayloadGeneratorTest5Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest5Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest5Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest5Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest5Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest5Fragment$fragmentType,
   ...
 };
 */

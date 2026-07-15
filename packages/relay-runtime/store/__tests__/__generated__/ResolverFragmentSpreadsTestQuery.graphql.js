@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df7e8c6ae7a0ae5e7dc4d615f46b729e>>
+ * @generated SignedSource<<947167dc32b99034e83c5a9ca611ffae>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,14 +27,14 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type ResolverFragmentSpreadsTestQuery$variables = {||};
-export type ResolverFragmentSpreadsTestQuery$data = {|
-  +field_that_spreads_inline_fragment: ?string,
-|};
-export type ResolverFragmentSpreadsTestQuery = {|
+export type ResolverFragmentSpreadsTestQuery$variables = {};
+export type ResolverFragmentSpreadsTestQuery$data = {
+  readonly field_that_spreads_inline_fragment: ?string,
+};
+export type ResolverFragmentSpreadsTestQuery = {
   response: ResolverFragmentSpreadsTestQuery$data,
   variables: ResolverFragmentSpreadsTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

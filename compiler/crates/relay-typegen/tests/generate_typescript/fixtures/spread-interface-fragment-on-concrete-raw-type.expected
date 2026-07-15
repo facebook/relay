@@ -1,0 +1,82 @@
+==================================== INPUT ====================================
+fragment MyFragment on Actor {
+  name
+  ... on User {
+    canViewerLike
+  }
+  ... on Page {
+    subscribeStatus
+  }
+}
+
+query MyQuery @raw_response_type {
+  me {
+    canViewerComment
+    ...MyFragment
+  }
+}
+
+mutation MyMutation @raw_response_type {
+  setName(name: "test") {
+    canViewerComment
+    ...MyFragment
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type MyMutation$variables = Record<PropertyKey, never>;
+export type MyMutation$data = {
+  readonly setName: {
+    readonly canViewerComment: boolean | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"MyFragment">;
+  } | null | undefined;
+};
+export type MyMutation$rawResponse = {
+  readonly setName: {
+    readonly __isActor: "User";
+    readonly canViewerComment: boolean | null | undefined;
+    readonly canViewerLike: boolean | null | undefined;
+    readonly id: string;
+    readonly name: string | null | undefined;
+  } | null | undefined;
+};
+export type MyMutation = {
+  rawResponse: MyMutation$rawResponse;
+  response: MyMutation$data;
+  variables: MyMutation$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type MyQuery$variables = Record<PropertyKey, never>;
+export type MyQuery$data = {
+  readonly me: {
+    readonly canViewerComment: boolean | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"MyFragment">;
+  } | null | undefined;
+};
+export type MyQuery$rawResponse = {
+  readonly me: {
+    readonly __isActor: "User";
+    readonly canViewerComment: boolean | null | undefined;
+    readonly canViewerLike: boolean | null | undefined;
+    readonly id: string;
+    readonly name: string | null | undefined;
+  } | null | undefined;
+};
+export type MyQuery = {
+  rawResponse: MyQuery$rawResponse;
+  response: MyQuery$data;
+  variables: MyQuery$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type MyFragment$data = {
+  readonly canViewerLike?: boolean | null | undefined;
+  readonly name: string | null | undefined;
+  readonly subscribeStatus?: string | null | undefined;
+  readonly " $fragmentType": "MyFragment";
+};
+export type MyFragment$key = {
+  readonly " $data"?: MyFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MyFragment">;
+};

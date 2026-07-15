@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3b637f0bf23370ae31b6b41de247a023>>
+ * @generated SignedSource<<7f6f133b91915ff19e43bdcb3b647ace>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,30 +17,25 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTest10ChangeNameIncludeBoolMutation$variables = {|
+};
+export type validateMutationTest10ChangeNameIncludeBoolMutation$variables = {
   input: ActorNameChangeInput,
   myVar: boolean,
-|};
-export type validateMutationTest10ChangeNameIncludeBoolMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?({|
-      +__typename: "Page",
-      +canViewerLike?: ?boolean,
-      +username?: ?string,
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |},
-|};
-export type validateMutationTest10ChangeNameIncludeBoolMutation = {|
+};
+export type validateMutationTest10ChangeNameIncludeBoolMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly canViewerLike?: ?boolean,
+      readonly username?: ?string,
+    },
+  },
+};
+export type validateMutationTest10ChangeNameIncludeBoolMutation = {
   response: validateMutationTest10ChangeNameIncludeBoolMutation$data,
   variables: validateMutationTest10ChangeNameIncludeBoolMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

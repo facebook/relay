@@ -7,6 +7,8 @@
 
 mod errors;
 
+use std::sync::LazyLock;
+
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -22,7 +24,6 @@ use fnv::FnvHashSet;
 use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;
 use schema::DirectiveValue;
@@ -38,8 +39,8 @@ use schema::TypeReference;
 use schema::TypeWithFields;
 use schema::UnionID;
 
-lazy_static! {
-    static ref INTROSPECTION_TYPES: FnvHashSet<StringKey> = vec![
+static INTROSPECTION_TYPES: LazyLock<FnvHashSet<StringKey>> = LazyLock::new(|| {
+    vec![
         "__Schema".intern(),
         "__Directive".intern(),
         "__DirectiveLocation".intern(),
@@ -50,14 +51,15 @@ lazy_static! {
         "__TypeKind".intern(),
     ]
     .into_iter()
-    .collect();
-    static ref QUERY: StringKey = "Query".intern();
-    static ref SUBSCRIPTION: StringKey = "Subscription".intern();
-    static ref MUTATION: StringKey = "Mutation".intern();
-    static ref TYPE_NAME_REGEX: Regex = Regex::new(r"^[_a-zA-Z][_a-zA-Z0-9]*$").unwrap();
-    static ref SEMANTIC_NON_NULL_DIRECTIVE: DirectiveName =
-        DirectiveName("semanticNonNull".intern());
-}
+    .collect()
+});
+static QUERY: LazyLock<StringKey> = LazyLock::new(|| "Query".intern());
+static SUBSCRIPTION: LazyLock<StringKey> = LazyLock::new(|| "Subscription".intern());
+static MUTATION: LazyLock<StringKey> = LazyLock::new(|| "Mutation".intern());
+static TYPE_NAME_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^[_a-zA-Z][_a-zA-Z0-9]*$").unwrap());
+static SEMANTIC_NON_NULL_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("semanticNonNull".intern()));
 
 pub struct SchemaValidationOptions {
     pub allow_introspection_names: bool,

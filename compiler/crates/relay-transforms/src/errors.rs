@@ -128,11 +128,6 @@ pub enum ValidationMessage {
     ClientEdgeUnsupportedDirective { directive_name: DirectiveName },
 
     #[error(
-        "Client to server edges are not supported in exec time resolvers. Please consider disable exec time resolver on the query for now, or not using client to server edges."
-    )]
-    ClientEdgeToServerWithExecTimeResolvers,
-
-    #[error(
         "Server-to-client resolver @rootFragment `{fragment_name}` in exec time resolvers may only select `__typename` and/or `id`. Found disallowed selection: {field_name}. S2C resolvers must use identity-only @rootFragment."
     )]
     S2CRootFragmentInvalidSelection {
@@ -248,6 +243,104 @@ pub enum ValidationMessage {
         module_name: String,
         fragment_name: StringKey,
     },
+
+    #[error(
+        "@returnFragment requires the resolver to define a @rootFragment. Resolvers with @returnFragment must read data from the graph using a root fragment."
+    )]
+    ReturnFragmentRequiresRootFragment,
+
+    #[error(
+        "The @returnFragment '{return_fragment_name}' must be spread within the @rootFragment '{root_fragment_name}'. Add `...{return_fragment_name}` to your root fragment."
+    )]
+    ReturnFragmentNotSpreadInRootFragment {
+        return_fragment_name: FragmentDefinitionName,
+        root_fragment_name: FragmentDefinitionName,
+    },
+
+    #[error(
+        "The selection '{field_name}' on shadow resolver field cannot be transplanted onto the shadowed server type '{type_name}'. The shadowed server type must define a field with the same name so the consumer's selections can be fetched in the main query."
+    )]
+    ShadowReturnSelectionNotOnShadowedType {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
+        "Fragment spread `{fragment_name}` in selections on a shadow resolver field cannot take `@arguments`, and its fragment cannot declare argument definitions. The spread is inlined into the main operation while the reader keeps the spread verbatim; because these resolve variables at different pipeline stages, a parameterized spread can silently miscompile. Remove the fragment's arguments, or inline the selection."
+    )]
+    ShadowReturnFragmentSpreadArgumentsUnsupported { fragment_name: StringKey },
+
+    #[error(
+        "Fragment spread `{fragment_name}` in selections on a shadow resolver field cannot be a `@no_inline` fragment. The spread's fields must be inlined into the main operation. Remove `@no_inline` from the fragment, or inline the selection."
+    )]
+    ShadowReturnFragmentSpreadNoInlineUnsupported { fragment_name: StringKey },
+
+    #[error(
+        "Fragment spread `{fragment_name}` in selections on a shadow resolver field has the union type condition `{type_condition_name}`. Only concrete-typed and interface-typed consumer spreads are supported. Use a fragment on a concrete type or an interface, or inline the selection."
+    )]
+    ShadowReturnFragmentSpreadUnionTypeUnsupported {
+        fragment_name: StringKey,
+        type_condition_name: StringKey,
+    },
+
+    #[error(
+        "The inline fragment type condition '{type_condition_name}' cannot be transplanted onto the shadowed server type '{type_name}'. Shadow resolver selections are fetched from the shadowed server field, so a server type condition must overlap that type. (Client-extension type conditions are served separately by the model-resolver edge.)"
+    )]
+    ShadowReturnIncompatibleInlineFragmentType {
+        type_condition_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
+        "Plural shadow resolvers (whose return type is a list) are not yet supported. `@returnFragment` currently only supports singular shadow resolver fields. Remove the list from the resolver's return type, or split into a singular field."
+    )]
+    ShadowResolverPluralUnsupported,
+
+    #[error(
+        "Union shadow resolver return types are not yet supported. The shadow resolver field `{field_name}` returns the union `{union_name}`, which may have a client-extension member. Unions are not expanded into per-member typed inline fragments, so a client member's selections cannot be routed to its model resolver. Use an interface return type instead, or remove the client-extension member."
+    )]
+    MagicFragmentUnionReturnUnsupported {
+        field_name: StringKey,
+        union_name: StringKey,
+    },
+
+    #[error(
+        "Magic fragment (`@returnFragment`) shadow resolver field `{field_name}` returns `{type_name}`, which is a concrete object type. A magic fragment's return type must be an interface: the consumer's selection is fanned per concrete implementor and dispatched at read time on the resolver's returned `__typename`, so a concrete object (which has no implementors to fan) would silently drop the magic-fragment routing. Use an interface return type."
+    )]
+    MagicFragmentConcreteObjectReturnUnsupported {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
+        "The shadow resolver field `{field_name}` returns the interface `{interface_name}`, which has a client-extension implementor, so its client data is read through the model-resolver edge. That edge requires the consumer's interface selection to be expanded into per-implementor typed inline fragments, which only happens when `relay_resolver_enable_interface_output_type` is enabled. Enable `relay_resolver_enable_interface_output_type` for this project, or remove the client-extension implementor."
+    )]
+    MagicFragmentClientImplementorRequiresInterfaceOutputType {
+        field_name: StringKey,
+        interface_name: StringKey,
+    },
+
+    #[error(
+        "The `@__relay_shadow_return` directive is internal to the Relay compiler and cannot be used in source. Shadow resolver return data is marked by spreading the resolver's `@returnFragment` placeholder inside its `@rootFragment`; the compiler generates this directive automatically."
+    )]
+    InternalShadowReturnDirectiveNotAllowed,
+
+    #[error(
+        "The `@returnFragment` placeholder `...{return_fragment_name}` must be spread directly inside the shadowed server field of the resolver's `@rootFragment`. It cannot appear at the top level of the fragment, or inside an inline fragment or condition."
+    )]
+    ShadowReturnPlaceholderMisplaced {
+        return_fragment_name: FragmentDefinitionName,
+    },
+
+    #[error(
+        "`@waterfall` on the plural shadow resolver field `{field_name}` is not currently supported. Remove `@waterfall` from this field."
+    )]
+    MagicFragmentPluralWaterfallUnsupported { field_name: StringKey },
+
+    #[error(
+        "A magic fragment returning interface `{interface_name}` that mixes inline (weak or non-Node value) implementors with refetchable server-object (Node) implementors is not yet supported. The inline arm reads in place while the server arm needs a `node(id:)` refetch, which requires per-`__typename` dispatch. Use an all-inline or all-server interface for now."
+    )]
+    MagicFragmentMixedInlineAndRefetchableUnsupported { interface_name: StringKey },
 }
 
 #[derive(
@@ -272,6 +365,11 @@ pub enum ValidationMessageWithData {
         "Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive."
     )]
     RelayResolversUnexpectedWaterfall,
+
+    #[error(
+        "Unexpected `@waterfall` directive on `{field_name}`. This magic-fragment field's resolver does not declare `@mayWaterfall`, so it only ever returns the shadowed record (served by the transplant, with no waterfall). Remove `@waterfall`, or add `@mayWaterfall` to the resolver's docblock if it may return a pointer to a different server object."
+    )]
+    MagicFragmentUnexpectedWaterfall { field_name: StringKey },
 
     #[error(
         "Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive."
@@ -323,6 +421,9 @@ impl WithDiagnosticData for ValidationMessageWithData {
                 vec![Box::new(format!("{field_name} @waterfall",))]
             }
             ValidationMessageWithData::RelayResolversUnexpectedWaterfall => {
+                vec![Box::new("")]
+            }
+            ValidationMessageWithData::MagicFragmentUnexpectedWaterfall { .. } => {
                 vec![Box::new("")]
             }
             ValidationMessageWithData::RequiredOnNonNull => {

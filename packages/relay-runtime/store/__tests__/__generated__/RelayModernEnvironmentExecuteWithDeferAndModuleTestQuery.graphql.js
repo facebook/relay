@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3a865bd3ee15a34f23cda797072bb235>>
+ * @generated SignedSource<<e8d3ba37988d928ed73a0abc82fec5c8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,25 +20,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user.graphql";
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data = {
+  readonly node: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery = {
   response: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data,
   variables: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

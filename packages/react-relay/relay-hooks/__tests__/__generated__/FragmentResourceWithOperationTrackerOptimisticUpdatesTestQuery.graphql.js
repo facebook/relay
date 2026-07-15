@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9e81dd17fb2a6220fb724e2aa655c916>>
+ * @generated SignedSource<<43c34a397e2fda1f7e1c338b21503130>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType } from "./FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment.graphql";
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestQuery$variables = {|
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestQuery$variables = {
   id: string,
-|};
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +$fragmentSpreads: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
-  |},
-|};
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestQuery = {|
+};
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly $fragmentSpreads: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
+  },
+};
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestQuery = {
   response: FragmentResourceWithOperationTrackerOptimisticUpdatesTestQuery$data,
   variables: FragmentResourceWithOperationTrackerOptimisticUpdatesTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

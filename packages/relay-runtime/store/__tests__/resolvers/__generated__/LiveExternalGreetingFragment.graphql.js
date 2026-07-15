@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4a0fcfbdca12a75da23019eefb129b76>>
+ * @generated SignedSource<<e472b5d264a7cc2bafc1ea262dee17e7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -26,19 +25,19 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 (queryLiveUserSuspendsWhenOddResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?{|
-  +id: DataID,
-|}>);
+) => LiveState<?{
+  readonly id: DataID,
+}>);
 declare export opaque type LiveExternalGreetingFragment$fragmentType: FragmentType;
-export type LiveExternalGreetingFragment$data = {|
-  +user: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: LiveExternalGreetingFragment$fragmentType,
-|};
+export type LiveExternalGreetingFragment$data = {
+  readonly user: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: LiveExternalGreetingFragment$fragmentType,
+};
 export type LiveExternalGreetingFragment$key = {
-  +$data?: LiveExternalGreetingFragment$data,
-  +$fragmentSpreads: LiveExternalGreetingFragment$fragmentType,
+  readonly $data?: LiveExternalGreetingFragment$data,
+  readonly $fragmentSpreads: LiveExternalGreetingFragment$fragmentType,
   ...
 };
 */

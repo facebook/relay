@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6370d579ff793576fe0966593c7da1a3>>
+ * @generated SignedSource<<3ab3a5bfcc57125de52049ef1adfe72f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type GraphQLTagTest1Query$variables = {||};
-export type GraphQLTagTest1Query$data = {|
-  +me: ?{|
-    +id: string,
-  |},
-|};
-export type GraphQLTagTest1Query = {|
+export type GraphQLTagTest1Query$variables = {};
+export type GraphQLTagTest1Query$data = {
+  readonly me: ?{
+    readonly id: string,
+  },
+};
+export type GraphQLTagTest1Query = {
   response: GraphQLTagTest1Query$data,
   variables: GraphQLTagTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

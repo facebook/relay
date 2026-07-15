@@ -49,6 +49,7 @@ type Query {
   viewer: Viewer
   _mutation: Mutation
   fetch__User(id: ID!): User
+  fetch__Chicken(input_id: ID!): Chicken
   fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
   nonNodeStory(id: ID!): NonNodeStory
   userOrPage(id: ID!): UserOrPage
@@ -112,6 +113,11 @@ type Bicycle implements Node {
 }
 
 union UserOrPage = User | Page
+
+type Chicken @fetchable(field_name: "id") {
+  id: ID!
+  legs: Int
+}
 
 interface MaybeNodeInterface {
   name: String
@@ -1028,7 +1034,12 @@ input ProfilePictureOptions {
   newName: String
 }
 
-type User implements Named & Node & Actor & HasJsField & Entity & AllConcreteTypesImplementNode {
+type User implements Named &
+  Node &
+  Actor &
+  HasJsField &
+  Entity &
+  AllConcreteTypesImplementNode {
   actor: Actor
   actors: [Actor]
   actorCount: Int

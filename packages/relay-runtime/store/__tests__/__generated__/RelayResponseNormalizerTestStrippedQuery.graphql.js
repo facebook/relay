@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<236add22d504d8e6cd965a3b9a677c4b>>
+ * @generated SignedSource<<3f3d2f15d2f1a279f02c19858479c82c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,30 +17,26 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayResponseNormalizerTestStrippedQuery$variables = {|
+export type RelayResponseNormalizerTestStrippedQuery$variables = {
   id?: ?string,
-|};
-export type RelayResponseNormalizerTestStrippedQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +firstName: ?string,
-    +foo: ?{|
-      +bar: ?{|
-        +content: ?string,
-      |},
-    |},
-    +id: string,
-    +nickname: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayResponseNormalizerTestStrippedQuery = {|
+};
+export type RelayResponseNormalizerTestStrippedQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly firstName?: ?string,
+    readonly foo?: ?{
+      readonly bar: ?{
+        readonly content: ?string,
+      },
+    },
+    readonly id: string,
+    readonly nickname?: ?string,
+  },
+};
+export type RelayResponseNormalizerTestStrippedQuery = {
   response: RelayResponseNormalizerTestStrippedQuery$data,
   variables: RelayResponseNormalizerTestStrippedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

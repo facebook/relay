@@ -146,6 +146,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             return;
         }
         let arguments = &self.serialize_arguments(&directive.arguments);
+        let directives = &self.serialize_directive_values(&directive.directives);
         let locations = &directive
             .locations
             .iter()
@@ -157,6 +158,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             arguments: Some(self.bldr.create_vector(arguments)),
             locations: Some(self.bldr.create_vector(locations)),
             repeatable: directive.repeatable,
+            directives: Some(self.bldr.create_vector(directives)),
         };
         let fb_directive = schema_flatbuffer::Directive::create(&mut self.bldr, &args);
 
@@ -651,5 +653,6 @@ fn get_mapped_location(location: DirectiveLocation) -> schema_flatbuffer::Direct
         DL::InputObject => FDL::InputObject,
         DL::InputFieldDefinition => FDL::InputFieldDefinition,
         DL::VariableDefinition => FDL::VariableDefinition,
+        DL::DirectiveDefinition => FDL::DirectiveDefinition,
     }
 }

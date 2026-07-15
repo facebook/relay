@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d14e175a56544667a9e02b1406b00833>>
+ * @generated SignedSource<<b748f18607837e882bf8349d06475755>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,14 +27,14 @@ import type { TestResolverContextType } from "../../../../relay-runtime/mutation
   args: void,
   context: TestResolverContextType,
 ) => number);
-export type useFragmentNullabilityTest3Query$variables = {||};
-export type useFragmentNullabilityTest3Query$data = {|
-  +field_with_fragment_that_throws: ?number,
-|};
-export type useFragmentNullabilityTest3Query = {|
+export type useFragmentNullabilityTest3Query$variables = {};
+export type useFragmentNullabilityTest3Query$data = {
+  readonly field_with_fragment_that_throws: ?number,
+};
+export type useFragmentNullabilityTest3Query = {
   response: useFragmentNullabilityTest3Query$data,
   variables: useFragmentNullabilityTest3Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

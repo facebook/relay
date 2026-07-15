@@ -32,88 +32,88 @@ fragment FeedbackFragment on Feedback {
 }
 ==================================== OUTPUT ===================================
 import type { FriendFragment$fragmentType } from "FriendFragment.graphql";
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   client_mutation_id: string,
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type CommentCreateMutation$variables = {|
+};
+export type CommentCreateMutation$variables = {
   first?: ?number,
   input: CommentCreateInput,
   orderBy?: ?ReadonlyArray<string>,
-|};
-export type CommentCreateMutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +friends: ?{|
-        +edges: ?ReadonlyArray<?{|
-          +node: ?{|
-            +lastName: ?string,
-            +$fragmentSpreads: FriendFragment$fragmentType,
-          |},
-        |}>,
-      |},
-    |},
-  |},
-|};
-export type CommentCreateMutation$rawResponse = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +friends: ?{|
-        +edges: ?ReadonlyArray<?{|
-          +node: ?{|
-            +feedback: ?{|
-              +id: string,
-              +name: ?string,
-            |},
-            +id: string,
-            +lastName: ?string,
-            +name: ?string,
-          |},
-        |}>,
-      |},
-      +id: string,
-    |},
-  |},
-|};
-export type CommentCreateMutation = {|
+};
+export type CommentCreateMutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly friends: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly node: ?{
+            readonly lastName: ?string,
+            readonly $fragmentSpreads: FriendFragment$fragmentType,
+          },
+        }>,
+      },
+    },
+  },
+};
+export type CommentCreateMutation$rawResponse = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly friends: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly node: ?{
+            readonly feedback: ?{
+              readonly id: string,
+              readonly name: ?string,
+            },
+            readonly id: string,
+            readonly lastName: ?string,
+            readonly name: ?string,
+          },
+        }>,
+      },
+      readonly id: string,
+    },
+  },
+};
+export type CommentCreateMutation = {
   rawResponse: CommentCreateMutation$rawResponse,
   response: CommentCreateMutation$data,
   variables: CommentCreateMutation$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FeedbackFragment$fragmentType: FragmentType;
-export type FeedbackFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: FeedbackFragment$fragmentType,
-|};
+export type FeedbackFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: FeedbackFragment$fragmentType,
+};
 export type FeedbackFragment$key = {
-  +$data?: FeedbackFragment$data,
-  +$fragmentSpreads: FeedbackFragment$fragmentType,
+  readonly $data?: FeedbackFragment$data,
+  readonly $fragmentSpreads: FeedbackFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FeedbackFragment$fragmentType } from "FeedbackFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FriendFragment$fragmentType: FragmentType;
-export type FriendFragment$data = {|
-  +feedback: ?{|
-    +$fragmentSpreads: FeedbackFragment$fragmentType,
-  |},
-  +lastName: ?string,
-  +name: ?string,
-  +$fragmentType: FriendFragment$fragmentType,
-|};
+export type FriendFragment$data = {
+  readonly feedback: ?{
+    readonly $fragmentSpreads: FeedbackFragment$fragmentType,
+  },
+  readonly lastName: ?string,
+  readonly name: ?string,
+  readonly $fragmentType: FriendFragment$fragmentType,
+};
 export type FriendFragment$key = {
-  +$data?: FriendFragment$data,
-  +$fragmentSpreads: FriendFragment$fragmentType,
+  readonly $data?: FriendFragment$data,
+  readonly $fragmentSpreads: FriendFragment$fragmentType,
   ...
 };

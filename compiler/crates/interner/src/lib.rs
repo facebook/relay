@@ -25,5 +25,5 @@ pub use types::RawInternKey;
 
 /// Re-exported values to be used by the `intern!` macro.
 pub mod reexport {
-    pub use once_cell::sync::Lazy;
+    pub use std::sync::LazyLock;
 }

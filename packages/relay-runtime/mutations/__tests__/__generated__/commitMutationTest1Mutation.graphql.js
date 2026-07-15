@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d047daf7737dca02f23a3bc7724b31c1>>
+ * @generated SignedSource<<20d2af191caf33d4e0d4560e13f1e7fb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,27 +17,27 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentDeleteInput = {|
+export type CommentDeleteInput = {
   commentId?: ?string,
-|};
-export type commitMutationTest1Mutation$variables = {|
+};
+export type commitMutationTest1Mutation$variables = {
   input?: ?CommentDeleteInput,
-|};
-export type commitMutationTest1Mutation$data = {|
-  +commentDelete: ?{|
-    +deletedCommentId: ?string,
-    +feedback: ?{|
-      +id: string,
-      +topLevelComments: ?{|
-        +count: ?number,
-      |},
-    |},
-  |},
-|};
-export type commitMutationTest1Mutation = {|
+};
+export type commitMutationTest1Mutation$data = {
+  readonly commentDelete: ?{
+    readonly deletedCommentId: ?string,
+    readonly feedback: ?{
+      readonly id: string,
+      readonly topLevelComments: ?{
+        readonly count: ?number,
+      },
+    },
+  },
+};
+export type commitMutationTest1Mutation = {
   response: commitMutationTest1Mutation$data,
   variables: commitMutationTest1Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

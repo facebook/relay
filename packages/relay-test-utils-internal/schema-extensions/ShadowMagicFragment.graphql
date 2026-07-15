@@ -1,0 +1,13 @@
+# A "magic fragment" (`@returnFragment` shadow resolver) return INTERFACE whose
+# implementors need DIFFERENT runtime representations: the non-Node SERVER VALUE
+# type `StreetAddress` (read in place off the transplanted record via `__id`) and
+# a CLIENT `@weak` model `ShadowMagicWeakCity` (read inline off the model
+# instance, declared via docblock in ShadowMagicWeakCityResolvers.js). Both are
+# all-inline (no Node, no node(id:) refetch), so the single resolver returns a
+# per-`__typename` identity pointer and the runtime dispatches per implementor
+# (the `AbstractInline` `inlineKinds` read-in-place path).
+interface IShadowMagicThing {
+  city: String
+}
+
+extend type StreetAddress implements IShadowMagicThing

@@ -7,15 +7,15 @@ query RelayReaderNamedFragmentsTest2Query {
   }
 }
 ==================================== OUTPUT ===================================
-export type RelayReaderNamedFragmentsTest2Query$variables = {||};
-export type RelayReaderNamedFragmentsTest2Query$data = {|
-  +node: ?{|
-    +aliased_fragment: ?{|
-      +name: string,
-    |},
-  |},
-|};
-export type RelayReaderNamedFragmentsTest2Query = {|
+export type RelayReaderNamedFragmentsTest2Query$variables = {};
+export type RelayReaderNamedFragmentsTest2Query$data = {
+  readonly node: ?{
+    readonly aliased_fragment: ?{
+      readonly name: string,
+    },
+  },
+};
+export type RelayReaderNamedFragmentsTest2Query = {
   response: RelayReaderNamedFragmentsTest2Query$data,
   variables: RelayReaderNamedFragmentsTest2Query$variables,
-|};
+};

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b9bee463916b2a6e97d8c4a1c82a2509>>
+ * @generated SignedSource<<c706abcbbb098bb210aad737b1882d4e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,7 +18,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType } from "./useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment.graphql";
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables = {|
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables = {
   after?: ?string,
   before?: ?string,
   first?: ?number,
@@ -27,18 +26,18 @@ export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$var
   isViewerFriend?: ?boolean,
   last?: ?number,
   orderby?: ?ReadonlyArray<?string>,
-|};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data = {|
-  +node: ?{|
-    +actor: ?{|
-      +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
-    |},
-  |},
-|};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery = {|
+};
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data = {
+  readonly node: ?{
+    readonly actor: ?{
+      readonly $fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
+    },
+  },
+};
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery = {
   response: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data,
   variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

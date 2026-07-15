@@ -75,24 +75,28 @@ export type MultiActorEnvironmentConfig = Readonly<{
 }>;
 
 class MultiActorEnvironment implements IMultiActorEnvironment {
-  +_actorEnvironments: Map<ActorIdentifier, IActorEnvironment>;
-  +_createConfigNameForActor: ?(actorIdentifier: ActorIdentifier) => string;
-  +_createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork;
-  +_createStoreForActor: ?(actorIdentifier: ActorIdentifier) => Store;
-  +_defaultRenderPolicy: RenderPolicy;
-  +_getDataID: GetDataID;
-  +_handlerProvider: HandlerProvider;
-  +_isServer: boolean;
-  +_logFn: LogFunction;
-  +_missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
-  +_normalizeResponse: NormalizeResponseFunction;
-  +_operationExecutions: Map<string, ActiveState>;
-  +_operationLoader: ?OperationLoader;
-  +_relayFieldLogger: RelayFieldLogger;
-  +_scheduler: ?TaskScheduler;
-  +_shouldProcessClientComponents: ?boolean;
-  +_treatMissingFieldsAsNull: boolean;
-  +_deferDeduplicatedFields: boolean;
+  readonly _actorEnvironments: Map<ActorIdentifier, IActorEnvironment>;
+  readonly _createConfigNameForActor: ?(
+    actorIdentifier: ActorIdentifier,
+  ) => string;
+  readonly _createNetworkForActor: (
+    actorIdentifier: ActorIdentifier,
+  ) => INetwork;
+  readonly _createStoreForActor: ?(actorIdentifier: ActorIdentifier) => Store;
+  readonly _defaultRenderPolicy: RenderPolicy;
+  readonly _getDataID: GetDataID;
+  readonly _handlerProvider: HandlerProvider;
+  readonly _isServer: boolean;
+  readonly _logFn: LogFunction;
+  readonly _missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
+  readonly _normalizeResponse: NormalizeResponseFunction;
+  readonly _operationExecutions: Map<string, ActiveState>;
+  readonly _operationLoader: ?OperationLoader;
+  readonly _relayFieldLogger: RelayFieldLogger;
+  readonly _scheduler: ?TaskScheduler;
+  readonly _shouldProcessClientComponents: ?boolean;
+  readonly _treatMissingFieldsAsNull: boolean;
+  readonly _deferDeduplicatedFields: boolean;
 
   constructor(config: MultiActorEnvironmentConfig) {
     this._actorEnvironments = new Map();

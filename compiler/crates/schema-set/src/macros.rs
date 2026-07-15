@@ -35,23 +35,26 @@ macro_rules! impl_string_key_named_raw {
 }
 
 #[macro_export]
-macro_rules! impl_can_be_client_definition {
+macro_rules! impl_has_definition_item {
     ($named:ident) => {
-        impl CanBeClientDefinition for $named {
-            fn is_client_definition(&self) -> bool {
-                self.definition.is_none() || self.definition.as_ref().unwrap().is_client_definition
+        impl HasDefinitionItem for $named {
+            fn definition_item(&self) -> &SchemaDefinitionItem {
+                &self.definition
             }
-            fn set_is_client_definition(&mut self, is_client_definition: bool) {
-                if let Some(def) = &mut self.definition {
-                    def.is_client_definition = is_client_definition;
-                } else {
-                    self.definition = Some(SchemaDefinitionItem {
-                        name: WithLocation::generated(self.name.0),
-                        is_client_definition,
-                        description: None,
-                        hack_source: None,
-                    });
-                }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_has_coordinate {
+    ($named:ident) => {
+        impl HasCoordinate for $named {
+            fn coordinate(&self) -> Option<&SchemaCoordinate> {
+                self.coordinate.as_ref()
+            }
+
+            fn exclude_coordinate(&mut self) {
+                self.coordinate = None
             }
         }
     };
@@ -61,13 +64,13 @@ macro_rules! impl_can_be_client_definition {
 macro_rules! impl_can_have_directives {
     ($named:ident) => {
         impl CanHaveDirectives for $named {
-            fn directives(&self) -> &Vec<DirectiveValue> {
+            fn directives(&self) -> &Vec<SetDirectiveValue> {
                 &self.directives
             }
-            fn directives_mut(&mut self) -> &mut Vec<DirectiveValue> {
+            fn directives_mut(&mut self) -> &mut Vec<SetDirectiveValue> {
                 &mut self.directives
             }
-            fn set_directives(&mut self, directives: Vec<DirectiveValue>) {
+            fn set_directives(&mut self, directives: Vec<SetDirectiveValue>) {
                 self.directives = directives
             }
         }
@@ -127,7 +130,7 @@ macro_rules! impl_has_description {
     ($named:ident) => {
         impl HasDescription for $named {
             fn description(&self) -> Option<StringKey> {
-                self.definition.as_ref().and_then(|d| d.description)
+                self.definition.description
             }
         }
     };
@@ -150,31 +153,4 @@ macro_rules! clone_base {
             ..self.clone()
         };
     }
-}
-
-#[macro_export]
-macro_rules! impl_partitions_only_directives {
-    ($named:ident ) => {
-        impl PartitionsBaseExtension for $named {
-            fn partition_base_extension(&self, schema_set: &SchemaSet) -> (Self, Option<Self>) {
-                let (base_directives, extension_directives) =
-                    self.partition_extension_directives(schema_set);
-
-                let base = Self {
-                    directives: base_directives,
-                    ..self.clone()
-                };
-
-                let extension = if extension_directives.is_empty() {
-                    None
-                } else {
-                    Some(Self {
-                        directives: extension_directives,
-                        ..self.clone()
-                    })
-                };
-                (base, extension)
-            }
-        }
-    };
 }

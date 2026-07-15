@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e04343904ed525e4ed51dd1eaa6c601f>>
+ * @generated SignedSource<<d856ea25b433c71bff2ad24316c97f8d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,13 +29,13 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   context: TestResolverContextType,
 ) => ?boolean);
 declare export opaque type RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType: FragmentType;
-export type RelayResolversWithOutputTypeTestTodoCompleteFragment$data = {|
-  +complete: ?boolean,
-  +$fragmentType: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
-|};
+export type RelayResolversWithOutputTypeTestTodoCompleteFragment$data = {
+  readonly complete: ?boolean,
+  readonly $fragmentType: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
+};
 export type RelayResolversWithOutputTypeTestTodoCompleteFragment$key = {
-  +$data?: RelayResolversWithOutputTypeTestTodoCompleteFragment$data,
-  +$fragmentSpreads: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
+  readonly $data?: RelayResolversWithOutputTypeTestTodoCompleteFragment$data,
+  readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
   ...
 };
 */

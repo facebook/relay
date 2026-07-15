@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6a6498a74619793e36b81dc87916ae69>>
+ * @generated SignedSource<<9f55eb0e6f956af36edb8807a615d982>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$data = {|
-  +name: ?string,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$fragmentType,
-  +$fragmentType: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$data = {
+  readonly name: ?string,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType,
   ...
 };
 */

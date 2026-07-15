@@ -1,0 +1,67 @@
+==================================== INPUT ====================================
+//- UserCombinedPage.js
+// RED: a consumer fragment spread whose type condition is a UNION on a
+// magic-fragment field is still rejected. Only concrete-typed and
+// interface-typed consumer spreads, but not union-typed ones (a union arm is not
+// fanned per-implementor by `relay_resolvers_abstract_types`, which only handles
+// interfaces).
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- PageUnionFields.js
+graphql`fragment PageUnionFields on PageUnion {
+  __typename
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      ...PageUnionFields @alias(as: "pageUnion")
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage
+
+union PageUnion = Page
+==================================== OUTPUT ===================================
+✖︎ Fragment spread `PageUnionFields` in selections on a shadow resolver field has the union type condition `PageUnion`. Only concrete-typed and interface-typed consumer spreads are supported. Use a fragment on a concrete type or an interface, or inline the selection.
+
+  UserConsumer.js:4:10
+    3 │     combined_page {
+    4 │       ...PageUnionFields @alias(as: "pageUnion")
+      │          ^^^^^^^^^^^^^^^
+    5 │     }

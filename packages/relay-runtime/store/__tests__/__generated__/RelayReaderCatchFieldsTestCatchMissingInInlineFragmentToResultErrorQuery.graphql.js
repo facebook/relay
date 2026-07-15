@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<37d59764e7a9d9def885928519615bcd>>
+ * @generated SignedSource<<0e4698ffda0945b8754bc66674590d0d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { Result } from "relay-runtime";
-export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$variables = {||};
-export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$data = {|
-  +me: ?{|
-    +myAlias: Result<{|
-      +firstName: ?string,
-    |}, unknown>,
-  |},
-|};
-export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery = {|
+export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$variables = {};
+export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$data = {
+  readonly me: ?{
+    readonly myAlias: Result<{
+      readonly firstName: ?string,
+    }, unknown>,
+  },
+};
+export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery = {
   response: RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$data,
   variables: RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

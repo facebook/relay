@@ -25,7 +25,7 @@ use lsp_types::Position;
 use lsp_types::Range;
 use lsp_types::TextDocumentPositionParams;
 use lsp_types::TextEdit;
-use lsp_types::Url;
+use lsp_types::Uri;
 use lsp_types::WorkspaceEdit;
 use lsp_types::request::CodeActionRequest;
 use lsp_types::request::Request;
@@ -50,7 +50,7 @@ pub fn on_code_action(
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
     let uri = params.text_document.uri.clone();
 
-    if !is_file_uri_in_dir(state.root_dir(), &uri) {
+    if !is_file_uri_in_dir(&state.root_dir(), &uri) {
         return Err(LSPRuntimeError::ExpectedError);
     }
 
@@ -79,7 +79,7 @@ pub fn on_code_action(
 }
 
 pub fn get_code_actions_from_diagnostic(
-    url: &Url,
+    uri: &Uri,
     diagnostic: Diagnostic,
 ) -> Option<Vec<CodeActionOrCommand>> {
     let code_actions = if let Some(Value::Array(data)) = &diagnostic.data {
@@ -88,7 +88,7 @@ pub fn get_code_actions_from_diagnostic(
                 Value::String(suggestion) => Some(create_code_action(
                     "Fix Error",
                     suggestion.to_string(),
-                    url,
+                    uri,
                     diagnostic.range,
                 )),
                 _ => None,
@@ -135,7 +135,7 @@ fn get_definition_names(definitions: &[ExecutableDefinition]) -> FragmentAndOper
 fn get_code_actions(
     path: ResolutionPath<'_>,
     used_definition_names: FragmentAndOperationNames,
-    url: Url,
+    uri: Uri,
     range: Range,
 ) -> Option<Vec<CodeActionOrCommand>> {
     match path {
@@ -164,7 +164,7 @@ fn get_code_actions(
                 operation_name.value.lookup(),
                 used_definition_names.operation_names,
                 suffix,
-                &url,
+                &uri,
                 code_action_range,
             ))
         }
@@ -180,7 +180,7 @@ fn get_code_actions(
             Some(create_rename_fragment_code_actions(
                 fragment_definition.name.value.lookup(),
                 used_definition_names.fragment_names,
-                &url,
+                &uri,
                 code_action_range,
             ))
         }
@@ -191,13 +191,13 @@ fn get_code_actions(
 fn create_rename_fragment_code_actions(
     _original_name: &str,
     used_names: HashSet<String>,
-    url: &Url,
+    uri: &Uri,
     range: Range,
 ) -> Vec<CodeActionOrCommand> {
     let mut suggested_names = Vec::with_capacity(2);
-    suggested_names.push(create_default_fragment_name(url.path()));
+    suggested_names.push(create_default_fragment_name(uri.path().as_str()));
     suggested_names.push(create_default_fragment_name_with_index(
-        url.path(),
+        uri.path().as_str(),
         &used_names,
     ));
 
@@ -212,7 +212,7 @@ fn create_rename_fragment_code_actions(
                 Some(create_code_action(
                     "Rename Fragment",
                     name.clone(),
-                    url,
+                    uri,
                     range,
                 ))
             } else {
@@ -226,18 +226,22 @@ fn create_rename_operation_code_actions(
     original_name: &str,
     used_names: HashSet<String>,
     suffix: DefinitionNameSuffix,
-    url: &Url,
+    uri: &Uri,
     range: Range,
 ) -> Vec<CodeActionOrCommand> {
     let mut suggested_names = Vec::with_capacity(4);
-    suggested_names.push(create_default_name(url.path(), suffix));
+    suggested_names.push(create_default_name(uri.path().as_str(), suffix));
     suggested_names.push(create_default_name_with_index(
-        url.path(),
+        uri.path().as_str(),
         suffix,
         &used_names,
     ));
-    suggested_names.push(create_name_wrapper(original_name, url.path(), suffix));
-    suggested_names.push(create_impactful_name(url.path(), suffix));
+    suggested_names.push(create_name_wrapper(
+        original_name,
+        uri.path().as_str(),
+        suffix,
+    ));
+    suggested_names.push(create_impactful_name(uri.path().as_str(), suffix));
     suggested_names
         .iter()
         .filter_map(|suggested_name| {
@@ -249,7 +253,7 @@ fn create_rename_operation_code_actions(
                 Some(create_code_action(
                     "Rename Operation",
                     name.clone(),
-                    url,
+                    uri,
                     range,
                 ))
             } else {
@@ -275,7 +279,7 @@ fn get_code_action_range(range: Range, span: Span) -> Range {
 fn create_code_action(
     title: &str,
     new_name: String,
-    url: &Url,
+    uri: &Uri,
     range: Range,
 ) -> CodeActionOrCommand {
     let mut changes = HashMap::new();
@@ -284,7 +288,7 @@ fn create_code_action(
         range,
         new_text: new_name,
     };
-    changes.insert(url.clone(), vec![text_edit]);
+    changes.insert(uri.clone(), vec![text_edit]);
 
     CodeActionOrCommand::CodeAction(CodeAction {
         title,
@@ -303,11 +307,13 @@ fn create_code_action(
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr as _;
+
     use lsp_types::CodeActionOrCommand;
     use lsp_types::Diagnostic;
     use lsp_types::Position;
     use lsp_types::Range;
-    use lsp_types::Url;
+    use lsp_types::Uri;
     use serde_json::json;
 
     use crate::code_action::get_code_actions_from_diagnostic;
@@ -329,8 +335,8 @@ mod tests {
             data: Some(json!(vec!["item1", "item2"])),
             ..Default::default()
         };
-        let url = Url::parse("file://relay.js").unwrap();
-        let code_actions = get_code_actions_from_diagnostic(&url, diagnostic);
+        let uri = Uri::from_str("file://relay.js").unwrap();
+        let code_actions = get_code_actions_from_diagnostic(&uri, diagnostic);
 
         assert_eq!(
             code_actions

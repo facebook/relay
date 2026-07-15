@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<20046df7078f3ab13abc7f91384417ee>>
+ * @generated SignedSource<<96297fff257fd17970db22b6a9dc3eec>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,13 +29,13 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType: FragmentType;
-export type waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$data = {|
-  +always_throws: ?string,
-  +$fragmentType: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
-|};
+export type waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$data = {
+  readonly always_throws: ?string,
+  readonly $fragmentType: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
+};
 export type waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$key = {
-  +$data?: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$data,
-  +$fragmentSpreads: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
+  readonly $data?: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$data,
+  readonly $fragmentSpreads: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
   ...
 };
 */

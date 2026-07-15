@@ -38,12 +38,13 @@ fragment Foo_user on User {
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(530),
+    #     field_id: FieldID(533),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,
     #     field_path: "best_friend",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: false,
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,

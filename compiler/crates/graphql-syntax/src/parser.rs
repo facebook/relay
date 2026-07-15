@@ -507,7 +507,7 @@ impl<'a> Parser<'a> {
         let token = self.parse_kind(TokenKind::Identifier)?;
         match self.source(&token) {
             "schema" => Ok(TypeSystemDefinition::SchemaExtension(
-                self.parse_schema_extension()?,
+                self.parse_schema_extension(token.span)?,
             )),
             "scalar" => Ok(TypeSystemDefinition::ScalarTypeExtension(
                 self.parse_scalar_type_extension()?,
@@ -526,6 +526,9 @@ impl<'a> Parser<'a> {
             )),
             "input" => Ok(TypeSystemDefinition::InputObjectTypeExtension(
                 self.parse_input_object_type_extension()?,
+            )),
+            "directive" => Ok(TypeSystemDefinition::DirectiveDefinitionExtension(
+                self.parse_directive_definition_extension()?,
             )),
             token_str => {
                 let error = Diagnostic::error(
@@ -562,6 +565,7 @@ impl<'a> Parser<'a> {
             "union" => self.advance_union_type_extension(),
             "enum" => self.advance_enum_type_extension(),
             "input" => self.advance_input_object_type_extension(),
+            "directive" => self.advance_directive_definition_extension(),
             token_str => {
                 let error = Diagnostic::error(
                     format!("Unexpected token `{token_str}`"),
@@ -618,7 +622,10 @@ impl<'a> Parser<'a> {
      *  - extend schema Directives? { OperationTypeDefinition+ }
      *  - extend schema Directives
      */
-    fn parse_schema_extension(&mut self) -> ParseResult<SchemaExtension> {
+    fn parse_schema_extension(
+        &mut self,
+        schema_keyword_span: Span,
+    ) -> ParseResult<SchemaExtension> {
         // `extend schema` was already parsed
         let start = self.index();
         let directives = self.parse_constant_directives()?;
@@ -627,6 +634,13 @@ impl<'a> Parser<'a> {
             TokenKind::CloseBrace,
             Self::parse_operation_type_definition,
         )?;
+        if directives.is_empty() && operation_types.is_none() {
+            self.record_error(Diagnostic::error(
+                "Schema extension should define directives or operation types.",
+                Location::new(self.source_location, schema_keyword_span),
+            ));
+            return Err(());
+        }
         let end = self.index();
         let span = Span::new(start, end);
         Ok(SchemaExtension {
@@ -841,6 +855,13 @@ impl<'a> Parser<'a> {
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
         let members = self.parse_union_member_types()?;
+        if directives.is_empty() && members.is_empty() {
+            self.record_error(Diagnostic::error(
+                "Union extension should define one of directives or member types.",
+                Location::new(self.source_location, name.span),
+            ));
+            return Err(());
+        }
         let end = self.index();
         let span = Span::new(start, end);
         Ok(UnionTypeExtension {
@@ -944,6 +965,13 @@ impl<'a> Parser<'a> {
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
         let values = self.parse_enum_values_definition()?;
+        if directives.is_empty() && values.is_none() {
+            self.record_error(Diagnostic::error(
+                "Enum extension should define one of directives or values.",
+                Location::new(self.source_location, name.span),
+            ));
+            return Err(());
+        }
         let end = self.index();
         let span = Span::new(start, end);
         Ok(EnumTypeExtension {
@@ -1154,6 +1182,13 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
+        if directives.is_empty() {
+            self.record_error(Diagnostic::error(
+                "Scalar extension should define one or more directives.",
+                Location::new(self.source_location, name.span),
+            ));
+            return Err(());
+        }
         let end = self.index();
         let span = Span::new(start, end);
         Ok(ScalarTypeExtension {
@@ -1221,6 +1256,13 @@ impl<'a> Parser<'a> {
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
         let fields = self.parse_input_fields_definition()?;
+        if directives.is_empty() && fields.is_none() {
+            self.record_error(Diagnostic::error(
+                "Input object extension should define one of directives or fields.",
+                Location::new(self.source_location, name.span),
+            ));
+            return Err(());
+        }
         let end = self.index();
         let span = Span::new(start, end);
         Ok(InputObjectTypeExtension {
@@ -1280,6 +1322,7 @@ impl<'a> Parser<'a> {
         self.parse_kind(TokenKind::At)?;
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;
+        let directives = self.parse_constant_directives()?;
 
         let repeatable = self.peek_keyword("repeatable");
         if repeatable {
@@ -1294,6 +1337,7 @@ impl<'a> Parser<'a> {
             arguments,
             repeatable,
             locations,
+            directives,
             description,
             hack_source,
             span,
@@ -1309,6 +1353,7 @@ impl<'a> Parser<'a> {
         self.advance_kind(TokenKind::At)?;
         self.advance_identifier()?; // name
         self.advance_argument_defs()?; // arguments
+        self.advance_constant_directives()?; // directives
 
         let repeatable = self.peek_keyword("repeatable");
         if repeatable {
@@ -1316,6 +1361,46 @@ impl<'a> Parser<'a> {
         }
         self.advance_keyword("on")?;
         self.advance_directive_locations()?; // locations
+        Ok(self.current)
+    }
+
+    /**
+     * DirectiveDefinitionExtension :
+     *   - extend directive @ Name Directives[Const]
+     */
+    fn parse_directive_definition_extension(
+        &mut self,
+    ) -> ParseResult<DirectiveDefinitionExtension> {
+        // `extend directive` was parsed before
+        let start = self.index();
+        self.parse_kind(TokenKind::At)?;
+        let name = self.parse_identifier()?;
+        let directives = self.parse_constant_directives()?;
+        if directives.is_empty() {
+            self.record_error(Diagnostic::error(
+                "Directive extension should define one or more directives.",
+                Location::new(self.source_location, name.span),
+            ));
+            return Err(());
+        }
+        let end = self.index();
+        let span = Span::new(start, end);
+        Ok(DirectiveDefinitionExtension {
+            name,
+            directives,
+            span,
+        })
+    }
+
+    /**
+     * DirectiveDefinitionExtension :
+     *   - extend directive @ Name Directives[Const]
+     */
+    fn advance_directive_definition_extension(&mut self) -> ParseResult<Token> {
+        // `extend directive` was parsed before
+        self.advance_kind(TokenKind::At)?;
+        self.advance_identifier()?; // name
+        self.advance_constant_directives()?; // directives
         Ok(self.current)
     }
 
@@ -1397,6 +1482,7 @@ impl<'a> Parser<'a> {
             "INPUT_OBJECT" => Ok(DirectiveLocation::InputObject),
             "INPUT_FIELD_DEFINITION" => Ok(DirectiveLocation::InputFieldDefinition),
             "VARIABLE_DEFINITION" => Ok(DirectiveLocation::VariableDefinition),
+            "DIRECTIVE_DEFINITION" => Ok(DirectiveLocation::DirectiveDefinition),
             token_str => {
                 let error = Diagnostic::error(
                     format!("Unexpected `{token_str}`, expected a directive location."),

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2415de0ab915f9a118e4c498e704bcc5>>
+ * @generated SignedSource<<df5a9991cd849d34f262be2c77d5d149>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,24 +17,24 @@
 
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
-export type FeedbackLikeInput = {|
+export type FeedbackLikeInput = {
   feedbackId?: ?string,
-|};
-export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables = {|
+};
+export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables = {
   input?: ?FeedbackLikeInput,
-|};
-export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data = {|
-  +feedbackLikeSubscribe: ?{|
-    +feedback: ?{|
-      +doesViewerLike: ?boolean,
-      +id: string,
-    |},
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription = {|
+};
+export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data = {
+  readonly feedbackLikeSubscribe: ?{
+    readonly feedback: ?{
+      readonly doesViewerLike: ?boolean,
+      readonly id: string,
+    },
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription = {
   response: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data,
   variables: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

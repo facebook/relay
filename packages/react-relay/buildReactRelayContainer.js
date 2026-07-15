@@ -56,7 +56,7 @@ function buildReactRelayContainer<TBase extends component(...empty)>(
     props: any,
     ref:
       | ((null | React.ElementRef<TBase>) => unknown)
-      | {-current: null | React.ElementRef<TBase>, ...},
+      | {writeonly current: null | React.ElementRef<TBase>, ...},
   ) {
     // $FlowFixMe[react-rule-hook]
     const context = useContext(ReactRelayContext);

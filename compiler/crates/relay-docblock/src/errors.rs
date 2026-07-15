@@ -112,6 +112,11 @@ pub enum IrParsingErrorMessages {
         "Unexpected multiple resolver tags. Expected exactly one of `@RelayResolver`, `@relayType`, or `@relayField`."
     )]
     MultipleResolverTags,
+
+    #[error(
+        "The `@mayWaterfall` docblock tag requires `@returnFragment`. `@mayWaterfall` declares that a shadow resolver may return a pointer to a different server object, so it is only meaningful on a resolver that returns a fragment."
+    )]
+    MayWaterfallRequiresReturnFragment,
 }
 
 #[derive(

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f512ef36a0f95046d8ff323b5d0b92b3>>
+ * @generated SignedSource<<c5478ae01d11cd1ea85e3dc5e72a1c39>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentResourceSemanticNonNullTestFragment2$fragmentType: FragmentType;
-export type FragmentResourceSemanticNonNullTestFragment2$data = {|
-  +name: ?string,
-  +$fragmentType: FragmentResourceSemanticNonNullTestFragment2$fragmentType,
-|};
+export type FragmentResourceSemanticNonNullTestFragment2$data = {
+  readonly name: ?string,
+  readonly $fragmentType: FragmentResourceSemanticNonNullTestFragment2$fragmentType,
+};
 export type FragmentResourceSemanticNonNullTestFragment2$key = {
-  +$data?: FragmentResourceSemanticNonNullTestFragment2$data,
-  +$fragmentSpreads: FragmentResourceSemanticNonNullTestFragment2$fragmentType,
+  readonly $data?: FragmentResourceSemanticNonNullTestFragment2$data,
+  readonly $fragmentSpreads: FragmentResourceSemanticNonNullTestFragment2$fragmentType,
   ...
 };
 */

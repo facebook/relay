@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<03d1a9d8086dce30f3cf08255c1113d2>>
+ * @generated SignedSource<<26a25bb0c83f993cc209d04a0dc23f3f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest5PlainUserNameRenderer_name$fragmentType: FragmentType;
-export type DataCheckerTest5PlainUserNameRenderer_name$data = {|
-  +data: ?{|
-    +text: ?string,
-  |},
-  +plaintext: ?string,
-  +$fragmentType: DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
-|};
+export type DataCheckerTest5PlainUserNameRenderer_name$data = {
+  readonly data: ?{
+    readonly text: ?string,
+  },
+  readonly plaintext: ?string,
+  readonly $fragmentType: DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
+};
 export type DataCheckerTest5PlainUserNameRenderer_name$key = {
-  +$data?: DataCheckerTest5PlainUserNameRenderer_name$data,
-  +$fragmentSpreads: DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
+  readonly $data?: DataCheckerTest5PlainUserNameRenderer_name$data,
+  readonly $fragmentSpreads: DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
   ...
 };
 */

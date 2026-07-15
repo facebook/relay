@@ -718,7 +718,7 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, differentOwner)).toBe(false);
     });
 
-    it('returns false for equivalent selectors but with different clientEdgeTraversalPath', () => {
+    it('returns false for equivalent selectors but with different parentClientEdge', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       /*$FlowFixMe[unclear-type]*/
@@ -748,30 +748,15 @@ describe('RelayModernSelector', () => {
         baseSelector,
         {
           ...baseSelector,
-          clientEdgeTraversalPath: [clientEdgeTraversalInfoA],
+          parentClientEdge: clientEdgeTraversalInfoA,
         },
         {
           ...baseSelector,
-          clientEdgeTraversalPath: [clientEdgeTraversalInfoB],
+          parentClientEdge: clientEdgeTraversalInfoB,
         },
         {
           ...baseSelector,
-          clientEdgeTraversalPath: [
-            clientEdgeTraversalInfoANewNode,
-            clientEdgeTraversalInfoANewNode,
-          ],
-        },
-        {
-          ...baseSelector,
-          clientEdgeTraversalPath: [clientEdgeTraversalInfoANewNode],
-        },
-        {
-          ...baseSelector,
-          clientEdgeTraversalPath: [null],
-        },
-        {
-          ...baseSelector,
-          clientEdgeTraversalPath: [null, clientEdgeTraversalInfoA],
+          parentClientEdge: clientEdgeTraversalInfoANewNode,
         },
       ];
       for (let i = 0; i < selectors.length - 1; i++) {

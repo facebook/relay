@@ -2,7 +2,7 @@
 
 [package]
 name = "relay"
-version = "20.1.1"
+version = "21.0.1"
 authors = ["Facebook"]
 edition = "2024"
 repository = "https://github.com/facebook/relay"
@@ -13,7 +13,7 @@ clap = { version = "4.6.0", features = ["derive", "env", "string", "unicode", "w
 common = { path = "../common" }
 graphql-ir-diff = { path = "../graphql-ir-diff" }
 intern = { path = "../intern" }
-log = { version = "0.4.29", features = ["kv_unstable", "kv_unstable_std"] }
+log = { version = "0.4.33", features = ["kv_unstable", "kv_unstable_std"] }
 relay-codemod = { path = "../relay-codemod" }
 relay-compiler = { path = "../relay-compiler" }
 relay-lsp = { path = "../relay-lsp" }
@@ -21,4 +21,4 @@ schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 simplelog = "0.12.2"
 thiserror = "2.0.18"
-tokio = { version = "1.50.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.52.3", features = ["full", "test-util", "tracing"] }

@@ -57,13 +57,13 @@ const {
 const RelayConcreteVariables = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {
-  CLIENT_EDGE_TRAVERSAL_PATH,
   FIELD_GRANULAR_NOTIFICATIONS_KEY,
   FRAGMENT_OWNER_KEY,
   FRAGMENT_PROP_NAME_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   MODULE_COMPONENT_KEY,
+  PARENT_CLIENT_EDGE,
   ROOT_ID,
   getArgumentValues,
   getFieldNotificationKey,
@@ -99,7 +99,7 @@ function read(
  * @private
  */
 class RelayReader {
-  _clientEdgeTraversalPath: Array<ClientEdgeTraversalInfo | null>;
+  _parentClientEdge: ClientEdgeTraversalInfo | null;
   _isMissingData: boolean;
   _missingClientEdges: Array<MissingClientEdgeRequestInfo>;
   _missingLiveResolverFields: Array<DataID>;
@@ -133,9 +133,7 @@ class RelayReader {
     resolverCache: ResolverCache,
     resolverContext: ?ResolverContext,
   ) {
-    this._clientEdgeTraversalPath = selector.clientEdgeTraversalPath?.length
-      ? [...selector.clientEdgeTraversalPath]
-      : [];
+    this._parentClientEdge = selector.parentClientEdge;
     this._missingClientEdges = [];
     this._missingLiveResolverFields = [];
     this._isMissingData = false;
@@ -295,18 +293,14 @@ class RelayReader {
 
     this._isMissingData = true;
 
-    if (this._clientEdgeTraversalPath.length) {
-      const top =
-        this._clientEdgeTraversalPath[this._clientEdgeTraversalPath.length - 1];
-      // Top can be null if we've traversed past a client edge into an ordinary
-      // client extension field; we never want to fetch in response to missing
-      // data off of a client extension field.
-      if (top !== null) {
-        this._missingClientEdges.push({
-          clientEdgeDestinationID: top.clientEdgeDestinationID,
-          request: top.readerClientEdge.operation,
-        });
-      }
+    // _parentClientEdge is null when not inside a fetchable client edge (e.g.
+    // inside a client extension field); we never want to fetch in response to
+    // missing data off of a client extension field.
+    if (this._parentClientEdge !== null) {
+      this._missingClientEdges.push({
+        clientEdgeDestinationID: this._parentClientEdge.clientEdgeDestinationID,
+        request: this._parentClientEdge.readerClientEdge.operation,
+      });
     }
   }
 
@@ -353,7 +347,10 @@ class RelayReader {
     return this._variables[name];
   }
 
-  _maybeReportUnexpectedNull(selection: ReaderRequiredField) {
+  _maybeReportUnexpectedNull(
+    selection: ReaderRequiredField,
+    fieldValue: null | void,
+  ) {
     if (selection.action === 'NONE') {
       return;
     }
@@ -371,10 +368,24 @@ class RelayReader {
       fieldName = selection.field.alias ?? selection.field.name;
     }
 
+    // When the field was null (not missing from the store), check whether the
+    // server also attached a field error to it. _maybeAddFieldErrors runs in
+    // the same call stack just before this method, so any companion error for
+    // this field is always the last entry pushed to this._fieldErrors.
+    let fieldError = null;
+    if (fieldValue === null && this._fieldErrors.length > 0) {
+      const lastError = this._fieldErrors[this._fieldErrors.length - 1];
+      if (lastError.kind === 'relay_field_payload.error') {
+        fieldError = lastError.error;
+      }
+    }
+
     switch (selection.action) {
       case 'THROW':
         this._fieldErrors.push({
+          fieldError,
           fieldPath: fieldName,
+          fieldValue,
           handled: false,
           kind: 'missing_required_field.throw',
           owner,
@@ -385,7 +396,9 @@ class RelayReader {
         return;
       case 'LOG':
         this._fieldErrors.push({
+          fieldError,
           fieldPath: fieldName,
+          fieldValue,
           kind: 'missing_required_field.log',
           owner,
           // the uiContext is always undefined here.
@@ -403,7 +416,7 @@ class RelayReader {
     value: unknown,
   ): boolean /*should continue to siblings*/ {
     if (value == null) {
-      this._maybeReportUnexpectedNull(selection);
+      this._maybeReportUnexpectedNull(selection, value);
       // We are going to throw, or our parent is going to get nulled out.
       // Either way, sibling values are going to be ignored, so we can
       // bail early here as an optimization.
@@ -441,7 +454,16 @@ class RelayReader {
         value = this._asResult(_value);
         break;
       case 'NULL':
-        if (this._fieldErrors != null && this._fieldErrors.length > 0) {
+        if (RelayFeatureFlags.ENABLE_CATCH_IGNORE_HANDLED_FIELD_ERRORS) {
+          // Only null the field when there are errors not yet handled by an
+          // inner @catch boundary.
+          if (
+            this._fieldErrors != null &&
+            this._fieldErrors.some(e => !e.handled)
+          ) {
+            value = null;
+          }
+        } else if (this._fieldErrors != null && this._fieldErrors.length > 0) {
           value = null;
         }
         break;
@@ -479,12 +501,21 @@ class RelayReader {
    * responsibility to ensure that errors are marked as handled.
    */
   _asResult<T>(value: T): Result<T, unknown> {
-    if (this._fieldErrors == null || this._fieldErrors.length === 0) {
+    // When ENABLE_CATCH_IGNORE_HANDLED_FIELD_ERRORS is off (the default), this
+    // method behaves exactly as before: all entries in _fieldErrors, including
+    // those already marked handled by an inner @catch, influence this boundary.
+    // When the flag is on, already-handled errors are excluded so that an inner
+    // @catch fully consumes its error without affecting outer boundaries.
+    const fieldErrors =
+      RelayFeatureFlags.ENABLE_CATCH_IGNORE_HANDLED_FIELD_ERRORS
+        ? this._fieldErrors?.filter(e => !e.handled)
+        : this._fieldErrors;
+    if (fieldErrors == null || fieldErrors.length === 0) {
       return {ok: true, value};
     }
 
     // TODO: Should we be hiding log level events here?
-    const errors = this._fieldErrors
+    const errors = fieldErrors
       .map(error => {
         switch (error.kind) {
           case 'relay_field_payload.error':
@@ -499,12 +530,23 @@ class RelayReader {
             return {
               message: `Relay: Error in resolver for field at ${error.fieldPath} in ${error.owner}`,
             };
-          case 'missing_required_field.throw':
+          case 'missing_required_field.throw': {
             // If we have a nested @required(THROW) that will throw,
             // we want to catch that error and provide it
+            let reason: string;
+            if (error.fieldValue === null) {
+              reason =
+                error.fieldError != null
+                  ? `the server returned null with an error: ${error.fieldError.message}`
+                  : 'the server returned null';
+            } else {
+              reason =
+                'the field was missing in the store (data may not have been fetched, or was removed by a graph relationship change: https://relay.dev/docs/next/debugging/why-null/#graph-relationship-change)';
+            }
             return {
-              message: `Relay: Missing @required value at path '${error.fieldPath}' in '${error.owner}'.`,
+              message: `Relay: Missing @required value at path '${error.fieldPath}' in '${error.owner}': ${reason}.`,
             };
+          }
           case 'missing_required_field.log':
             // For backwards compatibility, we don't surface log level missing required fields
             return null;
@@ -637,7 +679,8 @@ class RelayReader {
         case 'ClientExtension': {
           const isMissingData = this._isMissingData;
           const alreadyMissingClientEdges = this._missingClientEdges.length;
-          this._clientEdgeTraversalPath.push(null);
+          const prevParentClientEdge = this._parentClientEdge;
+          this._parentClientEdge = null;
           const hasExpectedData = this._traverseSelections(
             selection.selections,
             record,
@@ -650,7 +693,7 @@ class RelayReader {
             isMissingData ||
             this._missingClientEdges.length > alreadyMissingClientEdges ||
             this._missingLiveResolverFields.length > 0;
-          this._clientEdgeTraversalPath.pop();
+          this._parentClientEdge = prevParentClientEdge;
           if (!hasExpectedData) {
             return false;
           }
@@ -834,13 +877,8 @@ class RelayReader {
           },
           __id: parentRecordID,
         };
-        if (
-          this._clientEdgeTraversalPath.length > 0 &&
-          this._clientEdgeTraversalPath[
-            this._clientEdgeTraversalPath.length - 1
-          ] !== null
-        ) {
-          key[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
+        if (this._parentClientEdge !== null) {
+          key[PARENT_CLIENT_EDGE] = this._parentClientEdge;
         }
         const resolverContext = {getDataForResolverFragment};
         // $FlowFixMe[incompatible-type]
@@ -1035,15 +1073,29 @@ class RelayReader {
         backingField.path,
         this._owner.identifier,
       );
-      let storeIDs: ReadonlyArray<DataID>;
       invariant(
         field.kind === 'ClientEdgeToClientObject',
         'Unexpected Client Edge to plural server type `%s`. This should be prevented by the compiler.',
         field.kind,
       );
+      let storeIDs: Array<?DataID>;
+      let perItemEdges: ?Array<ClientEdgeTraversalInfo | null>;
       if (field.backingField.normalizationInfo == null) {
-        // @edgeTo case where we need to ensure that the record has `id` field
-        storeIDs = clientEdgeResolverResponse.map(itemResponse => {
+        // @edgeTo case: compute storeIDs and per-item traversal segments.
+        // Server-type items get a segment so that missing data in their
+        // sub-tree triggers a waterfall refetch; all other items get null.
+        storeIDs = [];
+        perItemEdges = [];
+        for (let i = 0; i < clientEdgeResolverResponse.length; i++) {
+          const itemResponse = clientEdgeResolverResponse[i];
+          // A plural resolver (e.g. a plural magic fragment) may return a list
+          // with nullish items — a nullable list element. Read those through as a
+          // null edge rather than dereferencing `__typename` on a nullish value.
+          if (itemResponse == null) {
+            storeIDs.push(null);
+            perItemEdges.push(null);
+            continue;
+          }
           const concreteType = field.concreteType ?? itemResponse.__typename;
           invariant(
             typeof concreteType === 'string',
@@ -1056,49 +1108,86 @@ class RelayReader {
             backingField.path,
             this._owner.identifier,
           );
-          const id = this._resolverCache.ensureClientRecord(
-            localId,
-            concreteType,
-          );
-
           const modelResolvers = field.modelResolvers;
           if (modelResolvers != null) {
             const modelResolver = modelResolvers[concreteType];
-            invariant(
-              modelResolver !== undefined,
-              'Invalid `__typename` returned by resolver at `%s` in `%s`. Expected one of %s but got `%s`.',
-              backingField.path,
-              this._owner.identifier,
-              Object.keys(modelResolvers).join(', '),
-              concreteType,
+            if (modelResolver !== undefined) {
+              // Model resolver type: namespace the ID and read the model.
+              const id = this._resolverCache.ensureClientRecord(
+                localId,
+                concreteType,
+              );
+              const model = this._readResolverFieldImpl(modelResolver, id);
+              storeIDs.push(model != null ? id : null);
+              perItemEdges.push(null);
+            } else {
+              storeIDs.push(localId);
+
+              // Server/CLient Schema Extension type: check for a refetch operation so that
+              // missing data in this item's sub-tree triggers a waterfall.
+              const serverOperation =
+                field.serverObjectOperations?.[concreteType] ?? null;
+              if (serverOperation != null) {
+                perItemEdges.push({
+                  clientEdgeDestinationID: localId,
+                  readerClientEdge: {operation: serverOperation},
+                });
+              } else {
+                perItemEdges.push(null);
+              }
+            }
+          } else {
+            // No model resolvers — concrete client object edge.
+            storeIDs.push(
+              this._resolverCache.ensureClientRecord(localId, concreteType),
             );
-            const model = this._readResolverFieldImpl(modelResolver, id);
-            return model != null ? id : null;
+            perItemEdges.push(null);
           }
-          return id;
-        });
+        }
       } else {
-        // The normalization process in LiveResolverCache should take care of generating the correct ID.
+        // The normalization process in LiveResolverCache should take care of
+        // generating the correct ID.
+        // (The read-in-place inline arms (`ServerWeak`/`AbstractInline`) are
+        // singular-only at the compiler, so this plural branch never carries a
+        // resolver-returned `__id` pointer and keeps `extractIdFromResponse`
+        // unchanged.)
         storeIDs = clientEdgeResolverResponse.map(obj =>
           extractIdFromResponse(obj, backingField.path, this._owner.identifier),
         );
+        perItemEdges = null;
       }
-      this._clientEdgeTraversalPath.push(null);
+      const prevParentClientEdge = this._parentClientEdge;
+      this._parentClientEdge = null;
       const edgeValues = this._readLinkedIds(
         field.linkedField,
         storeIDs,
         record,
         data,
+        perItemEdges,
       );
-      this._clientEdgeTraversalPath.pop();
+      this._parentClientEdge = prevParentClientEdge;
       data[fieldName] = edgeValues;
       return edgeValues;
     } else {
-      const id = extractIdFromResponse(
-        clientEdgeResolverResponse,
-        backingField.path,
-        this._owner.identifier,
-      );
+      // The resolver-returned `__id` store key is preferred ONLY for the
+      // read-in-place inline arms (`ServerWeak`/`AbstractInline`), whose value
+      // is normalized in place by the magic-fragment transplant and surfaced via
+      // `__id`. Every other edge — `@edgeTo`/CSE server objects and the
+      // `OutputType`/`WeakModel` inline arms — keeps `extractIdFromResponse`
+      // exactly, so this change alters no existing client-edge store key.
+      const inlineKind = backingField.normalizationInfo?.kind;
+      const id =
+        inlineKind === 'ServerWeak' || inlineKind === 'AbstractInline'
+          ? extractStoreIDFromResponse(
+              clientEdgeResolverResponse,
+              backingField.path,
+              this._owner.identifier,
+            )
+          : extractIdFromResponse(
+              clientEdgeResolverResponse,
+              backingField.path,
+              this._owner.identifier,
+            );
       let storeID: DataID;
       const concreteType =
         field.concreteType ?? clientEdgeResolverResponse.__typename;
@@ -1111,12 +1200,81 @@ class RelayReader {
             backingField.path,
             this._owner.identifier,
           );
-          // @edgeTo case where we need to ensure that the record has `id` field
-          storeID = this._resolverCache.ensureClientRecord(id, concreteType);
-          traversalPathSegment = null;
+          const modelResolvers = field.modelResolvers;
+          if (modelResolvers != null) {
+            const modelResolver = modelResolvers[concreteType];
+            if (modelResolver !== undefined) {
+              // Model resolver type: namespace the ID and read the model.
+              storeID = this._resolverCache.ensureClientRecord(
+                id,
+                concreteType,
+              );
+              const model = this._readResolverFieldImpl(modelResolver, storeID);
+              if (model == null) {
+                // If the model resolver returns undefined, we should still
+                // return null to match GQL behavior.
+                data[fieldName] = null;
+                return null;
+              }
+              traversalPathSegment = null;
+            } else {
+              // Server/CSE type: use the original ID directly. The data
+              // lives in the store under the original ID, not a namespaced
+              // client record.
+              storeID = id;
+              // Check if there is a refetch query for this server type.
+              const serverObjectOperations = field.serverObjectOperations;
+              const serverOp =
+                serverObjectOperations != null
+                  ? serverObjectOperations[concreteType]
+                  : null;
+              if (serverOp != null) {
+                traversalPathSegment = {
+                  clientEdgeDestinationID: id,
+                  readerClientEdge: {operation: serverOp},
+                };
+              } else {
+                traversalPathSegment = null;
+              }
+            }
+          } else {
+            // No model resolvers — concrete client object edge.
+            // @edgeTo case where we need to ensure that the record has `id` field
+            storeID = this._resolverCache.ensureClientRecord(id, concreteType);
+            traversalPathSegment = null;
+          }
         } else {
-          // The normalization process in LiveResolverCache should take care of generating the correct ID.
+          // Inline arm. Shapes that share this branch:
+          //  * `OutputType`/`WeakModel`: LiveResolverCache normalized the resolver
+          //    value into a record under `id` (the resolver-returned id).
+          //  * `ServerWeak` (shadow server-value): NO second
+          //    normalization happened. `id` is the injected `__id` (the DataID of
+          //    the transplanted `client:<parentid>:<field>` record), so `storeID`
+          //    addresses the record the main operation already normalized in
+          //    place. Mis-wiring this `__id` would silently read a wrong/empty
+          //    record (a prod-silent miscompile), so in dev we assert the record
+          //    exists before reading its selections.
+          //  * `AbstractInline` (interface/union): dispatched per concrete
+          //    `__typename` via `inlineKinds` — a `ServerWeak` member behaves like
+          //    the scalar `ServerWeak` arm, a `WeakModel` member like `WeakModel`.
           storeID = id;
+          const inlineNormalizationInfo = field.backingField.normalizationInfo;
+          const effectiveKind =
+            inlineNormalizationInfo?.kind === 'AbstractInline'
+              ? inlineNormalizationInfo.inlineKinds[concreteType]
+              : inlineNormalizationInfo?.kind;
+          if (__DEV__ && effectiveKind === 'ServerWeak') {
+            invariant(
+              this._recordSource.get(storeID) != null,
+              'RelayReader: Expected the in-place shadow record `%s` (read off ' +
+                'the injected `__id` for field at `%s` in `%s`) to exist in the ' +
+                'store. A missing record means the magic-fragment transplant did ' +
+                'not normalize the shadowed server value at this DataID.',
+              storeID,
+              backingField.path,
+              this._owner.identifier,
+            );
+          }
           traversalPathSegment = null;
         }
       } else {
@@ -1126,33 +1284,8 @@ class RelayReader {
           readerClientEdge: field,
         };
       }
-
-      const modelResolvers = field.modelResolvers;
-      if (modelResolvers != null) {
-        invariant(
-          typeof concreteType === 'string',
-          'Expected resolver for field at `%s` in `%s` modeling an edge to an abstract type to return an object with a `__typename` property.',
-          backingField.path,
-          this._owner.identifier,
-        );
-        const modelResolver = modelResolvers[concreteType];
-        invariant(
-          modelResolver !== undefined,
-          'Invalid `__typename` returned by resolver at `%s` in `%s`. Expected one of %s but got `%s`.',
-          backingField.path,
-          this._owner.identifier,
-          Object.keys(modelResolvers).join(', '),
-          concreteType,
-        );
-        const model = this._readResolverFieldImpl(modelResolver, storeID);
-        if (model == null) {
-          // If the model resolver returns undefined, we should still return null
-          // to match GQL behavior.
-          data[fieldName] = null;
-          return null;
-        }
-      }
-      this._clientEdgeTraversalPath.push(traversalPathSegment);
+      const prevParentClientEdge = this._parentClientEdge;
+      this._parentClientEdge = traversalPathSegment;
 
       const prevData = data[fieldName];
       invariant(
@@ -1173,7 +1306,7 @@ class RelayReader {
         prevData,
       );
       this._prependPreviousErrors(prevErrors, fieldName);
-      this._clientEdgeTraversalPath.pop();
+      this._parentClientEdge = prevParentClientEdge;
       data[fieldName] = edgeValue;
       return edgeValue;
     }
@@ -1384,6 +1517,7 @@ class RelayReader {
     linkedIDs: ?ReadonlyArray<?DataID>,
     record: Record,
     data: SelectorData,
+    perItemEdges?: ?ReadonlyArray<ClientEdgeTraversalInfo | null>,
   ): ?unknown {
     const fieldName = field.alias ?? field.name;
 
@@ -1427,9 +1561,14 @@ class RelayReader {
       );
       const prevErrors = this._fieldErrors;
       this._fieldErrors = null;
+      const prevParentClientEdge = this._parentClientEdge;
+      if (perItemEdges != null) {
+        this._parentClientEdge = perItemEdges[nextIndex] ?? null;
+      }
       // $FlowFixMe[cannot-write]
       // $FlowFixMe[incompatible-variance]
       linkedArray[nextIndex] = this._traverse(field, linkedID, prevItem);
+      this._parentClientEdge = prevParentClientEdge;
       this._prependPreviousErrors(prevErrors, nextIndex);
     });
     this._prependPreviousErrors(prevErrors, fieldName);
@@ -1654,13 +1793,8 @@ class RelayReader {
     fragmentPointers[fragmentSpread.name] = args;
     data[FRAGMENT_OWNER_KEY] = this._owner;
 
-    if (
-      this._clientEdgeTraversalPath.length > 0 &&
-      this._clientEdgeTraversalPath[
-        this._clientEdgeTraversalPath.length - 1
-      ] !== null
-    ) {
-      data[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
+    if (this._parentClientEdge !== null) {
+      data[PARENT_CLIENT_EDGE] = this._parentClientEdge;
     }
 
     if (RelayFeatureFlags.ENABLE_READER_FRAGMENTS_LOGGING) {
@@ -1825,6 +1959,31 @@ function extractIdFromResponse(
     path,
     owner,
   );
+}
+
+// The DataID (store key) for a read-in-place inline arm. Called ONLY for the
+// `ServerWeak`/`AbstractInline` kinds (the caller gates on kind so no other edge
+// reaches here).
+//
+// A `ServerWeak` member's resolver surfaces the shadowed record's `__id` (its
+// exact DataID, e.g. `client:<parentid>:<field>`), so we read off that directly
+// — a non-Node server value type has no `id` field to guess from. A `WeakModel`
+// member of an `AbstractInline` return carries no `__id`, so it falls back to
+// `extractIdFromResponse` (the resolver-returned id), exactly as a scalar
+// `WeakModel` arm does.
+function extractStoreIDFromResponse(
+  individualResponse: unknown,
+  path: string,
+  owner: string,
+): string {
+  if (
+    typeof individualResponse === 'object' &&
+    individualResponse != null &&
+    typeof individualResponse.__id === 'string'
+  ) {
+    return individualResponse.__id;
+  }
+  return extractIdFromResponse(individualResponse, path, owner);
 }
 
 module.exports = {read};

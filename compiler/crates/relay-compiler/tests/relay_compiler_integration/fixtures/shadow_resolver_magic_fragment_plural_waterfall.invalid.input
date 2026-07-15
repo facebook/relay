@@ -1,0 +1,51 @@
+//- UserCombinedPages.js
+// A PLURAL shadow-resolver field cannot be annotated with `@waterfall`: the
+// cross-object refetch backstop is a singular `node(id:)` query with no plural
+// path. This fixture asserts the compiler rejects plural + `@waterfall` with
+// `MagicFragmentPluralWaterfallUnsupported` (a plural shadow resolver WITHOUT
+// `@waterfall` is supported -- see shadow_resolver_magic_fragment_plural).
+/**
+ * @relayField User.combined_pages: [IPage]
+ * @rootFragment UserCombinedPagesResolverFragment
+ * @returnFragment UserCombinedPagesReturnFragment
+ */
+graphql`fragment UserCombinedPagesResolverFragment on User {
+  pages {
+    ...UserCombinedPagesReturnFragment
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_pages @waterfall {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, pages: [Page] }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

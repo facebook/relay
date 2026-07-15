@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<20d6db6bcd5b6245b39f06ea546532a3>>
+ * @generated SignedSource<<260b9310bbd2ff6ab082bcff0f108b2a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type validateMutationTestEntityFragement$fragmentType: FragmentType;
-export type validateMutationTestEntityFragement$data = {|
-  +url: ?string,
-  +$fragmentType: validateMutationTestEntityFragement$fragmentType,
-|};
+export type validateMutationTestEntityFragement$data = {
+  readonly url: ?string,
+  readonly $fragmentType: validateMutationTestEntityFragement$fragmentType,
+};
 export type validateMutationTestEntityFragement$key = {
-  +$data?: validateMutationTestEntityFragement$data,
-  +$fragmentSpreads: validateMutationTestEntityFragement$fragmentType,
+  readonly $data?: validateMutationTestEntityFragement$data,
+  readonly $fragmentSpreads: validateMutationTestEntityFragement$fragmentType,
   ...
 };
 */

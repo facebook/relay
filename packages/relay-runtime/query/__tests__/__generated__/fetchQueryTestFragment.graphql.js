@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ec5095b73f714d63f0c7180e7ae31a9c>>
+ * @generated SignedSource<<af8a4726723e7c753ce2d234f029c654>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type fetchQueryTestFragment$fragmentType: FragmentType;
-export type fetchQueryTestFragment$data = {|
-  +name: string,
-  +$fragmentType: fetchQueryTestFragment$fragmentType,
-|};
+export type fetchQueryTestFragment$data = {
+  readonly name: string,
+  readonly $fragmentType: fetchQueryTestFragment$fragmentType,
+};
 export type fetchQueryTestFragment$key = {
-  +$data?: fetchQueryTestFragment$data,
-  +$fragmentSpreads: fetchQueryTestFragment$fragmentType,
+  readonly $data?: fetchQueryTestFragment$data,
+  readonly $fragmentSpreads: fetchQueryTestFragment$fragmentType,
   ...
 };
 */

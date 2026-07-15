@@ -1,0 +1,7 @@
+type Foo @unknown @unknown {
+  id: ID
+}
+
+type Query {
+  foo: Foo
+}

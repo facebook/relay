@@ -49,6 +49,10 @@ fragment NameRendererFragment on User {
       #         "PlainUserNameRenderer_name",
       #     ),
       #     fragment_source_location: match-with-extra-args.graphql:282:308,
+      #     module_source_location: Embedded {
+      #         path: "match-with-extra-args.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -74,6 +78,10 @@ fragment NameRendererFragment on User {
       #         "MarkdownUserNameRenderer_name",
       #     ),
       #     fragment_source_location: match-with-extra-args.graphql:382:411,
+      #     module_source_location: Embedded {
+      #         path: "match-with-extra-args.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

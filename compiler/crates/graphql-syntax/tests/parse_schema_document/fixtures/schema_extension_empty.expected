@@ -1,0 +1,11 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# `extend schema` requires directives or operation types per the spec.
+extend schema
+==================================== ERROR ====================================
+✖︎ Schema extension should define directives or operation types.
+
+  schema_extension_empty.graphql:3:8
+    2 │ # `extend schema` requires directives or operation types per the spec.
+    3 │ extend schema
+      │        ^^^^^^

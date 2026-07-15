@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+directive @bar on OBJECT
+
+type Foo @bar @bar {
+  id: ID
+}
+
+type Query {
+  foo: Foo
+}
+==================================== ERROR ====================================
+✖︎ The directive `@bar` can only be used once at this location, but was used 2 times.
+
+  object-duplicate-directive.graphql:5:6
+    4 │ 
+    5 │ type Foo @bar @bar {
+      │      ^^^
+    6 │   id: ID

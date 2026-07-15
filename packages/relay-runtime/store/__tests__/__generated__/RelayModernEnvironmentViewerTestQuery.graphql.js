@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7ed3c3588b6f7a08197a411a4f4e141e>>
+ * @generated SignedSource<<51e8bfc7882fe0c7c1a92158e8b2e202>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentViewerTestQuery$variables = {||};
-export type RelayModernEnvironmentViewerTestQuery$data = {|
-  +viewer: ?{|
-    +marketplace_settings: ?{|
-      +categories: ?ReadonlyArray<?string>,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentViewerTestQuery = {|
+export type RelayModernEnvironmentViewerTestQuery$variables = {};
+export type RelayModernEnvironmentViewerTestQuery$data = {
+  readonly viewer: ?{
+    readonly marketplace_settings: ?{
+      readonly categories: ?ReadonlyArray<?string>,
+    },
+  },
+};
+export type RelayModernEnvironmentViewerTestQuery = {
   response: RelayModernEnvironmentViewerTestQuery$data,
   variables: RelayModernEnvironmentViewerTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

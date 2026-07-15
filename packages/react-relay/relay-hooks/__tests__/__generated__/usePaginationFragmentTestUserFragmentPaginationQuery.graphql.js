@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2ee4073f0bd2113b2f00185648841fa5>>
+ * @generated SignedSource<<6da119e67c466027643504651a984a94>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,7 +19,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { usePaginationFragmentTestUserFragment$fragmentType } from "./usePaginationFragmentTestUserFragment.graphql";
-export type usePaginationFragmentTestUserFragmentPaginationQuery$variables = {|
+export type usePaginationFragmentTestUserFragmentPaginationQuery$variables = {
   after?: ?string,
   before?: ?string,
   first?: ?number,
@@ -29,16 +28,16 @@ export type usePaginationFragmentTestUserFragmentPaginationQuery$variables = {|
   last?: ?number,
   orderby?: ?ReadonlyArray<?string>,
   scale?: ?number,
-|};
-export type usePaginationFragmentTestUserFragmentPaginationQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
-  |},
-|};
-export type usePaginationFragmentTestUserFragmentPaginationQuery = {|
+};
+export type usePaginationFragmentTestUserFragmentPaginationQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
+  },
+};
+export type usePaginationFragmentTestUserFragmentPaginationQuery = {
   response: usePaginationFragmentTestUserFragmentPaginationQuery$data,
   variables: usePaginationFragmentTestUserFragmentPaginationQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

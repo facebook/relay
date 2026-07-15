@@ -36,81 +36,81 @@ fragment FragmentMultiProvidedVar on User
 ==================================== OUTPUT ===================================
 import type { FragmentMultiProvidedVar$fragmentType } from "FragmentMultiProvidedVar.graphql";
 import type { FragmentOneProvidedVar$fragmentType } from "FragmentOneProvidedVar.graphql";
-export type queryOnlyProvidedVar_MultiFragment$variables = {||};
-export type queryOnlyProvidedVar_MultiFragment$data = {|
-  +node: ?{|
-    +FragmentMultiProvidedVar: ?{|
-      +$fragmentSpreads: FragmentMultiProvidedVar$fragmentType,
-    |},
-    +FragmentOneProvidedVar: ?{|
-      +$fragmentSpreads: FragmentOneProvidedVar$fragmentType,
-    |},
-  |},
-|};
-export type queryOnlyProvidedVar_MultiFragment = {|
+export type queryOnlyProvidedVar_MultiFragment$variables = {};
+export type queryOnlyProvidedVar_MultiFragment$data = {
+  readonly node: ?{
+    readonly FragmentMultiProvidedVar: ?{
+      readonly $fragmentSpreads: FragmentMultiProvidedVar$fragmentType,
+    },
+    readonly FragmentOneProvidedVar: ?{
+      readonly $fragmentSpreads: FragmentOneProvidedVar$fragmentType,
+    },
+  },
+};
+export type queryOnlyProvidedVar_MultiFragment = {
   response: queryOnlyProvidedVar_MultiFragment$data,
   variables: queryOnlyProvidedVar_MultiFragment$variables,
-|};
+};
 ({
   "__relay_internal__pv__includeNameProvider": require('includeNameProvider'),
   "__relay_internal__pv__numberOfFriendsProvider": require('numberOfFriendsProvider')
-} as {|
-  +__relay_internal__pv__includeNameProvider: {|
-    +get: () => CustomBoolean,
-  |},
-  +__relay_internal__pv__numberOfFriendsProvider: {|
-    +get: () => number,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__includeNameProvider: {
+    readonly get: () => CustomBoolean,
+  },
+  readonly __relay_internal__pv__numberOfFriendsProvider: {
+    readonly get: () => number,
+  },
+});
 -------------------------------------------------------------------------------
 import type { FragmentOneProvidedVar$fragmentType } from "FragmentOneProvidedVar.graphql";
-export type queryOnlyProvidedVar_OneFragment$variables = {||};
-export type queryOnlyProvidedVar_OneFragment$data = {|
-  +node: ?{|
-    +FragmentOneProvidedVar: ?{|
-      +$fragmentSpreads: FragmentOneProvidedVar$fragmentType,
-    |},
-  |},
-|};
-export type queryOnlyProvidedVar_OneFragment = {|
+export type queryOnlyProvidedVar_OneFragment$variables = {};
+export type queryOnlyProvidedVar_OneFragment$data = {
+  readonly node: ?{
+    readonly FragmentOneProvidedVar: ?{
+      readonly $fragmentSpreads: FragmentOneProvidedVar$fragmentType,
+    },
+  },
+};
+export type queryOnlyProvidedVar_OneFragment = {
   response: queryOnlyProvidedVar_OneFragment$data,
   variables: queryOnlyProvidedVar_OneFragment$variables,
-|};
+};
 ({
   "__relay_internal__pv__includeNameProvider": require('includeNameProvider')
-} as {|
-  +__relay_internal__pv__includeNameProvider: {|
-    +get: () => CustomBoolean,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__includeNameProvider: {
+    readonly get: () => CustomBoolean,
+  },
+});
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentMultiProvidedVar$fragmentType: FragmentType;
-export type FragmentMultiProvidedVar$data = {|
-  +friends: ?{|
-    +count: ?number,
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +name?: ?string,
-      |},
-    |}>,
-  |},
-  +$fragmentType: FragmentMultiProvidedVar$fragmentType,
-|};
+export type FragmentMultiProvidedVar$data = {
+  readonly friends: ?{
+    readonly count: ?number,
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly name?: ?string,
+      },
+    }>,
+  },
+  readonly $fragmentType: FragmentMultiProvidedVar$fragmentType,
+};
 export type FragmentMultiProvidedVar$key = {
-  +$data?: FragmentMultiProvidedVar$data,
-  +$fragmentSpreads: FragmentMultiProvidedVar$fragmentType,
+  readonly $data?: FragmentMultiProvidedVar$data,
+  readonly $fragmentSpreads: FragmentMultiProvidedVar$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentOneProvidedVar$fragmentType: FragmentType;
-export type FragmentOneProvidedVar$data = {|
-  +name?: ?string,
-  +$fragmentType: FragmentOneProvidedVar$fragmentType,
-|};
+export type FragmentOneProvidedVar$data = {
+  readonly name?: ?string,
+  readonly $fragmentType: FragmentOneProvidedVar$fragmentType,
+};
 export type FragmentOneProvidedVar$key = {
-  +$data?: FragmentOneProvidedVar$data,
-  +$fragmentSpreads: FragmentOneProvidedVar$fragmentType,
+  readonly $data?: FragmentOneProvidedVar$data,
+  readonly $fragmentSpreads: FragmentOneProvidedVar$fragmentType,
   ...
 };

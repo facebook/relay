@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8cf2427cdda41e83343bd1abbd135592>>
+ * @generated SignedSource<<278ce04f69eb8a234f510f766611641a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerTestUserFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerTestUserFragment$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +$fragmentType: ReactRelayPaginationContainerTestUserFragment$fragmentType,
-|};
+export type ReactRelayPaginationContainerTestUserFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly $fragmentType: ReactRelayPaginationContainerTestUserFragment$fragmentType,
+};
 export type ReactRelayPaginationContainerTestUserFragment$key = {
-  +$data?: ReactRelayPaginationContainerTestUserFragment$data,
-  +$fragmentSpreads: ReactRelayPaginationContainerTestUserFragment$fragmentType,
+  readonly $data?: ReactRelayPaginationContainerTestUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayPaginationContainerTestUserFragment$fragmentType,
   ...
 };
 */

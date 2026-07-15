@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1f0b7f4279f5262b2b5b0d4d3125f0fd>>
+ * @generated SignedSource<<4a8e585a8d96c70deaae3cb8a4977b33>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { Result } from "relay-runtime";
-export type CatchTest1Query$variables = {||};
-export type CatchTest1Query$data = {|
-  +me: {|
-    +name: Result<?string, unknown>,
-  |},
-|};
-export type CatchTest1Query = {|
+export type CatchTest1Query$variables = {};
+export type CatchTest1Query$data = {
+  readonly me: {
+    readonly name: Result<?string, unknown>,
+  },
+};
+export type CatchTest1Query = {
   response: CatchTest1Query$data,
   variables: CatchTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f82a050672f936ef6a3174f8a46ba5e8>>
+ * @generated SignedSource<<19235480adcf6fd6b5ccfecff46f2473>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType } from "./RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment.graphql";
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables = {|
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables = {
   size: ReadonlyArray<?number>,
-|};
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-    +$fragmentSpreads: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery = {|
+};
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly $fragmentSpreads: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery = {
   response: RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data,
   variables: RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

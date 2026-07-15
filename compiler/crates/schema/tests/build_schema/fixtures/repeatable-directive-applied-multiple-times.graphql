@@ -1,0 +1,9 @@
+directive @baz(x: Int) repeatable on OBJECT
+
+type Foo @baz @baz {
+  id: ID
+}
+
+type Query {
+  foo: Foo
+}

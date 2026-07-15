@@ -12,6 +12,16 @@ use common::WithLocation;
 use crate::ir::*;
 use crate::program::Program;
 
+/// Build a Vec backfilled with `Arc::clone`s of the first `up_to` items from
+/// `items`, pre-sized to `items.len()` so subsequent pushes don't reallocate.
+/// Used to lazily start a new operations Vec on the first change in an
+/// otherwise-no-op transform.
+fn backfill_arc_vec<T>(items: &[Arc<T>], up_to: usize) -> Vec<Arc<T>> {
+    let mut v = Vec::with_capacity(items.len());
+    v.extend(items[..up_to].iter().map(Arc::clone));
+    v
+}
+
 pub trait Transformer<'a> {
     const NAME: &'static str;
     const VISIT_ARGUMENTS: bool;
@@ -23,30 +33,76 @@ pub trait Transformer<'a> {
     }
 
     fn default_transform_program(&mut self, program: &'a Program) -> TransformedValue<Program> {
-        let mut next_program = Program::new(Arc::clone(&program.schema));
-        let mut has_changes = false;
-        for operation in program.operations() {
+        // Operations and fragments use different lazy strategies because they
+        // use different data structures:
+        //
+        // - Operations (`Vec`, ordered): build the new Vec incrementally as we
+        //   iterate. On `Keep` we must push the clone; on first change we
+        //   backfill prior entries via `backfill_arc_vec`.
+        // - Fragments (`HashMap`, keyed): on first change we clone the entire
+        //   map upfront, then mutate in place. `Keep` is a no-op since the
+        //   entry is already present in the cloned map.
+        //
+        // Both strategies skip all Arc::clone work in the common no-op case.
+        let mut changed_operations: Option<Vec<Arc<OperationDefinition>>> = None;
+        for (index, operation) in program.operations.iter().enumerate() {
             match self.transform_operation(operation) {
-                Transformed::Delete => has_changes = true,
-                Transformed::Keep => next_program.insert_operation(Arc::clone(operation)),
+                Transformed::Delete => {
+                    changed_operations
+                        .get_or_insert_with(|| backfill_arc_vec(&program.operations, index));
+                }
+                Transformed::Keep => {
+                    if let Some(v) = &mut changed_operations {
+                        v.push(Arc::clone(operation));
+                    }
+                }
                 Transformed::Replace(replacement) => {
-                    has_changes = true;
-                    next_program.insert_operation(Arc::new(replacement))
+                    changed_operations
+                        .get_or_insert_with(|| backfill_arc_vec(&program.operations, index))
+                        .push(Arc::new(replacement));
                 }
             }
         }
+
+        let mut changed_fragments: Option<FragmentDefinitionNameMap<Arc<FragmentDefinition>>> =
+            None;
         for fragment in program.fragments() {
             match self.transform_fragment(fragment) {
-                Transformed::Delete => has_changes = true,
-                Transformed::Keep => next_program.insert_fragment(Arc::clone(fragment)),
+                Transformed::Delete => {
+                    changed_fragments
+                        .get_or_insert_with(|| program.fragments.clone())
+                        .remove(&fragment.name.item);
+                }
+                Transformed::Keep => {}
                 Transformed::Replace(replacement) => {
-                    has_changes = true;
-                    next_program.insert_fragment(Arc::new(replacement))
+                    let fragments =
+                        changed_fragments.get_or_insert_with(|| program.fragments.clone());
+                    let new_name = replacement.name.item;
+                    if new_name == fragment.name.item {
+                        fragments.insert(new_name, Arc::new(replacement));
+                    } else {
+                        // Rename: remove the source slot; the target slot must
+                        // be empty, otherwise we'd silently clobber an
+                        // unrelated fragment. Mirrors the panic in
+                        // Program::insert_fragment.
+                        fragments.remove(&fragment.name.item);
+                        let prev = fragments.insert(new_name, Arc::new(replacement));
+                        assert!(
+                            prev.is_none(),
+                            "Cannot rename fragment '{}' to '{new_name}': name already in use",
+                            fragment.name.item,
+                        );
+                    }
                 }
             }
         }
-        if has_changes {
-            TransformedValue::Replace(next_program)
+
+        if changed_operations.is_some() || changed_fragments.is_some() {
+            TransformedValue::Replace(Program {
+                schema: Arc::clone(&program.schema),
+                operations: changed_operations.unwrap_or_else(|| program.operations.clone()),
+                fragments: changed_fragments.unwrap_or_else(|| program.fragments.clone()),
+            })
         } else {
             TransformedValue::Keep
         }
@@ -676,12 +732,349 @@ impl<T> From<TransformedValue<T>> for Transformed<T> {
 
 #[cfg(test)]
 mod tests {
+    use graphql_syntax::OperationKind;
+    use intern::Lookup;
     use intern::string_key::Intern;
     use schema::ScalarID;
     use schema::Type;
     use schema::TypeReference;
 
     use super::*;
+
+    fn make_test_program() -> Program {
+        let schema = Arc::new(schema::build_schema("type Query { id: ID }").unwrap());
+        let mut program = Program::new(Arc::clone(&schema));
+
+        for name in ["op1", "op2", "op3"] {
+            program.insert_operation(Arc::new(OperationDefinition {
+                kind: OperationKind::Query,
+                name: WithLocation::generated(OperationDefinitionName(name.intern())),
+                type_: Type::Scalar(ScalarID(0)),
+                variable_definitions: vec![],
+                directives: vec![],
+                selections: vec![],
+            }));
+        }
+
+        for name in ["frag1", "frag2", "frag3"] {
+            program.insert_fragment(Arc::new(FragmentDefinition {
+                name: WithLocation::generated(FragmentDefinitionName(name.intern())),
+                variable_definitions: vec![],
+                used_global_variables: vec![],
+                type_condition: Type::Scalar(ScalarID(0)),
+                directives: vec![],
+                selections: vec![],
+            }));
+        }
+
+        program
+    }
+
+    /// Test the no-op fast path: when no transform changes anything,
+    /// default_transform_program should return Keep without allocating
+    /// a new Program or performing any Arc clones.
+    #[test]
+    fn default_transform_program_noop_returns_keep() {
+        struct NoOpTransformer;
+        impl<'a> Transformer<'a> for NoOpTransformer {
+            const NAME: &'static str = "NoOp";
+            const VISIT_ARGUMENTS: bool = false;
+            const VISIT_DIRECTIVES: bool = false;
+
+            fn transform_operation(
+                &mut self,
+                _: &'a OperationDefinition,
+            ) -> Transformed<OperationDefinition> {
+                Transformed::Keep
+            }
+            fn transform_fragment(
+                &mut self,
+                _: &'a FragmentDefinition,
+            ) -> Transformed<FragmentDefinition> {
+                Transformed::Keep
+            }
+        }
+
+        let program = make_test_program();
+        let mut transformer = NoOpTransformer;
+        let result = transformer.default_transform_program(&program);
+        assert!(result.should_keep(), "No-op transform should return Keep");
+    }
+
+    /// Test that deleting an operation produces a correct Replace result.
+    #[test]
+    fn default_transform_program_delete_operation() {
+        struct DeleteFirstOpTransformer {
+            seen: bool,
+        }
+        impl<'a> Transformer<'a> for DeleteFirstOpTransformer {
+            const NAME: &'static str = "DeleteFirstOp";
+            const VISIT_ARGUMENTS: bool = false;
+            const VISIT_DIRECTIVES: bool = false;
+
+            fn transform_operation(
+                &mut self,
+                _: &'a OperationDefinition,
+            ) -> Transformed<OperationDefinition> {
+                if !self.seen {
+                    self.seen = true;
+                    Transformed::Delete
+                } else {
+                    Transformed::Keep
+                }
+            }
+            fn transform_fragment(
+                &mut self,
+                _: &'a FragmentDefinition,
+            ) -> Transformed<FragmentDefinition> {
+                Transformed::Keep
+            }
+        }
+
+        let program = make_test_program();
+        let mut transformer = DeleteFirstOpTransformer { seen: false };
+        let result = transformer.default_transform_program(&program);
+        match result {
+            TransformedValue::Replace(new_program) => {
+                assert_eq!(
+                    new_program.operations.len(),
+                    2,
+                    "Should have 2 operations after deleting one"
+                );
+                assert_eq!(
+                    new_program.fragments.len(),
+                    3,
+                    "Fragments should be unchanged"
+                );
+            }
+            TransformedValue::Keep => panic!("Expected Replace after deleting an operation"),
+        }
+    }
+
+    /// Test that deleting a fragment produces a correct Replace result.
+    #[test]
+    fn default_transform_program_delete_fragment() {
+        struct DeleteFirstFragTransformer {
+            seen: bool,
+        }
+        impl<'a> Transformer<'a> for DeleteFirstFragTransformer {
+            const NAME: &'static str = "DeleteFirstFrag";
+            const VISIT_ARGUMENTS: bool = false;
+            const VISIT_DIRECTIVES: bool = false;
+
+            fn transform_operation(
+                &mut self,
+                _: &'a OperationDefinition,
+            ) -> Transformed<OperationDefinition> {
+                Transformed::Keep
+            }
+            fn transform_fragment(
+                &mut self,
+                _: &'a FragmentDefinition,
+            ) -> Transformed<FragmentDefinition> {
+                if !self.seen {
+                    self.seen = true;
+                    Transformed::Delete
+                } else {
+                    Transformed::Keep
+                }
+            }
+        }
+
+        let program = make_test_program();
+        let mut transformer = DeleteFirstFragTransformer { seen: false };
+        let result = transformer.default_transform_program(&program);
+        match result {
+            TransformedValue::Replace(new_program) => {
+                assert_eq!(
+                    new_program.operations.len(),
+                    3,
+                    "Operations should be unchanged"
+                );
+                assert_eq!(
+                    new_program.fragments.len(),
+                    2,
+                    "Should have 2 fragments after deleting one"
+                );
+            }
+            TransformedValue::Keep => panic!("Expected Replace after deleting a fragment"),
+        }
+    }
+
+    /// Test that replacing an operation produces the correct result
+    /// with the replacement in the right position.
+    #[test]
+    fn default_transform_program_replace_operation() {
+        struct ReplaceSecondOpTransformer {
+            count: usize,
+        }
+        impl<'a> Transformer<'a> for ReplaceSecondOpTransformer {
+            const NAME: &'static str = "ReplaceSecondOp";
+            const VISIT_ARGUMENTS: bool = false;
+            const VISIT_DIRECTIVES: bool = false;
+
+            fn transform_operation(
+                &mut self,
+                op: &'a OperationDefinition,
+            ) -> Transformed<OperationDefinition> {
+                self.count += 1;
+                if self.count == 2 {
+                    // Replace with a renamed operation
+                    Transformed::Replace(OperationDefinition {
+                        name: WithLocation::generated(OperationDefinitionName(
+                            "op2_replaced".intern(),
+                        )),
+                        ..op.clone()
+                    })
+                } else {
+                    Transformed::Keep
+                }
+            }
+            fn transform_fragment(
+                &mut self,
+                _: &'a FragmentDefinition,
+            ) -> Transformed<FragmentDefinition> {
+                Transformed::Keep
+            }
+        }
+
+        let program = make_test_program();
+        let mut transformer = ReplaceSecondOpTransformer { count: 0 };
+        let result = transformer.default_transform_program(&program);
+        match result {
+            TransformedValue::Replace(new_program) => {
+                assert_eq!(new_program.operations.len(), 3);
+                assert_eq!(new_program.fragments.len(), 3);
+                // Verify order and content: op1, op2_replaced, op3
+                let op_names: Vec<_> = new_program
+                    .operations
+                    .iter()
+                    .map(|op| op.name.item.0.lookup())
+                    .collect();
+                assert_eq!(op_names, vec!["op1", "op2_replaced", "op3"]);
+            }
+            TransformedValue::Keep => panic!("Expected Replace after replacing an operation"),
+        }
+    }
+
+    /// Test that replacing a fragment with a fresh name produces a correct
+    /// Replace result with the renamed fragment present and the old name gone.
+    #[test]
+    fn default_transform_program_replace_fragment() {
+        struct ReplaceFrag2Transformer;
+        impl<'a> Transformer<'a> for ReplaceFrag2Transformer {
+            const NAME: &'static str = "ReplaceFrag2";
+            const VISIT_ARGUMENTS: bool = false;
+            const VISIT_DIRECTIVES: bool = false;
+
+            fn transform_operation(
+                &mut self,
+                _: &'a OperationDefinition,
+            ) -> Transformed<OperationDefinition> {
+                Transformed::Keep
+            }
+            fn transform_fragment(
+                &mut self,
+                frag: &'a FragmentDefinition,
+            ) -> Transformed<FragmentDefinition> {
+                if frag.name.item.0.lookup() == "frag2" {
+                    Transformed::Replace(FragmentDefinition {
+                        name: WithLocation::generated(FragmentDefinitionName(
+                            "frag2_replaced".intern(),
+                        )),
+                        ..frag.clone()
+                    })
+                } else {
+                    Transformed::Keep
+                }
+            }
+        }
+
+        let program = make_test_program();
+        let mut transformer = ReplaceFrag2Transformer;
+        let result = transformer.default_transform_program(&program);
+        match result {
+            TransformedValue::Replace(new_program) => {
+                assert_eq!(
+                    new_program.operations.len(),
+                    3,
+                    "Operations should be unchanged"
+                );
+                assert_eq!(
+                    new_program.fragments.len(),
+                    3,
+                    "Fragment count should be unchanged after rename"
+                );
+                assert!(
+                    !new_program
+                        .fragments
+                        .contains_key(&FragmentDefinitionName("frag2".intern())),
+                    "Old name 'frag2' should be removed after rename"
+                );
+                assert!(
+                    new_program
+                        .fragments
+                        .contains_key(&FragmentDefinitionName("frag2_replaced".intern())),
+                    "New name 'frag2_replaced' should be present after rename"
+                );
+            }
+            TransformedValue::Keep => panic!("Expected Replace after replacing a fragment"),
+        }
+    }
+
+    /// Test that renaming a fragment to a name already in use panics, mirroring
+    /// the invariant guard in `Program::insert_fragment`.
+    #[test]
+    #[should_panic(expected = "Cannot rename fragment 'frag1' to 'frag2'")]
+    fn default_transform_program_rename_fragment_to_existing_name_panics() {
+        struct RenameFrag1ToFrag2Transformer;
+        impl<'a> Transformer<'a> for RenameFrag1ToFrag2Transformer {
+            const NAME: &'static str = "RenameFrag1ToFrag2";
+            const VISIT_ARGUMENTS: bool = false;
+            const VISIT_DIRECTIVES: bool = false;
+
+            fn transform_operation(
+                &mut self,
+                _: &'a OperationDefinition,
+            ) -> Transformed<OperationDefinition> {
+                Transformed::Keep
+            }
+            fn transform_fragment(
+                &mut self,
+                frag: &'a FragmentDefinition,
+            ) -> Transformed<FragmentDefinition> {
+                if frag.name.item.0.lookup() == "frag1" {
+                    Transformed::Replace(FragmentDefinition {
+                        name: WithLocation::generated(FragmentDefinitionName("frag2".intern())),
+                        ..frag.clone()
+                    })
+                } else {
+                    Transformed::Keep
+                }
+            }
+        }
+
+        let program = make_test_program();
+        let mut transformer = RenameFrag1ToFrag2Transformer;
+        transformer.default_transform_program(&program);
+    }
+
+    /// Test that an empty program with no-op transform returns Keep.
+    #[test]
+    fn default_transform_program_empty_returns_keep() {
+        struct NoOpTransformer;
+        impl<'a> Transformer<'a> for NoOpTransformer {
+            const NAME: &'static str = "NoOp";
+            const VISIT_ARGUMENTS: bool = false;
+            const VISIT_DIRECTIVES: bool = false;
+        }
+
+        let schema = Arc::new(schema::build_schema("type Query { id: ID }").unwrap());
+        let program = Program::new(schema);
+        let mut transformer = NoOpTransformer;
+        let result = transformer.default_transform_program(&program);
+        assert!(result.should_keep(), "Empty program should return Keep");
+    }
 
     /// Regression test: default_transform_variable_definitions must dispatch
     /// through transform_variable_definition (the overridable method), not

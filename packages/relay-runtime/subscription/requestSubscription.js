@@ -32,9 +32,9 @@ const {createReaderSelector} = require('../store/RelayModernSelector');
 const warning = require('warning');
 
 export type SubscriptionParameters = {
-  +response: {...},
-  +variables: {...},
-  +rawResponse?: {...},
+  readonly response: {...},
+  readonly variables: {...},
+  readonly rawResponse?: {...},
 };
 
 /**

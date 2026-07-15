@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f8755fb4d0a4367c7e5f421fc6273024>>
+ * @generated SignedSource<<236e9d9137572d85783b16a4e3cd6bb4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,20 +20,20 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType, Result } from "relay-runtime";
 declare export opaque type usePaginationFragmentCatchTestFragment$fragmentType: FragmentType;
 type usePaginationFragmentCatchTestRefetchableFragmentQuery$variables = any;
-export type usePaginationFragmentCatchTestFragment$data = {|
-  +friends: Result<?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +__typename: "User",
-      |},
-    |}>,
-  |}, unknown>,
-  +id: string,
-  +$fragmentType: usePaginationFragmentCatchTestFragment$fragmentType,
-|};
+export type usePaginationFragmentCatchTestFragment$data = {
+  readonly friends: Result<?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly __typename: "User",
+      },
+    }>,
+  }, unknown>,
+  readonly id: string,
+  readonly $fragmentType: usePaginationFragmentCatchTestFragment$fragmentType,
+};
 export type usePaginationFragmentCatchTestFragment$key = {
-  +$data?: usePaginationFragmentCatchTestFragment$data,
-  +$fragmentSpreads: usePaginationFragmentCatchTestFragment$fragmentType,
+  readonly $data?: usePaginationFragmentCatchTestFragment$data,
+  readonly $fragmentSpreads: usePaginationFragmentCatchTestFragment$fragmentType,
   ...
 };
 */

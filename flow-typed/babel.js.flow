@@ -321,9 +321,7 @@ declare type BabelNodeFunctionDeclaration = {|
   async?: boolean,
   declare?: boolean,
   returnType?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
   typeParameters?:
     | BabelNodeTypeParameterDeclaration
     | BabelNodeTSTypeParameterDeclaration
@@ -349,9 +347,7 @@ declare type BabelNodeFunctionExpression = {|
   generator?: boolean,
   async?: boolean,
   returnType?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
   typeParameters?:
     | BabelNodeTypeParameterDeclaration
     | BabelNodeTSTypeParameterDeclaration
@@ -370,9 +366,7 @@ declare type BabelNodeIdentifier = {|
   decorators?: Array<BabelNodeDecorator>,
   optional?: boolean,
   typeAnnotation?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
 |};
 
 declare type BabelNodeIfStatement = {|
@@ -556,9 +550,7 @@ declare type BabelNodeObjectMethod = {|
   async?: boolean,
   decorators?: Array<BabelNodeDecorator>,
   returnType?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
   typeParameters?:
     | BabelNodeTypeParameterDeclaration
     | BabelNodeTSTypeParameterDeclaration
@@ -595,9 +587,7 @@ declare type BabelNodeRestElement = {|
   argument: BabelNodeLVal,
   decorators?: Array<BabelNodeDecorator>,
   typeAnnotation?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
 |};
 
 declare type BabelNodeReturnStatement = {|
@@ -783,9 +773,7 @@ declare type BabelNodeAssignmentPattern = {|
   right: BabelNodeExpression,
   decorators?: Array<BabelNodeDecorator>,
   typeAnnotation?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
 |};
 
 declare type BabelNodeArrayPattern = {|
@@ -799,9 +787,7 @@ declare type BabelNodeArrayPattern = {|
   elements: Array<null | BabelNodePatternLike>,
   decorators?: Array<BabelNodeDecorator>,
   typeAnnotation?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
 |};
 
 declare type BabelNodeArrowFunctionExpression = {|
@@ -823,9 +809,7 @@ declare type BabelNodeArrowFunctionExpression = {|
   expression: boolean,
   generator?: boolean,
   returnType?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
   typeParameters?:
     | BabelNodeTypeParameterDeclaration
     | BabelNodeTSTypeParameterDeclaration
@@ -864,8 +848,7 @@ declare type BabelNodeClassExpression = {|
   decorators?: Array<BabelNodeDecorator>,
   mixins?: BabelNodeInterfaceExtends,
   superTypeParameters?:
-    | BabelNodeTypeParameterInstantiation
-    | BabelNodeTSTypeParameterInstantiation,
+    BabelNodeTypeParameterInstantiation | BabelNodeTSTypeParameterInstantiation,
   typeParameters?:
     | BabelNodeTypeParameterDeclaration
     | BabelNodeTSTypeParameterDeclaration
@@ -888,8 +871,7 @@ declare type BabelNodeClassDeclaration = {|
   declare?: boolean,
   mixins?: BabelNodeInterfaceExtends,
   superTypeParameters?:
-    | BabelNodeTypeParameterInstantiation
-    | BabelNodeTSTypeParameterInstantiation,
+    BabelNodeTypeParameterInstantiation | BabelNodeTSTypeParameterInstantiation,
   typeParameters?:
     | BabelNodeTypeParameterDeclaration
     | BabelNodeTSTypeParameterDeclaration
@@ -1059,9 +1041,7 @@ declare type BabelNodeClassMethod = {|
   decorators?: Array<BabelNodeDecorator>,
   optional?: boolean,
   returnType?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
   typeParameters?:
     | BabelNodeTypeParameterDeclaration
     | BabelNodeTSTypeParameterDeclaration
@@ -1079,9 +1059,7 @@ declare type BabelNodeObjectPattern = {|
   properties: Array<BabelNodeRestElement | BabelNodeObjectProperty>,
   decorators?: Array<BabelNodeDecorator>,
   typeAnnotation?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
 |};
 
 declare type BabelNodeSpreadElement = {|
@@ -1116,8 +1094,7 @@ declare type BabelNodeTaggedTemplateExpression = {|
   tag: BabelNodeExpression,
   quasi: BabelNodeTemplateLiteral,
   typeParameters?:
-    | BabelNodeTypeParameterInstantiation
-    | BabelNodeTSTypeParameterInstantiation,
+    BabelNodeTypeParameterInstantiation | BabelNodeTSTypeParameterInstantiation,
 |};
 
 declare type BabelNodeTemplateElement = {|
@@ -2036,8 +2013,7 @@ declare type BabelNodeJSXOpeningElement = {|
   attributes: Array<BabelNodeJSXAttribute | BabelNodeJSXSpreadAttribute>,
   selfClosing?: boolean,
   typeParameters?:
-    | BabelNodeTypeParameterInstantiation
-    | BabelNodeTSTypeParameterInstantiation,
+    BabelNodeTypeParameterInstantiation | BabelNodeTSTypeParameterInstantiation,
 |};
 
 declare type BabelNodeJSXSpreadAttribute = {|
@@ -2190,9 +2166,7 @@ declare type BabelNodeClassProperty = {|
     | BabelNodeExpression,
   value?: BabelNodeExpression,
   typeAnnotation?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
   decorators?: Array<BabelNodeDecorator>,
   computed?: boolean,
   abstract?: boolean,
@@ -2305,9 +2279,7 @@ declare type BabelNodeClassPrivateMethod = {|
   generator?: boolean,
   optional?: boolean,
   returnType?:
-    | BabelNodeTypeAnnotation
-    | BabelNodeTSTypeAnnotation
-    | BabelNodeNoop,
+    BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
   typeParameters?:
     | BabelNodeTypeParameterDeclaration
     | BabelNodeTSTypeParameterDeclaration
@@ -3460,8 +3432,7 @@ declare type BabelNodeExpression =
   | BabelNodeTSTypeAssertion
   | BabelNodeTSNonNullExpression;
 declare type BabelNodeBinary =
-  | BabelNodeBinaryExpression
-  | BabelNodeLogicalExpression;
+  BabelNodeBinaryExpression | BabelNodeLogicalExpression;
 declare type BabelNodeScopable =
   | BabelNodeBlockStatement
   | BabelNodeCatchClause
@@ -3499,9 +3470,7 @@ declare type BabelNodeBlockParent =
   | BabelNodeClassPrivateMethod
   | BabelNodeTSModuleBlock;
 declare type BabelNodeBlock =
-  | BabelNodeBlockStatement
-  | BabelNodeProgram
-  | BabelNodeTSModuleBlock;
+  BabelNodeBlockStatement | BabelNodeProgram | BabelNodeTSModuleBlock;
 declare type BabelNodeStatement =
   | BabelNodeBlockStatement
   | BabelNodeBreakStatement
@@ -3563,8 +3532,7 @@ declare type BabelNodeCompletionStatement =
   | BabelNodeReturnStatement
   | BabelNodeThrowStatement;
 declare type BabelNodeConditional =
-  | BabelNodeConditionalExpression
-  | BabelNodeIfStatement;
+  BabelNodeConditionalExpression | BabelNodeIfStatement;
 declare type BabelNodeLoop =
   | BabelNodeDoWhileStatement
   | BabelNodeForInStatement
@@ -3572,19 +3540,15 @@ declare type BabelNodeLoop =
   | BabelNodeWhileStatement
   | BabelNodeForOfStatement;
 declare type BabelNodeWhile =
-  | BabelNodeDoWhileStatement
-  | BabelNodeWhileStatement;
+  BabelNodeDoWhileStatement | BabelNodeWhileStatement;
 declare type BabelNodeExpressionWrapper =
   | BabelNodeExpressionStatement
   | BabelNodeParenthesizedExpression
   | BabelNodeTypeCastExpression;
 declare type BabelNodeFor =
-  | BabelNodeForInStatement
-  | BabelNodeForStatement
-  | BabelNodeForOfStatement;
+  BabelNodeForInStatement | BabelNodeForStatement | BabelNodeForOfStatement;
 declare type BabelNodeForXStatement =
-  | BabelNodeForInStatement
-  | BabelNodeForOfStatement;
+  BabelNodeForInStatement | BabelNodeForOfStatement;
 declare type BabelNodeFunction =
   | BabelNodeFunctionDeclaration
   | BabelNodeFunctionExpression
@@ -3651,8 +3615,7 @@ declare type BabelNodeLVal =
   | BabelNodeObjectPattern
   | BabelNodeTSParameterProperty;
 declare type BabelNodeTSEntityName =
-  | BabelNodeIdentifier
-  | BabelNodeTSQualifiedName;
+  BabelNodeIdentifier | BabelNodeTSQualifiedName;
 declare type BabelNodeLiteral =
   | BabelNodeStringLiteral
   | BabelNodeNumericLiteral
@@ -3686,26 +3649,19 @@ declare type BabelNodeUserWhitespacable =
   | BabelNodeObjectTypeProperty
   | BabelNodeObjectTypeSpreadProperty;
 declare type BabelNodeMethod =
-  | BabelNodeObjectMethod
-  | BabelNodeClassMethod
-  | BabelNodeClassPrivateMethod;
+  BabelNodeObjectMethod | BabelNodeClassMethod | BabelNodeClassPrivateMethod;
 declare type BabelNodeObjectMember =
-  | BabelNodeObjectMethod
-  | BabelNodeObjectProperty;
+  BabelNodeObjectMethod | BabelNodeObjectProperty;
 declare type BabelNodeProperty =
   | BabelNodeObjectProperty
   | BabelNodeClassProperty
   | BabelNodeClassPrivateProperty;
 declare type BabelNodeUnaryLike =
-  | BabelNodeUnaryExpression
-  | BabelNodeSpreadElement;
+  BabelNodeUnaryExpression | BabelNodeSpreadElement;
 declare type BabelNodePattern =
-  | BabelNodeAssignmentPattern
-  | BabelNodeArrayPattern
-  | BabelNodeObjectPattern;
+  BabelNodeAssignmentPattern | BabelNodeArrayPattern | BabelNodeObjectPattern;
 declare type BabelNodeClass =
-  | BabelNodeClassExpression
-  | BabelNodeClassDeclaration;
+  BabelNodeClassExpression | BabelNodeClassDeclaration;
 declare type BabelNodeModuleDeclaration =
   | BabelNodeExportAllDeclaration
   | BabelNodeExportDefaultDeclaration
@@ -3828,8 +3784,7 @@ declare type BabelNodeFlowDeclaration =
   | BabelNodeOpaqueType
   | BabelNodeTypeAlias;
 declare type BabelNodeFlowPredicate =
-  | BabelNodeDeclaredPredicate
-  | BabelNodeInferredPredicate;
+  BabelNodeDeclaredPredicate | BabelNodeInferredPredicate;
 declare type BabelNodeEnumBody =
   | BabelNodeEnumBooleanBody
   | BabelNodeEnumNumberBody
@@ -3980,9 +3935,7 @@ declare module '@babel/types' {
   ): BabelNodeCallExpression;
   declare export function catchClause(
     param?:
-      | BabelNodeIdentifier
-      | BabelNodeArrayPattern
-      | BabelNodeObjectPattern,
+      BabelNodeIdentifier | BabelNodeArrayPattern | BabelNodeObjectPattern,
     body: BabelNodeBlockStatement,
   ): BabelNodeCatchClause;
   declare export function conditionalExpression(
@@ -4636,9 +4589,7 @@ declare module '@babel/types' {
       | BabelNodeExpression,
     value?: BabelNodeExpression,
     typeAnnotation?:
-      | BabelNodeTypeAnnotation
-      | BabelNodeTSTypeAnnotation
-      | BabelNodeNoop,
+      BabelNodeTypeAnnotation | BabelNodeTSTypeAnnotation | BabelNodeNoop,
     decorators?: Array<BabelNodeDecorator>,
     computed?: boolean,
     _static?: boolean,
@@ -6039,10 +5990,7 @@ declare module '@babel/types' {
     node: ?Object,
     opts?: ?Object,
   ): node is
-    | BreakStatement
-    | ContinueStatement
-    | ReturnStatement
-    | ThrowStatement;
+    BreakStatement | ContinueStatement | ReturnStatement | ThrowStatement;
   declare export function isConditional(
     node: ?Object,
     opts?: ?Object,
@@ -6242,9 +6190,7 @@ declare module '@babel/types' {
     node: ?Object,
     opts?: ?Object,
   ): node is
-    | ExportAllDeclaration
-    | ExportDefaultDeclaration
-    | ExportNamedDeclaration;
+    ExportAllDeclaration | ExportDefaultDeclaration | ExportNamedDeclaration;
   declare export function isModuleSpecifier(
     node: ?Object,
     opts?: ?Object,

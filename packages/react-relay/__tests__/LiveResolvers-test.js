@@ -979,7 +979,9 @@ skipIf(
       ],
       [
         {
+          fieldError: null,
           fieldPath: 'username',
+          fieldValue: undefined,
           handled: true,
           kind: 'missing_required_field.throw',
           owner: 'ResolverThatThrows',

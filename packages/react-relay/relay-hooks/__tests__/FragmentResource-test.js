@@ -706,9 +706,7 @@ describe('FragmentResource', () => {
       expect(() =>
         FragmentResource.read(
           getFragment(UserFragment),
-          {
-            /* no fragment reference */
-          },
+          {/* no fragment reference */},
           componentDisplayName,
         ),
       ).toThrow(

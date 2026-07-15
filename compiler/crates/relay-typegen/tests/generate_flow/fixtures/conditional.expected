@@ -11,24 +11,24 @@ fragment NestedCondition on Node {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ConditionField$fragmentType: FragmentType;
-export type ConditionField$data = {|
-  +id?: string,
-  +$fragmentType: ConditionField$fragmentType,
-|};
+export type ConditionField$data = {
+  readonly id?: string,
+  readonly $fragmentType: ConditionField$fragmentType,
+};
 export type ConditionField$key = {
-  +$data?: ConditionField$data,
-  +$fragmentSpreads: ConditionField$fragmentType,
+  readonly $data?: ConditionField$data,
+  readonly $fragmentSpreads: ConditionField$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type NestedCondition$fragmentType: FragmentType;
-export type NestedCondition$data = {|
-  +id?: string,
-  +$fragmentType: NestedCondition$fragmentType,
-|};
+export type NestedCondition$data = {
+  readonly id?: string,
+  readonly $fragmentType: NestedCondition$fragmentType,
+};
 export type NestedCondition$key = {
-  +$data?: NestedCondition$data,
-  +$fragmentSpreads: NestedCondition$fragmentType,
+  readonly $data?: NestedCondition$data,
+  readonly $fragmentSpreads: NestedCondition$fragmentType,
   ...
 };

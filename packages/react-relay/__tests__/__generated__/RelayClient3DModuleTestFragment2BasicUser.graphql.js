@@ -6,17 +6,16 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<03468811ec88d7d04e75a0e42209d847>>
+ * @generated SignedSource<<2f99dcd5875685fecc669a9f5adf1191>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
 
 'use strict';
 
-// @dataDrivenDependency RelayClient3DModuleTestFragment2BasicUser.basicUser {"branches":{"ClientUser":{"component":"ClientUser.react","fragment":"RelayClient3DModuleTestFragmentClientUser_data$normalization.graphql"},"SpecialUser":{"component":"SpecialUser.react","fragment":"RelayClient3DModuleTestFragmentSpecialUser_data$normalization.graphql"}},"plural":false}
+// @dataDrivenDependency RelayClient3DModuleTestFragment2BasicUser.basicUser {"branches":{"ClientUser":{"component":"ClientUser.react","fragment":"RelayClient3DModuleTestFragmentClientUser_data$normalization.graphql","read_time_resolvers":true},"SpecialUser":{"component":"SpecialUser.react","fragment":"RelayClient3DModuleTestFragmentSpecialUser_data$normalization.graphql","read_time_resolvers":true}},"plural":false}
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
@@ -24,27 +23,17 @@ import type { RelayClient3DModuleTestFragmentClientUser_data$fragmentType } from
 import type { RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType } from "./RelayClient3DModuleTestFragmentSpecialUser_data.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayClient3DModuleTestFragment2BasicUser$fragmentType: FragmentType;
-export type RelayClient3DModuleTestFragment2BasicUser$data = {|
-  +basicUser: ?({|
-    +__typename: "ClientUser",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayClient3DModuleTestFragmentClientUser_data$fragmentType,
-  |} | {|
-    +__typename: "SpecialUser",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
-|};
+export type RelayClient3DModuleTestFragment2BasicUser$data = {
+  readonly basicUser: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayClient3DModuleTestFragmentClientUser_data$fragmentType & RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
+  },
+  readonly $fragmentType: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
+};
 export type RelayClient3DModuleTestFragment2BasicUser$key = {
-  +$data?: RelayClient3DModuleTestFragment2BasicUser$data,
-  +$fragmentSpreads: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
+  readonly $data?: RelayClient3DModuleTestFragment2BasicUser$data,
+  readonly $fragmentSpreads: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
   ...
 };
 */

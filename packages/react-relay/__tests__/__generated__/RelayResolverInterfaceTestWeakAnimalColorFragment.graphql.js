@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<698beef580edf5aaf0aa65c6fc7470d1>>
+ * @generated SignedSource<<e8471b144fcbc0db8db3fed70d8d897b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType: FragmentType;
-export type RelayResolverInterfaceTestWeakAnimalColorFragment$data = {|
-  +color: ?string,
-  +$fragmentType: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
-|};
+export type RelayResolverInterfaceTestWeakAnimalColorFragment$data = {
+  readonly color: ?string,
+  readonly $fragmentType: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
+};
 export type RelayResolverInterfaceTestWeakAnimalColorFragment$key = {
-  +$data?: RelayResolverInterfaceTestWeakAnimalColorFragment$data,
-  +$fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
+  readonly $data?: RelayResolverInterfaceTestWeakAnimalColorFragment$data,
+  readonly $fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
   ...
 };
 */

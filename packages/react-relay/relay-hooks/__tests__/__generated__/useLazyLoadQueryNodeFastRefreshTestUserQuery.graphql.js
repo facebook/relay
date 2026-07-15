@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<646d2bfb9fae17660d453f629789b4bd>>
+ * @generated SignedSource<<e887b9da8ba284710711b7cb475c900e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType } from "./useLazyLoadQueryNodeFastRefreshTestUserFragment.graphql";
-export type useLazyLoadQueryNodeFastRefreshTestUserQuery$variables = {|
+export type useLazyLoadQueryNodeFastRefreshTestUserQuery$variables = {
   id?: ?string,
-|};
-export type useLazyLoadQueryNodeFastRefreshTestUserQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +name: ?string,
-    +$fragmentSpreads: useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
-  |},
-|};
-export type useLazyLoadQueryNodeFastRefreshTestUserQuery = {|
+};
+export type useLazyLoadQueryNodeFastRefreshTestUserQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly $fragmentSpreads: useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
+  },
+};
+export type useLazyLoadQueryNodeFastRefreshTestUserQuery = {
   response: useLazyLoadQueryNodeFastRefreshTestUserQuery$data,
   variables: useLazyLoadQueryNodeFastRefreshTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

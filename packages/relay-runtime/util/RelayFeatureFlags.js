@@ -96,6 +96,15 @@ export type FeatureFlags = {
 
   // Enable logging for reader reading fragment spreads and fragments. Useful for logging unused fragments.
   ENABLE_READER_FRAGMENTS_LOGGING: boolean,
+
+  // When enabled, outer @catch boundaries ignore field errors that have already
+  // been handled by an inner @catch. Without this flag, a handled error from an
+  // inner @catch still causes the outer @catch(to: NULL) to null its field and
+  // outer @catch(to: RESULT) to report {ok: false}, even though the inner
+  // boundary already consumed the error.
+  //
+  // See https://github.com/facebook/relay/issues/5339
+  ENABLE_CATCH_IGNORE_HANDLED_FIELD_ERRORS: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -129,6 +138,7 @@ const RelayFeatureFlags: FeatureFlags = {
   OPTIMIZE_NOTIFY: false,
   ENABLE_FIELD_GRANULAR_NOTIFICATIONS: false,
   ENABLE_READER_FRAGMENTS_LOGGING: false,
+  ENABLE_CATCH_IGNORE_HANDLED_FIELD_ERRORS: false,
 };
 
 module.exports = RelayFeatureFlags;

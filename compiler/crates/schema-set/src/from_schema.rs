@@ -8,7 +8,6 @@
 use std::collections::VecDeque;
 
 use common::NamedItem;
-use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use intern::string_key::StringKeyIndexMap;
 use schema::DirectiveValue;
@@ -23,12 +22,15 @@ use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 use schema::UnionID;
+use schema_coordinates::SchemaCoordinate;
 
 use crate::OutputNonNull;
 use crate::OutputTypeReference;
 use crate::SEMANTIC_NON_NULL;
 use crate::SEMANTIC_NON_NULL_LEVELS_ARG;
 use crate::SetDirective;
+use crate::SetDirectiveValue;
+use crate::build_child_coordinate;
 use crate::schema_set::CanHaveDirectives;
 use crate::schema_set::FieldName;
 use crate::schema_set::HasArguments;
@@ -110,6 +112,12 @@ impl<T: HasInterfaces> SchemaInsertInterface for T {
         self.interfaces_mut()
             .entry(interface_name)
             .or_insert_with(|| SetMemberType {
+                definition: SchemaDefinitionItem {
+                    locations: vec![schema_interface.name.location],
+                    is_client_definition: schema_interface.is_extension,
+                    description: None,
+                    hack_source: None,
+                },
                 name: interface_name,
                 is_extension: schema_interface.is_extension,
             })
@@ -126,6 +134,7 @@ pub trait SchemaInsertArgument {
     fn argument_or_inserted(
         &mut self,
         argument: &schema::Argument,
+        parent_coordinate: Option<&SchemaCoordinate>,
         schema: &SDLSchema,
     ) -> &mut SetArgument;
 
@@ -136,18 +145,20 @@ impl<T: HasArguments> SchemaInsertArgument for T {
     fn argument_or_inserted(
         &mut self,
         argument: &schema::Argument,
+        parent_coordinate: Option<&SchemaCoordinate>,
         schema: &SDLSchema,
     ) -> &mut SetArgument {
         let argument_name = argument.name.item.0;
         self.arguments_mut()
             .entry(argument_name)
             .or_insert_with(|| SetArgument {
-                definition: Some(SchemaDefinitionItem {
-                    name: WithLocation::new(argument.name.location, argument.name.item.0),
+                definition: SchemaDefinitionItem {
+                    locations: vec![argument.name.location],
                     is_client_definition: false,
                     description: None,
                     hack_source: None,
-                }),
+                },
+                coordinate: build_child_coordinate(parent_coordinate, argument_name),
                 name: argument_name,
                 type_: argument.type_.clone().map(|t| schema.get_type_name(t)),
                 default_value: argument.default_value.clone(),
@@ -163,23 +174,32 @@ impl<T: HasArguments> SchemaInsertArgument for T {
 }
 
 pub trait SchemaInsertDirectiveValue {
-    fn directive_or_inserted(&mut self, directive: &DirectiveValue) -> &mut DirectiveValue;
+    fn directive_or_inserted(
+        &mut self,
+        directive: &DirectiveValue,
+        is_client_definition: bool,
+    ) -> &mut SetDirectiveValue;
 }
 
 impl<T: CanHaveDirectives> SchemaInsertDirectiveValue for T {
-    fn directive_or_inserted(&mut self, directive: &DirectiveValue) -> &mut DirectiveValue {
-        // Check if directive with same name already exists
+    fn directive_or_inserted(
+        &mut self,
+        directive: &DirectiveValue,
+        is_client_definition: bool,
+    ) -> &mut SetDirectiveValue {
         let existing_index = self
             .directives()
             .iter()
             .position(|d| d.name == directive.name);
 
         if let Some(index) = existing_index {
-            // Return reference to existing directive
             &mut self.directives_mut()[index]
         } else {
-            // Add new directive and return reference to it
-            self.directives_mut().push(directive.clone());
+            self.directives_mut()
+                .push(SetDirectiveValue::from_schema_value(
+                    directive,
+                    is_client_definition,
+                ));
             self.directives_mut()
                 .last_mut()
                 .expect("Just pushed directive")
@@ -191,11 +211,14 @@ impl SchemaDefault<ScalarID> for SetScalar {
     fn schema_default(id: ScalarID, schema: &SDLSchema) -> SetScalar {
         let from_schema = schema.scalar(id);
         SetScalar {
-            definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+            definition: SchemaDefinitionItem {
+                locations: vec![from_schema.name.location],
                 is_client_definition: from_schema.is_extension,
                 description: None,
                 hack_source: None,
+            },
+            coordinate: Some(SchemaCoordinate::Type {
+                name: from_schema.name.item.0,
             }),
             name: from_schema.name.item,
             directives: Default::default(),
@@ -216,11 +239,14 @@ impl SchemaDefault<EnumID> for SetEnum {
     fn schema_default(id: EnumID, schema: &SDLSchema) -> SetEnum {
         let from_schema = schema.enum_(id);
         SetEnum {
-            definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+            definition: SchemaDefinitionItem {
+                locations: vec![from_schema.name.location],
                 is_client_definition: from_schema.is_extension,
                 description: None,
                 hack_source: None,
+            },
+            coordinate: Some(SchemaCoordinate::Type {
+                name: from_schema.name.item.0,
             }),
             name: from_schema.name.item,
             directives: Default::default(),
@@ -243,11 +269,14 @@ impl SchemaDefault<ObjectID> for SetObject {
     fn schema_default(id: ObjectID, schema: &SDLSchema) -> SetObject {
         let from_schema = schema.object(id);
         SetObject {
-            definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+            definition: SchemaDefinitionItem {
+                locations: vec![from_schema.name.location],
                 is_client_definition: from_schema.is_extension,
                 description: None,
                 hack_source: None,
+            },
+            coordinate: Some(SchemaCoordinate::Type {
+                name: from_schema.name.item.0,
             }),
             name: from_schema.name.item,
             interfaces: Default::default(),
@@ -272,11 +301,14 @@ impl SchemaDefault<InterfaceID> for SetInterface {
     fn schema_default(id: InterfaceID, schema: &SDLSchema) -> SetInterface {
         let from_schema = schema.interface(id);
         SetInterface {
-            definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+            definition: SchemaDefinitionItem {
+                locations: vec![from_schema.name.location],
                 is_client_definition: from_schema.is_extension,
                 description: None,
                 hack_source: None,
+            },
+            coordinate: Some(SchemaCoordinate::Type {
+                name: from_schema.name.item.0,
             }),
             name: from_schema.name.item,
             interfaces: Default::default(),
@@ -301,11 +333,14 @@ impl SchemaDefault<UnionID> for SetUnion {
     fn schema_default(id: UnionID, schema: &SDLSchema) -> SetUnion {
         let from_schema = schema.union(id);
         SetUnion {
-            definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
+            definition: SchemaDefinitionItem {
+                locations: vec![from_schema.name.location],
                 is_client_definition: from_schema.is_extension,
                 description: None,
                 hack_source: None,
+            },
+            coordinate: Some(SchemaCoordinate::Type {
+                name: from_schema.name.item.0,
             }),
             name: from_schema.name.item,
             directives: Default::default(),
@@ -328,12 +363,15 @@ impl SchemaDefault<InputObjectID> for SetInputObject {
     fn schema_default(id: InputObjectID, schema: &SDLSchema) -> SetInputObject {
         let from_schema = schema.input_object(id);
         SetInputObject {
-            definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(from_schema.name.location, from_schema.name.item.0),
-                // Schema does not allow input objects as extensions yet
+            definition: SchemaDefinitionItem {
+                locations: vec![from_schema.name.location],
+                // schema::InputObject does not have extension (which is really client definitions) yet
                 is_client_definition: false,
                 description: None,
                 hack_source: None,
+            },
+            coordinate: Some(SchemaCoordinate::Type {
+                name: from_schema.name.item.0,
             }),
             name: from_schema.name.item,
             directives: Default::default(),
@@ -357,13 +395,20 @@ impl SetEmptyClone for SetInputObject {
 impl SchemaDefault<FieldID> for SetField {
     fn schema_default(id: FieldID, schema: &SDLSchema) -> Self {
         let schema_field = schema.field(id);
+        let parent_name = schema_field
+            .parent_type
+            .map(|parent| schema.get_type_name(parent));
         let field_name = schema_field.name.item;
         Self {
-            definition: Some(SchemaDefinitionItem {
-                name: WithLocation::new(schema_field.name.location, schema_field.name.item),
+            definition: SchemaDefinitionItem {
+                locations: vec![schema_field.name.location],
                 is_client_definition: schema_field.is_extension,
                 description: None,
                 hack_source: None,
+            },
+            coordinate: parent_name.map(|parent_name| SchemaCoordinate::Member {
+                parent_name,
+                member_name: schema_field.name.item,
             }),
             name: FieldName(field_name),
             arguments: StringKeyIndexMap::default(),
@@ -401,6 +446,7 @@ impl SetEmptyClone for SetDirective {
         Self {
             arguments: Default::default(),
             locations: Default::default(),
+            directives: Default::default(),
             ..self.clone()
         }
     }
@@ -491,5 +537,200 @@ fn convert_output_type_reference_with_semantic_nonnull(
                 semantic_non_null_levels,
             ),
         )),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use common::SourceLocationKey;
+    use graphql_syntax::parse_schema_document;
+    use indoc::indoc;
+    use intern::string_key::Intern;
+
+    use super::*;
+    use crate::SchemaSet;
+
+    fn set_from_sdl(sdl: &str) -> SchemaSet {
+        SchemaSet::from_base_schema_documents(&[parse_schema_document(
+            sdl,
+            SourceLocationKey::generated(),
+        )
+        .unwrap()])
+        .unwrap()
+    }
+
+    fn build_sdl_schema(sdl: &str) -> std::sync::Arc<SDLSchema> {
+        schema::build_schema(sdl).unwrap().into()
+    }
+
+    // --- SetEmptyClone ---
+
+    #[test]
+    fn test_empty_clone_scalar() {
+        let set = set_from_sdl("scalar URL @deprecated");
+        if let crate::SetType::Scalar(s) = set.types.values().next().unwrap() {
+            let cloned = s.empty_clone();
+            assert_eq!(cloned.name, s.name);
+            assert!(cloned.directives.is_empty());
+        } else {
+            panic!("Expected Scalar");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_enum() {
+        let set = set_from_sdl("enum Color { RED GREEN }");
+        if let crate::SetType::Enum(e) = set.types.values().next().unwrap() {
+            let cloned = e.empty_clone();
+            assert_eq!(cloned.name, e.name);
+            assert!(cloned.values.is_empty());
+            assert!(cloned.directives.is_empty());
+        } else {
+            panic!("Expected Enum");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_object() {
+        let set = set_from_sdl(indoc! {r#"
+            interface Node { id: ID! }
+            type User implements Node { id: ID! name: String }
+        "#});
+        if let crate::SetType::Object(obj) = set.types.get(&"User".intern()).unwrap() {
+            let cloned = obj.empty_clone();
+            assert_eq!(cloned.name, obj.name);
+            assert!(cloned.fields.is_empty());
+            assert!(cloned.interfaces.is_empty());
+            assert!(cloned.directives.is_empty());
+        } else {
+            panic!("Expected Object");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_interface() {
+        let set = set_from_sdl("interface Node { id: ID! }");
+        if let crate::SetType::Interface(iface) = set.types.values().next().unwrap() {
+            let cloned = iface.empty_clone();
+            assert_eq!(cloned.name, iface.name);
+            assert!(cloned.fields.is_empty());
+        } else {
+            panic!("Expected Interface");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_union() {
+        let set = set_from_sdl(indoc! {r#"
+            type A { id: ID! }
+            type B { id: ID! }
+            union AB = A | B
+        "#});
+        if let crate::SetType::Union(u) = set.types.get(&"AB".intern()).unwrap() {
+            let cloned = u.empty_clone();
+            assert_eq!(cloned.name, u.name);
+            assert!(cloned.members.is_empty());
+        } else {
+            panic!("Expected Union");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_input_object() {
+        let set = set_from_sdl("input Foo { name: String! }");
+        if let crate::SetType::InputObject(input) = set.types.values().next().unwrap() {
+            let cloned = input.empty_clone();
+            assert_eq!(cloned.name, input.name);
+            assert!(cloned.fields.is_empty());
+        } else {
+            panic!("Expected InputObject");
+        }
+    }
+
+    #[test]
+    fn test_empty_clone_field() {
+        let set = set_from_sdl("type Q { foo(a: Int): String @deprecated }");
+        if let crate::SetType::Object(obj) = set.types.values().next().unwrap() {
+            let field = obj.fields.values().next().unwrap();
+            let cloned = field.empty_clone();
+            assert_eq!(cloned.name, field.name);
+            assert!(cloned.arguments.is_empty());
+            assert!(cloned.directives.is_empty());
+        } else {
+            panic!("Expected Object");
+        }
+    }
+
+    // --- SchemaDefault ---
+
+    #[test]
+    fn test_schema_default_scalar() {
+        let sdl_schema = build_sdl_schema("type Query { id: ID } scalar URL");
+        let scalar_type = sdl_schema.get_type("URL".intern()).unwrap();
+        if let Type::Scalar(id) = scalar_type {
+            let set_scalar = SetScalar::schema_default(id, &sdl_schema);
+            assert_eq!(set_scalar.name.0, "URL".intern());
+        } else {
+            panic!("Expected Scalar type");
+        }
+    }
+
+    #[test]
+    fn test_schema_default_enum() {
+        let sdl_schema = build_sdl_schema("type Query { id: ID } enum Color { RED }");
+        let enum_type = sdl_schema.get_type("Color".intern()).unwrap();
+        if let Type::Enum(id) = enum_type {
+            let set_enum = SetEnum::schema_default(id, &sdl_schema);
+            assert_eq!(set_enum.name.0, "Color".intern());
+            // schema_default creates empty values
+            assert!(set_enum.values.is_empty());
+        } else {
+            panic!("Expected Enum type");
+        }
+    }
+
+    #[test]
+    fn test_schema_default_object() {
+        let sdl_schema = build_sdl_schema("type Query { id: ID } type User { name: String }");
+        let obj_type = sdl_schema.get_type("User".intern()).unwrap();
+        if let Type::Object(id) = obj_type {
+            let set_obj = SetObject::schema_default(id, &sdl_schema);
+            assert_eq!(set_obj.name.0, "User".intern());
+            assert!(set_obj.fields.is_empty());
+        } else {
+            panic!("Expected Object type");
+        }
+    }
+
+    // --- convert_schema_output_type_reference ---
+
+    #[test]
+    fn test_convert_output_type_reference_named() {
+        let sdl_schema = build_sdl_schema("type Query { name: String }");
+        let string_type = sdl_schema.get_type("String".intern()).unwrap();
+        let type_ref = TypeReference::Named(string_type);
+        let result = convert_schema_output_type_reference(&sdl_schema, &type_ref, &[]);
+        assert!(matches!(result, OutputTypeReference::Named(name) if name == "String".intern()));
+    }
+
+    #[test]
+    fn test_convert_output_type_reference_non_null() {
+        let sdl_schema = build_sdl_schema("type Query { name: String }");
+        let string_type = sdl_schema.get_type("String".intern()).unwrap();
+        let type_ref = TypeReference::NonNull(Box::new(TypeReference::Named(string_type)));
+        let result = convert_schema_output_type_reference(&sdl_schema, &type_ref, &[]);
+        assert!(matches!(
+            result,
+            OutputTypeReference::NonNull(OutputNonNull::KillsParent(_))
+        ));
+    }
+
+    #[test]
+    fn test_convert_output_type_reference_list() {
+        let sdl_schema = build_sdl_schema("type Query { name: String }");
+        let string_type = sdl_schema.get_type("String".intern()).unwrap();
+        let type_ref = TypeReference::List(Box::new(TypeReference::Named(string_type)));
+        let result = convert_schema_output_type_reference(&sdl_schema, &type_ref, &[]);
+        assert!(matches!(result, OutputTypeReference::List(_)));
     }
 }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d9fbf722148e0aef63be83ca50366ad2>>
+ * @generated SignedSource<<566581ab4299d17ed5ced1c21fd41e55>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment.graphql";
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables = {|
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery = {|
+};
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery = {
   response: RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data,
   variables: RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

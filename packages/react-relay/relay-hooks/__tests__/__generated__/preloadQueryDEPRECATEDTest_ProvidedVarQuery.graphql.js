@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6fc753ea80a9fdc0ed809ecd488fa338>>
+ * @generated SignedSource<<8d108fc93ef63b70ffeeff0127149cae>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,29 +18,29 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType } from "./preloadQueryDEPRECATEDTest_ProvidedVarFragment.graphql";
-export type preloadQueryDEPRECATEDTest_ProvidedVarQuery$variables = {|
+export type preloadQueryDEPRECATEDTest_ProvidedVarQuery$variables = {
   id: string,
-|};
-export type preloadQueryDEPRECATEDTest_ProvidedVarQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
-  |},
-|};
-export type preloadQueryDEPRECATEDTest_ProvidedVarQuery = {|
+};
+export type preloadQueryDEPRECATEDTest_ProvidedVarQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
+  },
+};
+export type preloadQueryDEPRECATEDTest_ProvidedVarQuery = {
   response: preloadQueryDEPRECATEDTest_ProvidedVarQuery$data,
   variables: preloadQueryDEPRECATEDTest_ProvidedVarQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider'),
   "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('../RelayProvider_returnsFalse.relayprovider')
-} as {|
-  +__relay_internal__pv__RelayProvider_returnsFalserelayprovider: {|
-    +get: () => boolean,
-  |},
-  +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
-    +get: () => boolean,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__RelayProvider_returnsFalserelayprovider: {
+    readonly get: () => boolean,
+  },
+  readonly __relay_internal__pv__RelayProvider_returnsTruerelayprovider: {
+    readonly get: () => boolean,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){

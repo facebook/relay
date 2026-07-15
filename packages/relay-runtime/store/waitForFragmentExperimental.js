@@ -37,8 +37,7 @@ async function waitForFragmentData<TFragmentType extends FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef:
-    | HasSpread<TFragmentType>
-    | ReadonlyArray<HasSpread<TFragmentType>>,
+    HasSpread<TFragmentType> | ReadonlyArray<HasSpread<TFragmentType>>,
 ): Promise<TData> {
   let subscription: ?Subscription;
 

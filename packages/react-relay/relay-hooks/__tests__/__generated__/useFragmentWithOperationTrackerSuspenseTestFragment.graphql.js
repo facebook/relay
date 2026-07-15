@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<09d19c1f228dba75594ace0e38906888>>
+ * @generated SignedSource<<ff99b3935df730ec5e91de480ebd7446>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,14 +19,14 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useFragmentWithOperationTrackerSuspenseTestFragment$fragmentType: FragmentType;
-export type useFragmentWithOperationTrackerSuspenseTestFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: useFragmentWithOperationTrackerSuspenseTestFragment$fragmentType,
-|};
+export type useFragmentWithOperationTrackerSuspenseTestFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: useFragmentWithOperationTrackerSuspenseTestFragment$fragmentType,
+};
 export type useFragmentWithOperationTrackerSuspenseTestFragment$key = {
-  +$data?: useFragmentWithOperationTrackerSuspenseTestFragment$data,
-  +$fragmentSpreads: useFragmentWithOperationTrackerSuspenseTestFragment$fragmentType,
+  readonly $data?: useFragmentWithOperationTrackerSuspenseTestFragment$data,
+  readonly $fragmentSpreads: useFragmentWithOperationTrackerSuspenseTestFragment$fragmentType,
   ...
 };
 */

@@ -1,0 +1,5 @@
+# expected-to-throw
+# `extend union` requires directives or member types per the spec.
+union Foo = A
+
+extend union Foo

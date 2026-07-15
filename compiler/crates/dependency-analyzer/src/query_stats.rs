@@ -48,6 +48,12 @@ pub fn compute_query_stats(
     definitions: &[ExecutableDefinition],
     dep_map: &ExecutableDefinitionNameMap<ExecutableDefinitionNameSet>,
 ) -> QueryStatsReport {
+    // Precompute max_depth for every node in the dep_map. This is composable:
+    // depth(F) = 0 if F has no refs, else 1 + max(depth(child)).
+    // Computing once avoids the expensive re-visiting that the old per-operation
+    // DFS required to track longest paths through diamond-shaped graphs.
+    let depth_cache = precompute_max_depths(dep_map);
+
     let mut operations = Vec::new();
     let mut query_count = 0usize;
     let mut mutation_count = 0usize;
@@ -69,7 +75,6 @@ pub fn compute_query_stats(
                 OperationKind::Subscription => subscription_count += 1,
             }
 
-            // Look up this operation's direct references in the dep_map
             let op_def_name = ExecutableDefinitionName::OperationDefinitionName(
                 graphql_ir::OperationDefinitionName(intern::string_key::Intern::intern(
                     name_str.as_str(),
@@ -79,8 +84,13 @@ pub fn compute_query_stats(
             let direct_refs = dep_map.get(&op_def_name);
             let direct_fragment_count = direct_refs.map_or(0, |refs| refs.len());
 
-            let (transitive_fragment_count, max_fragment_depth) =
-                compute_transitive_stats(dep_map, &op_def_name);
+            let transitive_fragment_count = count_transitive_fragments(dep_map, &op_def_name);
+            let max_fragment_depth = direct_refs.map_or(0, |refs| {
+                refs.iter()
+                    .map(|f| 1 + depth_cache.get(f).copied().unwrap_or(0))
+                    .max()
+                    .unwrap_or(0)
+            });
 
             operations.push(OperationStats {
                 name: name_str,
@@ -107,45 +117,67 @@ pub fn compute_query_stats(
     }
 }
 
-/// DFS through the dependency map to find all transitively reachable fragments
-/// and the maximum depth. Tracks per-node max depth so that a fragment reachable
-/// via both a short and long path always records the longest path.
-fn compute_transitive_stats(
+/// Precompute the max fragment depth for every node in the dependency map.
+/// depth(F) = 0 if F has no fragment refs, else 1 + max(depth(child)).
+fn precompute_max_depths(
+    dep_map: &ExecutableDefinitionNameMap<ExecutableDefinitionNameSet>,
+) -> ExecutableDefinitionNameMap<usize> {
+    let mut cache: ExecutableDefinitionNameMap<usize> = Default::default();
+    for name in dep_map.keys() {
+        compute_depth(name, dep_map, &mut cache, &mut Default::default());
+    }
+    cache
+}
+
+/// Recursive memoized depth computation with cycle detection.
+fn compute_depth(
+    name: &ExecutableDefinitionName,
+    dep_map: &ExecutableDefinitionNameMap<ExecutableDefinitionNameSet>,
+    cache: &mut ExecutableDefinitionNameMap<usize>,
+    visiting: &mut ExecutableDefinitionNameSet,
+) -> usize {
+    if let Some(&d) = cache.get(name) {
+        return d;
+    }
+    if !visiting.insert(*name) {
+        // Cycle detected — treat as depth 0 to break the loop.
+        return 0;
+    }
+    let depth = dep_map.get(name).map_or(0, |refs| {
+        refs.iter()
+            .map(|child| 1 + compute_depth(child, dep_map, cache, visiting))
+            .max()
+            .unwrap_or(0)
+    });
+    visiting.remove(name);
+    cache.insert(*name, depth);
+    depth
+}
+
+/// Count unique fragments transitively reachable from `start`.
+/// Simple visited-set DFS — each node is visited at most once, giving O(V+E).
+fn count_transitive_fragments(
     dep_map: &ExecutableDefinitionNameMap<ExecutableDefinitionNameSet>,
     start: &ExecutableDefinitionName,
-) -> (usize, usize) {
-    let mut best_depth: rustc_hash::FxHashMap<ExecutableDefinitionName, usize> =
-        rustc_hash::FxHashMap::default();
-    let mut stack: Vec<(ExecutableDefinitionName, usize)> = Vec::new();
-    let mut max_depth: usize = 0;
-
-    if let Some(direct_refs) = dep_map.get(start) {
-        for frag in direct_refs {
-            stack.push((*frag, 1));
-        }
-    }
-
-    while let Some((name, depth)) = stack.pop() {
-        if let Some(&prev_depth) = best_depth.get(&name)
-            && depth <= prev_depth
-        {
+) -> usize {
+    let Some(direct_refs) = dep_map.get(start) else {
+        return 0;
+    };
+    let mut visited = ExecutableDefinitionNameSet::default();
+    let mut stack: Vec<ExecutableDefinitionName> = direct_refs.iter().copied().collect();
+    while let Some(name) = stack.pop() {
+        if !visited.insert(name) {
             continue;
-        }
-        best_depth.insert(name, depth);
-        if depth > max_depth {
-            max_depth = depth;
         }
         if let Some(refs) = dep_map.get(&name) {
             for child in refs {
-                let skip = best_depth.get(child).is_some_and(|&d| depth < d);
-                if !skip {
-                    stack.push((*child, depth + 1));
+                if !visited.contains(child) {
+                    stack.push(*child);
                 }
             }
         }
     }
-
-    (best_depth.len(), max_depth)
+    visited.len()
 }
 
 impl Distribution {

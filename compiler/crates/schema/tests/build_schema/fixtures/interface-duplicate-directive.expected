@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+directive @bar on INTERFACE
+
+interface Foo @bar @bar {
+  id: ID
+}
+
+type Query {
+  foo: Foo
+}
+==================================== ERROR ====================================
+✖︎ The directive `@bar` can only be used once at this location, but was used 2 times.
+
+  interface-duplicate-directive.graphql:5:11
+    4 │ 
+    5 │ interface Foo @bar @bar {
+      │           ^^^
+    6 │   id: ID

@@ -23,6 +23,8 @@ mod graphql_asts;
 mod operation_persister;
 mod path_validator;
 mod red_to_green;
+#[cfg(unix)]
+pub mod server_daemon;
 pub mod status_reporter;
 pub mod subschema_extraction;
 mod utils;
@@ -37,6 +39,10 @@ pub use build_project::SourceHashes;
 pub use build_project::artifact_writer::ArtifactFileWriter;
 pub use build_project::artifact_writer::ArtifactValidationWriter;
 pub use build_project::artifact_writer::ArtifactWriter;
+#[cfg(unix)]
+pub use build_project::artifact_writer::DeferredArtifactCache;
+#[cfg(unix)]
+pub use build_project::artifact_writer::DeferredArtifactWriter;
 pub use build_project::artifact_writer::NoopArtifactWriter;
 pub use build_project::build_programs;
 pub use build_project::build_raw_program;
@@ -59,6 +65,7 @@ pub use config::ProjectConfig;
 pub use config::RemotePersistConfig;
 pub use config::SchemaLocation;
 pub use config::TestFileSourceConfig;
+pub use config::TestFileSourceEvent;
 pub use errors::CompilerErrorPrinter;
 pub use errors::print_compiler_error;
 pub use file_source::ExternalFileSourceResult;

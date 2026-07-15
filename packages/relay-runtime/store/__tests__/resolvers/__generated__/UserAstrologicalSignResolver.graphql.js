@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8f768eb4051ab6ef3b5c9c39c10f0b4e>>
+ * @generated SignedSource<<16891e4aff9615b40f26e280e5a603b4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserAstrologicalSignResolver$fragmentType: FragmentType;
-export type UserAstrologicalSignResolver$data = {|
-  +birthdate: {|
-    +day: number,
-    +month: number,
-  |},
-  +$fragmentType: UserAstrologicalSignResolver$fragmentType,
-|};
+export type UserAstrologicalSignResolver$data = {
+  readonly birthdate: {
+    readonly day: number,
+    readonly month: number,
+  },
+  readonly $fragmentType: UserAstrologicalSignResolver$fragmentType,
+};
 export type UserAstrologicalSignResolver$key = {
-  +$data?: UserAstrologicalSignResolver$data,
-  +$fragmentSpreads: UserAstrologicalSignResolver$fragmentType,
+  readonly $data?: UserAstrologicalSignResolver$data,
+  readonly $fragmentSpreads: UserAstrologicalSignResolver$fragmentType,
   ...
 };
 */

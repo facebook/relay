@@ -40,12 +40,10 @@ const invariant = require('invariant');
  * - 'loading': The fragment is still in flight and is still expected to resolver.
  */
 export type FragmentState<T> =
-  | {state: 'ok', value: T}
-  | {state: 'error', error: Error}
-  | {state: 'loading'};
+  {state: 'ok', value: T} | {state: 'error', error: Error} | {state: 'loading'};
 
 export type HasSpread<TFragmentType> = {
-  +$fragmentSpreads: TFragmentType,
+  readonly $fragmentSpreads: TFragmentType,
   ...
 };
 
@@ -67,8 +65,7 @@ async function waitForFragmentData<TFragmentType extends FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef:
-    | HasSpread<TFragmentType>
-    | ReadonlyArray<HasSpread<TFragmentType>>,
+    HasSpread<TFragmentType> | ReadonlyArray<HasSpread<TFragmentType>>,
 ): Promise<TData> {
   let subscription: ?Subscription;
 
@@ -100,8 +97,7 @@ declare function observeFragment<TFragmentType extends FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef:
-    | HasSpread<TFragmentType>
-    | ReadonlyArray<HasSpread<TFragmentType>>,
+    HasSpread<TFragmentType> | ReadonlyArray<HasSpread<TFragmentType>>,
 ): Observable<FragmentState<TData>>;
 
 /**

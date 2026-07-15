@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<70ee742b3b67f5e3be40f35473f6dc5c>>
+ * @generated SignedSource<<ab941fd3cc38bd0dea3418e5b15de110>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { NormalizationSplitOperation } from 'relay-runtime';
 
 import type { PurpleOctopus } from "../PurpleOctopusResolvers.js";
 import type { RedOctopus } from "../RedOctopusResolvers.js";
-export type Query__weak_animals$normalization = {|
-  +__typename: "PurpleOctopus",
-  +__relay_model_instance: PurpleOctopus,
-|} | {|
-  +__typename: "RedOctopus",
-  +__relay_model_instance: RedOctopus,
-|};
+export type Query__weak_animals$normalization = {
+  readonly __typename: "PurpleOctopus",
+  readonly __relay_model_instance: PurpleOctopus,
+} | {
+  readonly __typename: "RedOctopus",
+  readonly __relay_model_instance: RedOctopus,
+};
 
 */
 

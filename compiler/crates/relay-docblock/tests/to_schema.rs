@@ -111,7 +111,11 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             )?;
         }
 
-        validate_resolver_schema(&schema, &Default::default())?;
+        validate_resolver_schema(
+            &schema,
+            &Default::default(),
+            relay_config::SchemaConfig::default().node_interface_id_field,
+        )?;
 
         ir.to_sdl_string(project_name, &schema, &Default::default())
     };

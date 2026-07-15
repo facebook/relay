@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86bf13bd41707bc19696f1090952c46d>>
+ * @generated SignedSource<<4a9ccaf0eb1b24b254aa4943453da943>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteMutationTestCommentFragment$data = {|
-  +body: ?{|
-    +text: ?string,
-  |},
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteMutationTestCommentFragment$data = {
+  readonly body: ?{
+    readonly text: ?string,
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteMutationTestCommentFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteMutationTestCommentFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteMutationTestCommentFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType,
   ...
 };
 */

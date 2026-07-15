@@ -5,14 +5,14 @@ query UpdatableQuery @updatable {
   }
 }
 ==================================== OUTPUT ===================================
-export type UpdatableQuery$variables = {||};
-export type UpdatableQuery$data = {|
-  get nodes(): ?ReadonlyArray<?{|
-    +id: string,
-  |}>,
+export type UpdatableQuery$variables = {};
+export type UpdatableQuery$data = {
+  get nodes(): ?ReadonlyArray<?{
+    readonly id: string,
+  }>,
   set nodes(value: []): void,
-|};
-export type UpdatableQuery = {|
+};
+export type UpdatableQuery = {
   response: UpdatableQuery$data,
   variables: UpdatableQuery$variables,
-|};
+};

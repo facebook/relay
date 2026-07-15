@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bfd70ac729393a71cfd5aecb598bce3a>>
+ * @generated SignedSource<<3ead47fc7f9d51adf756af6d95fcc01a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType } from "./RelayMockEnvironmentWithComponentsTestNoticeableResultFragment.graphql";
-export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables = {|
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables = {
   id: string,
-|};
-export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data = {|
-  +feedback: ?{|
-    +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery = {|
+};
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data = {
+  readonly feedback: ?{
+    readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery = {
   response: RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data,
   variables: RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

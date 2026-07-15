@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b0f1de187c9ac2d90a972cd3e32ee6f8>>
+ * @generated SignedSource<<7630f96be00965ffa8fe8c64f6072a96>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,13 +29,13 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   context: TestResolverContextType,
 ) => ?unknown);
 declare export opaque type AstrologicalSignHouseResolver$fragmentType: FragmentType;
-export type AstrologicalSignHouseResolver$data = {|
-  +self: ?ReturnType<typeof astrologicalSignSelfResolverType>,
-  +$fragmentType: AstrologicalSignHouseResolver$fragmentType,
-|};
+export type AstrologicalSignHouseResolver$data = {
+  readonly self: ?ReturnType<typeof astrologicalSignSelfResolverType>,
+  readonly $fragmentType: AstrologicalSignHouseResolver$fragmentType,
+};
 export type AstrologicalSignHouseResolver$key = {
-  +$data?: AstrologicalSignHouseResolver$data,
-  +$fragmentSpreads: AstrologicalSignHouseResolver$fragmentType,
+  readonly $data?: AstrologicalSignHouseResolver$data,
+  readonly $fragmentSpreads: AstrologicalSignHouseResolver$fragmentType,
   ...
 };
 */

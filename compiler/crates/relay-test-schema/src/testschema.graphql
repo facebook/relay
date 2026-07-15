@@ -12,7 +12,7 @@ directive @credentials(
   token: String
 ) on FIELD
 
-directive @live_query(polling_interval: Int, config_id: String) on QUERY
+directive @live_query(config_id: String) on QUERY
 
 directive @client_polling(interval: Int) on QUERY
 
@@ -139,6 +139,7 @@ type Mutation {
   ): ViewerNotificationsUpdateAllSeenStateResponsePayload
   setLocation(input: LocationInput): setLocationResponsePayload
   setName(name: String!): User
+  setCommentBody(commentID: ID!, body: CommentBodyInput): Comment
 }
 
 type Subscription {
@@ -158,6 +159,11 @@ input ActorNameChangeInput {
 
 input ApplicationRequestDeleteAllInput {
   deletedRequestIds: [ID]
+}
+
+input CommentBodyInput @oneOf {
+  plain: String
+  markdown: String
 }
 
 input CommentCreateInput {
@@ -983,7 +989,8 @@ type ImplementsImplementsUserNameRenderable implements ImplementsUserNameRendera
   name: String
 }
 
-type ImplementsImplementsUserNameRenderableAndUserNameRenderable implements ImplementsUserNameRenderable & UserNameRenderable {
+type ImplementsImplementsUserNameRenderableAndUserNameRenderable implements ImplementsUserNameRenderable &
+  UserNameRenderable {
   name: String
 }
 
@@ -991,7 +998,11 @@ input ProfilePictureOptions {
   newName: String
 }
 
-type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImplementNode {
+type User implements Named &
+  Node &
+  Actor &
+  HasJsField &
+  AllConcreteTypesImplementNode {
   actor: Actor
   actors: [Actor]
   actorCount: Int
@@ -1221,4 +1232,17 @@ type Portrayal {
 type FetchableType implements Node @fetchable(field_name: "fetch_id") {
   id: ID!
   fetch_id: ID!
+}
+
+# Interface with a linked field returning an abstract type (Actor).
+# Used to test raw response type generation when the same field is selected both
+# directly on a concrete type (returning User, concrete) and via this interface
+# (returning Actor, abstract). This creates the field-covariance scenario needed
+# to verify that node_selections key normalization prevents spurious union arms.
+interface NodeWithLinkedActor {
+  linked_actor: Actor
+}
+
+extend type User implements NodeWithLinkedActor {
+  linked_actor: User
 }

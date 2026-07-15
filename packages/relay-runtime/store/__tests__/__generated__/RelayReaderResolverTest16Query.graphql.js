@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4dc2e0296aeebacf6f549c78ab83d529>>
+ * @generated SignedSource<<378a35e630bbf2e39baeb94ef16c8132>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,23 +24,23 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriWithScaleResolverType as (
   rootKey: UserProfilePictureResolver$key,
-  args: {|
+  args: {
     scale: ?number,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTest16Query$variables = {|
+export type RelayReaderResolverTest16Query$variables = {
   scale: number,
-|};
-export type RelayReaderResolverTest16Query$data = {|
-  +me: ?{|
-    +user_profile_picture_uri_with_scale: ?string,
-  |},
-|};
-export type RelayReaderResolverTest16Query = {|
+};
+export type RelayReaderResolverTest16Query$data = {
+  readonly me: ?{
+    readonly user_profile_picture_uri_with_scale: ?string,
+  },
+};
+export type RelayReaderResolverTest16Query = {
   response: RelayReaderResolverTest16Query$data,
   variables: RelayReaderResolverTest16Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

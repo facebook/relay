@@ -86,6 +86,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: module.js:170:174,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
@@ -140,6 +141,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: module.js:262:269,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
@@ -194,6 +196,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: module.js:361:368,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
@@ -248,6 +251,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: module.js:458:465,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

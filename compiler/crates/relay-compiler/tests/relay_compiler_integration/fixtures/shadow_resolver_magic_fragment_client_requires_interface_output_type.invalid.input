@@ -1,0 +1,62 @@
+//- UserClientPage.js
+// A shadow interface (`IPage`) with a CLIENT model implementor (`ClientPage`),
+// but `relay_resolver_enable_interface_output_type` is NOT enabled. Without that
+// flag, relay_resolvers_abstract_types does not expand the interface selection
+// into per-concrete client arms, so the transplant partition would have no client
+// arm to drop and the compiler would silently emit a server-only artifact that
+// drops the client data. The flag-guard fails loudly instead with
+// ShadowResolverClientImplementorRequiresInterfaceOutputType.
+/**
+ * @relayField User.client_page: IPage
+ * @rootFragment UserClientPageResolverFragment
+ * @returnFragment UserClientPageReturnFragment
+ */
+graphql`fragment UserClientPageResolverFragment on User {
+  page {
+    ...UserClientPageReturnFragment
+  }
+}`
+
+//- ClientPageResolver.js
+/**
+ * @relayType ClientPage implements IPage
+ */
+export function ClientPage() {}
+
+//- ClientPageTitleResolver.js
+/**
+ * @relayField ClientPage.title: String
+ */
+export function title() {}
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    client_page {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}

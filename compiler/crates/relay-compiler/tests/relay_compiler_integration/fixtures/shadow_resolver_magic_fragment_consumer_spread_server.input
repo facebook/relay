@@ -1,0 +1,60 @@
+//- UserCombinedPage.js
+// Consumer authors a CONCRETE server-typed fragment spread on a magic-fragment
+// field. `combined_page` returns the client interface `IPage` (implemented by the
+// SERVER type `Page`). The consumer spreads `...PageFields` where
+// `fragment PageFields on Page`.
+//
+// The spread is INLINE-EXPANDED into the transplanted server selection
+// in the MAIN operation (so `me { page { id __typename title } }` is fetched),
+// while the reader keeps `...PageFields` as a masked `$fragmentSpreads` ref (the
+// child `useFragment` reads its fields off the resolver-returned pointer).
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- PageFields.js
+graphql`fragment PageFields on Page {
+  title
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      ...PageFields @alias(as: "pageFields")
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

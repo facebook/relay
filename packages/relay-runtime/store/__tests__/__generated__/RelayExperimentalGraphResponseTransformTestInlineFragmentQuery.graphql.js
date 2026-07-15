@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ff9fe0638fba55b96f728364a49355b0>>
+ * @generated SignedSource<<b68823eb26a16bb0cd0753c08d9d982d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,21 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayExperimentalGraphResponseTransformTestInlineFragmentQuery$variables = {||};
-export type RelayExperimentalGraphResponseTransformTestInlineFragmentQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayExperimentalGraphResponseTransformTestInlineFragmentQuery = {|
+export type RelayExperimentalGraphResponseTransformTestInlineFragmentQuery$variables = {};
+export type RelayExperimentalGraphResponseTransformTestInlineFragmentQuery$data = {
+  readonly node: ?{
+    readonly name?: ?string,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestInlineFragmentQuery = {
   response: RelayExperimentalGraphResponseTransformTestInlineFragmentQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestInlineFragmentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

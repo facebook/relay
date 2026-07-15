@@ -12,7 +12,7 @@ import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/interna
 
 <FbInternalOnly>
 
-[GraphQL Subscriptions](https://our.internmc.facebook.com/intern/wiki/GraphQL_Subscriptions/) (GQLS) are a mechanism which allow clients to subscribe to changes in a piece of data from the server, and get notified whenever that data changes.
+[GraphQL Subscriptions](https://www.internalfb.com/intern/wiki/GraphQL_Subscriptions/) (GQLS) are a mechanism which allow clients to subscribe to changes in a piece of data from the server, and get notified whenever that data changes.
 
 </FbInternalOnly>
 
@@ -289,7 +289,7 @@ const network = Network.create(fetchQuery, subscribe);
 
 <FbInternalOnly>
 
-At Facebook, the Network Layer has already been configured to handle GraphQL Subscriptions. For more details on writing subscriptions at Facebook, check out this [guide](../../../guides/writing-subscriptions/). For a guide on setting up subscriptions on the server side, check out this [wiki](https://our.internmc.facebook.com/intern/wiki/GraphQL_Subscriptions/creating-a-new-subscription/).
+At Facebook, the Network Layer has already been configured to handle GraphQL Subscriptions. For more details on writing subscriptions at Facebook, check out this [guide](../../../guides/writing-subscriptions/). For a guide on setting up subscriptions on the server side, check out this [wiki](https://www.internalfb.com/intern/wiki/GraphQL_Subscriptions/creating-a-new-subscription/).
 
 </FbInternalOnly>
 

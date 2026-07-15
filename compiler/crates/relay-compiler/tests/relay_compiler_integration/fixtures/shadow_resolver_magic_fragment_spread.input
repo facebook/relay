@@ -1,0 +1,67 @@
+//- UserCombinedPage.js
+// Shadow resolver returning an interface whose only implementor is a server type.
+//
+// `combined_page` is a resolver field whose return type is the client interface
+// `IPage` (implemented by the SERVER type `Page`). Its @rootFragment navigates
+// the SERVER field `User.page` and spreads the @returnFragment placeholder
+// `...UserCombinedPageReturnFragment` at the shadowed field.
+//
+// The consumer's selections on `combined_page` are TRANSPLANTED onto the
+// shadowed server field `page` in the MAIN operation, so
+// `me { page { id __typename title } }` is fetched in the main query. The
+// resolver returns a pointer (DataID) and the consumer reads its selections off
+// that already-normalized record -- NO waterfall, NO split op, NO generated stub
+// fragment. The edge is a `ClientEdgeToClientObject` with EMPTY `modelResolvers`
+// and EMPTY `serverObjectOperations` (no client-extension implementor, no
+// refetch query).
+//
+// The resolver does NOT declare `@mayWaterfall`: it only ever returns the
+// shadowed record, whose selections are fetched in the main op. So the consumer
+// must NOT annotate `combined_page` with @waterfall -- doing so is a hard error
+// (`UnexpectedWaterfall`), see the
+// `shadow_resolver_magic_fragment_unexpected_waterfall.invalid` fixture.
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

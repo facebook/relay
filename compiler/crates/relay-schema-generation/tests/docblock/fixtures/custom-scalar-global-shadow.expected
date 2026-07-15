@@ -71,6 +71,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: Cat.js:220:229,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

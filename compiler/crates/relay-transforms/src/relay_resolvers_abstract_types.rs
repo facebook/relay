@@ -30,8 +30,12 @@ use graphql_ir::Transformer;
 use graphql_ir::transform_list;
 use schema::FieldID;
 use schema::InterfaceID;
+use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
+
+use crate::CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME;
+use crate::relay_resolvers::get_resolver_info;
 
 /// Transform selections on interface types.
 ///
@@ -152,61 +156,16 @@ impl RelayResolverAbstractTypesTransform<'_> {
                 .named_field(Type::Object(*object_id), selection_name)
                 .expect("Expected field to be defined on concrete type");
             let concrete_field = self.program.schema.field(concrete_field_id);
-            concrete_field
-                .directives
-                .iter()
-                .any(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
+            // A field is a "different implementation" if it's either an explicit
+            // resolver or any extension field (e.g. a synthetic ID field on a
+            // client model type that has no @relay_resolver directive but is still
+            // client-only and must be fanned out per concrete type).
+            concrete_field.is_extension
+                || concrete_field
+                    .directives
+                    .iter()
+                    .any(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
         })
-    }
-
-    /**
-     * Converts selections on an abstract type to selections on inline fragments on a concrete
-     * type by changing the field IDs to those defined on the concrete types in the schema.
-     */
-    fn convert_interface_selections_to_concrete_field_selections(
-        &self,
-        concrete_type: Type,
-        selections: &[Selection],
-    ) -> Vec<Selection> {
-        selections
-            .iter()
-            .map(|selection| match selection {
-                Selection::LinkedField(node) => {
-                    let field_name = self.program.schema.field(node.definition.item).name.item;
-                    let concrete_field_id = self
-                        .program
-                        .schema
-                        .named_field(concrete_type, field_name)
-                        .expect("Expected field to be defined on concrete type");
-                    let definition = WithLocation::new(node.definition.location, concrete_field_id);
-                    Selection::LinkedField(Arc::new(LinkedField {
-                        definition,
-                        alias: node.alias,
-                        arguments: node.arguments.clone(),
-                        directives: node.directives.clone(),
-                        selections: node.selections.clone(),
-                    }))
-                }
-                Selection::ScalarField(node) => {
-                    let field_name = self.program.schema.field(node.definition.item).name.item;
-                    let concrete_field_id = self
-                        .program
-                        .schema
-                        .named_field(concrete_type, field_name)
-                        .expect("Expected field to be defined on concrete type");
-                    let definition = WithLocation::new(node.definition.location, concrete_field_id);
-                    Selection::ScalarField(Arc::new(ScalarField {
-                        definition,
-                        alias: node.alias,
-                        arguments: node.arguments.clone(),
-                        directives: node.directives.clone(),
-                    }))
-                }
-                Selection::FragmentSpread(_) => selection.clone(),
-                Selection::InlineFragment(_) => selection.clone(),
-                Selection::Condition(_) => selection.clone(),
-            })
-            .collect()
     }
 
     fn create_inline_fragment_selections_for_interface(
@@ -230,7 +189,8 @@ impl RelayResolverAbstractTypesTransform<'_> {
                 Selection::InlineFragment(Arc::new(InlineFragment {
                     type_condition: Some(concrete_type),
                     directives: vec![], // Directives not necessary here
-                    selections: self.convert_interface_selections_to_concrete_field_selections(
+                    selections: project_interface_selections_to_concrete(
+                        self.program.schema.as_ref(),
                         concrete_type,
                         selections,
                     ),
@@ -452,4 +412,147 @@ impl Transformer<'_> for RelayResolverAbstractTypesTransform<'_> {
             }
         }
     }
+}
+
+/// Whether a concrete field is a client edge that points to a *server* object —
+/// the only case that requires `@waterfall`. An extension field backed by a
+/// `@relay_resolver` whose edge target is a server (non-extension) type. Native
+/// server fields and client edges to client objects return false. A shadow
+/// resolver (`@returnFragment`) is transplant-only and returns false unless it
+/// declares `@mayWaterfall`.
+pub(crate) fn concrete_field_requires_waterfall(
+    schema: &SDLSchema,
+    concrete_field_id: FieldID,
+) -> bool {
+    let field = schema.field(concrete_field_id);
+    let is_client_edge = field.is_extension
+        && field
+            .directives
+            .iter()
+            .any(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0);
+    if !is_client_edge || schema.is_extension_type(field.type_.inner()) {
+        return false;
+    }
+    // A shadow resolver (`@returnFragment`) transplants the consumer's selections
+    // onto the shadowed server field, so it only incurs a waterfall when it
+    // declares `@mayWaterfall`. Without that declaration it is transplant-only and
+    // must NOT be treated as waterfall-required -- otherwise an abstract fan-out
+    // could keep `@waterfall` on a non-`@mayWaterfall` shadow arm (and typegen
+    // could self-project a `ClientEdgeQuery` the operation pipeline suppresses).
+    if let Some(Ok(resolver_info)) = get_resolver_info(schema, field, field.name.location)
+        && resolver_info.return_fragment.is_some()
+    {
+        return resolver_info.may_waterfall;
+    }
+    true
+}
+
+/// Projects `selections` written against an abstract type onto a concrete
+/// implementor type by rewriting each field reference to the field of the same
+/// name defined on `concrete_type`, recursing through linked fields whose edge
+/// target also narrows. A field absent on the concrete type is skipped rather
+/// than projected.
+///
+/// The abstract field may carry `@waterfall` (an author acknowledgment that
+/// consuming it incurs a network roundtrip). When specializing to a concrete
+/// arm, keep `@waterfall` only where the concrete field is a client edge to a
+/// server object (which requires it); strip it from native server fields and
+/// client-edge-to-client-object fields (where it is invalid), so one
+/// interface-level `@waterfall` covers a field that is server-backed on one
+/// implementor and a client-to-server edge on another.
+pub(crate) fn project_interface_selections_to_concrete(
+    schema: &SDLSchema,
+    concrete_type: Type,
+    selections: &[Selection],
+) -> Vec<Selection> {
+    selections
+        .iter()
+        .filter_map(|selection| match selection {
+            Selection::LinkedField(node) => {
+                let field_name = schema.field(node.definition.item).name.item;
+                let concrete_field_id = schema.named_field(concrete_type, field_name)?;
+                let concrete_return_type = schema.field(concrete_field_id).type_.inner();
+                let definition = WithLocation::new(node.definition.location, concrete_field_id);
+                let filtered =
+                    filter_incompatible_inline_fragments(concrete_return_type, &node.selections);
+                let nested_selections =
+                    if concrete_return_type != schema.field(node.definition.item).type_.inner() {
+                        project_interface_selections_to_concrete(
+                            schema,
+                            concrete_return_type,
+                            &filtered,
+                        )
+                    } else {
+                        filtered
+                    };
+                let has_waterfall = node
+                    .directives
+                    .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
+                    .is_some();
+                let directives = if has_waterfall
+                    && !concrete_field_requires_waterfall(schema, concrete_field_id)
+                {
+                    node.directives
+                        .iter()
+                        .filter(|directive| {
+                            directive.name.item != *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME
+                        })
+                        .cloned()
+                        .collect()
+                } else {
+                    node.directives.clone()
+                };
+                Some(Selection::LinkedField(Arc::new(LinkedField {
+                    definition,
+                    alias: node.alias,
+                    arguments: node.arguments.clone(),
+                    directives,
+                    selections: nested_selections,
+                })))
+            }
+            Selection::ScalarField(node) => {
+                let field_name = schema.field(node.definition.item).name.item;
+                let concrete_field_id = schema.named_field(concrete_type, field_name)?;
+                let definition = WithLocation::new(node.definition.location, concrete_field_id);
+                Some(Selection::ScalarField(Arc::new(ScalarField {
+                    definition,
+                    alias: node.alias,
+                    arguments: node.arguments.clone(),
+                    directives: node.directives.clone(),
+                })))
+            }
+            Selection::FragmentSpread(_) => Some(selection.clone()),
+            Selection::InlineFragment(_) => Some(selection.clone()),
+            Selection::Condition(_) => Some(selection.clone()),
+        })
+        .collect()
+}
+
+/// Removes inline fragments from `selections` whose object type condition is
+/// incompatible with a known concrete return type. When a linked field is known
+/// to return a specific concrete object type, any `... on OtherObject` inline
+/// fragments in its selection set are unreachable and can be dropped.
+///
+/// Only acts when `concrete_type` is an object type; abstract return types are
+/// returned unchanged because we cannot rule out any implementor without further
+/// context.
+fn filter_incompatible_inline_fragments(
+    concrete_type: Type,
+    selections: &[Selection],
+) -> Vec<Selection> {
+    let Type::Object(_) = concrete_type else {
+        return selections.to_vec();
+    };
+    selections
+        .iter()
+        .filter(|selection| {
+            if let Selection::InlineFragment(fragment) = selection
+                && let Some(Type::Object(_)) = fragment.type_condition
+            {
+                return fragment.type_condition == Some(concrete_type);
+            }
+            true
+        })
+        .cloned()
+        .collect()
 }

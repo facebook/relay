@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7cb06cefbaf01a556dbcac4e2002edba>>
+ * @generated SignedSource<<30c3f1a072cc2bba45ff777205b9d012>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -38,15 +37,15 @@ import {description as todoModelDescriptionResolverType} from "../../../relay-ru
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type RelayResolverModelWithContextTestFragment$fragmentType: FragmentType;
-export type RelayResolverModelWithContextTestFragment$data = {|
-  +another_value_from_context: ?string,
-  +description: ?string,
-  +id: string,
-  +$fragmentType: RelayResolverModelWithContextTestFragment$fragmentType,
-|};
+export type RelayResolverModelWithContextTestFragment$data = {
+  readonly another_value_from_context: ?string,
+  readonly description: ?string,
+  readonly id: string,
+  readonly $fragmentType: RelayResolverModelWithContextTestFragment$fragmentType,
+};
 export type RelayResolverModelWithContextTestFragment$key = {
-  +$data?: RelayResolverModelWithContextTestFragment$data,
-  +$fragmentSpreads: RelayResolverModelWithContextTestFragment$fragmentType,
+  readonly $data?: RelayResolverModelWithContextTestFragment$data,
+  readonly $fragmentSpreads: RelayResolverModelWithContextTestFragment$fragmentType,
   ...
 };
 */

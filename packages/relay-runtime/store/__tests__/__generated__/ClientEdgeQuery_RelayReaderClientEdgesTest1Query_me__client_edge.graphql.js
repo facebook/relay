@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<81471ae556f6dc21917f2d2e9d7eb212>>
+ * @generated SignedSource<<79963d2645e9e6a79b12cdfcfe2ebe80>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$fragmentType } from "./RefetchableClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge.graphql";
-export type ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$variables = {|
+export type ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge = {|
+};
+export type ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$fragmentType,
+  },
+};
+export type ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge = {
   response: ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$data,
   variables: ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

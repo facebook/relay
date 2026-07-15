@@ -60,7 +60,7 @@ impl Validator for ValidateGlobalVariables<'_> {
                     .any(|def| def.name.item == var.name.item))
             })
             .collect();
-        undefined_variables.sort_by(|a, b| a.name.cmp(&b.name));
+        undefined_variables.sort_by_key(|a| a.name);
         if !undefined_variables.is_empty() {
             let is_plural = undefined_variables.len() > 1;
             let mut locations = undefined_variables

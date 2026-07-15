@@ -133,7 +133,7 @@ fragment TestFragment on User
                     alias: None,
                     definition: WithLocation {
                         location: fragment_with_valid_provider.graphql:210:224,
-                        item: FieldID(479),
+                        item: FieldID(480),
                     },
                     arguments: [
                         Argument {
@@ -169,7 +169,7 @@ fragment TestFragment on User
                             alias: None,
                             definition: WithLocation {
                                 location: fragment_with_valid_provider.graphql:251:254,
-                                item: FieldID(185),
+                                item: FieldID(186),
                             },
                             arguments: [],
                             directives: [],

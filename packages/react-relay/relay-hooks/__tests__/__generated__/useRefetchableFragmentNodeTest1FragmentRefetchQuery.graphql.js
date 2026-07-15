@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d932a82c035d11b89f7f4a246ed3b6d5>>
+ * @generated SignedSource<<5d6651ff3b72933018aca0fec0a77ad7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,18 +19,18 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { useRefetchableFragmentNodeTest1Fragment$fragmentType } from "./useRefetchableFragmentNodeTest1Fragment.graphql";
-export type useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables = {|
+export type useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables = {
   id: string,
-|};
-export type useRefetchableFragmentNodeTest1FragmentRefetchQuery$data = {|
-  +fetch__NonNodeStory: ?{|
-    +$fragmentSpreads: useRefetchableFragmentNodeTest1Fragment$fragmentType,
-  |},
-|};
-export type useRefetchableFragmentNodeTest1FragmentRefetchQuery = {|
+};
+export type useRefetchableFragmentNodeTest1FragmentRefetchQuery$data = {
+  readonly fetch__NonNodeStory: ?{
+    readonly $fragmentSpreads: useRefetchableFragmentNodeTest1Fragment$fragmentType,
+  },
+};
+export type useRefetchableFragmentNodeTest1FragmentRefetchQuery = {
   response: useRefetchableFragmentNodeTest1FragmentRefetchQuery$data,
   variables: useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

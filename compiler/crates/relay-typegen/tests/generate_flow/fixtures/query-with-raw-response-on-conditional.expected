@@ -17,51 +17,51 @@ fragment FriendFragment on User {
 }
 ==================================== OUTPUT ===================================
 import type { FriendFragment$fragmentType } from "FriendFragment.graphql";
-export type ExampleQuery$variables = {|
+export type ExampleQuery$variables = {
   condition: CustomBoolean,
   id: string,
-|};
-export type ExampleQuery$data = {|
-  +node: ?{|
-    +FriendFragment: ?{|
-      +$fragmentSpreads: FriendFragment$fragmentType,
-    |},
-  |},
-|};
-export type ExampleQuery$rawResponse = {|
-  +node: ?({|
-    +__typename: "User",
-    +feedback?: ?{|
-      +id: string,
-      +name: ?string,
-    |},
-    +id: string,
-    +lastName?: ?string,
-    +name?: ?string,
-  |} | {|
-    +__typename: string,
-    +id: string,
-  |}),
-|};
-export type ExampleQuery = {|
+};
+export type ExampleQuery$data = {
+  readonly node: ?{
+    readonly FriendFragment: ?{
+      readonly $fragmentSpreads: FriendFragment$fragmentType,
+    },
+  },
+};
+export type ExampleQuery$rawResponse = {
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly feedback?: ?{
+      readonly id: string,
+      readonly name: ?string,
+    },
+    readonly id: string,
+    readonly lastName?: ?string,
+    readonly name?: ?string,
+  } | {
+    readonly __typename: string,
+    readonly id: string,
+  }),
+};
+export type ExampleQuery = {
   rawResponse: ExampleQuery$rawResponse,
   response: ExampleQuery$data,
   variables: ExampleQuery$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FriendFragment$fragmentType: FragmentType;
-export type FriendFragment$data = {|
-  +feedback?: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-  +lastName?: ?string,
-  +name?: ?string,
-  +$fragmentType: FriendFragment$fragmentType,
-|};
+export type FriendFragment$data = {
+  readonly feedback?: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+  readonly lastName?: ?string,
+  readonly name?: ?string,
+  readonly $fragmentType: FriendFragment$fragmentType,
+};
 export type FriendFragment$key = {
-  +$data?: FriendFragment$data,
-  +$fragmentSpreads: FriendFragment$fragmentType,
+  readonly $data?: FriendFragment$data,
+  readonly $fragmentSpreads: FriendFragment$fragmentType,
   ...
 };

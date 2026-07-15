@@ -14,7 +14,7 @@ import {getConfig} from './config';
 
 import {RelayExtensionContext} from './context';
 import {createAndStartLanguageClient} from './languageClient';
-import {createStatusBarItem, intializeStatusBarItem} from './statusBarItem';
+import {createStatusBarItem, initializeStatusBarItem} from './statusBarItem';
 import {findRelayBinaryWithWarnings} from './utils/findRelayBinary';
 
 let relayExtensionContext: RelayExtensionContext | null = null;
@@ -72,7 +72,7 @@ export async function activate(extensionContext: ExtensionContext) {
       'Starting the Relay GraphQL extension...',
     );
 
-    intializeStatusBarItem(relayExtensionContext);
+    initializeStatusBarItem(relayExtensionContext);
     registerCommands(relayExtensionContext);
     createAndStartLanguageClient(relayExtensionContext);
     registerProviders(relayExtensionContext);

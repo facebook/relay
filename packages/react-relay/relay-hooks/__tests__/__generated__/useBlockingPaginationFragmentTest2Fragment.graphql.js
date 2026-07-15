@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f59d15103947d77e98e0e15fb9466fec>>
+ * @generated SignedSource<<0053e7ac14256c562161ed5c7960c981>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,20 +20,20 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useBlockingPaginationFragmentTest2Fragment$fragmentType: FragmentType;
 type useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables = any;
-export type useBlockingPaginationFragmentTest2Fragment$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +$fragmentType: useBlockingPaginationFragmentTest2Fragment$fragmentType,
-|};
+export type useBlockingPaginationFragmentTest2Fragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly $fragmentType: useBlockingPaginationFragmentTest2Fragment$fragmentType,
+};
 export type useBlockingPaginationFragmentTest2Fragment$key = {
-  +$data?: useBlockingPaginationFragmentTest2Fragment$data,
-  +$fragmentSpreads: useBlockingPaginationFragmentTest2Fragment$fragmentType,
+  readonly $data?: useBlockingPaginationFragmentTest2Fragment$data,
+  readonly $fragmentSpreads: useBlockingPaginationFragmentTest2Fragment$fragmentType,
   ...
 };
 */

@@ -1,0 +1,13 @@
+# expected-to-throw
+
+directive @bar on OBJECT
+
+type Foo @bar {
+  id: ID
+}
+
+type Query {
+  foo: Foo
+}
+%extensions%
+extend type Foo @bar

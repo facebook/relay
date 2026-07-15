@@ -232,7 +232,9 @@ it('propagates @required errors from the resolver up to the reader', () => {
   const {fieldErrors} = store.lookup(operation.fragment);
   expect(fieldErrors).toEqual([
     {
+      fieldError: null,
       fieldPath: 'name',
+      fieldValue: null,
       kind: 'missing_required_field.log',
       owner: 'UserRequiredNameResolver',
     },
@@ -254,7 +256,9 @@ it('propagates @required errors from the resolver up to the reader', () => {
 
   expect(missingRequiredFieldsTakeTwo).toEqual([
     {
+      fieldError: null,
       fieldPath: 'name',
+      fieldValue: null,
       kind: 'missing_required_field.log',
       owner: 'UserRequiredNameResolver',
     },
@@ -331,7 +335,9 @@ it('merges @required logs from resolver field with parent', () => {
   const {fieldErrors} = store.lookup(operation.fragment);
   expect(fieldErrors).toEqual([
     {
+      fieldError: null,
       fieldPath: 'name',
+      fieldValue: null,
       kind: 'missing_required_field.log',
       owner: 'UserRequiredNameResolver',
     },
@@ -344,7 +350,9 @@ it('merges @required logs from resolver field with parent', () => {
       shouldThrow: false,
     },
     {
+      fieldError: null,
       fieldPath: 'me.lastName',
+      fieldValue: null,
       kind: 'missing_required_field.log',
       owner: 'RelayReaderResolverTestRequiredWithParentQuery',
     },
@@ -358,7 +366,9 @@ it('merges @required logs from resolver field with parent', () => {
 
   expect(missingRequiredFieldsTakeTwo).toEqual([
     {
+      fieldError: null,
       fieldPath: 'name',
+      fieldValue: null,
       kind: 'missing_required_field.log',
       owner: 'UserRequiredNameResolver',
     },
@@ -371,7 +381,9 @@ it('merges @required logs from resolver field with parent', () => {
       shouldThrow: false,
     },
     {
+      fieldError: null,
       fieldPath: 'me.lastName',
+      fieldValue: null,
       kind: 'missing_required_field.log',
       owner: 'RelayReaderResolverTestRequiredWithParentQuery',
     },
@@ -409,7 +421,9 @@ it('propagates @required(action: THROW) errors from the resolver up to the reade
   expect(requiredThrowNameCalls.count).toBe(beforeCallCount);
   expect(fieldErrors).toEqual([
     {
+      fieldError: null,
       fieldPath: 'name',
+      fieldValue: null,
       handled: true,
       kind: 'missing_required_field.throw',
       owner: 'UserRequiredThrowNameResolver',
@@ -424,7 +438,9 @@ it('propagates @required(action: THROW) errors from the resolver up to the reade
   expect(dataTakeTwo).toEqual({me: {required_throw_name: null}});
   expect(missingRequiredFieldsTakeTwo).toEqual([
     {
+      fieldError: null,
       fieldPath: 'name',
+      fieldValue: null,
       handled: true,
       kind: 'missing_required_field.throw',
       owner: 'UserRequiredThrowNameResolver',

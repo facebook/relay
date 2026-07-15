@@ -26,18 +26,18 @@ export type ObserverOrCallback = Observer<void> | ((error: ?Error) => unknown);
 
 // NOTE: This is an inexact type in order to allow a RelayPaginationProp or
 // RelayRefetchProp to flow into a RelayProp.
-export type RelayProp = {+environment: IEnvironment, ...};
+export type RelayProp = {readonly environment: IEnvironment, ...};
 
 export type RelayPaginationProp = {
-  +environment: IEnvironment,
-  +hasMore: () => boolean,
-  +isLoading: () => boolean,
-  +loadMore: (
+  readonly environment: IEnvironment,
+  readonly hasMore: () => boolean,
+  readonly isLoading: () => boolean,
+  readonly loadMore: (
     pageSize: number,
     observerOrCallback: ?ObserverOrCallback,
     options?: RefetchOptions,
   ) => ?Disposable,
-  +refetchConnection: (
+  readonly refetchConnection: (
     totalCount: number,
     observerOrCallback: ?ObserverOrCallback,
     refetchVariables: ?Variables,
@@ -45,8 +45,8 @@ export type RelayPaginationProp = {
 };
 
 export type RelayRefetchProp = {
-  +environment: IEnvironment,
-  +refetch: (
+  readonly environment: IEnvironment,
+  readonly refetch: (
     refetchVariables: Variables | ((fragmentVariables: Variables) => Variables),
     renderVariables: ?Variables,
     observerOrCallback: ?ObserverOrCallback,
@@ -55,9 +55,9 @@ export type RelayRefetchProp = {
 };
 
 export type RefetchOptions = {
-  +force?: boolean,
-  +fetchPolicy?: 'store-or-network' | 'network-only',
-  +metadata?: {[key: string]: unknown, ...},
+  readonly force?: boolean,
+  readonly fetchPolicy?: 'store-or-network' | 'network-only',
+  readonly metadata?: {[key: string]: unknown, ...},
 };
 
 /**
@@ -93,7 +93,7 @@ export type RefetchOptions = {
  *
  */
 export type $FragmentRef<T> = {
-  +$fragmentSpreads: T['$fragmentType'],
+  readonly $fragmentSpreads: T['$fragmentType'],
   ...
 };
 
@@ -114,36 +114,42 @@ export type $RelayProps<Props, _RelayPropT = RelayProp> = MapRelayProps<
 >;
 
 type MapRelayProps<Props> = {[K in keyof Props]: MapRelayProp<Props[K]>};
-type MapRelayProp<T> = [+t: T] extends [+t: {+$fragmentType: empty, ...}]
+type MapRelayProp<T> = [readonly t: T] extends [
+  readonly t: {readonly $fragmentType: empty, ...},
+]
   ? T
-  : [+t: T] extends [+t: ?{+$fragmentType: empty, ...}]
+  : [readonly t: T] extends [readonly t: ?{readonly $fragmentType: empty, ...}]
     ? ?T
-    : [+t: T] extends [+t: {+$fragmentType: FragmentType, ...}]
+    : [readonly t: T] extends [
+          readonly t: {readonly $fragmentType: FragmentType, ...},
+        ]
       ? $FragmentRef<T>
-      : [+t: T] extends [+t: ?{+$fragmentType: FragmentType, ...}]
+      : [readonly t: T] extends [
+            readonly t: ?{readonly $fragmentType: FragmentType, ...},
+          ]
         ? ?$FragmentRef<NonNullable<T>>
-        : [+t: T] extends [
-              +t: ReadonlyArray<
-                infer V extends {+$fragmentType: FragmentType, ...},
+        : [readonly t: T] extends [
+              readonly t: ReadonlyArray<
+                infer V extends {readonly $fragmentType: FragmentType, ...},
               >,
             ]
           ? ReadonlyArray<$FragmentRef<V>>
-          : [+t: T] extends [
-                +t: ?ReadonlyArray<
-                  infer V extends {+$fragmentType: FragmentType, ...},
+          : [readonly t: T] extends [
+                readonly t: ?ReadonlyArray<
+                  infer V extends {readonly $fragmentType: FragmentType, ...},
                 >,
               ]
             ? ?ReadonlyArray<$FragmentRef<V>>
-            : [+t: T] extends [
-                  +t: ReadonlyArray<?infer V extends {
-                    +$fragmentType: FragmentType,
+            : [readonly t: T] extends [
+                  readonly t: ReadonlyArray<?infer V extends {
+                    readonly $fragmentType: FragmentType,
                     ...
                   }>,
                 ]
               ? ReadonlyArray<?$FragmentRef<NonNullable<V>>>
-              : [+t: T] extends [
-                    +t: ?ReadonlyArray<?infer V extends {
-                      +$fragmentType: FragmentType,
+              : [readonly t: T] extends [
+                    readonly t: ?ReadonlyArray<?infer V extends {
+                      readonly $fragmentType: FragmentType,
                       ...
                     }>,
                   ]

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<89aac55283629c3240cc0141c4ffac0c>>
+ * @generated SignedSource<<939f07bdf03b5ce0d1564bf36861fd61>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -36,16 +35,16 @@ import {text as todoDescriptionTextResolverType} from "../TodoDescription.js";
   context: TestResolverContextType,
 ) => ?string);
 import type { TodoDescription } from "../TodoDescription.js";
-export type ResolverGCTestWeakQuery$variables = {||};
-export type ResolverGCTestWeakQuery$data = {|
-  +some_todo_description: ?{|
-    +text: ?string,
-  |},
-|};
-export type ResolverGCTestWeakQuery = {|
+export type ResolverGCTestWeakQuery$variables = {};
+export type ResolverGCTestWeakQuery$data = {
+  readonly some_todo_description: ?{
+    readonly text: ?string,
+  },
+};
+export type ResolverGCTestWeakQuery = {
   response: ResolverGCTestWeakQuery$data,
   variables: ResolverGCTestWeakQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

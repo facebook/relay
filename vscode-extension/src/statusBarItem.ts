@@ -18,6 +18,6 @@ export function createStatusBarItem(): StatusBarItem {
   return statusBar;
 }
 
-export function intializeStatusBarItem(context: RelayExtensionContext) {
+export function initializeStatusBarItem(context: RelayExtensionContext) {
   context.statusBar.text = '$(info) Starting...';
 }

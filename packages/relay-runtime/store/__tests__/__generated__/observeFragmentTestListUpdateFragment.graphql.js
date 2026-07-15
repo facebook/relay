@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<51d2f3140697a6a78e07e6c131ee3d1e>>
+ * @generated SignedSource<<f82e286ff017e36e1a57d8a7234ed3f9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type observeFragmentTestListUpdateFragment$fragmentType: FragmentType;
-export type observeFragmentTestListUpdateFragment$data = ReadonlyArray<{|
-  +name: ?string,
-  +$fragmentType: observeFragmentTestListUpdateFragment$fragmentType,
-|}>;
+export type observeFragmentTestListUpdateFragment$data = ReadonlyArray<{
+  readonly name: ?string,
+  readonly $fragmentType: observeFragmentTestListUpdateFragment$fragmentType,
+}>;
 export type observeFragmentTestListUpdateFragment$key = ReadonlyArray<{
-  +$data?: observeFragmentTestListUpdateFragment$data,
-  +$fragmentSpreads: observeFragmentTestListUpdateFragment$fragmentType,
+  readonly $data?: observeFragmentTestListUpdateFragment$data,
+  readonly $fragmentSpreads: observeFragmentTestListUpdateFragment$fragmentType,
   ...
 }>;
 */

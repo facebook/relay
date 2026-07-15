@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2909fba16b71fd3b1936dc93277c101b>>
+ * @generated SignedSource<<1770acb51514fecbf48b69551843cdce>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderAliasedFragmentsTestKitchenSink_user$fragmentType: FragmentType;
-export type RelayReaderAliasedFragmentsTestKitchenSink_user$data = {|
-  +name: ?string,
-  +$fragmentType: RelayReaderAliasedFragmentsTestKitchenSink_user$fragmentType,
-|};
+export type RelayReaderAliasedFragmentsTestKitchenSink_user$data = {
+  readonly name: ?string,
+  readonly $fragmentType: RelayReaderAliasedFragmentsTestKitchenSink_user$fragmentType,
+};
 export type RelayReaderAliasedFragmentsTestKitchenSink_user$key = {
-  +$data?: RelayReaderAliasedFragmentsTestKitchenSink_user$data,
-  +$fragmentSpreads: RelayReaderAliasedFragmentsTestKitchenSink_user$fragmentType,
+  readonly $data?: RelayReaderAliasedFragmentsTestKitchenSink_user$data,
+  readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestKitchenSink_user$fragmentType,
   ...
 };
 */

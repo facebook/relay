@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4329f10af184a627984ee1fd2c34fc5a>>
+ * @generated SignedSource<<438da427eb2015da64c7d34c55d5c3ff>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayConcreteVariablesTest2Fragment$fragmentType: FragmentType;
-export type RelayConcreteVariablesTest2Fragment$data = {|
-  +firstName: ?string,
-  +$fragmentType: RelayConcreteVariablesTest2Fragment$fragmentType,
-|};
+export type RelayConcreteVariablesTest2Fragment$data = {
+  readonly firstName: ?string,
+  readonly $fragmentType: RelayConcreteVariablesTest2Fragment$fragmentType,
+};
 export type RelayConcreteVariablesTest2Fragment$key = {
-  +$data?: RelayConcreteVariablesTest2Fragment$data,
-  +$fragmentSpreads: RelayConcreteVariablesTest2Fragment$fragmentType,
+  readonly $data?: RelayConcreteVariablesTest2Fragment$data,
+  readonly $fragmentSpreads: RelayConcreteVariablesTest2Fragment$fragmentType,
   ...
 };
 */

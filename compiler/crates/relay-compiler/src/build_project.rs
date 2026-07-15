@@ -24,6 +24,7 @@ pub mod get_artifacts_file_hash_map;
 mod log_program_stats;
 mod persist_operations;
 mod project_asts;
+mod shadow_return_conversion;
 mod source_control;
 mod validate;
 
@@ -225,6 +226,10 @@ fn build_raw_program_chunks(
         if !buffer.is_empty() {
             chunks.push(buffer);
         }
+        // LPT (longest-processing-time) scheduling: sort chunks DESC by
+        // definition count so rayon dispatches the biggest chunks first and
+        // smaller chunks fill tail-end idle slots.
+        chunks.sort_by_key(|chunk| std::cmp::Reverse(chunk.len()));
         log_event.stop(chunkify_time);
         chunks
     };
@@ -406,20 +411,29 @@ pub fn build_programs(
         .into_par_iter()
         .map(
             |program| -> Result<(Programs, Vec<Diagnostic>), Vec<Diagnostic>> {
-                // Call validation rules that go beyond type checking.
-                // FIXME: Return non-fatal diagnostics from transforms (only validations for now)
-                let mut diagnostics =
-                    validate_program(config, project_config, &program, log_event)?;
+                let arc_program = Arc::new(program);
 
-                let programs = transform_program(
-                    project_config,
-                    Arc::new(program),
-                    Arc::clone(&base_fragment_names),
-                    Arc::clone(&perf_logger),
-                    log_event,
-                    config.custom_transforms.as_ref(),
-                    config.transferrable_refetchable_query_directives.clone(),
-                )?;
+                // Run validation and transforms concurrently using rayon::join.
+                // Both closures execute within the existing rayon thread pool —
+                // one runs on the current thread, the other is available for
+                // work-stealing by idle rayon threads.
+                let (validate_result, transform_result) = rayon::join(
+                    || validate_program(config, project_config, &arc_program, log_event),
+                    || {
+                        transform_program(
+                            project_config,
+                            Arc::clone(&arc_program),
+                            Arc::clone(&base_fragment_names),
+                            Arc::clone(&perf_logger),
+                            log_event,
+                            config.custom_transforms.as_ref(),
+                            config.transferrable_refetchable_query_directives.clone(),
+                        )
+                    },
+                );
+
+                let mut diagnostics = validate_result?;
+                let programs = transform_result?;
 
                 diagnostics.extend(validate_reader_program(
                     config,
@@ -588,29 +602,28 @@ pub async fn commit_project(
     // Dirty artifacts that should be removed if no longer in the artifacts map
     mut artifacts_to_remove: DashSet<PathBuf, FnvBuildHasher>,
     source_control_update_status: Arc<SourceControlUpdateStatus>,
+    // Pre-spawned Eden hash map RPC handle, started earlier in compiler.rs
+    // to overlap with build_commit_state_time processing.
+    hash_map_handle: Option<get_artifacts_file_hash_map::ArtifactHashMapHandle>,
 ) -> Result<ArtifactMap, BuildProjectFailure> {
     let log_event = perf_logger.create_event("commit_project");
     log_event.string("project", project_config.name.to_string());
     let commit_time = log_event.start("commit_project_time");
 
-    let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
+    // Combine fragments from `source` (retains base-project fragments that
+    // `remove_base_fragments` strips from `typegen`) with fragments from
+    // `typegen` (contains synthesized fragments such as resolver model
+    // fragments that are not present in the raw source program).
+    let fragment_locations = FragmentLocations::new(
+        programs
+            .source
+            .fragments()
+            .chain(programs.typegen.fragments()),
+    );
     if source_control_update_status.is_started() {
         debug!("commit_project cancelled before persisting due to source control updates");
         return Err(BuildProjectFailure::Cancelled);
     }
-
-    // Start hash map prefetch as a background task. The closure extracts
-    // artifact paths synchronously, then the spawned future does the async
-    // Eden Thrift RPC (~5-10s). This overlaps the network I/O with
-    // persist_operations and generate_extra_artifacts below.
-    let hash_map_handle = if !artifacts.is_empty() {
-        config
-            .get_artifacts_file_hash_map
-            .as_ref()
-            .map(|get_fn| tokio::spawn(get_fn(&artifacts)))
-    } else {
-        None
-    };
 
     if let Some(operation_persister) = config
         .create_operation_persister

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<803bcd19d4e96c2a2a980a94302a92d3>>
+ * @generated SignedSource<<b67c8c033c98734b380642ff0b2e5408>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type StrongModel__id$fragmentType: FragmentType;
-export type StrongModel__id$data = {|
-  +id: string,
-  +$fragmentType: StrongModel__id$fragmentType,
-|};
+export type StrongModel__id$data = {
+  readonly id: string,
+  readonly $fragmentType: StrongModel__id$fragmentType,
+};
 export type StrongModel__id$key = {
-  +$data?: StrongModel__id$data,
-  +$fragmentSpreads: StrongModel__id$fragmentType,
+  readonly $data?: StrongModel__id$data,
+  readonly $fragmentSpreads: StrongModel__id$fragmentType,
   ...
 };
 */

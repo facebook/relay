@@ -3,3 +3,38 @@ await-holding-invalid-types = [
     { path = "tracing::span::Entered", reason = "`Entered` is not aware when a function is suspended: https://docs.rs/tracing/latest/tracing/struct.Span.html#in-asynchronous-code" },
     { path = "tracing::span::EnteredSpan", reason = "`EnteredSpan` is not aware when a function is suspended: https://docs.rs/tracing/latest/tracing/struct.Span.html#in-asynchronous-code" },
 ]
+
+[[disallowed-types]]
+path = "rsa::pkcs1v15::DecryptingKey"
+reason = "CVE-2023-49092 / T251991467"
+allow-invalid = true
+
+[[disallowed-types]]
+path = "rsa::pkcs1v15::EncryptingKey"
+reason = "CVE-2023-49092 / T251991467"
+allow-invalid = true
+
+[[disallowed-types]]
+path = "rsa::pkcs1v15::Pkcs1v15Encrypt"
+reason = "CVE-2023-49092 / T251991467"
+allow-invalid = true
+
+[[disallowed-types]]
+path = "rsa::pkcs1v15::Pkcs1v15Sign"
+reason = "CVE-2023-49092 / T251991467"
+allow-invalid = true
+
+[[disallowed-types]]
+path = "rsa::pkcs1v15::Signature"
+reason = "CVE-2023-49092 / T251991467"
+allow-invalid = true
+
+[[disallowed-types]]
+path = "rsa::pkcs1v15::SigningKey"
+reason = "CVE-2023-49092 / T251991467"
+allow-invalid = true
+
+[[disallowed-types]]
+path = "rsa::pkcs1v15::VerifyingKey"
+reason = "CVE-2023-49092 / T251991467"
+allow-invalid = true

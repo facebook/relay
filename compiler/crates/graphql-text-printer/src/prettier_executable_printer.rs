@@ -31,6 +31,7 @@ use crate::prettier_common::format_constant_value;
 use crate::prettier_common::format_type_annotation;
 use crate::prettier_doc_builders::INDENT_WIDTH;
 use crate::prettier_doc_builders::LINE_WIDTH;
+use crate::prettier_doc_builders::balanced_intersperse;
 use crate::prettier_doc_builders::render_doc;
 
 /// Prints an ExecutableDocument in prettier-graphql compatible format.
@@ -48,7 +49,7 @@ pub fn prettier_print_executable_document(document: &ExecutableDocument) -> Stri
         return String::new();
     }
 
-    let doc = RcDoc::intersperse(docs, RcDoc::hardline());
+    let doc = balanced_intersperse(docs, RcDoc::hardline());
     render_doc(doc, LINE_WIDTH)
 }
 
@@ -151,7 +152,7 @@ fn variable_definitions_doc(
         RcDoc::text("(")
             .append(
                 RcDoc::hardline()
-                    .append(RcDoc::intersperse(var_docs, RcDoc::hardline()))
+                    .append(balanced_intersperse(var_docs, RcDoc::hardline()))
                     .nest(INDENT_WIDTH),
             )
             .append(RcDoc::hardline())
@@ -189,7 +190,7 @@ fn selection_set_doc(selections: &[Selection]) -> RcDoc<'static, ()> {
     RcDoc::text("{")
         .append(
             RcDoc::hardline()
-                .append(RcDoc::intersperse(selection_docs, RcDoc::hardline()))
+                .append(balanced_intersperse(selection_docs, RcDoc::hardline()))
                 .nest(INDENT_WIDTH),
         )
         .append(RcDoc::hardline())
@@ -283,7 +284,7 @@ fn arguments_doc(arguments: &[Argument], context_len: usize) -> RcDoc<'static, (
         RcDoc::text("(")
             .append(
                 RcDoc::hardline()
-                    .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+                    .append(balanced_intersperse(arg_docs, RcDoc::hardline()))
                     .nest(INDENT_WIDTH),
             )
             .append(RcDoc::hardline())
@@ -332,7 +333,7 @@ fn directives_for_fragment_doc(directives: &[Directive]) -> RcDoc<'static, ()> {
     }
 
     RcDoc::line()
-        .append(RcDoc::intersperse(docs, RcDoc::line()))
+        .append(balanced_intersperse(docs, RcDoc::line()))
         .group()
 }
 
@@ -354,7 +355,7 @@ fn format_directive_expanded(directive: &Directive) -> RcDoc<'static, ()> {
                 .append(RcDoc::text("("))
                 .append(
                     RcDoc::hardline()
-                        .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+                        .append(balanced_intersperse(arg_docs, RcDoc::hardline()))
                         .nest(INDENT_WIDTH),
                 )
                 .append(RcDoc::hardline())

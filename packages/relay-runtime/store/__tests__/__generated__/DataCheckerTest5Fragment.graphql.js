@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0891907beb9f36688afba54b0e02d315>>
+ * @generated SignedSource<<c33ad40df65db7bb4d2d949756a67233>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,28 +23,18 @@ import type { DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType } from 
 import type { DataCheckerTest5PlainUserNameRenderer_name$fragmentType } from "./DataCheckerTest5PlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest5Fragment$fragmentType: FragmentType;
-export type DataCheckerTest5Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?({|
-    +__typename: "MarkdownUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType,
-  |} | {|
-    +__typename: "PlainUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: DataCheckerTest5Fragment$fragmentType,
-|};
+export type DataCheckerTest5Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType & DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: DataCheckerTest5Fragment$fragmentType,
+};
 export type DataCheckerTest5Fragment$key = {
-  +$data?: DataCheckerTest5Fragment$data,
-  +$fragmentSpreads: DataCheckerTest5Fragment$fragmentType,
+  readonly $data?: DataCheckerTest5Fragment$data,
+  readonly $fragmentSpreads: DataCheckerTest5Fragment$fragmentType,
   ...
 };
 */

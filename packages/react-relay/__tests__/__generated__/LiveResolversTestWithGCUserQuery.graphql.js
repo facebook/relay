@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<75ff9a72b262fe9bcbc4b7ed540fca5c>>
+ * @generated SignedSource<<4e32016d9183a74280c3794199e191dd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type LiveResolversTestWithGCUserQuery$variables = {||};
-export type LiveResolversTestWithGCUserQuery$data = {|
-  +me: ?{|
-    +id: string,
-  |},
-|};
-export type LiveResolversTestWithGCUserQuery = {|
+export type LiveResolversTestWithGCUserQuery$variables = {};
+export type LiveResolversTestWithGCUserQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+  },
+};
+export type LiveResolversTestWithGCUserQuery = {
   response: LiveResolversTestWithGCUserQuery$data,
   variables: LiveResolversTestWithGCUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

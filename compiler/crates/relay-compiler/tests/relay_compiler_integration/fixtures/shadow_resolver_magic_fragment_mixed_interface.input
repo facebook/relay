@@ -1,0 +1,69 @@
+//- UserCombinedPage.js
+// Shadow resolver whose return interface has BOTH a server and a client
+// implementor.
+//
+// `combined_page` returns the client interface `IPage`, implemented by the SERVER
+// type `Page` AND the CLIENT model type `ClientPage`. The shadow edge routes
+// through the `ClientObject` machinery in suppress mode: the client `ClientPage`
+// arm gets its model resolver in `modelResolvers` (read via the @edgeTo
+// dispatch), while the server `Page` arm is transplanted onto the shadowed server
+// field `page` in the main operation. No `ClientEdgeQuery` is generated and
+// `serverObjectOperations` stays empty (the server data is fetched by the
+// transplant, not a refetch).
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- ClientPageResolver.js
+/**
+ * @relayType ClientPage implements IPage
+ */
+export function ClientPage() {}
+
+//- ClientPageTitleResolver.js
+/**
+ * @relayField ClientPage.title: String
+ */
+export function title() {}
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

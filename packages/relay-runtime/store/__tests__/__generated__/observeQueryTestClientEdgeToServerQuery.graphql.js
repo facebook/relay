@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<50d8bfd07fc6abcafe932f5a605a760a>>
+ * @generated SignedSource<<6a68e6815bd8e29ccc394d4b1cead973>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,21 +27,21 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type observeQueryTestClientEdgeToServerQuery$variables = {||};
-export type observeQueryTestClientEdgeToServerQuery$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +name: ?string,
-    |},
-  |},
-|};
-export type observeQueryTestClientEdgeToServerQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type observeQueryTestClientEdgeToServerQuery$variables = {};
+export type observeQueryTestClientEdgeToServerQuery$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly name: ?string,
+    },
+  },
+};
+export type observeQueryTestClientEdgeToServerQuery = {
   response: observeQueryTestClientEdgeToServerQuery$data,
   variables: observeQueryTestClientEdgeToServerQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

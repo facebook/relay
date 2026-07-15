@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c112fdc168751990cf1c5eb2c5a19484>>
+ * @generated SignedSource<<ec5e0aa6e76ce05d90e7619ab224e67d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -27,14 +26,14 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?unknown>);
-export type LiveResolversTest18Query$variables = {||};
-export type LiveResolversTest18Query$data = {|
-  +live_resolver_throws: ?ReturnType<ReturnType<typeof queryLiveResolverThrowsResolverType>["read"]>,
-|};
-export type LiveResolversTest18Query = {|
+export type LiveResolversTest18Query$variables = {};
+export type LiveResolversTest18Query$data = {
+  readonly live_resolver_throws: ?ReturnType<ReturnType<typeof queryLiveResolverThrowsResolverType>["read"]>,
+};
+export type LiveResolversTest18Query = {
   response: LiveResolversTest18Query$data,
   variables: LiveResolversTest18Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

@@ -16,39 +16,39 @@ fragment AnotherFragment on User {
 ==================================== OUTPUT ===================================
 import type { Result } from "relay-runtime";
 import type { AnotherFragment$fragmentType } from "AnotherFragment.graphql";
-export type MyQuery$variables = {||};
-export type MyQuery$data = {|
-  +me: ?{|
-    +id: Result<string, unknown>,
-    +name: ?string,
-    +$fragmentSpreads: AnotherFragment$fragmentType,
-  |},
-|};
-export type MyQuery$rawResponse = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type MyQuery = {|
+export type MyQuery$variables = {};
+export type MyQuery$data = {
+  readonly me: ?{
+    readonly id: Result<string, unknown>,
+    readonly name: ?string,
+    readonly $fragmentSpreads: AnotherFragment$fragmentType,
+  },
+};
+export type MyQuery$rawResponse = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type MyQuery = {
   rawResponse: MyQuery$rawResponse,
   response: MyQuery$data,
   variables: MyQuery$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type AnotherFragment$fragmentType: FragmentType;
-export type AnotherFragment$data = {|
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: AnotherFragment$fragmentType,
-|};
+export type AnotherFragment$data = {
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: AnotherFragment$fragmentType,
+};
 export type AnotherFragment$key = {
-  +$data?: AnotherFragment$data,
-  +$fragmentSpreads: AnotherFragment$fragmentType,
+  readonly $data?: AnotherFragment$data,
+  readonly $fragmentSpreads: AnotherFragment$fragmentType,
   ...
 };

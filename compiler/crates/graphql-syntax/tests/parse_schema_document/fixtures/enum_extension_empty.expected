@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# `extend enum` requires directives or values per the spec.
+enum Foo { A }
+
+extend enum Foo
+==================================== ERROR ====================================
+✖︎ Enum extension should define one of directives or values.
+
+  enum_extension_empty.graphql:5:13
+    4 │ 
+    5 │ extend enum Foo
+      │             ^^^

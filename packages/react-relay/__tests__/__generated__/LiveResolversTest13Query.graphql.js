@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<572f6392773e1a1e5c6ffad1cf3d30d6>>
+ * @generated SignedSource<<1f360d92db46a32a1e4cb34d9eebafd8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -26,19 +25,19 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryLiveConstantClientEdgeResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?{|
-  +id: DataID,
-|}>);
-export type LiveResolversTest13Query$variables = {||};
-export type LiveResolversTest13Query$data = {|
-  +live_constant_client_edge: ?{|
-    +name: ?string,
-  |},
-|};
-export type LiveResolversTest13Query = {|
+) => LiveState<?{
+  readonly id: DataID,
+}>);
+export type LiveResolversTest13Query$variables = {};
+export type LiveResolversTest13Query$data = {
+  readonly live_constant_client_edge: ?{
+    readonly name: ?string,
+  },
+};
+export type LiveResolversTest13Query = {
   response: LiveResolversTest13Query$data,
   variables: LiveResolversTest13Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

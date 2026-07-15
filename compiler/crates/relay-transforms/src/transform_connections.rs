@@ -18,6 +18,7 @@ use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -25,6 +26,7 @@ use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
@@ -34,6 +36,7 @@ use graphql_ir::Value;
 use graphql_ir::Value::Constant;
 use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
+use graphql_ir::associated_data_impl;
 use relay_config::DeferStreamInterface;
 use schema::Schema;
 
@@ -53,6 +56,18 @@ use crate::refetchable_fragment::build_used_global_variables;
 use crate::relay_directive::PLURAL_ARG_NAME;
 use crate::relay_directive::RELAY_DIRECTIVE_NAME;
 use crate::root_variables::InferVariablesVisitor;
+
+/// Metadata attached to the synthetic `{name}__edges` reader fragment that the
+/// connection transform generates for `@connection(prefetchable_pagination:
+/// true)`. It records the document (operation or fragment) the connection field
+/// belonged to. The generated edges artifact is attributed to this source
+/// definition so it is removed together with that source when it is deleted or
+/// renamed, rather than being orphaned under its own synthetic name.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct PrefetchablePaginationEdgesFragmentMetadata {
+    pub parent_document_name: ExecutableDefinitionName,
+}
+associated_data_impl!(PrefetchablePaginationEdgesFragmentMetadata);
 
 pub fn transform_connections(
     program: &Program,
@@ -82,7 +97,7 @@ struct ConnectionTransform<'s> {
     connection_constants: ConnectionConstants,
     current_path: Option<Vec<StringKey>>,
     current_connection_metadata: Vec<ConnectionMetadata>,
-    current_document_name: StringKey,
+    current_document_name: ExecutableDefinitionName,
     fragment_variable_definitions: Vec<VariableDefinition>,
     program: &'s Program,
     defer_stream_interface: &'s DeferStreamInterface,
@@ -101,7 +116,10 @@ impl<'s> ConnectionTransform<'s> {
             connection_constants: ConnectionConstants::default(),
             connection_interface,
             current_path: None,
-            current_document_name: connection_interface.cursor, // Set an arbitrary value to avoid Option
+            // Set an arbitrary value to avoid Option; overwritten per document.
+            current_document_name: ExecutableDefinitionName::OperationDefinitionName(
+                OperationDefinitionName(connection_interface.cursor),
+            ),
             current_connection_metadata: Vec::new(),
             fragment_variable_definitions: Vec::new(),
             program,
@@ -363,18 +381,24 @@ impl<'s> ConnectionTransform<'s> {
                             variable_definitions: self.fragment_variable_definitions.clone(),
                             used_global_variables: vec![],
                             type_condition: edge_type,
-                            directives: vec![Directive {
-                                name: WithLocation::new(location, *RELAY_DIRECTIVE_NAME),
-                                arguments: vec![Argument {
-                                    name: WithLocation::new(location, *PLURAL_ARG_NAME),
-                                    value: WithLocation::new(
-                                        location,
-                                        Constant(ConstantValue::Boolean(true)),
-                                    ),
-                                }],
-                                data: None,
-                                location,
-                            }],
+                            directives: vec![
+                                Directive {
+                                    name: WithLocation::new(location, *RELAY_DIRECTIVE_NAME),
+                                    arguments: vec![Argument {
+                                        name: WithLocation::new(location, *PLURAL_ARG_NAME),
+                                        value: WithLocation::new(
+                                            location,
+                                            Constant(ConstantValue::Boolean(true)),
+                                        ),
+                                    }],
+                                    data: None,
+                                    location,
+                                },
+                                PrefetchablePaginationEdgesFragmentMetadata {
+                                    parent_document_name: self.current_document_name,
+                                }
+                                .into(),
+                            ],
                             selections: fields,
                         };
 
@@ -524,7 +548,7 @@ impl Transformer<'_> for ConnectionTransform<'_> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)
-        self.current_document_name = operation.name.item.0;
+        self.current_document_name = operation.name.item.into();
         self.current_path = Some(Vec::new());
         self.current_connection_metadata = Vec::new();
 
@@ -551,7 +575,7 @@ impl Transformer<'_> for ConnectionTransform<'_> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)
-        self.current_document_name = fragment.name.item.0;
+        self.current_document_name = fragment.name.item.into();
         self.current_path = Some(Vec::new());
         self.current_connection_metadata = Vec::new();
         self.fragment_variable_definitions = fragment.variable_definitions.clone();

@@ -25,7 +25,7 @@ describe('RelayReader', () => {
 
   beforeEach(() => {
     const data = {
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -34,13 +34,13 @@ describe('RelayReader', () => {
         'profilePicture(size:32)': {__ref: 'client:4'},
         'profilePicture(size:80)': {__ref: 'client:5'},
       },
-      '2': {
+      2: {
         __id: '2',
         __typename: 'User',
         id: '2',
         firstName: 'Bob',
       },
-      '3': {
+      3: {
         __id: '3',
         __typename: 'User',
         id: '3',
@@ -454,12 +454,12 @@ describe('RelayReader', () => {
 
   it('reads "handle" fields for query root fragments', () => {
     const records = {
-      '1': {
+      1: {
         __id: '1',
         __typename: 'User',
         __friends_bestFriends: {__ref: 'client:bestFriends'},
       },
-      '2': {
+      2: {
         __id: '2',
         __typename: 'User',
         id: '2',
@@ -540,12 +540,12 @@ describe('RelayReader', () => {
 
   it('reads "handle" fields for fragments', () => {
     const records = {
-      '1': {
+      1: {
         __id: '1',
         __typename: 'User',
         __friends_bestFriends: {__ref: 'client:bestFriends'},
       },
-      '2': {
+      2: {
         __id: '2',
         __typename: 'User',
         id: '2',
@@ -653,7 +653,7 @@ describe('RelayReader', () => {
     it('creates fragment and module pointers for fragment that matches resolved type (1)', () => {
       // When the type matches PlainUserNameRenderer
       const storeData = {
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __typename: 'User',
@@ -705,7 +705,7 @@ describe('RelayReader', () => {
     it('creates fragment and module pointers for fragment that matches resolved type (2)', () => {
       // When the type matches MarkdownUserNameRenderer
       const storeData = {
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __typename: 'User',
@@ -756,7 +756,7 @@ describe('RelayReader', () => {
 
     it('reads data correctly when the resolved type does not match any of the specified cases', () => {
       const storeData = {
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __typename: 'User',
@@ -794,7 +794,7 @@ describe('RelayReader', () => {
 
     it('reads data correctly when the match field record is null', () => {
       const storeData = {
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __typename: 'User',
@@ -822,7 +822,7 @@ describe('RelayReader', () => {
 
     it('reads data correctly when the match field record is missing', () => {
       const storeData = {
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __typename: 'User',
@@ -890,7 +890,7 @@ describe('RelayReader', () => {
     it('creates fragment and module pointers when the type matches a @module selection (1)', () => {
       // When the type matches PlainUserNameRenderer
       const storeData = {
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __typename: 'User',
@@ -942,7 +942,7 @@ describe('RelayReader', () => {
     it('creates fragment and module pointers when the type matches a @module selection (2)', () => {
       // When the type matches MarkdownUserNameRenderer
       const storeData = {
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __typename: 'User',
@@ -993,7 +993,7 @@ describe('RelayReader', () => {
 
     it('reads data correctly when the resolved type does not match any of the @module selections', () => {
       const storeData = {
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __typename: 'User',
@@ -1184,21 +1184,21 @@ describe('RelayReader', () => {
             __typename: TYPE_SCHEMA_TYPE,
             __isActor: true,
           },
-          '1': {
+          1: {
             __id: '1',
             id: '1',
             __typename: 'User',
             firstName: 'Alice',
             'friends(first:3)': {__ref: 'client:1'},
           },
-          '2': {
+          2: {
             __id: '2',
             __typename: 'User',
             id: '2',
             firstName: 'Bob',
             'friends(first:2)': {__ref: 'client:4'},
           },
-          '3': {
+          3: {
             __id: '3',
             __typename: 'User',
             id: '3',
@@ -1504,7 +1504,7 @@ describe('RelayReader', () => {
             __typename: 'Viewer',
             actor: {__ref: '1'},
           },
-          '1': {
+          1: {
             __id: '1',
             __typename: 'Page',
             // NOTE: no 'name' value, server would not return one since
@@ -1549,7 +1549,7 @@ describe('RelayReader', () => {
             __typename: 'Viewer',
             actor: {__ref: '1'},
           },
-          '1': {
+          1: {
             __id: '1',
             __typename: 'Page',
             __isActor: true,
@@ -1629,13 +1629,13 @@ describe('RelayReader', () => {
 
       it('should not have missing data if all data is fetched', () => {
         const storeData = {
-          '1': {
+          1: {
             __id: '1',
             __typename: 'User',
             id: '1',
             __UserProfile_friends_connection: {__ref: 'client:1'},
           },
-          '2': {
+          2: {
             endCursor: '',
             hasNextPage: false,
           },
@@ -1673,13 +1673,13 @@ describe('RelayReader', () => {
 
       it('should not have missing data when all edge data is fetched by pageInfo is missing', () => {
         const storeData = {
-          '1': {
+          1: {
             __id: '1',
             __typename: 'User',
             id: '1',
             __UserProfile_friends_connection: {__ref: 'client:1'},
           },
-          '2': {
+          2: {
             __id: '2',
             __typename: 'User',
             id: '2',
@@ -1729,7 +1729,7 @@ describe('RelayReader', () => {
 
       it('should have missing data if an edge is missing data', () => {
         const storeData = {
-          '1': {
+          1: {
             __id: '1',
             __typename: 'User',
             id: '1',
@@ -1785,12 +1785,12 @@ describe('RelayReader', () => {
     const userTypeID = generateTypeID('User');
     const pageTypeID = generateTypeID('Page');
     const data = {
-      '1': {
+      1: {
         __id: '1',
         __typename: 'User',
         actor: {__ref: '2'},
       },
-      '2': {
+      2: {
         __id: '2',
         __typename: 'Page',
         url: 'https://...',

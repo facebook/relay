@@ -1,0 +1,93 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# Two independent fragment chains each have a field argument conflict.
+# Both errors should be reported in a single compilation pass.
+query TestQuery {
+  me {
+    ...ContainerA
+    ...ContainerB
+  }
+}
+
+# First conflict: nameRenderer with different `supported` arguments
+fragment ConflictA1 on User {
+  nameRenderer(supported: ["PlainUserNameRenderer"]) {
+    ... on PlainUserNameRenderer {
+      plaintext
+    }
+  }
+}
+
+fragment ConflictA2 on User {
+  nameRenderer(supported: ["MarkdownUserNameRenderer"]) {
+    ... on MarkdownUserNameRenderer {
+      markdown
+    }
+  }
+}
+
+fragment ContainerA on User {
+  ...ConflictA1
+  ...ConflictA2
+}
+
+# Second conflict: customRenderer with different `mode` arguments
+fragment ConflictB1 on User {
+  customRenderer(mode: "fast") {
+    value
+  }
+}
+
+fragment ConflictB2 on User {
+  customRenderer(mode: "slow") {
+    value
+  }
+}
+
+fragment ContainerB on User {
+  ...ConflictB1
+  ...ConflictB2
+}
+
+%extensions%
+
+type CustomRendererResult {
+  value: String
+}
+
+extend type User {
+  customRenderer(mode: String): CustomRendererResult
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `customRenderer` to have the same argument values after applying fragment arguments. This field has the applied argument values: (mode: "fast"). If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: customRenderer(...)`.
+
+  multiple-conflicts-across-independent-fragments.invalid.graphql:35:3
+   34 │ fragment ConflictB1 on User {
+   35 │   customRenderer(mode: "fast") {
+      │   ^^^^^^^^^^^^^^
+   36 │     value
+
+  ℹ︎ which conflicts with this field with applied argument values (mode: "slow")
+
+  multiple-conflicts-across-independent-fragments.invalid.graphql:41:3
+   40 │ fragment ConflictB2 on User {
+   41 │   customRenderer(mode: "slow") {
+      │   ^^^^^^^^^^^^^^
+   42 │     value
+
+
+✖︎ Expected all fields on the same parent with the name or alias `nameRenderer` to have the same argument values after applying fragment arguments. This field has the applied argument values: (supported: ["PlainUserNameRenderer"]). If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: nameRenderer(...)`.
+
+  multiple-conflicts-across-independent-fragments.invalid.graphql:13:3
+   12 │ fragment ConflictA1 on User {
+   13 │   nameRenderer(supported: ["PlainUserNameRenderer"]) {
+      │   ^^^^^^^^^^^^
+   14 │     ... on PlainUserNameRenderer {
+
+  ℹ︎ which conflicts with this field with applied argument values (supported: ["MarkdownUserNameRenderer"])
+
+  multiple-conflicts-across-independent-fragments.invalid.graphql:21:3
+   20 │ fragment ConflictA2 on User {
+   21 │   nameRenderer(supported: ["MarkdownUserNameRenderer"]) {
+      │   ^^^^^^^^^^^^
+   22 │     ... on MarkdownUserNameRenderer {

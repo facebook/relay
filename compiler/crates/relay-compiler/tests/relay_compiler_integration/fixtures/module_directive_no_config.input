@@ -1,0 +1,60 @@
+//- src/pages/PostPage.js
+graphql`
+  query PostPageQuery($id: ID!) {
+    blogPost(id: $id) {
+      content {
+        ...BlogPost_post
+          @module(name: "../components/BlogPost")
+        ...FancyBlogPost_post
+          @module(name: "../components/FancyBlogPost")
+      }
+    }
+  }
+`;
+
+//- src/components/BlogPost.js
+graphql`
+  fragment BlogPost_post on BlogPost {
+    title
+  }
+`;
+
+//- src/components/FancyBlogPost.js
+graphql`
+  fragment FancyBlogPost_post on FancyBlogPost {
+    title
+    coverImage
+  }
+`;
+
+//- __generated__/.gitkeep
+
+//- relay.config.json
+{
+  "language": "javascript",
+  "schema": "./schema.graphql",
+  "artifactDirectory": "./__generated__"
+}
+
+//- schema.graphql
+type BlogPost {
+  id: ID!
+  title: String
+}
+
+type FancyBlogPost {
+  id: ID!
+  title: String
+  coverImage: String
+}
+
+union PostContent = BlogPost | FancyBlogPost
+
+type Post {
+  id: ID!
+  content: PostContent
+}
+
+type Query {
+  blogPost(id: ID): Post
+}

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<45ea7493b7adeaa3e749f31dfbe828d5>>
+ * @generated SignedSource<<635d02a46bee5fc54e6dac033b50d263>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType } from "./RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge.graphql";
-export type ClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$variables = {|
+export type ClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge = {|
+};
+export type ClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType,
+  },
+};
+export type ClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge = {
   response: ClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data,
   variables: ClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

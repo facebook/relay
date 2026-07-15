@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aa881c5f23b9795c67f4ebdf2884b03c>>
+ * @generated SignedSource<<6e91093c830bdee2a6ccedcc9a483f7a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -31,14 +30,14 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 ) => ?string);
 declare export opaque type RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$variables = any;
-export type RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$data = {|
-  +id: string,
-  +upper_name: ?string,
-  +$fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$data = {
+  readonly id: string,
+  readonly upper_name: ?string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType,
   ...
 };
 */

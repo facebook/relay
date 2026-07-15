@@ -1,0 +1,22 @@
+# Tests raw response type generation when a field has both interface and
+# concrete type spreads. The concrete branches that implement the interface
+# should include the interface fields as non-optional.
+# Story implements FeedUnit & Node, so it should get FeedUnit fields merged in.
+# PhotoStory also implements FeedUnit & Node.
+# The catch-all should have FeedUnit fields as optional.
+query ExampleQuery @raw_response_type {
+  node(id: "1") {
+    __typename
+    ... on FeedUnit {
+      tracking
+    }
+    ... on Story {
+      name
+    }
+    ... on PhotoStory {
+      photo {
+        uri
+      }
+    }
+  }
+}

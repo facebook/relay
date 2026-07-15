@@ -115,6 +115,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: /path/to/test/fixture/relay-resolver-with-field-and-fragment-args.js:0:110,
             fragment_arguments: Some(
                 [

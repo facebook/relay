@@ -8,6 +8,7 @@
 use std::collections::HashSet;
 use std::fmt::Result as FmtResult;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use ::intern::Lookup;
 use ::intern::intern;
@@ -23,7 +24,6 @@ use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
 use indexmap::IndexMap;
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use relay_config::CustomTypeImport;
 use relay_config::JsModuleFormat;
 use relay_config::TypegenLanguage;
@@ -79,10 +79,8 @@ use crate::writer::Writer;
 
 pub(crate) type CustomScalarsImports = HashSet<(StringKey, PathBuf)>;
 
-lazy_static! {
-    static ref THROW_ON_FIELD_ERROR_DIRECTIVE: DirectiveName =
-        DirectiveName("throwOnFieldError".intern());
-}
+static THROW_ON_FIELD_ERROR_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));
 
 pub(crate) fn write_operation_type_exports_section(
     typegen_context: &'_ TypegenContext<'_>,
@@ -163,6 +161,7 @@ pub(crate) fn write_operation_type_exports_section(
             let mut match_fields = Default::default();
             let raw_response_selections = raw_response_visit_selections(
                 typegen_context,
+                normalization_operation.name.item,
                 &normalization_operation.selections,
                 &mut encountered_enums,
                 &mut match_fields,
@@ -176,6 +175,7 @@ pub(crate) fn write_operation_type_exports_section(
             Some((
                 raw_response_selections_to_babel(
                     typegen_context,
+                    normalization_operation.name.item,
                     raw_response_selections.into_iter(),
                     None,
                     &mut encountered_enums,
@@ -318,6 +318,7 @@ pub(crate) fn write_split_operation_type_exports_section(
 
     let raw_response_selections = raw_response_visit_selections(
         typegen_context,
+        normalization_operation.name.item,
         &normalization_operation.selections,
         &mut encountered_enums,
         &mut match_fields,
@@ -330,6 +331,7 @@ pub(crate) fn write_split_operation_type_exports_section(
     );
     let raw_response_type = raw_response_selections_to_babel(
         typegen_context,
+        normalization_operation.name.item,
         raw_response_selections.into_iter(),
         None,
         &mut encountered_enums,
@@ -842,11 +844,11 @@ fn generate_provided_variables_type(
 }
 
 fn write_input_object_types(
-    input_object_types: impl Iterator<Item = (InputObjectName, ExactObject)>,
+    input_object_types: impl Iterator<Item = (InputObjectName, AST)>,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     for (type_identifier, input_object_type) in input_object_types {
-        writer.write_export_type(type_identifier.lookup(), &input_object_type.into())?;
+        writer.write_export_type(type_identifier.lookup(), &input_object_type)?;
     }
     Ok(())
 }

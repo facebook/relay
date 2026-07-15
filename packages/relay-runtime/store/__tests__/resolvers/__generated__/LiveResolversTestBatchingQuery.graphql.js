@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a8aaa7b8a6ef89e580ceeb40ac6f942b>>
+ * @generated SignedSource<<31ba2913b11c3b3c5652e3df61444421>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -31,20 +30,20 @@ import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverTyp
 // Type assertion validating that `queryCounterNoFragmentWithArgResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterNoFragmentWithArgResolverType as (
-  args: {|
+  args: {
     prefix: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => LiveState<?string>);
-export type LiveResolversTestBatchingQuery$variables = {||};
-export type LiveResolversTestBatchingQuery$data = {|
-  +counter_no_fragment: ?number,
-  +counter_no_fragment_with_arg: ?string,
-|};
-export type LiveResolversTestBatchingQuery = {|
+export type LiveResolversTestBatchingQuery$variables = {};
+export type LiveResolversTestBatchingQuery$data = {
+  readonly counter_no_fragment: ?number,
+  readonly counter_no_fragment_with_arg: ?string,
+};
+export type LiveResolversTestBatchingQuery = {
   response: LiveResolversTestBatchingQuery$data,
   variables: LiveResolversTestBatchingQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

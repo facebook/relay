@@ -1,0 +1,62 @@
+==================================== INPUT ====================================
+query ExampleQuery @raw_response_type {
+  node(id: "test-id") {
+    __typename
+    ... on Node {
+      id
+      ... on Actor {
+        actor_key
+      }
+    }
+    ... on Story {
+      body {
+        text
+      }
+    }
+    ... on Comment {
+      body {
+        text
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = Record<PropertyKey, never>;
+export type ExampleQuery$data = {
+  readonly node: {
+    readonly __typename: string;
+    readonly actor_key?: string;
+    readonly body?: {
+      readonly text: string | null | undefined;
+    } | null | undefined;
+    readonly id: string;
+  } | null | undefined;
+};
+export type ExampleQuery$rawResponse = {
+  readonly node: {
+    readonly __typename: "Comment";
+    readonly __isNode: "Comment";
+    readonly body: {
+      readonly text: string | null | undefined;
+    } | null | undefined;
+    readonly id: string;
+  } | {
+    readonly __typename: "Story";
+    readonly __isNode: "Story";
+    readonly body: {
+      readonly text: string | null | undefined;
+    } | null | undefined;
+    readonly id: string;
+  } | {
+    readonly __typename: string;
+    readonly __isActor?: string;
+    readonly __isNode: string;
+    readonly actor_key?: string;
+    readonly id: string;
+  } | null | undefined;
+};
+export type ExampleQuery = {
+  rawResponse: ExampleQuery$rawResponse;
+  response: ExampleQuery$data;
+  variables: ExampleQuery$variables;
+};

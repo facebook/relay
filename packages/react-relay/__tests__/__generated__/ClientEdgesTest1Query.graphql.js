@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5c2285b5db7a0e30b48151a60765df50>>
+ * @generated SignedSource<<9fb484e359adf4d9ef08560296b08200>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,32 +23,27 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `userClientNodeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientNodeResolverType as (
-  args: {|
+  args: {
     id: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ClientEdgesTest1Query$variables = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ClientEdgesTest1Query$variables = {
   id: string,
-|};
-export type ClientEdgesTest1Query$data = {|
-  +me: ?{|
-    +client_node: ?({|
-      +__typename: "User",
-      +name: ?string,
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |},
-|};
-export type ClientEdgesTest1Query = {|
+};
+export type ClientEdgesTest1Query$data = {
+  readonly me: ?{
+    readonly client_node: ?{
+      readonly name?: ?string,
+    },
+  },
+};
+export type ClientEdgesTest1Query = {
   response: ClientEdgesTest1Query$data,
   variables: ClientEdgesTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

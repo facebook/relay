@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ce084bb6c46149eeb59f846f8619cc41>>
+ * @generated SignedSource<<478e41a151f0a4279308fc01aa2a9244>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,10 +18,10 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type RelayMockPayloadGeneratorTest_fragment59$normalization = {|
-  +id: string,
-  +name?: ?string,
-|};
+export type RelayMockPayloadGeneratorTest_fragment59$normalization = {
+  readonly id: string,
+  readonly name?: ?string,
+};
 
 */
 

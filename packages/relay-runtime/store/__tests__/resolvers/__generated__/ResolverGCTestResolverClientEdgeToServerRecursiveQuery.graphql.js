@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3fb00288c5e2cee6e7bf90ac8f6ef2fb>>
+ * @generated SignedSource<<fc0598956498ce4cc67d68dcd91b7e92>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -29,9 +28,9 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   rootKey: UserAnotherClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -39,27 +38,27 @@ import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolv
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ResolverGCTestResolverClientEdgeToServerRecursiveQuery$variables = {||};
-export type ResolverGCTestResolverClientEdgeToServerRecursiveQuery$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +another_client_edge: ?{|
-        +id: string,
-        +name: ?string,
-      |},
-      +id: string,
-      +name: ?string,
-    |},
-    +name: ?string,
-  |},
-|};
-export type ResolverGCTestResolverClientEdgeToServerRecursiveQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ResolverGCTestResolverClientEdgeToServerRecursiveQuery$variables = {};
+export type ResolverGCTestResolverClientEdgeToServerRecursiveQuery$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly another_client_edge: ?{
+        readonly id: string,
+        readonly name: ?string,
+      },
+      readonly id: string,
+      readonly name: ?string,
+    },
+    readonly name: ?string,
+  },
+};
+export type ResolverGCTestResolverClientEdgeToServerRecursiveQuery = {
   response: ResolverGCTestResolverClientEdgeToServerRecursiveQuery$data,
   variables: ResolverGCTestResolverClientEdgeToServerRecursiveQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

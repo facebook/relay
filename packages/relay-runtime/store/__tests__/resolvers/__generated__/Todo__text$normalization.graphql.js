@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aaf9338d8c4b3f154560b1a0d0c1540f>>
+ * @generated SignedSource<<252759b3d872bb5a0b907dc88fe21d02>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,15 +18,15 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type Todo__text$normalization = {|
-  +content: string,
-  +style: ?{|
-    +color: ?{|
-      +hex: ?string,
-    |},
-    +font_style: ?string,
-  |},
-|};
+export type Todo__text$normalization = {
+  readonly content: string,
+  readonly style: ?{
+    readonly color: ?{
+      readonly hex: ?string,
+    },
+    readonly font_style: ?string,
+  },
+};
 
 */
 

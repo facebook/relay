@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<37fcf1e5ce395cdfafcb31445ced7eea>>
+ * @generated SignedSource<<1691d972ab50df27428f27127f005c56>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,22 +19,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType } from "./RelayModernEnvironmentNoInlineTestWithArgs_noInline.graphql";
 export type PhotoSize = "LARGE" | "SMALL" | "%future added value";
-export type RelayModernEnvironmentNoInlineTestWithArgsQuery$variables = {|
+export type RelayModernEnvironmentNoInlineTestWithArgsQuery$variables = {
   preset?: ?PhotoSize,
   size?: ?ReadonlyArray<?number>,
-|};
-export type RelayModernEnvironmentNoInlineTestWithArgsQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
-  |},
-  +username: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentNoInlineTestWithArgsQuery = {|
+};
+export type RelayModernEnvironmentNoInlineTestWithArgsQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
+  },
+  readonly username: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
+  },
+};
+export type RelayModernEnvironmentNoInlineTestWithArgsQuery = {
   response: RelayModernEnvironmentNoInlineTestWithArgsQuery$data,
   variables: RelayModernEnvironmentNoInlineTestWithArgsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

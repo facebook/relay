@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<20f5d1a95e2a7879bc1fbf6bf01a8c75>>
+ * @generated SignedSource<<709088b878717676df9491169b28f17e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,24 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type EntryPointContainerTestQuery$variables = {|
+export type EntryPointContainerTestQuery$variables = {
   id: string,
-|};
-export type EntryPointContainerTestQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +id: string,
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type EntryPointContainerTestQuery = {|
+};
+export type EntryPointContainerTestQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly name?: ?string,
+  },
+};
+export type EntryPointContainerTestQuery = {
   response: EntryPointContainerTestQuery$data,
   variables: EntryPointContainerTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -111,6 +111,7 @@ Field(
                 },
             ),
             live: None,
+            may_waterfall: None,
             location: /path/to/test/fixture/terse-relay-resolver-semantic-non-null.js:0:388,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

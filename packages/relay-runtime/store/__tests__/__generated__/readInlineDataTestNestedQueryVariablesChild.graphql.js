@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5ad07f1741f654b95c4ffec5fc2bd299>>
+ * @generated SignedSource<<d7b332cfaa674be6acdc903569294257>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { readInlineDataTestNestedQueryVariablesGrandchild$fragmentType } from "./readInlineDataTestNestedQueryVariablesGrandchild.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type readInlineDataTestNestedQueryVariablesChild$fragmentType: FragmentType;
-export type readInlineDataTestNestedQueryVariablesChild$data = {|
-  +$fragmentSpreads: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
-  +$fragmentType: readInlineDataTestNestedQueryVariablesChild$fragmentType,
-|};
+export type readInlineDataTestNestedQueryVariablesChild$data = {
+  readonly $fragmentSpreads: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
+  readonly $fragmentType: readInlineDataTestNestedQueryVariablesChild$fragmentType,
+};
 export type readInlineDataTestNestedQueryVariablesChild$key = {
-  +$data?: readInlineDataTestNestedQueryVariablesChild$data,
-  +$fragmentSpreads: readInlineDataTestNestedQueryVariablesChild$fragmentType,
+  readonly $data?: readInlineDataTestNestedQueryVariablesChild$data,
+  readonly $fragmentSpreads: readInlineDataTestNestedQueryVariablesChild$fragmentType,
   ...
 };
 */

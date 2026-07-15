@@ -103,15 +103,16 @@
 //! need to wrap the entire data structure you serialize in
 //! `WithIntern` during serialization and deserialization:
 //! ```
-//! # use bincode::Result;
 //! # use crate::intern::WithIntern;
 //! # type MyId = crate::intern::string::StringId;
-//! pub fn serialize(v: &[MyId]) -> Result<Vec<u8>> {
-//!     bincode::serialize(&WithIntern(v))
+//! pub fn serialize(v: &[MyId]) -> Result<Vec<u8>, bincode::error::EncodeError> {
+//!     bincode::serde::encode_to_vec(&WithIntern(v), bincode::config::legacy())
 //! }
 //!
-//! pub fn deserialize(encoded: &[u8]) -> Result<Vec<MyId>> {
-//!     WithIntern::strip(bincode::deserialize(encoded))
+//! pub fn deserialize(encoded: &[u8]) -> Result<Vec<MyId>, bincode::error::DecodeError> {
+//!     WithIntern::strip(
+//!         bincode::serde::decode_from_slice(encoded, bincode::config::legacy()).map(|(v, _)| v),
+//!     )
 //! }
 //! ```
 //! Note in particular that dropping a context resets sharing; if you create

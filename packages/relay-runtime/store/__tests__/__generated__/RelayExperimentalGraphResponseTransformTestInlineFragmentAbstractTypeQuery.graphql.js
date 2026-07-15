@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<336487561a89a6cbab5c52f807e27794>>
+ * @generated SignedSource<<660672fa815e33c816416732d43244e5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,24 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$variables = {||};
-export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$data = {|
-  +node: ?({|
-    +__typename: "Comment",
-    +author: ?{|
-      +__typename: "User",
-    |},
-    +name?: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery = {|
+export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$variables = {};
+export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$data = {
+  readonly node: ?{
+    readonly author?: ?{
+      readonly __typename: "User",
+    },
+    readonly name?: ?string,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery = {
   response: RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

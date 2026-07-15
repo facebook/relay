@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<486fdd5daa8cf5eecb782b5d72ad23c1>>
+ * @generated SignedSource<<c45117ffc627ad43416f804924ec1e1c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType: FragmentType;
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data = {|
-  +username: ?string,
-  +$fragmentType: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
-|};
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data = {
+  readonly username: ?string,
+  readonly $fragmentType: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
+};
 export type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$key = {
-  +$data?: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data,
-  +$fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
+  readonly $data?: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
   ...
 };
 */

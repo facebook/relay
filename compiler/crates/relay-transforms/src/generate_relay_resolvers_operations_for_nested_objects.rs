@@ -16,6 +16,7 @@ use common::WithLocation;
 use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
+use docblock_shared::RETURN_FRAGMENT_ARGUMENT_NAME;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
@@ -508,6 +509,51 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
                 .is_some();
 
             if is_model {
+                continue;
+            }
+
+            // A shadow (`@returnFragment`) resolver returning a non-Node SERVER
+            // VALUE type is read INLINE in place off the transplanted record.
+            // It emits a `ServerWeak` `normalizationInfo` with NO
+            // `normalizationNode`, so it needs no nested-object normalization
+            // operation. Skipping it here also avoids the
+            // `RelayResolverServerTypeNotSupported` error this pass raises for a
+            // server return type (correct for plain `@outputType`, which would
+            // double-normalize, but not for read-in-place).
+            let is_shadow_server_value_return =
+                relay_schema::definitions::is_server_weak_shadow_return(
+                    program.schema.as_ref(),
+                    inner_field_type,
+                    schema_config.node_interface_id_field,
+                    directive
+                        .arguments
+                        .named(*RETURN_FRAGMENT_ARGUMENT_NAME)
+                        .is_some(),
+                );
+            if is_shadow_server_value_return {
+                continue;
+            }
+
+            // An abstract interface/union shadow return with a server
+            // (Node or value) implementor alongside a weak/value inline member. The
+            // all-client "fat" normalization cannot be generated (a server member is
+            // not a client type, which `generate_fat_selections_from_type` rejects).
+            // The resolver returns the per-`__typename` identity (`{__typename,
+            // __id}`) instead, so no nested-object normalization operation is needed;
+            // skip it (the typegen site consults the same classifier). The
+            // all-`@weak` abstract return (no server member) is NOT skipped — it
+            // keeps its fat client normalization.
+            let abstract_shadow_return_has_server_implementor =
+                relay_schema::definitions::abstract_shadow_return_has_server_implementor(
+                    program.schema.as_ref(),
+                    inner_field_type,
+                    schema_config.node_interface_id_field,
+                    directive
+                        .arguments
+                        .named(*RETURN_FRAGMENT_ARGUMENT_NAME)
+                        .is_some(),
+                );
+            if abstract_shadow_return_has_server_implementor {
                 continue;
             }
 

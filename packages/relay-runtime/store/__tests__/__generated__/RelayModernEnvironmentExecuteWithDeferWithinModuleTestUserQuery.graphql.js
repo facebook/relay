@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a253fd08b36f69e07b5083022ce592c9>>
+ * @generated SignedSource<<ce6908bdbd5d23cc01a78ca2ac3c1895>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,37 +22,27 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor.graphql";
 import type { RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user.graphql";
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +viewer: ?{|
-    +actor: ?({|
-      +__typename: "User",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data = {
+  readonly node: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
+  },
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data,
   variables: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

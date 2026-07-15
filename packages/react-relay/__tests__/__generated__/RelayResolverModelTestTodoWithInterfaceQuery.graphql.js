@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2090b3f1d5ce6121546ceadc5908225a>>
+ * @generated SignedSource<<3df1ca5fc9033e9fa6b50a7ac27649a0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,25 +24,25 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType as (
-  args: {|
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverModelTestTodoWithInterfaceQuery$variables = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverModelTestTodoWithInterfaceQuery$variables = {
   id: string,
-|};
-export type RelayResolverModelTestTodoWithInterfaceQuery$data = {|
-  +todo_model: ?{|
-    +$fragmentSpreads: RelayResolverModelTestInterfaceFragment$fragmentType,
-  |},
-|};
-export type RelayResolverModelTestTodoWithInterfaceQuery = {|
+};
+export type RelayResolverModelTestTodoWithInterfaceQuery$data = {
+  readonly todo_model: ?{
+    readonly $fragmentSpreads: RelayResolverModelTestInterfaceFragment$fragmentType,
+  },
+};
+export type RelayResolverModelTestTodoWithInterfaceQuery = {
   response: RelayResolverModelTestTodoWithInterfaceQuery$data,
   variables: RelayResolverModelTestTodoWithInterfaceQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -87,15 +86,29 @@ v4 = [
     "alias": null,
     "args": null,
     "kind": "ScalarField",
-    "name": "__typename",
+    "name": "description",
     "storageKey": null
-  },
+  }
+],
+v5 = [
   {
     "alias": null,
     "args": null,
     "kind": "ScalarField",
-    "name": "description",
+    "name": "__typename",
     "storageKey": null
+  },
+  {
+    "kind": "InlineFragment",
+    "selections": (v4/*:: as any*/),
+    "type": "ClientTypeImplementingClientInterface",
+    "abstractKey": null
+  },
+  {
+    "kind": "InlineFragment",
+    "selections": (v4/*:: as any*/),
+    "type": "OtherClientTypeImplementingClientInterface",
+    "abstractKey": null
   }
 ];
 return {
@@ -236,7 +249,7 @@ return {
                       "kind": "LinkedField",
                       "name": "some_interface",
                       "plural": false,
-                      "selections": (v4/*:: as any*/),
+                      "selections": (v5/*:: as any*/),
                       "storageKey": null
                     }
                   },
@@ -265,7 +278,7 @@ return {
                           "kind": "LinkedField",
                           "name": "client_interface",
                           "plural": false,
-                          "selections": (v4/*:: as any*/),
+                          "selections": (v5/*:: as any*/),
                           "storageKey": null
                         }
                       ],

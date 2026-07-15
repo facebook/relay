@@ -18,40 +18,40 @@ query AnotherQuery {
 }
 ==================================== OUTPUT ===================================
 import type { Result } from "relay-runtime";
-export type AnotherQuery$variables = {||};
-export type AnotherQuery$data = {|
-  +me: ?{|
-    +id: Result<string, unknown>,
-    +name: ?string,
-  |},
-|};
-export type AnotherQuery = {|
+export type AnotherQuery$variables = {};
+export type AnotherQuery$data = {
+  readonly me: ?{
+    readonly id: Result<string, unknown>,
+    readonly name: ?string,
+  },
+};
+export type AnotherQuery = {
   response: AnotherQuery$data,
   variables: AnotherQuery$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { Result } from "relay-runtime";
-export type MyQuery$variables = {||};
-export type MyQuery$data = {|
-  +me: ?{|
-    +id: Result<string, unknown>,
-    +name: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type MyQuery$rawResponse = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type MyQuery = {|
+export type MyQuery$variables = {};
+export type MyQuery$data = {
+  readonly me: ?{
+    readonly id: Result<string, unknown>,
+    readonly name: ?string,
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type MyQuery$rawResponse = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type MyQuery = {
   rawResponse: MyQuery$rawResponse,
   response: MyQuery$data,
   variables: MyQuery$variables,
-|};
+};

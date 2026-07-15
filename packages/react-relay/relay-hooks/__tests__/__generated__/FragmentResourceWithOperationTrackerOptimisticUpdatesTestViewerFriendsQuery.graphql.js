@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<28666917348b6e792583d19266a25353>>
+ * @generated SignedSource<<11e08deba00f071399f6009e6eb58559>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,24 +18,24 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType } from "./FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment.graphql";
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$variables = {||};
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +friends: ?{|
-        +edges: ?ReadonlyArray<?{|
-          +node: ?{|
-            +$fragmentSpreads: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
-          |},
-        |}>,
-      |},
-    |},
-  |},
-|};
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery = {|
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$variables = {};
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly friends: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly node: ?{
+            readonly $fragmentSpreads: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
+          },
+        }>,
+      },
+    },
+  },
+};
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery = {
   response: FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$data,
   variables: FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

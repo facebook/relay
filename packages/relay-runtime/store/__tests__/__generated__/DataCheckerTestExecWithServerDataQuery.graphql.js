@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<816b511983477bb38e5621ce50bef432>>
+ * @generated SignedSource<<2efbd2e6be74effb6f4338c48f1085e3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -27,9 +26,9 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 (queryRelayReaderExecResolversTestUserOneResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {best_friend as relayReaderExecResolversTestUserBestFriendResolverType} from "../RelayReader-ExecResolvers-test.js";
 // Type assertion validating that `relayReaderExecResolversTestUserBestFriendResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -37,9 +36,9 @@ import {best_friend as relayReaderExecResolversTestUserBestFriendResolverType} f
   __relay_model_instance: RelayReaderExecResolversTestUser____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {name as relayReaderExecResolversTestUserNameResolverType} from "../RelayReader-ExecResolvers-test.js";
 // Type assertion validating that `relayReaderExecResolversTestUserNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -48,25 +47,25 @@ import {name as relayReaderExecResolversTestUserNameResolverType} from "../Relay
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type DataCheckerTestExecWithServerDataQuery$variables = {||};
-export type DataCheckerTestExecWithServerDataQuery$data = {|
-  +RelayReaderExecResolversTest_user_one: ?{|
-    +best_friend: ?{|
-      +best_friend: ?{|
-        +name: ?string,
-      |},
-      +name: ?string,
-    |},
-    +name: ?string,
-  |},
-  +me: ?{|
-    +name: ?string,
-  |},
-|};
-export type DataCheckerTestExecWithServerDataQuery = {|
+export type DataCheckerTestExecWithServerDataQuery$variables = {};
+export type DataCheckerTestExecWithServerDataQuery$data = {
+  readonly RelayReaderExecResolversTest_user_one: ?{
+    readonly best_friend: ?{
+      readonly best_friend: ?{
+        readonly name: ?string,
+      },
+      readonly name: ?string,
+    },
+    readonly name: ?string,
+  },
+  readonly me: ?{
+    readonly name: ?string,
+  },
+};
+export type DataCheckerTestExecWithServerDataQuery = {
   response: DataCheckerTestExecWithServerDataQuery$data,
   variables: DataCheckerTestExecWithServerDataQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

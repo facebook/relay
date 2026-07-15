@@ -15,15 +15,19 @@
 //!
 //! The resulting schema is the base schema with all references to exclude-defined items removed.
 
+use std::sync::LazyLock;
+
+use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
-use schema::DirectiveValue;
-use schema::EnumValue;
 
 use crate::SchemaSet;
+use crate::SetArgument;
 use crate::SetDirective;
 use crate::SetEnum;
+use crate::SetEnumValue;
+use crate::SetField;
 use crate::SetInputObject;
 use crate::SetInterface;
 use crate::SetMemberType;
@@ -31,8 +35,12 @@ use crate::SetObject;
 use crate::SetScalar;
 use crate::SetType;
 use crate::SetUnion;
-use crate::schema_set::CanBeClientDefinition;
+use crate::schema_set::HasCoordinate;
+use crate::schema_set::SetDirectiveValue;
 use crate::schema_set::SetRootSchema;
+use crate::schema_set::StringKeyNamed;
+
+static EMPTY_STRING_KEY_SET: LazyLock<StringKeySet> = LazyLock::new(StringKeySet::default);
 
 impl SchemaSet {
     /// Removes references from this schema to items that are *defined* in the exclude schema.
@@ -54,9 +62,10 @@ impl SchemaSet {
             .types
             .iter()
             .filter_map(|(name, t)| {
-                // If using `extend T` then the underlying base type is NOT a client definition and should NOT be removed.
-                // Only the fields under this definition should be removed.
-                if t.is_client_definition() {
+                // If using `extend T` then the underlying base type is NOT a top-level
+                // definition and should NOT be removed: only the fields under this
+                // definition should be removed.
+                if t.coordinate().is_none() {
                     None
                 } else {
                     Some(*name)
@@ -67,13 +76,69 @@ impl SchemaSet {
             .types
             .iter()
             .filter_map(|(name, t)| {
-                if !t.is_client_definition() && matches!(t, SetType::Interface(_)) {
+                if t.coordinate().is_some() && matches!(t, SetType::Interface(_)) {
                     Some(*name)
                 } else {
                     None
                 }
             })
             .collect();
+
+        // Collect fields to exclude from extend-only (no top-level coordinate) types.
+        // These types are NOT fully removed, but their fields should be stripped
+        // from the base schema.
+        let mut excluded_fields_by_type: StringKeyMap<StringKeySet> = StringKeyMap::default();
+        for (name, t) in &to_exclude.types {
+            if t.coordinate().is_some() {
+                continue;
+            }
+            let field_names: StringKeySet = match t {
+                SetType::Object(obj) => obj.fields.keys().cloned().collect(),
+                SetType::Interface(iface) => iface.fields.keys().cloned().collect(),
+                _ => continue,
+            };
+            if !field_names.is_empty() {
+                excluded_fields_by_type
+                    .entry(*name)
+                    .or_default()
+                    .extend(field_names);
+            }
+        }
+
+        // Propagate excluded fields from interfaces to all types that implement them.
+        // If `extend interface Foo { fieldX }` is in the exclude schema, then `fieldX`
+        // should also be removed from any type in the base schema that implements `Foo`.
+        let excluded_interface_fields: Vec<(StringKey, StringKeySet)> = excluded_fields_by_type
+            .iter()
+            .filter(|(name, _)| {
+                to_exclude
+                    .types
+                    .get(name)
+                    .is_some_and(|t| matches!(t, SetType::Interface(_)))
+            })
+            .map(|(name, fields)| (*name, fields.clone()))
+            .collect();
+
+        if !excluded_interface_fields.is_empty() {
+            for type_ in self.types.values() {
+                let implemented_interfaces = match type_ {
+                    SetType::Object(obj) => Some(&obj.interfaces),
+                    SetType::Interface(iface) => Some(&iface.interfaces),
+                    _ => None,
+                };
+                if let Some(interfaces) = implemented_interfaces {
+                    for (iface_name, iface_fields) in &excluded_interface_fields {
+                        if interfaces.contains_key(iface_name) {
+                            let type_name = type_.string_key_name();
+                            excluded_fields_by_type
+                                .entry(type_name)
+                                .or_default()
+                                .extend(iface_fields.iter().cloned());
+                        }
+                    }
+                }
+            }
+        }
 
         SchemaSet {
             root_schema: remove_directive_usages_from_root_schema(
@@ -112,6 +177,9 @@ impl SchemaSet {
                                 type_,
                                 &excluded_directive_names,
                                 &excluded_interface_names,
+                                excluded_fields_by_type
+                                    .get(name)
+                                    .unwrap_or(&EMPTY_STRING_KEY_SET),
                                 &excluded_type_names,
                             ),
                         ))
@@ -123,9 +191,20 @@ impl SchemaSet {
 }
 
 fn remove_directive_usages(
-    directives: &[DirectiveValue],
+    directives: &[SetDirectiveValue],
     excluded_directive_names: &StringKeySet,
-) -> Vec<DirectiveValue> {
+) -> Vec<SetDirectiveValue> {
+    directives
+        .iter()
+        .filter(|d| !excluded_directive_names.contains(&d.name.0))
+        .cloned()
+        .collect()
+}
+
+fn remove_set_directive_usages(
+    directives: &[SetDirectiveValue],
+    excluded_directive_names: &StringKeySet,
+) -> Vec<SetDirectiveValue> {
     directives
         .iter()
         .filter(|d| !excluded_directive_names.contains(&d.name.0))
@@ -139,6 +218,7 @@ fn remove_directive_usages_from_root_schema(
 ) -> SetRootSchema {
     SetRootSchema {
         definition: root_schema.definition.clone(),
+        is_extend: root_schema.is_extend,
         directives: remove_directive_usages(&root_schema.directives, excluded_directive_names),
         query_type: root_schema.query_type,
         mutation_type: root_schema.mutation_type,
@@ -152,6 +232,7 @@ fn remove_directive_usages_from_directive(
 ) -> SetDirective {
     SetDirective {
         definition: directive.definition.clone(),
+        coordinate: directive.coordinate.clone(),
         locations: directive.locations.clone(),
         arguments: directive
             .arguments
@@ -159,8 +240,9 @@ fn remove_directive_usages_from_directive(
             .map(|(name, arg)| {
                 (
                     *name,
-                    crate::SetArgument {
+                    SetArgument {
                         definition: arg.definition.clone(),
+                        coordinate: arg.coordinate.clone(),
                         directives: remove_directive_usages(
                             &arg.directives,
                             excluded_directive_names,
@@ -174,6 +256,7 @@ fn remove_directive_usages_from_directive(
             .collect(),
         name: directive.name,
         repeatable: directive.repeatable,
+        directives: remove_directive_usages(&directive.directives, excluded_directive_names),
     }
 }
 
@@ -181,6 +264,7 @@ fn remove_references_from_type(
     type_: &SetType,
     excluded_directive_names: &StringKeySet,
     excluded_interface_names: &StringKeySet,
+    excluded_field_names: &StringKeySet,
     excluded_type_names: &StringKeySet,
 ) -> SetType {
     match type_ {
@@ -195,11 +279,15 @@ fn remove_references_from_type(
             object,
             excluded_directive_names,
             excluded_interface_names,
+            excluded_field_names,
+            excluded_type_names,
         )),
         SetType::Interface(interface) => SetType::Interface(remove_references_from_interface(
             interface,
             excluded_directive_names,
             excluded_interface_names,
+            excluded_field_names,
+            excluded_type_names,
         )),
         SetType::Union(union_) => SetType::Union(remove_references_from_union(
             union_,
@@ -218,6 +306,7 @@ fn remove_references_from_scalar(
 ) -> SetScalar {
     SetScalar {
         definition: scalar.definition.clone(),
+        coordinate: scalar.coordinate.clone(),
         directives: remove_directive_usages(&scalar.directives, excluded_directive_names),
         name: scalar.name,
     }
@@ -229,6 +318,7 @@ fn remove_references_from_enum(
 ) -> SetEnum {
     SetEnum {
         definition: enum_.definition.clone(),
+        coordinate: enum_.coordinate.clone(),
         directives: remove_directive_usages(&enum_.directives, excluded_directive_names),
         values: enum_
             .values
@@ -236,9 +326,11 @@ fn remove_references_from_enum(
             .map(|(name, value)| {
                 (
                     *name,
-                    EnumValue {
+                    SetEnumValue {
+                        definition: value.definition.clone(),
+                        coordinate: value.coordinate.clone(),
                         value: value.value,
-                        directives: remove_directive_usages(
+                        directives: remove_set_directive_usages(
                             &value.directives,
                             excluded_directive_names,
                         ),
@@ -263,24 +355,39 @@ fn remove_interfaces_from_implements(
 }
 
 fn remove_references_from_fields(
-    fields: &StringKeyMap<crate::SetField>,
+    fields: &StringKeyMap<SetField>,
     excluded_directive_names: &StringKeySet,
-) -> StringKeyMap<crate::SetField> {
+    excluded_field_names: &StringKeySet,
+    excluded_type_names: &StringKeySet,
+) -> StringKeyMap<SetField> {
     fields
         .iter()
+        .filter(|(name, field)| {
+            // Remove fields that are defined in the exclude schema's client extensions
+            if excluded_field_names.contains(name) {
+                return false;
+            }
+            // Remove fields whose return type is an excluded type
+            if excluded_type_names.contains(&field.type_.inner()) {
+                return false;
+            }
+            true
+        })
         .map(|(name, field)| {
             (
                 *name,
-                crate::SetField {
+                SetField {
                     definition: field.definition.clone(),
+                    coordinate: field.coordinate.clone(),
                     arguments: field
                         .arguments
                         .iter()
                         .map(|(arg_name, arg)| {
                             (
                                 *arg_name,
-                                crate::SetArgument {
+                                SetArgument {
                                     definition: arg.definition.clone(),
+                                    coordinate: arg.coordinate.clone(),
                                     directives: remove_directive_usages(
                                         &arg.directives,
                                         excluded_directive_names,
@@ -308,12 +415,20 @@ fn remove_references_from_object(
     object: &SetObject,
     excluded_directive_names: &StringKeySet,
     excluded_interface_names: &StringKeySet,
+    excluded_field_names: &StringKeySet,
+    excluded_type_names: &StringKeySet,
 ) -> SetObject {
     SetObject {
         definition: object.definition.clone(),
+        coordinate: object.coordinate.clone(),
         interfaces: remove_interfaces_from_implements(&object.interfaces, excluded_interface_names),
         directives: remove_directive_usages(&object.directives, excluded_directive_names),
-        fields: remove_references_from_fields(&object.fields, excluded_directive_names),
+        fields: remove_references_from_fields(
+            &object.fields,
+            excluded_directive_names,
+            excluded_field_names,
+            excluded_type_names,
+        ),
         name: object.name,
     }
 }
@@ -322,15 +437,23 @@ fn remove_references_from_interface(
     interface: &SetInterface,
     excluded_directive_names: &StringKeySet,
     excluded_interface_names: &StringKeySet,
+    excluded_field_names: &StringKeySet,
+    excluded_type_names: &StringKeySet,
 ) -> SetInterface {
     SetInterface {
         definition: interface.definition.clone(),
+        coordinate: interface.coordinate.clone(),
         interfaces: remove_interfaces_from_implements(
             &interface.interfaces,
             excluded_interface_names,
         ),
         directives: remove_directive_usages(&interface.directives, excluded_directive_names),
-        fields: remove_references_from_fields(&interface.fields, excluded_directive_names),
+        fields: remove_references_from_fields(
+            &interface.fields,
+            excluded_directive_names,
+            excluded_field_names,
+            excluded_type_names,
+        ),
         name: interface.name,
     }
 }
@@ -342,6 +465,7 @@ fn remove_references_from_union(
 ) -> SetUnion {
     SetUnion {
         definition: union_.definition.clone(),
+        coordinate: union_.coordinate.clone(),
         members: union_
             .members
             .iter()
@@ -359,6 +483,7 @@ fn remove_references_from_input_object(
 ) -> SetInputObject {
     SetInputObject {
         definition: input_object.definition.clone(),
+        coordinate: input_object.coordinate.clone(),
         directives: remove_directive_usages(&input_object.directives, excluded_directive_names),
         fields: input_object
             .fields
@@ -366,8 +491,9 @@ fn remove_references_from_input_object(
             .map(|(name, arg)| {
                 (
                     *name,
-                    crate::SetArgument {
+                    SetArgument {
                         definition: arg.definition.clone(),
+                        coordinate: arg.coordinate.clone(),
                         directives: remove_directive_usages(
                             &arg.directives,
                             excluded_directive_names,
@@ -394,11 +520,12 @@ mod tests {
     use super::*;
 
     fn set_from_str(sdl: &str) -> SchemaSet {
-        SchemaSet::from_schema_documents(&[parse_schema_document(
+        SchemaSet::from_base_schema_documents(&[parse_schema_document(
             sdl,
             SourceLocationKey::generated(),
         )
         .unwrap()])
+        .unwrap()
     }
 
     #[test]
@@ -611,6 +738,95 @@ mod tests {
             assert!(union_type.members.contains_key(&"ServerType".intern()));
         } else {
             panic!("MixedUnion should be a union type");
+        }
+    }
+
+    #[test]
+    fn test_remove_fields_from_extend_type() {
+        let base = r#"
+            type MyType {
+                serverField: String!
+                clientField: Int
+                anotherClientField: Boolean
+            }
+        "#;
+
+        let exclude = r#"
+            extend type MyType {
+                clientField: Int
+                anotherClientField: Boolean
+            }
+        "#;
+
+        let result = set_from_str(base).remove_defined_references(&set_from_str(exclude));
+
+        // MyType should still exist (it's an extend, not a full definition)
+        let my_type = result.types.get(&"MyType".intern()).unwrap();
+        if let SetType::Object(obj) = my_type {
+            // serverField should remain
+            assert!(obj.fields.contains_key(&"serverField".intern()));
+            // client fields should be removed
+            assert!(!obj.fields.contains_key(&"clientField".intern()));
+            assert!(!obj.fields.contains_key(&"anotherClientField".intern()));
+        } else {
+            panic!("MyType should be an object type");
+        }
+    }
+
+    #[test]
+    fn test_remove_fields_from_extend_interface_propagates_to_implementors() {
+        let base = r#"
+            interface MyInterface {
+                serverField: String!
+                clientField: Int
+            }
+
+            type MyType implements MyInterface {
+                serverField: String!
+                clientField: Int
+                typeOnlyField: Boolean
+            }
+
+            interface SubInterface implements MyInterface {
+                serverField: String!
+                clientField: Int
+            }
+        "#;
+
+        let exclude = r#"
+            extend interface MyInterface {
+                clientField: Int
+            }
+        "#;
+
+        let result = set_from_str(base).remove_defined_references(&set_from_str(exclude));
+
+        // MyInterface should still exist but without clientField
+        let my_iface = result.types.get(&"MyInterface".intern()).unwrap();
+        if let SetType::Interface(iface) = my_iface {
+            assert!(iface.fields.contains_key(&"serverField".intern()));
+            assert!(!iface.fields.contains_key(&"clientField".intern()));
+        } else {
+            panic!("MyInterface should be an interface type");
+        }
+
+        // MyType implements MyInterface, so clientField should also be removed
+        let my_type = result.types.get(&"MyType".intern()).unwrap();
+        if let SetType::Object(obj) = my_type {
+            assert!(obj.fields.contains_key(&"serverField".intern()));
+            assert!(obj.fields.contains_key(&"typeOnlyField".intern()));
+            assert!(!obj.fields.contains_key(&"clientField".intern()));
+        } else {
+            panic!("MyType should be an object type");
+        }
+
+        // SubInterface implements MyInterface, so clientField should also be removed
+        let sub_iface = result.types.get(&"SubInterface".intern()).unwrap();
+        if let SetType::Interface(iface) = sub_iface {
+            assert!(iface.fields.contains_key(&"serverField".intern()));
+            assert!(!iface.fields.contains_key(&"clientField".intern()));
+        } else {
+            panic!("SubInterface should be an interface type");
         }
     }
 

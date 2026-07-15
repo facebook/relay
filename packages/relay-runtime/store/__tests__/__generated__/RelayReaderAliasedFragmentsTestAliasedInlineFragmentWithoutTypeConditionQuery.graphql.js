@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a8da4dd5db1bd42a9daa7c7e05520569>>
+ * @generated SignedSource<<1c20a6e7a84ddbcbb956b4226405bfc2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$variables = {||};
-export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$data = {|
-  +me: ?{|
-    +aliased_fragment: ?{|
-      +name: string,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery = {|
+export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$variables = {};
+export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$data = {
+  readonly me: ?{
+    readonly aliased_fragment: ?{
+      readonly name: string,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery = {
   response: RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$data,
   variables: RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<11165904217b3216b6a27a93825f2b61>>
+ * @generated SignedSource<<932300e4320b90c15db3f98e4b39eb4c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType } from "./RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile.graphql";
-export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$variables = {||};
-export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
-  |},
-|};
-export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery = {|
+export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$variables = {};
+export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
+  },
+};
+export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery = {
   response: RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$data,
   variables: RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

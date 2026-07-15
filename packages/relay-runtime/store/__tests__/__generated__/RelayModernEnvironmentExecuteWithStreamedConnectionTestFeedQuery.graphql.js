@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d24310eee6577e2cf5ce06fe27079fdd>>
+ * @generated SignedSource<<bb168470627df40c20b71185db935a47>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment.graphql";
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables = {
   after?: ?string,
   enableStream: boolean,
-|};
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data = {|
-  +viewer: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data = {
+  readonly viewer: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery = {
   response: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data,
   variables: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

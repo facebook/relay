@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4f2114418f17cd3a52a3694c396d65f6>>
+ * @generated SignedSource<<2572fed0d3cabca4deaf835152a574bb>>
  */
 
 mod refetchable_fragment;
@@ -143,6 +143,13 @@ async fn fragment_with_relay_plural_invalid() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-with-relay-plural.invalid.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-with-relay-plural.invalid.expected");
     test_fixture(transform_fixture, file!(), "fragment-with-relay-plural.invalid.graphql", "refetchable_fragment/fixtures/fragment-with-relay-plural.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_refetchable_fragments_sharing_common_fragment() {
+    let input = include_str!("refetchable_fragment/fixtures/multiple-refetchable-fragments-sharing-common-fragment.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/multiple-refetchable-fragments-sharing-common-fragment.expected");
+    test_fixture(transform_fixture, file!(), "multiple-refetchable-fragments-sharing-common-fragment.graphql", "refetchable_fragment/fixtures/multiple-refetchable-fragments-sharing-common-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

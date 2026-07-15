@@ -140,7 +140,8 @@ test('Missing required data', async () => {
     expect(results).toEqual([
       {
         error: new Error(
-          "Relay: Missing @required value at path 'name' in 'observeFragmentTestMissingRequiredFragment'.",
+          // fieldValue is null (server returned null), no server error
+          "Relay: Missing @required value at path 'name' in 'observeFragmentTestMissingRequiredFragment': the server returned null.",
         ),
         state: 'error',
       },
@@ -226,7 +227,7 @@ test('Field error with @throwOnFieldError', async () => {
     expect(results).toEqual([
       {
         error: new Error(
-          'Relay: Unexpected response payload - check server logs for details.',
+          "Relay: Received a field error in the server response for field '' in 'observeFragmentTestThrowOnFieldErrorFragment'. Message: error",
         ),
         state: 'error',
       },
@@ -445,7 +446,8 @@ test('Missing required data on plural fragment', async () => {
     expect(results).toEqual([
       {
         error: new Error(
-          "Relay: Missing @required value at path 'name' in 'observeFragmentTestMissingRequiredPluralFragment'.",
+          // fieldValue is null (server returned null), no server error
+          "Relay: Missing @required value at path 'name' in 'observeFragmentTestMissingRequiredPluralFragment': the server returned null.",
         ),
         state: 'error',
       },
@@ -508,7 +510,7 @@ test('Field error with @relay(plural: true) @throwOnFieldError', async () => {
     expect(results).toEqual([
       {
         error: new Error(
-          'Relay: Unexpected response payload - check server logs for details.',
+          "Relay: Received a field error in the server response for field '' in 'observeFragmentTestPluralThrowOnFieldErrorFragment'. Message: error",
         ),
         state: 'error',
       },

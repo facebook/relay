@@ -15,6 +15,8 @@ import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {PayloadData, PayloadError} from '../network/RelayNetworkTypes';
 import type {
   NormalizationActorChange,
+  NormalizationClientEdgeToClientObject,
+  NormalizationClientEdgeToServerObject,
   NormalizationDefer,
   NormalizationInlineFragment,
   NormalizationLinkedField,
@@ -69,18 +71,18 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 export type GetDataID = (
-  fieldValue: {+[string]: unknown},
+  fieldValue: {readonly [string]: unknown},
   typeName: string,
 ) => unknown;
 
 export type NormalizationOptions = {
-  +getDataID: GetDataID,
-  +treatMissingFieldsAsNull: boolean,
-  +deferDeduplicatedFields: boolean,
-  +log: ?LogFunction,
-  +path?: ReadonlyArray<string>,
-  +shouldProcessClientComponents?: ?boolean,
-  +actorIdentifier?: ?ActorIdentifier,
+  readonly getDataID: GetDataID,
+  readonly treatMissingFieldsAsNull: boolean,
+  readonly deferDeduplicatedFields: boolean,
+  readonly log: ?LogFunction,
+  readonly path?: ReadonlyArray<string>,
+  readonly shouldProcessClientComponents?: ?boolean,
+  readonly actorIdentifier?: ?ActorIdentifier,
 };
 
 /**
@@ -127,6 +129,18 @@ class RelayResponseNormalizer {
   _shouldProcessClientComponents: ?boolean;
   _errorTrie: RelayErrorTrie | null;
   _log: ?LogFunction;
+  _s2cExecutions: Map<
+    DataID,
+    {
+      selections: Array<
+        | NormalizationClientEdgeToClientObject
+        | NormalizationClientEdgeToServerObject
+        | NormalizationLiveResolverField
+        | NormalizationResolverField,
+      >,
+      typeName: string,
+    },
+  >;
 
   constructor(
     recordSource: MutableRecordSource,
@@ -149,6 +163,7 @@ class RelayResponseNormalizer {
     this._variables = variables;
     this._shouldProcessClientComponents = options.shouldProcessClientComponents;
     this._log = options.log;
+    this._s2cExecutions = new Map();
   }
 
   normalizeResponse(
@@ -172,6 +187,16 @@ class RelayResponseNormalizer {
       followupPayloads: this._followupPayloads,
       incrementalPlaceholders: this._incrementalPlaceholders,
       isFinal: false,
+      s2cExecutions:
+        this._s2cExecutions.size > 0
+          ? Array.from(this._s2cExecutions.entries()).map(
+              ([recordID, entry]) => ({
+                recordID,
+                selections: entry.selections,
+                typeName: entry.typeName,
+              }),
+            )
+          : undefined,
       source: this._recordSource,
     };
   }
@@ -318,11 +343,24 @@ class RelayResponseNormalizer {
         case 'RelayLiveResolver':
           if (!this._useExecTimeResolvers) {
             this._normalizeResolver(selection, record, data);
+          } else if (selection.resolverInfo?.rootFragment != null) {
+            this._collectS2CExecution(selection, record);
           }
           break;
         case 'ClientEdgeToClientObject':
+        case 'ClientEdgeToServerObject':
+          // Both variants share the same shape (linkedField, backingField,
+          // resolverInfo) for the purposes of normalization. C2S edges are
+          // only intended for the exec-time path (compiler enforces it), so
+          // the !useExecTimeResolvers branch is treated as a regular client
+          // edge backing — the read path will fail later if a C2S edge ever
+          // reaches it without exec-time resolvers enabled.
           if (!this._useExecTimeResolvers) {
             this._normalizeResolver(selection.backingField, record, data);
+          } else if (
+            selection.backingField.resolverInfo?.rootFragment != null
+          ) {
+            this._collectS2CExecution(selection, record);
           }
           break;
         default:
@@ -386,6 +424,24 @@ class RelayResponseNormalizer {
     if (resolver.fragment != null) {
       this._normalizeInlineFragment(resolver.fragment, record, data);
     }
+  }
+
+  _collectS2CExecution(
+    selection:
+      | NormalizationClientEdgeToClientObject
+      | NormalizationClientEdgeToServerObject
+      | NormalizationLiveResolverField
+      | NormalizationResolverField,
+    record: Record,
+  ): void {
+    const recordID = RelayModernRecord.getDataID(record);
+    const typeName = RelayModernRecord.getType(record);
+    let entry = this._s2cExecutions.get(recordID);
+    if (entry == null) {
+      entry = {selections: [], typeName};
+      this._s2cExecutions.set(recordID, entry);
+    }
+    entry.selections.push(selection);
   }
 
   _normalizeDefer(

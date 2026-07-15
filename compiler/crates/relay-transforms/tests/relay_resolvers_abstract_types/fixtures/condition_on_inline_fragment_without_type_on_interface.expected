@@ -30,12 +30,13 @@ fragment conditionOnInlineFragmentWithoutTypeOnInterfaceFragment on Cat {
     ... on Tabby {
       __id @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_id: FieldID(532),
+      #     field_id: FieldID(535),
       #     import_path: "TabbyResolver",
       #     import_name: None,
       #     field_alias: None,
       #     field_path: "name",
       #     field_arguments: [],
+      #     fragment_arguments: [],
       #     live: false,
       #     output_type_info: Legacy,
       #     fragment_data_injection_mode: None,
@@ -46,12 +47,13 @@ fragment conditionOnInlineFragmentWithoutTypeOnInterfaceFragment on Cat {
       
       __id @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_id: FieldID(531),
+      #     field_id: FieldID(534),
       #     import_path: "TabbyResolver",
       #     import_name: None,
       #     field_alias: None,
       #     field_path: "description",
       #     field_arguments: [],
+      #     fragment_arguments: [],
       #     live: false,
       #     output_type_info: Legacy,
       #     fragment_data_injection_mode: None,

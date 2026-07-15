@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ae625bae9cf127c90334a90c1b22cd91>>
+ * @generated SignedSource<<0256a6799975d3829c1adf8d10c59ce6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,7 +18,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useBlockingPaginationFragmentTestUserFragment$fragmentType } from "./useBlockingPaginationFragmentTestUserFragment.graphql";
-export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$variables = {|
+export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$variables = {
   after?: ?string,
   before?: ?string,
   first?: ?number,
@@ -27,18 +26,18 @@ export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$variab
   isViewerFriend?: ?boolean,
   last?: ?number,
   orderby?: ?ReadonlyArray<?string>,
-|};
-export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$data = {|
-  +node: ?{|
-    +actor: ?{|
-      +$fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
-    |},
-  |},
-|};
-export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery = {|
+};
+export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$data = {
+  readonly node: ?{
+    readonly actor: ?{
+      readonly $fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
+    },
+  },
+};
+export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery = {
   response: useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$data,
   variables: useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

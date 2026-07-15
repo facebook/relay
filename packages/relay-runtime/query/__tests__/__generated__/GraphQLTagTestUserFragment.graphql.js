@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<70daa071b3f5c7db227d2a0f4b11e0ff>>
+ * @generated SignedSource<<cbe7dd9e625509ce29dc4335513a8110>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type GraphQLTagTestUserFragment$fragmentType: FragmentType;
-export type GraphQLTagTestUserFragment$data = {|
-  +name: ?string,
-  +$fragmentType: GraphQLTagTestUserFragment$fragmentType,
-|};
+export type GraphQLTagTestUserFragment$data = {
+  readonly name: ?string,
+  readonly $fragmentType: GraphQLTagTestUserFragment$fragmentType,
+};
 export type GraphQLTagTestUserFragment$key = {
-  +$data?: GraphQLTagTestUserFragment$data,
-  +$fragmentSpreads: GraphQLTagTestUserFragment$fragmentType,
+  readonly $data?: GraphQLTagTestUserFragment$data,
+  readonly $fragmentSpreads: GraphQLTagTestUserFragment$fragmentType,
   ...
 };
 */

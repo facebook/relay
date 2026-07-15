@@ -12,24 +12,19 @@ query Viewer($params: JSON) {
 }
 ==================================== OUTPUT ===================================
 import type { JSON } from "TypeDefsFile";
-export type Viewer$variables = {|
+export type Viewer$variables = {
   params?: ?JSON,
-|};
-export type Viewer$data = {|
-  +viewer: ?{|
-    +actor: ?({|
-      +__typename: "User",
-      +profilePicture2: ?{|
-        +__typename: "Image",
-      |},
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |},
-|};
-export type Viewer = {|
+};
+export type Viewer$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly profilePicture2?: ?{
+        readonly __typename: "Image",
+      },
+    },
+  },
+};
+export type Viewer = {
   response: Viewer$data,
   variables: Viewer$variables,
-|};
+};

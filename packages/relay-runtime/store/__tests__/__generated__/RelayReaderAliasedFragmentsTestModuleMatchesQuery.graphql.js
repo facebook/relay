@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7983394c265ae206e7385212b1f060c3>>
+ * @generated SignedSource<<0aec56115db8ef3c29ca37fd9e7df1dc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,22 +20,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTestModuleMatches_user$fragmentType } from "./RelayReaderAliasedFragmentsTestModuleMatches_user.graphql";
-export type RelayReaderAliasedFragmentsTestModuleMatchesQuery$variables = {|
+export type RelayReaderAliasedFragmentsTestModuleMatchesQuery$variables = {
   id: string,
-|};
-export type RelayReaderAliasedFragmentsTestModuleMatchesQuery$data = {|
-  +node: ?{|
-    +aliased_fragment: ?{|
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestModuleMatches_user$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestModuleMatchesQuery = {|
+};
+export type RelayReaderAliasedFragmentsTestModuleMatchesQuery$data = {
+  readonly node: ?{
+    readonly aliased_fragment: ?{
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestModuleMatches_user$fragmentType,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestModuleMatchesQuery = {
   response: RelayReaderAliasedFragmentsTestModuleMatchesQuery$data,
   variables: RelayReaderAliasedFragmentsTestModuleMatchesQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

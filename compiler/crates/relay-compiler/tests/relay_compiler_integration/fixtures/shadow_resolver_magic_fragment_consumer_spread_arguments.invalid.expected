@@ -1,0 +1,64 @@
+==================================== INPUT ====================================
+//- UserCombinedPage.js
+// RED: a consumer fragment spread on a magic-fragment field that carries
+// `@arguments` (its fragment declares `@argumentDefinitions`) is rejected. The
+// inlined operation copy and the kept reader spread resolve variables at
+// different pipeline stages, so a parameterized spread can silently miscompile.
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- PageFields.js
+graphql`fragment PageFields on Page @argumentDefinitions(cond: {type: "Boolean!"}) {
+  title @include(if: $cond)
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      ...PageFields @alias(as: "pageFields") @arguments(cond: true)
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage
+==================================== OUTPUT ===================================
+✖︎ Fragment spread `PageFields` in selections on a shadow resolver field cannot take `@arguments`, and its fragment cannot declare argument definitions. The spread is inlined into the main operation while the reader keeps the spread verbatim; because these resolve variables at different pipeline stages, a parameterized spread can silently miscompile. Remove the fragment's arguments, or inline the selection.
+
+  UserConsumer.js:4:10
+    3 │     combined_page {
+    4 │       ...PageFields @alias(as: "pageFields") @arguments(cond: true)
+      │          ^^^^^^^^^^
+    5 │     }

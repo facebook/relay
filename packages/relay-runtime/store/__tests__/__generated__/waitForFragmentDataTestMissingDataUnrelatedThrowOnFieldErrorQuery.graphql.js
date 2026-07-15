@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<75b3c32052edaf23d2c96ae9bb688eeb>>
+ * @generated SignedSource<<857e502957fb10e2529e517547a108b5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type waitForFragmentDataTestMissingDataUnrelatedThrowOnFieldErrorQuery$variables = {||};
-export type waitForFragmentDataTestMissingDataUnrelatedThrowOnFieldErrorQuery$data = {|
-  +me: ?{|
-    +__typename: "User",
-  |},
-|};
-export type waitForFragmentDataTestMissingDataUnrelatedThrowOnFieldErrorQuery = {|
+export type waitForFragmentDataTestMissingDataUnrelatedThrowOnFieldErrorQuery$variables = {};
+export type waitForFragmentDataTestMissingDataUnrelatedThrowOnFieldErrorQuery$data = {
+  readonly me: ?{
+    readonly __typename: "User",
+  },
+};
+export type waitForFragmentDataTestMissingDataUnrelatedThrowOnFieldErrorQuery = {
   response: waitForFragmentDataTestMissingDataUnrelatedThrowOnFieldErrorQuery$data,
   variables: waitForFragmentDataTestMissingDataUnrelatedThrowOnFieldErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

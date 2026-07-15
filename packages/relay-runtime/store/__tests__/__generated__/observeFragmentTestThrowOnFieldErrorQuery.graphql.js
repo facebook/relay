@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<69ae3c057de39b2c5c050c25d5aed075>>
+ * @generated SignedSource<<27c53c484ff856f3c5cbfeeaced2e2eb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestThrowOnFieldErrorFragment$fragmentType } from "./observeFragmentTestThrowOnFieldErrorFragment.graphql";
-export type observeFragmentTestThrowOnFieldErrorQuery$variables = {||};
-export type observeFragmentTestThrowOnFieldErrorQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: observeFragmentTestThrowOnFieldErrorFragment$fragmentType,
-  |},
-|};
-export type observeFragmentTestThrowOnFieldErrorQuery = {|
+export type observeFragmentTestThrowOnFieldErrorQuery$variables = {};
+export type observeFragmentTestThrowOnFieldErrorQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: observeFragmentTestThrowOnFieldErrorFragment$fragmentType,
+  },
+};
+export type observeFragmentTestThrowOnFieldErrorQuery = {
   response: observeFragmentTestThrowOnFieldErrorQuery$data,
   variables: observeFragmentTestThrowOnFieldErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

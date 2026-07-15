@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<68004c93ba6f2c86b08660aa2fb8991e>>
+ * @generated SignedSource<<8d1ce4afdc9595ff3b3bd02ab6b84a9a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernStoreTestJoeFragment$fragmentType: FragmentType;
-export type RelayModernStoreTestJoeFragment$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: RelayModernStoreTestJoeFragment$fragmentType,
-|};
+export type RelayModernStoreTestJoeFragment$data = {
+  readonly node: ?{
+    readonly name?: ?string,
+  },
+  readonly $fragmentType: RelayModernStoreTestJoeFragment$fragmentType,
+};
 export type RelayModernStoreTestJoeFragment$key = {
-  +$data?: RelayModernStoreTestJoeFragment$data,
-  +$fragmentSpreads: RelayModernStoreTestJoeFragment$fragmentType,
+  readonly $data?: RelayModernStoreTestJoeFragment$data,
+  readonly $fragmentSpreads: RelayModernStoreTestJoeFragment$fragmentType,
   ...
 };
 */

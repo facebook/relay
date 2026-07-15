@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d2174cc9c384a3e4ab82e33e3df52a93>>
+ * @generated SignedSource<<338b5cee842dd35faa6fed962bb4890b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,17 +18,17 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest63Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest63Fragment.graphql";
-export type RelayMockPayloadGeneratorTest63Query$variables = {||};
-export type RelayMockPayloadGeneratorTest63Query$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest63Fragment$fragmentType,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest63Query = {|
+export type RelayMockPayloadGeneratorTest63Query$variables = {};
+export type RelayMockPayloadGeneratorTest63Query$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest63Fragment$fragmentType,
+  },
+};
+export type RelayMockPayloadGeneratorTest63Query = {
   response: RelayMockPayloadGeneratorTest63Query$data,
   variables: RelayMockPayloadGeneratorTest63Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

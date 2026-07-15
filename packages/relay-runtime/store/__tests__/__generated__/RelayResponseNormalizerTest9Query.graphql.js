@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<068c5848334811eddacb5758af761997>>
+ * @generated SignedSource<<42c2d72ea4ba6d7f2edb3c4b5c296338>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,25 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayResponseNormalizerTest5Fragment$fragmentType } from "./RelayResponseNormalizerTest5Fragment.graphql";
-export type RelayResponseNormalizerTest9Query$variables = {|
+export type RelayResponseNormalizerTest9Query$variables = {
   id: string,
-|};
-export type RelayResponseNormalizerTest9Query$data = {|
-  +node: ?({|
-    +__typename: "Feedback",
-    +actors: ?ReadonlyArray<?{|
-      +$fragmentSpreads: RelayResponseNormalizerTest5Fragment$fragmentType,
-    |}>,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayResponseNormalizerTest9Query = {|
+};
+export type RelayResponseNormalizerTest9Query$data = {
+  readonly node: ?{
+    readonly actors?: ?ReadonlyArray<?{
+      readonly $fragmentSpreads: RelayResponseNormalizerTest5Fragment$fragmentType,
+    }>,
+  },
+};
+export type RelayResponseNormalizerTest9Query = {
   response: RelayResponseNormalizerTest9Query$data,
   variables: RelayResponseNormalizerTest9Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

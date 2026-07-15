@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3ef1c25669da1c096ff48ec904470b3a>>
+ * @generated SignedSource<<e2ab8ea3f350e8d7575ca3fcc7a1a55a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,19 +27,19 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?ReadonlyArray<{|
-  +id: DataID,
-|}>);
-export type RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery$variables = {||};
-export type RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery$data = {|
-  +all_astrological_signs: ?ReadonlyArray<{|
-    +notes: ?string,
-  |}>,
-|};
-export type RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery = {|
+) => ?ReadonlyArray<{
+  readonly id: DataID,
+}>);
+export type RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery$variables = {};
+export type RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery$data = {
+  readonly all_astrological_signs: ?ReadonlyArray<{
+    readonly notes: ?string,
+  }>,
+};
+export type RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery = {
   response: RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery$data,
   variables: RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

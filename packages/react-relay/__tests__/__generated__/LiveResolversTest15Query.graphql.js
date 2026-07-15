@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1c2e77412820e368d0164efb07823f32>>
+ * @generated SignedSource<<a1bea78ef10234b188fbc54f2ed4b074>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -26,19 +25,19 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryLiveUserResolverAlwaysSuspendResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?{|
-  +id: DataID,
-|}>);
-export type LiveResolversTest15Query$variables = {||};
-export type LiveResolversTest15Query$data = {|
-  +live_user_resolver_always_suspend: ?{|
-    +name: ?string,
-  |},
-|};
-export type LiveResolversTest15Query = {|
+) => LiveState<?{
+  readonly id: DataID,
+}>);
+export type LiveResolversTest15Query$variables = {};
+export type LiveResolversTest15Query$data = {
+  readonly live_user_resolver_always_suspend: ?{
+    readonly name: ?string,
+  },
+};
+export type LiveResolversTest15Query = {
   response: LiveResolversTest15Query$data,
   variables: LiveResolversTest15Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

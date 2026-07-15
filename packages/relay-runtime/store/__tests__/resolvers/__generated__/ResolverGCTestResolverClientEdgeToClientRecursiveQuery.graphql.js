@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<be534cf9728c04c58fdd4cb07852d8a0>>
+ * @generated SignedSource<<babf32ddc3e84fcb6bc69699d41a1bd6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -38,9 +37,9 @@ import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalS
   rootKey: AstrologicalSignOppositeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -48,24 +47,24 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstr
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$variables = {||};
-export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$data = {|
-  +me: ?{|
-    +astrological_sign: ?{|
-      +name: ?string,
-      +opposite: ?{|
-        +name: ?string,
-      |},
-    |},
-  |},
-|};
-export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$variables = {};
+export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$data = {
+  readonly me: ?{
+    readonly astrological_sign: ?{
+      readonly name: ?string,
+      readonly opposite: ?{
+        readonly name: ?string,
+      },
+    },
+  },
+};
+export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery = {
   response: ResolverGCTestResolverClientEdgeToClientRecursiveQuery$data,
   variables: ResolverGCTestResolverClientEdgeToClientRecursiveQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

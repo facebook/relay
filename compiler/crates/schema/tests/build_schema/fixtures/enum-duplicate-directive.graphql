@@ -1,0 +1,12 @@
+# expected-to-throw
+
+directive @bar on ENUM
+
+enum E @bar @bar {
+  A
+  B
+}
+
+type Query {
+  e: E
+}

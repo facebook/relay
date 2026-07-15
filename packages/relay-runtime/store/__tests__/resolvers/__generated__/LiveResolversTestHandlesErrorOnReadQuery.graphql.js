@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4505bddb52922a07e5b1550b71b95576>>
+ * @generated SignedSource<<84d357d6debed5055c57cc766d65ca85>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -27,14 +26,14 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type LiveResolversTestHandlesErrorOnReadQuery$variables = {||};
-export type LiveResolversTestHandlesErrorOnReadQuery$data = {|
-  +counter_throws_when_odd: ?number,
-|};
-export type LiveResolversTestHandlesErrorOnReadQuery = {|
+export type LiveResolversTestHandlesErrorOnReadQuery$variables = {};
+export type LiveResolversTestHandlesErrorOnReadQuery$data = {
+  readonly counter_throws_when_odd: ?number,
+};
+export type LiveResolversTestHandlesErrorOnReadQuery = {
   response: LiveResolversTestHandlesErrorOnReadQuery$data,
   variables: LiveResolversTestHandlesErrorOnReadQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

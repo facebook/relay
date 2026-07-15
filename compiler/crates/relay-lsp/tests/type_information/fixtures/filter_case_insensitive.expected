@@ -4,7 +4,7 @@
   "string_filter": "fRiEnD"
 }
 ==================================== OUTPUT ===================================
-type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImplementNode {
+type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImplementNode & NodeWithLinkedActor {
   friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], named: String, scale: Float, find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
-  # 53 fields not matching filter
+  # 54 fields not matching filter
 }

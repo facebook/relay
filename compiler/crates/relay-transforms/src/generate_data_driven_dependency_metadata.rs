@@ -134,6 +134,7 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                         {
                             let id = module_metadata.module_id;
                             let component = module_metadata.module_name;
+                            let read_time_resolvers = module_metadata.read_time_resolvers;
 
                             let fragment_spread = inline_fragment
                                 .selections
@@ -159,6 +160,7 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                             fragment: get_normalization_fragment_filename(
                                                 fragment_name,
                                             ),
+                                            read_time_resolvers,
                                         },
                                     );
                                 })
@@ -172,6 +174,7 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                                 fragment: get_normalization_fragment_filename(
                                                     fragment_name,
                                                 ),
+                                                read_time_resolvers,
                                             },
                                         );
                                         map
@@ -203,6 +206,7 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
 struct Branch {
     component: StringKey,
     fragment: StringKey,
+    read_time_resolvers: bool,
 }
 
 type ModuleEntries = StringKeyMap<ModuleEntry>;
@@ -306,10 +310,17 @@ fn get_metadata_from_module_entries(module_entries: &ModuleEntries) -> Vec<(Stri
                         .branches
                         .iter()
                         .sorted_unstable_by(|a, b| a.0.cmp(b.0))
-                        .map(|(id, branch)| format!(
-                            "\"{}\":{{\"component\":\"{}\",\"fragment\":\"{}\"}}",
-                            id, branch.component, branch.fragment
-                        ))
+                        .map(|(id, branch)| {
+                            let read_time_resolvers = if branch.read_time_resolvers {
+                                ",\"read_time_resolvers\":true"
+                            } else {
+                                ""
+                            };
+                            format!(
+                                "\"{}\":{{\"component\":\"{}\",\"fragment\":\"{}\"{}}}",
+                                id, branch.component, branch.fragment, read_time_resolvers
+                            )
+                        })
                         .join(","),
                     entry.plural,
                 ),

@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -20,17 +22,18 @@ use graphql_text_printer::PrinterOptions;
 use graphql_text_printer::print_value;
 use intern::Lookup;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use schema::SDLSchema;
 
 use super::validation_message::ValidationMessage;
 
-lazy_static! {
-    pub static ref REFETCHABLE_NAME: DirectiveName = DirectiveName("refetchable".intern());
-    static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
-    static ref DIRECTIVES_ARG: ArgumentName = ArgumentName("directives".intern());
-    static ref PREFER_FETCHABLE_ARG: ArgumentName = ArgumentName("preferFetchable".intern());
-}
+pub static REFETCHABLE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("refetchable".intern()));
+static QUERY_NAME_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("queryName".intern()));
+static DIRECTIVES_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("directives".intern()));
+static PREFER_FETCHABLE_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("preferFetchable".intern()));
 
 /// Represents the @refetchable Relay directive:
 ///

@@ -49,6 +49,10 @@ fragment NameRendererFragment on User {
       #         "PlainUserNameRenderer_name",
       #     ),
       #     fragment_source_location: relay-match-on-union-plural.graphql:256:282,
+      #     module_source_location: Embedded {
+      #         path: "relay-match-on-union-plural.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -74,6 +78,10 @@ fragment NameRendererFragment on User {
       #         "MarkdownUserNameRenderer_name",
       #     ),
       #     fragment_source_location: relay-match-on-union-plural.graphql:356:385,
+      #     module_source_location: Embedded {
+      #         path: "relay-match-on-union-plural.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

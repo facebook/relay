@@ -1,0 +1,78 @@
+//- PersonComponent.js
+// Test: Fragment spread on a mixed interface with @waterfall.
+// Bicycle is a server type (implements Node) extended to implement
+// ClientOnlyInterface. BestFriend is a client resolver type.
+// Direct field selection works (see client-edge-to-mixed-interface tests),
+// but fragment spreads on the interface should also compile correctly.
+graphql`fragment PersonComponent_user on User {
+  best_friend @waterfall {
+    ...BestFriendFragment
+  }
+}`
+
+//- BestFriendFragment.js
+graphql`fragment BestFriendFragment on ClientOnlyInterface {
+  id
+  wheels
+}`
+
+//- BestFriendResolverFragment.js
+graphql`fragment BestFriendResolverFragment_name on User {
+  __typename
+}`
+
+//- BestFriendResolver.js
+/**
+ * @relayType BestFriend implements ClientOnlyInterface
+ */
+export function BestFriend() {}
+
+//- BestFriendWheelsResolver.js
+/**
+ * @relayField BestFriend.wheels: Int
+ */
+export function wheels() {}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query {
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}
+
+type Bicycle implements Node {
+  id: ID!
+  wheels: Int
+}
+
+//- schema-extensions/extension.graphql
+interface ClientOnlyInterface implements Node {
+  id: ID!
+  wheels: Int
+}
+
+extend type Bicycle implements ClientOnlyInterface
+
+extend type User {
+  best_friend: ClientOnlyInterface @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}

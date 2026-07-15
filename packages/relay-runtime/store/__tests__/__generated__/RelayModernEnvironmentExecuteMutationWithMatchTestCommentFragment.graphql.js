@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4b21843fdcdb2420e912d49a9fbdf5f8>>
+ * @generated SignedSource<<ca2deda0ffd4a1f5d8226d4f0f1ffd3a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,31 +23,21 @@ import type { RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserName
 import type { RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data = {|
-  +actor: ?{|
-    +name: ?string,
-    +nameRenderer: ?({|
-      +__typename: "MarkdownUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
-    |} | {|
-      +__typename: "PlainUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |},
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data = {
+  readonly actor: ?{
+    readonly name: ?string,
+    readonly nameRenderer: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
+    },
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
   ...
 };
 */

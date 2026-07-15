@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3d88ebe9a425d30ba49c7cf49e57a760>>
+ * @generated SignedSource<<18ac32e00b705ac43709efdf63dc0245>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { InlineFragment, ReaderInlineDataFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ResolverFragmentSpreadsTestInlineFragmentSpread$fragmentType: FragmentType;
-export type ResolverFragmentSpreadsTestInlineFragmentSpread$data = {|
-  +address: ?{|
-    +city: ?string,
-    +street: ?string,
-  |},
-  +$fragmentType: ResolverFragmentSpreadsTestInlineFragmentSpread$fragmentType,
-|};
+export type ResolverFragmentSpreadsTestInlineFragmentSpread$data = {
+  readonly address: ?{
+    readonly city: ?string,
+    readonly street: ?string,
+  },
+  readonly $fragmentType: ResolverFragmentSpreadsTestInlineFragmentSpread$fragmentType,
+};
 export type ResolverFragmentSpreadsTestInlineFragmentSpread$key = {
-  +$data?: ResolverFragmentSpreadsTestInlineFragmentSpread$data,
-  +$fragmentSpreads: ResolverFragmentSpreadsTestInlineFragmentSpread$fragmentType,
+  readonly $data?: ResolverFragmentSpreadsTestInlineFragmentSpread$data,
+  readonly $fragmentSpreads: ResolverFragmentSpreadsTestInlineFragmentSpread$fragmentType,
   ...
 };
 */

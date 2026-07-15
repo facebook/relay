@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b41ed14734a98b11c78ca4fb8f527d75>>
+ * @generated SignedSource<<3e766ae8e94f5042d8025c293c296cc0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,37 +21,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { fetchQueryInternalTestMarkdownFragment_name$fragmentType } from "./fetchQueryInternalTestMarkdownFragment_name.graphql";
 import type { fetchQueryInternalTestPlainFragment_name$fragmentType } from "./fetchQueryInternalTestPlainFragment_name.graphql";
-export type fetchQueryInternalTest2Query$variables = {|
+export type fetchQueryInternalTest2Query$variables = {
   id: string,
-|};
-export type fetchQueryInternalTest2Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +nameRenderer: ?({|
-      +__typename: "MarkdownUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType,
-    |} | {|
-      +__typename: "PlainUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: fetchQueryInternalTestPlainFragment_name$fragmentType,
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type fetchQueryInternalTest2Query = {|
+};
+export type fetchQueryInternalTest2Query$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType & fetchQueryInternalTestPlainFragment_name$fragmentType,
+    },
+  },
+};
+export type fetchQueryInternalTest2Query = {
   response: fetchQueryInternalTest2Query$data,
   variables: fetchQueryInternalTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

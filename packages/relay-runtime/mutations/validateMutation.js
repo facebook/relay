@@ -146,6 +146,7 @@ if (__DEV__) {
       case 'TypeDiscriminator':
         return validateAbstractKey(context, selection.abstractKey);
       case 'ClientEdgeToClientObject':
+      case 'ClientEdgeToServerObject':
       case 'LinkedHandle':
       case 'ScalarHandle':
       case 'Defer':

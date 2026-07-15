@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86b17d2b61245c361cc02952e0e4dabc>>
+ * @generated SignedSource<<6fe622c758ebcad7c797745f4299784f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,22 +19,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { usePrefetchableForwardPaginationFragmentTest_user$fragmentType } from "./usePrefetchableForwardPaginationFragmentTest_user.graphql";
-export type usePrefetchableForwardPaginationFragmentRefetchQuery$variables = {|
+export type usePrefetchableForwardPaginationFragmentRefetchQuery$variables = {
   after?: ?string,
   before?: ?string,
   first?: ?number,
   id: string,
   last?: ?number,
-|};
-export type usePrefetchableForwardPaginationFragmentRefetchQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
-  |},
-|};
-export type usePrefetchableForwardPaginationFragmentRefetchQuery = {|
+};
+export type usePrefetchableForwardPaginationFragmentRefetchQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
+  },
+};
+export type usePrefetchableForwardPaginationFragmentRefetchQuery = {
   response: usePrefetchableForwardPaginationFragmentRefetchQuery$data,
   variables: usePrefetchableForwardPaginationFragmentRefetchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -1,0 +1,61 @@
+//- UserCombinedPage.js
+// A consumer spreads a broader-interface fragment whose ONLY arm is dead for the
+// shadowed server type. `combined_page: IPage` shadows `User.page: Page`; the
+// spread `...NodeUserOnly` (on `Node`, valid because `Node` overlaps `IPage`
+// through `Page`) selects only `... on User`, which a `Page` can never be. The
+// whole spread therefore contributes nothing to the server transplant and is
+// dropped entirely (no empty container, no error); the shadowed `page` is fetched
+// with just its pointer selections. The reader still keeps `...NodeUserOnly`
+// masked (read off the resolver-returned pointer).
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- NodeUserOnly.js
+graphql`fragment NodeUserOnly on Node {
+  ... on User {
+    name
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      ...NodeUserOnly @alias(as: "nodeUserOnly")
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User implements Node { id: ID!, name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

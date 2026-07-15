@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<919f54d47574eda5a00d229f285905c3>>
+ * @generated SignedSource<<d39dbb07991b7442d44c619947ace0bf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$data = {|
-  +actors: ?ReadonlyArray<?{|
-    +name: ?string,
-  |}>,
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$data = {
+  readonly actors: ?ReadonlyArray<?{
+    readonly name: ?string,
+  }>,
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
   ...
 };
 */

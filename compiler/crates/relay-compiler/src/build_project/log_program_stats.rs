@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::PointerAddress;
 use fnv::FnvHashMap;
 use graphql_ir::Condition;
@@ -15,11 +17,9 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
-use lazy_static::lazy_static;
 
-lazy_static! {
-    static ref LOG_AST_STATS: bool = std::env::var("RELAY_LOG_AST_STATS").is_ok();
-}
+static LOG_AST_STATS: LazyLock<bool> =
+    LazyLock::new(|| std::env::var("RELAY_LOG_AST_STATS").is_ok());
 
 pub fn print_stats(extra_info: &str, program: &Program) {
     if *LOG_AST_STATS {

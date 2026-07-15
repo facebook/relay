@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9f049834b3add414522db452197ba839>>
+ * @generated SignedSource<<a425ce8b2986a68be2d0016435ad10e5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -50,24 +49,24 @@ import {fancy_description as todoModelFancyDescriptionResolverType} from "../../
   context: TestResolverContextType,
 ) => ?TodoDescription);
 declare export opaque type RelayResolverModelTestInterfaceFragment$fragmentType: FragmentType;
-export type RelayResolverModelTestInterfaceFragment$data = {|
-  +fancy_description: ?{|
-    +some_client_type_with_interface: ?{|
-      +client_interface: {|
-        +__typename: string,
-        +description: ?string,
-      |},
-    |},
-    +some_interface: ?{|
-      +__typename: string,
-      +description: ?string,
-    |},
-  |},
-  +$fragmentType: RelayResolverModelTestInterfaceFragment$fragmentType,
-|};
+export type RelayResolverModelTestInterfaceFragment$data = {
+  readonly fancy_description: ?{
+    readonly some_client_type_with_interface: ?{
+      readonly client_interface: {
+        readonly __typename: string,
+        readonly description: ?string,
+      },
+    },
+    readonly some_interface: ?{
+      readonly __typename: string,
+      readonly description: ?string,
+    },
+  },
+  readonly $fragmentType: RelayResolverModelTestInterfaceFragment$fragmentType,
+};
 export type RelayResolverModelTestInterfaceFragment$key = {
-  +$data?: RelayResolverModelTestInterfaceFragment$data,
-  +$fragmentSpreads: RelayResolverModelTestInterfaceFragment$fragmentType,
+  readonly $data?: RelayResolverModelTestInterfaceFragment$data,
+  readonly $fragmentSpreads: RelayResolverModelTestInterfaceFragment$fragmentType,
   ...
 };
 */
@@ -83,15 +82,29 @@ v1 = [
     "alias": null,
     "args": null,
     "kind": "ScalarField",
-    "name": "__typename",
+    "name": "description",
     "storageKey": null
-  },
+  }
+],
+v2 = [
   {
     "alias": null,
     "args": null,
     "kind": "ScalarField",
-    "name": "description",
+    "name": "__typename",
     "storageKey": null
+  },
+  {
+    "kind": "InlineFragment",
+    "selections": (v1/*:: as any*/),
+    "type": "ClientTypeImplementingClientInterface",
+    "abstractKey": null
+  },
+  {
+    "kind": "InlineFragment",
+    "selections": (v1/*:: as any*/),
+    "type": "OtherClientTypeImplementingClientInterface",
+    "abstractKey": null
   }
 ];
 return {
@@ -136,7 +149,7 @@ return {
           {
             "kind": "ClientEdgeToClientObject",
             "concreteType": null,
-            "modelResolvers": null,
+            "modelResolvers": {},
             "serverObjectOperations": null,
             "backingField": {
               "alias": null,
@@ -160,7 +173,7 @@ return {
               "kind": "LinkedField",
               "name": "some_interface",
               "plural": false,
-              "selections": (v1/*:: as any*/),
+              "selections": (v2/*:: as any*/),
               "storageKey": null
             }
           },
@@ -199,7 +212,7 @@ return {
                   "kind": "LinkedField",
                   "name": "client_interface",
                   "plural": false,
-                  "selections": (v1/*:: as any*/),
+                  "selections": (v2/*:: as any*/),
                   "storageKey": null
                 }
               ],

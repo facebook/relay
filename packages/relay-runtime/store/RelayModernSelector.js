@@ -15,7 +15,7 @@ import type {NormalizationSelectableNode} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  ClientEdgeTraversalPath,
+  ClientEdgeTraversalInfo,
   NormalizationSelector,
   PluralReaderSelector,
   ReaderSelector,
@@ -25,11 +25,11 @@ import type {
 
 const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
-  CLIENT_EDGE_TRAVERSAL_PATH,
   FRAGMENT_OWNER_KEY,
   FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
   FRAGMENTS_KEY,
   ID_KEY,
+  PARENT_CLIENT_EDGE,
 } = require('./RelayStoreUtils');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
@@ -78,7 +78,7 @@ function getSingularSelector(
   const dataID = item[ID_KEY];
   const fragments = item[FRAGMENTS_KEY];
   const mixedOwner = item[FRAGMENT_OWNER_KEY];
-  const mixedClientEdgeTraversalPath = item[CLIENT_EDGE_TRAVERSAL_PATH];
+  const mixedParentClientEdge = item[PARENT_CLIENT_EDGE];
   if (
     typeof dataID === 'string' &&
     typeof fragments === 'object' &&
@@ -87,12 +87,11 @@ function getSingularSelector(
     fragments[fragment.name] !== null &&
     typeof mixedOwner === 'object' &&
     mixedOwner !== null &&
-    (mixedClientEdgeTraversalPath == null ||
-      Array.isArray(mixedClientEdgeTraversalPath))
+    (mixedParentClientEdge == null || typeof mixedParentClientEdge === 'object')
   ) {
     const owner: RequestDescriptor = mixedOwner as $FlowFixMe;
-    const clientEdgeTraversalPath: ?ClientEdgeTraversalPath =
-      mixedClientEdgeTraversalPath as $FlowFixMe;
+    const parentClientEdge: ?ClientEdgeTraversalInfo =
+      mixedParentClientEdge as $FlowFixMe;
 
     const argumentVariables = fragments[fragment.name];
     const fragmentVariables = getFragmentVariables(
@@ -112,7 +111,7 @@ function getSingularSelector(
       fragmentVariables,
       owner,
       isWithinUnmatchedTypeRefinement,
-      clientEdgeTraversalPath,
+      parentClientEdge,
     );
   }
 
@@ -417,9 +416,9 @@ function areEqualSingularSelectors(
     areEqualOwners(thisSelector.owner, thatSelector.owner) &&
     thisSelector.isWithinUnmatchedTypeRefinement ===
       thatSelector.isWithinUnmatchedTypeRefinement &&
-    areEqualClientEdgeTraversalPaths(
-      thisSelector.clientEdgeTraversalPath,
-      thatSelector.clientEdgeTraversalPath,
+    areEqualParentClientEdges(
+      thisSelector.parentClientEdge,
+      thatSelector.parentClientEdge,
     )
   );
 }
@@ -442,37 +441,20 @@ function areEqualOwners(
   }
 }
 
-function areEqualClientEdgeTraversalPaths(
-  thisPath: ClientEdgeTraversalPath | null,
-  thatPath: ClientEdgeTraversalPath | null,
+function areEqualParentClientEdges(
+  thisEdge: ClientEdgeTraversalInfo | null,
+  thatEdge: ClientEdgeTraversalInfo | null,
 ): boolean {
-  if (thisPath === thatPath) {
+  if (thisEdge === thatEdge) {
     return true;
   }
-  if (
-    thisPath == null ||
-    thatPath == null ||
-    thisPath.length !== thatPath.length
-  ) {
+  if (thisEdge == null || thatEdge == null) {
     return false;
   }
-  let idx = thisPath.length;
-  while (idx--) {
-    const a = thisPath[idx];
-    const b = thatPath[idx];
-    if (a === b) {
-      continue;
-    }
-    if (
-      a == null ||
-      b == null ||
-      a.clientEdgeDestinationID !== b.clientEdgeDestinationID ||
-      a.readerClientEdge !== b.readerClientEdge
-    ) {
-      return false;
-    }
-  }
-  return true;
+  return (
+    thisEdge.clientEdgeDestinationID === thatEdge.clientEdgeDestinationID &&
+    thisEdge.readerClientEdge === thatEdge.readerClientEdge
+  );
 }
 
 /**
@@ -516,10 +498,10 @@ function createReaderSelector(
   variables: Variables,
   request: RequestDescriptor,
   isWithinUnmatchedTypeRefinement: boolean = false,
-  clientEdgeTraversalPath: ?ClientEdgeTraversalPath,
+  parentClientEdge: ?ClientEdgeTraversalInfo,
 ): SingularReaderSelector {
   return {
-    clientEdgeTraversalPath: clientEdgeTraversalPath ?? null,
+    parentClientEdge: parentClientEdge ?? null,
     dataID,
     isWithinUnmatchedTypeRefinement,
     kind: 'SingularReaderSelector',

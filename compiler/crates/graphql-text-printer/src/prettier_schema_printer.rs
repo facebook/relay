@@ -15,6 +15,7 @@
 use graphql_syntax::ConstantDirective;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveDefinition;
+use graphql_syntax::DirectiveDefinitionExtension;
 use graphql_syntax::DirectiveLocation;
 use graphql_syntax::EnumTypeDefinition;
 use graphql_syntax::EnumTypeExtension;
@@ -42,6 +43,7 @@ use pretty::RcDoc;
 
 use crate::prettier_doc_builders::INDENT_WIDTH;
 use crate::prettier_doc_builders::LINE_WIDTH;
+use crate::prettier_doc_builders::balanced_intersperse;
 use crate::prettier_doc_builders::constant_argument_doc;
 use crate::prettier_doc_builders::constant_directive_doc;
 use crate::prettier_doc_builders::constant_directives_doc;
@@ -90,6 +92,9 @@ fn type_system_definition_doc(definition: &TypeSystemDefinition) -> RcDoc<'stati
         TypeSystemDefinition::ScalarTypeDefinition(def) => scalar_type_definition_doc(def),
         TypeSystemDefinition::ScalarTypeExtension(ext) => scalar_type_extension_doc(ext),
         TypeSystemDefinition::DirectiveDefinition(def) => directive_definition_doc(def),
+        TypeSystemDefinition::DirectiveDefinitionExtension(ext) => {
+            directive_definition_extension_doc(ext)
+        }
     }
 }
 
@@ -151,7 +156,7 @@ fn operation_type_fields_doc(fields: &[OperationTypeDefinition]) -> RcDoc<'stati
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(field_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -353,7 +358,7 @@ fn union_members_doc(
 
         RcDoc::text(" =")
             .append(RcDoc::hardline())
-            .append(RcDoc::intersperse(member_docs, RcDoc::hardline()))
+            .append(balanced_intersperse(member_docs, RcDoc::hardline()))
     } else {
         RcDoc::text(single_line)
     }
@@ -415,7 +420,7 @@ fn enum_values_doc(values: &[EnumValueDefinition]) -> RcDoc<'static, ()> {
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(value_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(value_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -495,7 +500,7 @@ fn input_fields_doc(fields: &[InputValueDefinition]) -> RcDoc<'static, ()> {
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(field_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -555,10 +560,21 @@ fn directive_definition_doc(def: &DirectiveDefinition) -> RcDoc<'static, ()> {
     let args = def.arguments.as_ref().map(|a| &a.items[..]);
     let locations_str = format_locations_inline(&def.locations);
     let repeatable_str = if def.repeatable { " repeatable" } else { "" };
+    let directives_inline = if def.directives.is_empty() {
+        String::new()
+    } else {
+        format!(
+            " {}",
+            render_doc(constant_directives_doc(&def.directives), LINE_WIDTH)
+        )
+    };
 
     let prefix = format!("directive @{}", def.name.value);
     let args_inline = args.map_or(String::new(), format_arguments_single_line);
-    let suffix = format!("{} on {}", repeatable_str, locations_str);
+    let suffix = format!(
+        "{}{} on {}",
+        directives_inline, repeatable_str, locations_str
+    );
 
     let has_arg_descriptions = args.is_some_and(|a| a.iter().any(|arg| arg.description.is_some()));
 
@@ -588,15 +604,31 @@ fn directive_definition_doc(def: &DirectiveDefinition) -> RcDoc<'static, ()> {
             doc = doc
                 .append(RcDoc::text("("))
                 .append(RcDoc::hardline())
-                .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+                .append(balanced_intersperse(arg_docs, RcDoc::hardline()))
                 .append(RcDoc::hardline())
                 .append(RcDoc::text(")"));
         }
         doc = doc
+            .append(RcDoc::text(directives_inline))
             .append(RcDoc::text(repeatable_str))
             .append(RcDoc::text(" on "))
             .append(RcDoc::text(locations_str));
     }
+
+    doc.append(RcDoc::hardline())
+}
+
+fn directive_definition_extension_doc(ext: &DirectiveDefinitionExtension) -> RcDoc<'static, ()> {
+    let mut doc = RcDoc::text("extend directive @");
+    doc = doc.append(RcDoc::text(ext.name.value.to_string()));
+
+    let prefix_len = "extend directive @".len() + ext.name.value.to_string().len();
+    doc = doc.append(directives_with_suffix_doc(
+        &ext.directives,
+        prefix_len,
+        0,
+        INDENT_WIDTH,
+    ));
 
     doc.append(RcDoc::hardline())
 }
@@ -622,7 +654,7 @@ fn field_definitions_doc(fields: &[FieldDefinition]) -> RcDoc<'static, ()> {
 
     RcDoc::text(" {")
         .append(RcDoc::hardline())
-        .append(RcDoc::intersperse(field_docs, RcDoc::hardline()))
+        .append(balanced_intersperse(field_docs, RcDoc::hardline()))
         .append(RcDoc::hardline())
         .append(RcDoc::text("}"))
 }
@@ -703,7 +735,7 @@ fn arguments_definition_doc(
 
         RcDoc::text("(")
             .append(RcDoc::hardline())
-            .append(RcDoc::intersperse(arg_docs, RcDoc::hardline()))
+            .append(balanced_intersperse(arg_docs, RcDoc::hardline()))
             .append(RcDoc::hardline())
             .append(RcDoc::text("  )"))
     }
@@ -759,11 +791,10 @@ fn input_value_definition_doc(
                 // Check if the line with " = []" would exceed LINE_WIDTH
                 // current_pos + " = ".len() + "[]".len() = current_pos + 5
                 if current_pos + 5 > LINE_WIDTH {
-                    // Expand empty list to [\n\n] with proper indent
+                    // Expand empty list to [\n] with proper indent
                     let indent_str = " ".repeat(base_indent);
                     doc = doc
                         .append(RcDoc::text("["))
-                        .append(RcDoc::hardline())
                         .append(RcDoc::hardline())
                         .append(RcDoc::text(indent_str))
                         .append(RcDoc::text("]"));
@@ -1451,6 +1482,44 @@ mod tests {
                 "    )",
                 "}",
             ]
+        );
+    }
+
+    /// End-to-end test: a type with 5000 fields must not stack-overflow when
+    /// printed on a 1 MB thread stack (Windows default). Before the
+    /// `balanced_intersperse` fix, `RcDoc::intersperse` built a linear chain
+    /// whose recursive `Drop` overflowed.
+    #[test]
+    fn test_large_type_no_stack_overflow_1mb() {
+        let result = std::thread::Builder::new()
+            .name("1mb-schema-test".into())
+            .stack_size(1024 * 1024) // 1 MB
+            .spawn(|| {
+                let n = 5000;
+                let fields: Vec<String> =
+                    (0..n).map(|i| format!("  field_{}: String", i)).collect();
+                let source = format!("type HugeType {{\n{}\n}}", fields.join("\n"));
+                let document = graphql_syntax::parse_schema_document(
+                    &source,
+                    common::SourceLocationKey::generated(),
+                )
+                .expect("should parse schema with 5000 fields");
+                let output = prettier_print_schema_document(&document);
+                assert!(
+                    output.contains("field_0: String"),
+                    "output should contain field_0"
+                );
+                assert!(
+                    output.contains(&format!("field_{}: String", n - 1)),
+                    "output should contain last field"
+                );
+            })
+            .expect("should spawn thread")
+            .join();
+
+        assert!(
+            result.is_ok(),
+            "thread panicked or aborted (stack overflow?)"
         );
     }
 

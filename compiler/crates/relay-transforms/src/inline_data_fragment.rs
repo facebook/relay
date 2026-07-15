@@ -6,6 +6,7 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -25,15 +26,13 @@ use graphql_ir::Transformer;
 use graphql_ir::VariableDefinition;
 use graphql_ir::associated_data_impl;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use thiserror::Error;
 
 use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
-lazy_static! {
-    pub static ref INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("inline".intern());
-}
+pub static INLINE_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("inline".intern()));
 
 pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = InlineDataFragmentsTransform::new(program);

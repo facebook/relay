@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a1018732a92bc179bc2c4babcd6da58b>>
+ * @generated SignedSource<<14e9aa102bc9a5d667d4e5f36b52d6f9>>
  */
 
 mod updatable_fragment_spread;
@@ -167,8 +167,22 @@ async fn updatable_fragment_spread_in_inline_fragment_without_typename_invalid()
 }
 
 #[tokio::test]
-async fn updatable_fragment_spread_top_level_invalid() {
-    let input = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level.invalid.graphql");
-    let expected = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level.invalid.expected");
-    test_fixture(transform_fixture, file!(), "updatable_fragment_spread_top_level.invalid.graphql", "updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level.invalid.expected", input, expected).await;
+async fn updatable_fragment_spread_top_level() {
+    let input = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level.graphql");
+    let expected = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level.expected");
+    test_fixture(transform_fixture, file!(), "updatable_fragment_spread_top_level.graphql", "updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_fragment_spread_top_level_same_type() {
+    let input = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level_same_type.graphql");
+    let expected = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level_same_type.expected");
+    test_fixture(transform_fixture, file!(), "updatable_fragment_spread_top_level_same_type.graphql", "updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level_same_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_fragment_spread_top_level_subtype() {
+    let input = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level_subtype.graphql");
+    let expected = include_str!("updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level_subtype.expected");
+    test_fixture(transform_fixture, file!(), "updatable_fragment_spread_top_level_subtype.graphql", "updatable_fragment_spread/fixtures/updatable_fragment_spread_top_level_subtype.expected", input, expected).await;
 }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<30a2589279b0b71beddc8207c0e30f07>>
+ * @generated SignedSource<<b60b5d56e975f89f8b248c73a4bd7069>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type CounterSuspendsWhenOdd$fragmentType: FragmentType;
-export type CounterSuspendsWhenOdd$data = {|
-  +me: ?{|
-    +__id: string,
-  |},
-  +$fragmentType: CounterSuspendsWhenOdd$fragmentType,
-|};
+export type CounterSuspendsWhenOdd$data = {
+  readonly me: ?{
+    readonly __id: string,
+  },
+  readonly $fragmentType: CounterSuspendsWhenOdd$fragmentType,
+};
 export type CounterSuspendsWhenOdd$key = {
-  +$data?: CounterSuspendsWhenOdd$data,
-  +$fragmentSpreads: CounterSuspendsWhenOdd$fragmentType,
+  readonly $data?: CounterSuspendsWhenOdd$data,
+  readonly $fragmentSpreads: CounterSuspendsWhenOdd$fragmentType,
   ...
 };
 */

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e35532e8fbcdf59da96a4cacdb04836f>>
+ * @generated SignedSource<<1024aa76da24fc3f114dcba1171c68d6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type DataCheckerTest3Query$variables = {||};
-export type DataCheckerTest3Query$data = {|
-  +me: ?{|
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type DataCheckerTest3Query = {|
+export type DataCheckerTest3Query$variables = {};
+export type DataCheckerTest3Query$data = {
+  readonly me: ?{
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type DataCheckerTest3Query = {
   response: DataCheckerTest3Query$data,
   variables: DataCheckerTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

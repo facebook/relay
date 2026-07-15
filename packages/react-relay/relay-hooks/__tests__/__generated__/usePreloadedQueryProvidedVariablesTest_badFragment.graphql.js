@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fc8a9eaddb3051f8340fecb4ff4d73a8>>
+ * @generated SignedSource<<64cecac9b0cf296898d280553609f7c1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType: FragmentType;
-export type usePreloadedQueryProvidedVariablesTest_badFragment$data = {|
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
-|};
+export type usePreloadedQueryProvidedVariablesTest_badFragment$data = {
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
+};
 export type usePreloadedQueryProvidedVariablesTest_badFragment$key = {
-  +$data?: usePreloadedQueryProvidedVariablesTest_badFragment$data,
-  +$fragmentSpreads: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
+  readonly $data?: usePreloadedQueryProvidedVariablesTest_badFragment$data,
+  readonly $fragmentSpreads: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
   ...
 };
 */

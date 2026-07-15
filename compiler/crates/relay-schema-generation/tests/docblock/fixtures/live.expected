@@ -73,6 +73,7 @@ Field(
                     key_location: module.js:433:451,
                 },
             ),
+            may_waterfall: None,
             location: module.js:409:413,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

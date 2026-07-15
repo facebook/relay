@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<18ce066704834777db9c28570f66d213>>
+ * @generated SignedSource<<aafd66fad171443d3909114f15e5f6dd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,13 +29,13 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type LiveResolversTest6Fragment$fragmentType: FragmentType;
-export type LiveResolversTest6Fragment$data = {|
-  +user_name_and_counter_suspends_when_odd: ?string,
-  +$fragmentType: LiveResolversTest6Fragment$fragmentType,
-|};
+export type LiveResolversTest6Fragment$data = {
+  readonly user_name_and_counter_suspends_when_odd: ?string,
+  readonly $fragmentType: LiveResolversTest6Fragment$fragmentType,
+};
 export type LiveResolversTest6Fragment$key = {
-  +$data?: LiveResolversTest6Fragment$data,
-  +$fragmentSpreads: LiveResolversTest6Fragment$fragmentType,
+  readonly $data?: LiveResolversTest6Fragment$data,
+  readonly $fragmentSpreads: LiveResolversTest6Fragment$fragmentType,
   ...
 };
 */

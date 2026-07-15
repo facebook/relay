@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0cd53ff0d90c35ffa584843f4ed8bc76>>
+ * @generated SignedSource<<30507304c0220f919d34714ac9994676>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,37 +17,29 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTest8ChangeNameBirthdayWithNameMutation$variables = {|
+};
+export type validateMutationTest8ChangeNameBirthdayWithNameMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTest8ChangeNameBirthdayWithNameMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?({|
-      +__typename: "Page",
-      +name: ?string,
-      +username: ?string,
-    |} | {|
-      +__typename: "User",
-      +birthdate: ?{|
-        +day: ?number,
-        +month: ?number,
-        +year: ?number,
-      |},
-      +name: ?string,
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |},
-|};
-export type validateMutationTest8ChangeNameBirthdayWithNameMutation = {|
+};
+export type validateMutationTest8ChangeNameBirthdayWithNameMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly birthdate?: ?{
+        readonly day: ?number,
+        readonly month: ?number,
+        readonly year: ?number,
+      },
+      readonly name: ?string,
+      readonly username?: ?string,
+    },
+  },
+};
+export type validateMutationTest8ChangeNameBirthdayWithNameMutation = {
   response: validateMutationTest8ChangeNameBirthdayWithNameMutation$data,
   variables: validateMutationTest8ChangeNameBirthdayWithNameMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

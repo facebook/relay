@@ -19,7 +19,15 @@ query NodeQuery($id: ID!) {
   }
 }
 ==================================== OUTPUT ===================================
-fragment NodeQuery__edges on CommentsEdge @relay(plural: true) {
+fragment NodeQuery__edges on CommentsEdge @relay(plural: true) @__PrefetchablePaginationEdgesFragmentMetadata
+# PrefetchablePaginationEdgesFragmentMetadata {
+#     parent_document_name: OperationDefinitionName(
+#         OperationDefinitionName(
+#             "NodeQuery",
+#         ),
+#     ),
+# }
+ {
   node {
     actor {
       name

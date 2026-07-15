@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a63153d73bff5e158caa177e9aa4c9f8>>
+ * @generated SignedSource<<a0afe2b86cc3e80c53e8ac9f7e5bb66f>>
  */
 
 mod compile_relay_artifacts;
@@ -1375,6 +1375,13 @@ async fn relay_resolver_backing_client_edge() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-backing-client-edge.graphql", "compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_c2s_client_edge_with_exec_time_resolvers() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-c2s-client-edge-with-exec-time-resolvers.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-c2s-client-edge-with-exec-time-resolvers.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-c2s-client-edge-with-exec-time-resolvers.graphql", "compile_relay_artifacts/fixtures/relay-resolver-c2s-client-edge-with-exec-time-resolvers.expected", input, expected).await;
 }
 
 #[tokio::test]

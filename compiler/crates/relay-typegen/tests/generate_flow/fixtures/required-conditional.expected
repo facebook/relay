@@ -6,16 +6,16 @@ query FooQuery($condition: Boolean!) {
   }
 }
 ==================================== OUTPUT ===================================
-export type FooQuery$variables = {|
+export type FooQuery$variables = {
   condition: CustomBoolean,
-|};
-export type FooQuery$data = {|
-  +me: ?{|
-    +firstName: ?string,
-    +lastName?: string,
-  |},
-|};
-export type FooQuery = {|
+};
+export type FooQuery$data = {
+  readonly me: ?{
+    readonly firstName: ?string,
+    readonly lastName?: string,
+  },
+};
+export type FooQuery = {
   response: FooQuery$data,
   variables: FooQuery$variables,
-|};
+};

@@ -17,13 +17,13 @@ import clientUserResolverNameResolverType from "CatResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (clientUserResolverNameResolverType as () => ?unknown);
 declare export opaque type MyFragment$fragmentType: FragmentType;
-export type MyFragment$data = ?{|
-  +nullable_name: string,
-  +resolver_name: NonNullable<ReturnType<typeof clientUserResolverNameResolverType>>,
-  +$fragmentType: MyFragment$fragmentType,
-|};
+export type MyFragment$data = ?{
+  readonly nullable_name: string,
+  readonly resolver_name: NonNullable<ReturnType<typeof clientUserResolverNameResolverType>>,
+  readonly $fragmentType: MyFragment$fragmentType,
+};
 export type MyFragment$key = {
-  +$data?: MyFragment$data,
-  +$fragmentSpreads: MyFragment$fragmentType,
+  readonly $data?: MyFragment$data,
+  readonly $fragmentSpreads: MyFragment$fragmentType,
   ...
 };

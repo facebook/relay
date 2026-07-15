@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a466a0d147b0713a0544150e8448569e>>
+ * @generated SignedSource<<951eb7a1072ef358a07fe210e1d8fb4e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType } from "./ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment.graphql";
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery$variables = {|
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery$variables = {
   id: string,
-|};
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
-  |},
-|};
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery = {|
+};
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  },
+};
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery = {
   response: ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery$data,
   variables: ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

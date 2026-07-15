@@ -6,6 +6,7 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::ArgumentName;
 use common::Diagnostic;
@@ -25,17 +26,19 @@ use graphql_ir::Validator;
 use graphql_ir::Value;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 
 use crate::MATCH_CONSTANTS;
 use crate::ValidationMessage;
 
-lazy_static! {
-    pub static ref NO_INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("no_inline".intern());
-    pub static ref PARENT_DOCUMENTS_ARG: ArgumentName = ArgumentName("__parentDocuments".intern());
-    // Note: this is used as both an ArgumentName and as a DirectiveName
-    pub static ref RAW_RESPONSE_TYPE_NAME: StringKey = "raw_response_type".intern();
-}
+pub static NO_INLINE_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("no_inline".intern()));
+
+pub static PARENT_DOCUMENTS_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("__parentDocuments".intern()));
+
+// Note: this is used as both an ArgumentName and as a DirectiveName
+pub static RAW_RESPONSE_TYPE_NAME: LazyLock<StringKey> =
+    LazyLock::new(|| "raw_response_type".intern());
 
 pub fn attach_no_inline_directives_to_fragments(
     no_inline_fragments: &mut FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,

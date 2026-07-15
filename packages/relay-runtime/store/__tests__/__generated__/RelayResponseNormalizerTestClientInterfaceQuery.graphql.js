@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<02e34bbcd05a91a6bd91fde7482a1658>>
+ * @generated SignedSource<<e4711cb2087a7ed704fe8ee60e7d7e7b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayResponseNormalizerTestClientInterfaceFragment$fragmentType } from "./RelayResponseNormalizerTestClientInterfaceFragment.graphql";
-export type RelayResponseNormalizerTestClientInterfaceQuery$variables = {||};
-export type RelayResponseNormalizerTestClientInterfaceQuery$data = {|
-  +client_interface: ?{|
-    +$fragmentSpreads: RelayResponseNormalizerTestClientInterfaceFragment$fragmentType,
-  |},
-  +client_union: ?{|
-    +__typename: string,
-  |},
-|};
-export type RelayResponseNormalizerTestClientInterfaceQuery = {|
+export type RelayResponseNormalizerTestClientInterfaceQuery$variables = {};
+export type RelayResponseNormalizerTestClientInterfaceQuery$data = {
+  readonly client_interface: ?{
+    readonly $fragmentSpreads: RelayResponseNormalizerTestClientInterfaceFragment$fragmentType,
+  },
+  readonly client_union: ?{
+    readonly __typename: string,
+  },
+};
+export type RelayResponseNormalizerTestClientInterfaceQuery = {
   response: RelayResponseNormalizerTestClientInterfaceQuery$data,
   variables: RelayResponseNormalizerTestClientInterfaceQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -53,7 +52,16 @@ v1 = {
     (v0/*:: as any*/)
   ],
   "storageKey": null
-};
+},
+v2 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
+  }
+];
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -106,11 +114,16 @@ return {
             "selections": [
               (v0/*:: as any*/),
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "description",
-                "storageKey": null
+                "kind": "InlineFragment",
+                "selections": (v2/*:: as any*/),
+                "type": "ClientTypeImplementingClientInterface",
+                "abstractKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": (v2/*:: as any*/),
+                "type": "OtherClientTypeImplementingClientInterface",
+                "abstractKey": null
               }
             ],
             "storageKey": null

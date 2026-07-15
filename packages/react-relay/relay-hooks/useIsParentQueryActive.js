@@ -18,11 +18,12 @@ const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {getFragment} = require('relay-runtime');
 
 hook useIsParentQueryActive<
-  TKey extends ?{+$data?: unknown, +$fragmentSpreads: FragmentType, ...},
->(
-  fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
-): boolean {
+  TKey extends ?{
+    readonly $data?: unknown,
+    readonly $fragmentSpreads: FragmentType,
+    ...
+  },
+>(fragmentInput: GraphQLTaggedNode, fragmentRef: TKey): boolean {
   const fragmentNode = getFragment(fragmentInput);
   useStaticFragmentNodeWarning(
     fragmentNode,

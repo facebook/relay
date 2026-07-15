@@ -10,6 +10,7 @@ use crate::ConstantDirective;
 use crate::ConstantValue;
 use crate::Directive;
 use crate::DirectiveDefinition;
+use crate::DirectiveDefinitionExtension;
 use crate::DirectiveLocation;
 use crate::EnumTypeDefinition;
 use crate::EnumTypeExtension;
@@ -307,6 +308,9 @@ pub trait SyntaxVisitor {
                 self.visit_input_object_type_extension(ext)
             }
             TypeSystemDefinition::DirectiveDefinition(def) => self.visit_directive_definition(def),
+            TypeSystemDefinition::DirectiveDefinitionExtension(ext) => {
+                self.visit_directive_definition_extension(ext)
+            }
         }
     }
 
@@ -472,6 +476,18 @@ pub trait SyntaxVisitor {
         if let Some(arguments) = &directive.arguments {
             self.visit_input_value_definitions(&arguments.items);
         }
+        self.visit_constant_directives(&directive.directives);
+    }
+
+    fn visit_directive_definition_extension(&mut self, extension: &DirectiveDefinitionExtension) {
+        self.default_visit_directive_definition_extension(extension)
+    }
+
+    fn default_visit_directive_definition_extension(
+        &mut self,
+        extension: &DirectiveDefinitionExtension,
+    ) {
+        self.visit_constant_directives(&extension.directives);
     }
 
     // Constant Directives

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7cd06ff92c2e554228dc0a6bb7a3500a>>
+ * @generated SignedSource<<5ce49ae199621ac965798d4993322c3c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,25 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayLocalQueryRendererTestUserFragment$fragmentType } from "./ReactRelayLocalQueryRendererTestUserFragment.graphql";
-export type ReactRelayLocalQueryRendererTestUserQuery$variables = {|
+export type ReactRelayLocalQueryRendererTestUserQuery$variables = {
   id?: ?string,
-|};
-export type ReactRelayLocalQueryRendererTestUserQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +id: string,
-    +lastName: ?string,
-    +$fragmentSpreads: ReactRelayLocalQueryRendererTestUserFragment$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type ReactRelayLocalQueryRendererTestUserQuery = {|
+};
+export type ReactRelayLocalQueryRendererTestUserQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly lastName?: ?string,
+    readonly $fragmentSpreads: ReactRelayLocalQueryRendererTestUserFragment$fragmentType,
+  },
+};
+export type ReactRelayLocalQueryRendererTestUserQuery = {
   response: ReactRelayLocalQueryRendererTestUserQuery$data,
   variables: ReactRelayLocalQueryRendererTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

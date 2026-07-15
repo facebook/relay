@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d6d413d6dd9b195d41e90a49bb681d85>>
+ * @generated SignedSource<<84e7a998428b1f342c7c6dd397d3c28e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type withProvidedVariablesTest4Fragment1$fragmentType: FragmentType;
-export type withProvidedVariablesTest4Fragment1$data = {|
-  +friends: ?{|
-    +count: ?number,
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +name?: ?string,
-      |},
-    |}>,
-  |},
-  +$fragmentType: withProvidedVariablesTest4Fragment1$fragmentType,
-|};
+export type withProvidedVariablesTest4Fragment1$data = {
+  readonly friends: ?{
+    readonly count: ?number,
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly name?: ?string,
+      },
+    }>,
+  },
+  readonly $fragmentType: withProvidedVariablesTest4Fragment1$fragmentType,
+};
 export type withProvidedVariablesTest4Fragment1$key = {
-  +$data?: withProvidedVariablesTest4Fragment1$data,
-  +$fragmentSpreads: withProvidedVariablesTest4Fragment1$fragmentType,
+  readonly $data?: withProvidedVariablesTest4Fragment1$data,
+  readonly $fragmentSpreads: withProvidedVariablesTest4Fragment1$fragmentType,
   ...
 };
 */

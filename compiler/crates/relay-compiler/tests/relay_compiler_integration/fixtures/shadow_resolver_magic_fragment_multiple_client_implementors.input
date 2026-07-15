@@ -1,0 +1,76 @@
+//- UserClientPage.js
+// Shadow resolver whose return interface has MULTIPLE client-extension
+// implementors.
+//
+// `client_page` returns the client interface `IPage`, implemented by TWO client
+// model types `ClientPageA` and `ClientPageB`. Both arms route through the
+// `ClientObject` machinery: `modelResolvers` carries one entry per client model
+// (sorted), `serverObjectOperations` is empty, and nothing is transplanted onto
+// the shadowed server field `page` (no server implementor).
+/**
+ * @relayField User.client_page: IPage
+ * @rootFragment UserClientPageResolverFragment
+ * @returnFragment UserClientPageReturnFragment
+ */
+graphql`fragment UserClientPageResolverFragment on User {
+  page {
+    ...UserClientPageReturnFragment
+  }
+}`
+
+//- ClientPageAResolver.js
+/**
+ * @relayType ClientPageA implements IPage
+ */
+export function ClientPageA() {}
+
+//- ClientPageATitleResolver.js
+/**
+ * @relayField ClientPageA.title: String
+ */
+export function title() {}
+
+//- ClientPageBResolver.js
+/**
+ * @relayType ClientPageB implements IPage
+ */
+export function ClientPageB() {}
+
+//- ClientPageBTitleResolver.js
+/**
+ * @relayField ClientPageB.title: String
+ */
+export function title() {}
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    client_page {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}

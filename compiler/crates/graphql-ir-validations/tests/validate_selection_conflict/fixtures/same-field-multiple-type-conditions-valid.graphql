@@ -1,0 +1,11 @@
+# Same field accessed under different type conditions should be valid.
+query TestQuery {
+  node(id: "1") {
+    ... on User {
+      name
+    }
+    ... on Page {
+      name
+    }
+  }
+}

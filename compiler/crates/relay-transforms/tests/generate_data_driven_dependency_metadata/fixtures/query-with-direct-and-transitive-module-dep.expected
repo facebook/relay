@@ -77,6 +77,10 @@ query QueryWithDirectAndTransitiveModuleDep @__RelayDataDrivenDependencyMetadata
           #         "PlainUserNameRenderer_name",
           #     ),
           #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:586:612,
+          #     module_source_location: Embedded {
+          #         path: "query-with-direct-and-transitive-module-dep.graphql",
+          #         index: 0,
+          #     },
           #     no_inline: false,
           # }
            {
@@ -102,6 +106,10 @@ query QueryWithDirectAndTransitiveModuleDep @__RelayDataDrivenDependencyMetadata
           #         "MarkdownUserNameRenderer_name",
           #     ),
           #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:686:715,
+          #     module_source_location: Embedded {
+          #         path: "query-with-direct-and-transitive-module-dep.graphql",
+          #         index: 0,
+          #     },
           #     no_inline: false,
           # }
            {
@@ -146,6 +154,10 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #         "PlainUserNameRenderer_name",
       #     ),
       #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:586:612,
+      #     module_source_location: Embedded {
+      #         path: "query-with-direct-and-transitive-module-dep.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -171,6 +183,10 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #         "MarkdownUserNameRenderer_name",
       #     ),
       #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:686:715,
+      #     module_source_location: Embedded {
+      #         path: "query-with-direct-and-transitive-module-dep.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

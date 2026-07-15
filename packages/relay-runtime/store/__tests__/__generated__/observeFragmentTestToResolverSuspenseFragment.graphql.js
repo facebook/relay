@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1b44b772377533762b0ea5e92da349d9>>
+ * @generated SignedSource<<8fa99c7196dce6026f3752c567fa61a9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,13 +27,13 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   context: TestResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type observeFragmentTestToResolverSuspenseFragment$fragmentType: FragmentType;
-export type observeFragmentTestToResolverSuspenseFragment$data = {|
-  +counter_suspends_when_odd: ?number,
-  +$fragmentType: observeFragmentTestToResolverSuspenseFragment$fragmentType,
-|};
+export type observeFragmentTestToResolverSuspenseFragment$data = {
+  readonly counter_suspends_when_odd: ?number,
+  readonly $fragmentType: observeFragmentTestToResolverSuspenseFragment$fragmentType,
+};
 export type observeFragmentTestToResolverSuspenseFragment$key = {
-  +$data?: observeFragmentTestToResolverSuspenseFragment$data,
-  +$fragmentSpreads: observeFragmentTestToResolverSuspenseFragment$fragmentType,
+  readonly $data?: observeFragmentTestToResolverSuspenseFragment$data,
+  readonly $fragmentSpreads: observeFragmentTestToResolverSuspenseFragment$fragmentType,
   ...
 };
 */

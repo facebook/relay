@@ -63,6 +63,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: module.js:162:166,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

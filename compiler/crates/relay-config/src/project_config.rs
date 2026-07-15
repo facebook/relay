@@ -38,6 +38,7 @@ use crate::connection_interface::ConnectionInterface;
 use crate::defer_stream_interface::DeferStreamInterface;
 use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
+use crate::module_import_config::ModuleProvider;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
 use crate::resolvers_schema_module_config::ResolversSchemaModuleConfig;
 
@@ -447,6 +448,58 @@ impl ProjectConfig {
         }
     }
 
+    /// Gets the path for a generated *extra* artifact based on its
+    /// originating source file's location and the project's configuration.
+    ///
+    /// Mirrors [`Self::create_path_for_artifact`], except the output root is
+    /// `extra_artifacts_output`. Sharding is opt-in via `should_shard` —
+    /// callers gate this on a feature flag while the new behavior is rolled
+    /// out, so that passing `should_shard = false` reproduces the legacy
+    /// flat layout (`extra_artifacts_output.join(file_name)`).
+    ///
+    /// When `should_shard` is true but the project does not set
+    /// `shardOutput`, the call silently falls back to the flat layout. This
+    /// is intentional: the feature flag may be enabled across many projects
+    /// during rollout, but only those that already opt into `shardOutput`
+    /// get the new sharded layout.
+    ///
+    /// Panics if `extra_artifacts_output` is unset; only projects that
+    /// configure `extraArtifactsOutput` produce extra artifacts, so reaching
+    /// this with no output configured indicates an internal invariant
+    /// violation rather than user misconfiguration.
+    pub fn create_path_for_extra_artifact(
+        &self,
+        source_file: SourceLocationKey,
+        artifact_file_name: String,
+        should_shard: bool,
+    ) -> PathBuf {
+        let output = self.extra_artifacts_output.as_ref().expect(
+            "create_path_for_extra_artifact called without `extraArtifactsOutput` set on the project config",
+        );
+        if should_shard && self.shard_output {
+            let sharded_dir = if let Some(ref regex) = self.shard_strip_regex {
+                let full_source_path = regex.replace_all(source_file.path(), "");
+                let mut path = output.join(full_source_path.to_string());
+                // `full_source_path` still includes the source file name; pop it to get the directory.
+                path.pop();
+                path
+            } else {
+                output.join(source_file.get_dir())
+            };
+            // Sharding mirrors the source directory structure into the output path. Some source
+            // dirs (e.g. Comet RSC `[id]` route dirs) contain characters disallowed by the
+            // `invalid-filename` path linter; emitting such a path would make the artifact
+            // unlandable. Fall back to the flat layout for those sources.
+            if path_has_disallowed_filename_chars(&sharded_dir) {
+                output.join(artifact_file_name)
+            } else {
+                sharded_dir.join(artifact_file_name)
+            }
+        } else {
+            output.join(artifact_file_name)
+        }
+    }
+
     /// Generates a path for an artifact file based on a definition name and its location.
     pub fn artifact_path_for_definition(
         &self,
@@ -488,6 +541,24 @@ impl ProjectConfig {
         self.create_path_for_artifact(source_file, filename)
     }
 
+    /// Returns `module_import_config` with `dynamic_module_provider` filled in when absent.
+    /// For non-Haste (CommonJS) projects the default is `() => import('<$module>')`, which
+    /// generates standard ES dynamic-import expressions without any extra user configuration.
+    pub fn effective_module_import_config(&self) -> ModuleImportConfig {
+        if self.module_import_config.dynamic_module_provider.is_none()
+            && !matches!(self.js_module_format, JsModuleFormat::Haste)
+        {
+            ModuleImportConfig {
+                dynamic_module_provider: Some(ModuleProvider::Custom {
+                    statement: "() => import('<$module>')".intern(),
+                }),
+                ..self.module_import_config
+            }
+        } else {
+            self.module_import_config
+        }
+    }
+
     /// Generates identifier for importing module at `target_module_path` from module at `importing_artifact_path`.
     /// Import Identifier is a relative path in CommonJS projects and a module name in Haste projects.
     pub fn js_module_import_identifier(
@@ -527,9 +598,123 @@ impl ProjectConfig {
     }
 }
 
+/// Returns true if `path` contains any character the `invalid-filename` path linter
+/// rejects. The linter allows only `[A-Za-z0-9._@+/$-]`; anything else (e.g. the `[`/`]`
+/// in Comet RSC `[id]` route dirs) would make a sharded artifact path unlandable.
+fn path_has_disallowed_filename_chars(path: &Path) -> bool {
+    !path.to_string_lossy().chars().all(|c| {
+        c.is_ascii_alphanumeric()
+            || std::path::is_separator(c)
+            || matches!(c, '.' | '-' | '_' | '@' | '+' | '$')
+    })
+}
+
 // Stringify a path such that it is stable across operating systems.
 fn format_normalized_path(path: &Path) -> String {
     path.to_string_lossy()
         .to_string()
         .replace(MAIN_SEPARATOR, "/")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn project_with_extra(
+        extra_artifacts_output: Option<&str>,
+        shard_output: bool,
+        shard_strip_regex: Option<&str>,
+    ) -> ProjectConfig {
+        ProjectConfig {
+            extra_artifacts_output: extra_artifacts_output.map(PathBuf::from),
+            shard_output,
+            shard_strip_regex: shard_strip_regex.map(|r| Regex::new(r).unwrap()),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn extra_artifact_path_unsharded_keeps_legacy_flat_layout() {
+        let config = project_with_extra(Some("out/extra"), true, Some("^src/"));
+        let path = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("src/components/foo/Bar.js"),
+            "BarOperation.graphql.js".to_owned(),
+            false,
+        );
+        assert_eq!(
+            path,
+            PathBuf::from("out/extra/BarOperation.graphql.js"),
+            "shard=false should produce the same flat path as the legacy call site"
+        );
+    }
+
+    #[test]
+    fn extra_artifact_path_sharded_with_regex_mirrors_normal_artifact_layout() {
+        let config = project_with_extra(Some("out/extra"), true, Some("^src/"));
+        let path = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("src/components/foo/Bar.js"),
+            "BarOperation.graphql.js".to_owned(),
+            true,
+        );
+        assert_eq!(
+            path,
+            PathBuf::from("out/extra/components/foo/BarOperation.graphql.js"),
+            "Source 'src/components/foo/Bar.js' with regex '^src/' should shard under 'components/foo/'"
+        );
+    }
+
+    #[test]
+    fn extra_artifact_path_sharded_without_regex_uses_full_source_dir() {
+        let config = project_with_extra(Some("out/extra"), true, None);
+        let path = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("a/b/c/Bar.js"),
+            "BarOperation.graphql.js".to_owned(),
+            true,
+        );
+        assert_eq!(
+            path,
+            PathBuf::from("out/extra/a/b/c/BarOperation.graphql.js"),
+        );
+    }
+
+    #[test]
+    fn extra_artifact_path_with_disallowed_chars_falls_back_to_flat_layout() {
+        // Comet RSC route directories such as `[id]` contain `[`/`]`, which the
+        // `invalid-filename` path linter rejects. Mirroring such a source directory into
+        // the sharded output would write an unlandable bracketed path, so sharding must
+        // fall back to the flat layout for these sources.
+        let config = project_with_extra(Some("out/extra"), true, Some("^src/"));
+        let path = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("src/comet/routes/[id]/Bar.js"),
+            "BarOperation.graphql.js".to_owned(),
+            true,
+        );
+        assert_eq!(
+            path,
+            PathBuf::from("out/extra/BarOperation.graphql.js"),
+            "a source dir with disallowed filename chars (brackets) must not be sharded"
+        );
+    }
+
+    #[test]
+    fn extra_artifact_path_shard_arg_ignored_when_project_does_not_shard() {
+        let config = project_with_extra(Some("out/extra"), false, Some("^src/"));
+        let path = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("src/components/foo/Bar.js"),
+            "BarOperation.graphql.js".to_owned(),
+            true,
+        );
+        assert_eq!(path, PathBuf::from("out/extra/BarOperation.graphql.js"),);
+    }
+
+    #[test]
+    #[should_panic(expected = "extraArtifactsOutput")]
+    fn extra_artifact_path_panics_without_extra_artifacts_output() {
+        let config = project_with_extra(None, true, Some("^src/"));
+        let _ = config.create_path_for_extra_artifact(
+            SourceLocationKey::standalone("src/components/foo/Bar.js"),
+            "Bar.graphql.js".to_owned(),
+            true,
+        );
+    }
 }

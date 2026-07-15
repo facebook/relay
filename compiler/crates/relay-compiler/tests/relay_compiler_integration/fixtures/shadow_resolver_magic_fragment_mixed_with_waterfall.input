@@ -1,0 +1,70 @@
+// The resolver declares `@mayWaterfall`, so consumers must acknowledge the
+// possible cross-object refetch with `@waterfall`. `@waterfall` on a mixed shadow
+// field (return interface implemented by both a server type and a client model
+// type) keeps BOTH arms for the server member:
+// the main-operation transplant (the consumer's `title` is spliced onto the
+// shadowed `page` field — see the `UserConsumerQuery` operation `text` below) AND
+// a generated `ClientEdgeQuery` backstop. The transplant serves the common case
+// (pointer targets the shadowed record) from the store with no roundtrip; the
+// backstop refetches the draft case (pointer targets a different server object).
+// The client member is still read via its model resolver. Regression guard: the
+// transplant must NOT be suppressed under `@waterfall`.
+//- UserCombinedPage.js
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ * @mayWaterfall
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- ClientPageResolver.js
+/**
+ * @relayType ClientPage implements IPage
+ */
+export function ClientPage() {}
+
+//- ClientPageTitleResolver.js
+/**
+ * @relayField ClientPage.title: String
+ */
+export function title() {}
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page @waterfall {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

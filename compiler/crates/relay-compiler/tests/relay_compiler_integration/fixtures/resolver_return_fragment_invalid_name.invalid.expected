@@ -25,7 +25,7 @@ graphql`fragment UserFragment on User {
 type Query { me: User }
 type User { name: String }
 ==================================== OUTPUT ===================================
-✖︎ '123InvalidName' is not a valid fragment name. Fragment names must match /[_A-Za-z][_0-9A-Za-z]*/.
+✖︎ @returnFragment requires the resolver to define a @rootFragment. Resolvers with @returnFragment must read data from the graph using a root fragment.
 
   User_foo.js:4:20
     3 │  * @relayField User.foo: RelayResolverValue

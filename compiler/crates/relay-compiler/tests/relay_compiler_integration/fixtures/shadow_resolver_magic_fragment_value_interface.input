@@ -1,0 +1,60 @@
+//- UserStats.js
+// Shadow resolver whose return INTERFACE has a single non-Node server VALUE
+// implementor (abstract read-in-place routing).
+//
+// `stats` returns the client interface `IStats`, whose only implementor is the
+// non-Node server VALUE type `PageStats` (no `id`). A value type is read INLINE in
+// place off the transplanted `client:<parentid>:<field>` record via `__id`. The
+// abstract return therefore routes to the inline arm: the backing field carries
+// `normalizationInfo.kind: "ServerWeak"`, `concreteType` is null (abstract),
+// `serverObjectOperations` is null (NO `node(id:)` is ever attempted on a
+// non-refetchable value), and the consumer's `likeCount` reads inline off the
+// per-`__typename` `... on PageStats` arm. No `{__typename, id: DataID}` pointer
+// return type is emitted (the resolver returns `{__typename, __id}`).
+/**
+ * @relayField User.stats: IStats
+ * @rootFragment UserStatsResolverFragment
+ * @returnFragment UserStatsReturnFragment
+ */
+graphql`fragment UserStatsResolverFragment on User {
+  page {
+    stats {
+      ...UserStatsReturnFragment
+    }
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    stats {
+      likeCount
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String, stats: PageStats }
+type PageStats { likeCount: Int }
+
+//- schema-extensions/extension.graphql
+interface IStats {
+  likeCount: Int
+}
+
+extend type PageStats implements IStats

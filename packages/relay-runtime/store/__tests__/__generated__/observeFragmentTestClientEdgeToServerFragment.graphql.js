@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dedf91eae4fe843d7d41dd9f75c18e45>>
+ * @generated SignedSource<<6fae309667881bda628fbf05d0dda3be>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,19 +27,19 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 declare export opaque type observeFragmentTestClientEdgeToServerFragment$fragmentType: FragmentType;
-export type observeFragmentTestClientEdgeToServerFragment$data = {|
-  +client_edge: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: observeFragmentTestClientEdgeToServerFragment$fragmentType,
-|};
+export type observeFragmentTestClientEdgeToServerFragment$data = {
+  readonly client_edge: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: observeFragmentTestClientEdgeToServerFragment$fragmentType,
+};
 export type observeFragmentTestClientEdgeToServerFragment$key = {
-  +$data?: observeFragmentTestClientEdgeToServerFragment$data,
-  +$fragmentSpreads: observeFragmentTestClientEdgeToServerFragment$fragmentType,
+  readonly $data?: observeFragmentTestClientEdgeToServerFragment$data,
+  readonly $fragmentSpreads: observeFragmentTestClientEdgeToServerFragment$fragmentType,
   ...
 };
 */

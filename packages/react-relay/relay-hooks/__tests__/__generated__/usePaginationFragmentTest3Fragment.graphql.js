@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c4dfb447b522a67643c574983823829b>>
+ * @generated SignedSource<<0d9a3522d8b1a3021dc4f3aebf74fffd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePaginationFragmentTest3Fragment$fragmentType: FragmentType;
 type usePaginationFragmentTest3FragmentRefetchQuery$variables = any;
-export type usePaginationFragmentTest3Fragment$data = {|
-  +id: string,
-  +$fragmentType: usePaginationFragmentTest3Fragment$fragmentType,
-|};
+export type usePaginationFragmentTest3Fragment$data = {
+  readonly id: string,
+  readonly $fragmentType: usePaginationFragmentTest3Fragment$fragmentType,
+};
 export type usePaginationFragmentTest3Fragment$key = {
-  +$data?: usePaginationFragmentTest3Fragment$data,
-  +$fragmentSpreads: usePaginationFragmentTest3Fragment$fragmentType,
+  readonly $data?: usePaginationFragmentTest3Fragment$data,
+  readonly $fragmentSpreads: usePaginationFragmentTest3Fragment$fragmentType,
   ...
 };
 */

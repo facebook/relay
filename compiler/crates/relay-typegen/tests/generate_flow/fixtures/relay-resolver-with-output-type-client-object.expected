@@ -25,14 +25,14 @@ extend type User {
   pop_star_name: ClientUser @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== OUTPUT ===================================
-export type User__pop_star_name$normalization$variables = {||};
-export type User__pop_star_name$normalization$data = {|
-  +name: ?string,
-|};
-export type User__pop_star_name$normalization = {|
+export type User__pop_star_name$normalization$variables = {};
+export type User__pop_star_name$normalization$data = {
+  readonly name: ?string,
+};
+export type User__pop_star_name$normalization = {
   response: User__pop_star_name$normalization$data,
   variables: User__pop_star_name$normalization$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { PopStarNameResolverFragment_name$key } from "PopStarNameResolverFragment_name.graphql";
 import type { User__pop_star_name$normalization } from "User__pop_star_name$normalization.graphql";
@@ -44,32 +44,32 @@ import userPopStarNameResolverType from "PopStarNameResolver";
   rootKey: PopStarNameResolverFragment_name$key,
 ) => ?User__pop_star_name$normalization);
 declare export opaque type Foo_user$fragmentType: FragmentType;
-export type Foo_user$data = {|
-  +poppy: ?{|
-    +__typename: "ClientUser",
-  |},
-  +$fragmentType: Foo_user$fragmentType,
-|};
+export type Foo_user$data = {
+  readonly poppy: ?{
+    readonly __typename: "ClientUser",
+  },
+  readonly $fragmentType: Foo_user$fragmentType,
+};
 export type Foo_user$key = {
-  +$data?: Foo_user$data,
-  +$fragmentSpreads: Foo_user$fragmentType,
+  readonly $data?: Foo_user$data,
+  readonly $fragmentSpreads: Foo_user$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type PopStarNameResolverFragment_name$fragmentType: FragmentType;
-export type PopStarNameResolverFragment_name$data = {|
-  +address: ?{|
-    +street: ?string,
-  |},
-  +name: ?string,
-  +parents: ReadonlyArray<{|
-    +lastName: ?string,
-  |}>,
-  +$fragmentType: PopStarNameResolverFragment_name$fragmentType,
-|};
+export type PopStarNameResolverFragment_name$data = {
+  readonly address: ?{
+    readonly street: ?string,
+  },
+  readonly name: ?string,
+  readonly parents: ReadonlyArray<{
+    readonly lastName: ?string,
+  }>,
+  readonly $fragmentType: PopStarNameResolverFragment_name$fragmentType,
+};
 export type PopStarNameResolverFragment_name$key = {
-  +$data?: PopStarNameResolverFragment_name$data,
-  +$fragmentSpreads: PopStarNameResolverFragment_name$fragmentType,
+  readonly $data?: PopStarNameResolverFragment_name$data,
+  readonly $fragmentSpreads: PopStarNameResolverFragment_name$fragmentType,
   ...
 };

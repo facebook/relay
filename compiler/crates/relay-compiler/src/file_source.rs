@@ -38,9 +38,11 @@ pub use read_file_to_string::read_file_to_string;
 use serde::Deserialize;
 use serde_bser::value::Value;
 pub use source_control_update_status::SourceControlUpdateStatus;
-use tokio::sync::Notify;
+use tokio::sync::broadcast;
 pub use watchman_client::prelude::Clock;
+pub use watchman_file_source::ChangesSinceQuery;
 use watchman_file_source::WatchmanFileSource;
+pub use watchman_file_source::query_changes_since;
 
 pub use self::external_file_source::ExternalFileSourceResult;
 pub use self::extract_graphql::FsSourceReader;
@@ -55,6 +57,7 @@ pub use self::walk_dir_file_source::WalkDirFileSourceResult;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::config::FileSourceKind;
+use crate::config::TestFileSourceEvent;
 use crate::errors::Error;
 use crate::errors::Result;
 
@@ -83,9 +86,30 @@ impl FileSource {
             FileSourceKind::Watchman => Ok(Self::Watchman(
                 WatchmanFileSource::connect(config, perf_logger_event).await?,
             )),
-            FileSourceKind::External(changed_files_list) => Ok(Self::External(
-                ExternalFileSource::new(changed_files_list.to_path_buf(), Arc::clone(config)),
-            )),
+            FileSourceKind::External(changed_files_list) => {
+                // ExternalFileSource needs both the saved-state path and the
+                // changed-files list. The saved-state path lives in Config's
+                // consume-once mutex; take it here at the call site so the
+                // External source itself doesn't reach into Config's mutex state.
+                // Mutex poison would indicate a panic in another consumer of
+                // this slot, which we explicitly want surfaced rather than
+                // silently coerced — a poisoned slot is a programming bug.
+                let saved_state_path = config
+                    .load_saved_state_file
+                    .lock()
+                    .expect("load_saved_state_file mutex was poisoned by an earlier panic")
+                    .take()
+                    .ok_or_else(|| Error::ConfigError {
+                        details:
+                            "FileSourceKind::External requires load_saved_state_file to be set"
+                                .to_string(),
+                    })?;
+                Ok(Self::External(ExternalFileSource::new(
+                    saved_state_path,
+                    changed_files_list.to_path_buf(),
+                    Arc::clone(config),
+                )))
+            }
             FileSourceKind::WalkDir => {
                 Ok(Self::WalkDir(WalkDirFileSource::new(Arc::clone(config))))
             }
@@ -150,8 +174,8 @@ impl FileSource {
                     .walk_dir_source
                     .create_compiler_state(perf_logger)?;
 
-                let notify = match &file_source.config.file_source_config {
-                    FileSourceKind::Test(config) => Arc::clone(&config.notify),
+                let receiver = match &file_source.config.file_source_config {
+                    FileSourceKind::Test(config) => config.subscribe(),
                     _ => unreachable!("TestFileSource must have FileSourceKind::Test config"),
                 };
                 let walk_dir_source = WalkDirFileSource::new(Arc::clone(&file_source.config));
@@ -159,7 +183,7 @@ impl FileSource {
                 Ok((
                     compiler_state,
                     FileSourceSubscription::Test(TestFileSourceSubscription {
-                        notify,
+                        receiver,
                         walk_dir_source,
                     }),
                 ))
@@ -189,7 +213,7 @@ impl File {
 
 #[derive(Debug)]
 pub enum FileSourceResult {
-    Watchman(WatchmanFileSourceResult),
+    Watchman(Box<WatchmanFileSourceResult>),
     External(ExternalFileSourceResult),
     WalkDir(WalkDirFileSourceResult),
 }
@@ -235,12 +259,12 @@ pub enum FileSourceSubscription {
 
 /// Test file source subscription for watch mode testing.
 ///
-/// This subscription waits on a Notify signal from tests, then does a
-/// WalkDir rescan to find what files changed. This allows tests to:
-/// 1. Write file changes to disk
-/// 2. Call `TestFileSourceConfig::notify()` to trigger a rescan and rebuild
+/// This subscription receives typed events from a broadcast channel,
+/// allowing tests to simulate file changes and source control events.
+/// On `FileChanged`, it does a WalkDir rescan to find changed files.
+/// Source control events are forwarded to the compiler's event handling.
 pub struct TestFileSourceSubscription {
-    notify: Arc<Notify>,
+    receiver: broadcast::Receiver<TestFileSourceEvent>,
     walk_dir_source: WalkDirFileSource,
 }
 
@@ -250,14 +274,40 @@ impl FileSourceSubscription {
             Self::Watchman(file_source_subscription) => {
                 file_source_subscription.next_change().await.map_or_else(
                     |err| Err(Error::from(err)),
-                    |next_change| Ok(FileSourceSubscriptionNextChange::Watchman(next_change)),
+                    |next_change| {
+                        Ok(FileSourceSubscriptionNextChange::Watchman(Box::new(
+                            next_change,
+                        )))
+                    },
                 )
             }
             Self::Test(test_subscription) => {
-                test_subscription.notify.notified().await;
-                // Do a WalkDir rescan to find what files changed
-                let result = test_subscription.walk_dir_source.query_files()?;
-                Ok(FileSourceSubscriptionNextChange::Test(result))
+                match test_subscription.receiver.recv().await {
+                    Ok(TestFileSourceEvent::FileChanged) => {
+                        let result = test_subscription.walk_dir_source.query_files()?;
+                        Ok(FileSourceSubscriptionNextChange::Test(result))
+                    }
+                    Ok(TestFileSourceEvent::SourceControlUpdateEnter) => {
+                        Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateEnter)
+                    }
+                    Ok(TestFileSourceEvent::SourceControlUpdateLeave) => {
+                        Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateLeave)
+                    }
+                    Ok(TestFileSourceEvent::SourceControlUpdate) => {
+                        Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdate)
+                    }
+                    Err(broadcast::error::RecvError::Lagged(_)) => {
+                        // The receiver fell behind and missed messages because the
+                        // broadcast channel's fixed capacity was exceeded. Unlikely
+                        // in tests, but recover by doing a full WalkDir rescan to
+                        // pick up the current disk state.
+                        let result = test_subscription.walk_dir_source.query_files()?;
+                        Ok(FileSourceSubscriptionNextChange::Test(result))
+                    }
+                    Err(broadcast::error::RecvError::Closed) => Err(Error::ConfigError {
+                        details: "Test broadcast channel closed".to_string(),
+                    }),
+                }
             }
         }
     }
@@ -265,7 +315,13 @@ impl FileSourceSubscription {
 
 #[derive(Debug)]
 pub enum FileSourceSubscriptionNextChange {
-    Watchman(WatchmanFileSourceSubscriptionNextChange),
+    Watchman(Box<WatchmanFileSourceSubscriptionNextChange>),
     /// Test file source notification with rescanned files
     Test(WalkDirFileSourceResult),
+    /// Test: source control update started (mirrors watchman hg.update enter)
+    TestSourceControlUpdateEnter,
+    /// Test: source control update finished, no base revision change
+    TestSourceControlUpdateLeave,
+    /// Test: source control update finished with new base revision (triggers watch loop restart)
+    TestSourceControlUpdate,
 }

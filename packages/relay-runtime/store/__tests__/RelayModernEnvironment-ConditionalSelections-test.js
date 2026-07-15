@@ -288,9 +288,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const operation = createOperationDescriptor(ConditionalQuery, {
           condition: true,
         });
-        commitPayload(operation, {
-          /* intentionally missing data */
-        });
+        commitPayload(operation, {/* intentionally missing data */});
         // DataChecker should consider this missing since the @include(if: true) fields should be evaluated
         // and are missing
         expect(environment.check(operation)).toEqual({
@@ -305,9 +303,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const operation = createOperationDescriptor(ConditionalQuery, {
           condition: false,
         });
-        commitPayload(operation, {
-          /* intentionally missing data */
-        });
+        commitPayload(operation, {/* intentionally missing data */});
         // DataChecker should consider this missing since the @skip(if: false) fields should be evaluated
         // and are missing
         expect(environment.check(operation)).toEqual({
@@ -322,9 +318,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const operation = createOperationDescriptor(ConditionalQuery, {
           condition: null,
         });
-        commitPayload(operation, {
-          /* intentionally missing data */
-        });
+        commitPayload(operation, {/* intentionally missing data */});
         // DataChecker should consider this missing since the @skip(if: null) fields should be evaluated
         // and are missing
         expect(environment.check(operation)).toEqual({
@@ -339,9 +333,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const operation = createOperationDescriptor(ConditionalQuery, {
           /* condition is unset */
         });
-        commitPayload(operation, {
-          /* intentionally missing data */
-        });
+        commitPayload(operation, {/* intentionally missing data */});
         // DataChecker should consider this missing since the @skip(if: undefined) fields should be evaluated
         // and are missing
         expect(environment.check(operation)).toEqual({

@@ -46,8 +46,6 @@ export type Foo_user$rawResponse = {
       readonly id: string;
       readonly lastName: string | null | undefined;
     }>;
-  } | {
-    readonly id: string;
   } | null | undefined;
 };
 export type Foo_user = {

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<208e9d01cd6b20c438c55bba967a1030>>
+ * @generated SignedSource<<b2b41c5ae677ceacc9ae70d6300bcaee>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestPluralThrowOnFieldErrorFragment$fragmentType } from "./observeFragmentTestPluralThrowOnFieldErrorFragment.graphql";
-export type observeFragmentTestPluralThrowOnFieldErrorQuery$variables = {||};
-export type observeFragmentTestPluralThrowOnFieldErrorQuery$data = {|
-  +nodes: ?ReadonlyArray<?{|
-    +$fragmentSpreads: observeFragmentTestPluralThrowOnFieldErrorFragment$fragmentType,
-  |}>,
-|};
-export type observeFragmentTestPluralThrowOnFieldErrorQuery = {|
+export type observeFragmentTestPluralThrowOnFieldErrorQuery$variables = {};
+export type observeFragmentTestPluralThrowOnFieldErrorQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: observeFragmentTestPluralThrowOnFieldErrorFragment$fragmentType,
+  }>,
+};
+export type observeFragmentTestPluralThrowOnFieldErrorQuery = {
   response: observeFragmentTestPluralThrowOnFieldErrorQuery$data,
   variables: observeFragmentTestPluralThrowOnFieldErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

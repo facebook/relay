@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<265870e0c8137c3a7081e560fb7b03f7>>
+ * @generated SignedSource<<daa88bd91712ed9b3a7fe84fe6078bd5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,15 +27,15 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   context: TestResolverContextType,
 ) => ?number);
 declare export opaque type RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$data = {|
-  +age: ?number,
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
-|};
+export type RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$data = {
+  readonly age: ?number,
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
+};
 export type RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$key = {
-  +$data?: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
   ...
 };
 */

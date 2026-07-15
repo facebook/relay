@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2cb9883e8746de91cdd7e5fee801f331>>
+ * @generated SignedSource<<9115c1c93f71e469a8dfd4791aa3e007>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,36 +17,31 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentWithOperationTrackerTest1Query$variables = {|
+export type RelayModernEnvironmentWithOperationTrackerTest1Query$variables = {
   id?: ?string,
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest1Query$data = {|
-  +node: ?({|
-    +__typename: "Feedback",
-    +body: ?{|
-      +text: ?string,
-    |},
-    +comments: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +node: ?{|
-          +id: string,
-          +message: ?{|
-            +text: ?string,
-          |},
-        |},
-      |}>,
-    |},
-    +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest1Query = {|
+};
+export type RelayModernEnvironmentWithOperationTrackerTest1Query$data = {
+  readonly node: ?{
+    readonly body?: ?{
+      readonly text: ?string,
+    },
+    readonly comments?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly id: string,
+          readonly message: ?{
+            readonly text: ?string,
+          },
+        },
+      }>,
+    },
+    readonly id?: string,
+  },
+};
+export type RelayModernEnvironmentWithOperationTrackerTest1Query = {
   response: RelayModernEnvironmentWithOperationTrackerTest1Query$data,
   variables: RelayModernEnvironmentWithOperationTrackerTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

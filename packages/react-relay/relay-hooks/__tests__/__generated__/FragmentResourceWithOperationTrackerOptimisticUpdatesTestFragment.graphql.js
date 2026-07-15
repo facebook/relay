@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b8b1773470e59b00dfcfef1afd67de8b>>
+ * @generated SignedSource<<ab504b05c2abb8307b37a8e223d648b7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,14 +19,14 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType: FragmentType;
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
-|};
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
+};
 export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$key = {
-  +$data?: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$data,
-  +$fragmentSpreads: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
+  readonly $data?: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$data,
+  readonly $fragmentSpreads: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
   ...
 };
 */

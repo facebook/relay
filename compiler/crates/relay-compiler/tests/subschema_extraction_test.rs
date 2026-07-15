@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6ebe426cb1c1ab9d8105c252e78e883c>>
+ * @generated SignedSource<<8861d2f642fcf2b7ea4689406406f61f>>
  */
 
 mod subschema_extraction;
 
 use subschema_extraction::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn connection_page_info() {
+    let input = include_str!("subschema_extraction/fixtures/connection_page_info.input");
+    let expected = include_str!("subschema_extraction/fixtures/connection_page_info.expected");
+    test_fixture(transform_fixture, file!(), "connection_page_info.input", "subschema_extraction/fixtures/connection_page_info.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn inlined_nested_input() {

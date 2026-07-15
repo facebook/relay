@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<175f8da1ca8b0fcd36ad513c7bfdb51f>>
+ * @generated SignedSource<<466c36b51a66379518f7c9b836f368f3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,30 +18,30 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType } from "./MultiActorEnvironmentExecuteMutationTestCommentFragment.graphql";
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables = {|
+};
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables = {
   input: CommentCreateInput,
-|};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +$fragmentSpreads: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
-    |},
-  |},
-|};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation = {|
+};
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly $fragmentSpreads: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
+    },
+  },
+};
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation = {
   response: MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data,
   variables: MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

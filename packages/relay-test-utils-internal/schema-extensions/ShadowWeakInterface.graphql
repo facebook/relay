@@ -1,0 +1,10 @@
+# A "magic fragment" (`@returnFragment` shadow resolver) return INTERFACE whose
+# implementors are ALL `@weak` client models (`ShadowWeakAlpha`, `ShadowWeakBeta`,
+# declared via docblock in ShadowWeakDuoResolvers.js) -- no server-value member, so
+# the artifact carries NO `serverWeakTypes`. The return is still abstract
+# (`concreteType == null`), so the resolver returns a per-`__typename` discriminated
+# `{__typename, __relay_model_instance}` value and each arm is read inline off its
+# model instance. This is the interface-weak case.
+interface IShadowWeakDuo {
+  label: String
+}

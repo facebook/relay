@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<63ef2f7fb6ff27147f8c12fc05e2feec>>
+ * @generated SignedSource<<75d5c4ca81966036d1114722ebd928b8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,28 +17,23 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type commitMutationTest1Query$variables = {||};
-export type commitMutationTest1Query$data = {|
-  +node: ?({|
-    +__typename: "Feedback",
-    +topLevelComments: ?{|
-      +count: ?number,
-      +edges: ?ReadonlyArray<?{|
-        +node: ?{|
-          +id: string,
-        |},
-      |}>,
-    |},
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type commitMutationTest1Query = {|
+export type commitMutationTest1Query$variables = {};
+export type commitMutationTest1Query$data = {
+  readonly node: ?{
+    readonly topLevelComments?: ?{
+      readonly count: ?number,
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly id: string,
+        },
+      }>,
+    },
+  },
+};
+export type commitMutationTest1Query = {
   response: commitMutationTest1Query$data,
   variables: commitMutationTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

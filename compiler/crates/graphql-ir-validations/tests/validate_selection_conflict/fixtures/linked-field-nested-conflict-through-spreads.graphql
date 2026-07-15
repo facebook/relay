@@ -1,0 +1,20 @@
+# expected-to-throw
+# Nested linked field conflict reached through fragment spreads.
+query TestQuery {
+  me {
+    ...F1
+    ...F2
+  }
+}
+
+fragment F1 on User {
+  profile_picture {
+    same_alias: width
+  }
+}
+
+fragment F2 on User {
+  profile_picture {
+    same_alias: height
+  }
+}

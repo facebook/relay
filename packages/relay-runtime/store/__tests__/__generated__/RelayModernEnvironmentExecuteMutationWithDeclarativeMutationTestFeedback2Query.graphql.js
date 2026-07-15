@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<625e118f7dfcfc3e628fbae164a41623>>
+ * @generated SignedSource<<ef80e2de158e672bf17db92e1514abca>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,27 +17,27 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$variables = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$data = {|
-  +node: ?{|
-    +comments: ?{|
-      +__id: string,
-      +edges: ?ReadonlyArray<?{|
-        +__typename: "CommentsEdge",
-        +node: ?{|
-          +__typename: "Comment",
-          +id: string,
-        |},
-      |}>,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$data = {
+  readonly node: ?{
+    readonly comments: ?{
+      readonly __id: string,
+      readonly edges: ?ReadonlyArray<?{
+        readonly __typename: "CommentsEdge",
+        readonly node: ?{
+          readonly __typename: "Comment",
+          readonly id: string,
+        },
+      }>,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query = {
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$data,
   variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

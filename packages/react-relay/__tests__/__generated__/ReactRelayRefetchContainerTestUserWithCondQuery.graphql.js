@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6d1474c9a5b1e78d32358366b6ff7031>>
+ * @generated SignedSource<<80cc86edd0eb4d8b9464c5732c3412e3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayRefetchContainerTestUserFragment$fragmentType } from "./ReactRelayRefetchContainerTestUserFragment.graphql";
-export type ReactRelayRefetchContainerTestUserWithCondQuery$variables = {|
+export type ReactRelayRefetchContainerTestUserWithCondQuery$variables = {
   condGlobal: boolean,
   id: string,
-|};
-export type ReactRelayRefetchContainerTestUserWithCondQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: ReactRelayRefetchContainerTestUserFragment$fragmentType,
-  |},
-|};
-export type ReactRelayRefetchContainerTestUserWithCondQuery = {|
+};
+export type ReactRelayRefetchContainerTestUserWithCondQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: ReactRelayRefetchContainerTestUserFragment$fragmentType,
+  },
+};
+export type ReactRelayRefetchContainerTestUserWithCondQuery = {
   response: ReactRelayRefetchContainerTestUserWithCondQuery$data,
   variables: ReactRelayRefetchContainerTestUserWithCondQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

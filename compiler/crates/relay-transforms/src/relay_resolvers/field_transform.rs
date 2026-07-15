@@ -18,8 +18,8 @@ use docblock_shared::IMPORT_NAME_ARGUMENT_NAME;
 use docblock_shared::IMPORT_PATH_ARGUMENT_NAME;
 use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
 use docblock_shared::LIVE_ARGUMENT_NAME;
+use docblock_shared::MAY_WATERFALL_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
-use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use docblock_shared::RESOLVER_PROPERTY_LOOKUP_NAME;
 use docblock_shared::RETURN_FRAGMENT_ARGUMENT_NAME;
 use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
@@ -38,6 +38,7 @@ use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use relay_config::ProjectName;
+use relay_schema::definitions::weak_object_instance_field;
 use schema::Field;
 use schema::FieldID;
 use schema::SDLSchema;
@@ -82,6 +83,9 @@ pub struct ResolverInfo {
     pub type_confirmed: bool,
     pub resolver_type: ResolverSchemaGenType,
     pub(crate) return_fragment: Option<WithLocation<FragmentDefinitionName>>,
+    /// The resolver declared `@mayWaterfall`: it may return a pointer to a
+    /// different server object, so consumers must acknowledge with `@waterfall`.
+    pub(crate) may_waterfall: bool,
 }
 
 // Public API
@@ -98,8 +102,9 @@ pub struct ResolverInfo {
 pub(super) fn relay_resolvers_fields_transform(
     project_name: ProjectName,
     program: &Program,
+    id_field_name: StringKey,
 ) -> DiagnosticsResult<Program> {
-    let mut transform = RelayResolverFieldTransform::new(project_name, program);
+    let mut transform = RelayResolverFieldTransform::new(project_name, program, id_field_name);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -116,15 +121,24 @@ struct RelayResolverFieldTransform<'program> {
     program: &'program Program,
     errors: Vec<Diagnostic>,
     path: Vec<&'program str>,
+    /// The project's `node_interface_id_field` (`id` by default). Used to detect a
+    /// non-Node server VALUE return type (a server object with no such field) for
+    /// the read-in-place shadow arm.
+    id_field_name: StringKey,
 }
 
 impl<'program> RelayResolverFieldTransform<'program> {
-    fn new(project_name: ProjectName, program: &'program Program) -> Self {
+    fn new(
+        project_name: ProjectName,
+        program: &'program Program,
+        id_field_name: StringKey,
+    ) -> Self {
         Self {
             program,
             errors: Default::default(),
             path: Vec::new(),
             project_name,
+            id_field_name,
         }
     }
 
@@ -190,7 +204,127 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         }
                     }
 
-                    let output_type_info = if resolver_info.has_output_type {
+                    // The single model-instance field of an `@weak` return
+                    // object, if the resolver's return type is a concrete `@weak`
+                    // model. A weak value has no DataID and no separate record to
+                    // refetch, so it must be read INLINE off
+                    // `<Type>____relay_model_instance` rather than via a pointer.
+                    let weak_object_instance_field =
+                        weak_object_instance_field(self.program.schema.as_ref(), inner_type);
+
+                    // Shadow resolvers (those declaring a `@returnFragment`) must
+                    // NEVER be treated as `@outputType` values. Doing so would
+                    // emit a `$normalization` split operation and
+                    // `isOutputType: true`, re-normalizing the returned value into
+                    // a second set of records. Instead the resolver returns a
+                    // pointer (DataID) and the consumer reads its selections off
+                    // the already-normalized record via the client-edge reader
+                    // selections. So `return_fragment.is_some()` dominates
+                    // `has_output_type` and forces the `EdgeTo` path below.
+                    //
+                    // EXCEPTION: a `@returnFragment` resolver whose return type is
+                    // a concrete `@weak` model has no pointer to return (no
+                    // DataID) — it must reach the inline `Composite`/WeakModel arm
+                    // just like a non-shadow weak `@outputType` resolver does. So
+                    // the `EdgeTo` suppression applies only to NON-weak returns.
+                    let has_output_type =
+                        resolver_info.has_output_type && resolver_info.return_fragment.is_none();
+
+                    // A shadow (`@returnFragment`) resolver whose return type is a
+                    // non-Node SERVER VALUE type (no `id`, not a Node, not `@weak`)
+                    // is read INLINE in place off the transplanted
+                    // `client:<parentid>:<field>` record via its injected `__id`.
+                    // Like the `@weak` arm it has no DataID pointer to
+                    // return and no separate record to refetch, so it must reach
+                    // the inline `Composite` arm rather than `EdgeTo`. `build_ast`
+                    // detects the same server-value classification to emit a
+                    // read-in-place `normalizationInfo` (no `normalizationNode`),
+                    // so no second normalization (double-store) occurs.
+                    let is_shadow_server_value_return =
+                        relay_schema::definitions::is_server_weak_shadow_return(
+                            self.program.schema.as_ref(),
+                            inner_type,
+                            self.id_field_name,
+                            resolver_info.return_fragment.is_some(),
+                        );
+
+                    // A shadow (`@returnFragment`) resolver whose return type is an
+                    // INTERFACE/UNION with at least one `@weak` or non-Node
+                    // server-VALUE implementor. An abstract type has no
+                    // object id, so weak/value-ness is per-implementor — detected
+                    // here at the interface level. Like the concrete weak/value arms
+                    // it must reach the inline `Composite` arm (NOT `EdgeTo`) so
+                    // `build_ast` emits the backing-field `normalizationInfo` the
+                    // runtime needs to take the inline branch for the weak/value
+                    // members; strong Node implementors keep the pointer +
+                    // `@waterfall` refetch arm via the per-implementor dispatch in
+                    // `client_edges` / the reader. Weak-detection must NOT fire on
+                    // the interface return type itself (it has no instance field), so
+                    // `weak_object_instance_field` stays `None` here and `build_ast`
+                    // derives the per-implementor kind from the interface members.
+                    let is_shadow_abstract_inline_return =
+                        relay_schema::definitions::abstract_shadow_return_has_inline_implementor(
+                            self.program.schema.as_ref(),
+                            inner_type,
+                            self.id_field_name,
+                            resolver_info.return_fragment.is_some(),
+                        );
+
+                    let output_type_info = if weak_object_instance_field.is_some() {
+                        // Concrete `@weak` return: route to the inline arm,
+                        // carrying the model-instance field so `build_ast` emits
+                        // `normalizationInfo.kind: "WeakModel"` and the reader
+                        // reads the value inline (no pointer, no refetch). This
+                        // covers both `@outputType` weak resolvers and shadow
+                        // (`@returnFragment`) weak resolvers.
+                        let normalization_operation = generate_name_for_nested_object_operation(
+                            self.project_name,
+                            &self.program.schema,
+                            self.program.schema.field(field.definition().item),
+                        );
+                        ResolverOutputTypeInfo::Composite(ResolverNormalizationInfo {
+                            inner_type,
+                            plural: schema_field.type_.is_list(),
+                            normalization_operation,
+                            weak_object_instance_field,
+                        })
+                    } else if is_shadow_server_value_return {
+                        // Server VALUE return read in place: route to the inline
+                        // `Composite` arm (NOT `EdgeTo`). `weak_object_instance_field`
+                        // is `None` (it is not a `@weak` model); `build_ast`
+                        // recognizes the server-value classification and emits a
+                        // `ServerWeak` `normalizationInfo` so the runtime reads the
+                        // transplanted record in place with NO second normalization.
+                        let normalization_operation = generate_name_for_nested_object_operation(
+                            self.project_name,
+                            &self.program.schema,
+                            self.program.schema.field(field.definition().item),
+                        );
+                        ResolverOutputTypeInfo::Composite(ResolverNormalizationInfo {
+                            inner_type,
+                            plural: schema_field.type_.is_list(),
+                            normalization_operation,
+                            weak_object_instance_field: None,
+                        })
+                    } else if is_shadow_abstract_inline_return {
+                        // Interface/union shadow return with a weak/value implementor:
+                        // route to the inline `Composite` arm. `inner_type` is the
+                        // abstract type (no object id), so `weak_object_instance_field`
+                        // stays `None`; `build_ast` derives the per-implementor
+                        // `normalizationInfo.kind` (WeakModel / ServerWeak) from the
+                        // interface members via `abstract_shadow_return_inline_kind`.
+                        let normalization_operation = generate_name_for_nested_object_operation(
+                            self.project_name,
+                            &self.program.schema,
+                            self.program.schema.field(field.definition().item),
+                        );
+                        ResolverOutputTypeInfo::Composite(ResolverNormalizationInfo {
+                            inner_type,
+                            plural: schema_field.type_.is_list(),
+                            normalization_operation,
+                            weak_object_instance_field: None,
+                        })
+                    } else if has_output_type {
                         if inner_type.is_composite_type() {
                             let normalization_operation = generate_name_for_nested_object_operation(
                                 self.project_name,
@@ -198,31 +332,12 @@ impl<'program> RelayResolverFieldTransform<'program> {
                                 self.program.schema.field(field.definition().item),
                             );
 
-                            let weak_object_instance_field =
-                                inner_type.get_object_id().and_then(|id| {
-                                    let object = self.program.schema.object(id);
-                                    if object
-                                        .directives
-                                        .named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE)
-                                        .is_some()
-                                    {
-                                        // This is expect to be `__relay_model_instance`
-                                        // TODO: Add validation/panic to assert that weak object has only
-                                        // one field here, and it's a magic relay instance field.
-                                        Some(*object.fields.first().unwrap())
-                                    } else {
-                                        None
-                                    }
-                                });
-
-                            ResolverOutputTypeInfo::Composite(
-                                ResolverNormalizationInfo {
-                                    inner_type,
-                                    plural: schema_field.type_.is_list(),
-                                    normalization_operation,
-                                    weak_object_instance_field,
-                                },
-                            )
+                            ResolverOutputTypeInfo::Composite(ResolverNormalizationInfo {
+                                inner_type,
+                                plural: schema_field.type_.is_list(),
+                                normalization_operation,
+                                weak_object_instance_field: None,
+                            })
                         } else {
                             ResolverOutputTypeInfo::ScalarField
                         }
@@ -374,6 +489,7 @@ pub fn get_resolver_info(
             let live = get_bool_argument_is_true(arguments, *LIVE_ARGUMENT_NAME);
             let has_output_type =
                 get_bool_argument_is_true(arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME);
+            let may_waterfall = get_bool_argument_is_true(arguments, *MAY_WATERFALL_ARGUMENT_NAME);
             let import_name =
                 get_argument_value(arguments, *IMPORT_NAME_ARGUMENT_NAME, error_location).ok();
             let inject_fragment_data = get_argument_value(
@@ -431,6 +547,7 @@ pub fn get_resolver_info(
                 type_confirmed,
                 resolver_type,
                 return_fragment,
+                may_waterfall,
             })
         })
 }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4aa7b123c2270bca5d0185ab4d2524c8>>
+ * @generated SignedSource<<c9ed972dfe708f59f1cce87150c0b468>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,28 +17,28 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayOperationTrackerTest1Mutation$variables = {|
+};
+export type RelayOperationTrackerTest1Mutation$variables = {
   input?: ?CommentCreateInput,
-|};
-export type RelayOperationTrackerTest1Mutation$data = {|
-  +commentCreate: ?{|
-    +__typename: "CommentCreateResponsePayload",
-  |},
-|};
-export type RelayOperationTrackerTest1Mutation = {|
+};
+export type RelayOperationTrackerTest1Mutation$data = {
+  readonly commentCreate: ?{
+    readonly __typename: "CommentCreateResponsePayload",
+  },
+};
+export type RelayOperationTrackerTest1Mutation = {
   response: RelayOperationTrackerTest1Mutation$data,
   variables: RelayOperationTrackerTest1Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

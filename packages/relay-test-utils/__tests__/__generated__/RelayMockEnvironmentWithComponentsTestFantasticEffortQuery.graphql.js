@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2ec3cde784c4ff3f312e428be91d2129>>
+ * @generated SignedSource<<c0c6dd8531fe379a18e26fcbac5dfde4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayMockEnvironmentWithComponentsTestFantasticEffortQuery$variables = {|
+export type RelayMockEnvironmentWithComponentsTestFantasticEffortQuery$variables = {
   id?: ?string,
-|};
-export type RelayMockEnvironmentWithComponentsTestFantasticEffortQuery$data = {|
-  +user: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestFantasticEffortQuery = {|
+};
+export type RelayMockEnvironmentWithComponentsTestFantasticEffortQuery$data = {
+  readonly user: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestFantasticEffortQuery = {
   response: RelayMockEnvironmentWithComponentsTestFantasticEffortQuery$data,
   variables: RelayMockEnvironmentWithComponentsTestFantasticEffortQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

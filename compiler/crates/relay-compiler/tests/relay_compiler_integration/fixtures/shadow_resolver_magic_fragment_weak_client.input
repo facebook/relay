@@ -1,0 +1,68 @@
+//- UserWeakPage.js
+// Shadow resolver whose return interface has a single CLIENT @weak (value) model
+// implementor.
+//
+// `weak_page` returns the client interface `IWeakPage`, whose ONLY implementor is
+// the CLIENT @weak model `WeakPage`. A @weak model is a value type: it has no
+// DataID, is never fetched via `node(id:)`, and is read INLINE off
+// `__relay_model_instance` -- no pointer, no refetch. The consumer's `title`
+// selection must therefore read inline (the WeakModel arm), NOT through a
+// `ClientObject` DataID pointer. (The return interface is id-less: a @weak value
+// cannot implement Node.)
+//
+// The target artifact is a `ClientEdgeToClientObject` with EMPTY `modelResolvers`
+// and `normalizationInfo.kind: "WeakModel"`, and NO `serverObjectOperations`
+// (a weak value has no separate record to refetch).
+/**
+ * @relayField User.weak_page: IWeakPage
+ * @rootFragment UserWeakPageResolverFragment
+ * @returnFragment UserWeakPageReturnFragment
+ */
+graphql`fragment UserWeakPageResolverFragment on User {
+  page {
+    ...UserWeakPageReturnFragment
+  }
+}`
+
+//- WeakPageResolver.js
+/**
+ * @relayType WeakPage implements IWeakPage
+ * @weak
+ */
+
+//- WeakPageTitleResolver.js
+/**
+ * @relayField WeakPage.title: String
+ */
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    weak_page {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IWeakPage {
+  title: String
+}

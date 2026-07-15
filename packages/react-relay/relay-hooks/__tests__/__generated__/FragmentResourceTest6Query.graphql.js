@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9e3946f2b6b3e33f670ba199d0cad0dd>>
+ * @generated SignedSource<<74058a35ab0f427ca2c294daec3ce3a4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,21 +18,21 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceTest6Fragment$fragmentType } from "./FragmentResourceTest6Fragment.graphql";
-export type FragmentResourceTest6Query$variables = {|
+export type FragmentResourceTest6Query$variables = {
   foo: boolean,
   id: string,
-|};
-export type FragmentResourceTest6Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +name?: ?string,
-    +$fragmentSpreads: FragmentResourceTest6Fragment$fragmentType,
-  |},
-|};
-export type FragmentResourceTest6Query = {|
+};
+export type FragmentResourceTest6Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly name?: ?string,
+    readonly $fragmentSpreads: FragmentResourceTest6Fragment$fragmentType,
+  },
+};
+export type FragmentResourceTest6Query = {
   response: FragmentResourceTest6Query$data,
   variables: FragmentResourceTest6Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

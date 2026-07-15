@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c959863b5b50398ff0845aeffc4359c1>>
+ * @generated SignedSource<<47f7614adf8e3555d64bd3db8bab9fb8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,17 +17,17 @@
 
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
-export type ClientOnlyQueriesTestUpdatableQuery$variables = {||};
-export type ClientOnlyQueriesTestUpdatableQuery$data = {|
-  get defaultSettings(): ?{|
+export type ClientOnlyQueriesTestUpdatableQuery$variables = {};
+export type ClientOnlyQueriesTestUpdatableQuery$data = {
+  get defaultSettings(): ?{
     client_field: ?string,
-  |},
+  },
   set defaultSettings(value: null | void): void,
-|};
-export type ClientOnlyQueriesTestUpdatableQuery = {|
+};
+export type ClientOnlyQueriesTestUpdatableQuery = {
   response: ClientOnlyQueriesTestUpdatableQuery$data,
   variables: ClientOnlyQueriesTestUpdatableQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteUpdatableQuery*/ = {

@@ -19,7 +19,7 @@ path = "tests/type_information_test.rs"
 [dependencies]
 common = { path = "../common" }
 crossbeam = "0.8"
-dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
+dashmap = { version = "6.2.1", features = ["rayon", "serde"] }
 docblock-shared = { path = "../docblock-shared" }
 docblock-syntax = { path = "../docblock-syntax" }
 dunce = "1.0.5"
@@ -30,13 +30,12 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
 intern = { path = "../intern" }
-itertools = "0.14.0"
-lazy_static = "1.5"
-log = { version = "0.4.29", features = ["kv_unstable", "kv_unstable_std"] }
+itertools = "0.15.0"
+log = { version = "0.4.33", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-server = "0.7.9"
-lsp-types = "0.94.1"
+lsp-types = "0.97"
 percent-encoding = "2.1"
-rand = { version = "0.9", features = ["small_rng"] }
+rand = "0.10.2"
 rayon = "1.11.0"
 relay-compiler = { path = "../relay-compiler" }
 relay-docblock = { path = "../relay-docblock" }
@@ -48,7 +47,7 @@ schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
 serde = { version = "1.0.219", features = ["derive", "rc"] }
 serde_json = { version = "1.0.140", features = ["alloc", "float_roundtrip", "raw_value", "unbounded_depth"] }
-tokio = { version = "1.50.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.52.3", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

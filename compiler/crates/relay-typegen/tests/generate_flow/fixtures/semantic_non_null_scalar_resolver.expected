@@ -17,12 +17,12 @@ import clientUserNameResolverType from "bar";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (clientUserNameResolverType as () => unknown);
 declare export opaque type MyFragment$fragmentType: FragmentType;
-export type MyFragment$data = {|
-  +name: NonNullable<ReturnType<typeof clientUserNameResolverType>>,
-  +$fragmentType: MyFragment$fragmentType,
-|};
+export type MyFragment$data = {
+  readonly name: NonNullable<ReturnType<typeof clientUserNameResolverType>>,
+  readonly $fragmentType: MyFragment$fragmentType,
+};
 export type MyFragment$key = {
-  +$data?: MyFragment$data,
-  +$fragmentSpreads: MyFragment$fragmentType,
+  readonly $data?: MyFragment$data,
+  readonly $fragmentSpreads: MyFragment$fragmentType,
   ...
 };

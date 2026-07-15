@@ -22,9 +22,9 @@ Before getting started, bear in mind that we assume some level of familiarity wi
 
 <FbInternalOnly>
 
-* [Javascript](https://our.internmc.facebook.com/intern/wiki/JavaScript/)
-* [React](https://our.internmc.facebook.com/intern/wiki/ReactGuide/)
-* [GraphQL](https://our.internmc.facebook.com/intern/wiki/GraphQL/) and our internal [GraphQL Server](https://our.internmc.facebook.com/intern/wiki/Graphql-for-hack-developers/)
+* [Javascript](https://www.internalfb.com/intern/wiki/JavaScript/)
+* [React](https://www.internalfb.com/intern/wiki/ReactGuide/)
+* [GraphQL](https://www.internalfb.com/intern/wiki/GraphQL/) and our internal [GraphQL Server](https://www.internalfb.com/intern/wiki/Graphql-for-hack-developers/)
 
 </FbInternalOnly>
 

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6d3871bcc4801e0bccbbad7bf81b8c05>>
+ * @generated SignedSource<<f23cbc7589abf0cbae6c0832a2e6d7e9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType } from "./useRefetchableFragmentNodeTestUserFragmentWithArgs.graphql";
-export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$variables = {|
+export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$variables = {
   id: string,
-|};
-export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
-  |},
-|};
-export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery = {|
+};
+export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
+  },
+};
+export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery = {
   response: useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$data,
   variables: useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

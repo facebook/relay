@@ -12,38 +12,41 @@
 //!
 //! See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
 
+use std::sync::LazyLock;
+
+use common::DiagnosticsResult;
 use common::ScalarName;
 use intern::string_key::Intern;
-use intern::string_key::StringKeySet;
-use lazy_static::lazy_static;
+use schema_coordinates::SchemaCoordinate;
 
+use crate::DirectivePolicies;
+use crate::schema_set::SchemaDefinitionItem;
 use crate::schema_set::SchemaSet;
 use crate::schema_set::SetScalar;
 use crate::schema_set::SetType;
 use crate::set_merges::Merges;
 
-lazy_static! {
-    /// A SchemaSet containing only the built-in GraphQL scalar types.
-    /// This set has no root types (Query, Mutation, Subscription), no directives,
-    /// and only the 5 built-in scalars.
-    /// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
-    pub static ref BUILTIN_SCALAR_SET: SchemaSet = {
-        let mut set = SchemaSet::new();
+/// A SchemaSet containing only the built-in GraphQL scalar types.
+/// This set has no root types (Query, Mutation, Subscription), no directives,
+/// and only the 5 built-in scalars.
+/// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
+pub static BUILTIN_SCALAR_SET: LazyLock<SchemaSet> = LazyLock::new(|| {
+    let mut set = SchemaSet::new();
 
-        for name in ["Int", "Float", "String", "Boolean", "ID"] {
-            let key = name.intern();
-            set.types.insert(
-                key,
-                SetType::Scalar(SetScalar {
-                    name: ScalarName(key),
-                    directives: vec![],
-                    definition: None,
-                }),
-            );
-        }
-        set
-    };
-}
+    for name in ["Int", "Float", "String", "Boolean", "ID"] {
+        let key = name.intern();
+        set.types.insert(
+            key,
+            SetType::Scalar(SetScalar {
+                name: ScalarName(key),
+                directives: vec![],
+                definition: SchemaDefinitionItem::default(),
+                coordinate: Some(SchemaCoordinate::Type { name: key }),
+            }),
+        );
+    }
+    set
+});
 
 /// Adds built-in scalar types (Int, Float, String, Boolean, ID) to the schema.
 ///
@@ -51,8 +54,8 @@ lazy_static! {
 /// include built-in scalar definitions.
 ///
 /// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
-pub fn add_built_in_scalars(schema_set: &mut SchemaSet) {
-    schema_set.merge(BUILTIN_SCALAR_SET.clone());
+pub fn add_built_in_scalars(schema_set: &mut SchemaSet) -> DiagnosticsResult<()> {
+    schema_set.merge(BUILTIN_SCALAR_SET.clone())
 }
 
 /// Removes built-in scalar types (Int, Float, String, Boolean, ID) from the schema.
@@ -62,7 +65,7 @@ pub fn add_built_in_scalars(schema_set: &mut SchemaSet) {
 ///
 /// See https://spec.graphql.org/draft/#sec-Scalars.Built-in-Scalars
 pub fn remove_built_in_scalars(schema_set: &SchemaSet) -> SchemaSet {
-    schema_set.exclude_set(&BUILTIN_SCALAR_SET, &StringKeySet::default())
+    schema_set.exclude_set(&BUILTIN_SCALAR_SET, &DirectivePolicies::default())
 }
 
 #[cfg(test)]
@@ -75,11 +78,12 @@ mod tests {
     use crate::ToSDLDefinition;
 
     fn set_from_str(sdl: &str) -> SchemaSet {
-        SchemaSet::from_schema_documents(&[parse_schema_document(
+        SchemaSet::from_base_schema_documents(&[parse_schema_document(
             sdl,
             SourceLocationKey::generated(),
         )
         .unwrap()])
+        .unwrap()
     }
 
     // The reason we are testing SchemaSet::new here is that it's important for
@@ -119,7 +123,7 @@ mod tests {
         let mut schema_set = SchemaSet::new();
         assert!(!schema_set.types.contains_key(&"String".intern()));
 
-        add_built_in_scalars(&mut schema_set);
+        add_built_in_scalars(&mut schema_set).unwrap();
 
         assert!(schema_set.types.contains_key(&"String".intern()));
         assert!(schema_set.types.contains_key(&"Int".intern()));

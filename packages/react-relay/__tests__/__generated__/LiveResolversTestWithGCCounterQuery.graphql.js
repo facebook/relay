@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<89952f7ac2222e102486d8111e7f7b86>>
+ * @generated SignedSource<<da8e5d645974de62844c9759f83677f0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -27,14 +26,14 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type LiveResolversTestWithGCCounterQuery$variables = {||};
-export type LiveResolversTestWithGCCounterQuery$data = {|
-  +counter_no_fragment: ?number,
-|};
-export type LiveResolversTestWithGCCounterQuery = {|
+export type LiveResolversTestWithGCCounterQuery$variables = {};
+export type LiveResolversTestWithGCCounterQuery$data = {
+  readonly counter_no_fragment: ?number,
+};
+export type LiveResolversTestWithGCCounterQuery = {
   response: LiveResolversTestWithGCCounterQuery$data,
   variables: LiveResolversTestWithGCCounterQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

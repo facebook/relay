@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1560db3f4ad391745614fde174ea934e>>
+ * @generated SignedSource<<c273770f29c17612bb705b1507a3c916>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,19 +19,19 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest15Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest15Fragment$data = {|
-  +id: string,
-  +name?: ?string,
-  +profile_picture: ?{|
-    +height: ?number,
-    +uri: ?string,
-    +width: ?number,
-  |},
-  +$fragmentType: RelayMockPayloadGeneratorTest15Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest15Fragment$data = {
+  readonly id: string,
+  readonly name?: ?string,
+  readonly profile_picture: ?{
+    readonly height: ?number,
+    readonly uri: ?string,
+    readonly width: ?number,
+  },
+  readonly $fragmentType: RelayMockPayloadGeneratorTest15Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest15Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest15Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest15Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest15Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest15Fragment$fragmentType,
   ...
 };
 */

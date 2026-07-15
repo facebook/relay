@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5a776f918ded7ac589d14f8947fff5c9>>
+ * @generated SignedSource<<8348dfb5f5c436eec8a0c5f15459ac0f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment$fragmentType } from "./RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment.graphql";
-export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$variables = {|
+export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$variables = {
   id: string,
-|};
-export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment$fragmentType,
-  |},
-|};
-export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery = {|
+};
+export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment$fragmentType,
+  },
+};
+export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery = {
   response: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$data,
   variables: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

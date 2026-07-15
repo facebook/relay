@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8c1f37f3260393281f86a9d114d84251>>
+ * @generated SignedSource<<95cc6da9804c658bc8cfb9576e2ce5b5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,41 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type ConnectionHandlerTestConnectionQuery$variables = {|
+export type ConnectionHandlerTestConnectionQuery$variables = {
   after?: ?string,
   before?: ?string,
   count?: ?number,
   id: string,
   orderby?: ?ReadonlyArray<?string>,
-|};
-export type ConnectionHandlerTestConnectionQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +friends: ?{|
-      +count: ?number,
-      +edges: ?ReadonlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +id: string,
-        |},
-      |}>,
-      +pageInfo: ?{|
-        +endCursor: ?string,
-        +hasNextPage: ?boolean,
-        +hasPreviousPage: ?boolean,
-        +startCursor: ?string,
-      |},
-    |},
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type ConnectionHandlerTestConnectionQuery = {|
+};
+export type ConnectionHandlerTestConnectionQuery$data = {
+  readonly node: ?{
+    readonly friends?: ?{
+      readonly count: ?number,
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly id: string,
+        },
+      }>,
+      readonly pageInfo: ?{
+        readonly endCursor: ?string,
+        readonly hasNextPage: ?boolean,
+        readonly hasPreviousPage: ?boolean,
+        readonly startCursor: ?string,
+      },
+    },
+  },
+};
+export type ConnectionHandlerTestConnectionQuery = {
   response: ConnectionHandlerTestConnectionQuery$data,
   variables: ConnectionHandlerTestConnectionQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

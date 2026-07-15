@@ -142,7 +142,7 @@ pub fn on_references(
     let references_response = get_references_response(
         node_resolution_info,
         &state
-            .get_program(&state.extract_project_name_from_url(
+            .get_program(&state.extract_project_name_from_uri(
                 &params.text_document_position.text_document.uri,
             )?)?,
         &state.root_dir(),

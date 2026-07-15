@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+directive @bar(x: Int) on OBJECT
+
+type Foo @bar(x: 1) {
+  id: ID
+}
+
+type Query {
+  foo: Foo
+}
+%extensions%
+extend type Foo @bar(x: 2)
+==================================== ERROR ====================================
+✖︎ The directive `@bar` can only be used once at this location, but was used 2 times.
+
+  object-extension-duplicate-directive-differing-args.graphql:5:6
+    4 │ 
+    5 │ type Foo @bar(x: 1) {
+      │      ^^^
+    6 │   id: ID

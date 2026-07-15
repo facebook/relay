@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b85ecc76fefc8f220cac189c1307eeff>>
+ * @generated SignedSource<<91c2695ddf92562b5f25b0cd28409c29>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,22 +17,22 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernStoreFieldGranularNotificationsTestMeQuery$variables = {|
+export type RelayModernStoreFieldGranularNotificationsTestMeQuery$variables = {
   size?: ?ReadonlyArray<?number>,
-|};
-export type RelayModernStoreFieldGranularNotificationsTestMeQuery$data = {|
-  +me: ?{|
-    +emailAddresses: ?ReadonlyArray<?string>,
-    +name: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type RelayModernStoreFieldGranularNotificationsTestMeQuery = {|
+};
+export type RelayModernStoreFieldGranularNotificationsTestMeQuery$data = {
+  readonly me: ?{
+    readonly emailAddresses: ?ReadonlyArray<?string>,
+    readonly name: ?string,
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type RelayModernStoreFieldGranularNotificationsTestMeQuery = {
   response: RelayModernStoreFieldGranularNotificationsTestMeQuery$data,
   variables: RelayModernStoreFieldGranularNotificationsTestMeQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

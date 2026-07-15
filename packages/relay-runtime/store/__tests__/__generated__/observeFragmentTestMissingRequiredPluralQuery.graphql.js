@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7da45a6533a056d918b9f05ce6cd4ae8>>
+ * @generated SignedSource<<2257d9af88675d6d27631ca80da9bdcf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestMissingRequiredPluralFragment$fragmentType } from "./observeFragmentTestMissingRequiredPluralFragment.graphql";
-export type observeFragmentTestMissingRequiredPluralQuery$variables = {||};
-export type observeFragmentTestMissingRequiredPluralQuery$data = {|
-  +nodes: ?ReadonlyArray<?{|
-    +$fragmentSpreads: observeFragmentTestMissingRequiredPluralFragment$fragmentType,
-  |}>,
-|};
-export type observeFragmentTestMissingRequiredPluralQuery = {|
+export type observeFragmentTestMissingRequiredPluralQuery$variables = {};
+export type observeFragmentTestMissingRequiredPluralQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: observeFragmentTestMissingRequiredPluralFragment$fragmentType,
+  }>,
+};
+export type observeFragmentTestMissingRequiredPluralQuery = {
   response: observeFragmentTestMissingRequiredPluralQuery$data,
   variables: observeFragmentTestMissingRequiredPluralQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

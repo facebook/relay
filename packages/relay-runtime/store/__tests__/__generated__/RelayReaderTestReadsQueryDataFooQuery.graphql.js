@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e51176f1f50f4a615959ab680b11ad2b>>
+ * @generated SignedSource<<4e90b6257c7cf5be4c61aeb06ef9b3b7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,43 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderTestReadsQueryDataFooQuery$variables = {|
+export type RelayReaderTestReadsQueryDataFooQuery$variables = {
   id?: ?string,
   size?: ?ReadonlyArray<?number>,
-|};
-export type RelayReaderTestReadsQueryDataFooQuery$data = {|
-  +node: ?({|
-    +__typename: "Page",
-    +actors: ?ReadonlyArray<?{|
-      +name: ?string,
-    |}>,
-    +id: string,
-  |} | {|
-    +__typename: "User",
-    +firstName: ?string,
-    +friends: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +firstName: ?string,
-          +id: string,
-        |},
-      |}>,
-    |},
-    +id: string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayReaderTestReadsQueryDataFooQuery = {|
+};
+export type RelayReaderTestReadsQueryDataFooQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly actors?: ?ReadonlyArray<?{
+      readonly name: ?string,
+    }>,
+    readonly firstName?: ?string,
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly firstName: ?string,
+          readonly id: string,
+        },
+      }>,
+    },
+    readonly id: string,
+    readonly profilePicture?: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type RelayReaderTestReadsQueryDataFooQuery = {
   response: RelayReaderTestReadsQueryDataFooQuery$data,
   variables: RelayReaderTestReadsQueryDataFooQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

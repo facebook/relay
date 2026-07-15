@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dc1443678096432e314de76c6e2778bf>>
+ * @generated SignedSource<<75ea9e5e43adc77a7f41dd04c7d3cc62>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,17 +19,17 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernSelectorTestUsersFragment$fragmentType: FragmentType;
-export type RelayModernSelectorTestUsersFragment$data = ReadonlyArray<{|
-  +id: string,
-  +name: ?string,
-  +profilePicture?: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayModernSelectorTestUsersFragment$fragmentType,
-|}>;
+export type RelayModernSelectorTestUsersFragment$data = ReadonlyArray<{
+  readonly id: string,
+  readonly name: ?string,
+  readonly profilePicture?: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayModernSelectorTestUsersFragment$fragmentType,
+}>;
 export type RelayModernSelectorTestUsersFragment$key = ReadonlyArray<{
-  +$data?: RelayModernSelectorTestUsersFragment$data,
-  +$fragmentSpreads: RelayModernSelectorTestUsersFragment$fragmentType,
+  readonly $data?: RelayModernSelectorTestUsersFragment$data,
+  readonly $fragmentSpreads: RelayModernSelectorTestUsersFragment$fragmentType,
   ...
 }>;
 */

@@ -1,0 +1,114 @@
+//- PersonComponent.js
+// Test: Two levels of nested abstract fields on mixed interfaces.
+// IPerson.pet: IAnimal, IAnimal.toy: IToy.
+// DogPerson (server) has pet: Dog; Dog (server) has toy: DogToy.
+// CatPerson (client) has pet: Cat; Cat (client) has toy: CatToy.
+// After filtering, inside DogPerson: pet should only have ... on Dog,
+// and inside Dog: toy should only have ... on DogToy. No CatToy
+// should appear inside the Dog branch.
+graphql`query PersonComponentQuery {
+  person @waterfall {
+    pet {
+      toy { name }
+    }
+  }
+}`
+
+//- PersonResolver.js
+/**
+ * @relayField Query.person: IPerson
+ */
+export function person() {}
+
+//- CatPersonResolver.js
+/**
+ * @relayType CatPerson implements IPerson
+ */
+export function CatPerson() {}
+
+//- CatPersonPetResolver.js
+/**
+ * @relayField CatPerson.pet: Cat
+ */
+export function pet() {}
+
+//- CatResolver.js
+/**
+ * @relayType Cat implements IAnimal
+ */
+export function Cat() {}
+
+//- CatToyResolver.js
+/**
+ * @relayType CatToy implements IToy
+ */
+export function CatToy() {}
+
+//- CatPetToyResolver.js
+/**
+ * @relayField Cat.toy: CatToy
+ */
+export function toy() {}
+
+//- CatToyNameResolver.js
+/**
+ * @relayField CatToy.name: String
+ */
+export function name() {}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query {
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type DogToy implements Node {
+  id: ID!
+  name: String
+}
+
+type Dog implements Node {
+  id: ID!
+  toy: DogToy
+}
+
+type DogPerson implements Node {
+  id: ID!
+  pet: Dog
+}
+
+//- schema-extensions/extension.graphql
+interface IToy {
+  id: ID!
+  name: String
+}
+
+interface IAnimal {
+  id: ID!
+  toy: IToy
+}
+
+interface IPerson {
+  id: ID!
+  pet: IAnimal
+}
+
+extend type DogToy implements IToy
+extend type Dog implements IAnimal
+extend type DogPerson implements IPerson

@@ -344,6 +344,20 @@ fn parse_terse_relay_resolver_ir(
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
     let return_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::ReturnFragmentField)?;
+    let may_waterfall =
+        get_optional_unpopulated_field_named(fields, AllowedFieldName::MayWaterfallField)?;
+    // `@mayWaterfall` only makes sense on a shadow resolver: it declares that the
+    // returned pointer may target a different server object. Without
+    // `@returnFragment` there is no such pointer, so the tag would be a silent
+    // no-op — reject it instead.
+    if let Some(may_waterfall_field) = may_waterfall {
+        if return_fragment.is_none() {
+            return Err(vec![Diagnostic::error(
+                IrParsingErrorMessages::MayWaterfallRequiresReturnFragment,
+                may_waterfall_field.key_location,
+            )]);
+        }
+    }
     let type_str: WithLocation<StringKey> = relay_resolver_field.value;
 
     // Validate that the right hand side of the resolver tag is a valid identifier
@@ -425,6 +439,7 @@ fn parse_terse_relay_resolver_ir(
         location,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
+        may_waterfall,
         semantic_non_null,
         fragment_arguments,
         source_hash,

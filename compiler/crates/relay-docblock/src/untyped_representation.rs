@@ -20,6 +20,7 @@ use graphql_ir::reexport::StringKey;
 use crate::DEPRECATED_FIELD;
 use crate::EMPTY_STRING;
 use crate::LIVE_FIELD;
+use crate::MAY_WATERFALL_FIELD;
 use crate::RELAY_FIELD_FIELD;
 use crate::RELAY_RESOLVER_FIELD;
 use crate::RELAY_TYPE_FIELD;
@@ -48,6 +49,7 @@ pub enum AllowedFieldName {
     RelayFieldField,
     RootFragmentField,
     ReturnFragmentField,
+    MayWaterfallField,
     DeprecatedField,
     LiveField,
     WeakField,
@@ -62,6 +64,7 @@ impl Display for AllowedFieldName {
             AllowedFieldName::RelayFieldField => write!(f, "{}", *RELAY_FIELD_FIELD),
             AllowedFieldName::RootFragmentField => write!(f, "{}", *ROOT_FRAGMENT_FIELD),
             AllowedFieldName::ReturnFragmentField => write!(f, "{}", *RETURN_FRAGMENT_FIELD),
+            AllowedFieldName::MayWaterfallField => write!(f, "{}", *MAY_WATERFALL_FIELD),
             AllowedFieldName::DeprecatedField => write!(f, "{}", *DEPRECATED_FIELD),
             AllowedFieldName::LiveField => write!(f, "{}", *LIVE_FIELD),
             AllowedFieldName::WeakField => write!(f, "{}", *WEAK_FIELD),
@@ -80,6 +83,7 @@ impl TryFrom<WithLocation<StringKey>> for AllowedFieldName {
             value if value == *RELAY_FIELD_FIELD => Ok(AllowedFieldName::RelayFieldField),
             value if value == *ROOT_FRAGMENT_FIELD => Ok(AllowedFieldName::RootFragmentField),
             value if value == *RETURN_FRAGMENT_FIELD => Ok(AllowedFieldName::ReturnFragmentField),
+            value if value == *MAY_WATERFALL_FIELD => Ok(AllowedFieldName::MayWaterfallField),
             value if value == *DEPRECATED_FIELD => Ok(AllowedFieldName::DeprecatedField),
             value if value == *LIVE_FIELD => Ok(AllowedFieldName::LiveField),
             value if value == *SEMANTIC_NON_NULL_FIELD => {

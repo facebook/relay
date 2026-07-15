@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a7f4c2f0bf87de20dd4d46c70b4c4ea2>>
+ * @generated SignedSource<<17ede3563a7102977df5896800d4bc54>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType: FragmentType;
-export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data = {|
-  +name: ?string,
-  +$fragmentType: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
-|};
+export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data = {
+  readonly name: ?string,
+  readonly $fragmentType: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
+};
 export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$key = {
-  +$data?: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data,
-  +$fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
+  readonly $data?: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data,
+  readonly $fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
   ...
 };
 */

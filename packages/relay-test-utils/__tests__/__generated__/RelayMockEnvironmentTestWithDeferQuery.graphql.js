@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<836fd871eebd20735a9ae945e44e419c>>
+ * @generated SignedSource<<753cd989b6a9bbbb11c9849684cbf6e9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,24 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockEnvironmentTestWithDeferFragment_user$fragmentType } from "./RelayMockEnvironmentTestWithDeferFragment_user.graphql";
-export type RelayMockEnvironmentTestWithDeferQuery$variables = {|
+export type RelayMockEnvironmentTestWithDeferQuery$variables = {
   id: string,
-|};
-export type RelayMockEnvironmentTestWithDeferQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +id: string,
-    +$fragmentSpreads: RelayMockEnvironmentTestWithDeferFragment_user$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayMockEnvironmentTestWithDeferQuery = {|
+};
+export type RelayMockEnvironmentTestWithDeferQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayMockEnvironmentTestWithDeferFragment_user$fragmentType,
+  },
+};
+export type RelayMockEnvironmentTestWithDeferQuery = {
   response: RelayMockEnvironmentTestWithDeferQuery$data,
   variables: RelayMockEnvironmentTestWithDeferQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

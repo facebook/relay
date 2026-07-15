@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<75717ceafa9fc8447968600c70ca9a2b>>
+ * @generated SignedSource<<0f6b849291f122fa62b726720e1851eb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,17 +18,17 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type TodoDescription__some_client_type_with_interface$normalization = {|
-  +client_interface: {|
-    +__typename: "ClientTypeImplementingClientInterface",
-    +description: ?string,
-  |} | {|
-    +__typename: "OtherClientTypeImplementingClientInterface",
-    +description: ?string,
-  |} | {|
-    +__typename: string,
-  |},
-|};
+export type TodoDescription__some_client_type_with_interface$normalization = {
+  readonly client_interface: {
+    readonly __typename: "ClientTypeImplementingClientInterface",
+    readonly description: ?string,
+  } | {
+    readonly __typename: "OtherClientTypeImplementingClientInterface",
+    readonly description: ?string,
+  } | {
+    readonly __typename: string,
+  },
+};
 
 */
 

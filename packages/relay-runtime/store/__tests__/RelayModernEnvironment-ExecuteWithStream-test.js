@@ -99,7 +99,7 @@ describe('execute() a query with @stream', () => {
       },
     };
 
-    function getDataID(data: {+[string]: unknown}, typename: string) {
+    function getDataID(data: {readonly [string]: unknown}, typename: string) {
       if (typename === 'MessagingParticipant') {
         return `${typename}:${String(data.id)}`;
       }

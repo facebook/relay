@@ -11,8 +11,8 @@
 
 'use strict';
 
-export interface JSResourceReference<+T> {
-  +getModuleId: () => string;
-  +getModuleIfRequired: () => ?T;
-  +load: () => Promise<T>;
+export interface JSResourceReference<out T> {
+  readonly getModuleId: () => string;
+  readonly getModuleIfRequired: () => ?T;
+  readonly load: () => Promise<T>;
 }

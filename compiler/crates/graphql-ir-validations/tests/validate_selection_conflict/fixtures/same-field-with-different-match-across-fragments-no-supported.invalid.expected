@@ -1,0 +1,61 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# Two fragments select a field (without `supported` arg) with @match
+# but with different @module type conditions. This should still be
+# caught even though the field has no `supported` argument.
+query TestQuery {
+  me {
+    ...RowFragment
+  }
+}
+
+fragment RowFragment on User {
+  id
+  ...RootFragment
+  nameRendererNoSupported @match(key: "RowFragment_nameRendererNoSupported") {
+    ...PlainUserNameRenderer_row @module(name: "PlainRow.react")
+  }
+}
+
+fragment RootFragment on User {
+  nameRendererNoSupported @match(key: "RootFragment_nameRendererNoSupported") {
+    ...PlainUserNameRenderer_root @module(name: "PlainRoot.react")
+    ...MarkdownUserNameRenderer_root @module(name: "MarkdownRoot.react")
+  }
+}
+
+fragment PlainUserNameRenderer_row on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment PlainUserNameRenderer_root on PlainUserNameRenderer {
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_root on MarkdownUserNameRenderer {
+  markdown
+}
+
+%extensions%
+
+extend type User {
+  nameRendererNoSupported: UserNameRenderer
+}
+==================================== ERROR ====================================
+✖︎ Field 'nameRendererNoSupported' is marked with @match in multiple places. Please use an alias to distinguish them.
+
+  same-field-with-different-match-across-fragments-no-supported.invalid.graphql:20:3
+   19 │ fragment RootFragment on User {
+   20 │   nameRendererNoSupported @match(key: "RootFragment_nameRendererNoSupported") {
+      │   ^^^^^^^^^^^^^^^^^^^^^^^
+   21 │     ...PlainUserNameRenderer_root @module(name: "PlainRoot.react")
+
+  ℹ︎ the other field
+
+  same-field-with-different-match-across-fragments-no-supported.invalid.graphql:14:3
+   13 │   ...RootFragment
+   14 │   nameRendererNoSupported @match(key: "RowFragment_nameRendererNoSupported") {
+      │   ^^^^^^^^^^^^^^^^^^^^^^^
+   15 │     ...PlainUserNameRenderer_row @module(name: "PlainRow.react")

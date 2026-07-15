@@ -70,6 +70,7 @@ Field(
                     key_location: /path/to/test/fixture/relay-resolver-live.js:81:85,
                 },
             ),
+            may_waterfall: None,
             location: /path/to/test/fixture/relay-resolver-live.js:0:86,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

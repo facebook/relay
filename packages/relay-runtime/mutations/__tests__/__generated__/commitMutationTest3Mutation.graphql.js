@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<250b081c80f80151a68ac7f7974061c8>>
+ * @generated SignedSource<<a789380fe199fb3237624fa874fc9d9f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,26 +17,26 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type UnfriendInput = {|
+export type UnfriendInput = {
   friendId?: ?string,
-|};
-export type commitMutationTest3Mutation$variables = {|
+};
+export type commitMutationTest3Mutation$variables = {
   input?: ?UnfriendInput,
-|};
-export type commitMutationTest3Mutation$data = {|
-  +unfriend: ?{|
-    +actor: ?{|
-      +id: string,
-    |},
-    +formerFriend: ?{|
-      +id: string,
-    |},
-  |},
-|};
-export type commitMutationTest3Mutation = {|
+};
+export type commitMutationTest3Mutation$data = {
+  readonly unfriend: ?{
+    readonly actor: ?{
+      readonly id: string,
+    },
+    readonly formerFriend: ?{
+      readonly id: string,
+    },
+  },
+};
+export type commitMutationTest3Mutation = {
   response: commitMutationTest3Mutation$data,
   variables: commitMutationTest3Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

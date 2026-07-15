@@ -9,6 +9,7 @@ use std::collections::HashSet;
 use std::hash::Hash;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use ::intern::Lookup;
 use ::intern::intern;
@@ -30,21 +31,27 @@ use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use indexmap::map::Entry;
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use relay_config::CustomType;
 use relay_config::CustomTypeImport;
+use relay_config::OneOfGeneration;
 use relay_config::ResolverContextTypeInput;
 use relay_config::TypegenLanguage;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
+use relay_schema::definitions::AbstractInlineKind;
 use relay_schema::definitions::ResolverType;
+use relay_schema::definitions::abstract_shadow_return_has_server_implementor;
+use relay_schema::definitions::abstract_shadow_return_inline_kinds_by_typename;
+use relay_schema::definitions::abstract_shadow_return_is_mixed_inline;
+use relay_schema::definitions::is_server_weak_shadow_return;
 use relay_transforms::ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN;
 use relay_transforms::CATCH_DIRECTIVE_NAME;
 use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
@@ -64,14 +71,17 @@ use relay_transforms::UPDATABLE_DIRECTIVE_FOR_TYPEGEN;
 use relay_transforms::relay_resolvers::ResolverSchemaGenType;
 use schema::EnumID;
 use schema::Field;
+use schema::InputObject;
 use schema::ObjectID;
 use schema::SDLSchema;
 use schema::ScalarID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+use schema::definitions::TypeWithDirectives;
 
 use crate::FRAGMENT_PROP_NAME;
+use crate::KEY_CLIENTID;
 use crate::KEY_DATA_ID;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
@@ -124,12 +134,12 @@ use crate::writer::SortedStringKeyList;
 use crate::writer::SpreadProp;
 use crate::writer::StringLiteral;
 
-lazy_static! {
-    static ref THROW_ON_FIELD_ERROR_DIRECTIVE: DirectiveName =
-        DirectiveName("throwOnFieldError".intern());
-    static ref SEMANTIC_NON_NULL_DIRECTIVE: DirectiveName =
-        DirectiveName("semanticNonNull".intern());
-}
+static THROW_ON_FIELD_ERROR_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));
+static SEMANTIC_NON_NULL_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("semanticNonNull".intern()));
+static ONE_OF_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("oneOf".intern()));
 
 pub fn is_result_type_directive(directives: &[Directive]) -> bool {
     match CatchMetadataDirective::find(directives) {
@@ -322,6 +332,7 @@ fn visit_fragment_spread(
             fragment_name: name,
             conditional: false,
             concrete_type: None,
+            abstract_type: None,
             type_condition_info: get_type_condition_info(fragment_spread),
             is_updatable_fragment_spread: fragment_spread
                 .directives
@@ -379,6 +390,72 @@ fn generate_resolver_type(
             if let Some(field_id) = normalization_info.weak_object_instance_field {
                 let type_ = &typegen_context.schema.field(field_id).type_.inner();
                 expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
+            } else if is_server_weak_shadow_return(
+                typegen_context.schema,
+                normalization_info.inner_type,
+                typegen_context
+                    .project_config
+                    .schema_config
+                    .node_interface_id_field,
+                resolver_metadata.return_fragment.is_some(),
+            ) {
+                // READ-IN-PLACE shadow (`@returnFragment`) server-value return:
+                // the resolver returns the IDENTITY of the transplanted
+                // record — an object with the concrete `__typename` and `__id`
+                // (the DataID/store key) — and the runtime reads the value in place
+                // off that `__id` (`extractStoreIDFromResponse`). It must NOT be
+                // typed as a `$normalization` import: no normalization artifact is
+                // generated for it (the nested-objects pass skips it), so emitting
+                // that import would be a dangling, unresolvable Flow module.
+                create_server_weak_return_type_ast(
+                    &normalization_info.inner_type,
+                    typegen_context.schema,
+                    runtime_imports,
+                )
+            } else if abstract_shadow_return_is_mixed_inline(
+                typegen_context.schema,
+                normalization_info.inner_type,
+                typegen_context
+                    .project_config
+                    .schema_config
+                    .node_interface_id_field,
+            ) {
+                // MIXED abstract interface shadow return: implemented by BOTH
+                // an `@weak` model AND a non-Node server value type. A single
+                // `{__typename, __id}` identity would leave the weak arm with no
+                // model value to normalize (rendering blank), so emit a
+                // DISCRIMINATED UNION: the weak member carries its
+                // `__relay_model_instance` (the fat value the `WeakModel` normalizer
+                // stores and the weak field resolvers read), the value member
+                // carries `{__typename, __id}` (read in place off the transplanted
+                // record). The backing field's `inlineKinds` map tells the runtime
+                // which arm is which. This must be checked BEFORE
+                // `abstract_shadow_return_has_server_implementor` (a mixed return's
+                // value member is a server type, so that predicate is also true).
+                create_abstract_mixed_return_type_ast(
+                    &normalization_info.inner_type,
+                    typegen_context,
+                    encountered_fragments,
+                    runtime_imports,
+                )
+            } else if abstract_shadow_return_has_server_implementor(
+                typegen_context.schema,
+                normalization_info.inner_type,
+                typegen_context
+                    .project_config
+                    .schema_config
+                    .node_interface_id_field,
+                resolver_metadata.return_fragment.is_some(),
+            ) {
+                // Abstract interface/union shadow return with a server
+                // (Node or value) implementor. Like the read-in-place case the
+                // resolver returns the per-`__typename` IDENTITY (`{__typename,
+                // __id}`) and the runtime dispatches per type — inline read for the
+                // weak/value member, refetch for the Node. The abstract type has
+                // many possible concrete `__typename`s, so `__typename` is `string`
+                // (not a single literal). No `$normalization` import: the
+                // nested-objects pass skips generating one for such a return.
+                create_abstract_identity_return_type_ast(runtime_imports)
             } else {
                 imported_raw_response_types.0.insert(
                     normalization_info.normalization_operation.item.0,
@@ -808,6 +885,7 @@ fn visit_relay_resolver(
         value: resolver_type,
         conditional: false,
         concrete_type: None,
+        abstract_type: None,
         is_result_type: false,
     }));
 }
@@ -902,6 +980,7 @@ fn visit_inline_fragment(
             value: AST::Nullable(Box::new(AST::String)),
             conditional: false,
             concrete_type: None,
+            abstract_type: None,
             is_result_type: false,
         }));
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
@@ -910,12 +989,14 @@ fn visit_inline_fragment(
             value: AST::Nullable(Box::new(AST::String)),
             conditional: false,
             concrete_type: None,
+            abstract_type: None,
             is_result_type: false,
         }));
         type_selections.push(TypeSelection::InlineFragment(TypeSelectionInlineFragment {
             fragment_name: name,
             conditional: false,
             concrete_type: None,
+            abstract_type: None,
         }));
     } else if let Some(client_edge_metadata) = ClientEdgeMetadata::find(inline_fragment) {
         visit_client_edge(
@@ -978,6 +1059,7 @@ fn visit_inline_fragment(
                 node_selections: selections_to_map(inline_selections.into_iter(), true),
                 conditional: coerce_to_nullable,
                 concrete_type: None,
+                abstract_type: None,
                 is_result_type,
             })]
         } else {
@@ -1007,6 +1089,7 @@ fn visit_inline_fragment(
 #[allow(clippy::too_many_arguments)]
 fn raw_response_visit_inline_fragment(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     type_selections: &mut Vec<TypeSelection>,
     inline_fragment: &InlineFragment,
     encountered_enums: &mut EncounteredEnums,
@@ -1020,6 +1103,7 @@ fn raw_response_visit_inline_fragment(
 ) {
     let mut selections = raw_response_visit_selections(
         typegen_context,
+        operation_name,
         &inline_fragment.selections,
         encountered_enums,
         match_fields,
@@ -1045,6 +1129,7 @@ fn raw_response_visit_inline_fragment(
         if !match_fields.0.contains_key(&fragment_name.0) {
             let match_field = raw_response_selections_to_babel(
                 typegen_context,
+                operation_name,
                 selections.iter().filter(|sel| !sel.is_js_field()).cloned(),
                 None,
                 encountered_enums,
@@ -1061,14 +1146,26 @@ fn raw_response_visit_inline_fragment(
             document_name: module_metadata.key,
             conditional: false,
             concrete_type: None,
+            abstract_type: None,
         }));
         return;
     }
-    if let Some(type_condition) = inline_fragment.type_condition
-        && !type_condition.is_abstract_type()
-    {
-        for selection in &mut selections {
-            selection.set_concrete_type(type_condition);
+
+    if let Some(type_condition) = inline_fragment.type_condition {
+        if type_condition.is_abstract_type() {
+            for selection in &mut selections {
+                // Only set abstract_type if not already set. Inner (more
+                // specific) abstract types take precedence over outer ones.
+                // e.g. `... on Interface1 { ... on Interface2 { field } }`
+                // should keep Interface2 on `field`.
+                if selection.get_enclosing_abstract_type().is_none() {
+                    selection.set_abstract_type(type_condition);
+                }
+            }
+        } else {
+            for selection in &mut selections {
+                selection.set_concrete_type(type_condition);
+            }
         }
     }
     type_selections.append(&mut selections);
@@ -1110,6 +1207,7 @@ fn gen_visit_linked_field(
         node_selections: selections_to_map(selections.into_iter(), true),
         conditional: false,
         concrete_type: None,
+        abstract_type: None,
         is_result_type,
     }));
 }
@@ -1172,6 +1270,7 @@ fn visit_scalar_field(
             )),
             conditional: false,
             concrete_type: None,
+            abstract_type: None,
             is_result_type: is_result_type_directive(&scalar_field.directives),
         }));
     }
@@ -1186,6 +1285,7 @@ fn visit_scalar_field(
         value: ast,
         conditional: false,
         concrete_type: None,
+        abstract_type: None,
         is_result_type,
     }));
 }
@@ -1193,6 +1293,7 @@ fn visit_scalar_field(
 #[allow(clippy::too_many_arguments)]
 fn raw_response_visit_condition(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     type_selections: &mut Vec<TypeSelection>,
     condition: &Condition,
     encountered_enums: &mut EncounteredEnums,
@@ -1206,6 +1307,7 @@ fn raw_response_visit_condition(
 ) {
     let mut selections = raw_response_visit_selections(
         typegen_context,
+        operation_name,
         &condition.selections,
         encountered_enums,
         match_fields,
@@ -1573,6 +1675,7 @@ fn should_emit_discriminated_union(
 
 pub(crate) fn raw_response_selections_to_babel(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     selections: impl Iterator<Item = TypeSelection>,
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
@@ -1581,6 +1684,7 @@ pub(crate) fn raw_response_selections_to_babel(
 ) -> AST {
     let mut base_fields = Vec::new();
     let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
+    let mut by_abstract_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
     for selection in selections {
         if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
@@ -1588,14 +1692,44 @@ pub(crate) fn raw_response_selections_to_babel(
                 .entry(concrete_type)
                 .or_default()
                 .push(selection);
+        } else if let Some(abstract_type) = selection.get_enclosing_abstract_type() {
+            if typegen_context
+                .project_config
+                .feature_flags
+                .disable_more_precise_abstract_selection_raw_response_type
+                .is_enabled_for(operation_name.0)
+            {
+                base_fields.push(selection);
+            } else {
+                by_abstract_type
+                    .entry(abstract_type)
+                    .or_default()
+                    .push(selection);
+            }
+        } else if let Some(ct) = concrete_type {
+            // No concrete_type and no abstract_type on this selection, but we
+            // know the enclosing field's concrete return type. This happens
+            // when the same concrete field is selected via two paths:
+            // (1) directly — where raw_response_visit_selections stamps inner
+            // selections with concrete_type=Some(X); and (2) through an
+            // abstract interface spread — where the field's schema return type
+            // is abstract so the new-code path is skipped and inner selections
+            // keep concrete_type=None.
+            //
+            // Routing these untyped selections into the known concrete bucket
+            // (rather than into base_fields) prevents a spurious catch-all
+            // ExactObject from being generated, which would cause the raw
+            // response type to be an unnecessary union.
+            by_concrete_type.entry(ct).or_default().push(selection);
         } else {
             base_fields.push(selection);
         }
     }
 
-    if base_fields.is_empty() && by_concrete_type.is_empty() {
-        // base fields and per-type fields are all empty: this can only occur because the only selection was a
-        // @no_inline fragment. in this case, emit a single, empty ExactObject since nothing was selected
+    if base_fields.is_empty() && by_abstract_type.is_empty() && by_concrete_type.is_empty() {
+        // base fields, fields on abstract types and per-type fields are all empty:
+        // this can only occur because the only selection was a  @no_inline fragment.
+        // in this case, emit a single, empty ExactObject since nothing was selected.
         return AST::ExactObject(ExactObject::new(Default::default()));
     }
 
@@ -1610,6 +1744,22 @@ pub(crate) fn raw_response_selections_to_babel(
                 selections_to_map(selections.into_iter(), false),
                 false,
             );
+
+            if !by_abstract_type.is_empty() {
+                for (abstract_type, abstract_selections) in &by_abstract_type {
+                    if typegen_context
+                        .schema
+                        .is_named_type_subtype_of(concrete_type, *abstract_type)
+                    {
+                        merge_selection_maps(
+                            &mut base_fields_map,
+                            selections_to_map(abstract_selections.clone().into_iter(), false),
+                            false,
+                        );
+                    }
+                }
+            }
+
             let merged_selections: Vec<_> = hashmap_into_values(base_fields_map).collect();
             types.push(AST::ExactObject(ExactObject::new(
                 merged_selections
@@ -1618,6 +1768,7 @@ pub(crate) fn raw_response_selections_to_babel(
                     .map(|selection| {
                         raw_response_make_prop(
                             typegen_context,
+                            operation_name,
                             selection,
                             Some(concrete_type),
                             encountered_enums,
@@ -1629,6 +1780,7 @@ pub(crate) fn raw_response_selections_to_babel(
             )));
             append_local_3d_payload(
                 typegen_context,
+                operation_name,
                 &mut types,
                 &merged_selections,
                 Some(concrete_type),
@@ -1639,14 +1791,40 @@ pub(crate) fn raw_response_selections_to_babel(
         }
     }
 
-    if !base_fields.is_empty() {
+    if !base_fields.is_empty() || !by_abstract_type.is_empty() {
+        let mut base_fields_map = selections_to_map(base_fields.clone().into_iter(), false);
+
+        if !by_abstract_type.is_empty() {
+            for (abstract_type, abstract_selections) in by_abstract_type {
+                // When concrete_type is None (abstract parent), the
+                // catch-all branch must be valid for any type that doesn't
+                // have its own concrete branch. We cannot assume all such
+                // types implement the abstract type, so selections from
+                // abstract spreads must always be conditional here.
+                let is_conditional = !matches!(
+                    concrete_type,
+                    Some(ct) if typegen_context
+                        .schema
+                        .is_named_type_subtype_of(ct, abstract_type)
+                );
+
+                merge_selection_maps(
+                    &mut base_fields_map,
+                    selections_to_map(abstract_selections.into_iter(), false),
+                    is_conditional,
+                );
+            }
+        }
+
+        let merged_selections: Vec<_> = hashmap_into_values(base_fields_map).collect();
         types.push(AST::ExactObject(ExactObject::new(
-            base_fields
+            merged_selections
                 .iter()
                 .cloned()
                 .map(|selection| {
                     raw_response_make_prop(
                         typegen_context,
+                        operation_name,
                         selection,
                         concrete_type,
                         encountered_enums,
@@ -1658,8 +1836,9 @@ pub(crate) fn raw_response_selections_to_babel(
         )));
         append_local_3d_payload(
             typegen_context,
+            operation_name,
             &mut types,
-            &base_fields,
+            &merged_selections,
             concrete_type,
             encountered_enums,
             runtime_imports,
@@ -1670,8 +1849,10 @@ pub(crate) fn raw_response_selections_to_babel(
     AST::Union(SortedASTList::new(types))
 }
 
+#[allow(clippy::too_many_arguments)]
 fn append_local_3d_payload(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     types: &mut Vec<AST>,
     type_selections: &[TypeSelection],
     concrete_type: Option<Type>,
@@ -1697,6 +1878,7 @@ fn append_local_3d_payload(
                     .map(|sel| {
                         raw_response_make_prop(
                             typegen_context,
+                            operation_name,
                             sel.clone(),
                             concrete_type,
                             encountered_enums,
@@ -1965,6 +2147,7 @@ fn make_prop(
 
 fn raw_response_make_prop(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     type_selection: TypeSelection,
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
@@ -1991,6 +2174,7 @@ fn raw_response_make_prop(
             };
             let object_props = raw_response_selections_to_babel(
                 typegen_context,
+                operation_name,
                 hashmap_into_values(linked_field.node_selections),
                 inner_concrete_type,
                 encountered_enums,
@@ -2167,6 +2351,7 @@ fn transform_graphql_enum_type(
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn raw_response_visit_selections(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     selections: &[Selection],
     encountered_enums: &mut EncounteredEnums,
     match_fields: &mut MatchFields,
@@ -2195,12 +2380,14 @@ pub(crate) fn raw_response_visit_selections(
                             value: spread_type,
                             conditional: false,
                             concrete_type: None,
+                            abstract_type: None,
                         },
                     ))
                 }
             }
             Selection::InlineFragment(inline_fragment) => raw_response_visit_inline_fragment(
                 typegen_context,
+                operation_name,
                 &mut type_selections,
                 inline_fragment,
                 encountered_enums,
@@ -2243,6 +2430,7 @@ pub(crate) fn raw_response_visit_selections(
                     |selections| {
                         raw_response_visit_selections(
                             typegen_context,
+                            operation_name,
                             selections,
                             encountered_enums,
                             match_fields,
@@ -2268,6 +2456,7 @@ pub(crate) fn raw_response_visit_selections(
             ),
             Selection::Condition(condition) => raw_response_visit_condition(
                 typegen_context,
+                operation_name,
                 &mut type_selections,
                 condition,
                 encountered_enums,
@@ -2281,6 +2470,24 @@ pub(crate) fn raw_response_visit_selections(
             ),
         }
     }
+
+    if let Some(concrete_type) = enclosing_linked_field_concrete_type {
+        // If we are generating for a concrete field type, we should 1. remove
+        // any selections that are for a different concrete type, since they are
+        // not applicable to our field, and 2. mark any selections without a
+        // concrete type as being for our field's concrete type, so that
+        // `raw_response_selections_to_babel` doesn't generate redundant types.
+        type_selections.retain_mut(|type_selection| {
+            match type_selection.get_enclosing_concrete_type() {
+                Some(selection_concrete_type) => selection_concrete_type == concrete_type,
+                None => {
+                    type_selection.set_concrete_type(concrete_type);
+                    true
+                }
+            }
+        });
+    }
+
     type_selections
 }
 
@@ -2312,36 +2519,37 @@ fn transform_non_nullable_input_type(
                     input_object_types
                         .insert(input_object.name.item, GeneratedInputObject::Pending);
 
-                    let props = ExactObject::new(
-                        input_object
-                            .fields
-                            .iter()
-                            .map(|field| {
-                                Prop::KeyValuePair(KeyValuePairProp {
-                                    key: field.name.item.0,
-                                    read_only: false,
-                                    optional: !field.type_.is_non_null()
-                                        || typegen_context
-                                            .project_config
-                                            .typegen_config
-                                            .optional_input_fields
-                                            .contains(&field.name.item.0)
-                                        || field.default_value.is_some(),
-                                    value: transform_input_type(
-                                        typegen_context,
-                                        &field.type_,
-                                        input_object_types,
-                                        encountered_enums,
-                                        custom_scalars,
-                                    ),
-                                })
-                            })
+                    let node = if typegen_context.project_config.typegen_config.one_of_type
+                        == OneOfGeneration::Strict
+                        && input_object
+                            .directives()
+                            .named(*ONE_OF_DIRECTIVE_NAME)
+                            .is_some()
+                    {
+                        AST::Union(SortedASTList::new(
+                            build_one_of_cases(
+                                typegen_context,
+                                input_object,
+                                input_object_types,
+                                encountered_enums,
+                                custom_scalars,
+                            )
+                            .map(AST::from)
                             .collect(),
-                    );
-                    input_object_types.insert(
-                        input_object.name.item,
-                        GeneratedInputObject::Resolved(props),
-                    );
+                        ))
+                    } else {
+                        build_input_object(
+                            typegen_context,
+                            input_object,
+                            input_object_types,
+                            encountered_enums,
+                            custom_scalars,
+                        )
+                        .into()
+                    };
+
+                    input_object_types
+                        .insert(input_object.name.item, GeneratedInputObject::Resolved(node));
                 }
                 AST::Identifier(input_object.name.item.0)
             }
@@ -2351,6 +2559,112 @@ fn transform_non_nullable_input_type(
         },
         TypeReference::NonNull(_) => panic!("Unexpected NonNull"),
     }
+}
+
+fn build_input_object(
+    typegen_context: &TypegenContext<'_>,
+    input_object: &InputObject,
+    input_object_types: &mut InputObjectTypes,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+) -> ExactObject {
+    ExactObject::new(
+        input_object
+            .fields
+            .iter()
+            .map(|field| {
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: field.name.item.0,
+                    read_only: false,
+                    optional: !field.type_.is_non_null()
+                        || typegen_context
+                            .project_config
+                            .typegen_config
+                            .optional_input_fields
+                            .contains(&field.name.item.0)
+                        || field.default_value.is_some(),
+                    value: transform_input_type(
+                        typegen_context,
+                        &field.type_,
+                        input_object_types,
+                        encountered_enums,
+                        custom_scalars,
+                    ),
+                })
+            })
+            .collect(),
+    )
+}
+
+/// This builds a union of objects of shape
+/// ```ts
+/// type OneOfInput =
+///   | { foo: string; bar?: never; baz?: never }
+///   | { foo?: never; bar: string; baz?: never }
+///   | { foo?: never; bar?: never; baz?: number }
+/// ```
+/// for the @oneOf inputs
+/// ```gql
+/// type OneOfInput @oneOf {
+///   foo: String
+///   bar: String
+///   baz: Int
+/// }
+/// ```
+///
+/// NOTE: This type scheme might be unintuitive when compared to
+/// `{ foo: string } | { bar: string } | { baz: number }`.
+/// This is a completely fine type to use in flow, but in typescript
+/// this simpler type exhibits unfortunate usability limitations
+/// ```ts
+/// type SimplerOneOfInput = { foo: string } | { bar: string } | { baz: number }
+///
+/// declare var simpleInput: SimplerOneOfInput
+/// if (simpleInput.foo) processFoo(input.foo)
+/// //              ^^^ Error: OneOfInput has no property 'foo'
+///
+/// declare var input: OneOfInput
+/// if (simpleInput.foo) processFoo(input.foo) // ✅ works fine
+/// ```
+fn build_one_of_cases(
+    typegen_context: &TypegenContext<'_>,
+    input_object: &InputObject,
+    input_object_types: &mut InputObjectTypes,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+) -> impl Iterator<Item = ExactObject> {
+    (0..input_object.fields.len())
+        .map(|present_field_idx| {
+            input_object
+                .fields
+                .iter()
+                .enumerate()
+                .map(|(idx, field)| {
+                    if idx == present_field_idx {
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: field.name.item.0,
+                            read_only: false,
+                            optional: false,
+                            value: transform_non_nullable_input_type(
+                                typegen_context,
+                                &field.type_,
+                                input_object_types,
+                                encountered_enums,
+                                custom_scalars,
+                            ),
+                        })
+                    } else {
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: field.name.item.0,
+                            read_only: false,
+                            optional: true,
+                            value: AST::Empty,
+                        })
+                    }
+                })
+                .collect()
+        })
+        .map(ExactObject::new)
 }
 
 pub(crate) fn transform_input_type(
@@ -2545,6 +2859,7 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
+                abstract_type: None,
                 is_result_type: false,
             }));
         }
@@ -2556,6 +2871,7 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
+                abstract_type: None,
                 is_result_type: false,
             }));
         }
@@ -2615,7 +2931,7 @@ fn get_type_condition_info(fragment_spread: &FragmentSpread) -> Option<TypeCondi
 
 /// Returns the type of the generated query. This is the type parameter that you would have
 /// Example:
-/// {| response: MyQuery$data, variables: MyQuery$variables |}
+/// { response: MyQuery$data, variables: MyQuery$variables }
 pub(crate) fn get_operation_type_export(
     variables_identifier_key: StringKey,
     response_identifier_key: StringKey,
@@ -2686,6 +3002,158 @@ fn create_edge_to_return_type_ast(
     }
 
     AST::ExactObject(ExactObject::new(fields))
+}
+
+/// Return-type AST for a READ-IN-PLACE shadow (`@returnFragment`) server-value
+/// resolver. The resolver returns the IDENTITY of the transplanted
+/// `client:<parentid>:<field>` record so the runtime can read its value in place:
+/// `{ +__typename: "<ConcreteType>", +__id: DataID }`. The runtime helper
+/// `extractStoreIDFromResponse` reads `response.__id` (falling back to
+/// `extractIdFromResponse`) to locate the record.
+///
+/// This mirrors `create_edge_to_return_type_ast` but keys on `__id`
+/// (`KEY_CLIENTID`) instead of the `id` field, and is never an abstract type (a
+/// server value type is always a concrete `Object`), so `__typename` is a single
+/// concrete string literal. Crucially it does NOT emit a `$normalization` import:
+/// no normalization artifact is generated for a read-in-place return, so the
+/// import would be a dangling, unresolvable Flow module.
+fn create_server_weak_return_type_ast(
+    inner_type: &Type,
+    schema: &SDLSchema,
+    runtime_imports: &mut RuntimeImports,
+) -> AST {
+    // Mark that the DataID type is used, and must be imported.
+    runtime_imports.data_id_type = true;
+
+    let type_name = schema.get_type_name(*inner_type);
+
+    AST::ExactObject(ExactObject::new(vec![
+        Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_TYPENAME,
+            value: AST::StringLiteral(StringLiteral(type_name)),
+            read_only: true,
+            optional: false,
+        }),
+        Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_CLIENTID,
+            value: AST::RawType(*KEY_DATA_ID),
+            read_only: true,
+            optional: false,
+        }),
+    ]))
+}
+
+/// The resolver return type for a MIXED interface/union shadow return:
+/// `{ +__typename: string, +__id: DataID }`. Mirrors
+/// `create_server_weak_return_type_ast` but `__typename` is `string` rather than
+/// a single concrete literal — a mixed abstract return has many possible concrete
+/// implementor `__typename`s, resolved per read. The runtime reads the inline
+/// (weak/value) member in place off `__id` and refetches the Node member via
+/// `serverObjectOperations`. Like read-in-place it emits NO `$normalization`
+/// import (no normalization artifact is generated for a mixed return).
+fn create_abstract_identity_return_type_ast(runtime_imports: &mut RuntimeImports) -> AST {
+    // Mark that the DataID type is used, and must be imported.
+    runtime_imports.data_id_type = true;
+
+    AST::ExactObject(ExactObject::new(vec![
+        Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_TYPENAME,
+            value: AST::String,
+            read_only: true,
+            optional: false,
+        }),
+        Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_CLIENTID,
+            value: AST::RawType(*KEY_DATA_ID),
+            read_only: true,
+            optional: false,
+        }),
+    ]))
+}
+
+/// The resolver return type for a MIXED interface shadow return: an
+/// interface implemented by BOTH an `@weak` model AND a non-Node server value
+/// type. A single `{__typename, __id}` identity is insufficient — the weak arm
+/// needs its `__relay_model_instance` value (which `LiveResolverCache` stores and
+/// the weak field resolvers read), while the value arm needs `{__typename, __id}`
+/// to be read in place. So emit a DISCRIMINATED UNION, one object per implementor:
+/// a weak member as `{ +__typename: "<W>", +__relay_model_instance: <W> }`
+/// (referencing the per-object `<W>____relay_model_instance` fragment, mirroring
+/// the weak `$normalization` shape), and a value member as `{ +__typename: "<V>",
+/// +__id: DataID }` (mirroring `create_server_weak_return_type_ast`). The backing
+/// field's `inlineKinds` map tells the runtime which arm is which.
+fn create_abstract_mixed_return_type_ast(
+    inner_type: &Type,
+    typegen_context: &TypegenContext<'_>,
+    encountered_fragments: &mut EncounteredFragments,
+    runtime_imports: &mut RuntimeImports,
+) -> AST {
+    // Mark that the DataID type is used, and must be imported.
+    runtime_imports.data_id_type = true;
+
+    let id_field_name = typegen_context
+        .project_config
+        .schema_config
+        .node_interface_id_field;
+    let kinds = abstract_shadow_return_inline_kinds_by_typename(
+        typegen_context.schema,
+        *inner_type,
+        id_field_name,
+    )
+    .unwrap_or_default();
+
+    let members: Vec<AST> = kinds
+        .into_iter()
+        .map(|(type_name, kind)| match kind {
+            AbstractInlineKind::WeakModel => {
+                let fragment_name = typegen_context
+                    .project_config
+                    .name
+                    .generate_name_for_object_and_field(
+                        type_name,
+                        *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
+                    )
+                    .intern();
+                add_fragment_name_to_encountered_fragments(
+                    FragmentDefinitionName(fragment_name),
+                    encountered_fragments,
+                );
+                AST::ExactObject(ExactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: *KEY_TYPENAME,
+                        value: AST::StringLiteral(StringLiteral(type_name)),
+                        read_only: true,
+                        optional: false,
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
+                        value: AST::PropertyType {
+                            type_: get_fragment_data_type(fragment_name),
+                            property_name: *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
+                        },
+                        read_only: true,
+                        optional: false,
+                    }),
+                ]))
+            }
+            AbstractInlineKind::ServerWeak => AST::ExactObject(ExactObject::new(vec![
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: *KEY_TYPENAME,
+                    value: AST::StringLiteral(StringLiteral(type_name)),
+                    read_only: true,
+                    optional: false,
+                }),
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: *KEY_CLIENTID,
+                    value: AST::RawType(*KEY_DATA_ID),
+                    read_only: true,
+                    optional: false,
+                }),
+            ])),
+        })
+        .collect();
+
+    AST::Union(SortedASTList::new(members))
 }
 
 fn expect_scalar_type(

@@ -81,6 +81,7 @@ Field(
                 },
             ),
             live: None,
+            may_waterfall: None,
             location: Cat.js:207:213,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

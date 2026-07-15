@@ -14,7 +14,7 @@
 // $FlowFixMe[method-unbinding] added when improving typing for this parameters
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-function isEmptyObject(obj: {+[key: string]: unknown}): boolean {
+function isEmptyObject(obj: {readonly [key: string]: unknown}): boolean {
   for (const key in obj) {
     if (hasOwnProperty.call(obj, key)) {
       return false;

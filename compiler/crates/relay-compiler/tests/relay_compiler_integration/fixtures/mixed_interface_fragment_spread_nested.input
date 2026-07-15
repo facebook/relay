@@ -1,0 +1,130 @@
+//- PersonComponent.js
+// Test: Fragment spread on a mixed interface whose selection traverses nested
+// mixed interfaces via linked fields, through a @waterfall client edge.
+//
+// This is the fragment-spread analogue of `mixed_interface_nested_two_levels`
+// (identical schema/resolvers); the only difference is that the nested selection
+// is reached through a fragment spread defined on the interface instead of being
+// selected inline on the client edge.
+//
+// IPerson.pet: IAnimal, IAnimal.toy: IToy -- all mixed interfaces
+// (server Dog/DogToy + client Cat/CatToy).
+//
+// Expected, to match the direct-selection variant: for the DogPerson (server)
+// branch, `pet { toy { name } }` should be hoisted into the ClientEdgeQuery
+// server query text. If the nested selection instead collapses into
+// ClientExtension and is dropped from the server query text, the fragment-spread
+// path is broken for nested mixed interfaces.
+graphql`query PersonComponentQuery {
+  person @waterfall {
+    ...PersonFragment
+  }
+}`
+
+//- PersonFragment.js
+graphql`fragment PersonFragment on IPerson {
+  pet {
+    toy {
+      name
+    }
+  }
+}`
+
+//- PersonResolver.js
+/**
+ * @relayField Query.person: IPerson
+ */
+export function person() {}
+
+//- CatPersonResolver.js
+/**
+ * @relayType CatPerson implements IPerson
+ */
+export function CatPerson() {}
+
+//- CatPersonPetResolver.js
+/**
+ * @relayField CatPerson.pet: Cat
+ */
+export function pet() {}
+
+//- CatResolver.js
+/**
+ * @relayType Cat implements IAnimal
+ */
+export function Cat() {}
+
+//- CatToyResolver.js
+/**
+ * @relayType CatToy implements IToy
+ */
+export function CatToy() {}
+
+//- CatPetToyResolver.js
+/**
+ * @relayField Cat.toy: CatToy
+ */
+export function toy() {}
+
+//- CatToyNameResolver.js
+/**
+ * @relayField CatToy.name: String
+ */
+export function name() {}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query {
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type DogToy implements Node {
+  id: ID!
+  name: String
+}
+
+type Dog implements Node {
+  id: ID!
+  toy: DogToy
+}
+
+type DogPerson implements Node {
+  id: ID!
+  pet: Dog
+}
+
+//- schema-extensions/extension.graphql
+interface IToy {
+  id: ID!
+  name: String
+}
+
+interface IAnimal {
+  id: ID!
+  toy: IToy
+}
+
+interface IPerson {
+  id: ID!
+  pet: IAnimal
+}
+
+extend type DogToy implements IToy
+extend type Dog implements IAnimal
+extend type DogPerson implements IPerson

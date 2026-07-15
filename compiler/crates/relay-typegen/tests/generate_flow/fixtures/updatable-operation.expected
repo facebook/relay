@@ -6,15 +6,15 @@ query UpdatableQuery @updatable {
   }
 }
 ==================================== OUTPUT ===================================
-export type UpdatableQuery$variables = {||};
-export type UpdatableQuery$data = {|
-  get me(): ?{|
+export type UpdatableQuery$variables = {};
+export type UpdatableQuery$data = {
+  get me(): ?{
     actorCount: ?number,
     name: ?string,
-  |},
+  },
   set me(value: null | void): void,
-|};
-export type UpdatableQuery = {|
+};
+export type UpdatableQuery = {
   response: UpdatableQuery$data,
   variables: UpdatableQuery$variables,
-|};
+};

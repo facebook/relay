@@ -1,0 +1,31 @@
+# expected-to-throw
+# Tests that operations with only concrete type inline fragments
+# still correctly detect scalar type conflicts between ME fields.
+query ConcreteTypeScalarConflict {
+  pet {
+    ... on Cat {
+      name
+    }
+    ... on Dog {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+type Cat {
+  id: ID!
+  name: String
+}
+
+type Dog {
+  id: ID!
+  name: Int
+}
+
+union Pet = Cat | Dog
+
+extend type Query {
+  pet: Pet
+}

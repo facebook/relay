@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5de1d6213110c05cef75926a54b2c747>>
+ * @generated SignedSource<<24fac52e938a0352e7027c276616e8cd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,30 +18,30 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { RelayModernEnvironmentApplyMutationTestFragment$fragmentType } from "./RelayModernEnvironmentApplyMutationTestFragment.graphql";
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentApplyMutationTest1Mutation$variables = {|
+};
+export type RelayModernEnvironmentApplyMutationTest1Mutation$variables = {
   input: CommentCreateInput,
-|};
-export type RelayModernEnvironmentApplyMutationTest1Mutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +$fragmentSpreads: RelayModernEnvironmentApplyMutationTestFragment$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentApplyMutationTest1Mutation = {|
+};
+export type RelayModernEnvironmentApplyMutationTest1Mutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly $fragmentSpreads: RelayModernEnvironmentApplyMutationTestFragment$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentApplyMutationTest1Mutation = {
   response: RelayModernEnvironmentApplyMutationTest1Mutation$data,
   variables: RelayModernEnvironmentApplyMutationTest1Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

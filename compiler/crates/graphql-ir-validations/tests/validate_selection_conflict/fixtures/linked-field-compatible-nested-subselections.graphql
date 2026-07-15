@@ -1,0 +1,13 @@
+# Two selections of the same linked field with compatible nested subselections.
+query TestQuery {
+  me {
+    profile_picture {
+      uri
+    }
+  }
+  me {
+    profile_picture {
+      width
+    }
+  }
+}

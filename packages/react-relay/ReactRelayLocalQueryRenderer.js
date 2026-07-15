@@ -59,7 +59,7 @@ hook useDeepCompare<T extends {...}>(value: T): T {
   return latestValue.current;
 }
 
-function ReactRelayLocalQueryRenderer(props: Props): React.Node {
+component ReactRelayLocalQueryRenderer(...props: Props) {
   const {environment, query, variables, render} = props;
   const latestVariables = useDeepCompare(variables);
   const operation = useMemo(() => {
@@ -81,6 +81,7 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
   const snapshot = useMemo(() => {
     environment.check(operation);
     const res = environment.lookup(operation.fragment);
+    // $FlowFixMe[react-rule-unsafe-ref]
     dataRef.current = res.data;
 
     // Run effects here so that the data can be retained
@@ -100,8 +101,10 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
       }
     }
     if (cleanupFnRef.current) {
+      // $FlowFixMe[react-rule-unsafe-ref]
       cleanupFnRef.current();
     }
+    // $FlowFixMe[react-rule-unsafe-ref]
     cleanupFnRef.current = nextCleanupFn;
     return res;
   }, [environment, operation]);
@@ -116,7 +119,10 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
   return (
     <ReactRelayContext.Provider value={relayContext}>
       <ReactRelayQueryRendererContext.Provider value={queryRendererContext}>
-        {render({props: dataRef.current})}
+        {
+          // $FlowFixMe[react-rule-unsafe-ref]
+          render({props: dataRef.current})
+        }
       </ReactRelayQueryRendererContext.Provider>
     </ReactRelayContext.Provider>
   );

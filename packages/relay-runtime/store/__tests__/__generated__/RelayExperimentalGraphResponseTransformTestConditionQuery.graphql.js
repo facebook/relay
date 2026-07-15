@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4d0a479b936fd0b20b0aa9dbdab6ebe0>>
+ * @generated SignedSource<<6f4a0769b3911d0301673d01259e010e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayExperimentalGraphResponseTransformTest_condition$fragmentType } from "./RelayExperimentalGraphResponseTransformTest_condition.graphql";
-export type RelayExperimentalGraphResponseTransformTestConditionQuery$variables = {|
+export type RelayExperimentalGraphResponseTransformTestConditionQuery$variables = {
   enableDefer: boolean,
   id: string,
-|};
-export type RelayExperimentalGraphResponseTransformTestConditionQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayExperimentalGraphResponseTransformTest_condition$fragmentType,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestConditionQuery = {|
+};
+export type RelayExperimentalGraphResponseTransformTestConditionQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayExperimentalGraphResponseTransformTest_condition$fragmentType,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestConditionQuery = {
   response: RelayExperimentalGraphResponseTransformTestConditionQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestConditionQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

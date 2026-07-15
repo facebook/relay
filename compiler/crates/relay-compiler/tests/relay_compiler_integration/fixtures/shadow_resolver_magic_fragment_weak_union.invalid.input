@@ -1,0 +1,59 @@
+// A shadow resolver whose return type is a UNION with a @weak client member is
+// STILL a hard error (weak routing must not bypass any union gate and
+// emit an artifact). A union with a @weak/CSE member is rejected even earlier than
+// the shadow union gate: the docblock-level @outputType union check
+// (`RelayResolverOutputTypeUnsupported`) fires first, so a weak union return never
+// reaches the inline classification at all. Either way the result is a
+// hard error and no artifact -- use an interface return instead.
+//- UserWeakUnion.js
+/**
+ * @relayField User.weak_union: PageOrWeakPage
+ * @rootFragment UserWeakUnionResolverFragment
+ * @returnFragment UserWeakUnionReturnFragment
+ */
+graphql`fragment UserWeakUnionResolverFragment on User {
+  page {
+    ...UserWeakUnionReturnFragment
+  }
+}`
+
+//- WeakPageResolver.js
+/**
+ * @relayType WeakPage
+ * @weak
+ */
+
+//- WeakPageTitleResolver.js
+/**
+ * @relayField WeakPage.title: String
+ */
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    weak_union {
+      __typename
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+union PageOrWeakPage = Page | WeakPage

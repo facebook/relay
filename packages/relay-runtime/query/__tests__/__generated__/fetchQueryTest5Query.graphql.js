@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b708d2bf1ef083e5cf08057d1d824f20>>
+ * @generated SignedSource<<ec02ea309dd20a6328a75735763b79bc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,14 +17,14 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-export type fetchQueryTest5Query$variables = {||};
-export type fetchQueryTest5Query$data = {|
-  +client_root_field: ?string,
-|};
-export type fetchQueryTest5Query = {|
+export type fetchQueryTest5Query$variables = {};
+export type fetchQueryTest5Query$data = {
+  readonly client_root_field: ?string,
+};
+export type fetchQueryTest5Query = {
   response: fetchQueryTest5Query$data,
   variables: fetchQueryTest5Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

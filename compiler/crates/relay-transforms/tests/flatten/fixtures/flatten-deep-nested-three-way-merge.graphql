@@ -1,0 +1,21 @@
+# Three inline fragments on the same type with overlapping fields at multiple nesting levels.
+fragment UserFragment on User {
+  ... on User {
+    name
+    author {
+      name
+    }
+  }
+  ... on User {
+    lastName
+    author {
+      lastName
+    }
+  }
+  ... on User {
+    name
+    author {
+      emailAddresses
+    }
+  }
+}

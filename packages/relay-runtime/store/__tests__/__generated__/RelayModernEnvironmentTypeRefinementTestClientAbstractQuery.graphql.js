@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ef32eeccd40a55abd6eae1af51d86b87>>
+ * @generated SignedSource<<df688843fc9f700013b5bad2c3d4dcd0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,29 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestClientInterface.graphql";
-export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$variables = {||};
-export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$data = {|
-  +client_interface: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery = {|
+export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$variables = {};
+export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$data = {
+  readonly client_interface: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType,
+  },
+};
+export type RelayModernEnvironmentTypeRefinementTestClientAbstractQuery = {
   response: RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$data,
   variables: RelayModernEnvironmentTypeRefinementTestClientAbstractQuery$variables,
-|};
+};
 */
 
-var node/*: ClientRequest*/ = {
+var node/*: ClientRequest*/ = (function(){
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
+  }
+];
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -88,11 +97,16 @@ var node/*: ClientRequest*/ = {
                 "storageKey": null
               },
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "description",
-                "storageKey": null
+                "kind": "InlineFragment",
+                "selections": (v0/*:: as any*/),
+                "type": "ClientTypeImplementingClientInterface",
+                "abstractKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": (v0/*:: as any*/),
+                "type": "OtherClientTypeImplementingClientInterface",
+                "abstractKey": null
               }
             ],
             "storageKey": null
@@ -116,6 +130,7 @@ var node/*: ClientRequest*/ = {
     "text": null
   }
 };
+})();
 
 if (__DEV__) {
   (node/*:: as any*/).hash = "f6eba7c5be21b5bc892e69ffa6f017d6";

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1842aafdd00e25845d88e0883f95c79e>>
+ * @generated SignedSource<<9945480c2790cfe1fe28610a8f8b3247>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestAbstractActorFragment.graphql";
 import type { RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment.graphql";
-export type RelayModernEnvironmentTypeRefinementTestAbstractQuery$variables = {||};
-export type RelayModernEnvironmentTypeRefinementTestAbstractQuery$data = {|
-  +userOrPage: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentTypeRefinementTestAbstractQuery = {|
+export type RelayModernEnvironmentTypeRefinementTestAbstractQuery$variables = {};
+export type RelayModernEnvironmentTypeRefinementTestAbstractQuery$data = {
+  readonly userOrPage: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentTypeRefinementTestAbstractQuery = {
   response: RelayModernEnvironmentTypeRefinementTestAbstractQuery$data,
   variables: RelayModernEnvironmentTypeRefinementTestAbstractQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

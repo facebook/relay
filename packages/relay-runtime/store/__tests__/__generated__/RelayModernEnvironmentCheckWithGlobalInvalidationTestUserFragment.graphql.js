@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c78e29bf48f6120c5fd9de7364d1d918>>
+ * @generated SignedSource<<7cc5930c4b83591a4e3869f23a25511f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data = {|
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
-|};
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data = {
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
+};
 export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$key = {
-  +$data?: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
   ...
 };
 */

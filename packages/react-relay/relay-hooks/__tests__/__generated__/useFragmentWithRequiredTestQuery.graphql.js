@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fc420fc19d3ebfec11fbc913c974b556>>
+ * @generated SignedSource<<af598e48d73becb75cff012eb98de613>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,23 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useFragmentWithRequiredTestUserFragment$fragmentType } from "./useFragmentWithRequiredTestUserFragment.graphql";
-export type useFragmentWithRequiredTestQuery$variables = {|
+export type useFragmentWithRequiredTestQuery$variables = {
   id: string,
-|};
-export type useFragmentWithRequiredTestQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +$fragmentSpreads: useFragmentWithRequiredTestUserFragment$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type useFragmentWithRequiredTestQuery = {|
+};
+export type useFragmentWithRequiredTestQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: useFragmentWithRequiredTestUserFragment$fragmentType,
+  },
+};
+export type useFragmentWithRequiredTestQuery = {
   response: useFragmentWithRequiredTestQuery$data,
   variables: useFragmentWithRequiredTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

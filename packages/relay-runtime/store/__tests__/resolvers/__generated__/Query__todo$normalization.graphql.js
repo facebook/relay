@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<807bb363251eb0c4d8377a744eb8fab7>>
+ * @generated SignedSource<<a6f9818193c0e1fcf7ec3ac1f948a373>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,9 +18,9 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type Query__todo$normalization = {|
-  +todo_id: string,
-|};
+export type Query__todo$normalization = {
+  readonly todo_id: string,
+};
 
 */
 

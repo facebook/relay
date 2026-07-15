@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<25834bbf9d80a0a841964ab7a4f2e168>>
+ * @generated SignedSource<<6f8f4a6d5170cad7fd5f77f679a840ed>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,43 +17,35 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentLookupTestQuery$variables = {|
+export type RelayModernEnvironmentLookupTestQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentLookupTestQuery$data = {|
-  +__id: string,
-  +me: ?{|
-    +__typename: "User",
-    +__id: string,
-    +id: string,
-  |},
-  +node: ?({|
-    +__typename: "Comment",
-    +__id: string,
-    +commentBody: ?({|
-      +__typename: "PlainCommentBody",
-      +__id: string,
-      +text: ?{|
-        +__typename: "Text",
-        +__id: string,
-        +text: ?string,
-      |},
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-    +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayModernEnvironmentLookupTestQuery = {|
+};
+export type RelayModernEnvironmentLookupTestQuery$data = {
+  readonly __id: string,
+  readonly me: ?{
+    readonly __typename: "User",
+    readonly __id: string,
+    readonly id: string,
+  },
+  readonly node: ?{
+    readonly __typename: string,
+    readonly __id: string,
+    readonly commentBody?: ?{
+      readonly __typename: string,
+      readonly __id: string,
+      readonly text?: ?{
+        readonly __typename: "Text",
+        readonly __id: string,
+        readonly text: ?string,
+      },
+    },
+    readonly id: string,
+  },
+};
+export type RelayModernEnvironmentLookupTestQuery = {
   response: RelayModernEnvironmentLookupTestQuery$data,
   variables: RelayModernEnvironmentLookupTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

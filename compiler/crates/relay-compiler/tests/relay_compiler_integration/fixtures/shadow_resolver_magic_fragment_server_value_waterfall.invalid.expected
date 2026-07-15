@@ -1,0 +1,54 @@
+==================================== INPUT ====================================
+//- UserPageStats.js
+// A non-Node server VALUE return (`PageStats`) cannot be refetched: it has no
+// `id`, so `node(id:)` is meaningless, and it has no separate store record to
+// refetch. Annotating the shadow field with @waterfall must therefore be a hard
+// error: RelayResolversUnexpectedWaterfall.
+/**
+ * @relayField User.page_stats: PageStats
+ * @rootFragment UserPageStatsResolverFragment
+ * @returnFragment UserPageStatsReturnFragment
+ */
+graphql`fragment UserPageStatsResolverFragment on User {
+  page {
+    stats {
+      ...UserPageStatsReturnFragment
+    }
+  }
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    page_stats @waterfall {
+      likeCount
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" },
+    "enable_resolver_normalization_ast": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String, stats: PageStats }
+type PageStats { likeCount: Int }
+==================================== OUTPUT ===================================
+✖︎ Unexpected `@waterfall` directive on `page_stats`. This magic-fragment field's resolver does not declare `@mayWaterfall`, so it only ever returns the shadowed record (served by the transplant, with no waterfall). Remove `@waterfall`, or add `@mayWaterfall` to the resolver's docblock if it may return a pointer to a different server object.
+
+  UserConsumer.js:3:16
+    2 │   me {
+    3 │     page_stats @waterfall {
+      │                ^^^^^^^^^^
+    4 │       likeCount

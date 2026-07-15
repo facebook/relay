@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a82ea541a457884edc79f0aaebb1bca1>>
+ * @generated SignedSource<<4b8b04f29eb77dbacb86c5c335e68a42>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,13 +29,13 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType: FragmentType;
-export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$data = ReadonlyArray<{|
-  +always_throws: ?string,
-  +$fragmentType: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
-|}>;
+export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$data = ReadonlyArray<{
+  readonly always_throws: ?string,
+  readonly $fragmentType: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
+}>;
 export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$key = ReadonlyArray<{
-  +$data?: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$data,
-  +$fragmentSpreads: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
+  readonly $data?: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$data,
+  readonly $fragmentSpreads: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
   ...
 }>;
 */

@@ -82,6 +82,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: module.js:337:344,
             fragment_arguments: Some(
                 [

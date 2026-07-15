@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fb1c63a9f05c01e71823c67164a894d4>>
+ * @generated SignedSource<<c52498808e41f3cf85177a78deaadf55>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType: FragmentType;
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$data = {|
-  +username: ?string,
-  +$fragmentType: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
-|};
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$data = {
+  readonly username: ?string,
+  readonly $fragmentType: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
+};
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$key = {
-  +$data?: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$data,
-  +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
+  readonly $data?: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$data,
+  readonly $fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
   ...
 };
 */

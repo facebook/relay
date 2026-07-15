@@ -57,19 +57,18 @@ use std::io::prelude::*;
 use std::path::PathBuf;
 use std::process::Command;
 use std::sync::Arc;
+use std::sync::LazyLock;
 
-use lazy_static::lazy_static;
 use tokio::sync::Mutex;
 
-lazy_static! {
-    static ref LOCK: Arc<Mutex<usize>> = Arc::new(Mutex::new(0));
-    // It's possible that a test will change the current directory leading to a
-    // race condition where if an async test is running at the same time as
-    // another test is trying to check the workspace root, it will get the wrong
-    // value. To mitigate that risk we compute the workspace root only
-    // once, before any tests run, and reuse that value for all tests.
-    pub static ref WORKSPACE_ROOT: PathBuf = workspace_root();
-}
+static LOCK: LazyLock<Arc<Mutex<usize>>> = LazyLock::new(|| Arc::new(Mutex::new(0)));
+
+// It's possible that a test will change the current directory leading to a
+// race condition where if an async test is running at the same time as
+// another test is trying to check the workspace root, it will get the wrong
+// value. To mitigate that risk we compute the workspace root only
+// once, before any tests run, and reuse that value for all tests.
+pub static WORKSPACE_ROOT: LazyLock<PathBuf> = LazyLock::new(workspace_root);
 
 /// Passed to the `transform_fixture` from the test as the input to transform.
 pub struct Fixture<'a> {

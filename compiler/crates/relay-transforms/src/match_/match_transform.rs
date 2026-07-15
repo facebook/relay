@@ -20,6 +20,7 @@ use common::FeatureFlag;
 use common::FeatureFlags;
 use common::Location;
 use common::NamedItem;
+use common::SourceLocationKey;
 use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use fnv::FnvBuildHasher;
@@ -568,6 +569,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                                     .unwrap()
                                     .name
                                     .location,
+                                module_source_location: spread.fragment.location.source_location(),
                                 location: module_directive.name.location,
                                 no_inline: should_use_no_inline,
                             }
@@ -703,7 +705,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 // where there are multiple selections with `@module` in the same document.
                 //
                 // If the directive does not have a `key` argument, and is not on a field with a
-                // `supported` argument, then it is is not doing anything and is
+                // `supported` argument, then it is not doing anything and is
                 // therefore an error.
                 if key_arg.is_none() {
                     return Err(Diagnostic::error(
@@ -1160,6 +1162,9 @@ pub struct ModuleMetadata {
     pub read_time_resolvers: bool,
     pub fragment_name: FragmentDefinitionName,
     pub fragment_source_location: Location,
+    /// The source file containing the @module directive usage.
+    /// Used to resolve relative module paths in non-Haste environments.
+    pub module_source_location: SourceLocationKey,
     pub no_inline: bool,
 }
 associated_data_impl!(ModuleMetadata);

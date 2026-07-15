@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2493b6a4242d8aa97c5b6e7e238b55f7>>
+ * @generated SignedSource<<a6f2f8eb40b9eee7bd490fcdeb0543d4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentWithOperationTrackerTest2Query$variables = {|
+export type RelayModernEnvironmentWithOperationTrackerTest2Query$variables = {
   id?: ?string,
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest2Query$data = {|
-  +node: ?{|
-    +id: string,
-  |},
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest2Query = {|
+};
+export type RelayModernEnvironmentWithOperationTrackerTest2Query$data = {
+  readonly node: ?{
+    readonly id: string,
+  },
+};
+export type RelayModernEnvironmentWithOperationTrackerTest2Query = {
   response: RelayModernEnvironmentWithOperationTrackerTest2Query$data,
   variables: RelayModernEnvironmentWithOperationTrackerTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

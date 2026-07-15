@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7c1f9028f02de5f2c701adec9ba60a76>>
+ * @generated SignedSource<<cdc40ec63f7c4b2b14e949b0db7a73ea>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,7 +19,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { useBlockingPaginationFragmentTest2Fragment$fragmentType } from "./useBlockingPaginationFragmentTest2Fragment.graphql";
-export type useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables = {|
+export type useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables = {
   after?: ?string,
   before?: ?string,
   first?: ?number,
@@ -28,16 +27,16 @@ export type useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables 
   isViewerFriendLocal?: ?boolean,
   last?: ?number,
   orderby?: ?ReadonlyArray<?string>,
-|};
-export type useBlockingPaginationFragmentTest2FragmentPaginationQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: useBlockingPaginationFragmentTest2Fragment$fragmentType,
-  |},
-|};
-export type useBlockingPaginationFragmentTest2FragmentPaginationQuery = {|
+};
+export type useBlockingPaginationFragmentTest2FragmentPaginationQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: useBlockingPaginationFragmentTest2Fragment$fragmentType,
+  },
+};
+export type useBlockingPaginationFragmentTest2FragmentPaginationQuery = {
   response: useBlockingPaginationFragmentTest2FragmentPaginationQuery$data,
   variables: useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

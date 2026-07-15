@@ -10,11 +10,11 @@ extend type Query {
 }
 ==================================== OUTPUT ===================================
 import type { Result } from "relay-runtime";
-export type MyQuery$variables = {||};
-export type MyQuery$data = Result<{|
-  +name: string,
-|}, unknown>;
-export type MyQuery = {|
+export type MyQuery$variables = {};
+export type MyQuery$data = Result<{
+  readonly name: string,
+}, unknown>;
+export type MyQuery = {
   response: MyQuery$data,
   variables: MyQuery$variables,
-|};
+};

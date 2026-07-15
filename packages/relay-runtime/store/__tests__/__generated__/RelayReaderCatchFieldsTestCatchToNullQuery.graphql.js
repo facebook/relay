@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8559208f6d9a4815e4d9c416e2d899a5>>
+ * @generated SignedSource<<e7e8421caadf85d2726d7aa7b5201b92>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,14 +18,14 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderCatchFieldsTestCatchToNullFragment$fragmentType } from "./RelayReaderCatchFieldsTestCatchToNullFragment.graphql";
-export type RelayReaderCatchFieldsTestCatchToNullQuery$variables = {||};
-export type RelayReaderCatchFieldsTestCatchToNullQuery$data = {|
-  +$fragmentSpreads: RelayReaderCatchFieldsTestCatchToNullFragment$fragmentType,
-|};
-export type RelayReaderCatchFieldsTestCatchToNullQuery = {|
+export type RelayReaderCatchFieldsTestCatchToNullQuery$variables = {};
+export type RelayReaderCatchFieldsTestCatchToNullQuery$data = {
+  readonly $fragmentSpreads: RelayReaderCatchFieldsTestCatchToNullFragment$fragmentType,
+};
+export type RelayReaderCatchFieldsTestCatchToNullQuery = {
   response: RelayReaderCatchFieldsTestCatchToNullQuery$data,
   variables: RelayReaderCatchFieldsTestCatchToNullQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

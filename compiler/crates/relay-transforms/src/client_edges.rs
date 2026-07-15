@@ -6,6 +6,7 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::ArgumentName;
 use common::Diagnostic;
@@ -42,9 +43,10 @@ use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
-use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
 use relay_schema::definitions::ResolverType;
+use relay_schema::definitions::is_server_value_object;
+use relay_schema::definitions::weak_object_instance_field;
 use schema::DirectiveValue;
 use schema::FieldID;
 use schema::ObjectID;
@@ -64,15 +66,18 @@ use crate::refetchable_fragment::RefetchableFragment;
 use crate::relay_resolvers::ResolverInfo;
 use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::relay_resolvers::get_resolver_info;
+use crate::relay_resolvers_abstract_types::concrete_field_requires_waterfall;
+use crate::relay_resolvers_abstract_types::project_interface_selections_to_concrete;
 
-lazy_static! {
-    // This gets attached to the generated query
-    pub static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
-    pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
-    pub static ref CLIENT_EDGE_SOURCE_NAME: ArgumentName = ArgumentName("clientEdgeSourceDocument".intern());
-    pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
-    pub static ref EXEC_TIME_RESOLVERS_DIRECTIVE_NAME: DirectiveName = DirectiveName("exec_time_resolvers".intern());
-}
+// This gets attached to the generated query
+pub static QUERY_NAME_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("queryName".intern()));
+pub static CLIENT_EDGE_SOURCE_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("clientEdgeSourceDocument".intern()));
+pub static CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("waterfall".intern()));
+pub static EXEC_TIME_RESOLVERS_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("exec_time_resolvers".intern()));
 
 /// Directive added to inline fragments created by the transform. The inline
 /// fragment groups together the client edge's backing field as well as a linked
@@ -95,6 +100,33 @@ pub enum ClientEdgeMetadataDirective {
     },
 }
 associated_data_impl!(ClientEdgeMetadataDirective);
+
+/// Whether `get_client_object_for_abstract_type` generates the `@waterfall`
+/// server-refetch operations for an abstract edge's server-type implementors.
+///
+/// A regular client edge to an abstract type needs a `ClientEdgeQuery` per
+/// server-type implementor (recorded as a `ClientEdgeServerObjectOperation`) so
+/// the runtime can refetch the server record. A magic fragment always
+/// transplants the consumer's selections onto the shadowed server field in the
+/// main operation, so the common case (the returned pointer targets the
+/// shadowed record) needs no refetch. It still generates a `ClientEdgeQuery`
+/// when `@waterfall` opts in to the cross-object backstop -- the transplant and
+/// the refetch are complementary, and the runtime picks between them per read.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ServerObjectOperationMode {
+    /// Regular client edge, or a `@waterfall` magic fragment: generate a
+    /// `ClientEdgeQuery` and record a `ClientEdgeServerObjectOperation` for each
+    /// server-type implementor. For a magic fragment this is the cross-object
+    /// refetch backstop that fires only when the returned pointer is missing
+    /// from the store; the transplant still serves the common case.
+    GenerateWaterfallOperations,
+    /// Magic fragment without `@waterfall`: collect model resolvers for
+    /// client-extension members as usual, but generate no `ClientEdgeQuery` and
+    /// record no `ClientEdgeServerObjectOperation` (so `server_object_operations`
+    /// stays empty). The server members are fetched solely by the transplant in
+    /// the main operation; a cross-object pointer has no refetch backstop.
+    SuppressForMagicFragmentTransplant,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ClientEdgeServerObjectOperation {
@@ -170,6 +202,17 @@ pub fn client_edges(
     project_config: &ProjectConfig,
     base_fragment_names: &FragmentDefinitionNameSet,
     validate_exec_time_resolvers: bool,
+    // True for the typegen pipeline, which runs on the un-fanned IR (interface
+    // fields are NOT split into per-concrete arms). This drives two pipeline
+    // differences:
+    //   1. `@waterfall` diagnostics are suppressed — a mixed interface field would
+    //      be validated against the interface field itself and wrongly rejected;
+    //      the reader/operation pipelines run on the fanned IR and validate each
+    //      concrete arm correctly, so they own the diagnostic.
+    //   2. Per-implementor `ClientEdgeQuery` operations for an abstract field with
+    //      client-edge-to-server implementors are self-projected here, because the
+    //      un-fanned IR has no per-concrete arm for the fan-out to mint them from.
+    is_typegen: bool,
 ) -> DiagnosticsResult<Program> {
     let fragments_in_exec_time_operations = if validate_exec_time_resolvers {
         collect_fragments_in_exec_time_operations(program)
@@ -182,6 +225,7 @@ pub fn client_edges(
         project_config,
         base_fragment_names,
         fragments_in_exec_time_operations,
+        is_typegen,
     );
     let mut next_program = transform
         .transform_program(program)
@@ -270,6 +314,9 @@ struct ClientEdgesTransform<'program, 'pc> {
     base_fragment_names: &'program FragmentDefinitionNameSet,
     has_exec_time_resolvers: bool,
     fragments_in_exec_time_operations: FragmentDefinitionNameSet,
+    /// The typegen pipeline runs on the un-fanned IR; see `client_edges`. Drives
+    /// `@waterfall` diagnostic suppression and per-implementor query self-projection.
+    is_typegen: bool,
 }
 
 impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
@@ -278,6 +325,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         project_config: &'pc ProjectConfig,
         base_fragment_names: &'program FragmentDefinitionNameSet,
         fragments_in_exec_time_operations: FragmentDefinitionNameSet,
+        is_typegen: bool,
     ) -> Self {
         Self {
             program,
@@ -291,7 +339,30 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             project_config,
             base_fragment_names,
             has_exec_time_resolvers: false,
+            is_typegen,
             fragments_in_exec_time_operations,
+        }
+    }
+
+    /// Push an "unexpected `@waterfall`" diagnostic, unless `@waterfall`
+    /// validation is suppressed for this pipeline (see `client_edges`).
+    fn push_unexpected_waterfall(&mut self, location: Location) {
+        if !self.is_typegen {
+            self.errors.push(Diagnostic::error_with_data(
+                ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
+                location,
+            ));
+        }
+    }
+
+    /// Push a "missing `@waterfall`" diagnostic, unless `@waterfall` validation is
+    /// suppressed for this pipeline (see `client_edges`).
+    fn push_missing_waterfall(&mut self, field_name: StringKey, location: Location) {
+        if !self.is_typegen {
+            self.errors.push(Diagnostic::error_with_data(
+                ValidationMessageWithData::RelayResolversMissingWaterfall { field_name },
+                location,
+            ));
         }
     }
 
@@ -382,6 +453,20 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     }
                     .into(),
                 );
+                // Propagate exec-time semantics to the auto-generated
+                // ClientEdgeQuery so its NormalizationOperation carries
+                // `use_exec_time_resolvers: true`. The reactive executor's
+                // per-waterfall NormalizationEngine reads this flag to
+                // collect S2C executions instead of inlining them. See
+                // CLIENT_TO_SERVER_EDGES_DESIGN.md section 7.1.
+                if self.has_exec_time_resolvers {
+                    directives.push(Directive {
+                        name: WithLocation::generated(*EXEC_TIME_RESOLVERS_DIRECTIVE_NAME),
+                        arguments: vec![],
+                        data: None,
+                        location: Location::generated(),
+                    });
+                }
                 self.new_operations.push(OperationDefinition {
                     kind: OperationKind::Query,
                     name: WithLocation::new(
@@ -429,6 +514,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         edge_to_type: Type,
         waterfall_directive: Option<&Directive>,
         resolver_directive: Option<&DirectiveValue>,
+        new_selections: &[Selection],
     ) -> Option<ClientEdgeMetadataDirective> {
         let result = match edge_to_type {
             Type::Interface(interface_id) => {
@@ -459,6 +545,8 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     implementing_objects.iter(),
                     interface.name.item.0,
                     field,
+                    new_selections,
+                    ServerObjectOperationMode::GenerateWaterfallOperations,
                 )
             }
             Type::Union(union) => {
@@ -467,6 +555,8 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     union.members.iter(),
                     union.name.item.0,
                     field,
+                    new_selections,
+                    ServerObjectOperationMode::GenerateWaterfallOperations,
                 )
             }
             Type::Object(object_id) => {
@@ -495,20 +585,13 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             if server_object_operations.is_empty() {
                 // No server type implementors: @waterfall is unexpected.
                 if let Some(directive) = waterfall_directive {
-                    self.errors.push(Diagnostic::error_with_data(
-                        ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
-                        directive.location,
-                    ));
+                    self.push_unexpected_waterfall(directive.location);
                 }
             } else {
                 // Has server type implementors: @waterfall is required.
                 if waterfall_directive.is_none() {
-                    self.errors.push(Diagnostic::error_with_data(
-                        ValidationMessageWithData::RelayResolversMissingWaterfall {
-                            field_name: self.program.schema.field(field.definition.item).name.item,
-                        },
-                        field.definition.location,
-                    ));
+                    let field_name = self.program.schema.field(field.definition.item).name.item;
+                    self.push_missing_waterfall(field_name, field.definition.location);
                 }
 
                 // Mixed interfaces are not supported in exec-time resolvers
@@ -526,24 +609,171 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         result
     }
 
+    /// Collect the concrete implementing objects of `edge_to_type`, paired with
+    /// the abstract type's name. Returns `None` for a concrete object type (which
+    /// has no abstract members) — magic-fragment edges only route interface/union return
+    /// types through the client-object machinery.
+    fn abstract_type_members(&self, edge_to_type: Type) -> Option<(Vec<ObjectID>, StringKey)> {
+        match edge_to_type {
+            Type::Interface(interface_id) => {
+                let interface = self.program.schema.interface(interface_id);
+                let members = interface
+                    .recursively_implementing_objects(Arc::as_ref(&self.program.schema))
+                    .into_iter()
+                    .collect();
+                Some((members, interface.name.item.0))
+            }
+            Type::Union(union_id) => {
+                let union = self.program.schema.union(union_id);
+                Some((union.members.clone(), union.name.item.0))
+            }
+            _ => None,
+        }
+    }
+
+    /// Returns true if any implementor of the magic-fragment edge's return type
+    /// (`edge_to_type`) is a client-extension type. Such an edge carries client
+    /// data that is read via the model-resolver (`ClientObject`) path, which
+    /// requires the interface selection to have been expanded into per-concrete
+    /// typed arms by `relay_resolvers_abstract_types`.
+    ///
+    /// This is a pure predicate, so it iterates the borrowed members directly
+    /// (rather than going through `abstract_type_members`, which collects/clones
+    /// them) — `any` short-circuits without allocating.
+    fn magic_fragment_edge_has_client_extension_implementor(&self, edge_to_type: Type) -> bool {
+        let schema = &self.program.schema;
+        let is_client_object =
+            |object_id: &ObjectID| schema.is_extension_type(Type::Object(*object_id));
+        match edge_to_type {
+            Type::Interface(interface_id) => schema
+                .interface(interface_id)
+                .recursively_implementing_objects(Arc::as_ref(schema))
+                .iter()
+                .any(is_client_object),
+            Type::Union(union_id) => schema.union(union_id).members.iter().any(is_client_object),
+            _ => false,
+        }
+    }
+
+    /// Build the `ClientObject` edge for a magic fragment whose return
+    /// interface/union is read through the model-resolver machinery.
+    ///
+    /// Reuses the shared `get_client_object_for_abstract_type` helper — so model
+    /// resolvers for client-extension members are minted exactly as on the
+    /// regular client-edge path.
+    ///
+    /// `is_waterfall` selects how server members are served:
+    /// - `false` (default, no `@waterfall`): `SuppressForMagicFragmentTransplant` — no
+    ///   `ClientEdgeQuery` is generated and `server_object_operations` stays empty;
+    ///   the consumer's selections for a server member are transplanted onto the
+    ///   shadowed server field in the main operation by
+    ///   `relay_resolvers_spread_transform`, so there is no waterfall.
+    /// - `true` (`@waterfall` opt-in): `GenerateWaterfallOperations` — the
+    ///   server member's pointer targets a different object not covered by the
+    ///   transplant, so a `ClientEdgeQuery` refetch is generated exactly as for a
+    ///   regular client-edge-to-server-object.
+    fn get_edge_to_magic_fragment_client_object_metadata_directive(
+        &mut self,
+        field: &LinkedField,
+        edge_to_type: Type,
+        is_waterfall: bool,
+        new_selections: &[Selection],
+    ) -> Option<ClientEdgeMetadataDirective> {
+        // A CONCRETE non-Node SERVER VALUE return has no abstract
+        // members, so route it through the concrete `ClientObject` machinery (the
+        // same `Type::Object` arm a concrete client edge uses): a `ClientObject`
+        // with empty `model_resolvers` and empty `server_object_operations`. The
+        // consumer's selections are transplanted onto the shadowed server field in
+        // the main operation; the edge reads them INLINE in place off the injected
+        // `__id` (no `ensureClientRecord`, no refetch). `build_ast` emits the
+        // `ServerWeak` `normalizationInfo` for it.
+        if let Type::Object(object_id) = edge_to_type {
+            // A server VALUE return has no global `id` and no separate record, so
+            // `node(id:)` is meaningless: `@waterfall` is a hard error.
+            if is_waterfall {
+                self.push_unexpected_waterfall(field.definition.location);
+            }
+            let type_name = self.program.schema.object(object_id).name.item;
+            return Some(ClientEdgeMetadataDirective::ClientObject {
+                type_name: Some(type_name),
+                model_resolvers: vec![],
+                server_object_operations: vec![],
+                unique_id: self.get_key(),
+            });
+        }
+
+        let (members, abstract_type_name) = self.abstract_type_members(edge_to_type)?;
+        let server_object_operation_mode = if is_waterfall {
+            ServerObjectOperationMode::GenerateWaterfallOperations
+        } else {
+            ServerObjectOperationMode::SuppressForMagicFragmentTransplant
+        };
+        self.get_client_object_for_abstract_type(
+            members.iter(),
+            abstract_type_name,
+            field,
+            new_selections,
+            server_object_operation_mode,
+        )
+    }
+
     fn get_client_object_for_abstract_type<'a>(
         &mut self,
         members: impl Iterator<Item = &'a ObjectID>,
         abstract_type_name: StringKey,
         field: &LinkedField,
+        // The caller's already-transformed selections for `field`. Reused here
+        // (rather than re-running `transform_selections`) so nested client edges
+        // are not visited twice — a second visit would re-mint their generated
+        // query names with a `_N` uniqueness suffix.
+        new_selections: &[Selection],
+        server_object_operation_mode: ServerObjectOperationMode,
     ) -> Option<ClientEdgeMetadataDirective> {
         let mut model_resolvers: Vec<ClientEdgeModelResolver> = Vec::new();
         let mut server_type_object_ids: Vec<ObjectID> = Vec::new();
+        let mut has_inline_member = false;
 
+        let id_field_name = self.project_config.schema_config.node_interface_id_field;
         for object_id in members {
+            let member = Type::Object(*object_id);
+            let schema = self.program.schema.as_ref();
+
+            // Per-`__typename` classification. A weak `@weak` model or a
+            // non-Node server VALUE implementor is read INLINE (off
+            // `__relay_model_instance` / the transplanted `client:<parentid>:<field>`
+            // record via `__id`) — it has no DataID pointer and no separate record
+            // to refetch. Such a member must reach NEITHER `model_resolvers` (it has
+            // no model resolver; `@weak` was previously silent-dropped) NOR
+            // `server_type_object_ids` (a value type cannot be refetched via
+            // `node(id:)`, so an `@waterfall` mixed interface must not attempt one on
+            // it — R5). The reader serves it through the backing field's
+            // `normalizationInfo` inline branch (set by `field_transform` /
+            // `build_ast`) plus the per-concrete inline fragment that
+            // `relay_resolvers_abstract_types` expanded; the per-member `@waterfall`
+            // strip in `project_interface_selections_to_concrete` already removes
+            // `@waterfall` from a non-refetchable inline member's selections. So we
+            // simply skip it here.
+            let is_inline_member = weak_object_instance_field(schema, member).is_some()
+                || is_server_value_object(schema, member, id_field_name);
+            if is_inline_member {
+                has_inline_member = true;
+                continue;
+            }
+
             let is_server_type = !self
                 .program
                 .schema
                 .is_extension_type(Type::Object(*object_id));
             if is_server_type {
+                // Strong (Node) server implementor. Collected unconditionally, but
+                // only consumed under `GenerateWaterfallOperations`. In
+                // `SuppressForMagicFragmentTransplant` mode these ids are
+                // gathered-but-unused: the server member's selections are
+                // transplanted onto the shadowed field in the main operation, so no
+                // per-server refetch query is generated.
                 server_type_object_ids.push(*object_id);
             } else {
-                // Client type: try to get a model resolver.
+                // Client model type: try to get a model resolver.
                 let model_resolver = self.get_client_edge_model_resolver_for_object(*object_id);
                 match model_resolver {
                     Some(resolver) => {
@@ -559,9 +789,35 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             }
         }
 
+        // Gate: a mixed magic-fragment return that has BOTH an inline
+        // (weak / non-Node value) implementor AND a strong refetchable server-object
+        // (Node) implementor is not yet runtime-correct. The inline arm reads in
+        // place off `normalizationInfo` while the Node arm needs a `node(id:)`
+        // refetch — a single backing-field `normalizationInfo.kind` cannot express
+        // per-`__typename` behavior, so the Node member would be mis-normalized as an
+        // inline value. Reject up front; full per-`__typename` dispatch is not yet
+        // supported. Pure-inline (no strong-Node) and pure-strong (no
+        // inline) returns are unaffected.
+        if has_inline_member && !server_type_object_ids.is_empty() {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::MagicFragmentMixedInlineAndRefetchableUnsupported {
+                    interface_name: abstract_type_name,
+                },
+                field.definition.location,
+            ));
+            return None;
+        }
+
         model_resolvers.sort();
 
-        let has_server_type = !server_type_object_ids.is_empty();
+        // A magic fragment fetches its server members via the transplant in the
+        // main operation, so it generates no `ClientEdgeQuery` and records no
+        // `ClientEdgeServerObjectOperation`. Model resolvers for client-extension
+        // members are still collected above; only the server-refetch operations
+        // are suppressed.
+        let has_server_type = !server_type_object_ids.is_empty()
+            && server_object_operation_mode
+                == ServerObjectOperationMode::GenerateWaterfallOperations;
 
         // For each server type, generate a refetch query individually.
         // The refetchable fragment system determines whether to use
@@ -583,9 +839,29 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     true
                 };
 
-            let new_selections = self
-                .transform_selections(&field.selections)
-                .replace_or_else(|| field.selections.clone());
+            // When the interface is mixed (server + client resolver implementors),
+            // relay_resolvers_abstract_types has already expanded the selections into
+            // per-concrete-type inline fragments — including fragments for client types
+            // (e.g. `... on BestFriend { wheels @resolver }`). These client-type
+            // fragments must not appear in the server refetch query for a server
+            // implementor (e.g. Bicycle), so strip them before generating each query.
+            //
+            // Fragment spreads on mixed abstract types (e.g. `...PersonFragment` on IPerson)
+            // pass through here unchanged. skip_client_extensions handles them in the
+            // operation text pipeline by inlining their server-reachable selections in
+            // place of the spread, while the reader keeps the original fragment spread.
+            let server_selections = new_selections
+                .iter()
+                .filter(|selection| {
+                    if let Selection::InlineFragment(fragment) = selection
+                        && let Some(type_condition) = fragment.type_condition
+                    {
+                        return !self.program.schema.is_extension_type(type_condition);
+                    }
+                    true
+                })
+                .cloned()
+                .collect::<Vec<_>>();
 
             let mut ops: Vec<ClientEdgeServerObjectOperation> = Vec::new();
             for object_id in &server_type_object_ids {
@@ -595,7 +871,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     self.generate_client_edge_query(
                         query_name,
                         Type::Object(*object_id),
-                        new_selections.clone(),
+                        server_selections.clone(),
                         {
                             let schema_field =
                                 self.program.schema.field(field.definition.item);
@@ -700,12 +976,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         }
         // Client Edges to server objects must be annotated with @waterfall
         if waterfall_directive.is_none() {
-            self.errors.push(Diagnostic::error_with_data(
-                ValidationMessageWithData::RelayResolversMissingWaterfall {
-                    field_name: field_type.name.item,
-                },
-                field_location,
-            ));
+            self.push_missing_waterfall(field_type.name.item, field_location);
         }
         let document_name = self.document_name.expect("We are within a document");
         let client_edge_query_name = self.generate_query_name(document_name.item);
@@ -744,6 +1015,134 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         }
     }
 
+    /// Returns true if `field_type` is backed by a shadow resolver, i.e. a Relay
+    /// Resolver declaring a `@returnFragment`. Such resolvers shadow a server
+    /// field and return a pointer read off the already-normalized record (no
+    /// waterfall), so they are routed through the `ClientObject` edge in suppress
+    /// mode rather than the regular client-object / server-object client-edge
+    /// paths.
+    fn shadow_resolver_info(&self, field_type: &schema::Field) -> Option<ResolverInfo> {
+        // `get_resolver_info` may surface diagnostics, but those are also raised
+        // (and reported) by the `relay_resolvers` field transform that runs
+        // after this pass. Here we only need the resolver signal, so we ignore
+        // any diagnostics. Surfacing the full `ResolverInfo` (rather than a bool)
+        // lets the caller also read resolver-declared facts like `@mayWaterfall`.
+        match get_resolver_info(&self.program.schema, field_type, field_type.name.location) {
+            Some(Ok(resolver_info)) if resolver_info.return_fragment.is_some() => {
+                Some(resolver_info)
+            }
+            _ => None,
+        }
+    }
+
+    /// If `field_type` is declared on an interface or union, returns the concrete
+    /// implementor object ids; otherwise `None`. Used by the typegen pipeline to
+    /// re-derive the per-implementor arms the operation pipeline fans out.
+    fn abstract_parent_implementors(&self, field_type: &schema::Field) -> Option<Vec<ObjectID>> {
+        match field_type.parent_type {
+            Some(Type::Interface(interface_id)) => Some(
+                self.program
+                    .schema
+                    .interface(interface_id)
+                    .recursively_implementing_objects(Arc::as_ref(&self.program.schema))
+                    .into_iter()
+                    .collect(),
+            ),
+            Some(Type::Union(union_id)) => {
+                Some(self.program.schema.union(union_id).members.clone())
+            }
+            _ => None,
+        }
+    }
+
+    /// For an abstract-typed field on the un-fanned typegen IR, emit one
+    /// `ClientEdgeQuery` per implementor whose concrete field is a
+    /// client-edge-to-server-object — matching, by name and selections, the
+    /// queries the operation pipeline mints from the fanned per-concrete arms.
+    /// The implementor type name is spliced into the generated path so the query
+    /// name matches the fanned pipeline, where the field sits inside a
+    /// `... on Implementor` arm.
+    fn generate_typegen_self_projected_queries(
+        &mut self,
+        field: &LinkedField,
+        field_type: &schema::Field,
+        members: &[ObjectID],
+        new_selections: &[Selection],
+    ) {
+        let field_name = field_type.name.item;
+        let document_name = match self.document_name {
+            Some(document_name) => document_name,
+            None => return,
+        };
+        let should_generate_query = match document_name.item {
+            ExecutableDefinitionName::FragmentDefinitionName(fragment_name) => {
+                !self.base_fragment_names.contains(&fragment_name)
+            }
+            _ => true,
+        };
+
+        let mut sorted_members = members.to_vec();
+        sorted_members.sort();
+        for object_id in sorted_members {
+            let concrete_type = Type::Object(object_id);
+            let Some(concrete_field_id) =
+                self.program.schema.named_field(concrete_type, field_name)
+            else {
+                continue;
+            };
+            if !concrete_field_requires_waterfall(self.program.schema.as_ref(), concrete_field_id) {
+                continue;
+            }
+            let edge_target = self.program.schema.field(concrete_field_id).type_.inner();
+            let projected = project_interface_selections_to_concrete(
+                self.program.schema.as_ref(),
+                edge_target,
+                new_selections,
+            );
+
+            // The path currently ends with this field's leaf name; temporarily
+            // insert the implementor type name before the leaf to mirror the
+            // `... on Implementor` arm the fanned pipeline produces, then restore.
+            let leaf = self.path.pop();
+            let type_name = self.program.schema.get_type_name(concrete_type);
+            self.path.push(type_name.lookup());
+            if let Some(leaf) = leaf {
+                self.path.push(leaf);
+            }
+            let query_name = self.generate_query_name(document_name.item);
+            if leaf.is_some() {
+                self.path.pop();
+            }
+            self.path.pop();
+            if let Some(leaf) = leaf {
+                self.path.push(leaf);
+            }
+
+            if should_generate_query {
+                let schema_field = self.program.schema.field(field.definition.item);
+                let server_type_name = self.program.schema.get_type_name(edge_target);
+                self.generate_client_edge_query(
+                    query_name,
+                    edge_target,
+                    projected,
+                    vec![
+                        Diagnostic::error(
+                            ValidationMessage::ClientEdgeServerTypeNotRefetchable {
+                                field_name: schema_field.name.item,
+                                server_type_name: ObjectName(server_type_name),
+                            },
+                            field.definition.location,
+                        )
+                        .annotate_if_location_exists(
+                            "field defined here",
+                            schema_field.name.location,
+                        ),
+                    ],
+                );
+            }
+        }
+    }
+
     fn transform_linked_field_impl(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let schema = &self.program.schema;
         let field_type = schema.field(field.definition.item);
@@ -762,11 +1161,48 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             // Non-Client-Edge fields do not incur a waterfall, and thus should
             // not be annotated with @waterfall.
             if let Some(directive) = waterfall_directive {
-                self.errors.push(Diagnostic::error_with_data(
-                    ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
-                    directive.location,
-                ));
+                self.push_unexpected_waterfall(directive.location);
             }
+
+            // The typegen pipeline runs on the un-fanned IR, so a field selected
+            // on an abstract type is seen here as a plain interface/union field
+            // rather than as the per-concrete arms the operation pipeline fans it
+            // into. When an implementor's version of the field is a
+            // client-edge-to-server-object, the operation pipeline mints a
+            // `ClientEdgeQuery` for it from that arm; typegen must mint the same
+            // query (by name and selections) so artifact generation can pair each
+            // operation with its typegen twin. Transform the child selections once
+            // and reuse them for both the generated queries and the returned
+            // field, so nested client edges are not visited twice.
+            // Gate on the same flag as the operation-pipeline fan-out
+            // (`relay_resolvers_abstract_types`, gated on
+            // `relay_resolver_enable_interface_output_type`). Without this, when
+            // the flag is off the operation pipeline mints no per-implementor
+            // `ClientEdgeQuery` but typegen would still self-project one — the
+            // reverse-orphan of the panic this branch exists to prevent.
+            if self.is_typegen
+                && self
+                    .project_config
+                    .feature_flags
+                    .relay_resolver_enable_interface_output_type
+                    .is_fully_enabled()
+                && let Some(members) = self.abstract_parent_implementors(field_type)
+            {
+                let new_selections = self
+                    .transform_selections(&field.selections)
+                    .replace_or_else(|| field.selections.clone());
+                self.generate_typegen_self_projected_queries(
+                    field,
+                    field_type,
+                    &members,
+                    &new_selections,
+                );
+                return Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                    selections: new_selections,
+                    ..field.clone()
+                })));
+            }
+
             return self.default_transform_linked_field(field);
         }
 
@@ -780,6 +1216,148 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             .transform_selections(&field.selections)
             .replace_or_else(|| field.selections.clone());
 
+        // Magic fragment: a resolver that shadows a server field and returns a
+        // pointer (DataID) read off a normalized record. Its consumer selections
+        // are always transplanted onto the shadowed server field in the main
+        // operation (see `shadow_transplant_selection`), which serves the common
+        // case -- pointer targets the shadowed record -- from the store with no
+        // waterfall. Route it through the shared `ClientObject` machinery:
+        // client-extension members get their model resolvers via the existing
+        // `@edgeTo` dispatch; server members either suppress the `ClientEdgeQuery`
+        // (transplant-only) or also generate one as a cross-object refetch
+        // backstop, selected by `@waterfall` below.
+        //
+        // Gated on the feature flag first so non-adopting projects skip the
+        // `get_resolver_info` reparse inside `shadow_resolver_info` for every
+        // client edge: a valid magic fragment can only exist when
+        // `enable_shadow_resolvers` is fully enabled.
+        // A shadow resolver (`@returnFragment`) whose return type is a CONCRETE
+        // `@weak` model has no DataID pointer and no server record to transplant:
+        // the weak value is produced by the resolver and read INLINE off
+        // `<Type>____relay_model_instance`. It must NOT enter the magic-fragment
+        // transplant branch (which transplants consumer selections onto a shadowed
+        // *server* field). Instead it falls through to the regular client-object
+        // path below, where the `Type::Object` arm builds a `ClientObject` with
+        // empty `model_resolvers` (a `@weak` object yields no model resolver) and
+        // the value is read inline. The `field_transform` routing already marks it
+        // as the inline `Composite`/WeakModel arm. The `@returnFragment`
+        // `@rootFragment` data dependency (and its `@__relay_shadow_return` marker)
+        // is consumed/stripped by the normal resolver + codegen passes.
+        let is_concrete_weak_return = edge_to_type.is_weak_resolver_object(schema.as_ref());
+
+        let shadow_resolver_info = if self
+            .project_config
+            .feature_flags
+            .enable_shadow_resolvers
+            .is_fully_enabled()
+            && !is_concrete_weak_return
+        {
+            self.shadow_resolver_info(field_type)
+        } else {
+            None
+        };
+        if let Some(resolver_info) = shadow_resolver_info {
+            // A PLURAL shadow resolver cannot carry `@waterfall`: the refetch
+            // backstop is a `node(id:)` query, which is inherently singular, and
+            // there is no plural refetch path. Reject it here (rather than in
+            // `shadow_transform`) because `@waterfall` is a per-use-site directive,
+            // visible per occurrence only at this client-edge transform.
+            if field_type.type_.is_list()
+                && let Some(waterfall) = waterfall_directive
+            {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::MagicFragmentPluralWaterfallUnsupported {
+                        field_name: field_type.name.item,
+                    },
+                    waterfall.location,
+                ));
+                return Transformed::Keep;
+            }
+
+            // Whether a magic fragment can return a pointer to a DIFFERENT server
+            // object is a runtime property the compiler cannot decide statically,
+            // so the RESOLVER declares it once via `@mayWaterfall`. That single
+            // declaration drives `@waterfall` enforcement uniformly across every
+            // consumer, rather than each consumer opting in ad hoc:
+            //   - declared   -> each consumer MUST acknowledge the possible
+            //     cross-object refetch with `@waterfall` (else `MissingWaterfall`).
+            //   - undeclared -> the resolver only ever returns the shadowed
+            //     record, served by the transplant, so a consumer `@waterfall`
+            //     is unexpected (`UnexpectedWaterfall`).
+            //
+            // The transplant always runs, so the common case (pointer targets the
+            // shadowed record) is served from the store with no roundtrip. When
+            // the resolver may waterfall, server members ALSO generate a
+            // `ClientEdgeQuery` cross-object refetch backstop that the runtime's
+            // client-edge availability check fires only when the returned pointer
+            // is missing from the store.
+            let magic_fragment_waterfall = resolver_info.may_waterfall;
+
+            if magic_fragment_waterfall {
+                if waterfall_directive.is_none() {
+                    // On this error path the metadata directive is still built
+                    // below in `GenerateWaterfallOperations` mode (the field has
+                    // no `@waterfall`), but the pushed error aborts compilation
+                    // before that artifact is emitted -- matching the
+                    // collect-errors-and-continue pattern used elsewhere here.
+                    self.errors.push(Diagnostic::error_with_data(
+                        ValidationMessageWithData::RelayResolversMissingWaterfall {
+                            field_name: field_type.name.item,
+                        },
+                        field.definition.location,
+                    ));
+                }
+            } else if let Some(directive) = waterfall_directive {
+                // The field IS backed by client-edge machinery, so the generic
+                // "unexpected @waterfall" message would mislead; point the author
+                // at the resolver's missing `@mayWaterfall` declaration instead.
+                self.errors.push(Diagnostic::error_with_data(
+                    ValidationMessageWithData::MagicFragmentUnexpectedWaterfall {
+                        field_name: field_type.name.item,
+                    },
+                    directive.location,
+                ));
+            }
+
+            // A client-extension member is read through the model-resolver edge,
+            // which needs the consumer's interface selection expanded into
+            // per-concrete typed arms by `relay_resolvers_abstract_types`. That
+            // expansion only happens when `relay_resolver_enable_interface_output_type`
+            // is fully enabled; without it the spread-transform partition would
+            // have no client arm to drop and we would silently emit a server-only
+            // artifact that drops the client data. Fail loudly instead.
+            if self.magic_fragment_edge_has_client_extension_implementor(edge_to_type)
+                && !self
+                    .project_config
+                    .feature_flags
+                    .relay_resolver_enable_interface_output_type
+                    .is_fully_enabled()
+            {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::MagicFragmentClientImplementorRequiresInterfaceOutputType {
+                        field_name: field_type.name.item,
+                        interface_name: schema.get_type_name(edge_to_type),
+                    },
+                    field.definition.location,
+                ));
+                return Transformed::Keep;
+            }
+
+            let metadata_directive = match self
+                .get_edge_to_magic_fragment_client_object_metadata_directive(
+                    field,
+                    edge_to_type,
+                    magic_fragment_waterfall,
+                    &new_selections,
+                ) {
+                Some(directive) => directive,
+                None => return Transformed::Keep,
+            };
+            let inline_fragment =
+                create_inline_fragment_for_client_edge(field, new_selections, metadata_directive);
+            return Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)));
+        }
+
         let metadata_directive = if is_edge_to_client_object {
             // Validate S2C @rootFragment identity-only constraint
             self.validate_s2c_root_fragment_for_exec_time(field);
@@ -788,18 +1366,14 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 edge_to_type,
                 waterfall_directive,
                 resolver_directive,
+                &new_selections,
             ) {
                 Some(directive) => directive,
                 None => return Transformed::Keep,
             }
         } else {
-            // Client-to-server edges are not compatible with exec time resolvers
-            if self.has_exec_time_resolvers {
-                self.errors.push(Diagnostic::error(
-                    ValidationMessage::ClientEdgeToServerWithExecTimeResolvers,
-                    field.definition.location,
-                ));
-            }
+            // Client-to-server edges are now supported in exec time resolvers
+            // (validation removed to enable C2S support)
             self.get_edge_to_server_object_metadata_directive(
                 field_type,
                 field.definition.location,
@@ -972,10 +1546,7 @@ impl Transformer<'_> for ClientEdgesTransform<'_, '_> {
             .directives()
             .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
         {
-            self.errors.push(Diagnostic::error_with_data(
-                ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
-                directive.location,
-            ));
+            self.push_unexpected_waterfall(directive.location);
         }
         // Validate S2C @rootFragment identity-only constraint
         self.validate_s2c_root_fragment_for_exec_time(field);

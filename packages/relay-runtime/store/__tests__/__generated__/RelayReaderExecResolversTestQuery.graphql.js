@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3297066b4245e3a626200ff40751ebc6>>
+ * @generated SignedSource<<e040c5847e8b350137facc2c0d668a6c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -27,9 +26,9 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 (queryRelayReaderExecResolversTestUserOneResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {best_friend as relayReaderExecResolversTestUserBestFriendResolverType} from "../RelayReader-ExecResolvers-test.js";
 // Type assertion validating that `relayReaderExecResolversTestUserBestFriendResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -37,9 +36,9 @@ import {best_friend as relayReaderExecResolversTestUserBestFriendResolverType} f
   __relay_model_instance: RelayReaderExecResolversTestUser____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {friends as relayReaderExecResolversTestUserFriendsResolverType} from "../RelayReader-ExecResolvers-test.js";
 // Type assertion validating that `relayReaderExecResolversTestUserFriendsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -47,9 +46,9 @@ import {friends as relayReaderExecResolversTestUserFriendsResolverType} from "..
   __relay_model_instance: RelayReaderExecResolversTestUser____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
-) => ?ReadonlyArray<?{|
-  +id: DataID,
-|}>);
+) => ?ReadonlyArray<?{
+  readonly id: DataID,
+}>);
 import {name as relayReaderExecResolversTestUserNameResolverType} from "../RelayReader-ExecResolvers-test.js";
 // Type assertion validating that `relayReaderExecResolversTestUserNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -58,22 +57,22 @@ import {name as relayReaderExecResolversTestUserNameResolverType} from "../Relay
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderExecResolversTestQuery$variables = {||};
-export type RelayReaderExecResolversTestQuery$data = {|
-  +RelayReaderExecResolversTest_user_one: ?{|
-    +best_friend: ?{|
-      +name: ?string,
-    |},
-    +friends: ?ReadonlyArray<?{|
-      +name: ?string,
-    |}>,
-    +name: ?string,
-  |},
-|};
-export type RelayReaderExecResolversTestQuery = {|
+export type RelayReaderExecResolversTestQuery$variables = {};
+export type RelayReaderExecResolversTestQuery$data = {
+  readonly RelayReaderExecResolversTest_user_one: ?{
+    readonly best_friend: ?{
+      readonly name: ?string,
+    },
+    readonly friends: ?ReadonlyArray<?{
+      readonly name: ?string,
+    }>,
+    readonly name: ?string,
+  },
+};
+export type RelayReaderExecResolversTestQuery = {
   response: RelayReaderExecResolversTestQuery$data,
   variables: RelayReaderExecResolversTestQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

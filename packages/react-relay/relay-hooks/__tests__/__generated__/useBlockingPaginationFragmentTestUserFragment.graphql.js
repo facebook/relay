@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<91fe2345112d84bd7ca099ebbf655768>>
+ * @generated SignedSource<<587a50ca6a692e4c253bb333d68d2379>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,23 +21,23 @@ import type { useBlockingPaginationFragmentTestNestedUserFragment$fragmentType }
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useBlockingPaginationFragmentTestUserFragment$fragmentType: FragmentType;
 type useBlockingPaginationFragmentTestUserFragmentPaginationQuery$variables = any;
-export type useBlockingPaginationFragmentTestUserFragment$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-        +name: ?string,
-        +$fragmentSpreads: useBlockingPaginationFragmentTestNestedUserFragment$fragmentType,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +name: ?string,
-  +$fragmentType: useBlockingPaginationFragmentTestUserFragment$fragmentType,
-|};
+export type useBlockingPaginationFragmentTestUserFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+        readonly name: ?string,
+        readonly $fragmentSpreads: useBlockingPaginationFragmentTestNestedUserFragment$fragmentType,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: useBlockingPaginationFragmentTestUserFragment$fragmentType,
+};
 export type useBlockingPaginationFragmentTestUserFragment$key = {
-  +$data?: useBlockingPaginationFragmentTestUserFragment$data,
-  +$fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
+  readonly $data?: useBlockingPaginationFragmentTestUserFragment$data,
+  readonly $fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
   ...
 };
 */

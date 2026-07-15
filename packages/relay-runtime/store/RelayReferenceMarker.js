@@ -13,6 +13,7 @@
 
 import type {
   NormalizationClientEdgeToClientObject,
+  NormalizationClientEdgeToServerObject,
   NormalizationLinkedField,
   NormalizationLiveResolverField,
   NormalizationModuleImport,
@@ -226,6 +227,7 @@ class RelayReferenceMarker {
           this._traverseResolverField(selection, record);
           break;
         case 'ClientEdgeToClientObject':
+        case 'ClientEdgeToServerObject':
           this._traverseClientEdgeToClientObject(selection, record);
           break;
         default:
@@ -240,7 +242,9 @@ class RelayReferenceMarker {
   }
 
   _traverseClientEdgeToClientObject(
-    field: NormalizationClientEdgeToClientObject,
+    field:
+      | NormalizationClientEdgeToClientObject
+      | NormalizationClientEdgeToServerObject,
     record: Record,
   ): void {
     if (this._useExecTimeResolvers) {

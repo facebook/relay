@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<42553d5a68f05d6d44cbb34f36014ec0>>
+ * @generated SignedSource<<47646efaeaec83e24413551990ef2c49>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentCommitPayloadTest4UserFragment$data = {|
-  +username: ?string,
-  +$fragmentType: RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
-|};
+export type RelayModernEnvironmentCommitPayloadTest4UserFragment$data = {
+  readonly username: ?string,
+  readonly $fragmentType: RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
+};
 export type RelayModernEnvironmentCommitPayloadTest4UserFragment$key = {
-  +$data?: RelayModernEnvironmentCommitPayloadTest4UserFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentCommitPayloadTest4UserFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
   ...
 };
 */

@@ -32,22 +32,22 @@ declare export var refetchableFragmentInput: RefetchableFragment<
 declare export opaque type Example_user$fragmentType: FragmentType;
 export type Example_user$data = NonNullableData;
 export type Example_user$key = {
-  +$data?: Example_user$data,
-  +$fragmentSpreads: Example_user$fragmentType,
+  readonly $data?: Example_user$data,
+  readonly $fragmentSpreads: Example_user$fragmentType,
   ...
 };
 
 export type NonNullableData = {
-  +id: string,
-  +count: number,
+  readonly id: string,
+  readonly count: number,
 };
 export type NullableData = ?NonNullableData;
 export type NonNullablePluralData = ReadonlyArray<NonNullableData>;
 export type NullablePluralData = ?ReadonlyArray<NonNullableData>;
 
 export type AnotherNonNullableData = {
-  +name: ?string,
-  +friends: ?number,
+  readonly name: ?string,
+  readonly friends: ?number,
 };
 
 declare export var keyNonNullable: Example_user$key;
@@ -59,25 +59,25 @@ declare export var keyNullablePlural: ?ReadonlyArray<Example_user$key>;
 declare export var keyNullable: ?Example_user$key;
 
 declare export var keyAnotherNonNullable: {
-  +$data: AnotherNonNullableData,
-  +$fragmentSpreads: FragmentType,
+  readonly $data: AnotherNonNullableData,
+  readonly $fragmentSpreads: FragmentType,
   ...
 };
 
 declare export var keyAnotherNullable: ?{
-  +$data: AnotherNonNullableData,
-  +$fragmentSpreads: FragmentType,
+  readonly $data: AnotherNonNullableData,
+  readonly $fragmentSpreads: FragmentType,
   ...
 };
 
 declare export var fragmentData: {
-  +$fragmentType: FragmentType,
+  readonly $fragmentType: FragmentType,
   ...
 };
 
 export type QueryOperation = {
-  +variables: QueryVariables,
-  +response: {...},
+  readonly variables: QueryVariables,
+  readonly response: {...},
 };
 
 export type QueryVariables = {

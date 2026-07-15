@@ -70,6 +70,7 @@ fn add_definition(changes: &mut Vec<DefinitionChange>, def: &TypeSystemDefinitio
         | TypeSystemDefinition::ObjectTypeExtension(..)
         | TypeSystemDefinition::SchemaDefinition(..)
         | TypeSystemDefinition::DirectiveDefinition(..)
+        | TypeSystemDefinition::DirectiveDefinitionExtension(..)
         | TypeSystemDefinition::SchemaExtension(..)
         | TypeSystemDefinition::EnumTypeExtension(..)
         | TypeSystemDefinition::UnionTypeExtension(..)
@@ -107,7 +108,8 @@ fn build_current_map(
             | TypeSystemDefinition::ScalarTypeExtension(..)
             | TypeSystemDefinition::SchemaDefinition(..)
             | TypeSystemDefinition::SchemaExtension(..)
-            | TypeSystemDefinition::DirectiveDefinition(..) => {}
+            | TypeSystemDefinition::DirectiveDefinition(..)
+            | TypeSystemDefinition::DirectiveDefinitionExtension(..) => {}
         }
     }
     current_map
@@ -534,6 +536,7 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
             | TypeSystemDefinition::ObjectTypeExtension(..)
             | TypeSystemDefinition::SchemaDefinition(..)
             | TypeSystemDefinition::DirectiveDefinition(..)
+            | TypeSystemDefinition::DirectiveDefinitionExtension(..)
             | TypeSystemDefinition::SchemaExtension(_)
             | TypeSystemDefinition::EnumTypeExtension(_)
             | TypeSystemDefinition::UnionTypeExtension(_)

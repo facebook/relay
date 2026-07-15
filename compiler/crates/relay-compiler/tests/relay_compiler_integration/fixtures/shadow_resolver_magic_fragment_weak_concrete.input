@@ -1,0 +1,57 @@
+//- UserWeakPage.js
+// Shadow resolver whose @returnFragment return type is a CONCRETE @weak client
+// model (`WeakPage`). A @weak model has no `id` and no separate store record to
+// refetch, so the magic fragment must route to the INLINE Composite/WeakModel
+// arm: the edge is a `ClientEdgeToClientObject` with `modelResolvers: {}`,
+// `serverObjectOperations: null`, `normalizationInfo.kind: "WeakModel"`, and the
+// consumer's `title` selection reads inline off `WeakPage____relay_model_instance`.
+// NO pointer (`{ __typename, id: DataID }`) return type is emitted, and NO `id`
+// scalar is injected onto the shadowed field.
+/**
+ * @relayField User.weak_page: WeakPage
+ * @rootFragment UserWeakPageResolverFragment
+ * @returnFragment UserWeakPageReturnFragment
+ */
+graphql`fragment UserWeakPageResolverFragment on User {
+  page {
+    ...UserWeakPageReturnFragment
+  }
+}`
+
+//- WeakPageTypeResolvers.js
+/**
+ * @relayType WeakPage
+ * @weak
+ */
+ export type WeakPage {};
+
+/**
+ * @relayField WeakPage.title: String
+ */
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    weak_page {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" },
+    "enable_resolver_normalization_ast": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }

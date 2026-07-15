@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bc5360e2ab8c68f188913080b647c015>>
+ * @generated SignedSource<<163f4d5596f4bc6c193dbaf72ef358aa>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,23 +22,18 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTestNameRendererFragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTestNameRendererFragment$data = {|
-  +id: string,
-  +nameRenderer: ?({|
-    +__typename: "MarkdownUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: RelayMockPayloadGeneratorTestNameRendererFragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTestNameRendererFragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayMockPayloadGeneratorTestNameRendererFragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTestNameRendererFragment$key = {
-  +$data?: RelayMockPayloadGeneratorTestNameRendererFragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTestNameRendererFragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTestNameRendererFragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTestNameRendererFragment$fragmentType,
   ...
 };
 */

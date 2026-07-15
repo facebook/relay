@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bef3668b1ccdcce34387dcdda2855bd1>>
+ * @generated SignedSource<<3884d96be916af2ee0f24ccc0b10e01d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -31,14 +30,14 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 ) => ?string);
 declare export opaque type ResolverTest2Fragment$fragmentType: FragmentType;
 type ResolverTest1FragmentRefetchableQuery$variables = any;
-export type ResolverTest2Fragment$data = {|
-  +greeting: ?string,
-  +id: string,
-  +$fragmentType: ResolverTest2Fragment$fragmentType,
-|};
+export type ResolverTest2Fragment$data = {
+  readonly greeting: ?string,
+  readonly id: string,
+  readonly $fragmentType: ResolverTest2Fragment$fragmentType,
+};
 export type ResolverTest2Fragment$key = {
-  +$data?: ResolverTest2Fragment$data,
-  +$fragmentSpreads: ResolverTest2Fragment$fragmentType,
+  readonly $data?: ResolverTest2Fragment$data,
+  readonly $fragmentSpreads: ResolverTest2Fragment$fragmentType,
   ...
 };
 */

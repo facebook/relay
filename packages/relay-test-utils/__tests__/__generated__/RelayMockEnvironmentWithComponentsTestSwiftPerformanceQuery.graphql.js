@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2712a24c3a27469b50a029ce51deb5f8>>
+ * @generated SignedSource<<a48c3be0ecdcbe867d1e092c1406d26b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$variables = {|
+export type RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$variables = {
   userId: string,
-|};
-export type RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$data = {|
-  +user: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery = {|
+};
+export type RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$data = {
+  readonly user: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery = {
   response: RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$data,
   variables: RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

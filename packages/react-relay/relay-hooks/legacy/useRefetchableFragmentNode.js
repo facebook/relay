@@ -57,15 +57,15 @@ export type RefetchFn<
 //    /non-null/.
 export type RefetchFnDynamic<
   TQuery extends OperationType,
-  TKey extends ?{+$data?: unknown, ...},
+  TKey extends ?{readonly $data?: unknown, ...},
   TOptions = Options,
-> = [TKey] extends [{+$data?: unknown, ...}]
+> = [TKey] extends [{readonly $data?: unknown, ...}]
   ? RefetchFnInexact<TQuery, TOptions>
   : RefetchFnExact<TQuery, TOptions>;
 
 export type ReturnType<
   TQuery extends OperationType,
-  TKey extends ?{+$data?: unknown, ...},
+  TKey extends ?{readonly $data?: unknown, ...},
   TOptions = Options,
 > = {
   fragmentData: unknown,
@@ -164,7 +164,7 @@ function reducer(state: RefetchState, action: Action): RefetchState {
 
 hook useRefetchableFragmentNode<
   TQuery extends OperationType,
-  TKey extends ?{+$data?: unknown, ...},
+  TKey extends ?{readonly $data?: unknown, ...},
 >(
   fragmentNode: ReaderFragment,
   parentFragmentRef: unknown,

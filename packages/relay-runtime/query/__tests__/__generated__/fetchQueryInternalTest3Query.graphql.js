@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a8fc0f7ed3b39d6848dbff2c6bd9dd1f>>
+ * @generated SignedSource<<345dd2b1e991ed88a49e7829cd463e00>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,37 +21,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { fetchQueryInternalTestMarkdown1Fragment_name$fragmentType } from "./fetchQueryInternalTestMarkdown1Fragment_name.graphql";
 import type { fetchQueryInternalTestPlain1Fragment_name$fragmentType } from "./fetchQueryInternalTestPlain1Fragment_name.graphql";
-export type fetchQueryInternalTest3Query$variables = {|
+export type fetchQueryInternalTest3Query$variables = {
   id: string,
-|};
-export type fetchQueryInternalTest3Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +nameRenderer: ?({|
-      +__typename: "MarkdownUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
-    |} | {|
-      +__typename: "PlainUserNameRenderer",
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: fetchQueryInternalTestPlain1Fragment_name$fragmentType,
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type fetchQueryInternalTest3Query = {|
+};
+export type fetchQueryInternalTest3Query$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType & fetchQueryInternalTestPlain1Fragment_name$fragmentType,
+    },
+  },
+};
+export type fetchQueryInternalTest3Query = {
   response: fetchQueryInternalTest3Query$data,
   variables: fetchQueryInternalTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

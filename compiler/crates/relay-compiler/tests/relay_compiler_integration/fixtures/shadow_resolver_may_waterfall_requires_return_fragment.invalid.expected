@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+//- UserFoo.js
+// `@mayWaterfall` is only meaningful on a shadow resolver (one with a
+// `@returnFragment`): it declares that the returned pointer may target a
+// different server object. Declaring it without `@returnFragment` is a hard
+// error -- there is no such pointer for consumers to acknowledge.
+/**
+ * @relayField User.foo: RelayResolverValue
+ * @mayWaterfall
+ */
+export function foo() {}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+==================================== OUTPUT ===================================
+✖︎ The `@mayWaterfall` docblock tag requires `@returnFragment`. `@mayWaterfall` declares that a shadow resolver may return a pointer to a different server object, so it is only meaningful on a resolver that returns a fragment.
+
+  UserFoo.js:7:5
+    6 │  * @relayField User.foo: RelayResolverValue
+    7 │  * @mayWaterfall
+      │     ^^^^^^^^^^^^
+    8 │

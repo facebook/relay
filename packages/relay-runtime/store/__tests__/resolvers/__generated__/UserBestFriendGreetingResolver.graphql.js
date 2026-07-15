@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ce3802f87fbfbdf0ed0b9a4d2ee59440>>
+ * @generated SignedSource<<3cd1cb9f80eddfc2b9e1c2f6a1218625>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserBestFriendGreetingResolver$fragmentType: FragmentType;
-export type UserBestFriendGreetingResolver$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +name: ?string,
-      |},
-    |}>,
-  |},
-  +$fragmentType: UserBestFriendGreetingResolver$fragmentType,
-|};
+export type UserBestFriendGreetingResolver$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly name: ?string,
+      },
+    }>,
+  },
+  readonly $fragmentType: UserBestFriendGreetingResolver$fragmentType,
+};
 export type UserBestFriendGreetingResolver$key = {
-  +$data?: UserBestFriendGreetingResolver$data,
-  +$fragmentSpreads: UserBestFriendGreetingResolver$fragmentType,
+  readonly $data?: UserBestFriendGreetingResolver$data,
+  readonly $fragmentSpreads: UserBestFriendGreetingResolver$fragmentType,
   ...
 };
 */

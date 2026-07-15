@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<902e8b768b5e7375700698ab68200226>>
+ * @generated SignedSource<<5ede8361684bf54ad887e72570344961>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
-export type readUpdatableQueryTest2UpdatableQuery$variables = {|
+export type readUpdatableQueryTest2UpdatableQuery$variables = {
   id: string,
-|};
-export type readUpdatableQueryTest2UpdatableQuery$data = {|
-  get node(): ?{|
-    +__typename: string,
-  |},
+};
+export type readUpdatableQueryTest2UpdatableQuery$data = {
+  get node(): ?{
+    readonly __typename: string,
+  },
   set node(value: null | void): void,
-|};
-export type readUpdatableQueryTest2UpdatableQuery = {|
+};
+export type readUpdatableQueryTest2UpdatableQuery = {
   response: readUpdatableQueryTest2UpdatableQuery$data,
   variables: readUpdatableQueryTest2UpdatableQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteUpdatableQuery*/ = {

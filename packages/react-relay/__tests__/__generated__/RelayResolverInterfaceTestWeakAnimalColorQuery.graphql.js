@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df923d874db6078fc35030c5b5500241>>
+ * @generated SignedSource<<8e923a6661eb0e20682ef607342419f5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,27 +23,27 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryWeakAnimalResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryWeakAnimalResolverType as (
-  args: {|
+  args: {
     request: WeakAnimalRequest,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?Query__weak_animal$normalization);
 import type { Query__weak_animal$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__weak_animal$normalization.graphql";
-export type WeakAnimalRequest = {|
+export type WeakAnimalRequest = {
   ofType: string,
-|};
-export type RelayResolverInterfaceTestWeakAnimalColorQuery$variables = {|
+};
+export type RelayResolverInterfaceTestWeakAnimalColorQuery$variables = {
   request: WeakAnimalRequest,
-|};
-export type RelayResolverInterfaceTestWeakAnimalColorQuery$data = {|
-  +weak_animal: ?{|
-    +$fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
-  |},
-|};
-export type RelayResolverInterfaceTestWeakAnimalColorQuery = {|
+};
+export type RelayResolverInterfaceTestWeakAnimalColorQuery$data = {
+  readonly weak_animal: ?{
+    readonly $fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
+  },
+};
+export type RelayResolverInterfaceTestWeakAnimalColorQuery = {
   response: RelayResolverInterfaceTestWeakAnimalColorQuery$data,
   variables: RelayResolverInterfaceTestWeakAnimalColorQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -83,7 +82,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": null,
-        "modelResolvers": null,
+        "modelResolvers": {},
         "serverObjectOperations": null,
         "backingField": {
           "alias": null,

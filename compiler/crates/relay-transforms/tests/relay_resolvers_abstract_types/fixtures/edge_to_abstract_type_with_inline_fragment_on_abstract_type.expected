@@ -33,17 +33,17 @@ extend type Query {
 ==================================== OUTPUT ===================================
 query edgeToAbstractTypeWithInlineFragmentOnAbstractTypeQuery {
   cat {
-    name
     ... on Cat {
       ... on Tabby {
         __id @__RelayResolverMetadata
         # RelayResolverMetadata {
-        #     field_id: FieldID(531),
+        #     field_id: FieldID(534),
         #     import_path: "TabbyResolver",
         #     import_name: None,
         #     field_alias: None,
         #     field_path: "cat.description",
         #     field_arguments: [],
+        #     fragment_arguments: [],
         #     live: false,
         #     output_type_info: Legacy,
         #     fragment_data_injection_mode: None,
@@ -56,6 +56,12 @@ query edgeToAbstractTypeWithInlineFragmentOnAbstractTypeQuery {
       ... on Persian {
         description
       }
+    }
+    ... on Tabby {
+      name
+    }
+    ... on Persian {
+      name
     }
   }
 }

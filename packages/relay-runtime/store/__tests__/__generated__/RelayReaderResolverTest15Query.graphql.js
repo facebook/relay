@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b3c6a3d8dc1efd1d671c9af89b5b6e5f>>
+ * @generated SignedSource<<d87789b3bbecdeb2beb12a4d5b473deb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,14 +27,14 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   args: void,
   context: TestResolverContextType,
 ) => ?unknown);
-export type RelayReaderResolverTest15Query$variables = {||};
-export type RelayReaderResolverTest15Query$data = {|
-  +undefined_field: ?ReturnType<typeof queryUndefinedFieldResolverType>,
-|};
-export type RelayReaderResolverTest15Query = {|
+export type RelayReaderResolverTest15Query$variables = {};
+export type RelayReaderResolverTest15Query$data = {
+  readonly undefined_field: ?ReturnType<typeof queryUndefinedFieldResolverType>,
+};
+export type RelayReaderResolverTest15Query = {
   response: RelayReaderResolverTest15Query$data,
   variables: RelayReaderResolverTest15Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

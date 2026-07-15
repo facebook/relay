@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b068a973702dc97ddd9801b3e96b3fd7>>
+ * @generated SignedSource<<4f75ada55b655ae02c8729a4dfef2c63>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment.graphql";
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables = {
   enableStream: boolean,
-|};
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data = {|
-  +viewer: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data = {
+  readonly viewer: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery = {
   response: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data,
   variables: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

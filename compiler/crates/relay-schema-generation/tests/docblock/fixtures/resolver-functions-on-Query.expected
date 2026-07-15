@@ -57,6 +57,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: Query-name.js:43:47,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

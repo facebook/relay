@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f5c03c6bc2a1e6900f3f9af5fdfb4f9e>>
+ * @generated SignedSource<<af307be09442949c88aaa3bd0bcaa1bc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,28 +23,18 @@ import type { DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType 
 import type { DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType } from "./DataCheckerTestPlainUserNameRenderer_nameFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest4Fragment$fragmentType: FragmentType;
-export type DataCheckerTest4Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?({|
-    +__typename: "MarkdownUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType,
-  |} | {|
-    +__typename: "PlainUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: DataCheckerTest4Fragment$fragmentType,
-|};
+export type DataCheckerTest4Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType & DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType,
+  },
+  readonly $fragmentType: DataCheckerTest4Fragment$fragmentType,
+};
 export type DataCheckerTest4Fragment$key = {
-  +$data?: DataCheckerTest4Fragment$data,
-  +$fragmentSpreads: DataCheckerTest4Fragment$fragmentType,
+  readonly $data?: DataCheckerTest4Fragment$data,
+  readonly $fragmentSpreads: DataCheckerTest4Fragment$fragmentType,
   ...
 };
 */

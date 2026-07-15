@@ -13,10 +13,10 @@ use std::fmt::Debug;
 use std::hash::Hash;
 use std::hash::Hasher;
 use std::num::NonZeroU32;
+use std::sync::OnceLock;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
 
-use once_cell::sync::OnceCell;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
@@ -198,7 +198,7 @@ type Shards<Id> = ShardedSet<AsInterned<Id>, std::hash::BuildHasherDefault<fnv::
 /// An `InternTable` manages all the storage associated with the `Id`.
 #[derive(Default)]
 pub struct InternTable<Id, Type> {
-    shards: OnceCell<Shards<Id>>,      // Allocated lazily.
+    shards: OnceLock<Shards<Id>>,      // Allocated lazily.
     arena: AtomicArena<'static, Type>, // Static.
     serdes_type_index: AtomicU32,      // Initialized lazily.
 }
@@ -210,7 +210,7 @@ impl<Id, Type> InternTable<Id, Type> {
     #[doc(hidden)]
     pub const fn new() -> Self {
         InternTable {
-            shards: OnceCell::new(),
+            shards: OnceLock::new(),
             arena: AtomicArena::new(),
             serdes_type_index: AtomicU32::new(u32::MAX),
         }
@@ -221,7 +221,7 @@ impl<Id, Type> InternTable<Id, Type> {
     #[doc(hidden)]
     pub const fn with_zero(z: &'static atomic_arena::Zero<Type>) -> Self {
         InternTable {
-            shards: OnceCell::new(),
+            shards: OnceLock::new(),
             arena: AtomicArena::with_zero(z),
             serdes_type_index: AtomicU32::new(u32::MAX),
         }
@@ -821,14 +821,15 @@ mod tests {
         let i1 = CrateId::intern(m1);
         let i2 = CrateId::intern(m2);
         let val = (i1, i2, i1);
-        let mut serialized: Vec<u8> = vec![];
-        {
+        let serialized: Vec<u8> = {
             let _guard = SerGuard::default();
-            bincode::serialize_into(&mut serialized, &val).unwrap()
-        }
+            bincode::serde::encode_to_vec(val, bincode::config::legacy()).unwrap()
+        };
         let deserialized: (CrateId, CrateId, CrateId) = {
             let _guard = DeGuard::default();
-            bincode::deserialize(&serialized).unwrap()
+            bincode::serde::decode_from_slice(&serialized, bincode::config::legacy())
+                .map(|(v, _)| v)
+                .unwrap()
         };
         assert_eq!(deserialized, val);
     }
@@ -840,9 +841,15 @@ mod tests {
         let i1 = CrateId::intern(m1);
         let i2 = CrateId::intern(m2);
         let val = (i1, i2, i1);
-        let serialized: Vec<u8> = { bincode::serialize(&WithIntern(&val)).unwrap() };
-        let deserialized: (CrateId, CrateId, CrateId) =
-            { WithIntern::strip(bincode::deserialize(&serialized)).unwrap() };
+        let serialized: Vec<u8> =
+            { bincode::serde::encode_to_vec(WithIntern(&val), bincode::config::legacy()).unwrap() };
+        let deserialized: (CrateId, CrateId, CrateId) = {
+            WithIntern::strip(
+                bincode::serde::decode_from_slice(&serialized, bincode::config::legacy())
+                    .map(|(v, _)| v),
+            )
+            .unwrap()
+        };
         assert_eq!(deserialized, val);
     }
 

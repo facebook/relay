@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4b1aa6c1466839eb32ebd22216041aa8>>
+ * @generated SignedSource<<10f339d5d73aa87281c9fb366f72bb22>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType } from "./RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress.graphql";
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$variables = {||};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType,
-  |},
-|};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery = {|
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$variables = {};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType,
+  },
+};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery = {
   response: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$data,
   variables: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

@@ -10,9 +10,9 @@ use std::fmt;
 use std::num::NonZeroU32;
 use std::str::FromStr;
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use fnv::FnvHashMap;
-use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -153,9 +153,7 @@ impl<'de> Deserialize<'de> for StringKey {
 }
 
 // Static table used in the bytes/str Intern implementations
-lazy_static! {
-    static ref BYTES_TABLE: BytesTable = BytesTable::new();
-}
+static BYTES_TABLE: LazyLock<BytesTable> = LazyLock::new(BytesTable::new);
 
 /// Similar to the generic `InternTable` but customized for sequences of raw bytes (and strings).
 pub struct BytesTable {

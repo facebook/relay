@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7c0420f1c1e3433a7abceed7b871b168>>
+ * @generated SignedSource<<120ec92d728b64eeefbbab0685087c8f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,23 +21,23 @@ import type { useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserF
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType: FragmentType;
 type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables = any;
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +id: string,
-        +name: ?string,
-        +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +name: ?string,
-  +$fragmentType: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
-|};
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+        readonly name: ?string,
+        readonly $fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
+};
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$key = {
-  +$data?: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data,
-  +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
+  readonly $data?: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data,
+  readonly $fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
   ...
 };
 */

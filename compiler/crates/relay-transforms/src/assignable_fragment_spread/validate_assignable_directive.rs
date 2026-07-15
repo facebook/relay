@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -14,19 +16,18 @@ use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Validator;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use schema::Schema;
 
 use super::ASSIGNABLE_DIRECTIVE;
 use super::ValidationMessage;
 
-lazy_static! {
-    static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
+static ALLOW_LISTED_DIRECTIVES: LazyLock<Vec<DirectiveName>> = LazyLock::new(|| {
+    vec![
         *ASSIGNABLE_DIRECTIVE,
         // TODO have a global list of directives...?
         DirectiveName("fb_owner".intern()),
-    ];
-}
+    ]
+});
 
 pub fn validate_assignable_directive(program: &Program) -> DiagnosticsResult<()> {
     AssignableDirective { program }.validate_program(program)

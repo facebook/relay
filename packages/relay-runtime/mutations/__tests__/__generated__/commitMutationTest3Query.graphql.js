@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cba4aee89e441a8de8a68d23cabd4d8b>>
+ * @generated SignedSource<<c12d04ca212d1ab7897d1f273f3cd038>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,29 +17,24 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type commitMutationTest3Query$variables = {||};
-export type commitMutationTest3Query$data = {|
-  +viewer: ?{|
-    +actor: ?({|
-      +__typename: "User",
-      +friends: ?{|
-        +edges: ?ReadonlyArray<?{|
-          +node: ?{|
-            +id: string,
-          |},
-        |}>,
-      |},
-    |} | {|
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      +__typename: "%other",
-    |}),
-  |},
-|};
-export type commitMutationTest3Query = {|
+export type commitMutationTest3Query$variables = {};
+export type commitMutationTest3Query$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly friends?: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly node: ?{
+            readonly id: string,
+          },
+        }>,
+      },
+    },
+  },
+};
+export type commitMutationTest3Query = {
   response: commitMutationTest3Query$data,
   variables: commitMutationTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

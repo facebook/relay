@@ -1,0 +1,82 @@
+//- UserMixedPage.js
+// Shadow resolver whose return interface MIXES an INLINE (@weak) implementor and a
+// strong refetchable server Node — a HARD ERROR (the mixed-inline+server gate).
+//
+// `mixed_page` returns the client interface `IPage`, implemented by BOTH the
+// CLIENT @weak model `WeakPage` (field `title`, read INLINE off
+// `WeakPage____relay_model_instance` — no pointer, no refetch) AND the strong
+// SERVER Node `Page` (field `name`, has `id`, refetched via `node(id:)`).
+//
+// This is rejected up front: the weak/value inline arm reads in place off the
+// backing field's `normalizationInfo`, while the Node arm needs a `node(id:)`
+// refetch. A single backing-field `normalizationInfo.kind` cannot express
+// per-`__typename` behavior, so the Node member would be mis-normalized as an
+// inline value (a runtime-broken artifact). Full per-`__typename` dispatch is a
+// dedicated follow-up; for now an interface must be ALL-inline or ALL-server.
+// Pure-inline (e.g. shadow_resolver_magic_fragment_weak_client) and pure-server
+// returns are unaffected by this gate.
+//
+// The strong Node member (`Page`) may cross-object waterfall, so the resolver
+// declares `@mayWaterfall` (required for the consumer's `@waterfall`); the mixed
+// return is still rejected up front by this gate.
+/**
+ * @relayField User.mixed_page: IPage
+ * @rootFragment UserMixedPageResolverFragment
+ * @returnFragment UserMixedPageReturnFragment
+ * @mayWaterfall
+ */
+graphql`fragment UserMixedPageResolverFragment on User {
+  page {
+    ...UserMixedPageReturnFragment
+  }
+}`
+
+//- WeakPageResolver.js
+/**
+ * @relayType WeakPage implements IPage
+ * @weak
+ */
+
+//- WeakPageTitleResolver.js
+/**
+ * @relayField WeakPage.title: String
+ */
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    mixed_page @waterfall {
+      ... on WeakPage {
+        title
+      }
+      ... on Page {
+        name
+      }
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String, name: String }
+
+//- schema-extensions/extension.graphql
+interface IPage {
+  title: String
+}
+
+extend type Page implements IPage

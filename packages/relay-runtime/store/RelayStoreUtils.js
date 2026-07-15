@@ -35,8 +35,8 @@ const {stableCopy} = require('../util/stableCopy');
 const invariant = require('invariant');
 
 export type Arguments = {
-  +FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT?: boolean,
-  +[string]: unknown,
+  readonly FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT?: boolean,
+  readonly [string]: unknown,
 };
 
 const {VARIABLE, LITERAL, OBJECT_VALUE, LIST_VALUE} = RelayConcreteNode;
@@ -283,7 +283,7 @@ function getFieldNotificationKey(dataID: string, storageKey: string): string {
  */
 const RelayStoreUtils = {
   ACTOR_IDENTIFIER_KEY: '__actorIdentifier',
-  CLIENT_EDGE_TRAVERSAL_PATH: '__clientEdgeTraversalPath',
+  PARENT_CLIENT_EDGE: '__parentClientEdge',
   FRAGMENTS_KEY: '__fragments',
   FRAGMENT_OWNER_KEY: '__fragmentOwner',
   FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT:

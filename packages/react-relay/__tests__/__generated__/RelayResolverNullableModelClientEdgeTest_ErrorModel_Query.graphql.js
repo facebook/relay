@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<66ca2c6834e44cc49881bef3404764a3>>
+ * @generated SignedSource<<76a7a311a7876e491c8755a0bd9b7948>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -26,19 +25,19 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryEdgeToModelThatThrowsResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverNullableModelClientEdgeTest_ErrorModel_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_ErrorModel_Query$data = {|
-  +edge_to_model_that_throws: ?{|
-    +__typename: "ErrorModel",
-  |},
-|};
-export type RelayResolverNullableModelClientEdgeTest_ErrorModel_Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverNullableModelClientEdgeTest_ErrorModel_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_ErrorModel_Query$data = {
+  readonly edge_to_model_that_throws: ?{
+    readonly __typename: "ErrorModel",
+  },
+};
+export type RelayResolverNullableModelClientEdgeTest_ErrorModel_Query = {
   response: RelayResolverNullableModelClientEdgeTest_ErrorModel_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_ErrorModel_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

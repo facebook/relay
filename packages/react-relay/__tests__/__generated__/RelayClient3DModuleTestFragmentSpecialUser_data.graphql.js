@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d62f3cde87ea6f24b84563452619871e>>
+ * @generated SignedSource<<a086e28f93008474631b8308bdb1f099>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,13 +29,13 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType: FragmentType;
-export type RelayClient3DModuleTestFragmentSpecialUser_data$data = {|
-  +data: ?string,
-  +$fragmentType: RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
-|};
+export type RelayClient3DModuleTestFragmentSpecialUser_data$data = {
+  readonly data: ?string,
+  readonly $fragmentType: RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
+};
 export type RelayClient3DModuleTestFragmentSpecialUser_data$key = {
-  +$data?: RelayClient3DModuleTestFragmentSpecialUser_data$data,
-  +$fragmentSpreads: RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
+  readonly $data?: RelayClient3DModuleTestFragmentSpecialUser_data$data,
+  readonly $fragmentSpreads: RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
   ...
 };
 */

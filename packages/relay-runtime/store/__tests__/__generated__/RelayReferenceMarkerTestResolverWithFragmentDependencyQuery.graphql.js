@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<061f240ea73259a9280401a73b7d4f23>>
+ * @generated SignedSource<<1516fa329c23b448e28e189e5c75ee44>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -29,14 +28,14 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$variables = {||};
-export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$data = {|
-  +counter: ?number,
-|};
-export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery = {|
+export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$variables = {};
+export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$data = {
+  readonly counter: ?number,
+};
+export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery = {
   response: RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$data,
   variables: RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

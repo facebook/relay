@@ -35,7 +35,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -82,7 +82,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -126,7 +126,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Comment',
@@ -170,7 +170,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __module_component_RelayReaderAliasedFragmentsTestModuleMatchesQuery_aliased_fragment:
@@ -226,7 +226,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -274,7 +274,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -331,7 +331,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Comment',
@@ -375,7 +375,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -442,7 +442,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -544,7 +544,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Comment',
@@ -580,7 +580,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Comment',
@@ -627,7 +627,7 @@ describe('Fragment Spreads', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Comment',
@@ -674,7 +674,7 @@ describe('Inline Fragments', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -715,7 +715,7 @@ describe('Inline Fragments', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -756,7 +756,7 @@ describe('Inline Fragments', () => {
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'User',
@@ -797,7 +797,7 @@ describe('Inline Fragments', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Comment',
@@ -834,7 +834,7 @@ describe('Inline Fragments', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Comment',
@@ -877,7 +877,7 @@ describe('Inline Fragments', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Comment',
@@ -924,7 +924,7 @@ describe('Inline Fragments', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Comment',
@@ -970,7 +970,7 @@ describe('Inline Fragments', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Comment',
@@ -1010,7 +1010,7 @@ describe('Inline Fragments', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Story',
@@ -1048,7 +1048,9 @@ describe('Inline Fragments', () => {
           'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
       },
       {
+        fieldError: null,
         fieldPath: 'node.aliased_fragment.name',
+        fieldValue: undefined,
         kind: 'missing_required_field.log',
         owner:
           'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
@@ -1070,7 +1072,7 @@ describe('Inline Fragments', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __typename: 'Story',
@@ -1109,10 +1111,12 @@ describe('Inline Fragments', () => {
           'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',
       },
       {
+        fieldError: null,
+        fieldPath: 'node.aliased_fragment.name',
+        fieldValue: null,
         kind: 'missing_required_field.log',
         owner:
           'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',
-        fieldPath: 'node.aliased_fragment.name',
       },
     ]);
     expect(isMissingData).toBe(true);
@@ -1166,7 +1170,7 @@ describe('Inline Fragments', () => {
           __typename: '__Root',
           'node(id:"1")': {__ref: '1'},
         },
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __module_component_RelayReaderAliasedFragmentsTestMultipleModulesQuery_alias_a:
@@ -1256,7 +1260,7 @@ describe('Inline Fragments', () => {
           __typename: '__Root',
           'node(id:"1")': {__ref: '1'},
         },
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __module_component_RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery_alias_a:
@@ -1346,7 +1350,7 @@ describe('Inline Fragments', () => {
           __typename: '__Root',
           'node(id:"1")': {__ref: '1'},
         },
-        '1': {
+        1: {
           __id: '1',
           id: '1',
           __module_component_RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery_a_common_alias:
@@ -1407,7 +1411,7 @@ describe('Inline Fragments', () => {
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
       },
-      '1': {
+      1: {
         __id: '1',
         id: '1',
         __module_component_RelayReaderAliasedFragmentsTestKitchenSinkQuery_aliased_fragment:

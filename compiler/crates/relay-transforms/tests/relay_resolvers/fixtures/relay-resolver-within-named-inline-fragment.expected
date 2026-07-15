@@ -35,12 +35,13 @@ fragment Foo_user on Node {
    {
     ...PopStarNameResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(529),
+    #     field_id: FieldID(532),
     #     import_path: "PopStarNameResolver",
     #     import_name: None,
     #     field_alias: None,
     #     field_path: "aliased_fragment.pop_star_name",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: false,
     #     output_type_info: Legacy,
     #     fragment_data_injection_mode: None,

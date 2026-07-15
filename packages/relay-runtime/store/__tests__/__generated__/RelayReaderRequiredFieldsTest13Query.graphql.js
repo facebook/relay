@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f88ed9bdb69f515c21df4f6dde598957>>
+ * @generated SignedSource<<d7f8cb7262b41fef5ea7f222e7f7f2cd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,22 +17,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest13Query$variables = {||};
-export type RelayReaderRequiredFieldsTest13Query$data = {|
-  +maybeNodeInterface: ?({|
-    +__typename: "Story",
-    +lastName: string,
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayReaderRequiredFieldsTest13Query = {|
+export type RelayReaderRequiredFieldsTest13Query$variables = {};
+export type RelayReaderRequiredFieldsTest13Query$data = {
+  readonly maybeNodeInterface: ?{
+    readonly lastName?: string,
+    readonly name: ?string,
+  },
+};
+export type RelayReaderRequiredFieldsTest13Query = {
   response: RelayReaderRequiredFieldsTest13Query$data,
   variables: RelayReaderRequiredFieldsTest13Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<22fc36d8ec6d3e546e2e8d95fd4d5b3a>>
+ * @generated SignedSource<<4753475bbf5ed4eca7492bb4d3cc1f41>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,16 +27,16 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables = {||};
-export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data = {|
-  +me: ?{|
-    +reads_client_edge: ?string,
-  |},
-|};
-export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery = {|
+export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables = {};
+export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data = {
+  readonly me: ?{
+    readonly reads_client_edge: ?string,
+  },
+};
+export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery = {
   response: RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data,
   variables: RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

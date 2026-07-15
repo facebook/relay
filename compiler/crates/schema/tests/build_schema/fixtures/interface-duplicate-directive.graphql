@@ -1,0 +1,11 @@
+# expected-to-throw
+
+directive @bar on INTERFACE
+
+interface Foo @bar @bar {
+  id: ID
+}
+
+type Query {
+  foo: Foo
+}

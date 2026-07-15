@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<80f40dcf4647526d7cc8e26283aef02c>>
+ * @generated SignedSource<<d66e9b8ad88fc5a8912591dc984bc2bf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResolverInterfaceTestAnimalLegsFragment$fragmentType: FragmentType;
-export type RelayResolverInterfaceTestAnimalLegsFragment$data = {|
-  +legs: ?number,
-  +$fragmentType: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
-|};
+export type RelayResolverInterfaceTestAnimalLegsFragment$data = {
+  readonly legs: ?number,
+  readonly $fragmentType: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
+};
 export type RelayResolverInterfaceTestAnimalLegsFragment$key = {
-  +$data?: RelayResolverInterfaceTestAnimalLegsFragment$data,
-  +$fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
+  readonly $data?: RelayResolverInterfaceTestAnimalLegsFragment$data,
+  readonly $fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
   ...
 };
 */
@@ -38,22 +37,22 @@ var node/*: ReaderFragment*/ = {
   "name": "RelayResolverInterfaceTestAnimalLegsFragment",
   "selections": [
     {
-      "kind": "ClientExtension",
+      "kind": "InlineFragment",
       "selections": [
         {
-          "kind": "InlineFragment",
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "legs",
-              "storageKey": null
-            }
-          ],
-          "type": "Chicken",
-          "abstractKey": null
-        },
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "legs",
+          "storageKey": null
+        }
+      ],
+      "type": "Chicken",
+      "abstractKey": null
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
         {
           "kind": "InlineFragment",
           "selections": [

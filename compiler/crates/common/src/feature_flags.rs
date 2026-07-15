@@ -54,6 +54,12 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub text_artifacts: FeatureFlag,
 
+    /// Shard generated extra artifacts into subdirectories under
+    /// `extraArtifactsOutput` that mirror the source file's relative path,
+    /// honoring `shardOutput` / `shardStripRegex`.
+    #[serde(default)]
+    pub shard_extra_artifacts: FeatureFlag,
+
     #[serde(default)]
     pub skip_printing_nulls: FeatureFlag,
 
@@ -201,6 +207,18 @@ pub struct FeatureFlags {
     /// is only needed for non-Haste projects that want the same validation.
     #[serde(default)]
     pub enforce_module_name_prefix_for_non_haste: bool,
+
+    /// When enabled, the `@nogrep` annotation is included in the docblock
+    /// header of generated artifacts. This annotation was historically always
+    /// emitted but is no longer needed. This flag allows incremental removal
+    /// across projects using the rollout variant keyed on the artifact name.
+    #[serde(default)]
+    pub emit_nogrep_annotation: FeatureFlag,
+
+    /// Disable the generation of a more precise raw response type
+    /// for selections on abstract types.
+    #[serde(default)]
+    pub disable_more_precise_abstract_selection_raw_response_type: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -211,6 +229,7 @@ impl Default for FeatureFlags {
             no_inline: Default::default(),
             enable_3d_branch_arg_generation: Default::default(),
             text_artifacts: Default::default(),
+            shard_extra_artifacts: Default::default(),
             skip_printing_nulls: Default::default(),
             compact_query_text: Default::default(),
             enable_resolver_normalization_ast: Default::default(),
@@ -235,6 +254,8 @@ impl Default for FeatureFlags {
             enable_shadow_resolvers: Default::default(),
             allow_legacy_relay_resolver_tag: Default::default(),
             enforce_module_name_prefix_for_non_haste: Default::default(),
+            emit_nogrep_annotation: Default::default(),
+            disable_more_precise_abstract_selection_raw_response_type: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

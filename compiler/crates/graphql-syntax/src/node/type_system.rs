@@ -37,9 +37,31 @@ pub enum TypeSystemDefinition {
     ScalarTypeDefinition(ScalarTypeDefinition),
     ScalarTypeExtension(ScalarTypeExtension),
     DirectiveDefinition(DirectiveDefinition),
+    DirectiveDefinitionExtension(DirectiveDefinitionExtension),
 }
 
 impl TypeSystemDefinition {
+    pub fn directives(&self) -> &[ConstantDirective] {
+        match self {
+            TypeSystemDefinition::ObjectTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::ObjectTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::InterfaceTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::InterfaceTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::UnionTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::UnionTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::EnumTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::EnumTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::InputObjectTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::InputObjectTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::ScalarTypeDefinition(d) => &d.directives,
+            TypeSystemDefinition::ScalarTypeExtension(d) => &d.directives,
+            TypeSystemDefinition::SchemaDefinition(d) => &d.directives,
+            TypeSystemDefinition::SchemaExtension(d) => &d.directives,
+            TypeSystemDefinition::DirectiveDefinition(d) => &d.directives,
+            TypeSystemDefinition::DirectiveDefinitionExtension(d) => &d.directives,
+        }
+    }
+
     pub fn span(&self) -> Span {
         match self {
             TypeSystemDefinition::SchemaDefinition(_extension) => Span::empty(), // Not implemented
@@ -51,6 +73,7 @@ impl TypeSystemDefinition {
             TypeSystemDefinition::UnionTypeDefinition(extension) => extension.name.span,
             TypeSystemDefinition::UnionTypeExtension(extension) => extension.name.span,
             TypeSystemDefinition::DirectiveDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::DirectiveDefinitionExtension(extension) => extension.name.span,
             TypeSystemDefinition::InputObjectTypeDefinition(extension) => extension.name.span,
             TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.name.span,
             TypeSystemDefinition::EnumTypeDefinition(extension) => extension.name.span,
@@ -58,6 +81,22 @@ impl TypeSystemDefinition {
             TypeSystemDefinition::ScalarTypeDefinition(extension) => extension.name.span,
             TypeSystemDefinition::ScalarTypeExtension(extension) => extension.name.span,
         }
+    }
+
+    /// Returns `true` if this is an `extend ...` definition (e.g.
+    /// `extend type Foo`) rather than a base definition.
+    pub fn is_extension(&self) -> bool {
+        matches!(
+            self,
+            TypeSystemDefinition::SchemaExtension(_)
+                | TypeSystemDefinition::EnumTypeExtension(_)
+                | TypeSystemDefinition::InterfaceTypeExtension(_)
+                | TypeSystemDefinition::ObjectTypeExtension(_)
+                | TypeSystemDefinition::UnionTypeExtension(_)
+                | TypeSystemDefinition::InputObjectTypeExtension(_)
+                | TypeSystemDefinition::ScalarTypeExtension(_)
+                | TypeSystemDefinition::DirectiveDefinitionExtension(_)
+        )
     }
 }
 
@@ -119,8 +158,7 @@ impl fmt::Display for TypeSystemDefinition {
                 arguments,
                 repeatable,
                 locations,
-                description,
-                hack_source,
+                directives,
                 ..
             }) => write_directive_definition_helper(
                 f,
@@ -128,9 +166,13 @@ impl fmt::Display for TypeSystemDefinition {
                 arguments,
                 repeatable,
                 locations,
-                description,
-                hack_source,
+                directives,
             ),
+            TypeSystemDefinition::DirectiveDefinitionExtension(DirectiveDefinitionExtension {
+                name,
+                directives,
+                ..
+            }) => write_directive_definition_extension_helper(f, &name.value, directives),
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
                 name,
                 directives,
@@ -186,6 +228,7 @@ impl Named for TypeSystemDefinition {
             TypeSystemDefinition::UnionTypeDefinition(definition) => definition.name.value,
             TypeSystemDefinition::UnionTypeExtension(extension) => extension.name.value,
             TypeSystemDefinition::DirectiveDefinition(definition) => definition.name.value,
+            TypeSystemDefinition::DirectiveDefinitionExtension(extension) => extension.name.value,
             TypeSystemDefinition::InputObjectTypeDefinition(definition) => definition.name.value,
             TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.name.value,
             TypeSystemDefinition::EnumTypeDefinition(definition) => definition.name.value,
@@ -494,9 +537,35 @@ pub struct DirectiveDefinition {
     pub arguments: Option<List<InputValueDefinition>>,
     pub repeatable: bool,
     pub locations: Vec<DirectiveLocation>,
+    pub directives: Vec<ConstantDirective>,
     pub description: Option<StringNode>,
     pub hack_source: Option<StringNode>,
     pub span: Span,
+}
+
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+pub struct DirectiveDefinitionExtension {
+    pub name: Identifier,
+    pub directives: Vec<ConstantDirective>,
+    pub span: Span,
+}
+impl From<DirectiveDefinitionExtension> for DirectiveDefinition {
+    fn from(ext: DirectiveDefinitionExtension) -> Self {
+        Self {
+            name: ext.name,
+            arguments: None,
+            repeatable: false,
+            locations: vec![],
+            directives: ext.directives,
+            // Extensions cannot have descriptions
+            description: None,
+            hack_source: None,
+            span: ext.span,
+        }
+    }
+}
+impl ExtensionIntoDefinition for DirectiveDefinitionExtension {
+    type DefinitionType = DirectiveDefinition;
 }
 
 #[derive(
@@ -532,6 +601,7 @@ pub enum DirectiveLocation {
     InputObject,
     InputFieldDefinition,
     VariableDefinition,
+    DirectiveDefinition,
 }
 
 impl From<OperationKind> for DirectiveLocation {
@@ -566,6 +636,7 @@ impl fmt::Display for DirectiveLocation {
             DirectiveLocation::InputObject => write!(f, "INPUT_OBJECT"),
             DirectiveLocation::InputFieldDefinition => write!(f, "INPUT_FIELD_DEFINITION"),
             DirectiveLocation::VariableDefinition => write!(f, "VARIABLE_DEFINITION"),
+            DirectiveLocation::DirectiveDefinition => write!(f, "DIRECTIVE_DEFINITION"),
         }
     }
 }
@@ -766,18 +837,28 @@ fn write_directive_definition_helper(
     arguments: &Option<List<InputValueDefinition>>,
     repeatable: &bool,
     locations: &[DirectiveLocation],
-    _description: &Option<StringNode>,
-    _hack_source: &Option<StringNode>,
+    directives: &[ConstantDirective],
 ) -> fmt::Result {
     write!(f, "directive @{name}")?;
     if let Some(arguments) = arguments.as_ref() {
         write_arguments(f, &arguments.items)?;
     }
+    write_directives(f, directives)?;
     if *repeatable {
         write!(f, " repeatable")?;
     }
     write!(f, " on ")?;
     write_list(f, locations, " | ")?;
+    writeln!(f)
+}
+
+fn write_directive_definition_extension_helper(
+    f: &mut fmt::Formatter<'_>,
+    name: &StringKey,
+    directives: &[ConstantDirective],
+) -> fmt::Result {
+    write!(f, "extend directive @{name}")?;
+    write_directives(f, directives)?;
     writeln!(f)
 }
 
@@ -842,5 +923,35 @@ impl fmt::Display for ConstantDirective {
             write_arguments(f, &arguments.items)?;
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use common::SourceLocationKey;
+
+    use crate::parse_schema_document;
+
+    #[test]
+    fn is_extension_distinguishes_extensions_from_definitions() {
+        let doc = parse_schema_document(
+            r#"
+                type Foo { id: ID }
+                extend type Foo { name: String }
+                interface Bar { id: ID }
+                extend interface Bar { name: String }
+                scalar Baz
+                extend scalar Baz @deprecated
+            "#,
+            SourceLocationKey::generated(),
+        )
+        .expect("schema should parse");
+
+        let is_extension: Vec<bool> = doc.definitions.iter().map(|d| d.is_extension()).collect();
+        assert_eq!(
+            is_extension,
+            vec![false, true, false, true, false, true],
+            "base definitions should be false and `extend` definitions true, in source order",
+        );
     }
 }

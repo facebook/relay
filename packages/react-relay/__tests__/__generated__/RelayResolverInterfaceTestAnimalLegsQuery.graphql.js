@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5e40cdf8fbd493090c9a0054155d453f>>
+ * @generated SignedSource<<4e739764dd11161a9ec5e5cd6de0d35d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,30 +24,30 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryAnimalResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAnimalResolverType as (
-  args: {|
+  args: {
     request: AnimalRequest,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +__typename: "Cat" | "Chicken" | "Fish",
-  +id: DataID,
-|});
-export type AnimalRequest = {|
+) => ?{
+  readonly __typename: "Cat" | "Chicken" | "Fish",
+  readonly id: DataID,
+});
+export type AnimalRequest = {
   ofType: string,
   returnValidID: boolean,
-|};
-export type RelayResolverInterfaceTestAnimalLegsQuery$variables = {|
+};
+export type RelayResolverInterfaceTestAnimalLegsQuery$variables = {
   request: AnimalRequest,
-|};
-export type RelayResolverInterfaceTestAnimalLegsQuery$data = {|
-  +animal: ?{|
-    +$fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
-  |},
-|};
-export type RelayResolverInterfaceTestAnimalLegsQuery = {|
+};
+export type RelayResolverInterfaceTestAnimalLegsQuery$data = {
+  readonly animal: ?{
+    readonly $fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
+  },
+};
+export type RelayResolverInterfaceTestAnimalLegsQuery = {
   response: RelayResolverInterfaceTestAnimalLegsQuery$data,
   variables: RelayResolverInterfaceTestAnimalLegsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -116,7 +115,9 @@ return {
             "path": "animal.__relay_model_instance"
           }
         },
-        "serverObjectOperations": null,
+        "serverObjectOperations": {
+          "Chicken": require('./ClientEdgeQuery_RelayResolverInterfaceTestAnimalLegsQuery_animal.graphql')
+        },
         "backingField": {
           "alias": null,
           "args": (v1/*:: as any*/),
@@ -286,7 +287,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*:: as any*/).hash = "30ac22964e5c349d28a0d6c199793b8f";
+  (node/*:: as any*/).hash = "f98a683fd9222f08fa9698ca1f4b553d";
 }
 
 module.exports = ((node/*:: as any*/)/*:: as ClientQuery<

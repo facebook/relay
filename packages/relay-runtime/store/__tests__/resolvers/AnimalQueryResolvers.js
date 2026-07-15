@@ -47,6 +47,10 @@ function animal(args: {request: {ofType: string, returnValidID: boolean}}): {
       const id = args.request.returnValidID ? '12redblue' : INVALID_ID;
       return {__typename: 'Fish', id};
     }
+    case 'Chicken': {
+      const id = args.request.returnValidID ? '1234-chicken' : INVALID_ID;
+      return {__typename: 'Chicken', id};
+    }
     default:
       throw new Error('Unexpected value for "ofType" argument');
   }
@@ -55,7 +59,7 @@ function animal(args: {request: {ofType: string, returnValidID: boolean}}): {
 /**
  * Returns a list of `IAnimal` of a given type and optionally returns an invalid ID.
  *
- * @relayField Query.animals(requests: [AnimalRequest!]!): [IAnimal]
+ * @relayField Query.animals(requests: [AnimalRequest!]!): [IAnimal] @waterfall
  */
 function animals(args: {
   requests: ReadonlyArray<{ofType: string, returnValidID: boolean}>,

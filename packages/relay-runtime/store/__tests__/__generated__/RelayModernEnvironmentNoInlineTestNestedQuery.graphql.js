@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cbaf6ae3ee57ad3754c4bf04f731861b>>
+ * @generated SignedSource<<15af2594f1b567f304cad2c5779d9227>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType } from "./RelayModernEnvironmentNoInlineTest_nestedNoInlineParent.graphql";
-export type RelayModernEnvironmentNoInlineTestNestedQuery$variables = {|
+export type RelayModernEnvironmentNoInlineTestNestedQuery$variables = {
   global_cond: boolean,
-|};
-export type RelayModernEnvironmentNoInlineTestNestedQuery$data = {|
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
-|};
-export type RelayModernEnvironmentNoInlineTestNestedQuery = {|
+};
+export type RelayModernEnvironmentNoInlineTestNestedQuery$data = {
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
+};
+export type RelayModernEnvironmentNoInlineTestNestedQuery = {
   response: RelayModernEnvironmentNoInlineTestNestedQuery$data,
   variables: RelayModernEnvironmentNoInlineTestNestedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

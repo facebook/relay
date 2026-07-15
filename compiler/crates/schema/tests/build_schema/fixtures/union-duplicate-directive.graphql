@@ -1,0 +1,13 @@
+# expected-to-throw
+
+directive @bar on UNION
+
+type Member {
+  id: ID
+}
+
+union U @bar @bar = Member
+
+type Query {
+  u: U
+}

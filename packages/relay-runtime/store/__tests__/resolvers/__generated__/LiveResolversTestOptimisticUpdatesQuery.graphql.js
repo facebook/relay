@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<68fae4e4fe90234f8b5e935d663e3d83>>
+ * @generated SignedSource<<1e8a6a47f583965479349a67ba31ceaf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,16 +27,16 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type LiveResolversTestOptimisticUpdatesQuery$variables = {||};
-export type LiveResolversTestOptimisticUpdatesQuery$data = {|
-  +me: ?{|
-    +greeting: ?string,
-  |},
-|};
-export type LiveResolversTestOptimisticUpdatesQuery = {|
+export type LiveResolversTestOptimisticUpdatesQuery$variables = {};
+export type LiveResolversTestOptimisticUpdatesQuery$data = {
+  readonly me: ?{
+    readonly greeting: ?string,
+  },
+};
+export type LiveResolversTestOptimisticUpdatesQuery = {
   response: LiveResolversTestOptimisticUpdatesQuery$data,
   variables: LiveResolversTestOptimisticUpdatesQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

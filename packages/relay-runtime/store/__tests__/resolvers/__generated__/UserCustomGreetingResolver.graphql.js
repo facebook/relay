@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<16c808404b54289b44da70a946d10357>>
+ * @generated SignedSource<<304041cfd4e8ecab003a5233a6240bd9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserCustomGreetingResolver$fragmentType: FragmentType;
-export type UserCustomGreetingResolver$data = {|
-  +name: ?string,
-  +$fragmentType: UserCustomGreetingResolver$fragmentType,
-|};
+export type UserCustomGreetingResolver$data = {
+  readonly name: ?string,
+  readonly $fragmentType: UserCustomGreetingResolver$fragmentType,
+};
 export type UserCustomGreetingResolver$key = {
-  +$data?: UserCustomGreetingResolver$data,
-  +$fragmentSpreads: UserCustomGreetingResolver$fragmentType,
+  readonly $data?: UserCustomGreetingResolver$data,
+  readonly $fragmentSpreads: UserCustomGreetingResolver$fragmentType,
   ...
 };
 */

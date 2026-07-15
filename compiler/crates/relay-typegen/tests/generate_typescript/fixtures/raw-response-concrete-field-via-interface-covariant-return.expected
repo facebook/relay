@@ -1,0 +1,68 @@
+==================================== INPUT ====================================
+# Regression test for field-covariance raw response types: the same field is
+# selected both directly (User.linked_actor: User — concrete return type) and
+# via an abstract interface spread (NodeWithLinkedActor.linked_actor: Actor —
+# abstract return type). This exercises the code path where `by_concrete_type`
+# and `by_abstract_type` both receive selections, and ensures that untyped
+# base_field selections from the abstract path are routed into the known
+# concrete bucket when `concrete_type` is available, rather than generating a
+# spurious catch-all ExactObject.
+fragment FragmentOnNodeWithLinkedActor on NodeWithLinkedActor {
+  linked_actor {
+    id
+  }
+}
+
+query MyQuery @raw_response_type {
+  me {
+    linked_actor {
+      name
+      canViewerLike
+    }
+    ...FragmentOnNodeWithLinkedActor
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type MyQuery$variables = Record<PropertyKey, never>;
+export type MyQuery$data = {
+  readonly me: {
+    readonly linked_actor: {
+      readonly canViewerLike: boolean | null | undefined;
+      readonly name: string | null | undefined;
+    } | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"FragmentOnNodeWithLinkedActor">;
+  } | null | undefined;
+};
+export type MyQuery$rawResponse = {
+  readonly me: {
+    readonly __isNodeWithLinkedActor: "User";
+    readonly id: string;
+    readonly linked_actor: {
+      readonly __typename: "User";
+      readonly canViewerLike?: boolean | null | undefined;
+      readonly id: string;
+      readonly name?: string | null | undefined;
+    } | {
+      readonly __typename: string;
+      readonly id: string;
+    } | null | undefined;
+  } | null | undefined;
+};
+export type MyQuery = {
+  rawResponse: MyQuery$rawResponse;
+  response: MyQuery$data;
+  variables: MyQuery$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type FragmentOnNodeWithLinkedActor$data = {
+  readonly linked_actor: {
+    readonly id: string;
+  } | null | undefined;
+  readonly " $fragmentType": "FragmentOnNodeWithLinkedActor";
+};
+export type FragmentOnNodeWithLinkedActor$key = {
+  readonly " $data"?: FragmentOnNodeWithLinkedActor$data;
+  readonly " $fragmentSpreads": FragmentRefs<"FragmentOnNodeWithLinkedActor">;
+};

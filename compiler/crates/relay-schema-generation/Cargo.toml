@@ -27,12 +27,11 @@ graphql-syntax = { path = "../graphql-syntax" }
 hermes_comments = { git = "https://github.com/facebook/hermes.git" }
 hermes_estree = { git = "https://github.com/facebook/hermes.git" }
 hermes_parser = { git = "https://github.com/facebook/hermes.git" }
-indexmap = { version = "2.13.0", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.14.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
-lazy_static = "1.5"
 relay-config = { path = "../relay-config" }
 relay-docblock = { path = "../relay-docblock" }
-rustc-hash = "2.1.1"
+rustc-hash = "2.1.3"
 schema-extractor = { path = "../schema-extractor" }
 serde = { version = "1.0.219", features = ["derive", "rc"] }
 thiserror = "2.0.18"
@@ -43,4 +42,4 @@ fixture-tests = { path = "../fixture-tests" }
 graphql-cli = { path = "../graphql-cli" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }
-tokio = { version = "1.50.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.52.3", features = ["full", "test-util", "tracing"] }

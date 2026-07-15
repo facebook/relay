@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bcd84b26fecd66321cdc30e0e6614fb9>>
+ * @generated SignedSource<<ca6d6e942c1a4d9a8d187c177ed98468>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,24 +23,24 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 // Type assertion validating that `userClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientObjectResolverType as (
-  args: {|
+  args: {
     return_null: boolean,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?User__client_object$normalization);
 import type { User__client_object$normalization } from "./../resolvers/__generated__/User__client_object$normalization.graphql";
-export type RelayReaderRequiredFieldsTest29Query$variables = {||};
-export type RelayReaderRequiredFieldsTest29Query$data = {|
-  +me: Result<?{|
-    +client_object: {|
-      +description: ?string,
-    |},
-  |}, unknown>,
-|};
-export type RelayReaderRequiredFieldsTest29Query = {|
+export type RelayReaderRequiredFieldsTest29Query$variables = {};
+export type RelayReaderRequiredFieldsTest29Query$data = {
+  readonly me: Result<?{
+    readonly client_object: {
+      readonly description: ?string,
+    },
+  }, unknown>,
+};
+export type RelayReaderRequiredFieldsTest29Query = {
   response: RelayReaderRequiredFieldsTest29Query$data,
   variables: RelayReaderRequiredFieldsTest29Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

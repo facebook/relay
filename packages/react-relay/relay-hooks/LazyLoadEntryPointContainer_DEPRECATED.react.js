@@ -64,7 +64,7 @@ function stableStringify(value: unknown): string {
 function prepareEntryPoint<
   TEntryPointParams extends {...},
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  TPreloadedQueries extends {+[string]: PreloadedQuery<any>},
+  TPreloadedQueries extends {readonly [string]: PreloadedQuery<any>},
   TPreloadedEntryPoints extends {...},
   TRuntimeProps extends {...},
   TExtraProps,
@@ -154,25 +154,27 @@ function prepareEntryPoint<
   };
 }
 
-function LazyLoadEntryPointContainer_DEPRECATED<
+component LazyLoadEntryPointContainer_DEPRECATED<
   TEntryPointParams extends {...},
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  TPreloadedQueries extends {+[string]: PreloadedQuery<any>},
+  TPreloadedQueries extends {readonly [string]: PreloadedQuery<any>},
   TPreloadedEntryPoints extends {...},
   TRuntimeProps extends {...},
   TExtraProps,
->({
-  entryPoint,
-  entryPointParams,
-  props,
-  environmentProvider,
-}: EntryPointContainerProps<
-  TEntryPointParams,
-  TPreloadedQueries,
-  TPreloadedEntryPoints,
-  TRuntimeProps,
-  TExtraProps,
->): React.MixedElement {
+>(
+  ...{
+    entryPoint,
+    entryPointParams,
+    props,
+    environmentProvider,
+  }: EntryPointContainerProps<
+    TEntryPointParams,
+    TPreloadedQueries,
+    TPreloadedEntryPoints,
+    TRuntimeProps,
+    TExtraProps,
+  >
+) {
   const environment = useRelayEnvironment();
   const {getPreloadProps} = entryPoint;
   // IMPORTANT: Loading the component may suspend (throw), so the props

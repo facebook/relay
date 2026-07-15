@@ -5,12 +5,12 @@ fragment PluralFragment on Node @relay(plural: true) {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type PluralFragment$fragmentType: FragmentType;
-export type PluralFragment$data = ReadonlyArray<{|
-  +id: string,
-  +$fragmentType: PluralFragment$fragmentType,
-|}>;
+export type PluralFragment$data = ReadonlyArray<{
+  readonly id: string,
+  readonly $fragmentType: PluralFragment$fragmentType,
+}>;
 export type PluralFragment$key = ReadonlyArray<{
-  +$data?: PluralFragment$data,
-  +$fragmentSpreads: PluralFragment$fragmentType,
+  readonly $data?: PluralFragment$data,
+  readonly $fragmentSpreads: PluralFragment$fragmentType,
   ...
 }>;

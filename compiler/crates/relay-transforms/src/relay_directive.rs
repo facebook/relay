@@ -5,18 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::*;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 
-lazy_static! {
-    pub static ref RELAY_DIRECTIVE_NAME: DirectiveName = DirectiveName("relay".intern());
-    pub static ref PLURAL_ARG_NAME: ArgumentName = ArgumentName("plural".intern());
-    pub static ref MASK_ARG_NAME: ArgumentName = ArgumentName("mask".intern());
-}
+pub static RELAY_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("relay".intern()));
+pub static PLURAL_ARG_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("plural".intern()));
+pub static MASK_ARG_NAME: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName("mask".intern()));
 
 /// Easy access to the arguments of the @relay directive.
 ///

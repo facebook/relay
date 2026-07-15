@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<18f071cdf0ff7606fa49fb5c88142378>>
+ * @generated SignedSource<<30a1c36de60d10df836ad31c1619b819>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,28 +23,18 @@ import type { RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$fragme
 import type { RelayMockPayloadGeneratorTest1PlainUserNameRenderer_name$fragmentType } from "./RelayMockPayloadGeneratorTest1PlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest31Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest31Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?({|
-    +__typename: "MarkdownUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$fragmentType,
-  |} | {|
-    +__typename: "PlainUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest1PlainUserNameRenderer_name$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: RelayMockPayloadGeneratorTest31Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest31Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$fragmentType & RelayMockPayloadGeneratorTest1PlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayMockPayloadGeneratorTest31Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest31Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest31Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest31Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest31Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest31Fragment$fragmentType,
   ...
 };
 */

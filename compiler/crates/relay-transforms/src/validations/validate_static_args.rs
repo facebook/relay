@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use ::intern::string_key::StringKey;
 use common::ArgumentName;
 use common::Diagnostic;
@@ -20,16 +22,13 @@ use graphql_ir::Program;
 use graphql_ir::Validator;
 use graphql_ir::Value;
 use intern::intern;
-use lazy_static::lazy_static;
 use schema::Argument as SchemaArgument;
 use schema::ArgumentDefinitions;
 use schema::Schema;
 
 use crate::ValidationMessage;
 
-lazy_static! {
-    static ref STATIC_ARG: DirectiveName = DirectiveName(intern!("static"));
-}
+static STATIC_ARG: LazyLock<DirectiveName> = LazyLock::new(|| DirectiveName(intern!("static")));
 
 pub fn validate_static_args(program: &Program) -> DiagnosticsResult<()> {
     StaticArgValidator::new(program).validate_program(program)

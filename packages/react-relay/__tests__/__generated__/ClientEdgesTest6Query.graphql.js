@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<be72432a49717b6d7a10b20776010407>>
+ * @generated SignedSource<<cd410696bc289ba9a4f1007f0624ffdc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -27,9 +26,9 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (userSameUserClientEdgeResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {upper_name as userUpperNameResolverType} from "../ClientEdges-test.js";
 // Type assertion validating that `userUpperNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -38,18 +37,18 @@ import {upper_name as userUpperNameResolverType} from "../ClientEdges-test.js";
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type ClientEdgesTest6Query$variables = {||};
-export type ClientEdgesTest6Query$data = {|
-  +me: ?{|
-    +same_user_client_edge: ?{|
-      +upper_name: ?string,
-    |},
-  |},
-|};
-export type ClientEdgesTest6Query = {|
+export type ClientEdgesTest6Query$variables = {};
+export type ClientEdgesTest6Query$data = {
+  readonly me: ?{
+    readonly same_user_client_edge: ?{
+      readonly upper_name: ?string,
+    },
+  },
+};
+export type ClientEdgesTest6Query = {
   response: ClientEdgesTest6Query$data,
   variables: ClientEdgesTest6Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

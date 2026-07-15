@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<586314de4a4fab7f55f05ebadaee92d1>>
+ * @generated SignedSource<<7dd21c0c07c2926c798eda4c64768185>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,19 +19,19 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestStreamConnectionUserProfile$fragmentType: FragmentType;
-export type RelayReaderTestStreamConnectionUserProfile$data = {|
-  +friends: ?{|
-    +edges: ?ReadonlyArray<?{|
-      +node: ?{|
-        +name: ?string,
-      |},
-    |}>,
-  |},
-  +$fragmentType: RelayReaderTestStreamConnectionUserProfile$fragmentType,
-|};
+export type RelayReaderTestStreamConnectionUserProfile$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly name: ?string,
+      },
+    }>,
+  },
+  readonly $fragmentType: RelayReaderTestStreamConnectionUserProfile$fragmentType,
+};
 export type RelayReaderTestStreamConnectionUserProfile$key = {
-  +$data?: RelayReaderTestStreamConnectionUserProfile$data,
-  +$fragmentSpreads: RelayReaderTestStreamConnectionUserProfile$fragmentType,
+  readonly $data?: RelayReaderTestStreamConnectionUserProfile$data,
+  readonly $fragmentSpreads: RelayReaderTestStreamConnectionUserProfile$fragmentType,
   ...
 };
 */

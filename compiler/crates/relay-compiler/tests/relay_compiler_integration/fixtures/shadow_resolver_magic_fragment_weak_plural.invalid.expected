@@ -1,0 +1,68 @@
+==================================== INPUT ====================================
+// A PLURAL interface-of-weak shadow return (`[IWeakPage]`, sole implementor the
+// @weak model `WeakPage`) is STILL a hard error (this must not open the
+// plural gate). The plural gate in shadow_transform runs before the inline
+// classification and rejects with ShadowResolverPluralUnsupported regardless of
+// whether the (singular) member would otherwise route to the inline weak arm.
+//- UserWeakPages.js
+/**
+ * @relayField User.weak_pages: [IWeakPage]
+ * @rootFragment UserWeakPagesResolverFragment
+ * @returnFragment UserWeakPagesReturnFragment
+ */
+graphql`fragment UserWeakPagesResolverFragment on User {
+  page {
+    ...UserWeakPagesReturnFragment
+  }
+}`
+
+//- WeakPageResolver.js
+/**
+ * @relayType WeakPage implements IWeakPage
+ * @weak
+ */
+
+//- WeakPageTitleResolver.js
+/**
+ * @relayField WeakPage.title: String
+ */
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    weak_pages {
+      title
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IWeakPage {
+  title: String
+}
+==================================== OUTPUT ===================================
+✖︎ Plural shadow resolvers (whose return type is a list) are not yet supported. `@returnFragment` currently only supports singular shadow resolver fields. Remove the list from the resolver's return type, or split into a singular field.
+
+  UserWeakPages.js:4:20
+    3 │  * @rootFragment UserWeakPagesResolverFragment
+    4 │  * @returnFragment UserWeakPagesReturnFragment
+      │                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │

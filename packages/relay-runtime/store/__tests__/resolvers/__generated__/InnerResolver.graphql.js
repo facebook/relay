@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e6730ceade083bcba881089a0b5da3ff>>
+ * @generated SignedSource<<cc34b919e48cb4eed0c760c670606bf5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InnerResolver$fragmentType: FragmentType;
-export type InnerResolver$data = {|
-  +me: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: InnerResolver$fragmentType,
-|};
+export type InnerResolver$data = {
+  readonly me: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: InnerResolver$fragmentType,
+};
 export type InnerResolver$key = {
-  +$data?: InnerResolver$data,
-  +$fragmentSpreads: InnerResolver$fragmentType,
+  readonly $data?: InnerResolver$data,
+  readonly $fragmentSpreads: InnerResolver$fragmentType,
   ...
 };
 */

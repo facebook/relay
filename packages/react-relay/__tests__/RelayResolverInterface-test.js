@@ -213,7 +213,7 @@ function AnimalGreetingQueryComponent(props: {
       query RelayResolverInterfaceTestAnimalGreetingQuery(
         $request: AnimalRequest!
       ) {
-        animal(request: $request) {
+        animal(request: $request) @waterfall {
           greeting
         }
       }
@@ -366,7 +366,7 @@ test('resolvers can return a list of interfaces where all implementors are stron
         query RelayResolverInterfaceTestAnimalsLegsQuery(
           $requests: [AnimalRequest!]!
         ) {
-          animals(requests: $requests) {
+          animals(requests: $requests) @waterfall {
             id
             ...RelayResolverInterfaceTestAnimalLegsFragment
           }
@@ -411,7 +411,7 @@ function AnimalLegsQueryComponent(props: {
       query RelayResolverInterfaceTestAnimalLegsQuery(
         $request: AnimalRequest!
       ) {
-        animal(request: $request) {
+        animal(request: $request) @waterfall {
           ...RelayResolverInterfaceTestAnimalLegsFragment
         }
       }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8b34b426717fe5fc2854e9e6fded3fbb>>
+ * @generated SignedSource<<f337e2577823b27f0c0904d2f44a1b25>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -28,21 +27,21 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ResolverTest3Query$variables = {||};
-export type ResolverTest3Query$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +__typename: "User",
-    |},
-  |},
-|};
-export type ResolverTest3Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ResolverTest3Query$variables = {};
+export type ResolverTest3Query$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly __typename: "User",
+    },
+  },
+};
+export type ResolverTest3Query = {
   response: ResolverTest3Query$data,
   variables: ResolverTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

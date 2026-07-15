@@ -183,14 +183,12 @@ describe.each([
     // Set up renderers
     SingularRenderer = (props: {
       user: ?(
-        | useFragmentTestUserFragment$data
-        | useFragmentTestUsersFragment$data
+        useFragmentTestUserFragment$data | useFragmentTestUsersFragment$data
       ),
     }) => null;
     PluralRenderer = (props: {
       users: ?(
-        | useFragmentTestUserFragment$data
-        | useFragmentTestUsersFragment$data
+        useFragmentTestUserFragment$data | useFragmentTestUsersFragment$data
       ),
     }) => null;
     const SingularContainer = (props: {

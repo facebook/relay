@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<05a961f6ac913c558b820e4474b9f5f1>>
+ * @generated SignedSource<<00e1ba6dfad5e542bc636fb41993599d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -27,9 +26,9 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryEdgeToPluralLiveObjectsNoneExistResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?ReadonlyArray<?{|
-  +id: DataID,
-|}>);
+) => ?ReadonlyArray<?{
+  readonly id: DataID,
+}>);
 import {description as todoModelDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -38,17 +37,17 @@ import {description as todoModelDescriptionResolverType} from "../../../relay-ru
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query$data = {|
-  +edge_to_plural_live_objects_none_exist: ?ReadonlyArray<?{|
-    +description: ?string,
-    +id: string,
-  |}>,
-|};
-export type RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query = {|
+export type RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query$data = {
+  readonly edge_to_plural_live_objects_none_exist: ?ReadonlyArray<?{
+    readonly description: ?string,
+    readonly id: string,
+  }>,
+};
+export type RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query = {
   response: RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

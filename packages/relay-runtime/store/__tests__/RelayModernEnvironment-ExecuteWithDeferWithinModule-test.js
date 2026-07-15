@@ -10,13 +10,21 @@
  */
 
 'use strict';
-import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {
+  GraphQLResponse,
+  GraphQLResponseWithData,
+} from '../../network/RelayNetworkTypes';
+import type {Sink} from '../../network/RelayObservable';
 import type {
   NormalizationRootNode,
   NormalizationSplitOperation,
 } from '../../util/NormalizationNode';
-import type {Snapshot} from '../RelayStoreTypes';
-import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {NormalizationResult} from '../NormalizationEngine';
+import type {OperationLoader, RecordSource, Snapshot} from '../RelayStoreTypes';
+import type {
+  ConcreteRequest,
+  RequestParameters,
+} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
   Variables,
@@ -29,6 +37,8 @@ const {
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const {graphql} = require('../../query/GraphQLTag');
+const NormalizationEngine = require('../NormalizationEngine');
+const normalizeResponse = require('../normalizeResponse');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -44,6 +54,99 @@ const {
 
 injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
+
+// Inline parity-test helpers: drive a (query, variables, loadFragment,
+// response) tuple through both code paths (OperationExecutor and
+// NormalizationEngine) and return uniform `ParityResult`s. Used by the
+// `parity (%s)` describe.each block below.
+type ParityArgs = Readonly<{
+  query: ConcreteRequest,
+  variables: Variables,
+  loadFragment: (operationReference: unknown) => ?NormalizationRootNode,
+  response: GraphQLResponseWithData,
+}>;
+
+type ParityResult = Readonly<{
+  // Record-source view of normalized records.
+  //   - executor: env's store source post-commit (all payloads merged in).
+  //   - engine:   the LAST payload's source (typically the followup that
+  //               populates the parent record's fields). Tests needing other
+  //               payloads should reach into `engineResult.payloads[N].source`
+  //               directly.
+  source: RecordSource,
+  // Wraps `normalizeResponse` so tests can introspect per-call args (e.g.,
+  // find @module followup invocations by `selector.node.kind`).
+  normalizeResponseSpy: JestMockFn<
+    Parameters<typeof normalizeResponse>,
+    ReturnType<typeof normalizeResponse>,
+  >,
+  // Engine-only: the raw NormalizationResult. Null for the executor path.
+  engineResult: NormalizationResult | null,
+}>;
+
+function runViaOperationExecutor(args: ParityArgs): ParityResult {
+  const normalizeResponseSpy = jest.fn(normalizeResponse);
+  let dataSource: ?Sink<GraphQLResponse>;
+  const localFetch = (
+    _query: RequestParameters,
+    _variables: Variables,
+    _cacheConfig: CacheConfig,
+  ) =>
+    RelayObservable.create((sink: Sink<GraphQLResponse>) => {
+      dataSource = sink;
+    });
+  const localStore = new RelayModernStore(RelayRecordSource.create(), {
+    gcReleaseBufferSize: 0,
+  });
+  const localEnv = new RelayModernEnvironment({
+    // $FlowFixMe[invalid-tuple-arity] error found when enabling Flow LTI mode
+    network: RelayNetwork.create(localFetch),
+    normalizeResponse: normalizeResponseSpy,
+    operationLoader: buildOperationLoader(args.loadFragment),
+    store: localStore,
+  });
+  const op = createOperationDescriptor(args.query, args.variables);
+  localEnv.execute({operation: op}).subscribe({
+    complete: jest.fn<[], unknown>(),
+    error: jest.fn<[Error], unknown>(),
+    next: jest.fn<[unknown], unknown>(),
+  });
+  // dataSource is assigned synchronously inside RelayObservable.create above.
+  // $FlowFixMe[incompatible-use]
+  dataSource.next(args.response);
+  jest.runAllTimers();
+  return {
+    engineResult: null,
+    normalizeResponseSpy,
+    source: localStore.getSource(),
+  };
+}
+
+function runViaNormalizationEngine(args: ParityArgs): ParityResult {
+  const normalizeResponseSpy = jest.fn(normalizeResponse);
+  const op = createOperationDescriptor(args.query, args.variables);
+  const engine = new NormalizationEngine({
+    normalizeResponse: normalizeResponseSpy,
+    operation: op.request.node.operation,
+    operationLoader: buildOperationLoader(args.loadFragment),
+    variables: op.request.variables,
+  });
+  const engineResult = engine.processResponse(args.response);
+  return {
+    engineResult,
+    normalizeResponseSpy,
+    source: engineResult.payloads[engineResult.payloads.length - 1].source,
+  };
+}
+
+function buildOperationLoader(
+  loadFragment: (ref: unknown) => ?NormalizationRootNode,
+): OperationLoader {
+  return {
+    get: jest.fn(loadFragment),
+    load: jest.fn((ref: unknown) => Promise.resolve(loadFragment(ref))),
+  };
+}
 
 function createOperationLoader() {
   const cache = new Map<
@@ -634,6 +737,81 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             id: '2',
             name: 'Bob',
           });
+        });
+      });
+
+      // Parity tests: behaviors that must be identical between the established
+      // OperationExecutor path and the exec-time NormalizationEngine path.
+      // Each test passes a fresh (query, variables, loadFragment, response)
+      // tuple to the runner and asserts on the uniform `ParityResult`.
+      describe.each([
+        ['OperationExecutor', runViaOperationExecutor],
+        ['NormalizationEngine', runViaNormalizationEngine],
+      ])('parity (%s)', (_runnerName, runner) => {
+        const moduleResponseData = {
+          node: {
+            id: '1',
+            __typename: 'User',
+            __module_component_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery:
+              'User.react',
+            __module_operation_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql',
+          },
+          viewer: {
+            actor: {
+              id: '2',
+              __typename: 'User',
+              __module_component_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery_actor:
+                'Actor.react',
+              __module_operation_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery_actor:
+                'RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql',
+            },
+          },
+        };
+        const loadFragment = (ref: unknown) =>
+          String(ref).includes('User_user')
+            ? userNormalizationFragment
+            : actorNormalizationFragment;
+
+        it('synthetic followup response inherits is_final=true from parent', () => {
+          // OperationExecutor._normalizeFollowupPayload stamps is_final onto
+          // the synthetic followup response. NormalizationEngine must mirror —
+          // without it, nested @defer/3D inside an @module fragment never
+          // finalizes on a non-streaming server.
+          const {normalizeResponseSpy} = runner({
+            query,
+            variables,
+            loadFragment,
+            response: {
+              data: moduleResponseData,
+              extensions: {is_final: true as unknown},
+            },
+          });
+          const followupCall = normalizeResponseSpy.mock.calls.find(
+            call => call[1]?.node?.kind === 'SplitOperation',
+          );
+          expect(followupCall?.[0]?.extensions?.is_final).toBe(true);
+        });
+
+        it('synthetic followup response does NOT inherit is_final when parent is non-final', () => {
+          // Regression guard: ensure the engine does not unconditionally stamp
+          // is_final on followups. With no `extensions.is_final` on the parent
+          // response, the followup's synthetic response must also lack it —
+          // otherwise nested @defer/3D placeholders would prematurely
+          // finalize.
+          const {normalizeResponseSpy} = runner({
+            query,
+            variables,
+            loadFragment,
+            response: {
+              data: moduleResponseData,
+              // No `extensions.is_final` — parent is non-final.
+            },
+          });
+          const followupCall = normalizeResponseSpy.mock.calls.find(
+            call => call[1]?.node?.kind === 'SplitOperation',
+          );
+          expect(followupCall?.[0]?.extensions?.is_final).not.toBe(true);
         });
       });
     });

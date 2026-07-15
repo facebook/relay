@@ -114,10 +114,12 @@ describe('execute() a query with @stream and @required', () => {
     const snapshot = callback.mock.calls[0][0];
     expect(snapshot.fieldErrors).toEqual([
       {
+        fieldError: null,
+        fieldPath: 'actors',
+        fieldValue: null,
         kind: 'missing_required_field.log',
         owner:
           'RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment',
-        fieldPath: 'actors',
       },
     ]);
     expect(snapshot.data).toEqual(null);

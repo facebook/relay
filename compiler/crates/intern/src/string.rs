@@ -16,8 +16,6 @@ use std::hash::Hash;
 use std::str::FromStr;
 use std::str::Utf8Error;
 
-#[doc(hidden)]
-pub use once_cell::sync::Lazy; // For macros
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
 
@@ -278,8 +276,8 @@ where
 #[macro_export]
 macro_rules! string_id {
     ($value:literal) => {{
-        static INSTANCE: $crate::string::Lazy<$crate::string::StringId> =
-            $crate::string::Lazy::new(|| $crate::string::intern($value));
+        static INSTANCE: $crate::string::LazyLock<$crate::string::StringId> =
+            $crate::string::LazyLock::new(|| $crate::string::intern($value));
         *INSTANCE
     }};
     ($_:expr) => {
@@ -291,8 +289,8 @@ macro_rules! string_id {
 #[macro_export]
 macro_rules! bytes_id {
     ($value:literal) => {{
-        static INSTANCE: $crate::string::Lazy<$crate::string::BytesId> =
-            $crate::string::Lazy::new(|| $crate::string::intern_bytes($value as &[u8]));
+        static INSTANCE: $crate::string::LazyLock<$crate::string::BytesId> =
+            $crate::string::LazyLock::new(|| $crate::string::intern_bytes($value as &[u8]));
         *INSTANCE
     }};
     ($_:expr) => {
@@ -302,6 +300,13 @@ macro_rules! bytes_id {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+    use std::sync::atomic::AtomicU32;
+    use std::sync::atomic::Ordering;
+    use std::thread;
+
+    use rand::RngExt as _;
+
     use super::*;
 
     #[test]
@@ -363,26 +368,21 @@ mod tests {
         use crate::intern::DeGuard;
         use crate::intern::SerGuard;
         let original = intern("hello world");
-        let mut encoded = Vec::new();
         let g = SerGuard::default();
-        bincode::serialize_into(&mut encoded, &original).unwrap();
+        let encoded = bincode::serde::encode_to_vec(original, bincode::config::legacy()).unwrap();
         drop(g);
         assert!(encoded.len() > 11);
         let g = DeGuard::default();
-        let decoded: StringId = bincode::deserialize(&encoded).unwrap();
+        let decoded: StringId =
+            bincode::serde::decode_from_slice(&encoded, bincode::config::legacy())
+                .map(|(v, _)| v)
+                .unwrap();
         drop(g);
         assert_eq!(original, decoded);
     }
 
     #[test]
     fn multithreaded() {
-        use std::sync::Arc;
-        use std::sync::atomic::AtomicU32;
-        use std::sync::atomic::Ordering;
-        use std::thread;
-
-        use rand::Rng;
-
         // Load test lots of threads creating strings, with load
         // gradually getting heavier on later (popular) strings.
         const N: usize = 20_000_000;

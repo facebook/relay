@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1c65bb7f75c69ce6a22e0682881e17c0>>
+ * @generated SignedSource<<c62d3086553feefb6ec4fe4468cbc3e9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,23 +21,23 @@ import type { RelayMockPayloadGeneratorTest24Fragment$fragmentType } from "./Rel
 import type { RelayMockPayloadGeneratorTest25Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest25Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest27Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest27Fragment$data = {|
-  +actor: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-  +body: ?{|
-    +text: ?string,
-  |},
-  +myActor: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest24Fragment$fragmentType,
-  |},
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest25Fragment$fragmentType,
-  +$fragmentType: RelayMockPayloadGeneratorTest27Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest27Fragment$data = {
+  readonly actor: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+  readonly body: ?{
+    readonly text: ?string,
+  },
+  readonly myActor: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest24Fragment$fragmentType,
+  },
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest25Fragment$fragmentType,
+  readonly $fragmentType: RelayMockPayloadGeneratorTest27Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest27Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest27Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest27Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest27Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest27Fragment$fragmentType,
   ...
 };
 */

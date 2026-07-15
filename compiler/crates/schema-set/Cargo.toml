@@ -10,12 +10,13 @@ license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
+errors = { path = "../errors" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 indoc = "2.0.2"
 intern = { path = "../intern" }
-lazy_static = "1.5"
 program-with-dependencies = { path = "../program-with-dependencies" }
 schema = { path = "../schema" }
 schema-coordinates = { path = "../schema-coordinates" }
 serde = { version = "1.0.219", features = ["derive", "rc"] }
+thiserror = "2.0.18"

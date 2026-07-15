@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<85ea6ec0255c4a7f024cc4436580ca0f>>
+ * @generated SignedSource<<10bcfefc5ae50df37e50804fbba1b897>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$variables = any;
-export type RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType,
   ...
 };
 */

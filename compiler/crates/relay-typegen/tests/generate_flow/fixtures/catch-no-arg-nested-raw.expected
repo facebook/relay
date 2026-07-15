@@ -7,21 +7,21 @@ query MyQuery @raw_response_type {
 }
 ==================================== OUTPUT ===================================
 import type { Result } from "relay-runtime";
-export type MyQuery$variables = {||};
-export type MyQuery$data = {|
-  +me: ?{|
-    +id: Result<string, unknown>,
-    +name: ?string,
-  |},
-|};
-export type MyQuery$rawResponse = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-|};
-export type MyQuery = {|
+export type MyQuery$variables = {};
+export type MyQuery$data = {
+  readonly me: ?{
+    readonly id: Result<string, unknown>,
+    readonly name: ?string,
+  },
+};
+export type MyQuery$rawResponse = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+};
+export type MyQuery = {
   rawResponse: MyQuery$rawResponse,
   response: MyQuery$data,
   variables: MyQuery$variables,
-|};
+};

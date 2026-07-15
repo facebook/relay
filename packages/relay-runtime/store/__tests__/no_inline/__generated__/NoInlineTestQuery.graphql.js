@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c980ff36f47e77b5cf7ae1a25f64caa0>>
+ * @generated SignedSource<<f70735ac2e910c6ed0cb8345579588cc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { SomeDeeplyNestedFragment$fragmentType } from "./../some/deeply/nested/__generated__/SomeDeeplyNestedFragment.graphql";
-export type NoInlineTestQuery$variables = {||};
-export type NoInlineTestQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: SomeDeeplyNestedFragment$fragmentType,
-  |},
-|};
-export type NoInlineTestQuery = {|
+export type NoInlineTestQuery$variables = {};
+export type NoInlineTestQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: SomeDeeplyNestedFragment$fragmentType,
+  },
+};
+export type NoInlineTestQuery = {
   response: NoInlineTestQuery$data,
   variables: NoInlineTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

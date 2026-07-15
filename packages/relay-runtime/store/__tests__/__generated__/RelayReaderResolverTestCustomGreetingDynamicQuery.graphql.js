@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f13ed30e0717f089acd6648599a26954>>
+ * @generated SignedSource<<aff40731281d27b58703e7b9f02c88d7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,25 +24,25 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userCustomGreetingResolverType as (
   rootKey: UserCustomGreetingResolver$key,
-  args: {|
+  args: {
     salutation: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {|
+export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {
   salutation: string,
-|};
-export type RelayReaderResolverTestCustomGreetingDynamicQuery$data = {|
-  +me: ?{|
-    +dynamic_greeting: ?string,
-    +greetz: ?string,
-    +willkommen: ?string,
-  |},
-|};
-export type RelayReaderResolverTestCustomGreetingDynamicQuery = {|
+};
+export type RelayReaderResolverTestCustomGreetingDynamicQuery$data = {
+  readonly me: ?{
+    readonly dynamic_greeting: ?string,
+    readonly greetz: ?string,
+    readonly willkommen: ?string,
+  },
+};
+export type RelayReaderResolverTestCustomGreetingDynamicQuery = {
   response: RelayReaderResolverTestCustomGreetingDynamicQuery$data,
   variables: RelayReaderResolverTestCustomGreetingDynamicQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

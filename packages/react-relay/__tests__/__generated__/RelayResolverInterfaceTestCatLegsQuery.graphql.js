@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c1b8fa6109c9628b2f1368c51fdbb0d4>>
+ * @generated SignedSource<<c26c15c922111ba60576f997a0d56e42>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -27,19 +26,19 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryCatResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverInterfaceTestCatLegsQuery$variables = {||};
-export type RelayResolverInterfaceTestCatLegsQuery$data = {|
-  +cat: ?{|
-    +$fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
-  |},
-|};
-export type RelayResolverInterfaceTestCatLegsQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverInterfaceTestCatLegsQuery$variables = {};
+export type RelayResolverInterfaceTestCatLegsQuery$data = {
+  readonly cat: ?{
+    readonly $fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
+  },
+};
+export type RelayResolverInterfaceTestCatLegsQuery = {
   response: RelayResolverInterfaceTestCatLegsQuery$data,
   variables: RelayResolverInterfaceTestCatLegsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

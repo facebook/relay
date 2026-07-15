@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0641a48fdd8eb0d64623587d99664518>>
+ * @generated SignedSource<<b72a51613c8087b137a1988a56ce9f5f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,18 +19,18 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { useBlockingPaginationFragmentTest4Fragment$fragmentType } from "./useBlockingPaginationFragmentTest4Fragment.graphql";
-export type useBlockingPaginationFragmentTest4FragmentRefetchQuery$variables = {|
+export type useBlockingPaginationFragmentTest4FragmentRefetchQuery$variables = {
   id: string,
-|};
-export type useBlockingPaginationFragmentTest4FragmentRefetchQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: useBlockingPaginationFragmentTest4Fragment$fragmentType,
-  |},
-|};
-export type useBlockingPaginationFragmentTest4FragmentRefetchQuery = {|
+};
+export type useBlockingPaginationFragmentTest4FragmentRefetchQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: useBlockingPaginationFragmentTest4Fragment$fragmentType,
+  },
+};
+export type useBlockingPaginationFragmentTest4FragmentRefetchQuery = {
   response: useBlockingPaginationFragmentTest4FragmentRefetchQuery$data,
   variables: useBlockingPaginationFragmentTest4FragmentRefetchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

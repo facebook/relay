@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<266153e05b1abee273312ce8d8e20c1b>>
+ * @generated SignedSource<<43f0eb26486b7f794194485abda83df9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type observeQueryTestToPromiseFragment$fragmentType: FragmentType;
-export type observeQueryTestToPromiseFragment$data = {|
-  +name: ?string,
-  +$fragmentType: observeQueryTestToPromiseFragment$fragmentType,
-|};
+export type observeQueryTestToPromiseFragment$data = {
+  readonly name: ?string,
+  readonly $fragmentType: observeQueryTestToPromiseFragment$fragmentType,
+};
 export type observeQueryTestToPromiseFragment$key = {
-  +$data?: observeQueryTestToPromiseFragment$data,
-  +$fragmentSpreads: observeQueryTestToPromiseFragment$fragmentType,
+  readonly $data?: observeQueryTestToPromiseFragment$data,
+  readonly $fragmentSpreads: observeQueryTestToPromiseFragment$fragmentType,
   ...
 };
 */

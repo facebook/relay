@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a36d2e09858da4879be9505a34c05b90>>
+ * @generated SignedSource<<633a8a505d5844a1c4fcef3bbe613056>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeMissingDataQuery_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeMissingDataQuery_me__client_edge$variables = any;
-export type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeMissingDataQuery_me__client_edge$data = {|
-  +firstName: ?string,
-  +id: string,
-  +$fragmentType: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeMissingDataQuery_me__client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeMissingDataQuery_me__client_edge$data = {
+  readonly firstName: ?string,
+  readonly id: string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeMissingDataQuery_me__client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeMissingDataQuery_me__client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeMissingDataQuery_me__client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeMissingDataQuery_me__client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeMissingDataQuery_me__client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderRelayErrorHandlingTestCatchOnClientEdgeMissingDataQuery_me__client_edge$fragmentType,
   ...
 };
 */

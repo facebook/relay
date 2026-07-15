@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<638e51b57b68812cd243a71f70c3d26e>>
+ * @generated SignedSource<<89eb52ac390e243a580b1eb462786784>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType } from "./RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment.graphql";
 import type { RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType } from "./RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment.graphql";
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables = {|
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables = {
   fetchSize: boolean,
   id: string,
   size?: ?ReadonlyArray<?number>,
-|};
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType & RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
-  |},
-|};
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery = {|
+};
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType & RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
+  },
+};
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery = {
   response: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data,
   variables: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

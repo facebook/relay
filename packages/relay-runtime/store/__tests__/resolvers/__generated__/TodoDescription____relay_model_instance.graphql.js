@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<99f034e7d2c606bafd59e3c08b2b33b9>>
+ * @generated SignedSource<<6a088e43f4773b38e25a77eb40230c5b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoDescription } from "../TodoDescription.js";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TodoDescription____relay_model_instance$fragmentType: FragmentType;
-export type TodoDescription____relay_model_instance$data = {|
-  +__relay_model_instance: TodoDescription,
-  +$fragmentType: TodoDescription____relay_model_instance$fragmentType,
-|};
+export type TodoDescription____relay_model_instance$data = {
+  readonly __relay_model_instance: TodoDescription,
+  readonly $fragmentType: TodoDescription____relay_model_instance$fragmentType,
+};
 export type TodoDescription____relay_model_instance$key = {
-  +$data?: TodoDescription____relay_model_instance$data,
-  +$fragmentSpreads: TodoDescription____relay_model_instance$fragmentType,
+  readonly $data?: TodoDescription____relay_model_instance$data,
+  readonly $fragmentSpreads: TodoDescription____relay_model_instance$fragmentType,
   ...
 };
 */

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<259fda0e01478939ce2eb13244845291>>
+ * @generated SignedSource<<ccab97c7fac482d9a4c7b920f85103a8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,13 +29,13 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   context: TestResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type CounterPlusOneResolver$fragmentType: FragmentType;
-export type CounterPlusOneResolver$data = {|
-  +counter: NonNullable<?number>,
-  +$fragmentType: CounterPlusOneResolver$fragmentType,
-|};
+export type CounterPlusOneResolver$data = {
+  readonly counter: NonNullable<?number>,
+  readonly $fragmentType: CounterPlusOneResolver$fragmentType,
+};
 export type CounterPlusOneResolver$key = {
-  +$data?: CounterPlusOneResolver$data,
-  +$fragmentSpreads: CounterPlusOneResolver$fragmentType,
+  readonly $data?: CounterPlusOneResolver$data,
+  readonly $fragmentSpreads: CounterPlusOneResolver$fragmentType,
   ...
 };
 */

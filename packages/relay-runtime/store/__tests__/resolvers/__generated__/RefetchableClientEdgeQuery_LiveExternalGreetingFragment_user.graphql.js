@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<85969e6169fa5fd6c0e15a3f7bf64b1a>>
+ * @generated SignedSource<<64a50ff6ec125740e37dab85d27bfa40>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$fragmentType: FragmentType;
 type ClientEdgeQuery_LiveExternalGreetingFragment_user$variables = any;
-export type RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$fragmentType,
+};
 export type RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$key = {
-  +$data?: RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$fragmentType,
   ...
 };
 */

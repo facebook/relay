@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<db5ee03255aa7bbb4b292b26a4aae2d9>>
+ * @generated SignedSource<<8252c1cc4cbfb632fd01b7697c0e955c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,39 +24,24 @@ import type { FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_n
 import type { FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType } from "./FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType: FragmentType;
-export type FragmentResourceWithOperationTrackerTestUserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +nameRenderer: ?({|
-    +__typename: "MarkdownUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
-  |} | {|
-    +__typename: "PlainUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +plainNameRenderer: ?({|
-    +__typename: "PlainUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
-|};
+export type FragmentResourceWithOperationTrackerTestUserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType & FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+  },
+  readonly plainNameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+};
 export type FragmentResourceWithOperationTrackerTestUserFragment$key = {
-  +$data?: FragmentResourceWithOperationTrackerTestUserFragment$data,
-  +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+  readonly $data?: FragmentResourceWithOperationTrackerTestUserFragment$data,
+  readonly $fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
   ...
 };
 */

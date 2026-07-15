@@ -32,7 +32,7 @@ fragment FeedbackFragmentType on User {
   #     unique_id: 0,
   #     model_resolvers: [
   #         ClientEdgeModelResolver {
-  #             model_field_id: FieldID(530),
+  #             model_field_id: FieldID(533),
   #             type_name: WithLocation {
   #                 location: <generated>:7:11,
   #                 item: ObjectName(
@@ -58,10 +58,11 @@ fragment FeedbackFragmentType on User {
   #                 type_confirmed: false,
   #                 resolver_type: ResolverModule,
   #                 return_fragment: None,
+  #                 may_waterfall: false,
   #             },
   #         },
   #         ClientEdgeModelResolver {
-  #             model_field_id: FieldID(532),
+  #             model_field_id: FieldID(535),
   #             type_name: WithLocation {
   #                 location: <generated>:199:204,
   #                 item: ObjectName(
@@ -87,6 +88,7 @@ fragment FeedbackFragmentType on User {
   #                 type_confirmed: false,
   #                 resolver_type: ResolverModule,
   #                 return_fragment: None,
+  #                 may_waterfall: false,
   #             },
   #         },
   #     ],
@@ -104,12 +106,13 @@ fragment FeedbackFragmentType on User {
    {
     __id @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(533),
+    #     field_id: FieldID(536),
     #     import_path: "FeedbackResolver",
     #     import_name: None,
     #     field_alias: None,
     #     field_path: "feedback_as_union",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: false,
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,
@@ -154,9 +157,6 @@ fragment RefetchableClientEdgeQuery_FeedbackFragmentType_feedback_as_union on Co
 #     is_prefetchable_pagination: false,
 # }
  {
-  ... on Like {
-    __typename
-  }
   id
 }
 

@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+directive @bar on SCALAR
+
+scalar S @bar @bar
+
+type Query {
+  s: S
+}
+==================================== ERROR ====================================
+✖︎ The directive `@bar` can only be used once at this location, but was used 2 times.
+
+  scalar-duplicate-directive.graphql:5:8
+    4 │ 
+    5 │ scalar S @bar @bar
+      │        ^
+    6 │

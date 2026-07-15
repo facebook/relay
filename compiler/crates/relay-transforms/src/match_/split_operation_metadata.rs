@@ -6,26 +6,17 @@
  */
 
 use std::hash::Hash;
+use std::sync::LazyLock;
 
-use common::ArgumentName;
 use common::DirectiveName;
 use common::Location;
 use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::associated_data_impl;
-use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use rustc_hash::FxHashSet;
 
-lazy_static! {
-    pub static ref DIRECTIVE_SPLIT_OPERATION: DirectiveName =
-        SplitOperationMetadata::directive_name();
-    static ref ARG_DERIVED_FROM: ArgumentName = ArgumentName("derivedFrom".intern());
-    static ref ARG_PARENT_DOCUMENTS: ArgumentName = ArgumentName("parentDocuments".intern());
-    static ref ARG_RAW_RESPONSE_TYPE: ArgumentName = ArgumentName("rawResponseType".intern());
-    static ref ARG_RAW_RESPONSE_TYPE_STRICT: ArgumentName =
-        ArgumentName("rawResponseTypeStrict".intern());
-}
+pub static DIRECTIVE_SPLIT_OPERATION: LazyLock<DirectiveName> =
+    LazyLock::new(SplitOperationMetadata::directive_name);
 
 /// The split operation metadata directive indicates that an operation was split
 /// out by the compiler from a parent normalization file.

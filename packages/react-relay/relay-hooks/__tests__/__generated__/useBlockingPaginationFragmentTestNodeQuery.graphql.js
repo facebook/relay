@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<90c70bd573a4765dcd11e678c2da9a52>>
+ * @generated SignedSource<<336c560de03d3ef447296257864d03c4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,23 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type useBlockingPaginationFragmentTestNodeQuery$variables = {|
+export type useBlockingPaginationFragmentTestNodeQuery$variables = {
   id: string,
-|};
-export type useBlockingPaginationFragmentTestNodeQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +name: ?string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type useBlockingPaginationFragmentTestNodeQuery = {|
+};
+export type useBlockingPaginationFragmentTestNodeQuery$data = {
+  readonly node: ?{
+    readonly name?: ?string,
+  },
+};
+export type useBlockingPaginationFragmentTestNodeQuery = {
   response: useBlockingPaginationFragmentTestNodeQuery$data,
   variables: useBlockingPaginationFragmentTestNodeQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

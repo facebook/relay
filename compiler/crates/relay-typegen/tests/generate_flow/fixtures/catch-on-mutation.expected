@@ -8,15 +8,15 @@ mutation MutationFoo @catch(to: RESULT) {
 }
 ==================================== OUTPUT ===================================
 import type { Result } from "relay-runtime";
-export type MutationFoo$variables = {||};
-export type MutationFoo$data = Result<{|
-  +unfriend: ?{|
-    +formerFriend: ?{|
-      +name: ?string,
-    |},
-  |},
-|}, unknown>;
-export type MutationFoo = {|
+export type MutationFoo$variables = {};
+export type MutationFoo$data = Result<{
+  readonly unfriend: ?{
+    readonly formerFriend: ?{
+      readonly name: ?string,
+    },
+  },
+}, unknown>;
+export type MutationFoo = {
   response: MutationFoo$data,
   variables: MutationFoo$variables,
-|};
+};

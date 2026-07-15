@@ -6,6 +6,7 @@
  */
 
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -19,7 +20,6 @@ use graphql_ir::Program;
 use graphql_ir::Validator;
 use graphql_ir::reexport::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use schema::Field as SchemaField;
 use schema::SDLSchema;
 use schema::Schema;
@@ -27,10 +27,9 @@ use schema::Type;
 use thiserror::Error;
 
 use crate::CATCH_DIRECTIVE_NAME;
-lazy_static! {
-    static ref THROW_ON_FIELD_ERROR_DIRECTIVE: DirectiveName =
-        DirectiveName("throwOnFieldError".intern());
-}
+
+static THROW_ON_FIELD_ERROR_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));
 
 /// Within @throwOnFieldError, we treat missing data as an error. However, client schema extensions
 /// have no practical way to ensure that a field has been set before it is read. This means we must

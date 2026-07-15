@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<da746ac0bee04f7f885182dd56ff1d6a>>
+ * @generated SignedSource<<6871733ff956fa6e32c39387abd11a93>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -37,21 +36,21 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstr
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ResolverGCTestResolverClientEdgeToClientQuery$variables = {||};
-export type ResolverGCTestResolverClientEdgeToClientQuery$data = {|
-  +me: ?{|
-    +astrological_sign: ?{|
-      +name: ?string,
-    |},
-  |},
-|};
-export type ResolverGCTestResolverClientEdgeToClientQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ResolverGCTestResolverClientEdgeToClientQuery$variables = {};
+export type ResolverGCTestResolverClientEdgeToClientQuery$data = {
+  readonly me: ?{
+    readonly astrological_sign: ?{
+      readonly name: ?string,
+    },
+  },
+};
+export type ResolverGCTestResolverClientEdgeToClientQuery = {
   response: ResolverGCTestResolverClientEdgeToClientQuery$data,
   variables: ResolverGCTestResolverClientEdgeToClientQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

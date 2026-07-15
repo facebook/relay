@@ -63,3 +63,48 @@ impl UsedSchemaCollectionOptions {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_only_explicitly_used_without_directives_options() {
+        let opts = UsedSchemaCollectionOptions::only_explicitly_used_without_directives_options();
+        assert!(
+            opts.include_implementations_when_typename_requested
+                .is_none()
+        );
+        assert!(!opts.include_all_overlapping_concrete_types);
+        assert!(!opts.include_directives_on_schema_definitions);
+        assert!(!opts.include_directive_definitions);
+        assert!(!opts.include_implicit_output_enum_values);
+        assert!(!opts.include_implicit_input_fields_and_enum_values);
+    }
+
+    #[test]
+    fn test_explicitly_used_outputs_and_implicit_inputs_options() {
+        let opts = UsedSchemaCollectionOptions::explicitly_used_outputs_and_implicit_inputs_without_directives_options();
+        assert!(
+            opts.include_implementations_when_typename_requested
+                .is_none()
+        );
+        assert!(!opts.include_all_overlapping_concrete_types);
+        assert!(!opts.include_directives_on_schema_definitions);
+        assert!(!opts.include_directive_definitions);
+        assert!(!opts.include_implicit_output_enum_values);
+        // This is the key difference
+        assert!(opts.include_implicit_input_fields_and_enum_values);
+    }
+
+    #[test]
+    fn test_constructors_differ_in_implicit_inputs() {
+        let explicit =
+            UsedSchemaCollectionOptions::only_explicitly_used_without_directives_options();
+        let implicit = UsedSchemaCollectionOptions::explicitly_used_outputs_and_implicit_inputs_without_directives_options();
+        assert_ne!(
+            explicit.include_implicit_input_fields_and_enum_values,
+            implicit.include_implicit_input_fields_and_enum_values
+        );
+    }
+}

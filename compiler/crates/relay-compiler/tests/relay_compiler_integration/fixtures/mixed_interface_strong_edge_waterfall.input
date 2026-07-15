@@ -1,0 +1,65 @@
+// A mixed-interface strong edge where the interface field is a native server
+// field on one implementor and a client-edge-to-server-object on another.
+//
+// `things` returns the client interface `IThing`, implemented by the SERVER type
+// `ServerThing` AND the CLIENT model type `ClientThing`. The interface field
+// `catalog: Catalog` (a server object type) is a native server field on
+// `ServerThing` and a client-edge-to-server-object on `ClientThing`. The consumer
+// selects `catalog @waterfall` at the interface level; the abstract-type fan-out
+// keeps `@waterfall` on the client-edge arm and strips it from the native server
+// arm.
+//- ThingsResolver.js
+/**
+ * @relayField Query.things: [IThing]
+ * @rootFragment ThingsResolverFragment
+ */
+graphql`fragment ThingsResolverFragment on Query { me { name } }`
+export function things() {}
+
+//- ClientThingResolver.js
+/**
+ * @relayType ClientThing implements IThing
+ */
+export function ClientThing() {}
+
+//- ClientThingCatalogResolver.js
+/**
+ * @relayField ClientThing.catalog: Catalog
+ */
+export function catalog() {}
+
+//- Consumer.js
+graphql`query ConsumerQuery {
+  things @waterfall {
+    catalog @waterfall {
+      id
+      name
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String }
+type Catalog implements Node { id: ID!, name: String }
+type ServerThing implements Node { id: ID!, catalog: Catalog }
+
+//- schema-extensions/extension.graphql
+interface IThing implements Node {
+  id: ID!
+  catalog: Catalog
+}
+
+extend type ServerThing implements IThing

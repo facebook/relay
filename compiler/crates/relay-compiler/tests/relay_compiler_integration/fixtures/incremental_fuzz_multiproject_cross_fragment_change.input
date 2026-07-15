@@ -1,0 +1,59 @@
+# A fragment in the derived project spreads a fragment from the base
+# project. When the base fragment changes, the derived project's
+# operation that uses it must also be recompiled.
+
+//- base_src/BaseFragment.js
+graphql`
+  fragment Base_user on User {
+    name
+  }
+`
+
+//- derived_src/DerivedQuery.js
+graphql`
+  query DerivedCrossQuery {
+    me {
+      ...Derived_user
+    }
+  }
+`
+
+//- derived_src/DerivedFragment.js
+graphql`
+  fragment Derived_user on User {
+    id
+    ...Base_user
+  }
+`
+
+//- relay.config.json
+{
+  "sources": {
+    "base_src": "base_project",
+    "derived_src": "derived_project"
+  },
+  "projects": {
+    "base_project": {
+      "schema": "schema.graphql",
+      "language": "typescript"
+    },
+    "derived_project": {
+      "schema": "schema.graphql",
+      "base": "base_project",
+      "language": "typescript"
+    }
+  }
+}
+
+//- schema.graphql
+interface Node { id: ID! }
+type Query { me: User }
+type User implements Node { id: ID!, name: String, age: Int }
+
+//-++ base_src/BaseFragment.js
+graphql`
+  fragment Base_user on User {
+    name
+    age
+  }
+`

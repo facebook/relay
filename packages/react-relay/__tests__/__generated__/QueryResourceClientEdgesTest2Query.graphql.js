@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<54dd52e3bc5b0ae67f5ab0bb852f73fa>>
+ * @generated SignedSource<<d2235db43552c444d146f31e63ab6075>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -30,21 +29,21 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type QueryResourceClientEdgesTest2Query$variables = {||};
-export type QueryResourceClientEdgesTest2Query$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +$fragmentSpreads: QueryResourceClientEdgesTestUser1Fragment$fragmentType & QueryResourceClientEdgesTestUser2Fragment$fragmentType,
-    |},
-  |},
-|};
-export type QueryResourceClientEdgesTest2Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type QueryResourceClientEdgesTest2Query$variables = {};
+export type QueryResourceClientEdgesTest2Query$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly $fragmentSpreads: QueryResourceClientEdgesTestUser1Fragment$fragmentType & QueryResourceClientEdgesTestUser2Fragment$fragmentType,
+    },
+  },
+};
+export type QueryResourceClientEdgesTest2Query = {
   response: QueryResourceClientEdgesTest2Query$data,
   variables: QueryResourceClientEdgesTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {

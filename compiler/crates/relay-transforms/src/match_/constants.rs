@@ -5,12 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::ArgumentName;
 use common::DirectiveName;
 use common::ScalarName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 
 pub struct MatchConstants {
     pub js_field_type: ScalarName,
@@ -25,17 +26,15 @@ pub struct MatchConstants {
     pub name_arg: ArgumentName,
 }
 
-lazy_static! {
-    pub static ref MATCH_CONSTANTS: MatchConstants = MatchConstants {
-        js_field_type: ScalarName("JSDependency".intern()),
-        js_field_id_arg: ArgumentName("id".intern()),
-        js_field_branch_arg: ArgumentName("branch".intern()),
-        js_field_module_arg: ArgumentName("module".intern()),
-        js_field_name: "js".intern(),
-        key_arg: ArgumentName("key".intern()),
-        match_directive_name: DirectiveName("match".intern()),
-        module_directive_name: DirectiveName("module".intern()),
-        supported_arg: ArgumentName("supported".intern()),
-        name_arg: ArgumentName("name".intern()),
-    };
-}
+pub static MATCH_CONSTANTS: LazyLock<MatchConstants> = LazyLock::new(|| MatchConstants {
+    js_field_type: ScalarName("JSDependency".intern()),
+    js_field_id_arg: ArgumentName("id".intern()),
+    js_field_branch_arg: ArgumentName("branch".intern()),
+    js_field_module_arg: ArgumentName("module".intern()),
+    js_field_name: "js".intern(),
+    key_arg: ArgumentName("key".intern()),
+    match_directive_name: DirectiveName("match".intern()),
+    module_directive_name: DirectiveName("module".intern()),
+    supported_arg: ArgumentName("supported".intern()),
+    name_arg: ArgumentName("name".intern()),
+});

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<875bd52eb938720a40689672f968c3dd>>
+ * @generated SignedSource<<015465b43b9a8d7bff258f5d4555971d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,17 +19,17 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType: FragmentType;
-export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data = {|
-  +doesViewerLike: ?boolean,
-  +id: string,
-  +message: ?{|
-    +text: ?string,
-  |},
-  +$fragmentType: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
-|};
+export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data = {
+  readonly doesViewerLike: ?boolean,
+  readonly id: string,
+  readonly message: ?{
+    readonly text: ?string,
+  },
+  readonly $fragmentType: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
+};
 export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$key = {
-  +$data?: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data,
-  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
+  readonly $data?: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data,
+  readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
   ...
 };
 */

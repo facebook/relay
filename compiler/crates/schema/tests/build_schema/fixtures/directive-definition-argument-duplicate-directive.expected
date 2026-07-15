@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+directive @bar on ARGUMENT_DEFINITION
+
+directive @foo(a: String @bar @bar) on FIELD
+
+type Query {
+  id: ID
+}
+==================================== ERROR ====================================
+✖︎ The directive `@bar` can only be used once at this location, but was used 2 times.
+
+  directive-definition-argument-duplicate-directive.graphql:5:16
+    4 │ 
+    5 │ directive @foo(a: String @bar @bar) on FIELD
+      │                ^
+    6 │

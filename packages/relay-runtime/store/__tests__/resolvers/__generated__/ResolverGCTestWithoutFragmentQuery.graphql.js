@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<049f03f8637f3fddd8e68a35de548b30>>
+ * @generated SignedSource<<1f4a3f942926c60068c18d6b03b47949>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -27,14 +26,14 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type ResolverGCTestWithoutFragmentQuery$variables = {||};
-export type ResolverGCTestWithoutFragmentQuery$data = {|
-  +counter_no_fragment: ?number,
-|};
-export type ResolverGCTestWithoutFragmentQuery = {|
+export type ResolverGCTestWithoutFragmentQuery$variables = {};
+export type ResolverGCTestWithoutFragmentQuery$data = {
+  readonly counter_no_fragment: ?number,
+};
+export type ResolverGCTestWithoutFragmentQuery = {
   response: ResolverGCTestWithoutFragmentQuery$data,
   variables: ResolverGCTestWithoutFragmentQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {

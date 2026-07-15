@@ -31,12 +31,13 @@ fragment resolverFieldOnClientTypeImplementingServerInterfaceFragment on FeedUni
   ... on NewsStory {
     __id @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(534),
+    #     field_id: FieldID(537),
     #     import_path: "TrackingResolver",
     #     import_name: None,
     #     field_alias: None,
     #     field_path: "tracking",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: true,
     #     output_type_info: Legacy,
     #     fragment_data_injection_mode: None,

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c1598c169ddf6ff06e8b1d5c57708440>>
+ * @generated SignedSource<<9f9e427e259ac1faa7c4355321571872>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,36 +20,31 @@
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 import type { requestSubscriptionTestPlainUserNameRenderer_name$fragmentType } from "./requestSubscriptionTestPlainUserNameRenderer_name.graphql";
-export type CommentCreateSubscriptionInput = {|
+export type CommentCreateSubscriptionInput = {
   feedbackId?: ?string,
   text?: ?string,
-|};
-export type requestSubscriptionTestSubscription$variables = {|
+};
+export type requestSubscriptionTestSubscription$variables = {
   input: CommentCreateSubscriptionInput,
-|};
-export type requestSubscriptionTestSubscription$data = {|
-  +commentCreateSubscribe: ?{|
-    +comment: ?{|
-      +actor: ?{|
-        +name: ?string,
-        +nameRenderer: ?({|
-          +__typename: "PlainUserNameRenderer",
-          +__fragmentPropName: ?string,
-          +__module_component: ?string,
-          +$fragmentSpreads: requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
-        |} | {|
-          // This will never be '%other', but we need some
-          // value in case none of the concrete values match.
-          +__typename: "%other",
-        |}),
-      |},
-    |},
-  |},
-|};
-export type requestSubscriptionTestSubscription = {|
+};
+export type requestSubscriptionTestSubscription$data = {
+  readonly commentCreateSubscribe: ?{
+    readonly comment: ?{
+      readonly actor: ?{
+        readonly name: ?string,
+        readonly nameRenderer: ?{
+          readonly __fragmentPropName?: ?string,
+          readonly __module_component?: ?string,
+          readonly $fragmentSpreads: requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
+        },
+      },
+    },
+  },
+};
+export type requestSubscriptionTestSubscription = {
   response: requestSubscriptionTestSubscription$data,
   variables: requestSubscriptionTestSubscription$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

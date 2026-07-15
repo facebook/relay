@@ -124,6 +124,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: Cat.js:324:342,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
@@ -178,6 +179,7 @@ Field(
             deprecated: None,
             semantic_non_null: None,
             live: None,
+            may_waterfall: None,
             location: Cat.js:223:232,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(

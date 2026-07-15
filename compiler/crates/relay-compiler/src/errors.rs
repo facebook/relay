@@ -88,14 +88,14 @@ pub enum Error {
     SerializationError {
         file: PathBuf,
         #[serde(skip_serializing)]
-        source: Box<bincode::ErrorKind>,
+        source: bincode::error::EncodeError,
     },
 
     #[error("Unable to deserialize state from file: `{file}`, because of `{source}`.")]
     DeserializationError {
         file: PathBuf,
         #[serde(skip_serializing)]
-        source: Box<bincode::ErrorKind>,
+        source: bincode::error::DecodeError,
     },
 
     #[error("Failed to canonicalize root: `{root}`.")]

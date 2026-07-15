@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<65c450fc00fda97c1969cc8a6a0fb4d6>>
+ * @generated SignedSource<<1783a7b498305214a71c5e7cc0338c3d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,19 +22,19 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloResolverType as (
-  args: {|
+  args: {
     world: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type ClientOnlyQueriesTest2Query$variables = {||};
-export type ClientOnlyQueriesTest2Query$data = {|
-  +hello: ?string,
-|};
-export type ClientOnlyQueriesTest2Query = {|
+export type ClientOnlyQueriesTest2Query$variables = {};
+export type ClientOnlyQueriesTest2Query$data = {
+  readonly hello: ?string,
+};
+export type ClientOnlyQueriesTest2Query = {
   response: ClientOnlyQueriesTest2Query$data,
   variables: ClientOnlyQueriesTest2Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

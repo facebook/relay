@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<68bb504494838cf0c02a3d45cc6c1775>>
+ * @generated SignedSource<<2e45452e788e401bbe52c35c1c99ac4d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType } from "./MultiActorEnvironmentExecuteMutationTestCommentFragment.graphql";
-export type MultiActorEnvironmentExecuteMutationTestCommentQuery$variables = {|
+export type MultiActorEnvironmentExecuteMutationTestCommentQuery$variables = {
   id: string,
-|};
-export type MultiActorEnvironmentExecuteMutationTestCommentQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
-  |},
-|};
-export type MultiActorEnvironmentExecuteMutationTestCommentQuery = {|
+};
+export type MultiActorEnvironmentExecuteMutationTestCommentQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
+  },
+};
+export type MultiActorEnvironmentExecuteMutationTestCommentQuery = {
   response: MultiActorEnvironmentExecuteMutationTestCommentQuery$data,
   variables: MultiActorEnvironmentExecuteMutationTestCommentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<67b3926f0d95360b7c84fcde950dfec2>>
+ * @generated SignedSource<<ef871dcac64726bc78fa99ab7547f451>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,28 +18,24 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReferenceMarkerTest1Fragment$fragmentType } from "./RelayReferenceMarkerTest1Fragment.graphql";
-export type RelayReferenceMarkerTest1Query$variables = {|
+export type RelayReferenceMarkerTest1Query$variables = {
   id?: ?string,
   size?: ?ReadonlyArray<?number>,
-|};
-export type RelayReferenceMarkerTest1Query$data = {|
-  +node: ?({|
-    +__typename: "Page",
-    +actors: ?ReadonlyArray<?{|
-      +name: ?string,
-    |}>,
-    +id: string,
-    +$fragmentSpreads: RelayReferenceMarkerTest1Fragment$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayReferenceMarkerTest1Query = {|
+};
+export type RelayReferenceMarkerTest1Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly actors?: ?ReadonlyArray<?{
+      readonly name: ?string,
+    }>,
+    readonly id: string,
+    readonly $fragmentSpreads: RelayReferenceMarkerTest1Fragment$fragmentType,
+  },
+};
+export type RelayReferenceMarkerTest1Query = {
   response: RelayReferenceMarkerTest1Query$data,
   variables: RelayReferenceMarkerTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

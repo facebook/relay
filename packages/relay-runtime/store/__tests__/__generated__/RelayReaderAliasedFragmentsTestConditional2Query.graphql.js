@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f97bd6cd22348700f6c2893b5345f51>>
+ * @generated SignedSource<<6a8ca5fad7900237a379971d338fb549>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTestConditionalFragment$fragmentType } from "./RelayReaderAliasedFragmentsTestConditionalFragment.graphql";
-export type RelayReaderAliasedFragmentsTestConditional2Query$variables = {|
+export type RelayReaderAliasedFragmentsTestConditional2Query$variables = {
   someCondition: boolean,
-|};
-export type RelayReaderAliasedFragmentsTestConditional2Query$data = {|
-  +me: ?{|
-    +aliased_fragment?: ?{|
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestConditionalFragment$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestConditional2Query = {|
+};
+export type RelayReaderAliasedFragmentsTestConditional2Query$data = {
+  readonly me: ?{
+    readonly aliased_fragment?: ?{
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestConditionalFragment$fragmentType,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestConditional2Query = {
   response: RelayReaderAliasedFragmentsTestConditional2Query$data,
   variables: RelayReaderAliasedFragmentsTestConditional2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

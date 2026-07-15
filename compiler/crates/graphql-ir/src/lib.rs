@@ -56,13 +56,14 @@ pub use crate::errors::ValidationMessageWithData;
 
 /// Re-exported values to be used by the `associated_data_impl!` macro.
 pub mod reexport {
+    pub use std::sync::LazyLock;
+
     pub use common::NamedItem;
     pub use common::WithLocation;
     pub use fnv::FnvHasher;
     pub use intern::string_key;
     pub use intern::string_key::Intern;
     pub use intern::string_key::StringKey;
-    pub use once_cell::sync::Lazy;
 
     pub use crate::associated_data::AsAny;
 }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c0ef9c33bcefe8a800419f2cb89c67b1>>
+ * @generated SignedSource<<5be4f3c15a607b06aea84fc6fe26a23a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType } from "./RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTestDeferredStreamParent$data = {|
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
-  +$fragmentType: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
-|};
+export type RelayModernEnvironmentNoInlineTestDeferredStreamParent$data = {
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
+};
 export type RelayModernEnvironmentNoInlineTestDeferredStreamParent$key = {
-  +$data?: RelayModernEnvironmentNoInlineTestDeferredStreamParent$data,
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
+  readonly $data?: RelayModernEnvironmentNoInlineTestDeferredStreamParent$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
   ...
 };
 */

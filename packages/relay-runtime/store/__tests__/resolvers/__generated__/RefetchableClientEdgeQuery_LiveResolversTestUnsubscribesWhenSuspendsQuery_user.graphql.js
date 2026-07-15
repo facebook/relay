@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1f0d1d22eef7f8750358ebab694face8>>
+ * @generated SignedSource<<d43f1f43658b78e1df452fe88310693d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$fragmentType: FragmentType;
 type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$variables = any;
-export type RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$data = {|
-  +id: string,
-  +$fragmentType: RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$data = {
+  readonly id: string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$fragmentType,
+};
 export type RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$key = {
-  +$data?: RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$fragmentType,
   ...
 };
 */

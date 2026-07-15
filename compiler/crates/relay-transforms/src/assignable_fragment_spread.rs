@@ -14,14 +14,16 @@ mod transform_assignable_fragment_spreads_in_updatable_queries;
 mod validate_assignable_directive;
 mod validate_updatable_directive;
 mod validate_updatable_fragment_spread;
+
+use std::sync::LazyLock;
+
 use common::DirectiveName;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 
-lazy_static! {
-    pub static ref ASSIGNABLE_DIRECTIVE: DirectiveName = DirectiveName("assignable".intern());
-    pub static ref UPDATABLE_DIRECTIVE: DirectiveName = DirectiveName("updatable".intern());
-}
+pub static ASSIGNABLE_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("assignable".intern()));
+pub static UPDATABLE_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("updatable".intern()));
 
 pub use annotate_updatable_fragment_spreads::*;
 use ensure_discriminated_union_is_created::*;

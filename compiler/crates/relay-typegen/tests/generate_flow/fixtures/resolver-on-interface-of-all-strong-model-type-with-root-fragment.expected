@@ -32,13 +32,13 @@ import catDescriptionResolverType from "CatResolver";
   rootKey: description_Fragment$key,
 ) => ?unknown);
 declare export opaque type description_Fragment$fragmentType: FragmentType;
-export type description_Fragment$data = {|
-  +description: ?ReturnType<typeof catDescriptionResolverType>,
-  +$fragmentType: description_Fragment$fragmentType,
-|};
+export type description_Fragment$data = {
+  readonly description: ?ReturnType<typeof catDescriptionResolverType>,
+  readonly $fragmentType: description_Fragment$fragmentType,
+};
 export type description_Fragment$key = {
-  +$data?: description_Fragment$data,
-  +$fragmentSpreads: description_Fragment$fragmentType,
+  readonly $data?: description_Fragment$data,
+  readonly $fragmentSpreads: description_Fragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
@@ -51,12 +51,12 @@ import catDescriptionResolverType from "CatResolver";
   rootKey: description_Fragment$key,
 ) => ?unknown);
 declare export opaque type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType: FragmentType;
-export type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$data = {|
-  +description: ?ReturnType<typeof catDescriptionResolverType>,
-  +$fragmentType: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType,
-|};
+export type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$data = {
+  readonly description: ?ReturnType<typeof catDescriptionResolverType>,
+  readonly $fragmentType: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType,
+};
 export type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$key = {
-  +$data?: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$data,
-  +$fragmentSpreads: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType,
+  readonly $data?: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$data,
+  readonly $fragmentSpreads: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType,
   ...
 };

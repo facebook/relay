@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<15c103b3e852760afa03ce0b7edfbea9>>
+ * @generated SignedSource<<fcc1b58bdb53920529d0774da894f89b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,27 +19,18 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type validateMutationTestActorFragment$fragmentType: FragmentType;
-export type validateMutationTestActorFragment$data = {|
-  +__typename: "Page",
-  +username: ?string,
-  +$fragmentType: validateMutationTestActorFragment$fragmentType,
-|} | {|
-  +__typename: "User",
-  +birthdate: ?{|
-    +day: ?number,
-    +month: ?number,
-    +year: ?number,
-  |},
-  +$fragmentType: validateMutationTestActorFragment$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: validateMutationTestActorFragment$fragmentType,
-|};
+export type validateMutationTestActorFragment$data = {
+  readonly birthdate?: ?{
+    readonly day: ?number,
+    readonly month: ?number,
+    readonly year: ?number,
+  },
+  readonly username?: ?string,
+  readonly $fragmentType: validateMutationTestActorFragment$fragmentType,
+};
 export type validateMutationTestActorFragment$key = {
-  +$data?: validateMutationTestActorFragment$data,
-  +$fragmentSpreads: validateMutationTestActorFragment$fragmentType,
+  readonly $data?: validateMutationTestActorFragment$data,
+  readonly $fragmentSpreads: validateMutationTestActorFragment$fragmentType,
   ...
 };
 */

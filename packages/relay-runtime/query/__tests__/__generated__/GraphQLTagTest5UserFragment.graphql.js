@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<47d0f558f668c03c191c713795f2cbd5>>
+ * @generated SignedSource<<6c8c5c81a4e5427c09cf6d97af83c003>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type GraphQLTagTest5UserFragment$fragmentType: FragmentType;
 type GraphQLTagTestUserFragment3RefetchQuery$variables = any;
-export type GraphQLTagTest5UserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: GraphQLTagTest5UserFragment$fragmentType,
-|};
+export type GraphQLTagTest5UserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: GraphQLTagTest5UserFragment$fragmentType,
+};
 export type GraphQLTagTest5UserFragment$key = {
-  +$data?: GraphQLTagTest5UserFragment$data,
-  +$fragmentSpreads: GraphQLTagTest5UserFragment$fragmentType,
+  readonly $data?: GraphQLTagTest5UserFragment$data,
+  readonly $fragmentSpreads: GraphQLTagTest5UserFragment$fragmentType,
   ...
 };
 */

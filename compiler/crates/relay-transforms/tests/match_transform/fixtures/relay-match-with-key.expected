@@ -49,6 +49,10 @@ fragment NameRendererFragment on User {
       #         "PlainUserNameRenderer_name",
       #     ),
       #     fragment_source_location: relay-match-with-key.graphql:288:314,
+      #     module_source_location: Embedded {
+      #         path: "relay-match-with-key.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {
@@ -74,6 +78,10 @@ fragment NameRendererFragment on User {
       #         "MarkdownUserNameRenderer_name",
       #     ),
       #     fragment_source_location: relay-match-with-key.graphql:388:417,
+      #     module_source_location: Embedded {
+      #         path: "relay-match-with-key.graphql",
+      #         index: 0,
+      #     },
       #     no_inline: false,
       # }
        {

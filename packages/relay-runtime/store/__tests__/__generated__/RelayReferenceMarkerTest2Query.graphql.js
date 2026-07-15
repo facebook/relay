@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<24be35856c495af7ac6350c6959672ac>>
+ * @generated SignedSource<<f0f1a262865aecb42a2dfb71d4d2b909>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,31 +17,26 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReferenceMarkerTest2Query$variables = {|
+export type RelayReferenceMarkerTest2Query$variables = {
   id: string,
-|};
-export type RelayReferenceMarkerTest2Query$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +friends: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +id: string,
-          +name: ?string,
-        |},
-      |}>,
-    |},
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayReferenceMarkerTest2Query = {|
+};
+export type RelayReferenceMarkerTest2Query$data = {
+  readonly node: ?{
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly id: string,
+          readonly name: ?string,
+        },
+      }>,
+    },
+  },
+};
+export type RelayReferenceMarkerTest2Query = {
   response: RelayReferenceMarkerTest2Query$data,
   variables: RelayReferenceMarkerTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

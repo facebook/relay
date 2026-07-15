@@ -10,23 +10,23 @@ fragment Updatable_user on User @assignable {
 }
 ==================================== OUTPUT ===================================
 import type { Updatable_user$fragmentType } from "Updatable_user.graphql";
-export type UpdatableQuery$variables = {||};
-export type UpdatableQuery$data = {|
-  get nodes(): ?ReadonlyArray<?{|
-    get Updatable_user(): ?{||},
+export type UpdatableQuery$variables = {};
+export type UpdatableQuery$data = {
+  get nodes(): ?ReadonlyArray<?{
+    get Updatable_user(): ?{},
     set Updatable_user(value: ?{
-      +__typename: "User",
-      +__id: string,
-      +$fragmentSpreads: Updatable_user$fragmentType,
+      readonly __typename: "User",
+      readonly __id: string,
+      readonly $fragmentSpreads: Updatable_user$fragmentType,
       ...
     }): void,
-  |}>,
+  }>,
   set nodes(value: []): void,
-|};
-export type UpdatableQuery = {|
+};
+export type UpdatableQuery = {
   response: UpdatableQuery$data,
   variables: UpdatableQuery$variables,
-|};
+};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Updatable_user$fragmentType: FragmentType;

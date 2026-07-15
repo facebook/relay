@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5873fe295d3d76246e0125a0b8a37f15>>
+ * @generated SignedSource<<c130513f27f8d3b3e94173e831396abd>>
  */
 
 mod client_edges;
@@ -17,6 +17,20 @@ async fn client_edge_backed_by_resolver() {
     let input = include_str!("client_edges/fixtures/client-edge-backed-by-resolver.graphql");
     let expected = include_str!("client_edges/fixtures/client-edge-backed-by-resolver.expected");
     test_fixture(transform_fixture, file!(), "client-edge-backed-by-resolver.graphql", "client_edges/fixtures/client-edge-backed-by-resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_c2c_resolver_no_server_to_client_flag() {
+    let input = include_str!("client_edges/fixtures/client-edge-c2c-resolver-no-server-to-client-flag.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-c2c-resolver-no-server-to-client-flag.expected");
+    test_fixture(transform_fixture, file!(), "client-edge-c2c-resolver-no-server-to-client-flag.graphql", "client_edges/fixtures/client-edge-c2c-resolver-no-server-to-client-flag.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_c2s_exec_time_resolver() {
+    let input = include_str!("client_edges/fixtures/client-edge-c2s-exec-time-resolver.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-c2s-exec-time-resolver.expected");
+    test_fixture(transform_fixture, file!(), "client-edge-c2s-exec-time-resolver.graphql", "client_edges/fixtures/client-edge-c2s-exec-time-resolver.expected", input, expected).await;
 }
 
 #[tokio::test]

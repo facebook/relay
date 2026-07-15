@@ -25,10 +25,9 @@ common = { path = "../common" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = "1.5"
 rayon = "1.11.0"
 relay-transforms = { path = "../relay-transforms" }
-rustc-hash = "2.1.1"
+rustc-hash = "2.1.3"
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
 serde = { version = "1.0.219", features = ["derive", "rc"] }
@@ -36,4 +35,4 @@ serde = { version = "1.0.219", features = ["derive", "rc"] }
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 relay-test-schema = { path = "../relay-test-schema" }
-tokio = { version = "1.50.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.52.3", features = ["full", "test-util", "tracing"] }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2aff8d9db57d8b02c9aa50f90b14336c>>
+ * @generated SignedSource<<42761d98b71435a8896aa381bdcf6dc1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,28 +23,18 @@ import type { RelayResponseNormalizerTestMarkdownUserNameRenderer_name$fragmentT
 import type { RelayResponseNormalizerTestPlainUserNameRenderer_name$fragmentType } from "./RelayResponseNormalizerTestPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResponseNormalizerTestFragment$fragmentType: FragmentType;
-export type RelayResponseNormalizerTestFragment$data = {|
-  +id: string,
-  +nameRenderer: ?({|
-    +__typename: "MarkdownUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayResponseNormalizerTestMarkdownUserNameRenderer_name$fragmentType,
-  |} | {|
-    +__typename: "PlainUserNameRenderer",
-    +__fragmentPropName: ?string,
-    +__module_component: ?string,
-    +$fragmentSpreads: RelayResponseNormalizerTestPlainUserNameRenderer_name$fragmentType,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-  +$fragmentType: RelayResponseNormalizerTestFragment$fragmentType,
-|};
+export type RelayResponseNormalizerTestFragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayResponseNormalizerTestMarkdownUserNameRenderer_name$fragmentType & RelayResponseNormalizerTestPlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayResponseNormalizerTestFragment$fragmentType,
+};
 export type RelayResponseNormalizerTestFragment$key = {
-  +$data?: RelayResponseNormalizerTestFragment$data,
-  +$fragmentSpreads: RelayResponseNormalizerTestFragment$fragmentType,
+  readonly $data?: RelayResponseNormalizerTestFragment$data,
+  readonly $fragmentSpreads: RelayResponseNormalizerTestFragment$fragmentType,
   ...
 };
 */

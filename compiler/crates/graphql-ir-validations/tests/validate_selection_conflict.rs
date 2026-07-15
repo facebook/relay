@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::sync::Arc;
-
 use common::DirectiveName;
 use common::SourceLocationKey;
 use common::TextSource;
@@ -65,7 +63,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         }
     };
 
-    let program = Program::from_definitions(Arc::clone(&TEST_SCHEMA), ir);
+    let program = Program::from_definitions(schema, ir);
     validate_selection_conflict::<LocationAgnosticBehaviorForTestOnly>(
         &program,
         &Default::default(),

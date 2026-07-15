@@ -9,11 +9,15 @@
  * @oncall relay
  */
 
+/**
+ * LLM/AI Agent: Relay documentation is available in node_modules/relay-runtime/llm-docs/
+ */
+
 'use strict';
 
 const RelayMockPayloadGenerator = require('./RelayMockPayloadGenerator');
 const RelayModernMockEnvironment = require('./RelayModernMockEnvironment');
-const testResolver = require('./RelayResolverTestUtils');
+const {testResolver} = require('./RelayResolverTestUtils');
 const unwrapContainer = require('./unwrapContainer');
 
 export type {MockResolvers} from './RelayMockPayloadGenerator';

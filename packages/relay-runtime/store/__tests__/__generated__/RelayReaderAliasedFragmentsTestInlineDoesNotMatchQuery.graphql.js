@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b4590726563bf3cd29b61c4269c9b47e>>
+ * @generated SignedSource<<50d73506099876259ae50ef7304e66f0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTestInlineDoesNotMatch_user$fragmentType } from "./RelayReaderAliasedFragmentsTestInlineDoesNotMatch_user.graphql";
-export type RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$variables = {|
+export type RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$variables = {
   id: string,
-|};
-export type RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$data = {|
-  +node: ?{|
-    +aliased_fragment: ?{|
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestInlineDoesNotMatch_user$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery = {|
+};
+export type RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$data = {
+  readonly node: ?{
+    readonly aliased_fragment: ?{
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestInlineDoesNotMatch_user$fragmentType,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery = {
   response: RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$data,
   variables: RelayReaderAliasedFragmentsTestInlineDoesNotMatchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

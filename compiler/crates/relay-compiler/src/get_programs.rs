@@ -28,7 +28,7 @@ type RelayPrograms = (
 type ProgramsResult = Result<RelayPrograms>;
 
 /// Many CLI tools use `get_programs` to compile Relay programs as a prerequisite to other operations.
-/// In those cases it's often not practical to to continue if the programs
+/// In those cases it's often not practical to continue if the programs
 /// cannot be created. In those cases, it makes sense to exit the process with
 /// an error code.
 pub fn assert_programs(programs_result: ProgramsResult) -> RelayPrograms {

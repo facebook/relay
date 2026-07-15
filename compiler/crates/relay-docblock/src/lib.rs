@@ -22,6 +22,7 @@ pub use docblock_ir::validate_fragment_arguments;
 use docblock_shared::DEPRECATED_FIELD;
 use docblock_shared::EMPTY_STRING;
 use docblock_shared::LIVE_FIELD;
+use docblock_shared::MAY_WATERFALL_FIELD;
 use docblock_shared::RELAY_FIELD_FIELD;
 use docblock_shared::RELAY_RESOLVER_FIELD;
 use docblock_shared::RELAY_TYPE_FIELD;

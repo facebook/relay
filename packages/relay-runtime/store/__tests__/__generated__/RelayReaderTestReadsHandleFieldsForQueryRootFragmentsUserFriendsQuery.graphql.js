@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4ce5e0d427edc1948e31e7dc212497aa>>
+ * @generated SignedSource<<878e4bdee3a15e481796afbbd5ce21ef>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,31 +17,26 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables = {|
+export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables = {
   id: string,
-|};
-export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data = {|
-  +node: ?({|
-    +__typename: "User",
-    +friends: ?{|
-      +edges: ?ReadonlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +id: string,
-          +name: ?string,
-        |},
-      |}>,
-    |},
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
-|};
-export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery = {|
+};
+export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data = {
+  readonly node: ?{
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly id: string,
+          readonly name: ?string,
+        },
+      }>,
+    },
+  },
+};
+export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery = {
   response: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data,
   variables: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

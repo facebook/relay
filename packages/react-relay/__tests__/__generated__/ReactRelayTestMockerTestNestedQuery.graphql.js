@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<75206ccb0c1710c4d85e43e6016b03fe>>
+ * @generated SignedSource<<ba10c54682527b4e1c5b13180e4b975d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,20 +17,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type ReactRelayTestMockerTestNestedQuery$variables = {||};
-export type ReactRelayTestMockerTestNestedQuery$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +birthdate: ?{|
-        +month: ?number,
-      |},
-    |},
-  |},
-|};
-export type ReactRelayTestMockerTestNestedQuery = {|
+export type ReactRelayTestMockerTestNestedQuery$variables = {};
+export type ReactRelayTestMockerTestNestedQuery$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly birthdate: ?{
+        readonly month: ?number,
+      },
+    },
+  },
+};
+export type ReactRelayTestMockerTestNestedQuery = {
   response: ReactRelayTestMockerTestNestedQuery$data,
   variables: ReactRelayTestMockerTestNestedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

@@ -6,31 +6,30 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e5295d2a98cea0c3838ae36176aa3a77>>
+ * @generated SignedSource<<7529be6636a3a2a04b6ce075b3492f77>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
 
 'use strict';
 
-// @indirectDataDrivenDependency RelayClient3DModuleTestFragment2BasicUser.basicUser {"branches":{"ClientUser":{"component":"ClientUser.react","fragment":"RelayClient3DModuleTestFragmentClientUser_data$normalization.graphql"},"SpecialUser":{"component":"SpecialUser.react","fragment":"RelayClient3DModuleTestFragmentSpecialUser_data$normalization.graphql"}},"plural":false}
+// @indirectDataDrivenDependency RelayClient3DModuleTestFragment2BasicUser.basicUser {"branches":{"ClientUser":{"component":"ClientUser.react","fragment":"RelayClient3DModuleTestFragmentClientUser_data$normalization.graphql","read_time_resolvers":true},"SpecialUser":{"component":"SpecialUser.react","fragment":"RelayClient3DModuleTestFragmentSpecialUser_data$normalization.graphql","read_time_resolvers":true}},"plural":false}
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayClient3DModuleTestFragment2BasicUser$fragmentType } from "./RelayClient3DModuleTestFragment2BasicUser.graphql";
-export type RelayClient3DModuleTestQuery$variables = {||};
-export type RelayClient3DModuleTestQuery$data = {|
-  +persona: ?{|
-    +$fragmentSpreads: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
-  |},
-|};
-export type RelayClient3DModuleTestQuery = {|
+export type RelayClient3DModuleTestQuery$variables = {};
+export type RelayClient3DModuleTestQuery$data = {
+  readonly persona: ?{
+    readonly $fragmentSpreads: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
+  },
+};
+export type RelayClient3DModuleTestQuery = {
   response: RelayClient3DModuleTestQuery$data,
   variables: RelayClient3DModuleTestQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){

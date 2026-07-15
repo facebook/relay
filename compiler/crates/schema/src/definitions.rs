@@ -11,6 +11,7 @@ use std::collections::HashMap;
 use std::fmt;
 use std::hash::Hash;
 use std::slice::Iter;
+use std::sync::LazyLock;
 
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
@@ -30,17 +31,15 @@ use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
 pub use interface::*;
 use intern::intern;
-use lazy_static::lazy_static;
 
 use crate::Schema;
 
-lazy_static! {
-    static ref DIRECTIVE_DEPRECATED: DirectiveName = DirectiveName("deprecated".intern());
-    static ref ARGUMENT_REASON: ArgumentName = ArgumentName("reason".intern());
-    static ref SEMANTIC_NON_NULL_DIRECTIVE: DirectiveName =
-        DirectiveName("semanticNonNull".intern());
-    static ref LEVELS_ARGUMENT: ArgumentName = ArgumentName("levels".intern());
-}
+static DIRECTIVE_DEPRECATED: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("deprecated".intern()));
+static ARGUMENT_REASON: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName("reason".intern()));
+static SEMANTIC_NON_NULL_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("semanticNonNull".intern()));
+static LEVELS_ARGUMENT: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName("levels".intern()));
 
 pub(crate) type TypeMap = HashMap<StringKey, Type>;
 
@@ -401,6 +400,7 @@ pub struct Directive {
     pub locations: Vec<DirectiveLocation>,
     pub repeatable: bool,
     pub is_extension: bool,
+    pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
     pub hack_source: Option<StringKey>,
 }
@@ -695,6 +695,19 @@ pub struct EnumValue {
     pub description: Option<StringKey>,
 }
 
+impl EnumValue {
+    pub fn deprecated(&self) -> Option<Deprecation> {
+        self.directives
+            .named(*DIRECTIVE_DEPRECATED)
+            .map(|directive| Deprecation {
+                reason: directive
+                    .arguments
+                    .named(*ARGUMENT_REASON)
+                    .and_then(|reason| reason.value.get_string_literal()),
+            })
+    }
+}
+
 #[derive(
     Clone,
     Eq,
@@ -726,6 +739,10 @@ impl ArgumentDefinitions {
 
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
     }
 }
 

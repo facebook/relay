@@ -85,7 +85,10 @@ const {useMemo} = React;
 
 // Note: this type is intentionally non-exact, it is expected that the
 // object may contain sibling fields.
-type TypenameOnlyPointer = {readonly __typename: string};
+type TypenameOnlyPointer = {
+  readonly __typename: string,
+  ...
+};
 export type MatchPointer = {
   readonly __fragmentPropName?: ?string,
   readonly __module_component?: unknown,

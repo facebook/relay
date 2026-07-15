@@ -5,88 +5,201 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { DataID } from '../util/RelayRuntimeTypes';
-import { Record } from './RelayStoreTypes';
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
+import type {DataID} from '../util/RelayRuntimeTypes';
+import type {Record, TRelayFieldError} from './RelayStoreTypes';
 
-export class RelayModernRecord {
-    /**
-     * Clone a record.
-     */
-    clone(record: Record): Record;
+type RelayFieldErrors = {
+  [storageKey: string]: ReadonlyArray<TRelayFieldError>;
+};
 
-    /**
-     * Copies all fields from `source` to `sink`, excluding `__id` and `__typename`.
-     *
-     * NOTE: This function does not treat `id` specially. To preserve the id,
-     * manually reset it after calling this function. Also note that values are
-     * copied by reference and not value; callers should ensure that values are
-     * copied on write.
-     */
-    copyFields(source: Record, sink: Record): void;
+type RecordJSON = {
+  __errors?: RelayFieldErrors;
+  [storageKey: string]: unknown;
+};
 
-    /**
-     * Create a new record.
-     */
-    create(dataID: DataID, typeName: string): Record;
+/**
+ * Clone a record.
+ */
+export function clone(record: Record): Record;
 
-    /**
-     * Get the record's `id` if available or the client-generated identifier.
-     */
-    getDataID(record: Record): DataID;
+/**
+ * Copies all fields from `source` to `sink`, excluding `__id` and `__typename`.
+ *
+ * NOTE: This function does not treat `id` specially. To preserve the id,
+ * manually reset it after calling this function. Also note that values are
+ * copied by reference and not value; callers should ensure that values are
+ * copied on write.
+ */
+export function copyFields(source: Record, sink: Record): void;
 
-    /**
-     * Get the concrete type of the record.
-     */
-    getType(record: Record): string;
+/**
+ * Create a new record.
+ */
+export function create(dataID: DataID, typeName: string): Record;
 
-    /**
-     * Get a scalar (non-link) field value.
-     */
-    getValue(record: Record, storageKey: string): unknown;
+/**
+ * Convert the JSON representation of a record into a record.
+ */
+export function fromObject<TMaybe extends null | undefined = never>(
+  json: RecordJSON | TMaybe,
+): Record | TMaybe;
 
-    /**
-     * Get the value of a field as a reference to another record. Throws if the
-     * field has a different type.
-     */
-    getLinkedRecordID(record: Record, storageKey: string): DataID | null;
+/**
+ * Get the record's `id` if available or the client-generated identifier.
+ */
+export function getDataID(record: Record): DataID;
 
-    /**
-     * Get the value of a field as a list of references to other records. Throws if
-     * the field has a different type.
-     */
-    getLinkedRecordIDs(record: Record, storageKey: string): DataID[] | null;
+/**
+ * Get the fields of a record.
+ */
+export function getFields(record: Record): string[];
 
-    /**
-     * Compares the fields of a previous and new record, returning either the
-     * previous record if all fields are equal or a new record (with merged fields)
-     * if any fields have changed.
-     */
-    update(prevRecord: Record, nextRecord: Record): Record;
+/**
+ * Get the concrete type of the record.
+ */
+export function getType(record: Record): string;
 
-    /**
-     * Returns a new record with the contents of the given records. Fields in the
-     * second record will overwrite identical fields in the first record.
-     */
-    merge(record1: Record, record2: Record): Record;
+/**
+ * Get the errors associated with particular field.
+ */
+export function getErrors(
+  record: Record,
+  storageKey: string,
+): ReadonlyArray<TRelayFieldError> | undefined;
 
-    /**
-     * Prevent modifications to the record. Attempts to call `set*` functions on a
-     * frozen record will fatal at runtime.
-     */
-    freeze(record: Record): void;
+/**
+ * Get a scalar (non-link) field value.
+ */
+export function getValue(record: Record, storageKey: string): unknown;
 
-    /**
-     * Set the value of a storageKey to a scalar.
-     */
-    setValue(record: Record, storageKey: string, value: any): void;
+/**
+ * Check if a record has a value for the given field.
+ */
+export function hasValue(record: Record, storageKey: string): boolean;
 
-    /**
-     * Set the value of a field to a reference to another record.
-     */
-    setLinkedRecordID(record: Record, storageKey: string, linkedID: DataID): void;
+/**
+ * Get the value of a field as a reference to another record. Throws if the
+ * field has a different type.
+ */
+export function getLinkedRecordID(
+  record: Record,
+  storageKey: string,
+): DataID | null | undefined;
 
-    /**
-     * Set the value of a field to a list of references other records.
-     */
-    setLinkedRecordIDs(record: Record, storageKey: string, linkedIDs: DataID[] | null): void;
-}
+/**
+ * Checks if a field has a reference to another record.
+ */
+export function hasLinkedRecordID(record: Record, storageKey: string): boolean;
+
+/**
+ * Get the value of a field as a list of references to other records. Throws if
+ * the field has a different type.
+ */
+export function getLinkedRecordIDs(
+  record: Record,
+  storageKey: string,
+): Array<DataID | null | undefined> | null | undefined;
+
+/**
+ * Checks if a field have references to other records.
+ */
+export function hasLinkedRecordIDs(record: Record, storageKey: string): boolean;
+
+/**
+ * Returns the epoch at which the record was invalidated, if it
+ * ever was; otherwise returns null;
+ */
+export function getInvalidationEpoch(
+  record: Record | null | undefined,
+): number | null;
+
+/**
+ * Compares the fields of a previous and new record, returning either the
+ * previous record if all fields are equal or a new record (with merged fields)
+ * if any fields have changed.
+ */
+export function update(prevRecord: Record, nextRecord: Record): Record;
+
+/**
+ * Returns a new record with the contents of the given records. Fields in the
+ * second record will overwrite identical fields in the first record.
+ */
+export function merge(record1: Record, record2: Record): Record;
+
+/**
+ * Prevent modifications to the record. Attempts to call `set*` functions on a
+ * frozen record will fatal at runtime.
+ */
+export function freeze(record: Record): void;
+
+/**
+ * Set the errors associated with a particular field.
+ */
+export function setErrors(
+  record: Record,
+  storageKey: string,
+  errors?: ReadonlyArray<TRelayFieldError>,
+): void;
+
+/**
+ * Set the value of a storageKey to a scalar.
+ */
+export function setValue(
+  record: Record,
+  storageKey: string,
+  value: unknown,
+): void;
+
+/**
+ * Set the value of a field to a reference to another record.
+ */
+export function setLinkedRecordID(
+  record: Record,
+  storageKey: string,
+  linkedID: DataID,
+): void;
+
+/**
+ * Set the value of a field to a list of references other records.
+ */
+export function setLinkedRecordIDs(
+  record: Record,
+  storageKey: string,
+  linkedIDs: Array<DataID | null | undefined>,
+): void;
+
+/**
+ * Set the value of a field to a reference to another record in the actor specific store.
+ */
+export function setActorLinkedRecordID(
+  record: Record,
+  storageKey: string,
+  actorIdentifier: ActorIdentifier,
+  linkedID: DataID,
+): void;
+
+/**
+ * Get link to a record and the actor identifier for the store.
+ */
+export function getActorLinkedRecordID(
+  record: Record,
+  storageKey: string,
+): [ActorIdentifier, DataID] | null | undefined;
+
+/**
+ * Returns true if the value of a field differs between two records.
+ * Unlike getValue(), this works for all field types (scalar, linked, plural linked).
+ */
+export function hasFieldChanged(
+  prevRecord: Record,
+  nextRecord: Record,
+  storageKey: string,
+): boolean;
+
+/**
+ * Convert a record to JSON.
+ */
+export function toJSON<TMaybe extends null | undefined = never>(
+  record: Record | TMaybe,
+): RecordJSON | TMaybe;

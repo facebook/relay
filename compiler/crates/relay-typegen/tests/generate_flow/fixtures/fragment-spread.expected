@@ -81,10 +81,11 @@ import type { UserFrag2$fragmentType } from "UserFrag2.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentSpread$fragmentType: FragmentType;
 export type FragmentSpread$data = {
-  readonly UserFrag1?: ?{
+  readonly __typename: "User",
+  readonly UserFrag1: ?{
     readonly $fragmentSpreads: UserFrag1$fragmentType,
   },
-  readonly UserFrag2?: ?{
+  readonly UserFrag2: ?{
     readonly $fragmentSpreads: UserFrag2$fragmentType,
   },
   readonly fragAndField: ?{
@@ -96,6 +97,11 @@ export type FragmentSpread$data = {
     readonly $fragmentSpreads: PictureFragment$fragmentType,
   },
   readonly $fragmentSpreads: OtherFragment$fragmentType,
+  readonly $fragmentType: FragmentSpread$fragmentType,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
   readonly $fragmentType: FragmentSpread$fragmentType,
 };
 export type FragmentSpread$key = {

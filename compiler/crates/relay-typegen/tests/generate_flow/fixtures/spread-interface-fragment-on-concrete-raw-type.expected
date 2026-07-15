@@ -72,9 +72,19 @@ export type MyQuery = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type MyFragment$fragmentType: FragmentType;
 export type MyFragment$data = {
-  readonly canViewerLike?: ?CustomBoolean,
+  readonly __typename: "Page",
   readonly name: ?string,
-  readonly subscribeStatus?: ?string,
+  readonly subscribeStatus: ?string,
+  readonly $fragmentType: MyFragment$fragmentType,
+} | {
+  readonly __typename: "User",
+  readonly canViewerLike: ?CustomBoolean,
+  readonly name: ?string,
+  readonly $fragmentType: MyFragment$fragmentType,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
   readonly $fragmentType: MyFragment$fragmentType,
 };
 export type MyFragment$key = {

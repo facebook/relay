@@ -15,13 +15,17 @@ query ExampleQuery @raw_response_type {
 ==================================== OUTPUT ===================================
 export type ExampleQuery$variables = {};
 export type ExampleQuery$data = {
-  readonly node: ?{
-    readonly __typename: string,
-    readonly body?: ?{
+  readonly node: ?({
+    readonly __typename: "Story",
+    readonly body: ?{
       readonly text: ?string,
     },
     readonly id: string,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type ExampleQuery$rawResponse = {
   readonly node: ?({

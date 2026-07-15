@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8c2971d3c35c5b4c084c7077df10a5a1>>
+ * @generated SignedSource<<3cbef7e2df1b010578b3beb571338b8d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,11 +22,16 @@ export type RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery
   id: string,
 };
 export type RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery$data = {
-  readonly node: ?{
-    readonly id?: string,
-    readonly name?: ?string,
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly id: string,
+    readonly name: ?string,
     readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsFragment$fragmentType,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery = {
   response: RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery$data,

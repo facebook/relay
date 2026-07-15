@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3dc442a00834f0eea0bc693c29f40b2c>>
+ * @generated SignedSource<<89fc3bfc7098374d0f4a8e39064d42c9>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,13 +25,28 @@ export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$variable
   id: string,
 };
 export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$data = {
-  readonly node: ?{
-    readonly nameRenderer?: ?{
-      readonly __fragmentPropName?: ?string,
-      readonly __module_component?: ?string,
-      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType,
-    },
-  },
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly nameRenderer: ?({
+      readonly __typename: "MarkdownUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$fragmentType,
+    } | {
+      readonly __typename: "PlainUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType,
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery$data,

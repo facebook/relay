@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<75f391ffa7a89c1e18a51af59f50f39a>>
+ * @generated SignedSource<<b05f13881a7ea2e1ecf3309b796bcfa5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,9 +20,15 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType: FragmentType;
 export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data = {
-  readonly id?: string,
-  readonly missing?: ?string,
-  readonly name?: ?string,
+  readonly __typename: "User",
+  readonly id: string,
+  readonly missing: ?string,
+  readonly name: ?string,
+  readonly $fragmentType: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
   readonly $fragmentType: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
 };
 export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$key = {

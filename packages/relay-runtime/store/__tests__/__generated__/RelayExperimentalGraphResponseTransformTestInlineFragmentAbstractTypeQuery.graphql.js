@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<660672fa815e33c816416732d43244e5>>
+ * @generated SignedSource<<e817a5ed09763d1c4163244bb69bee0d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,12 +19,17 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$variables = {};
 export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$data = {
-  readonly node: ?{
-    readonly author?: ?{
+  readonly node: ?({
+    readonly __typename: "Comment",
+    readonly author: ?{
       readonly __typename: "User",
     },
     readonly name?: ?string,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery = {
   response: RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$data,

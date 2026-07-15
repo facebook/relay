@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<345dd2b1e991ed88a49e7829cd463e00>>
+ * @generated SignedSource<<b9939500316815650b10829811cf0e5f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,13 +25,28 @@ export type fetchQueryInternalTest3Query$variables = {
   id: string,
 };
 export type fetchQueryInternalTest3Query$data = {
-  readonly node: ?{
-    readonly nameRenderer?: ?{
-      readonly __fragmentPropName?: ?string,
-      readonly __module_component?: ?string,
-      readonly $fragmentSpreads: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType & fetchQueryInternalTestPlain1Fragment_name$fragmentType,
-    },
-  },
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly nameRenderer: ?({
+      readonly __typename: "MarkdownUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
+    } | {
+      readonly __typename: "PlainUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: fetchQueryInternalTestPlain1Fragment_name$fragmentType,
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type fetchQueryInternalTest3Query = {
   response: fetchQueryInternalTest3Query$data,

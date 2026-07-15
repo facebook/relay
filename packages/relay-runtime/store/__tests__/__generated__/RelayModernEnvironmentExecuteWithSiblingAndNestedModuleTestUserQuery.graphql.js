@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dac20c85431fffe39e5efd3106e0cd8d>>
+ * @generated SignedSource<<8718d235b91b650b56b4cb6e495ede5f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,18 +27,33 @@ export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery
   id: string,
 };
 export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data = {
-  readonly node: ?{
-    readonly outerRendererA?: ?{
-      readonly __fragmentPropName?: ?string,
-      readonly __module_component?: ?string,
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly outerRendererA: ?({
+      readonly __typename: "MarkdownUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
       readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$fragmentType,
-    },
-    readonly outerRendererB?: ?{
-      readonly __fragmentPropName?: ?string,
-      readonly __module_component?: ?string,
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
+    readonly outerRendererB: ?({
+      readonly __typename: "PlainUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
       readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$fragmentType,
-    },
-  },
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<698abc463b6962adb8a76a7cd58144f8>>
+ * @generated SignedSource<<593b51d2c80516dcc7cd346f718f9961>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,9 +21,14 @@ export type ReactRelayQueryRendererTestNextQuery$variables = {
   id: string,
 };
 export type ReactRelayQueryRendererTestNextQuery$data = {
-  readonly node: ?{
-    readonly name?: ?string,
-  },
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly name: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type ReactRelayQueryRendererTestNextQuery = {
   response: ReactRelayQueryRendererTestNextQuery$data,

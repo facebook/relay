@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dfac05b972dd6d6c679bbeb2ab21f5f9>>
+ * @generated SignedSource<<1723802f150ba960fff3ddcf2528a7c6>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -27,16 +27,31 @@ declare export opaque type RelayModernEnvironmentWithOperationTrackerTestFeedbac
 export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data = {
   readonly author: ?{
     readonly __typename: "User",
-    readonly nameRenderer: ?{
-      readonly __fragmentPropName?: ?string,
-      readonly __module_component?: ?string,
-      readonly $fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-    },
-    readonly plainNameRenderer: ?{
-      readonly __fragmentPropName?: ?string,
-      readonly __module_component?: ?string,
+    readonly nameRenderer: ?({
+      readonly __typename: "MarkdownUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
+    } | {
+      readonly __typename: "PlainUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
       readonly $fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-    },
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
+    readonly plainNameRenderer: ?({
+      readonly __typename: "PlainUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
   },
   readonly body: ?{
     readonly text: ?string,

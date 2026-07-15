@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<92edfee6e648455536f26af2ac314b3e>>
+ * @generated SignedSource<<937c692bed50bb4848fe1ef39ccdf691>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,15 +23,20 @@ export type RelayConcreteVariablesTest2Query$variables = {
   order?: ?ReadonlyArray<?string>,
 };
 export type RelayConcreteVariablesTest2Query$data = {
-  readonly node: ?{
-    readonly friends?: ?{
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly friends: ?{
       readonly edges: ?ReadonlyArray<?{
         readonly node: ?{
           readonly id: string,
         },
       }>,
     },
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayConcreteVariablesTest2Query = {
   response: RelayConcreteVariablesTest2Query$data,

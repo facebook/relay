@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<709088b878717676df9491169b28f17e>>
+ * @generated SignedSource<<ddef147a65b0161d605a0147fb31783d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,10 +21,15 @@ export type EntryPointContainerTestQuery$variables = {
   id: string,
 };
 export type EntryPointContainerTestQuery$data = {
-  readonly node: ?{
+  readonly node: ?({
+    readonly __typename: "User",
     readonly id: string,
-    readonly name?: ?string,
-  },
+    readonly name: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type EntryPointContainerTestQuery = {
   response: EntryPointContainerTestQuery$data,

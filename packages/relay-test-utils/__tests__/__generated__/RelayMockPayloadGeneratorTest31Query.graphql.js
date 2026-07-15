@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2459209dc9579a022dc5521ab9a11f31>>
+ * @generated SignedSource<<1ea64e214d4f3d432b6ccdfdac75d516>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,8 +19,9 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayMockPayloadGeneratorTest31Query$variables = {};
 export type RelayMockPayloadGeneratorTest31Query$data = {
-  readonly node: ?{
-    readonly friends?: ?{
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly friends: ?{
       readonly edges: ?ReadonlyArray<?{
         readonly node: ?{
           readonly id: string,
@@ -33,8 +34,12 @@ export type RelayMockPayloadGeneratorTest31Query$data = {
         },
       }>,
     },
-    readonly id?: string,
-  },
+    readonly id: string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayMockPayloadGeneratorTest31Query = {
   response: RelayMockPayloadGeneratorTest31Query$data,

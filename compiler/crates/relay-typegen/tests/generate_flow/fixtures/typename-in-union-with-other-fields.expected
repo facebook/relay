@@ -12,6 +12,11 @@ export type Foo$data = {
   readonly __typename: "User",
   readonly id: string,
   readonly $fragmentType: Foo$fragmentType,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
+  readonly $fragmentType: Foo$fragmentType,
 };
 export type Foo$key = {
   readonly $data?: Foo$data,

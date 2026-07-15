@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<336c560de03d3ef447296257864d03c4>>
+ * @generated SignedSource<<02316368120f9833a5fc220e4a36af2e>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,9 +21,14 @@ export type useBlockingPaginationFragmentTestNodeQuery$variables = {
   id: string,
 };
 export type useBlockingPaginationFragmentTestNodeQuery$data = {
-  readonly node: ?{
-    readonly name?: ?string,
-  },
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly name: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type useBlockingPaginationFragmentTestNodeQuery = {
   response: useBlockingPaginationFragmentTestNodeQuery$data,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a3c1fe16aae9bae0db168b128a288fbd>>
+ * @generated SignedSource<<b52e2c1d865681bcd01100a91e7daae0>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,13 +24,23 @@ export type RelayModernEnvironmentNoInlineTestModuleQuery$variables = {
   cond: boolean,
 };
 export type RelayModernEnvironmentNoInlineTestModuleQuery$data = {
-  readonly node: ?{
-    readonly nameRenderer?: ?{
-      readonly __fragmentPropName?: ?string,
-      readonly __module_component?: ?string,
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly nameRenderer: ?({
+      readonly __typename: "MarkdownUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
       readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
-    },
-  },
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayModernEnvironmentNoInlineTestModuleQuery = {
   response: RelayModernEnvironmentNoInlineTestModuleQuery$data,

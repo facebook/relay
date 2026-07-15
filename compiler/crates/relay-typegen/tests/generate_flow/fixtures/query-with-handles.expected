@@ -21,11 +21,16 @@ export type LinkedHandleField$variables = {
   id: string,
 };
 export type LinkedHandleField$data = {
-  readonly node: ?{
-    readonly friends?: ?{
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly friends: ?{
       readonly count: ?number,
     },
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type LinkedHandleField$rawResponse = {
   readonly node: ?({
@@ -49,9 +54,14 @@ export type ScalarHandleField$variables = {
   id: string,
 };
 export type ScalarHandleField$data = {
-  readonly node: ?{
-    readonly name?: ?string,
-  },
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly name: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type ScalarHandleField$rawResponse = {
   readonly node: ?({

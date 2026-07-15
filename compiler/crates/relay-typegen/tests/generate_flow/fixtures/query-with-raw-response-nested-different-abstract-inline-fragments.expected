@@ -25,14 +25,22 @@ extend union MaybeNode = NonNodeNoID
 ==================================== OUTPUT ===================================
 export type ExampleQuery$variables = {};
 export type ExampleQuery$data = {
-  readonly maybeNode: ?{
-    readonly __typename: string,
-    readonly body?: ?{
+  readonly maybeNode: ?({
+    readonly __typename: "NonNodeNoID",
+    readonly name: ?string,
+    readonly tracking?: ?string,
+  } | {
+    readonly __typename: "Story",
+    readonly body: ?{
       readonly text: ?string,
     },
     readonly name?: ?string,
     readonly tracking?: ?string,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type ExampleQuery$rawResponse = {
   readonly maybeNode: ?({

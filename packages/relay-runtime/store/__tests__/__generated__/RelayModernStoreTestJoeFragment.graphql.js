@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8d1ce4afdc9595ff3b3bd02ab6b84a9a>>
+ * @generated SignedSource<<05d3fec2cf63ea21a35156dff9ebfc41>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,9 +20,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernStoreTestJoeFragment$fragmentType: FragmentType;
 export type RelayModernStoreTestJoeFragment$data = {
-  readonly node: ?{
-    readonly name?: ?string,
-  },
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly name: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
   readonly $fragmentType: RelayModernStoreTestJoeFragment$fragmentType,
 };
 export type RelayModernStoreTestJoeFragment$key = {

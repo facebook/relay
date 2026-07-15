@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8e1ff0f871b23b6321ef7630196d43aa>>
+ * @generated SignedSource<<3dec4d8ec3c890986cbbe1c4a74f5a18>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,8 +19,9 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type commitMutationTest2Query$variables = {};
 export type commitMutationTest2Query$data = {
-  readonly node: ?{
-    readonly comments?: ?{
+  readonly node: ?({
+    readonly __typename: "Feedback",
+    readonly comments: ?{
       readonly edges: ?ReadonlyArray<?{
         readonly node: ?{
           readonly body: ?{
@@ -29,7 +30,11 @@ export type commitMutationTest2Query$data = {
         },
       }>,
     },
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type commitMutationTest2Query = {
   response: commitMutationTest2Query$data,

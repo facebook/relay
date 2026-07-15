@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eade1c00b7deae0616917f2b1b484408>>
+ * @generated SignedSource<<1225e8a9ae1b20a933cf75fe1a16915b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,10 +21,15 @@ export type QueryResourceTest2Query$variables = {
   id: string,
 };
 export type QueryResourceTest2Query$data = {
-  readonly node: ?{
-    readonly id?: string,
-    readonly name?: ?string,
-  },
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly id: string,
+    readonly name: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type QueryResourceTest2Query = {
   response: QueryResourceTest2Query$data,

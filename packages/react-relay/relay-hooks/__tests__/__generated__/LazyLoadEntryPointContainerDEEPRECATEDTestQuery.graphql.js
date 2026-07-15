@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bb40e8e75d73f28a46529b5640f078a3>>
+ * @generated SignedSource<<3aa4086ee51d3f7af6ff4cdb349e4dee>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,10 +21,15 @@ export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery$variables = {
   id: string,
 };
 export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery$data = {
-  readonly node: ?{
+  readonly node: ?({
+    readonly __typename: "User",
     readonly id: string,
-    readonly name?: ?string,
-  },
+    readonly name: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery = {
   response: LazyLoadEntryPointContainerDEEPRECATEDTestQuery$data,

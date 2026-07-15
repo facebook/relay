@@ -19,8 +19,9 @@ query TestDefer @raw_response_type {
 ==================================== OUTPUT ===================================
 export type TestDefer$variables = {};
 export type TestDefer$data = {
-  readonly node: ?{
-    readonly friends?: ?{
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly friends: ?{
       readonly edges: ?ReadonlyArray<?{
         readonly node: ?{
           readonly actor: ?{
@@ -29,8 +30,12 @@ export type TestDefer$data = {
         },
       }>,
     },
-    readonly name?: ?string,
-  },
+    readonly name: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type TestDefer$rawResponse = {
   readonly node: ?({

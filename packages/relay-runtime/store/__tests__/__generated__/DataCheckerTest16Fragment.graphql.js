@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3a6c552fb77ad52a8d22604cbaf4d97f>>
+ * @generated SignedSource<<79349e02a4f14e3f5e5f9bcf0200e5ed>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,10 +20,15 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest16Fragment$fragmentType: FragmentType;
 export type DataCheckerTest16Fragment$data = {
-  readonly maybeNodeInterface: ?{
+  readonly maybeNodeInterface: ?({
+    readonly __typename: "NonNodeNoID",
     readonly id?: string,
-    readonly name?: ?string,
-  },
+    readonly name: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
   readonly $fragmentType: DataCheckerTest16Fragment$fragmentType,
 };
 export type DataCheckerTest16Fragment$key = {

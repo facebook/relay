@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3685fa776c6a115e1c32a7b56168e3a7>>
+ * @generated SignedSource<<08df7f4db081b9204e752a10e7a4b75c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,13 +25,28 @@ export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$variable
   id: string,
 };
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$data = {
-  readonly node: ?{
-    readonly nameRenderer?: ?{
-      readonly __fragmentPropName?: ?string,
-      readonly __module_component?: ?string,
-      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType,
-    },
-  },
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly nameRenderer: ?({
+      readonly __typename: "MarkdownUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType,
+    } | {
+      readonly __typename: "PlainUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType,
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery = {
   response: RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$data,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4e90b6257c7cf5be4c61aeb06ef9b3b7>>
+ * @generated SignedSource<<c82eb1bcc0bcd1c85f61f3fbdea2c395>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,13 +22,16 @@ export type RelayReaderTestReadsQueryDataFooQuery$variables = {
   size?: ?ReadonlyArray<?number>,
 };
 export type RelayReaderTestReadsQueryDataFooQuery$data = {
-  readonly node: ?{
-    readonly __typename: string,
-    readonly actors?: ?ReadonlyArray<?{
+  readonly node: ?({
+    readonly __typename: "Page",
+    readonly actors: ?ReadonlyArray<?{
       readonly name: ?string,
     }>,
-    readonly firstName?: ?string,
-    readonly friends?: ?{
+    readonly id: string,
+  } | {
+    readonly __typename: "User",
+    readonly firstName: ?string,
+    readonly friends: ?{
       readonly edges: ?ReadonlyArray<?{
         readonly cursor: ?string,
         readonly node: ?{
@@ -38,10 +41,14 @@ export type RelayReaderTestReadsQueryDataFooQuery$data = {
       }>,
     },
     readonly id: string,
-    readonly profilePicture?: ?{
+    readonly profilePicture: ?{
       readonly uri: ?string,
     },
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayReaderTestReadsQueryDataFooQuery = {
   response: RelayReaderTestReadsQueryDataFooQuery$data,

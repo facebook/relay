@@ -71,9 +71,19 @@ export type MyQuery = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type MyFragment$data = {
-  readonly canViewerLike?: boolean | null | undefined;
+  readonly __typename: "Page";
   readonly name: string | null | undefined;
-  readonly subscribeStatus?: string | null | undefined;
+  readonly subscribeStatus: string | null | undefined;
+  readonly " $fragmentType": "MyFragment";
+} | {
+  readonly __typename: "User";
+  readonly canViewerLike: boolean | null | undefined;
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "MyFragment";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

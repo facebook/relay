@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b283735bb449915a8881504516c2c4e3>>
+ * @generated SignedSource<<1cd190dce322bbea37e3e97d005f5c93>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -39,9 +39,14 @@ export type RelayReaderClientEdgesTestPluralMixedEdgeQuery$variables = {
   requests: ReadonlyArray<AnimalRequest>,
 };
 export type RelayReaderClientEdgesTestPluralMixedEdgeQuery$data = {
-  readonly animals: ?ReadonlyArray<?{
-    readonly legs?: ?number,
-  }>,
+  readonly animals: ?ReadonlyArray<?({
+    readonly __typename: "Chicken",
+    readonly legs: ?number,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  })>,
 };
 export type RelayReaderClientEdgesTestPluralMixedEdgeQuery = {
   response: RelayReaderClientEdgesTestPluralMixedEdgeQuery$data,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2f99dcd5875685fecc669a9f5adf1191>>
+ * @generated SignedSource<<01dce674ec2da96bf4ceca4943ae62c5>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,11 +24,21 @@ import type { RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType } fro
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayClient3DModuleTestFragment2BasicUser$fragmentType: FragmentType;
 export type RelayClient3DModuleTestFragment2BasicUser$data = {
-  readonly basicUser: ?{
-    readonly __fragmentPropName?: ?string,
-    readonly __module_component?: ?string,
-    readonly $fragmentSpreads: RelayClient3DModuleTestFragmentClientUser_data$fragmentType & RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
-  },
+  readonly basicUser: ?({
+    readonly __typename: "ClientUser",
+    readonly __fragmentPropName: ?string,
+    readonly __module_component: ?string,
+    readonly $fragmentSpreads: RelayClient3DModuleTestFragmentClientUser_data$fragmentType,
+  } | {
+    readonly __typename: "SpecialUser",
+    readonly __fragmentPropName: ?string,
+    readonly __module_component: ?string,
+    readonly $fragmentSpreads: RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
   readonly $fragmentType: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
 };
 export type RelayClient3DModuleTestFragment2BasicUser$key = {

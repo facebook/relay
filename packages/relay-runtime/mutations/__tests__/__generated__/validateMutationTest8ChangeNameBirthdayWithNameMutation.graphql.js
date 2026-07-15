@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<30507304c0220f919d34714ac9994676>>
+ * @generated SignedSource<<96b6bada4af2f118e0c4734aa521b1c1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,15 +25,23 @@ export type validateMutationTest8ChangeNameBirthdayWithNameMutation$variables = 
 };
 export type validateMutationTest8ChangeNameBirthdayWithNameMutation$data = {
   readonly actorNameChange: ?{
-    readonly actor: ?{
-      readonly birthdate?: ?{
+    readonly actor: ?({
+      readonly __typename: "Page",
+      readonly name: ?string,
+      readonly username: ?string,
+    } | {
+      readonly __typename: "User",
+      readonly birthdate: ?{
         readonly day: ?number,
         readonly month: ?number,
         readonly year: ?number,
       },
       readonly name: ?string,
-      readonly username?: ?string,
-    },
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
   },
 };
 export type validateMutationTest8ChangeNameBirthdayWithNameMutation = {

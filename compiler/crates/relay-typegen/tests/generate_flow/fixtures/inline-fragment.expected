@@ -67,11 +67,17 @@ fragment SomeFragment on User {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragment$fragmentType: FragmentType;
 export type InlineFragment$data = {
+  readonly __typename: "User",
   readonly id: string,
-  readonly message?: ?{
+  readonly message: ?{
     readonly text: ?string,
   },
   readonly name?: ?string,
+  readonly $fragmentType: InlineFragment$fragmentType,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
   readonly $fragmentType: InlineFragment$fragmentType,
 };
 export type InlineFragment$key = {
@@ -97,18 +103,29 @@ import type { SomeFragment$fragmentType } from "SomeFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragmentKitchenSink$fragmentType: FragmentType;
 export type InlineFragmentKitchenSink$data = {
-  readonly actor: ?{
-    readonly SomeFragment?: ?{
+  readonly actor: ?({
+    readonly __typename: "Page",
+    readonly id: string,
+    readonly profilePicture: ?{
+      readonly height: ?number,
+      readonly uri: ?string,
+    },
+  } | {
+    readonly __typename: "User",
+    readonly SomeFragment: ?{
       readonly $fragmentSpreads: SomeFragment$fragmentType,
     },
     readonly id: string,
-    readonly name?: ?string,
+    readonly name: ?string,
     readonly profilePicture: ?{
-      readonly height?: ?number,
       readonly uri: ?string,
-      readonly width?: ?number,
+      readonly width: ?number,
     },
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
   readonly $fragmentType: InlineFragmentKitchenSink$fragmentType,
 };
 export type InlineFragmentKitchenSink$key = {
@@ -120,14 +137,26 @@ export type InlineFragmentKitchenSink$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragmentWithOverlappingFields$fragmentType: FragmentType;
 export type InlineFragmentWithOverlappingFields$data = {
-  readonly hometown?: ?{
+  readonly __typename: "Page",
+  readonly hometown: ?{
     readonly id: string,
-    readonly message?: ?{
+    readonly message: ?{
       readonly text: ?string,
     },
+  },
+  readonly name: ?string,
+  readonly $fragmentType: InlineFragmentWithOverlappingFields$fragmentType,
+} | {
+  readonly __typename: "User",
+  readonly hometown: ?{
+    readonly id: string,
     readonly name: ?string,
   },
-  readonly name?: ?string,
+  readonly $fragmentType: InlineFragmentWithOverlappingFields$fragmentType,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
   readonly $fragmentType: InlineFragmentWithOverlappingFields$fragmentType,
 };
 export type InlineFragmentWithOverlappingFields$key = {

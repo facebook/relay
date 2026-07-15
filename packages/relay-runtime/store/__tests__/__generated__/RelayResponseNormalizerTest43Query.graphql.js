@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b726c5452ee181efaa186cd895af49b9>>
+ * @generated SignedSource<<e1cf509e7ac7afa36555531b3e0755eb>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,9 +21,14 @@ export type RelayResponseNormalizerTest43Query$variables = {
   id: string,
 };
 export type RelayResponseNormalizerTest43Query$data = {
-  readonly userOrPage: ?{
-    readonly id?: string,
-  },
+  readonly userOrPage: ?({
+    readonly __typename: "User",
+    readonly id: string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayResponseNormalizerTest43Query = {
   response: RelayResponseNormalizerTest43Query$data,

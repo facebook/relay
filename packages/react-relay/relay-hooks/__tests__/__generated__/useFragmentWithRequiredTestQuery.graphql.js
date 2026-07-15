@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<af598e48d73becb75cff012eb98de613>>
+ * @generated SignedSource<<84f77c8ce85c1e8f096c9ef16228c7be>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,9 +22,14 @@ export type useFragmentWithRequiredTestQuery$variables = {
   id: string,
 };
 export type useFragmentWithRequiredTestQuery$data = {
-  readonly node: ?{
+  readonly node: ?({
+    readonly __typename: "User",
     readonly $fragmentSpreads: useFragmentWithRequiredTestUserFragment$fragmentType,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type useFragmentWithRequiredTestQuery = {
   response: useFragmentWithRequiredTestQuery$data,

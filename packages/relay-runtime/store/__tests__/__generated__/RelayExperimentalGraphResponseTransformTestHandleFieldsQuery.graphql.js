@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<14424c745640a2f1a7bef8d4d75f78a5>>
+ * @generated SignedSource<<344cfdf7c53cb35660e6d940fbe20b38>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,9 +21,9 @@ export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$variabl
   id: string,
 };
 export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data = {
-  readonly node: ?{
-    readonly __typename: string,
-    readonly friends?: ?{
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly friends: ?{
       readonly edges: ?ReadonlyArray<?{
         readonly cursor: ?string,
         readonly node: ?{
@@ -33,7 +33,11 @@ export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data = 
       }>,
     },
     readonly id: string,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery = {
   response: RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data,

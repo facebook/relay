@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9a5993f4ebc50f85a383f5a3661377c0>>
+ * @generated SignedSource<<3f00b18705a6d7a6329373ba05bccc8b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -19,9 +19,14 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRequiredFieldsTest12Query$variables = {};
 export type RelayReaderRequiredFieldsTest12Query$data = {
-  readonly maybeNodeInterface: ?{
-    readonly name?: string,
-  },
+  readonly maybeNodeInterface: ?({
+    readonly __typename: "NonNodeNoID",
+    readonly name: string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayReaderRequiredFieldsTest12Query = {
   response: RelayReaderRequiredFieldsTest12Query$data,

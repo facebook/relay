@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a6f001bd96dddb62b79227173d4475cc>>
+ * @generated SignedSource<<34cc5786b08a8f91cdda6621fdedbb13>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,11 +25,16 @@ export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$var
 };
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data = {
   readonly node: ?{
-    readonly nameRenderer?: ?{
-      readonly __fragmentPropName?: ?string,
-      readonly __module_component?: ?string,
+    readonly nameRenderer?: ?({
+      readonly __typename: "MarkdownUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
       readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$fragmentType,
-    },
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
   },
 };
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery = {

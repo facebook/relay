@@ -22,12 +22,16 @@ query ExampleQuery @raw_response_type {
 export type ExampleQuery$variables = Record<PropertyKey, never>;
 export type ExampleQuery$data = {
   readonly node: {
-    readonly __typename: string;
+    readonly __typename: "Story";
     readonly message?: {
       readonly text: string | null | undefined;
     } | null | undefined;
-    readonly name?: string | null | undefined;
+    readonly name: string | null | undefined;
     readonly tracking?: string | null | undefined;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
   } | null | undefined;
 };
 export type ExampleQuery$rawResponse = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d19e0baa27880b722557e04e837a6844>>
+ * @generated SignedSource<<7a9e751ec85cbc7b34819effbd72a654>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,8 +21,9 @@ export type requestSubscriptionTestFeedbackCommentQuery$variables = {
   id?: ?string,
 };
 export type requestSubscriptionTestFeedbackCommentQuery$data = {
-  readonly node: ?{
-    readonly comments?: ?{
+  readonly node: ?({
+    readonly __typename: "Feedback",
+    readonly comments: ?{
       readonly edges: ?ReadonlyArray<?{
         readonly node: ?{
           readonly body: ?{
@@ -32,7 +33,11 @@ export type requestSubscriptionTestFeedbackCommentQuery$data = {
         },
       }>,
     },
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type requestSubscriptionTestFeedbackCommentQuery = {
   response: requestSubscriptionTestFeedbackCommentQuery$data,

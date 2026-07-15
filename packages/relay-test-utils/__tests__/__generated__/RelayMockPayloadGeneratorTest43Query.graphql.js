@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d15f5a7326252491a56fd4c05e9a5450>>
+ * @generated SignedSource<<238ff51049c06b05ed4ccd9a7f64f57b>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,12 +20,17 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest43SubFragment$fragmentType } from "./RelayMockPayloadGeneratorTest43SubFragment.graphql";
 export type RelayMockPayloadGeneratorTest43Query$variables = {};
 export type RelayMockPayloadGeneratorTest43Query$data = {
-  readonly node: ?{
-    readonly client_code?: ?number,
-    readonly client_name?: ?string,
-    readonly id?: string,
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly client_code: ?number,
+    readonly client_name: ?string,
+    readonly id: string,
     readonly $fragmentSpreads: RelayMockPayloadGeneratorTest43SubFragment$fragmentType,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayMockPayloadGeneratorTest43Query = {
   response: RelayMockPayloadGeneratorTest43Query$data,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9115c1c93f71e469a8dfd4791aa3e007>>
+ * @generated SignedSource<<e37ab87ff02b4bb289b73e09386f2860>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,11 +21,12 @@ export type RelayModernEnvironmentWithOperationTrackerTest1Query$variables = {
   id?: ?string,
 };
 export type RelayModernEnvironmentWithOperationTrackerTest1Query$data = {
-  readonly node: ?{
-    readonly body?: ?{
+  readonly node: ?({
+    readonly __typename: "Feedback",
+    readonly body: ?{
       readonly text: ?string,
     },
-    readonly comments?: ?{
+    readonly comments: ?{
       readonly edges: ?ReadonlyArray<?{
         readonly node: ?{
           readonly id: string,
@@ -35,8 +36,12 @@ export type RelayModernEnvironmentWithOperationTrackerTest1Query$data = {
         },
       }>,
     },
-    readonly id?: string,
-  },
+    readonly id: string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayModernEnvironmentWithOperationTrackerTest1Query = {
   response: RelayModernEnvironmentWithOperationTrackerTest1Query$data,

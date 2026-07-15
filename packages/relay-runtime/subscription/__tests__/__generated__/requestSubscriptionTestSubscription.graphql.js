@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9f9e427e259ac1faa7c4355321571872>>
+ * @generated SignedSource<<91666b4b669b8778665db3a246e97513>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -32,11 +32,16 @@ export type requestSubscriptionTestSubscription$data = {
     readonly comment: ?{
       readonly actor: ?{
         readonly name: ?string,
-        readonly nameRenderer: ?{
-          readonly __fragmentPropName?: ?string,
-          readonly __module_component?: ?string,
+        readonly nameRenderer: ?({
+          readonly __typename: "PlainUserNameRenderer",
+          readonly __fragmentPropName: ?string,
+          readonly __module_component: ?string,
           readonly $fragmentSpreads: requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
-        },
+        } | {
+          // This will never be '%other', but we need some
+          // value in case none of the concrete values match.
+          readonly __typename: "%other",
+        }),
       },
     },
   },

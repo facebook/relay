@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cfc0af87307a370a074809747aa83963>>
+ * @generated SignedSource<<b37765a9133cfa06ec961b89c2b11b19>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,13 +25,23 @@ export type RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery$variables 
   id: string,
 };
 export type RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery$data = {
-  readonly node: ?{
-    readonly outerRenderer?: ?{
-      readonly __fragmentPropName?: ?string,
-      readonly __module_component?: ?string,
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly outerRenderer: ?({
+      readonly __typename: "MarkdownUserNameRenderer",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
       readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType,
-    },
-  },
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery$data,

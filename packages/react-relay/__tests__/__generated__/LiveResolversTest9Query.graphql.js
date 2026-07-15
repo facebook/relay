@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eda01edc656196c8dc2048c54db09019>>
+ * @generated SignedSource<<9e445e87f94502f41db41cab14eb5b6c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -35,9 +35,14 @@ export type LiveResolversTest9Query$variables = {
   scale: number,
 };
 export type LiveResolversTest9Query$data = {
-  readonly node: ?{
-    readonly profile_picture_uri?: ?string,
-  },
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly profile_picture_uri: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type LiveResolversTest9Query = {
   response: LiveResolversTest9Query$data,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<753cd989b6a9bbbb11c9849684cbf6e9>>
+ * @generated SignedSource<<ab4b1c5fd6539a5ed6e2103b1fccde3d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,10 +22,15 @@ export type RelayMockEnvironmentTestWithDeferQuery$variables = {
   id: string,
 };
 export type RelayMockEnvironmentTestWithDeferQuery$data = {
-  readonly node: ?{
+  readonly node: ?({
+    readonly __typename: "User",
     readonly id: string,
     readonly $fragmentSpreads: RelayMockEnvironmentTestWithDeferFragment_user$fragmentType,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayMockEnvironmentTestWithDeferQuery = {
   response: RelayMockEnvironmentTestWithDeferQuery$data,

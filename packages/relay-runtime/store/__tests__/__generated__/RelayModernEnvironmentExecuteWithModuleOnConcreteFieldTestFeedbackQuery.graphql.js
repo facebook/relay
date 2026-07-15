@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<adf2245b44b56fe0cca3ae5d84f41014>>
+ * @generated SignedSource<<0e23886f8a97f3c6648d90280d9bafbe>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -24,13 +24,18 @@ export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQu
   id: string,
 };
 export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$data = {
-  readonly node: ?{
-    readonly author?: ?{
+  readonly node: ?({
+    readonly __typename: "Feedback",
+    readonly author: ?{
       readonly __fragmentPropName: ?string,
       readonly __module_component: ?string,
       readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$fragmentType,
     },
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery = {
   response: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$data,

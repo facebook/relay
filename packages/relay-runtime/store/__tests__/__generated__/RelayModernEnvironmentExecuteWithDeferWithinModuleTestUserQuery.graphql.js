@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ce6908bdbd5d23cc01a78ca2ac3c1895>>
+ * @generated SignedSource<<28086c617a5280028eac3cb925843d58>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,17 +26,27 @@ export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$vari
   id: string,
 };
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data = {
-  readonly node: ?{
-    readonly __fragmentPropName?: ?string,
-    readonly __module_component?: ?string,
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly __fragmentPropName: ?string,
+    readonly __module_component: ?string,
     readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
   readonly viewer: ?{
-    readonly actor: ?{
-      readonly __fragmentPropName?: ?string,
-      readonly __module_component?: ?string,
+    readonly actor: ?({
+      readonly __typename: "User",
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
       readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
-    },
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
   },
 };
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery = {

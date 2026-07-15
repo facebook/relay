@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1d2f0468de48576df78ced1aea08e8cf>>
+ * @generated SignedSource<<fa2b2cbb437d8696aada6eda99571cde>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -33,11 +33,21 @@ export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateS
     readonly comment: ?{
       readonly actor: ?{
         readonly name: ?string,
-        readonly nameRenderer: ?{
-          readonly __fragmentPropName?: ?string,
-          readonly __module_component?: ?string,
-          readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
-        },
+        readonly nameRenderer: ?({
+          readonly __typename: "MarkdownUserNameRenderer",
+          readonly __fragmentPropName: ?string,
+          readonly __module_component: ?string,
+          readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
+        } | {
+          readonly __typename: "PlainUserNameRenderer",
+          readonly __fragmentPropName: ?string,
+          readonly __module_component: ?string,
+          readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
+        } | {
+          // This will never be '%other', but we need some
+          // value in case none of the concrete values match.
+          readonly __typename: "%other",
+        }),
       },
     },
   },

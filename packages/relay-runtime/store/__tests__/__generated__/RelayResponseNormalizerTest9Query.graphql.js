@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<42c2d72ea4ba6d7f2edb3c4b5c296338>>
+ * @generated SignedSource<<fb28b71938877236188078b5a2ff37ea>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -22,11 +22,16 @@ export type RelayResponseNormalizerTest9Query$variables = {
   id: string,
 };
 export type RelayResponseNormalizerTest9Query$data = {
-  readonly node: ?{
-    readonly actors?: ?ReadonlyArray<?{
+  readonly node: ?({
+    readonly __typename: "Feedback",
+    readonly actors: ?ReadonlyArray<?{
       readonly $fragmentSpreads: RelayResponseNormalizerTest5Fragment$fragmentType,
     }>,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayResponseNormalizerTest9Query = {
   response: RelayResponseNormalizerTest9Query$data,

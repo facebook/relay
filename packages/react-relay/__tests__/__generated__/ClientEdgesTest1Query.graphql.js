@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9fb484e359adf4d9ef08560296b08200>>
+ * @generated SignedSource<<96267447b5078ee8c2e2c9cf52bf8a61>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -35,9 +35,14 @@ export type ClientEdgesTest1Query$variables = {
 };
 export type ClientEdgesTest1Query$data = {
   readonly me: ?{
-    readonly client_node: ?{
-      readonly name?: ?string,
-    },
+    readonly client_node: ?({
+      readonly __typename: "User",
+      readonly name: ?string,
+    } | {
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other",
+    }),
   },
 };
 export type ClientEdgesTest1Query = {

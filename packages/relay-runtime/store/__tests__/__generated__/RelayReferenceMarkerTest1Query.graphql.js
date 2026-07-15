@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ef871dcac64726bc78fa99ab7547f451>>
+ * @generated SignedSource<<b7285e99bfeea1cff3c3d72a23bf457a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,14 +23,18 @@ export type RelayReferenceMarkerTest1Query$variables = {
   size?: ?ReadonlyArray<?number>,
 };
 export type RelayReferenceMarkerTest1Query$data = {
-  readonly node: ?{
-    readonly __typename: string,
-    readonly actors?: ?ReadonlyArray<?{
+  readonly node: ?({
+    readonly __typename: "Page",
+    readonly actors: ?ReadonlyArray<?{
       readonly name: ?string,
     }>,
     readonly id: string,
     readonly $fragmentSpreads: RelayReferenceMarkerTest1Fragment$fragmentType,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type RelayReferenceMarkerTest1Query = {
   response: RelayReferenceMarkerTest1Query$data,

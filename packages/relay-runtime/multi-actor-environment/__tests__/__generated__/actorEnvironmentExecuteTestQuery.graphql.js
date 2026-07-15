@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f25cace45286f0e18cc13e8bd4576e98>>
+ * @generated SignedSource<<3d623c0cac9a3bd7a3ef03f617e72baf>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -21,9 +21,14 @@ export type actorEnvironmentExecuteTestQuery$variables = {
   id: string,
 };
 export type actorEnvironmentExecuteTestQuery$data = {
-  readonly node: ?{
-    readonly name?: ?string,
-  },
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly name: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type actorEnvironmentExecuteTestQuery = {
   response: actorEnvironmentExecuteTestQuery$data,

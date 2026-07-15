@@ -79,7 +79,67 @@ fragment TypenameAliases on Actor {
     username
   }
 }
+
+fragment TypenameWithNestedCommonSelections on Actor {
+  __typename
+  name
+  emailAddresses
+  address {
+    city # common
+  }
+  ... on User {
+    firstName
+    address {
+      street # only here
+    }
+  }
+  ... on Page {
+    username
+    address {
+      country # only here
+    }
+  }
+}
+
+fragment PlainFragment on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment MarkFragment on MarkdownUserNameRenderer {
+  markdown
+}
+
+fragment TypenameMask on User {
+  nameRenderer {
+    ...MarkFragment @relay(mask: false) @dangerously_unaliased_fixme
+    ...PlainFragment @relay(mask: false) @dangerously_unaliased_fixme
+  }
+}
 ==================================== OUTPUT ===================================
+import type { FragmentType } from "relay-runtime";
+declare export opaque type MarkFragment$fragmentType: FragmentType;
+export type MarkFragment$data = {
+  readonly markdown: ?string,
+  readonly $fragmentType: MarkFragment$fragmentType,
+};
+export type MarkFragment$key = {
+  readonly $data?: MarkFragment$data,
+  readonly $fragmentSpreads: MarkFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type PlainFragment$fragmentType: FragmentType;
+export type PlainFragment$data = {
+  readonly plaintext: ?string,
+  readonly $fragmentType: PlainFragment$fragmentType,
+};
+export type PlainFragment$key = {
+  readonly $data?: PlainFragment$data,
+  readonly $fragmentSpreads: PlainFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameAlias$fragmentType: FragmentType;
 export type TypenameAlias$data = {
@@ -152,6 +212,28 @@ export type TypenameInside$key = {
 };
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameMask$fragmentType: FragmentType;
+export type TypenameMask$data = {
+  readonly nameRenderer: ?({
+    readonly __typename: "MarkdownUserNameRenderer",
+    readonly markdown: ?string,
+  } | {
+    readonly __typename: "PlainUserNameRenderer",
+    readonly plaintext: ?string,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
+  readonly $fragmentType: TypenameMask$fragmentType,
+};
+export type TypenameMask$key = {
+  readonly $data?: TypenameMask$data,
+  readonly $fragmentSpreads: TypenameMask$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutside$fragmentType: FragmentType;
 export type TypenameOutside$data = {
   readonly __typename: "Page",
@@ -176,14 +258,19 @@ export type TypenameOutside$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutsideWithAbstractType$fragmentType: FragmentType;
 export type TypenameOutsideWithAbstractType$data = {
-  readonly __typename: string,
-  readonly address?: ?{
+  readonly __typename: "User",
+  readonly address: ?{
     readonly city: ?string,
     readonly country: ?string,
-    readonly street?: ?string,
+    readonly street: ?string,
   },
-  readonly firstName?: ?string,
+  readonly firstName: ?string,
   readonly username?: ?string,
+  readonly $fragmentType: TypenameOutsideWithAbstractType$fragmentType,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
   readonly $fragmentType: TypenameOutsideWithAbstractType$fragmentType,
 };
 export type TypenameOutsideWithAbstractType$key = {
@@ -195,15 +282,58 @@ export type TypenameOutsideWithAbstractType$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithCommonSelections$fragmentType: FragmentType;
 export type TypenameWithCommonSelections$data = {
-  readonly __typename: string,
-  readonly firstName?: ?string,
+  readonly __typename: "Page",
   readonly name: ?string,
-  readonly username?: ?string,
+  readonly username: ?string,
+  readonly $fragmentType: TypenameWithCommonSelections$fragmentType,
+} | {
+  readonly __typename: "User",
+  readonly firstName: ?string,
+  readonly name: ?string,
+  readonly $fragmentType: TypenameWithCommonSelections$fragmentType,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
   readonly $fragmentType: TypenameWithCommonSelections$fragmentType,
 };
 export type TypenameWithCommonSelections$key = {
   readonly $data?: TypenameWithCommonSelections$data,
   readonly $fragmentSpreads: TypenameWithCommonSelections$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameWithNestedCommonSelections$fragmentType: FragmentType;
+export type TypenameWithNestedCommonSelections$data = {
+  readonly __typename: "Page",
+  readonly address: ?{
+    readonly city: ?string,
+    readonly country: ?string,
+  },
+  readonly emailAddresses: ?ReadonlyArray<?string>,
+  readonly name: ?string,
+  readonly username: ?string,
+  readonly $fragmentType: TypenameWithNestedCommonSelections$fragmentType,
+} | {
+  readonly __typename: "User",
+  readonly address: ?{
+    readonly city: ?string,
+    readonly street: ?string,
+  },
+  readonly emailAddresses: ?ReadonlyArray<?string>,
+  readonly firstName: ?string,
+  readonly name: ?string,
+  readonly $fragmentType: TypenameWithNestedCommonSelections$fragmentType,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
+  readonly $fragmentType: TypenameWithNestedCommonSelections$fragmentType,
+};
+export type TypenameWithNestedCommonSelections$key = {
+  readonly $data?: TypenameWithNestedCommonSelections$data,
+  readonly $fragmentSpreads: TypenameWithNestedCommonSelections$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------

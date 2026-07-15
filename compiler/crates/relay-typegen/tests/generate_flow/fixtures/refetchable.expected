@@ -26,8 +26,14 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type FlowRefetchableFragment$fragmentType: FragmentType;
 import type { FlowRefetchableFragmentQuery$variables } from "FlowRefetchableFragmentQuery.graphql";
 export type FlowRefetchableFragment$data = {
+  readonly __typename: "User",
   readonly id: string,
-  readonly name?: ?string,
+  readonly name: ?string,
+  readonly $fragmentType: FlowRefetchableFragment$fragmentType,
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other",
   readonly $fragmentType: FlowRefetchableFragment$fragmentType,
 };
 export type FlowRefetchableFragment$key = {

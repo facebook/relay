@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<80ba7fa5975b05327892a75c5b06ad05>>
+ * @generated SignedSource<<10f6ee5bc82a254f37aef1aa2925fee1>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -34,22 +34,31 @@ export type readUpdatableQueryTestRegularQuery$data = {
     readonly name: ?string,
     readonly $fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
   },
-  readonly node: ?{
-    readonly __typename: string,
+  readonly node: ?({
+    readonly __typename: "User",
     readonly __id: string,
-    readonly name?: ?string,
+    readonly name: ?string,
     readonly $fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
-  },
-  readonly node2: ?{
-    readonly name?: ?string,
-    readonly parents?: ReadonlyArray<{
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
+  readonly node2: ?({
+    readonly __typename: "User",
+    readonly name: ?string,
+    readonly parents: ReadonlyArray<{
       readonly id: string,
       readonly name: ?string,
       readonly parents: ReadonlyArray<{
         readonly id: string,
       }>,
     }>,
-  },
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
 };
 export type readUpdatableQueryTestRegularQuery = {
   response: readUpdatableQueryTestRegularQuery$data,

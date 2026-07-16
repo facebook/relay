@@ -91,6 +91,10 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   readonly _missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
   readonly _normalizeResponse: NormalizeResponseFunction;
   readonly _operationExecutions: Map<string, ActiveState>;
+  readonly _inFlightOperationCompletions: Map<
+    string,
+    {promise: Promise<void>, resolve: () => void},
+  >;
   readonly _operationLoader: ?OperationLoader;
   readonly _relayFieldLogger: RelayFieldLogger;
   readonly _scheduler: ?TaskScheduler;
@@ -109,6 +113,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       : RelayDefaultHandlerProvider;
     this._logFn = config.logFn ?? emptyFunction;
     this._operationExecutions = new Map();
+    this._inFlightOperationCompletions = new Map();
     this._relayFieldLogger = config.relayFieldLogger ?? defaultRelayFieldLogger;
     this._shouldProcessClientComponents = config.shouldProcessClientComponents;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull ?? false;
@@ -435,6 +440,13 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     return activeState === 'active';
   }
 
+  getPromiseForInFlightOperation(
+    requestIdentifier: string,
+  ): Promise<void> | null {
+    const entry = this._inFlightOperationCompletions.get(requestIdentifier);
+    return entry?.promise ?? null;
+  }
+
   isServer(): boolean {
     return this._isServer;
   }
@@ -462,6 +474,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         isClientPayload,
         operation,
         operationExecutions: this._operationExecutions,
+        inFlightOperationCompletions: this._inFlightOperationCompletions,
         operationLoader: this._operationLoader,
         operationTracker: actorEnvironment.getOperationTracker(),
         optimisticConfig,

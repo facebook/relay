@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TypenameDiscriminatedUnionsDisabledQuery @updatable {
+  node(id: "4") {
+    id
+    ... on User {
+      name
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+
+  typename-discriminated-unions-disabled.invalid.graphql:3:3
+    2 │ query TypenameDiscriminatedUnionsDisabledQuery @updatable {
+    3 │   node(id: "4") {
+      │   ^^^^
+    4 │     id
+
+
+✖︎ Within updatable operations, if a linked field contains an inline fragment spread, it must contain only inline fragment spreads.
+
+  typename-discriminated-unions-disabled.invalid.graphql:3:3
+    2 │ query TypenameDiscriminatedUnionsDisabledQuery @updatable {
+    3 │   node(id: "4") {
+      │   ^^^^
+    4 │     id

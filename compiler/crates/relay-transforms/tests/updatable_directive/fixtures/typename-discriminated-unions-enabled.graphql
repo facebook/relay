@@ -1,0 +1,8 @@
+query TypenameDiscriminatedUnionsEnabledQuery @updatable {
+  node(id: "4") {
+    id
+    ... on User {
+      name
+    }
+  }
+}

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<424418c51b45b6086d00947be17a05cd>>
+ * @generated SignedSource<<edad98a305b4d2854403a0ca6e2a6d8d>>
  */
 
 mod updatable_directive;
@@ -164,6 +164,20 @@ async fn type_narrowing() {
     let input = include_str!("updatable_directive/fixtures/type-narrowing.graphql");
     let expected = include_str!("updatable_directive/fixtures/type-narrowing.expected");
     test_fixture(transform_fixture, file!(), "type-narrowing.graphql", "updatable_directive/fixtures/type-narrowing.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn typename_discriminated_unions_disabled_invalid() {
+    let input = include_str!("updatable_directive/fixtures/typename-discriminated-unions-disabled.invalid.graphql");
+    let expected = include_str!("updatable_directive/fixtures/typename-discriminated-unions-disabled.invalid.expected");
+    test_fixture(transform_fixture, file!(), "typename-discriminated-unions-disabled.invalid.graphql", "updatable_directive/fixtures/typename-discriminated-unions-disabled.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn typename_discriminated_unions_enabled() {
+    let input = include_str!("updatable_directive/fixtures/typename-discriminated-unions-enabled.graphql");
+    let expected = include_str!("updatable_directive/fixtures/typename-discriminated-unions-enabled.expected");
+    test_fixture(transform_fixture, file!(), "typename-discriminated-unions-enabled.graphql", "updatable_directive/fixtures/typename-discriminated-unions-enabled.expected", input, expected).await;
 }
 
 #[tokio::test]

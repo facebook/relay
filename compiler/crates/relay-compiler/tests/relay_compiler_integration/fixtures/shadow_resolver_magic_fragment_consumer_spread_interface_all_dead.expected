@@ -43,7 +43,8 @@ graphql`query UserConsumerQuery {
   "schemaExtensions": ["schema-extensions"],
   "featureFlags": {
     "enable_shadow_resolvers": { "kind": "enabled" },
-    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" },
+    "enable_typename_discriminated_unions": { "kind": "enabled" }
   }
 }
 

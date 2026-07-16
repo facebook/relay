@@ -1,0 +1,163 @@
+==================================== INPUT ====================================
+fragment TypenameDiscriminatedUnionsSingleArmEnabled on Actor {
+  ... on User {
+    name
+  }
+}
+
+fragment TypenameDiscriminatedUnionsSingleArmDisabled on Actor {
+  ... on User {
+    name
+  }
+}
+
+fragment TypenameDiscriminatedUnionsCommonFieldEnabled on Actor {
+  id
+  ... on User {
+    name
+  }
+}
+
+fragment TypenameDiscriminatedUnionsCommonFieldDisabled on Actor {
+  id
+  ... on User {
+    name
+  }
+}
+
+query TypenameDiscriminatedUnionsNestedEnabledQuery {
+  node(id: "4") {
+    ... on User {
+      name
+    }
+    ...TypenameDiscriminatedUnionsNamedFragmentDisabled
+  }
+}
+
+query TypenameDiscriminatedUnionsNamedFragmentDisabledQuery {
+  node(id: "4") {
+    ...TypenameDiscriminatedUnionsNamedFragmentEnabled
+  }
+}
+
+fragment TypenameDiscriminatedUnionsNamedFragmentEnabled on Node {
+  ... on User {
+    name
+  }
+}
+
+fragment TypenameDiscriminatedUnionsNamedFragmentDisabled on Node {
+  ... on User {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type TypenameDiscriminatedUnionsNamedFragmentDisabledQuery$variables = Record<PropertyKey, never>;
+export type TypenameDiscriminatedUnionsNamedFragmentDisabledQuery$data = {
+  readonly node: {
+    readonly " $fragmentSpreads": FragmentRefs<"TypenameDiscriminatedUnionsNamedFragmentEnabled">;
+  } | null | undefined;
+};
+export type TypenameDiscriminatedUnionsNamedFragmentDisabledQuery = {
+  response: TypenameDiscriminatedUnionsNamedFragmentDisabledQuery$data;
+  variables: TypenameDiscriminatedUnionsNamedFragmentDisabledQuery$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameDiscriminatedUnionsNestedEnabledQuery$variables = Record<PropertyKey, never>;
+export type TypenameDiscriminatedUnionsNestedEnabledQuery$data = {
+  readonly node: {
+    readonly __typename: "User";
+    readonly name: string | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"TypenameDiscriminatedUnionsNamedFragmentDisabled">;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
+  } | null | undefined;
+};
+export type TypenameDiscriminatedUnionsNestedEnabledQuery = {
+  response: TypenameDiscriminatedUnionsNestedEnabledQuery$data;
+  variables: TypenameDiscriminatedUnionsNestedEnabledQuery$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameDiscriminatedUnionsCommonFieldDisabled$data = {
+  readonly id: string;
+  readonly name?: string | null | undefined;
+  readonly " $fragmentType": "TypenameDiscriminatedUnionsCommonFieldDisabled";
+};
+export type TypenameDiscriminatedUnionsCommonFieldDisabled$key = {
+  readonly " $data"?: TypenameDiscriminatedUnionsCommonFieldDisabled$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameDiscriminatedUnionsCommonFieldDisabled">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameDiscriminatedUnionsCommonFieldEnabled$data = {
+  readonly __typename: "User";
+  readonly id: string;
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "TypenameDiscriminatedUnionsCommonFieldEnabled";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly " $fragmentType": "TypenameDiscriminatedUnionsCommonFieldEnabled";
+};
+export type TypenameDiscriminatedUnionsCommonFieldEnabled$key = {
+  readonly " $data"?: TypenameDiscriminatedUnionsCommonFieldEnabled$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameDiscriminatedUnionsCommonFieldEnabled">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameDiscriminatedUnionsNamedFragmentDisabled$data = {
+  readonly name?: string | null | undefined;
+  readonly " $fragmentType": "TypenameDiscriminatedUnionsNamedFragmentDisabled";
+};
+export type TypenameDiscriminatedUnionsNamedFragmentDisabled$key = {
+  readonly " $data"?: TypenameDiscriminatedUnionsNamedFragmentDisabled$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameDiscriminatedUnionsNamedFragmentDisabled">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameDiscriminatedUnionsNamedFragmentEnabled$data = {
+  readonly __typename: "User";
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "TypenameDiscriminatedUnionsNamedFragmentEnabled";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly " $fragmentType": "TypenameDiscriminatedUnionsNamedFragmentEnabled";
+};
+export type TypenameDiscriminatedUnionsNamedFragmentEnabled$key = {
+  readonly " $data"?: TypenameDiscriminatedUnionsNamedFragmentEnabled$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameDiscriminatedUnionsNamedFragmentEnabled">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameDiscriminatedUnionsSingleArmDisabled$data = {
+  readonly name?: string | null | undefined;
+  readonly " $fragmentType": "TypenameDiscriminatedUnionsSingleArmDisabled";
+};
+export type TypenameDiscriminatedUnionsSingleArmDisabled$key = {
+  readonly " $data"?: TypenameDiscriminatedUnionsSingleArmDisabled$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameDiscriminatedUnionsSingleArmDisabled">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameDiscriminatedUnionsSingleArmEnabled$data = {
+  readonly __typename: "User";
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "TypenameDiscriminatedUnionsSingleArmEnabled";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly " $fragmentType": "TypenameDiscriminatedUnionsSingleArmEnabled";
+};
+export type TypenameDiscriminatedUnionsSingleArmEnabled$key = {
+  readonly " $data"?: TypenameDiscriminatedUnionsSingleArmEnabled$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameDiscriminatedUnionsSingleArmEnabled">;
+};

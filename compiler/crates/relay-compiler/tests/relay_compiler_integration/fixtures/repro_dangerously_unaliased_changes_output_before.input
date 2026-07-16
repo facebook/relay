@@ -38,6 +38,9 @@ query ModuleNameQuery {
       },
       "enforce_fragment_alias_where_ambiguous": {
          "kind": "disabled"
+      },
+      "enable_typename_discriminated_unions": {
+         "kind": "enabled"
       }
    }
 }

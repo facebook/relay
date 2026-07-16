@@ -55,6 +55,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     });
     let feature_flags = FeatureFlags {
         no_inline: FeatureFlag::Enabled,
+        enable_typename_discriminated_unions: FeatureFlag::Enabled,
         ..Default::default()
     };
     let ir =

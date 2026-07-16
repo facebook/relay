@@ -1,0 +1,9 @@
+# expected-to-throw
+query TypenameDiscriminatedUnionsDisabledQuery @updatable {
+  node(id: "4") {
+    id
+    ... on User {
+      name
+    }
+  }
+}

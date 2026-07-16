@@ -694,6 +694,13 @@
           "type": "boolean",
           "default": false
         },
+        "enable_typename_discriminated_unions": {
+          "description": "Automatically add `__typename` selections that enable typegen to emit\ndiscriminated unions for selections on abstract types. Limited and\nrollout variants are keyed by operation or fragment definition name.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "enforce_fragment_alias_where_ambiguous": {
           "description": "Enforce that you must add `@alias` to a fragment if it may not match,\ndue to type mismatch or `@skip`/`@include`",
           "$ref": "#/$defs/FeatureFlag",
@@ -971,6 +978,9 @@
               "kind": "disabled"
             },
             "enable_strict_custom_scalars": false,
+            "enable_typename_discriminated_unions": {
+              "kind": "disabled"
+            },
             "enforce_fragment_alias_where_ambiguous": {
               "kind": "enabled"
             },

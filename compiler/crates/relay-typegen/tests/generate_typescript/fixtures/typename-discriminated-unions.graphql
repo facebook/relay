@@ -1,0 +1,52 @@
+fragment TypenameDiscriminatedUnionsSingleArmEnabled on Actor {
+  ... on User {
+    name
+  }
+}
+
+fragment TypenameDiscriminatedUnionsSingleArmDisabled on Actor {
+  ... on User {
+    name
+  }
+}
+
+fragment TypenameDiscriminatedUnionsCommonFieldEnabled on Actor {
+  id
+  ... on User {
+    name
+  }
+}
+
+fragment TypenameDiscriminatedUnionsCommonFieldDisabled on Actor {
+  id
+  ... on User {
+    name
+  }
+}
+
+query TypenameDiscriminatedUnionsNestedEnabledQuery {
+  node(id: "4") {
+    ... on User {
+      name
+    }
+    ...TypenameDiscriminatedUnionsNamedFragmentDisabled
+  }
+}
+
+query TypenameDiscriminatedUnionsNamedFragmentDisabledQuery {
+  node(id: "4") {
+    ...TypenameDiscriminatedUnionsNamedFragmentEnabled
+  }
+}
+
+fragment TypenameDiscriminatedUnionsNamedFragmentEnabled on Node {
+  ... on User {
+    name
+  }
+}
+
+fragment TypenameDiscriminatedUnionsNamedFragmentDisabled on Node {
+  ... on User {
+    name
+  }
+}

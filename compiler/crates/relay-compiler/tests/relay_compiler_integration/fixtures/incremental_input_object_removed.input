@@ -16,7 +16,12 @@ graphql`
 //- relay.config.json
 {
    "language": "typescript",
-   "schema": "./schema.graphql"
+   "schema": "./schema.graphql",
+   "featureFlags": {
+      "enable_typename_discriminated_unions": {
+         "kind": "enabled"
+      }
+   }
 }
 
 //- schema.graphql

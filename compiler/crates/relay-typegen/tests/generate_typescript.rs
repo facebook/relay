@@ -13,6 +13,7 @@ use std::sync::Arc;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::ConsoleLogger;
+use common::FeatureFlag;
 use common::FeatureFlags;
 use common::ScalarName;
 use common::SourceLocationKey;
@@ -39,6 +40,22 @@ use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
+
+fn typename_discriminated_unions_flag(fixture: &Fixture<'_>) -> FeatureFlag {
+    match fixture.file_name {
+        "typename-discriminated-unions.graphql" => FeatureFlag::Limited {
+            allowlist: [
+                "TypenameDiscriminatedUnionsSingleArmEnabled".intern(),
+                "TypenameDiscriminatedUnionsCommonFieldEnabled".intern(),
+                "TypenameDiscriminatedUnionsNestedEnabledQuery".intern(),
+                "TypenameDiscriminatedUnionsNamedFragmentEnabled".intern(),
+            ]
+            .into_iter()
+            .collect(),
+        },
+        _ => FeatureFlag::Enabled,
+    }
+}
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
@@ -109,6 +126,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             ..Default::default()
         },
         feature_flags: Arc::new(FeatureFlags {
+            enable_typename_discriminated_unions: typename_discriminated_unions_flag(fixture),
             ..Default::default()
         }),
         ..Default::default()

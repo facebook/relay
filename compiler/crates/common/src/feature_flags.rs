@@ -219,6 +219,12 @@ pub struct FeatureFlags {
     /// for selections on abstract types.
     #[serde(default)]
     pub disable_more_precise_abstract_selection_raw_response_type: FeatureFlag,
+
+    /// Automatically add `__typename` selections that enable typegen to emit
+    /// discriminated unions for selections on abstract types. Limited and
+    /// rollout variants are keyed by operation or fragment definition name.
+    #[serde(default)]
+    pub enable_typename_discriminated_unions: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -256,6 +262,7 @@ impl Default for FeatureFlags {
             enforce_module_name_prefix_for_non_haste: Default::default(),
             emit_nogrep_annotation: Default::default(),
             disable_more_precise_abstract_selection_raw_response_type: Default::default(),
+            enable_typename_discriminated_unions: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,
@@ -341,6 +348,10 @@ mod tests {
         ));
         // A couple of quick sanity checks for other defaults
         assert!(matches!(flags.no_inline, FeatureFlag::Disabled));
+        assert!(matches!(
+            flags.enable_typename_discriminated_unions,
+            FeatureFlag::Disabled
+        ));
         assert!(!flags.enable_resolver_normalization_ast);
     }
 

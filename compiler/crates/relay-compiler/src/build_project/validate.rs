@@ -96,7 +96,12 @@ pub fn validate(
             Ok(())
         },
         disallow_circular_no_inline_fragments(program),
-        validate_updatable_directive(program),
+        validate_updatable_directive(
+            program,
+            &project_config
+                .feature_flags
+                .enable_typename_discriminated_unions,
+        ),
         validate_updatable_fragment_spread(program),
         validate_assignable_directive(program),
         validate_resolver_fragments(program),

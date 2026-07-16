@@ -35,6 +35,9 @@ query ModuleNameQuery {
    "featureFlags": {
       "disable_deduping_common_structures_in_artifacts": {
          "kind": "enabled"
+      },
+      "enable_typename_discriminated_unions": {
+         "kind": "enabled"
       }
    }
 }

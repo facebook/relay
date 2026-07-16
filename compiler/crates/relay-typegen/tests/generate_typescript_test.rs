@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f48801bdf137cf593a8655ca3cb9a480>>
+ * @generated SignedSource<<1cb5af3786b27f356af84af885731db8>>
  */
 
 mod generate_typescript;
@@ -675,6 +675,13 @@ async fn spread_interface_fragment_on_concrete_raw_type() {
     let input = include_str!("generate_typescript/fixtures/spread-interface-fragment-on-concrete-raw-type.graphql");
     let expected = include_str!("generate_typescript/fixtures/spread-interface-fragment-on-concrete-raw-type.expected");
     test_fixture(transform_fixture, file!(), "spread-interface-fragment-on-concrete-raw-type.graphql", "generate_typescript/fixtures/spread-interface-fragment-on-concrete-raw-type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn typename_discriminated_unions() {
+    let input = include_str!("generate_typescript/fixtures/typename-discriminated-unions.graphql");
+    let expected = include_str!("generate_typescript/fixtures/typename-discriminated-unions.expected");
+    test_fixture(transform_fixture, file!(), "typename-discriminated-unions.graphql", "generate_typescript/fixtures/typename-discriminated-unions.expected", input, expected).await;
 }
 
 #[tokio::test]

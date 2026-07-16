@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::FeatureFlag;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::Program;
@@ -35,7 +36,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     let program = Program::from_definitions(Arc::clone(&schema), ir);
-    validate_updatable_directive(&program)
+    // Keep this feature enabled by default in this fixture suite so the existing
+    // fixtures continue to exercise the intended final behavior. The production
+    // feature flag remains disabled by default for gradual rollout.
+    let feature_flag = match fixture.file_name {
+        "typename-discriminated-unions-disabled.invalid.graphql" => FeatureFlag::Disabled,
+        _ => FeatureFlag::Enabled,
+    };
+    validate_updatable_directive(&program, &feature_flag)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     Ok("OK".to_owned())

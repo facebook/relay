@@ -11,6 +11,7 @@ use std::sync::LazyLock;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::FeatureFlag;
 use common::Location;
 use common::NamedItem;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
@@ -48,8 +49,11 @@ static ALLOW_LISTED_DIRECTIVES: LazyLock<Vec<DirectiveName>> = LazyLock::new(|| 
     ]
 });
 
-pub fn validate_updatable_directive(program: &Program) -> DiagnosticsResult<()> {
-    UpdatableDirective::new(program).validate_program(program)
+pub fn validate_updatable_directive(
+    program: &Program,
+    enable_typename_discriminated_unions: &FeatureFlag,
+) -> DiagnosticsResult<()> {
+    UpdatableDirective::new(program, enable_typename_discriminated_unions).validate_program(program)
 }
 
 #[derive(Copy, Clone)]
@@ -61,13 +65,15 @@ struct ExecutableDefinitionInfo {
 
 struct UpdatableDirective<'a> {
     executable_definition_info: Option<ExecutableDefinitionInfo>,
+    enable_typename_discriminated_unions: &'a FeatureFlag,
     program: &'a Program,
 }
 
 impl<'a> UpdatableDirective<'a> {
-    fn new(program: &'a Program) -> Self {
+    fn new(program: &'a Program, enable_typename_discriminated_unions: &'a FeatureFlag) -> Self {
         Self {
             program,
+            enable_typename_discriminated_unions,
             executable_definition_info: None,
         }
     }
@@ -165,7 +171,27 @@ impl<'a> UpdatableDirective<'a> {
             return Ok(());
         }
 
+        // If a linked field contains inline fragments, it must *only* contain inline fragments.
+        // This is because there exists a limitation of our typegen: if there are fields within
+        // inline fragments with type refinements, and at the top-level, the parent field is not
+        // emitted as a disjoint union where the key is the __typename field. Instead, the union
+        // is flattened and every field is optional. This breaks type safety for updatable fragments,
+        // as users would be able to assign to scalar fields that are not present on a given type.
         let mut errors = vec![];
+
+        if !self.enable_typename_discriminated_unions.is_enabled_for(
+            self.executable_definition_info
+                .expect("Expected an executable definition")
+                .name,
+        ) && parent_field.selections.len() != fragment_spreads.len()
+        {
+            errors.push(Diagnostic::error(
+                ValidationMessage::UpdatableOnlyInlineFragments {
+                    outer_type_plural: self.executable_definition_info.unwrap().type_plural,
+                },
+                parent_field.definition.location,
+            ));
+        }
 
         // Furthermore, inline fragments are only allowed if the parent type is an interface or union
         let parent_field_id = parent_field.definition.item;
@@ -224,6 +250,32 @@ impl<'a> UpdatableDirective<'a> {
                         previously_encountered_concrete_types.insert(type_condition_name);
                     }
                 }
+            }
+
+            // Attempt to find a typename field with no alias, in order to guarantee that
+            // the linked field (parent_field) with fragment spreads is written by
+            // relay-typegen as a disjoint union.
+
+            if !self.enable_typename_discriminated_unions.is_enabled_for(
+                self.executable_definition_info
+                    .expect("Expected an executable definition")
+                    .name,
+            ) && !fragment_spread.selections.iter().any(|selection| {
+                if let Selection::ScalarField(scalar_field) = selection {
+                    scalar_field.definition.item == self.program.schema.typename_field()
+                        && scalar_field.alias.is_none()
+                } else {
+                    false
+                }
+            }) {
+                errors.push(Diagnostic::error(
+                    ValidationMessage::UpdatableInlineFragmentsMustHaveTypenameFields {
+                        outer_type_plural: self.executable_definition_info.unwrap().type_plural,
+                        parent_field_alias_or_name: parent_field
+                            .alias_or_name(&self.program.schema),
+                    },
+                    parent_field.definition.location,
+                ));
             }
         }
 

@@ -7,9 +7,11 @@
 
 use std::sync::Arc;
 
+use common::FeatureFlag;
 use common::WithLocation;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
@@ -23,8 +25,16 @@ use schema::Type;
 use crate::FragmentAliasMetadata;
 
 /// Adds `__typename` only where it is useful for typegen discrimination
-pub fn generate_typename_union(program: &Program) -> Program {
-    let mut transform = GenerateTypenameFieldTransform::new(program);
+pub fn generate_typename_union(
+    program: &Program,
+    enable_typename_discriminated_unions: &FeatureFlag,
+) -> Program {
+    if matches!(enable_typename_discriminated_unions, FeatureFlag::Disabled) {
+        return program.clone();
+    }
+
+    let mut transform =
+        GenerateTypenameFieldTransform::new(program, enable_typename_discriminated_unions);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -32,16 +42,18 @@ pub fn generate_typename_union(program: &Program) -> Program {
 
 struct GenerateTypenameFieldTransform<'s> {
     program: &'s Program,
+    enable_typename_discriminated_unions: &'s FeatureFlag,
     typename_field: FieldID,
 }
 
 impl<'s> GenerateTypenameFieldTransform<'s> {
-    fn new(program: &'s Program) -> Self {
+    fn new(program: &'s Program, enable_typename_discriminated_unions: &'s FeatureFlag) -> Self {
         let schema = &program.schema;
         let typename_field = schema.typename_field();
 
         Self {
             program,
+            enable_typename_discriminated_unions,
             typename_field,
         }
     }
@@ -122,10 +134,31 @@ impl Transformer<'_> for GenerateTypenameFieldTransform<'_> {
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        if !self
+            .enable_typename_discriminated_unions
+            .is_enabled_for(operation.name.item.0)
+        {
+            return Transformed::Keep;
+        }
+
+        self.default_transform_operation(operation)
+    }
+
     fn transform_fragment(
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
+        if !self
+            .enable_typename_discriminated_unions
+            .is_enabled_for(fragment.name.item.0)
+        {
+            return Transformed::Keep;
+        }
+
         let next_selections = self.transform_selections_with_typename(
             fragment.type_condition,
             fragment.name.location,

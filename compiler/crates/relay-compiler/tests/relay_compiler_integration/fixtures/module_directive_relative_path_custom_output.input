@@ -37,7 +37,12 @@ graphql`
     "test_project": {
       "language": "typescript",
       "schema": "schema.graphql",
-      "output": "generated"
+      "output": "generated",
+      "featureFlags": {
+        "enable_typename_discriminated_unions": {
+          "kind": "enabled"
+        }
+      }
     }
   }
 }

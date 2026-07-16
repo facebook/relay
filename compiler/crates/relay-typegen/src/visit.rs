@@ -1439,7 +1439,17 @@ fn selections_to_babel(
         }
     }
 
-    if should_emit_discriminated_union(concrete_type, &by_concrete_type, &base_fields) {
+    let enable_typename_discriminated_unions = typegen_context
+        .project_config
+        .feature_flags
+        .enable_typename_discriminated_unions
+        .is_enabled_for(typegen_context.definition_source_location.item);
+    if should_emit_discriminated_union(
+        concrete_type,
+        &by_concrete_type,
+        &base_fields,
+        enable_typename_discriminated_unions,
+    ) {
         get_discriminated_union_ast(
             by_concrete_type,
             &base_fields,
@@ -1666,11 +1676,21 @@ fn should_emit_discriminated_union(
     concrete_type: &Type,
     by_concrete_type: &IndexMap<Type, Vec<TypeSelection>>,
     base_fields: &IndexMap<StringKey, TypeSelection>,
+    enable_typename_discriminated_unions: bool,
 ) -> bool {
-    if by_concrete_type.is_empty() || !concrete_type.is_abstract_type() || base_fields.is_empty() {
+    if by_concrete_type.is_empty() || !concrete_type.is_abstract_type() {
         return false;
     }
-    base_fields.values().any(TypeSelection::is_typename)
+
+    if enable_typename_discriminated_unions {
+        !base_fields.is_empty() && base_fields.values().any(TypeSelection::is_typename)
+    } else {
+        base_fields.values().all(TypeSelection::is_typename)
+            && (base_fields.values().any(TypeSelection::is_typename)
+                || by_concrete_type
+                    .values()
+                    .all(|selections| has_typename_selection(selections)))
+    }
 }
 
 pub(crate) fn raw_response_selections_to_babel(
@@ -2956,6 +2976,10 @@ pub(crate) fn get_operation_type_export(
     }
 
     Ok(ExactObject::new(operation_types))
+}
+
+fn has_typename_selection(selections: &[TypeSelection]) -> bool {
+    selections.iter().any(TypeSelection::is_typename)
 }
 
 fn create_edge_to_return_type_ast(

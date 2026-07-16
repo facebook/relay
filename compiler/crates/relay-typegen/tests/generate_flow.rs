@@ -42,6 +42,22 @@ use relay_typegen::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
+fn typename_discriminated_unions_flag(fixture: &Fixture<'_>) -> FeatureFlag {
+    match fixture.file_name {
+        "typename-discriminated-unions.graphql" => FeatureFlag::Limited {
+            allowlist: [
+                "TypenameDiscriminatedUnionsSingleArmEnabled".intern(),
+                "TypenameDiscriminatedUnionsCommonFieldEnabled".intern(),
+                "TypenameDiscriminatedUnionsNestedEnabledQuery".intern(),
+                "TypenameDiscriminatedUnionsNamedFragmentEnabled".intern(),
+            ]
+            .into_iter()
+            .collect(),
+        },
+        _ => FeatureFlag::Enabled,
+    }
+}
+
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
@@ -69,6 +85,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             .collect(),
         },
         relay_resolver_enable_interface_output_type: FeatureFlag::Enabled,
+        enable_typename_discriminated_unions: typename_discriminated_unions_flag(fixture),
         ..Default::default()
     };
     let ir = build_ir_in_relay_mode(&schema, &ast.definitions, &feature_flags)

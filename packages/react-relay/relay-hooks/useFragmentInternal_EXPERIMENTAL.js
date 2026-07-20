@@ -77,6 +77,47 @@ function isMissingData(state: FragmentState): boolean {
   }
 }
 
+// Owners already refetched (once) because a fragment read missing data with no
+// pending operation — see ENABLE_MISSING_DATA_OWNER_REFETCH below. Keeping a
+// marker after a failed recovery (partial response, transport error) is what
+// prevents refetch loops; the marker is cleared when the owner query reads
+// back without missing data.
+const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
+interface IMap<K, V> {
+  get(key: K): V | void;
+  set(key: K, value: V): IMap<K, V>;
+}
+const missingDataRefetchesByEnvironment: IMap<
+  IEnvironment,
+  Set<string>,
+> = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
+const MAX_MISSING_DATA_REFETCHES = 1000;
+let nextMissingDataRefetchID = 0;
+
+function markMissingDataRefetch(
+  environment: IEnvironment,
+  identifier: string,
+): boolean {
+  let refetches = missingDataRefetchesByEnvironment.get(environment);
+  if (refetches == null) {
+    refetches = new Set<string>();
+    missingDataRefetchesByEnvironment.set(environment, refetches);
+  }
+  if (refetches.has(identifier)) {
+    return false;
+  }
+  if (refetches.size >= MAX_MISSING_DATA_REFETCHES) {
+    // Bound memory; evicting the oldest marker only re-arms a single refetch
+    // for that owner.
+    const oldest = refetches.values().next().value;
+    if (oldest != null) {
+      refetches.delete(oldest);
+    }
+  }
+  refetches.add(identifier);
+  return true;
+}
+
 function getMissingClientEdges(
   state: FragmentState,
 ): ReadonlyArray<MissingClientEdgeRequestInfo> | null {
@@ -618,6 +659,121 @@ hook useFragmentInternal_EXPERIMENTAL(
           pendingOperations: pendingOperationsResult.pendingOperations,
         });
         throw pendingOperationsResult.promise;
+      }
+    }
+    // A fragment can read missing data with NO pending operation when its
+    // records were garbage-collected while unobserved: a React <Activity>
+    // route was hidden (its store subscription disposed), the owner query's
+    // retain lapsed, GC correctly collected records only that owner reached,
+    // and the fragment ref survived in React state. On restore — or on a
+    // fresh mount with a surviving ref (Activity may either preserve or
+    // remount the hook, so recovery cannot be limited to committed
+    // fragments) — the read is partial, and the component would render
+    // `undefined` for fields the fragment explicitly fetched, crashing
+    // consumers that trust the schema types.
+    //
+    // When enabled, recover by refetching the fragment's owner query once and
+    // suspending on the request instead of rendering the partial snapshot.
+    // `force: true` plus a unique QueryResource cache breaker ensure a real
+    // network request even when a completed QueryResource entry or a
+    // response-cache layer would otherwise short-circuit it. Only query
+    // owners are refetched — a mutation or subscription must never
+    // re-execute. The once-per-owner marker (per environment) prevents
+    // request loops when the refetch itself cannot fill the data; in that
+    // case execution falls through to today's partial-render behavior.
+    //
+    // Retention of the refetched payload: when the owner query is still
+    // mounted (the <Activity> route case) its own retain keeps the data
+    // durably; when only the fragment ref survived, the data is held by the
+    // prepare() call's temporary retain (a TEMPORARY_RETAIN_DURATION_MS TTL)
+    // and is GC-eligible again after it lapses. That is by design — the
+    // marker clears once the data reads back complete (see the else branch
+    // below), so a later GC episode simply recovers again with one more
+    // request rather than staying broken.
+    //
+    // For a plural fragment only selectors[0].owner is refetched, matching
+    // how the rest of this function attributes a plural read to its first
+    // owner.
+    if (
+      RelayFeatureFlags.ENABLE_MISSING_DATA_OWNER_REFETCH &&
+      fragmentSelector != null
+    ) {
+      const fragmentOwner =
+        fragmentSelector.kind === 'PluralReaderSelector'
+          ? fragmentSelector.selectors[0].owner
+          : fragmentSelector.owner;
+      if (fragmentOwner.node.params.operationKind === 'query') {
+        const refetchOperation = createOperationDescriptor(
+          fragmentOwner.node,
+          fragmentOwner.variables,
+          {...fragmentOwner.cacheConfig, force: true},
+        );
+        const activeRequestPromise = getPromiseForActiveRequest(
+          environment,
+          refetchOperation.request,
+        );
+        if (activeRequestPromise != null) {
+          throw activeRequestPromise;
+        }
+        // Marking + fetching during render is the same tradeoff QueryResource
+        // itself makes (it writes its cache during render): a discarded
+        // concurrent render leaves the marker set with its fetch already in
+        // flight, which at worst suppresses one later refetch until a
+        // data-complete render clears the marker.
+        if (markMissingDataRefetch(environment, fragmentOwner.identifier)) {
+          const QueryResource = getQueryResourceForEnvironment(environment);
+          const cacheBreaker = `missing-data-${nextMissingDataRefetchID++}`;
+          QueryResource.prepare(
+            refetchOperation,
+            fetchQueryInternal(environment, refetchOperation),
+            'network-only',
+            undefined,
+            undefined,
+            cacheBreaker,
+            undefined,
+          );
+          // Defensive parity with the activeRequestPromise check above: with
+          // an async network, prepare() already throws the pending promise
+          // itself, so this only fires if prepare() returned synchronously
+          // (e.g. a synchronous network resolved the payload).
+          const refetchPromise = getPromiseForActiveRequest(
+            environment,
+            refetchOperation.request,
+          );
+          if (refetchPromise != null) {
+            throw refetchPromise;
+          }
+        }
+      }
+    }
+  } else if (
+    RelayFeatureFlags.ENABLE_MISSING_DATA_OWNER_REFETCH &&
+    fragmentSelector != null
+  ) {
+    const fragmentOwner =
+      fragmentSelector.kind === 'PluralReaderSelector'
+        ? fragmentSelector.selectors[0].owner
+        : fragmentSelector.owner;
+    const refetches = missingDataRefetchesByEnvironment.get(environment);
+    if (
+      refetches != null &&
+      refetches.has(fragmentOwner.identifier) &&
+      fragmentOwner.node.params.operationKind === 'query'
+    ) {
+      // Clear the marker only once the whole owner query reads back without
+      // missing data: a sibling fragment of a partially-failed recovery must
+      // not re-arm the refetch (clearing while 'missing' would loop forever
+      // against a server that keeps returning partial data). 'stale' — data
+      // fully present but invalidated, e.g. invalidateStore() at an auth
+      // boundary — is loop-safe and must clear, or the owner would stay
+      // permanently exempt from recovery in later GC episodes.
+      const ownerOperation = createOperationDescriptor(
+        fragmentOwner.node,
+        fragmentOwner.variables,
+        fragmentOwner.cacheConfig,
+      );
+      if (environment.check(ownerOperation).status !== 'missing') {
+        refetches.delete(fragmentOwner.identifier);
       }
     }
   }

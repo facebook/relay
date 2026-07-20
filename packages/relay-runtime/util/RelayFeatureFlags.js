@@ -56,6 +56,12 @@ export type FeatureFlags = {
   // Temporary flag to experiment to enable compatibility with React's unstable <Activity> API
   ENABLE_ACTIVITY_COMPATIBILITY: boolean,
 
+  // When a fragment reads missing data and no operation affecting its owner is
+  // pending (e.g. its records were GC'd while a React <Activity> was hidden
+  // and the fragment ref outlived the owner query's retain), refetch the owner
+  // query once and suspend, instead of rendering a partial snapshot.
+  ENABLE_MISSING_DATA_OWNER_REFETCH: boolean,
+
   // Adds a prefix to the storage key of read time resolvers. This is used to
   // disambiguate the same resolver being used at both read time and exec time.
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: boolean,
@@ -136,6 +142,7 @@ const RelayFeatureFlags: FeatureFlags = {
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: false,
   ENABLE_CYLE_DETECTION_IN_VARIABLES: false,
   ENABLE_ACTIVITY_COMPATIBILITY: true,
+  ENABLE_MISSING_DATA_OWNER_REFETCH: false,
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: true,
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,
   DISALLOW_NESTED_UPDATES: false,

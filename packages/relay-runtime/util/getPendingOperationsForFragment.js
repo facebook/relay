@@ -41,8 +41,7 @@ function getPendingOperationsForFragment(
 
   if (
     promise == null &&
-    RelayFeatureFlags.ENABLE_IN_FLIGHT_OPERATION_CORRELATION &&
-    environment.isRequestActive(fragmentOwner.identifier)
+    RelayFeatureFlags.ENABLE_IN_FLIGHT_OPERATION_CORRELATION
   ) {
     const inFlightPromise = environment.getPromiseForInFlightOperation(
       fragmentOwner.identifier,

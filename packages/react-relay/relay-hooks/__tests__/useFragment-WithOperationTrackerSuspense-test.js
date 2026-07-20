@@ -545,4 +545,56 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
 
     expect(renderer?.container.textContent).toBe('Alice');
   });
+
+  it('should throw promise via in-flight correlation even when isRequestActive returns false', async () => {
+    environment.execute({operation: nodeOperation}).subscribe({});
+
+    const realIsRequestActive =
+      environment.isRequestActive.bind(environment);
+    const isRequestActiveSpy = jest
+      .spyOn(environment, 'isRequestActive')
+      .mockImplementation(id => {
+        if (id === nodeOperation.request.identifier) {
+          return false;
+        }
+        return realIsRequestActive(id);
+      });
+
+    expect(
+      environment.getPromiseForInFlightOperation(
+        nodeOperation.request.identifier,
+      ),
+    ).not.toBeNull();
+    expect(
+      environment.isRequestActive(nodeOperation.request.identifier),
+    ).toBe(false);
+
+    const fragmentRef = {
+      __id: 'user-id-1',
+      __fragments: {
+        useFragmentWithOperationTrackerSuspenseTestFragment: {},
+      },
+      __fragmentOwner: nodeOperation.request,
+    };
+
+    const renderer = await render({userRef: fragmentRef});
+    expect(renderer?.container.textContent).toBe('Singular Fallback');
+
+    isRequestActiveSpy.mockRestore();
+
+    await act(() => {
+      environment.mock.nextValue(nodeOperation, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: 'user-id-1',
+            name: 'Alice',
+          },
+        },
+      });
+      environment.mock.complete(nodeOperation.request.node);
+    });
+
+    expect(renderer?.container.textContent).toBe('Alice');
+  });
 });

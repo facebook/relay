@@ -67,6 +67,7 @@ const {
   createReaderSelector,
 } = require('./RelayModernSelector');
 const RelayRecordSource = require('./RelayRecordSource');
+const resolveDeferSubPathChunk = require('./resolveDeferSubPathChunk');
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 const warning = require('warning');
@@ -1361,6 +1362,14 @@ class Executor<TMutation extends MutationParameters> {
       if (label.indexOf('$defer$') !== -1) {
         const pathKey = path.map(String).join('.');
         let resultForPath = resultForLabel.get(pathKey);
+        let deferSubPath: ?ReadonlyArray<unknown> = null;
+        if (resultForPath == null || resultForPath.kind !== 'placeholder') {
+          const prefix = findDeferPlaceholderByPrefix(resultForLabel, path);
+          if (prefix != null) {
+            resultForPath = prefix.placeholder;
+            deferSubPath = prefix.subPath;
+          }
+        }
         if (resultForPath == null) {
           resultForPath = {kind: 'response', responses: [incrementalResponse]};
           resultForLabel.set(pathKey, resultForPath);
@@ -1379,7 +1388,13 @@ class Executor<TMutation extends MutationParameters> {
           placeholder.kind,
         );
         relayPayloads.push(
-          this._processDeferResponse(label, path, placeholder, response),
+          this._processDeferResponse(
+            label,
+            path,
+            placeholder,
+            response,
+            deferSubPath,
+          ),
         );
       } else {
         // @stream payload path values end in the field name and item index,
@@ -1418,15 +1433,38 @@ class Executor<TMutation extends MutationParameters> {
     path: ReadonlyArray<unknown>,
     placeholder: DeferPlaceholder,
     response: GraphQLResponseWithData,
+    subPath?: ?ReadonlyArray<unknown>,
   ): RelayResponsePayload {
     const {dataID: parentID} = placeholder.selector;
     const prevActorIdentifier = this._actorIdentifier;
     this._actorIdentifier =
       placeholder.actorIdentifier ?? this._actorIdentifier;
+    const activeSubPath =
+      subPath != null && subPath.length > 0 ? subPath : null;
+    const recovery =
+      activeSubPath != null
+        ? resolveDeferSubPathChunk(
+            placeholder,
+            response,
+            activeSubPath,
+            this._getStore(this._actorIdentifier).getSource(),
+          )
+        : null;
+    if (activeSubPath != null && recovery == null) {
+      this._actorIdentifier = prevActorIdentifier;
+      return {
+        errors: response.errors ?? null,
+        fieldPayloads: [],
+        followupPayloads: null,
+        incrementalPlaceholders: null,
+        isFinal: false,
+        source: RelayRecordSource.create(),
+      };
+    }
     const relayPayload = this._normalizeResponse(
-      response,
-      placeholder.selector,
-      placeholder.typeName,
+      recovery?.response ?? response,
+      recovery?.selector ?? placeholder.selector,
+      recovery?.typeName ?? placeholder.typeName,
       {
         actorIdentifier: this._actorIdentifier,
         deferDeduplicatedFields: this._deferDeduplicatedFields,
@@ -1437,6 +1475,7 @@ class Executor<TMutation extends MutationParameters> {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
       this._useExecTimeResolvers,
+      recovery?.existingRootRecord,
     );
     this._getPublishQueueAndSaveActor().commitPayload(
       this._operation,
@@ -1821,6 +1860,23 @@ function validateOptimisticResponsePayload(
         '@stream, and @stream_connection).',
     );
   }
+}
+
+function findDeferPlaceholderByPrefix(
+  resultForLabel: Map<PathKey, IncrementalResults>,
+  path: ReadonlyArray<unknown>,
+): ?{
+  placeholder: IncrementalResults,
+  subPath: ReadonlyArray<unknown>,
+} {
+  for (let prefixLen = path.length - 1; prefixLen > 0; prefixLen--) {
+    const prefixKey = path.slice(0, prefixLen).map(String).join('.');
+    const result = resultForLabel.get(prefixKey);
+    if (result != null && result.kind === 'placeholder') {
+      return {placeholder: result, subPath: path.slice(prefixLen)};
+    }
+  }
+  return null;
 }
 
 module.exports = {

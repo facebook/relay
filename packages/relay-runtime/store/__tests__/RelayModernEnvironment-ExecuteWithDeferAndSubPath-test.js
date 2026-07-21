@@ -1,0 +1,234 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @flow strict-local
+ * @format
+ * @oncall relay
+ */
+
+'use strict';
+
+import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
+import type {Sink} from 'relay-runtime/network/RelayObservable';
+import type {Snapshot} from 'relay-runtime/store/RelayStoreTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
+
+const {
+  MultiActorEnvironment,
+  getActorIdentifier,
+} = require('relay-runtime/multi-actor-environment');
+const RelayNetwork = require('relay-runtime/network/RelayNetwork');
+const RelayObservable = require('relay-runtime/network/RelayObservable');
+const {graphql} = require('relay-runtime/query/GraphQLTag');
+const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
+const {
+  createOperationDescriptor,
+} = require('relay-runtime/store/RelayModernOperationDescriptor');
+const {
+  createReaderSelector,
+} = require('relay-runtime/store/RelayModernSelector');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
+const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
+
+describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
+  'execute() a query with @defer + subPath',
+  environmentType => {
+    let callbacks;
+    let complete;
+    let dataSource;
+    let environment;
+    let error;
+    let next;
+
+    describe(environmentType, () => {
+      beforeEach(() => {
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
+        callbacks = {complete, error, next};
+        const fetch = (
+          _query: RequestParameters,
+          _variables: Variables,
+          _cacheConfig: CacheConfig,
+        ): RelayObservable<GraphQLResponse> => {
+          return RelayObservable.create<GraphQLResponse>(
+            (sink: Sink<GraphQLResponse>) => {
+              dataSource = sink;
+            },
+          );
+        };
+        const store = new RelayModernStore(RelayRecordSource.create());
+        const multiActorEnvironment = new MultiActorEnvironment({
+          createNetworkForActor: _actorID => RelayNetwork.create(fetch),
+          createStoreForActor: _actorID => store,
+        });
+        environment =
+          environmentType === 'MultiActorEnvironment'
+            ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
+            : new RelayModernEnvironment({
+                network: RelayNetwork.create(fetch),
+                store,
+              });
+      });
+
+      it('processes a deferred payload whose subPath addresses a nested sub-record', () => {
+        const query = graphql`
+          query RelayModernEnvironmentExecuteWithDeferAndSubPathTestAddressQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ... on User {
+                id
+                ...RelayModernEnvironmentExecuteWithDeferAndSubPathTestAddressFragment
+                  @dangerously_unaliased_fixme
+                  @defer(label: "AddressFragment")
+              }
+            }
+          }
+        `;
+        const fragment = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndSubPathTestAddressFragment on User {
+            address {
+              city
+              country
+            }
+          }
+        `;
+        const operation = createOperationDescriptor(query, {id: '1'});
+        const selector = createReaderSelector(
+          fragment,
+          '1',
+          {},
+          operation.request,
+        );
+        const callback = jest.fn<[Snapshot], void>();
+        environment.subscribe(environment.lookup(selector), callback);
+
+        environment.execute({operation}).subscribe(callbacks);
+        dataSource.next({
+          data: {
+            node: {
+              id: '1',
+              __typename: 'User',
+              address: {country: 'US'},
+            },
+          },
+        });
+        jest.runAllTimers();
+        next.mockClear();
+        callback.mockClear();
+
+        dataSource.next({
+          data: {city: 'San Francisco', country: 'US'},
+          label:
+            'RelayModernEnvironmentExecuteWithDeferAndSubPathTestAddressQuery$defer$AddressFragment',
+          path: ['node', 'address'],
+        });
+
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(0);
+        expect(callback).toBeCalledTimes(1);
+        const snapshot = callback.mock.calls[0][0];
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data).toEqual({
+          address: {city: 'San Francisco', country: 'US'},
+        });
+      });
+
+      it('processes deferred per-item payloads addressed via numeric subPath', () => {
+        const query = graphql`
+          query RelayModernEnvironmentExecuteWithDeferAndSubPathTestPhonesQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ... on User {
+                id
+                allPhones {
+                  phoneNumber {
+                    displayNumber
+                  }
+                }
+                ...RelayModernEnvironmentExecuteWithDeferAndSubPathTestPhonesFragment
+                  @dangerously_unaliased_fixme
+                  @defer(label: "PhonesFragment")
+              }
+            }
+          }
+        `;
+        const fragment = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndSubPathTestPhonesFragment on User {
+            allPhones {
+              isVerified
+              phoneNumber {
+                displayNumber
+              }
+            }
+          }
+        `;
+        const operation = createOperationDescriptor(query, {id: '1'});
+        const selector = createReaderSelector(
+          fragment,
+          '1',
+          {},
+          operation.request,
+        );
+
+        environment.execute({operation}).subscribe(callbacks);
+        dataSource.next({
+          data: {
+            node: {
+              id: '1',
+              __typename: 'User',
+              allPhones: [
+                {phoneNumber: {displayNumber: '+1-555-0100'}},
+                {phoneNumber: {displayNumber: '+1-555-0101'}},
+              ],
+            },
+          },
+        });
+        jest.runAllTimers();
+        next.mockClear();
+
+        dataSource.next({
+          data: {
+            isVerified: true,
+            phoneNumber: {displayNumber: '+1-555-0100'},
+          },
+          label:
+            'RelayModernEnvironmentExecuteWithDeferAndSubPathTestPhonesQuery$defer$PhonesFragment',
+          path: ['node', 'allPhones', 0],
+        });
+        dataSource.next({
+          data: {
+            isVerified: false,
+            phoneNumber: {displayNumber: '+1-555-0101'},
+          },
+          label:
+            'RelayModernEnvironmentExecuteWithDeferAndSubPathTestPhonesQuery$defer$PhonesFragment',
+          path: ['node', 'allPhones', 1],
+        });
+
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(0);
+        const snapshot = environment.lookup(selector);
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data).toEqual({
+          allPhones: [
+            {isVerified: true, phoneNumber: {displayNumber: '+1-555-0100'}},
+            {isVerified: false, phoneNumber: {displayNumber: '+1-555-0101'}},
+          ],
+        });
+      });
+    });
+  },
+);

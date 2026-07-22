@@ -39,22 +39,6 @@ const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
-// The historical shape that this test locks in:
-//
-//   fragment WrapperFragment on User {
-//     ...ConnectionFragment @defer      # fragment-nested defer …
-//   }
-//
-//   fragment ConnectionFragment on User {
-//     friends(first: 2) @connection(...) {   # … on a fragment that uses @connection
-//       edges { node { id, name } }
-//     }
-//   }
-//
-// The deferred chunk carries `friends.edges` plus the connection scaffolding
-// (`__id`, `pageInfo`). After processing, `useFragment` on `ConnectionFragment`
-// should return the assembled edges — not an empty `edges: []`.
-
 describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
   'execute() a query with @defer on a fragment-nested spread that uses @connection',
   environmentType => {
@@ -141,8 +125,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
 
         environment.execute({operation}).subscribe(callbacks);
-        // Initial payload contains the User node + id, but not the deferred
-        // connection selection.
         dataSource.next({
           data: {
             node: {
@@ -154,18 +136,24 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         jest.runAllTimers();
         next.mockClear();
 
-        // Deferred chunk carrying the connection data. Path here targets the
-        // node's User fragment; the label matches the compiled Defer node.
         dataSource.next({
           data: {
             friends: {
               edges: [
-                {node: {id: 'u2', name: 'Alice', __typename: 'User'}},
-                {node: {id: 'u3', name: 'Bob', __typename: 'User'}},
+                {
+                  cursor: 'cursor-1',
+                  node: {id: 'u2', name: 'Alice', __typename: 'User'},
+                },
+                {
+                  cursor: 'cursor-2',
+                  node: {id: 'u3', name: 'Bob', __typename: 'User'},
+                },
               ],
               pageInfo: {
                 endCursor: 'cursor-2',
                 hasNextPage: false,
+                startCursor: 'cursor-1',
+                hasPreviousPage: false,
               },
             },
           },
@@ -178,15 +166,22 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(error).toBeCalledTimes(0);
         const snapshot = environment.lookup(selector);
         expect(snapshot.isMissingData).toBe(false);
-        // Historical bug (pre-patch): `edges` came through empty even though
-        // the deferred chunk arrived with two nodes. This asserts the fix:
-        // edges are populated in the store and read back correctly.
         expect(snapshot.data).toEqual({
           friends: {
             edges: [
-              {node: {id: 'u2', name: 'Alice'}},
-              {node: {id: 'u3', name: 'Bob'}},
+              {
+                cursor: 'cursor-1',
+                node: {__typename: 'User', id: 'u2', name: 'Alice'},
+              },
+              {
+                cursor: 'cursor-2',
+                node: {__typename: 'User', id: 'u3', name: 'Bob'},
+              },
             ],
+            pageInfo: {
+              endCursor: 'cursor-2',
+              hasNextPage: false,
+            },
           },
         });
       });

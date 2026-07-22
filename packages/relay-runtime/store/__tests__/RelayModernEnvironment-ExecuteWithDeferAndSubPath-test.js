@@ -146,15 +146,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('processes deferred sub-record payloads addressed via numeric+string subPath', () => {
-        // Parent selects `allPhones { phoneNumber { displayNumber } }`.
-        // Deferred fragment additionally selects `phoneNumber { countryCode }`
-        // — the only field not covered by the parent. graphql-core dedups
-        // the shared sub-selections, so the incremental chunk for each item
-        // arrives at `path: ['node', 'allPhones', <i>, 'phoneNumber']` with
-        // just `{countryCode}`. The final `phoneNumber` key is a string
-        // following the numeric index, which exercises the walk that mixes
-        // stepIntoIndex (list item) and stepIntoField (sub-record). Reader
-        // sees the merged scalars on both list items.
         const query = graphql`
           query RelayModernEnvironmentExecuteWithDeferAndSubPathTestSubRecordQuery(
             $id: ID!

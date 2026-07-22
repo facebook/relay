@@ -145,6 +145,93 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
+      it('processes deferred sub-record payloads addressed via numeric+string subPath', () => {
+        // Parent selects `allPhones { phoneNumber { displayNumber } }`.
+        // Deferred fragment additionally selects `phoneNumber { countryCode }`
+        // — the only field not covered by the parent. graphql-core dedups
+        // the shared sub-selections, so the incremental chunk for each item
+        // arrives at `path: ['node', 'allPhones', <i>, 'phoneNumber']` with
+        // just `{countryCode}`. The final `phoneNumber` key is a string
+        // following the numeric index, which exercises the walk that mixes
+        // stepIntoIndex (list item) and stepIntoField (sub-record). Reader
+        // sees the merged scalars on both list items.
+        const query = graphql`
+          query RelayModernEnvironmentExecuteWithDeferAndSubPathTestSubRecordQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ... on User {
+                id
+                allPhones {
+                  phoneNumber {
+                    displayNumber
+                  }
+                }
+                ...RelayModernEnvironmentExecuteWithDeferAndSubPathTestSubRecordFragment
+                  @dangerously_unaliased_fixme
+                  @defer(label: "SubRecordFragment")
+              }
+            }
+          }
+        `;
+        const fragment = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndSubPathTestSubRecordFragment on User {
+            allPhones {
+              phoneNumber {
+                countryCode
+              }
+            }
+          }
+        `;
+        const operation = createOperationDescriptor(query, {id: '1'});
+        const selector = createReaderSelector(
+          fragment,
+          '1',
+          {},
+          operation.request,
+        );
+
+        environment.execute({operation}).subscribe(callbacks);
+        dataSource.next({
+          data: {
+            node: {
+              id: '1',
+              __typename: 'User',
+              allPhones: [
+                {phoneNumber: {displayNumber: '+1-555-0100'}},
+                {phoneNumber: {displayNumber: '+1-555-0101'}},
+              ],
+            },
+          },
+        });
+        jest.runAllTimers();
+        next.mockClear();
+
+        dataSource.next({
+          data: {countryCode: 'US'},
+          label:
+            'RelayModernEnvironmentExecuteWithDeferAndSubPathTestSubRecordQuery$defer$SubRecordFragment',
+          path: ['node', 'allPhones', 0, 'phoneNumber'],
+        });
+        dataSource.next({
+          data: {countryCode: 'CA'},
+          label:
+            'RelayModernEnvironmentExecuteWithDeferAndSubPathTestSubRecordQuery$defer$SubRecordFragment',
+          path: ['node', 'allPhones', 1, 'phoneNumber'],
+        });
+
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(0);
+        const snapshot = environment.lookup(selector);
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data).toEqual({
+          allPhones: [
+            {phoneNumber: {countryCode: 'US'}},
+            {phoneNumber: {countryCode: 'CA'}},
+          ],
+        });
+      });
+
       it('processes deferred per-item payloads addressed via numeric subPath', () => {
         const query = graphql`
           query RelayModernEnvironmentExecuteWithDeferAndSubPathTestPhonesQuery(

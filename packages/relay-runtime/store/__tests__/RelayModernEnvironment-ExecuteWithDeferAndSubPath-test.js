@@ -307,6 +307,90 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ],
         });
       });
+
+      it('processes a nested @defer chunk when the outer defer streams as sub-path chunks only', () => {
+        const query = graphql`
+          query RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ... on User {
+                id
+                allPhones {
+                  phoneNumber {
+                    displayNumber
+                  }
+                }
+                ...RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedOuterFragment
+                  @dangerously_unaliased_fixme
+                  @defer(label: "NestedOuterFragment")
+              }
+            }
+          }
+        `;
+        graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedOuterFragment on User {
+            allPhones {
+              isVerified
+            }
+            ...RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedInnerFragment
+              @defer(label: "NestedInnerFragment")
+          }
+        `;
+        const innerFragment = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedInnerFragment on User {
+            name
+          }
+        `;
+        const operation = createOperationDescriptor(query, {id: '1'});
+        const innerSelector = createReaderSelector(
+          innerFragment,
+          '1',
+          {},
+          operation.request,
+        );
+
+        environment.execute({operation}).subscribe(callbacks);
+        dataSource.next({
+          data: {
+            node: {
+              id: '1',
+              __typename: 'User',
+              allPhones: [
+                {phoneNumber: {displayNumber: '+1-555-0100'}},
+              ],
+            },
+          },
+        });
+        jest.runAllTimers();
+        next.mockClear();
+
+        // Outer @defer's data streams ONLY as sub-path chunks (per-item).
+        // The outer fragment root at ['node'] never gets a chunk of its own,
+        // so a direct normalisation of the outer fragment never happens.
+        dataSource.next({
+          data: {isVerified: true},
+          label:
+            'RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedQuery$defer$NestedOuterFragment',
+          path: ['node', 'allPhones', 0],
+        });
+
+        // Inner @defer chunk arrives at the outer's parent path, addressed
+        // by the inner label. Without the eager inner-placeholder registration,
+        // no placeholder exists for this label and the chunk is silently dropped.
+        dataSource.next({
+          data: {name: 'Alice'},
+          label:
+            'RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedOuterFragment$defer$NestedInnerFragment',
+          path: ['node'],
+        });
+
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(0);
+        const snapshot = environment.lookup(innerSelector);
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data).toEqual({name: 'Alice'});
+      });
     });
   },
 );

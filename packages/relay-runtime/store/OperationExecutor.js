@@ -42,12 +42,15 @@ import type {
   TaskScheduler,
 } from '../store/RelayStoreTypes';
 import type {
+  NormalizationDefer,
   NormalizationLinkedField,
   NormalizationOperation,
   NormalizationRootNode,
   NormalizationSelectableNode,
+  NormalizationSelection,
   NormalizationSplitOperation,
 } from '../util/NormalizationNode';
+import type {NormalizationSelector} from './RelayStoreTypes';
 import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {NormalizeResponseFunction} from './RelayStoreTypes';
@@ -1387,6 +1390,7 @@ class Executor<TMutation extends MutationParameters> {
           label,
           placeholder.kind,
         );
+        this._registerInnerDeferPlaceholders(placeholder);
         relayPayloads.push(
           this._processDeferResponse(
             label,
@@ -1426,6 +1430,45 @@ class Executor<TMutation extends MutationParameters> {
       }
     });
     return relayPayloads;
+  }
+
+  /**
+   * Register placeholders for any top-level Defer selections inside a parent
+   * defer's fragment. Needed when the parent's data streams as sub-path
+   * chunks only (per-item, single sub-record) — the fragment root is never
+   * normalized, so inner @defer AST nodes are never encountered and their
+   * chunks would arrive with an unregistered label and be silently dropped.
+   * Idempotent, recurses so multiple levels of nesting are handled, and
+   * drains any responses that queued before the placeholder existed.
+   */
+  _registerInnerDeferPlaceholders(parentPlaceholder: DeferPlaceholder): void {
+    const parentPathKey = parentPlaceholder.path.map(String).join('.');
+    forEachInnerDefer(parentPlaceholder.selector, defer => {
+      let resultForLabel = this._incrementalResults.get(defer.label);
+      if (resultForLabel == null) {
+        resultForLabel = new Map();
+        this._incrementalResults.set(defer.label, resultForLabel);
+      }
+      const existing = resultForLabel.get(parentPathKey);
+      if (existing != null && existing.kind === 'placeholder') {
+        return;
+      }
+      const innerPlaceholder = buildInnerDeferPlaceholder(
+        parentPlaceholder,
+        defer,
+      );
+      resultForLabel.set(parentPathKey, {
+        kind: 'placeholder',
+        placeholder: innerPlaceholder,
+      });
+      this._registerInnerDeferPlaceholders(innerPlaceholder);
+      if (existing != null && existing.kind === 'response') {
+        const payloadFollowups = this._processIncrementalResponses(
+          existing.responses,
+        );
+        this._processPayloadFollowups(payloadFollowups);
+      }
+    });
   }
 
   _processDeferResponse(
@@ -1877,6 +1920,61 @@ function findDeferPlaceholderByPrefix(
     }
   }
   return null;
+}
+
+/**
+ * Walk the top-level selections of a placeholder's fragment for Defer nodes,
+ * descending through wrapper selections that don't change the record scope
+ * (InlineFragment, ClientExtension, Condition). Conditional defers are
+ * skipped when their `if` variable resolves to false at the placeholder's
+ * variables — matching `_normalizeDefer`'s behavior.
+ */
+function forEachInnerDefer(
+  selector: NormalizationSelector,
+  visit: (defer: NormalizationDefer) => void,
+): void {
+  const walk = (selections: ReadonlyArray<NormalizationSelection>) => {
+    for (const sel of selections) {
+      switch (sel.kind) {
+        case 'Defer':
+          if (
+            sel.if === null ||
+            Boolean(selector.variables[sel.if])
+          ) {
+            visit(sel);
+          }
+          break;
+        case 'InlineFragment':
+        case 'ClientExtension':
+        case 'Condition':
+          walk(sel.selections);
+          break;
+      }
+    }
+  };
+  const selections = selector.node.selections;
+  if (selections != null) {
+    walk(selections);
+  }
+}
+
+function buildInnerDeferPlaceholder(
+  parent: DeferPlaceholder,
+  defer: NormalizationDefer,
+): DeferPlaceholder {
+  return {
+    actorIdentifier: parent.actorIdentifier,
+    data: {},
+    kind: 'defer',
+    label: defer.label,
+    path: parent.path,
+    selector: {
+      dataID: parent.selector.dataID,
+      node: defer,
+      variables: parent.selector.variables,
+    },
+    typeName: parent.typeName,
+  };
 }
 
 module.exports = {

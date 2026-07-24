@@ -1270,6 +1270,13 @@ class Executor<TMutation extends MutationParameters> {
         : null;
     resultForLabel.set(pathKey, {kind: 'placeholder', placeholder});
 
+    // If the parent has no data of its own (only inner @defers), the
+    // server never emits a parent chunk — register inner placeholders
+    // here so their chunks find a home.
+    if (placeholder.kind === 'defer') {
+      this._registerInnerDeferPlaceholders(placeholder);
+    }
+
     // Store references to the parent node to allow detecting concurrent
     // modifications to the parent before items arrive and to replay
     // handle field payloads to account for new information on source records.
@@ -1434,12 +1441,19 @@ class Executor<TMutation extends MutationParameters> {
 
   /**
    * Register placeholders for any top-level Defer selections inside a parent
-   * defer's fragment. Needed when the parent's data streams as sub-path
-   * chunks only (per-item, single sub-record) — the fragment root is never
-   * normalized, so inner @defer AST nodes are never encountered and their
-   * chunks would arrive with an unregistered label and be silently dropped.
-   * Idempotent, recurses so multiple levels of nesting are handled, and
-   * drains any responses that queued before the placeholder existed.
+   * defer's fragment. Called from two sites so both failure modes are covered:
+   *   - `_processIncrementalPlaceholder`, when the parent placeholder is
+   *     created from the initial payload — needed if the parent has no data
+   *     of its own (only inner @defers), because in that case the server
+   *     never emits a chunk for the parent label.
+   *   - `_processIncrementalResponses`, when a chunk arrives that matches
+   *     the parent placeholder — needed when the parent streams as sub-path
+   *     chunks only (per-item, single sub-record), so the fragment root is
+   *     never normalized and inner @defer AST nodes are never encountered.
+   * Without either registration, inner chunks arrive with an unregistered
+   * label and get silently queued forever. Idempotent, recurses so multiple
+   * levels of nesting are handled, and drains any responses that queued
+   * before the placeholder existed.
    */
   _registerInnerDeferPlaceholders(parentPlaceholder: DeferPlaceholder): void {
     const parentPathKey = parentPlaceholder.path.map(String).join('.');

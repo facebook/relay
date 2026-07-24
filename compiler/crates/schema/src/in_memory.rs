@@ -26,6 +26,7 @@ use graphql_syntax::*;
 use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 
@@ -48,11 +49,8 @@ pub struct InMemorySchema {
     subscription_type: Option<ObjectID>,
     type_map: TypeMap,
 
-    clientid_field: FieldID,
-    strongid_field: FieldID,
-    typename_field: FieldID,
-    fetch_token_field: FieldID,
-    is_fulfilled_field: FieldID,
+    // Fields that can be accessed on every type
+    meta_fields: StringKeyMap<FieldID>,
 
     clientid_field_name: StringKey,
     strongid_field_name: StringKey,
@@ -90,23 +88,23 @@ impl Schema for InMemorySchema {
     }
 
     fn clientid_field(&self) -> FieldID {
-        self.clientid_field
+        self.meta_fields[&self.clientid_field_name]
     }
 
     fn strongid_field(&self) -> FieldID {
-        self.strongid_field
+        self.meta_fields[&self.strongid_field_name]
     }
 
     fn typename_field(&self) -> FieldID {
-        self.typename_field
+        self.meta_fields[&self.typename_field_name]
     }
 
     fn fetch_token_field(&self) -> FieldID {
-        self.fetch_token_field
+        self.meta_fields[&self.fetch_token_field_name]
     }
 
     fn is_fulfilled_field(&self) -> FieldID {
-        self.is_fulfilled_field
+        self.meta_fields[&self.is_fulfilled_field_name]
     }
 
     fn get_type(&self, type_name: StringKey) -> Option<Type> {
@@ -176,29 +174,14 @@ impl Schema for InMemorySchema {
     }
 
     fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID> {
-        // Special case for __typename and __id fields, which should not be in the list of type fields
+        // Special case for __typename and __id and other meta fields, which should not be in the list of type fields
         // but should be fine to select.
         let can_have_typename = matches!(
             parent_type,
             Type::Object(_) | Type::Interface(_) | Type::Union(_)
         );
-        if can_have_typename {
-            if name == self.typename_field_name {
-                return Some(self.typename_field);
-            }
-            // TODO(inanc): Also check if the parent type is fetchable?
-            if name == self.fetch_token_field_name {
-                return Some(self.fetch_token_field);
-            }
-            if name == self.clientid_field_name {
-                return Some(self.clientid_field);
-            }
-            if name == self.strongid_field_name {
-                return Some(self.strongid_field);
-            }
-            if name == self.is_fulfilled_field_name {
-                return Some(self.is_fulfilled_field);
-            }
+        if can_have_typename && self.meta_fields.contains_key(&name) {
+            return Some(self.meta_fields[&name]);
         }
 
         let fields = match parent_type {
@@ -242,11 +225,7 @@ impl Schema for InMemorySchema {
             mutation_type,
             subscription_type,
             directives,
-            clientid_field: _clientid_field,
-            strongid_field: _strongid_field,
-            typename_field: _typename_field,
-            fetch_token_field: _fetch_token_field,
-            is_fulfilled_field: _is_fulfilled_field,
+            meta_fields: _meta_fields,
             clientid_field_name: _clientid_field_name,
             strongid_field_name: _strongid_field_name,
             typename_field_name: _typename_field_name,
@@ -394,6 +373,17 @@ impl InMemorySchema {
 
     pub fn add_field(&mut self, field: Field) -> DiagnosticsResult<FieldID> {
         Ok(self.build_field(field))
+    }
+
+    pub fn add_meta_field(&mut self, field: Field) -> DiagnosticsResult<FieldID> {
+        let field_name = field.name.item;
+        let field_id = self.build_field(field);
+        self.set_meta_field(field_name, field_id);
+        Ok(field_id)
+    }
+
+    fn set_meta_field(&mut self, name: StringKey, field: FieldID) {
+        self.meta_fields.insert(name, field);
     }
 
     pub fn add_enum(&mut self, enum_: Enum) -> DiagnosticsResult<EnumID> {
@@ -685,21 +675,31 @@ impl InMemorySchema {
             .get(&"Boolean".intern())
             .map(|t| TypeReference::Named(*t));
 
+        let clientid_field_name = "__id".intern();
+        let strongid_field_name = "strong_id__".intern();
+        let typename_field_name = "__typename".intern();
+        let fetch_token_field_name = "__token".intern();
+        let is_fulfilled_field_name = "is_fulfilled__".intern();
+
+        let meta_fields = StringKeyMap::from_iter([
+            (clientid_field_name, FieldID(0)),
+            (strongid_field_name, FieldID(0)),
+            (typename_field_name, FieldID(0)),
+            (fetch_token_field_name, FieldID(0)),
+            (is_fulfilled_field_name, FieldID(0)),
+        ]);
+
         let mut schema = InMemorySchema {
             query_type,
             mutation_type,
             subscription_type,
             type_map,
-            clientid_field: FieldID(0),
-            strongid_field: FieldID(0),
-            typename_field: FieldID(0),
-            fetch_token_field: FieldID(0),
-            is_fulfilled_field: FieldID(0),
-            clientid_field_name: "__id".intern(),
-            strongid_field_name: "strong_id__".intern(),
-            typename_field_name: "__typename".intern(),
-            fetch_token_field_name: "__token".intern(),
-            is_fulfilled_field_name: "is_fulfilled__".intern(),
+            meta_fields,
+            clientid_field_name,
+            strongid_field_name,
+            typename_field_name,
+            fetch_token_field_name,
+            is_fulfilled_field_name,
             string_type,
             id_type,
             unchecked_argument_type_sentinel,
@@ -720,21 +720,30 @@ impl InMemorySchema {
     /// methods. Note that we still bake in some assumptions about the clientid and typename
     /// fields, but in practice this is not an issue.
     pub fn create_uninitialized() -> InMemorySchema {
+        let clientid_field_name = "__id".intern();
+        let strongid_field_name = "strong_id__".intern();
+        let typename_field_name = "__typename".intern();
+        let fetch_token_field_name = "__token".intern();
+        let is_fulfilled_field_name = "is_fulfilled__".intern();
+
+        let meta_fields = StringKeyMap::from_iter([
+            (clientid_field_name, FieldID(0)),
+            (strongid_field_name, FieldID(0)),
+            (typename_field_name, FieldID(0)),
+            (fetch_token_field_name, FieldID(0)),
+            (is_fulfilled_field_name, FieldID(0)),
+        ]);
         InMemorySchema {
             query_type: None,
             mutation_type: None,
             subscription_type: None,
             type_map: HashMap::new(),
-            clientid_field: FieldID(0),
-            strongid_field: FieldID(0),
-            typename_field: FieldID(0),
-            fetch_token_field: FieldID(0),
-            is_fulfilled_field: FieldID(0),
-            clientid_field_name: "__id".intern(),
-            strongid_field_name: "strong_id__".intern(),
-            typename_field_name: "__typename".intern(),
-            fetch_token_field_name: "__token".intern(),
-            is_fulfilled_field_name: "is_fulfilled__".intern(),
+            meta_fields,
+            clientid_field_name,
+            strongid_field_name,
+            typename_field_name,
+            fetch_token_field_name,
+            is_fulfilled_field_name,
             string_type: None,
             id_type: None,
             unchecked_argument_type_sentinel: None,
@@ -905,21 +914,30 @@ impl InMemorySchema {
                 .expect("Missing Boolean type"),
         ));
 
+        let clientid_field_name = "__id".intern();
+        let strongid_field_name = "strong_id__".intern();
+        let typename_field_name = "__typename".intern();
+        let fetch_token_field_name = "__token".intern();
+        let is_fulfilled_field_name = "is_fulfilled__".intern();
+
+        let meta_fields = StringKeyMap::from_iter([
+            (clientid_field_name, FieldID(0)), // dummy value, overwritten later
+            (strongid_field_name, FieldID(0)), // dummy value, overwritten later
+            (typename_field_name, FieldID(0)), // dummy value, overwritten later
+            (fetch_token_field_name, FieldID(0)), // dummy value, overwritten later
+            (is_fulfilled_field_name, FieldID(0)), // dummy value, overwritten later
+        ]);
         let mut schema = InMemorySchema {
             query_type: None,
             mutation_type: None,
             subscription_type: None,
             type_map,
-            clientid_field: FieldID(0), // dummy value, overwritten later
-            strongid_field: FieldID(0), // dummy value, overwritten later
-            typename_field: FieldID(0), // dummy value, overwritten later
-            fetch_token_field: FieldID(0), // dummy value, overwritten later
-            is_fulfilled_field: FieldID(0), // dummy value, overwritten later
-            clientid_field_name: "__id".intern(),
-            strongid_field_name: "strong_id__".intern(),
-            typename_field_name: "__typename".intern(),
-            fetch_token_field_name: "__token".intern(),
-            is_fulfilled_field_name: "is_fulfilled__".intern(),
+            meta_fields,
+            clientid_field_name,
+            strongid_field_name,
+            typename_field_name,
+            fetch_token_field_name,
+            is_fulfilled_field_name,
             string_type: Some(string_type),
             id_type: Some(id_type),
             unchecked_argument_type_sentinel,
@@ -1196,7 +1214,10 @@ impl InMemorySchema {
             .get(&"String".intern())
             .expect("Missing String type");
         let typename_field_id = self.fields.len();
-        self.typename_field = FieldID(typename_field_id.try_into().unwrap());
+        self.set_meta_field(
+            self.typename_field_name,
+            FieldID(typename_field_id.try_into().unwrap()),
+        );
         self.fields.push(Field {
             name: WithLocation::generated(self.typename_field_name),
             is_extension: false,
@@ -1212,7 +1233,10 @@ impl InMemorySchema {
     fn load_default_fetch_token_field(&mut self) {
         let id_type = *self.type_map.get(&"ID".intern()).expect("Missing ID type");
         let fetch_token_field_id = self.fields.len();
-        self.fetch_token_field = FieldID(fetch_token_field_id.try_into().unwrap());
+        self.set_meta_field(
+            self.fetch_token_field_name,
+            FieldID(fetch_token_field_id.try_into().unwrap()),
+        );
         self.fields.push(Field {
             name: WithLocation::generated(self.fetch_token_field_name),
             is_extension: false,
@@ -1228,7 +1252,10 @@ impl InMemorySchema {
     fn load_default_clientid_field(&mut self) {
         let id_type = *self.type_map.get(&"ID".intern()).expect("Missing ID type");
         let clientid_field_id = self.fields.len();
-        self.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
+        self.set_meta_field(
+            self.clientid_field_name,
+            FieldID(clientid_field_id.try_into().unwrap()),
+        );
         self.fields.push(Field {
             name: WithLocation::generated(self.clientid_field_name),
             is_extension: true,
@@ -1244,7 +1271,10 @@ impl InMemorySchema {
     fn load_default_strongid_field(&mut self) {
         let id_type = *self.type_map.get(&"ID".intern()).expect("Missing ID type");
         let strongid_field_id = self.fields.len();
-        self.strongid_field = FieldID(strongid_field_id.try_into().unwrap());
+        self.set_meta_field(
+            self.strongid_field_name,
+            FieldID(strongid_field_id.try_into().unwrap()),
+        );
         self.fields.push(Field {
             name: WithLocation::generated(self.strongid_field_name),
             is_extension: true,
@@ -1267,7 +1297,10 @@ impl InMemorySchema {
             .get(&"Boolean".intern())
             .expect("Missing Boolean type");
         let is_fulfilled_field_id = self.fields.len();
-        self.is_fulfilled_field = FieldID(is_fulfilled_field_id.try_into().unwrap());
+        self.set_meta_field(
+            self.is_fulfilled_field_name,
+            FieldID(is_fulfilled_field_id.try_into().unwrap()),
+        );
         self.fields.push(Field {
             name: WithLocation::generated(self.is_fulfilled_field_name),
             is_extension: true,

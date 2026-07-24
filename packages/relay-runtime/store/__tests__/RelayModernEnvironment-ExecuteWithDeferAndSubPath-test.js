@@ -391,6 +391,74 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(snapshot.isMissingData).toBe(false);
         expect(snapshot.data).toEqual({name: 'Alice'});
       });
+
+      it('processes a nested @defer chunk when the outer defer emits no chunk of its own', () => {
+        const query = graphql`
+          query RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ... on User {
+                id
+                allPhones {
+                  phoneNumber {
+                    displayNumber
+                  }
+                }
+                ...RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedOuterFragment
+                  @dangerously_unaliased_fixme
+                  @defer(label: "NestedOuterFragment")
+              }
+            }
+          }
+        `;
+        const innerFragment = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedInnerFragment on User {
+            name
+          }
+        `;
+        const operation = createOperationDescriptor(query, {id: '1'});
+        const innerSelector = createReaderSelector(
+          innerFragment,
+          '1',
+          {},
+          operation.request,
+        );
+
+        environment.execute({operation}).subscribe(callbacks);
+        dataSource.next({
+          data: {
+            node: {
+              id: '1',
+              __typename: 'User',
+              allPhones: [
+                {phoneNumber: {displayNumber: '+1-555-0100'}},
+              ],
+            },
+          },
+        });
+        jest.runAllTimers();
+        next.mockClear();
+
+        // No outer chunk arrives — mirrors the server-side optimisation of
+        // skipping the parent label when its non-defer selections resolve
+        // to nothing. Inner @defer chunk arrives directly at the parent
+        // path. Without the eager placeholder registration triggered when
+        // the outer placeholder itself is created, no inner placeholder
+        // exists and the chunk is silently dropped.
+        dataSource.next({
+          data: {name: 'Alice'},
+          label:
+            'RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedOuterFragment$defer$NestedInnerFragment',
+          path: ['node'],
+        });
+
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(0);
+        const snapshot = environment.lookup(innerSelector);
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data).toEqual({name: 'Alice'});
+      });
     });
   },
 );

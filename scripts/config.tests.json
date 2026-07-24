@@ -63,14 +63,14 @@
 "relay_resolver_enable_interface_output_type": {
           "kind": "enabled"
         },
-        "enable_typename_discriminated_unions": {
-          "kind": "enabled"
-        },
         "enable_exec_time_resolvers_directive": true,
         "allow_output_type_resolvers": {
           "kind": "enabled"
         },
         "allow_legacy_relay_resolver_tag": {
+          "kind": "enabled"
+        },
+        "enable_shadow_resolvers": {
           "kind": "enabled"
         }
       },

@@ -222,6 +222,16 @@ jobs:
         with:
           command: install
           args: cross
+      # actions-rs/toolchain@v1 is deprecated and no longer reliably installs the
+      # requested `target` (e.g. cross-compiling x86_64-apple-darwin on the
+      # Apple-Silicon macos-latest runner fails with "can't find crate for `std`").
+      # Explicitly add the target for non-cross builds (cross handles its own
+      # targets in a container). Run from compiler/ so the toolchain pinned in
+      # compiler/rust-toolchain.toml is the one that receives the target.
+      - name: Add rust target
+        if: ${{ !matrix.target.cross }}
+        working-directory: compiler
+        run: rustup target add ${{ matrix.target.target }}
       # Current published version of cross only works correctly if run from compiler directory
       # See related issue https://github.com/cross-rs/cross/issues/615
       # actions-rs/cargo@v1 does not support this option https://github.com/actions-rs/cargo/pull/59

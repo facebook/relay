@@ -40,7 +40,9 @@ export type NormalizationRootNode =
 
 export type ProvidedVariableType = {get(): unknown};
 
-export type ProvidedVariablesType = {readonly [key: string]: {get(): unknown}};
+export type ProvidedVariablesType = {
+  readonly [key: string]: ProvidedVariableType,
+};
 
 /**
  * Contains the parameters required for executing a GraphQL request.

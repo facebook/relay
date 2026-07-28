@@ -52,6 +52,10 @@ export type RequestParameters =
   | {
       readonly id: string,
       readonly text: string | null,
+      // Optional when the compiler is configured with `include_query_text: true`
+      // for persisted queries — artifacts then carry both `id` and `text`, and a
+      // `cacheID` (hash of the text) for local caching. See the doc comment above.
+      readonly cacheID?: string,
       // common fields
       readonly name: string,
       readonly operationKind: 'mutation' | 'query' | 'subscription',

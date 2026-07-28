@@ -22,9 +22,12 @@ import type {
   IEnvironment,
   Observable,
   OperationType,
+  PreloadableConcreteRequest,
   RequestParameters,
   VariablesOf as _VariablesOf,
 } from 'relay-runtime';
+
+export type {PreloadableConcreteRequest};
 
 export type VariablesOf<T> = _VariablesOf<T>;
 
@@ -44,17 +47,6 @@ export type LoadQueryOptions = {
   readonly fetchPolicy?: ?FetchPolicy,
   readonly networkCacheConfig?: ?CacheConfig,
   readonly __nameForWarning?: ?string,
-};
-
-export type PreloadableConcreteRequest<out TQuery extends OperationType> = {
-  kind: 'PreloadableConcreteRequest',
-  params: RequestParameters,
-  // Note: the phantom type parameter here helps ensures that the
-  // $Parameters.js value matches the type param provided to preloadQuery.
-  // We also need to add usage of this generic here,
-  // becuase not using the generic in the definition makes it
-  // unconstrained in the call to a function that accepts PreloadableConcreteRequest<T>
-  readonly __phantom__?: ?TQuery,
 };
 
 export type EnvironmentProviderOptions = {readonly [string]: unknown, ...};

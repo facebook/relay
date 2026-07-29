@@ -189,7 +189,7 @@ impl<'a> DisallowRequiredOnNonNullField<'a> {
     }
 
     fn modifiable_fields_to_warnings(&mut self) {
-        for (_, action) in self.modifiable_fields.iter() {
+        for action in self.modifiable_fields.values() {
             match action {
                 Action::NotRemovable => {}
                 Action::Removable(message_list) => {

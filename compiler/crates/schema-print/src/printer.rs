@@ -123,7 +123,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
 
     pub fn print_all_types(&mut self) -> FmtResult {
         let ordered_type_map = self.schema.get_type_map().collect::<BTreeMap<_, _>>();
-        for (_key, value) in ordered_type_map.iter() {
+        for value in ordered_type_map.values() {
             self.print_type(**value)?;
         }
         Ok(())

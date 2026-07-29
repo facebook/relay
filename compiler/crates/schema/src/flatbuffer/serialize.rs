@@ -129,7 +129,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
 
     fn serialize_types(&mut self) {
         let ordered_type_map = self.schema.get_type_map().collect::<BTreeMap<_, _>>();
-        for (_key, value) in ordered_type_map.iter() {
+        for value in ordered_type_map.values() {
             self.serialize_type(**value);
         }
     }

@@ -141,7 +141,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
     fn get_errors(&self) -> Vec<Diagnostic> {
         let mut errors = Vec::new();
 
-        for (_, def) in self.all_provided_variables.iter() {
+        for def in self.all_provided_variables.values() {
             def.get_errors(self.schema, &mut errors);
         }
         errors

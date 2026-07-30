@@ -2201,3 +2201,63 @@ describe("Aliased linked fields without arguments don't overwrite each other", (
     );
   });
 });
+
+describe('plural linked field selected twice at the same path', () => {
+  // When the same plural linked field is selected once unconditionally and once
+  // again in a sibling selection (an `@include`/`@skip` condition or an abstract
+  // inline fragment), the generator used to pass the whole previously-generated
+  // array down as the prior value for *each* element, so `_traverse` returned
+  // the array itself and `generateMockList` wrapped it again — producing
+  // `[[item]]` instead of `[item]`. The normalizer then could not read the leaf
+  // fields and warned. `disallowWarnings()` at the top of this file turns that
+  // warning into a failure, and the snapshot pins the flat shape.
+  test('does not double-nest under an @include condition', () => {
+    testGeneratedData(
+      graphql`
+        query RelayMockPayloadGeneratorTest70Query($showDetails: Boolean!) {
+          node(id: "my-id") {
+            ... on User {
+              allPhones {
+                isVerified
+              }
+              ... @include(if: $showDetails) {
+                allPhones {
+                  phoneNumber {
+                    displayNumber
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      null,
+      undefined,
+      {showDetails: true},
+    );
+  });
+
+  test('does not double-nest across concrete + abstract inline fragments (#5258)', () => {
+    // Same root cause, but the second selection lives in an *abstract* inline
+    // fragment (`... on Actor`) rather than an `@include` condition — the exact
+    // shape reported in facebook/relay#5258.
+    testGeneratedData(graphql`
+      query RelayMockPayloadGeneratorTest71Query {
+        me {
+          ... on User {
+            allPhones {
+              isVerified
+            }
+          }
+          ... on Actor {
+            allPhones {
+              phoneNumber {
+                displayNumber
+              }
+            }
+          }
+        }
+      }
+    `);
+  });
+});

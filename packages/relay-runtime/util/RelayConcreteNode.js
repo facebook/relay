@@ -50,6 +50,7 @@ export type ProvidedVariablesType = {readonly [key: string]: {get(): unknown}};
  */
 export type RequestParameters =
   | {
+      readonly cacheID?: string,
       readonly id: string,
       readonly text: string | null,
       // common fields

@@ -813,8 +813,8 @@ class RelayMockPayloadGenerator {
       // data must be indexed the same way, or the whole array is passed as each
       // element's previous value and the list double-nests (`[[item]]`).
       const prevFieldData = field.plural
-        ? Array.isArray(data[applicationName])
-          ? data[applicationName][index ?? 0]
+        ? index != null && Array.isArray(data[applicationName])
+          ? data[applicationName][index]
           : null
         : data[applicationName];
       return this._traverse(

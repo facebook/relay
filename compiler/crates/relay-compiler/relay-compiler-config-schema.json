@@ -1126,7 +1126,7 @@
           "$ref": "#/$defs/RemotePersistConfig"
         },
         {
-          "description": "This variant represents a local persistence configuration, where GraphQL queries are persisted to a local JSON file.\n\nWhen this variant is used, the compiler will attempt to read the local file as a hash map,\nadd new queries to the map, and then serialize and write the resulting map to the configured path.",
+          "description": "This variant represents a local persistence configuration, where GraphQL queries are persisted to a local JSON file.\n\nWhen this variant is used, the compiler will attempt to read the local file as a hash map,\nadd new queries to the map, and then serialize and write the resulting map to the configured path.\nThe file (and any missing parent directories) is created if it does not already exist.",
           "$ref": "#/$defs/LocalPersistConfig"
         }
       ]

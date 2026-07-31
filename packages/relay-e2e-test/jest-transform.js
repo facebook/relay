@@ -10,7 +10,7 @@
  *
  * Handles both:
  * - TypeScript/TSX files (test code and fixture code) via @babel/plugin-transform-typescript
- * - Flow JS files (relay-runtime and react-relay source) via babel-plugin-syntax-hermes-parser
+ * - Flow JS files (relay-runtime and react-relay source) via flow-parser/babel-plugin
  */
 
 'use strict';
@@ -42,7 +42,7 @@ function findBabelPluginRelay() {
 
 // Resolve all plugin paths upfront so Babel doesn't need to resolve them
 // relative to each file being transformed (which fails for temp dir files)
-const hermesParser = require.resolve('babel-plugin-syntax-hermes-parser');
+const flowParser = require.resolve('flow-parser/babel-plugin');
 const flowStrip = require.resolve('@babel/plugin-transform-flow-strip-types');
 const tsTransform = require.resolve('@babel/plugin-transform-typescript');
 const reactJsx = require.resolve('@babel/plugin-transform-react-jsx');
@@ -65,8 +65,8 @@ module.exports = {
       // which includes the TS syntax plugin and strips TS types
       plugins.push([tsTransform, {isTSX: true, allowDeclareFields: true}]);
     } else {
-      // Flow files (relay source) and plain JS: use hermes parser + flow strip
-      plugins.push(hermesParser);
+      // Flow files (relay source) and plain JS: use Flow parser + flow strip
+      plugins.push(flowParser);
       plugins.push(flowStrip);
     }
 

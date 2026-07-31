@@ -15,7 +15,7 @@ module.exports = {
   // TODO - migrate this onto @react-native-community/eslint-config
   extends: ['fbjs'],
   plugins: ['jest', 'relay', 'react-hooks', 'relay-internal'],
-  parser: 'hermes-eslint',
+  parser: 'flow-eslint',
   rules: {
     // Consistency with internal config
     'no-class-assign': 'off',
@@ -79,7 +79,7 @@ module.exports = {
     'prefer-const': 'error',
     'no-trailing-spaces': 'error',
 
-    // These rules are not required with hermes-eslint
+    // These rules are not required with flow-eslint
     'ft-flow/define-flow-type': 0,
     'ft-flow/use-flow-type': 0,
 

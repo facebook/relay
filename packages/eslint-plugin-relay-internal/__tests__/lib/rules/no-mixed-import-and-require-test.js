@@ -14,7 +14,7 @@ const rule = require('../../../lib/rules/no-mixed-import-and-require');
 const RuleTester = require('eslint').RuleTester;
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('hermes-eslint'),
+  parser: require.resolve('flow-eslint'),
   parserOptions: {
     sourceType: 'module',
     ecmaVersion: 6,

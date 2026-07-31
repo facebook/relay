@@ -4227,14 +4227,6 @@ hasown@^2.0.2:
   dependencies:
     function-bind "^1.1.2"
 
-hermes-eslint@0.37.0:
-  version "0.37.0"
-  resolved "https://registry.yarnpkg.com/hermes-eslint/-/hermes-eslint-0.37.0.tgz#f66afae3150d7b7703dcfb30e43297662674c560"
-  integrity sha512-GOZ2xpOe28u7hN5e4NMBCEVZ9KwmigPtFZDXoSRgUWL6sFlppxB5T7WBiLRO00c+sW5R0YM4cbOmnWtTK+DQcQ==
-  dependencies:
-    hermes-estree "0.37.0"
-    hermes-parser "0.37.0"
-
 hermes-estree@0.37.0:
   version "0.37.0"
   resolved "https://registry.yarnpkg.com/hermes-estree/-/hermes-estree-0.37.0.tgz#455bf48d059882c543012e862f332ac0696e1b4f"

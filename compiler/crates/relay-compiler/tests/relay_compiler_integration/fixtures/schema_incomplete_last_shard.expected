@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+//- src/App.js
+graphql`
+  query AppQuery {
+    greeting
+  }
+`
+
+//- relay.config.json
+{
+  "sources": {
+    "src": "test_project"
+  },
+  "projects": {
+    "test_project": {
+      "language": "flow",
+      "schemaDir": "./schema"
+    }
+  }
+}
+
+//- schema/0000.graphql
+type Query {
+  greeting: String
+}
+
+//- schema/0001.graphql
+type Mutation {
+  create_thing: String
+==================================== OUTPUT ===================================
+✖︎ Schema shard files did not form a complete SDL document — the last file in the sequence did not end with `}`.
+
+All files processed in order:
+  1: schema/0000.graphql
+  2: schema/0001.graphql
+
+<generated>: <missing source>

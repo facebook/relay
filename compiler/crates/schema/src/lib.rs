@@ -22,7 +22,9 @@ mod schema;
 pub mod suggestion_list;
 use std::borrow::Cow;
 
+use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::Location;
 use common::SourceLocationKey;
 use common::sync::IntoParallelIterator;
 use common::sync::ParallelIterator;
@@ -124,7 +126,16 @@ pub fn parse_schema_with_extensions_parallel<
                 }
             }
             if !buffer.is_empty() {
-                eprintln!("Incomplete schema document:  {buffer}")
+                let all_files = server_sdls
+                    .iter()
+                    .enumerate()
+                    .map(|(i, (_, loc))| format!("  {}: {}", i + 1, loc.path()))
+                    .collect::<Vec<_>>()
+                    .join("\n");
+                return Err(vec![Diagnostic::error(
+                    errors::SchemaError::IncompleteSchemaDocument { all_files },
+                    Location::generated(),
+                )]);
             }
             chunks
         }

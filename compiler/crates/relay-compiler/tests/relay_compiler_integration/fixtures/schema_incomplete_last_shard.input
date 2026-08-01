@@ -1,0 +1,28 @@
+//- src/App.js
+graphql`
+  query AppQuery {
+    greeting
+  }
+`
+
+//- relay.config.json
+{
+  "sources": {
+    "src": "test_project"
+  },
+  "projects": {
+    "test_project": {
+      "language": "flow",
+      "schemaDir": "./schema"
+    }
+  }
+}
+
+//- schema/0000.graphql
+type Query {
+  greeting: String
+}
+
+//- schema/0001.graphql
+type Mutation {
+  create_thing: String

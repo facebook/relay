@@ -57,4 +57,11 @@ pub enum SchemaError {
 
     #[error("The directive `@{0}` can only be used once at this location, but was used {1} times.")]
     RepeatedNonRepeatableDirective(StringKey, usize),
+
+    #[error(
+        "Schema shard files did not form a complete SDL document — the last file in the sequence \
+         did not end with `}}`.\n\n\
+         All files processed in order:\n{all_files}"
+    )]
+    IncompleteSchemaDocument { all_files: String },
 }

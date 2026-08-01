@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4fa0284246e2d17615f4a165bec3297e>>
+ * @generated SignedSource<<a04527254ed592c40836185646d8c1cc>>
  */
 
 mod relay_compiler_integration;
@@ -843,6 +843,13 @@ async fn schema_in_generated_dir() {
     let input = include_str!("relay_compiler_integration/fixtures/schema_in_generated_dir.input");
     let expected = include_str!("relay_compiler_integration/fixtures/schema_in_generated_dir.expected");
     test_fixture(transform_fixture, file!(), "schema_in_generated_dir.input", "relay_compiler_integration/fixtures/schema_in_generated_dir.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_incomplete_last_shard() {
+    let input = include_str!("relay_compiler_integration/fixtures/schema_incomplete_last_shard.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/schema_incomplete_last_shard.expected");
+    test_fixture(transform_fixture, file!(), "schema_incomplete_last_shard.input", "relay_compiler_integration/fixtures/schema_incomplete_last_shard.expected", input, expected).await;
 }
 
 #[tokio::test]

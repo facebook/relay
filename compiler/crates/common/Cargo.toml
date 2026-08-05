@@ -21,7 +21,7 @@ lsp-types = "0.97"
 md-5 = "0.10"
 rayon = "1.11.0"
 schemars = { version = "1.2.1", features = ["indexmap2"] }
-serde = { version = "1.0.219", features = ["derive", "rc"] }
+serde = { version = "1.0.229", features = ["derive", "rc"] }
 serde_json = { version = "1.0.140", features = ["alloc", "float_roundtrip", "raw_value", "unbounded_depth"] }
 typetag = "0.2.22"
 

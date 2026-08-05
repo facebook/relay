@@ -28,7 +28,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 indexmap = { version = "2.14.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 schema = { path = "../schema" }
-serde = { version = "1.0.219", features = ["derive", "rc"] }
+serde = { version = "1.0.229", features = ["derive", "rc"] }
 strum = { version = "0.28.0", features = ["derive"] }
 thiserror = "2.0.18"
 

@@ -29,7 +29,7 @@ relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
-serde = { version = "1.0.219", features = ["derive", "rc"] }
+serde = { version = "1.0.229", features = ["derive", "rc"] }
 serde_json = { version = "1.0.140", features = ["alloc", "float_roundtrip", "raw_value", "unbounded_depth"] }
 wasm-bindgen = "0.2.126"
 wee_alloc = { version = "0.4.5", optional = true }

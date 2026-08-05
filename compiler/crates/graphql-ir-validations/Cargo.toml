@@ -22,7 +22,7 @@ intern = { path = "../intern" }
 relay-config = { path = "../relay-config" }
 rustc-hash = "2.1.3"
 schema = { path = "../schema" }
-serde = { version = "1.0.219", features = ["derive", "rc"] }
+serde = { version = "1.0.229", features = ["derive", "rc"] }
 thiserror = "2.0.18"
 
 [dev-dependencies]

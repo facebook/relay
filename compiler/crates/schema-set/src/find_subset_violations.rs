@@ -675,7 +675,7 @@ fn format_output_type_ref(type_ref: &OutputTypeReference<StringKey>) -> String {
             format!("{}!", format_output_type_ref(inner))
         }
         OutputTypeReference::NonNull(OutputNonNull::Semantic(inner)) => {
-            format!("{}!", format_output_type_ref(inner))
+            format!("{} @semanticNonNull", format_output_type_ref(inner))
         }
         OutputTypeReference::List(inner) => {
             format!("[{}]", format_output_type_ref(inner))

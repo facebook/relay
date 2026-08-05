@@ -716,11 +716,14 @@ fn same_type_kind(a: &SetType, b: &SetType) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use common::ArgumentName;
     use common::SourceLocationKey;
     use graphql_syntax::parse_schema_document;
+    use intern::string_key::Intern;
 
     use super::*;
     use crate::DirectivePolicy;
+    use crate::DivergentArgs;
 
     fn set_from_str(sdl: &str) -> SchemaSet {
         SchemaSet::from_base_schema_documents(&[parse_schema_document(
@@ -747,10 +750,12 @@ mod tests {
         let bidirectional = DirectivePolicy {
             service_only_ok: true,
             client_only_ok: true,
-            args_may_differ: true,
+            divergent_args: Some(DivergentArgs::All),
         };
         let policies = DirectivePolicies::from_iter(
-            subset_directives.iter().map(|name| (*name, bidirectional)),
+            subset_directives
+                .iter()
+                .map(|name| (*name, bidirectional.clone())),
         );
         find_subset_violations(&base_set, &subset_set, &policies)
     }
@@ -1230,7 +1235,7 @@ mod tests {
             DirectivePolicy {
                 service_only_ok: true,
                 client_only_ok: false,
-                args_may_differ: false,
+                divergent_args: None,
             },
         )]);
         let v = find_subset_violations(&base, &subset, &policies);
@@ -1537,6 +1542,90 @@ mod tests {
             v.is_empty(),
             "Both having @deprecated with different args should be valid, got: {:?}",
             v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    // ───────────────────────────────────────────────────────────────
+    // divergent_args: which directive args may differ between base and subset
+    // ───────────────────────────────────────────────────────────────
+
+    fn violations_with_policy(
+        base: &str,
+        subset: &str,
+        name: &str,
+        policy: DirectivePolicy,
+    ) -> Vec<SubsetViolation> {
+        let base_set = set_from_str(base);
+        let subset_set = set_from_str(subset);
+        let policies = DirectivePolicies::from_iter([(name, policy)]);
+        find_subset_violations(&base_set, &subset_set, &policies)
+    }
+
+    // A directive present on both sides that must match exactly except for the
+    // args allowed by `divergent_args`.
+    fn exact_except(divergent_args: Option<DivergentArgs>) -> DirectivePolicy {
+        DirectivePolicy {
+            service_only_ok: false,
+            client_only_ok: false,
+            divergent_args,
+        }
+    }
+
+    #[test]
+    fn test_divergent_only_named_arg_may_differ() {
+        let v = violations_with_policy(
+            r#"type Query { myQ: String @mydir(a: "base", b: "same") }"#,
+            r#"type Query { myQ: String @mydir(a: "subset", b: "same") }"#,
+            "mydir",
+            exact_except(Some(DivergentArgs::Only(vec![ArgumentName("a".intern())]))),
+        );
+        assert!(
+            v.is_empty(),
+            "divergent arg `a` may differ, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_divergent_non_named_arg_must_match() {
+        let v = violations_with_policy(
+            r#"type Query { myQ: String @mydir(a: "same", b: "base") }"#,
+            r#"type Query { myQ: String @mydir(a: "same", b: "subset") }"#,
+            "mydir",
+            exact_except(Some(DivergentArgs::Only(vec![ArgumentName("a".intern())]))),
+        );
+        assert!(
+            !v.is_empty(),
+            "non-divergent arg `b` must match, but no violation was reported"
+        );
+    }
+
+    #[test]
+    fn test_divergent_all_lets_any_arg_differ() {
+        let v = violations_with_policy(
+            r#"type Query { myQ: String @mydir(a: "base", b: "base") }"#,
+            r#"type Query { myQ: String @mydir(a: "subset", b: "subset") }"#,
+            "mydir",
+            exact_except(Some(DivergentArgs::All)),
+        );
+        assert!(
+            v.is_empty(),
+            "DivergentArgs::All lets every arg differ, got: {:?}",
+            v.iter().map(|v| &v.description).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_divergent_none_requires_all_args_match() {
+        let v = violations_with_policy(
+            r#"type Query { myQ: String @mydir(a: "base") }"#,
+            r#"type Query { myQ: String @mydir(a: "subset") }"#,
+            "mydir",
+            exact_except(None),
+        );
+        assert!(
+            !v.is_empty(),
+            "`None` requires all args to match, but no violation was reported"
         );
     }
 

@@ -40,6 +40,8 @@ pub use crate::builtin_scalars::add_built_in_scalars;
 pub use crate::builtin_scalars::remove_built_in_scalars;
 pub use crate::directive_policies::DirectivePolicies;
 pub use crate::directive_policies::DirectivePolicy;
+pub use crate::directive_policies::DirectivePolicyError;
+pub use crate::directive_policies::DivergentArgs;
 pub use crate::from_schema::SchemaDefault;
 pub use crate::from_schema::SchemaInsertArgument;
 pub use crate::from_schema::SchemaInsertDirectiveValue;

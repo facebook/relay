@@ -25,6 +25,7 @@ use schema::TypeReference;
 use schema_coordinates::SchemaCoordinate;
 
 use crate::DirectivePolicies;
+use crate::DivergentArgs;
 use crate::OutputNonNull;
 use crate::OutputTypeReference;
 use crate::SchemaDefinitionItem;
@@ -67,8 +68,9 @@ pub struct SafeExclusionOptions {
     ///   `other` but missing from `self`, must be reported. The missing
     ///   application is left in the remainder as a `@missing_required_directive`
     ///   marker so the violation walker can emit `BaseDirectiveNotInSubset`.
-    /// * `args_may_differ = true` skips structural argument comparison when
-    ///   deciding whether one side's directive covers the other.
+    /// * `divergent_args` names the arguments (or `All` of them) whose values
+    ///   are skipped during structural argument comparison when deciding whether
+    ///   one side's directive covers the other.
     ///
     /// Directives not tracked by `directive_policies` use
     /// [`crate::DirectivePolicy::EXACT_MATCH`] in the forward pass (`self`-only
@@ -671,11 +673,11 @@ fn exclude_directives(
         if policy.client_only_ok {
             continue;
         }
-        let args_may_differ = policy.args_may_differ;
+        let divergent_args = policy.divergent_args.as_ref();
         let covered = other
             .named(this_directive.name)
             .is_some_and(|other_directive| {
-                set_directive_value_is_subset_of(this_directive, other_directive, args_may_differ)
+                set_directive_value_is_subset_of(this_directive, other_directive, divergent_args)
             });
         if !covered {
             not_excluded.push(this_directive.clone());
@@ -694,11 +696,11 @@ fn exclude_directives(
         if policy.service_only_ok {
             continue;
         }
-        let args_may_differ = policy.args_may_differ;
+        let divergent_args = policy.divergent_args.as_ref();
         let covered = this
             .named(other_directive.name)
             .is_some_and(|this_directive| {
-                set_directive_value_is_subset_of(this_directive, other_directive, args_may_differ)
+                set_directive_value_is_subset_of(this_directive, other_directive, divergent_args)
             });
         if !covered {
             not_excluded.push(build_missing_required_directive(other_directive));
@@ -716,19 +718,16 @@ fn exclude_directives(
 /// parsed at different byte offsets compare as unequal. This function compares only the semantic
 /// content: directive name, argument names, and argument values (ignoring source positions).
 ///
-/// When `args_may_differ` is true, matching names is enough — argument values
-/// are not compared.
+/// Arguments are matched by name, so argument order does not matter. Argument
+/// names listed in `divergent_args` are compared by name only — their values may
+/// differ between `this` and `other`. All other arguments must match exactly.
 fn set_directive_value_is_subset_of(
     this: &SetDirectiveValue,
     other: &SetDirectiveValue,
-    args_may_differ: bool,
+    divergent_args: Option<&DivergentArgs>,
 ) -> bool {
     if this.name != other.name {
         return false;
-    }
-
-    if args_may_differ {
-        return true;
     }
 
     if this.arguments.is_empty() {
@@ -741,10 +740,17 @@ fn set_directive_value_is_subset_of(
         return false;
     }
 
-    this.arguments
-        .iter()
-        .zip(other.arguments.iter())
-        .all(|(a, b)| a.name == b.name && constant_value_semantically_eq(&a.value, &b.value))
+    // Match arguments by name, not by position
+    this.arguments.iter().all(|a| {
+        other
+            .arguments
+            .iter()
+            .find(|b| b.name == a.name)
+            .is_some_and(|b| {
+                divergent_args.is_some_and(|d| d.may_diverge(&a.name))
+                    || constant_value_semantically_eq(&a.value, &b.value)
+            })
+    })
 }
 
 /// Semantic equality for ConstantValue, ignoring Token/Span source positions.
@@ -982,7 +988,7 @@ pub mod tests {
                     DirectivePolicy {
                         service_only_ok: true,
                         client_only_ok: true,
-                        args_may_differ: true
+                        divergent_args: None
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1291,7 +1297,7 @@ pub mod tests {
                     DirectivePolicy {
                         service_only_ok: true,
                         client_only_ok: true,
-                        args_may_differ: true
+                        divergent_args: None
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1315,7 +1321,7 @@ pub mod tests {
                     DirectivePolicy {
                         service_only_ok: true,
                         client_only_ok: true,
-                        args_may_differ: true
+                        divergent_args: None
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1379,6 +1385,33 @@ pub mod tests {
             }
         "#;
 
+        assert_base_exclude_expected!(
+            base,
+            excluded,
+            r#"
+            type Padding {
+                id: ID
+            }
+            "#,
+        );
+    }
+
+    #[test]
+    fn directive_value_comparison_ignores_argument_order() {
+        let base = r#"
+            type Padding { id: ID }
+            type MyType {
+                field: String @ref_type(schema: "distillery", name: "XDTMedia")
+            }
+        "#;
+        let excluded = r#"
+            type MyType {
+                field: String @ref_type(name: "XDTMedia", schema: "distillery")
+            }
+        "#;
+
+        // Same directive with arguments in a different order -> MyType is fully
+        // covered, so only Padding (unique to base) remains.
         assert_base_exclude_expected!(
             base,
             excluded,
@@ -1539,6 +1572,127 @@ pub mod tests {
         );
     }
 
+    #[test]
+    fn divergent_named_arg_may_differ_when_other_args_match() {
+        assert_base_exclude_empty!(
+            r#"
+            type T @fb_owner(oncall: "team_a", note: "same") {
+                f: String
+            }
+            "#,
+            r#"
+            type T @fb_owner(oncall: "team_b", note: "same") {
+                f: String
+            }
+            "#,
+            SafeExclusionOptions {
+                directive_policies: DirectivePolicies::from_iter([(
+                    "fb_owner",
+                    DirectivePolicy {
+                        service_only_ok: false,
+                        client_only_ok: false,
+                        divergent_args: Some(DivergentArgs::Only(vec![ArgumentName(
+                            "oncall".intern(),
+                        )])),
+                    },
+                )]),
+                ..SafeExclusionOptions::default()
+            }
+        );
+    }
+
+    #[test]
+    fn non_divergent_arg_difference_is_not_subset() {
+        assert_base_exclude_expected!(
+            r#"
+            type T @fb_owner(oncall: "team_a", note: "n1") {
+                f: String
+            }
+            "#,
+            r#"
+            type T @fb_owner(oncall: "team_a", note: "n2") {
+                f: String
+            }
+            "#,
+            r#"
+            extend type T @fb_owner(oncall: "team_a", note: "n1")
+            "#,
+            SafeExclusionOptions {
+                directive_policies: DirectivePolicies::from_iter([(
+                    "fb_owner",
+                    DirectivePolicy {
+                        service_only_ok: true,
+                        client_only_ok: false,
+                        divergent_args: Some(DivergentArgs::Only(vec![ArgumentName(
+                            "oncall".intern(),
+                        )])),
+                    },
+                )]),
+                ..SafeExclusionOptions::default()
+            }
+        );
+    }
+
+    #[test]
+    fn divergent_all_allows_every_arg_to_differ() {
+        assert_base_exclude_empty!(
+            r#"
+            type T @owner(a: "1", b: "2") {
+                f: String
+            }
+            "#,
+            r#"
+            type T @owner(a: "9", b: "8") {
+                f: String
+            }
+            "#,
+            SafeExclusionOptions {
+                directive_policies: DirectivePolicies::from_iter([(
+                    "owner",
+                    DirectivePolicy {
+                        service_only_ok: false,
+                        client_only_ok: false,
+                        divergent_args: Some(DivergentArgs::All),
+                    },
+                )]),
+                ..SafeExclusionOptions::default()
+            }
+        );
+    }
+
+    /// Even with `DivergentArgs::All`, a mismatch in argument NAMES (not just
+    /// values) breaks the subset relationship — divergence permits different
+    /// values, not different arguments.
+    #[test]
+    fn divergent_all_still_requires_matching_arg_names() {
+        assert_base_exclude_expected!(
+            r#"
+            type T @owner(a: "1", b: "2") {
+                f: String
+            }
+            "#,
+            r#"
+            type T @owner(a: "1", c: "2") {
+                f: String
+            }
+            "#,
+            r#"
+            extend type T @owner(a: "1", b: "2")
+            "#,
+            SafeExclusionOptions {
+                directive_policies: DirectivePolicies::from_iter([(
+                    "owner",
+                    DirectivePolicy {
+                        service_only_ok: true,
+                        client_only_ok: false,
+                        divergent_args: Some(DivergentArgs::All),
+                    },
+                )]),
+                ..SafeExclusionOptions::default()
+            }
+        );
+    }
+
     /// For subset_directives: a no-arg subset directive in base is a subset of
     /// the with-arg version in exclude — result is empty.
     #[test]
@@ -1556,7 +1710,7 @@ pub mod tests {
                     DirectivePolicy {
                         service_only_ok: true,
                         client_only_ok: true,
-                        args_may_differ: true
+                        divergent_args: None
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1582,7 +1736,7 @@ pub mod tests {
                     DirectivePolicy {
                         service_only_ok: true,
                         client_only_ok: true,
-                        args_may_differ: true
+                        divergent_args: None
                     },
                 )]),
                 ..SafeExclusionOptions::default()

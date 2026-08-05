@@ -30,7 +30,7 @@ intern = { path = "../intern" }
 schema = { path = "../schema" }
 serde = { version = "1.0.229", features = ["derive", "rc"] }
 strum = { version = "0.28.0", features = ["derive"] }
-thiserror = "2.0.18"
+thiserror = "2.0.19"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

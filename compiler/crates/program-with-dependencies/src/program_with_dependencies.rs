@@ -135,7 +135,7 @@ impl ProgramWithDependencies {
                     {
                         panic!(
                             "\nDuplicate fragment definitions named {}: \nfirst one: {:?}\nsecond one: {:?}\n",
-                            name, loc, &another
+                            name, loc, another
                         );
                     }
                     scoped_fragments.insert(name, fragment_ref.clone()); // Keep the order the fragments same as inputs.
@@ -151,7 +151,7 @@ impl ProgramWithDependencies {
             {
                 panic!(
                     "\nDuplicate fragment definitions named {}: \nfirst one: {:?}\nsecond one: {:?}\n",
-                    fragment_name, loc, &another
+                    fragment_name, loc, another
                 );
             }
         }

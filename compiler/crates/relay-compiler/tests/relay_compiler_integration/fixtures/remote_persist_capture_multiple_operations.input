@@ -1,3 +1,5 @@
+// Multiple operations: persist requests are sorted by query text for snapshot determinism.
+
 //- foo.js
 graphql`query FooQuery { greeting }`
 

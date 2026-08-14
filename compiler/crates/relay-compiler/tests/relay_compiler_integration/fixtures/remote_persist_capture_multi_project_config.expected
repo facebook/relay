@@ -1,4 +1,6 @@
 ==================================== INPUT ====================================
+// Multi-project config: `persist` lives inside a project block instead of top-level `persistConfig`.
+
 //- src/component.js
 graphql`query RemotePersistMultiProjectQuery { greeting }`
 

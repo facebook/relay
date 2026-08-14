@@ -1,0 +1,25 @@
+//- component.js
+graphql`query RemotePersistMergeConflictQuery { greeting }`
+
+// Merge conflict markers (<<<<, >>>>) in existing artifact → re-persist.
+
+//- __generated__/RemotePersistMergeConflictQuery.graphql.js
+<<<<<<< HEAD
+ * @relayHash d1c1762e9aa53ce7878d427c8fd203af
+=======
+ * @relayHash ffffffffffffffffffffffffffffffff
+>>>>>>> main
+// @relayRequestID stale-persist-id
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "src": "./",
+   "persistConfig": {
+      "url": "relay-test://persist"
+   }
+}
+
+//- schema.graphql
+type Query { greeting: String }

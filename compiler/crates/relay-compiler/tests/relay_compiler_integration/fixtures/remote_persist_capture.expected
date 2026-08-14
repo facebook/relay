@@ -1,4 +1,6 @@
 ==================================== INPUT ====================================
+// Basic remote persist: captures URL, extra params, headers, and query text in the snapshot.
+
 //- component.js
 graphql`query RemotePersistCaptureQuery { greeting }`
 

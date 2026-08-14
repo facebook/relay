@@ -1,0 +1,20 @@
+//- component.js
+graphql`query RemotePersistNoRelayHashQuery { greeting }`
+
+// No @relayHash in existing artifact: @relayRequestID reused without hash verification.
+
+//- __generated__/RemotePersistNoRelayHashQuery.graphql.js
+// @relayRequestID pre-existing-persist-id
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "src": "./",
+   "persistConfig": {
+      "url": "relay-test://persist"
+   }
+}
+
+//- schema.graphql
+type Query { greeting: String }

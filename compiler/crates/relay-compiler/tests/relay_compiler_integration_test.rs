@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ab1bd89f8d7be0a6a25e884cacf03d62>>
+ * @generated SignedSource<<b101d369b92a2d248ad3e7f7754dd5ee>>
  */
 
 mod relay_compiler_integration;
@@ -510,6 +510,13 @@ async fn remote_persist_capture() {
 }
 
 #[tokio::test]
+async fn remote_persist_capture_extra_headers() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_capture_extra_headers.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_capture_extra_headers.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_capture_extra_headers.input", "relay_compiler_integration/fixtures/remote_persist_capture_extra_headers.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn remote_persist_capture_multi_project_config() {
     let input = include_str!("relay_compiler_integration/fixtures/remote_persist_capture_multi_project_config.input");
     let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_capture_multi_project_config.expected");
@@ -521,6 +528,48 @@ async fn remote_persist_capture_multiple_operations() {
     let input = include_str!("relay_compiler_integration/fixtures/remote_persist_capture_multiple_operations.input");
     let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_capture_multiple_operations.expected");
     test_fixture(transform_fixture, file!(), "remote_persist_capture_multiple_operations.input", "relay_compiler_integration/fixtures/remote_persist_capture_multiple_operations.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_id_cached_from_existing_artifact() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_id_cached_from_existing_artifact.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_id_cached_from_existing_artifact.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_id_cached_from_existing_artifact.input", "relay_compiler_integration/fixtures/remote_persist_id_cached_from_existing_artifact.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_id_cached_when_relay_hash_absent() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_id_cached_when_relay_hash_absent.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_id_cached_when_relay_hash_absent.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_id_cached_when_relay_hash_absent.input", "relay_compiler_integration/fixtures/remote_persist_id_cached_when_relay_hash_absent.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_id_recache_on_hash_mismatch() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_id_recache_on_hash_mismatch.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_id_recache_on_hash_mismatch.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_id_recache_on_hash_mismatch.input", "relay_compiler_integration/fixtures/remote_persist_id_recache_on_hash_mismatch.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_id_recache_on_merge_conflict() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_id_recache_on_merge_conflict.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_id_recache_on_merge_conflict.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_id_recache_on_merge_conflict.input", "relay_compiler_integration/fixtures/remote_persist_id_recache_on_merge_conflict.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_id_recache_when_request_id_absent() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_id_recache_when_request_id_absent.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_id_recache_when_request_id_absent.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_id_recache_when_request_id_absent.input", "relay_compiler_integration/fixtures/remote_persist_id_recache_when_request_id_absent.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_include_query_text() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_include_query_text.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_include_query_text.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_include_query_text.input", "relay_compiler_integration/fixtures/remote_persist_include_query_text.expected", input, expected).await;
 }
 
 #[tokio::test]

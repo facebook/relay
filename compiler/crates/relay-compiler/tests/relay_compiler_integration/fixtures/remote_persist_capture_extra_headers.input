@@ -1,0 +1,19 @@
+// Extra HTTP headers in persist config appear in the snapshot alongside content-type.
+
+//- component.js
+graphql`query RemotePersistExtraHeadersQuery { greeting }`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "src": "./",
+   "persistConfig": {
+      "url": "relay-test://persist",
+      "params": { "app_id": "12345" },
+      "headers": { "x-api-key": "my-secret-key", "x-tenant-id": "acme-corp" }
+   }
+}
+
+//- schema.graphql
+type Query { greeting: String }

@@ -1,0 +1,21 @@
+//- component.js
+graphql`query RemotePersistCachedQuery { greeting }`
+
+// Cache hit: matching @relayHash + @relayRequestID in existing artifact → persist skipped, ID reused.
+
+//- __generated__/RemotePersistCachedQuery.graphql.js
+ * @relayHash d741dac9389bb22fbcebcfc7b1f70746
+// @relayRequestID pre-existing-persist-id
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "src": "./",
+   "persistConfig": {
+      "url": "relay-test://persist"
+   }
+}
+
+//- schema.graphql
+type Query { greeting: String }

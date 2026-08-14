@@ -1,0 +1,21 @@
+//- component.js
+graphql`query RemotePersistHashMismatchQuery { greeting }`
+
+// Hash mismatch: @relayHash in existing artifact differs from current text hash → re-persist.
+
+//- __generated__/RemotePersistHashMismatchQuery.graphql.js
+ * @relayHash aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+// @relayRequestID stale-persist-id
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "src": "./",
+   "persistConfig": {
+      "url": "relay-test://persist"
+   }
+}
+
+//- schema.graphql
+type Query { greeting: String }

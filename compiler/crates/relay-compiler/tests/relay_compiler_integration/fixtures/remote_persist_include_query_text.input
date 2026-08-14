@@ -1,7 +1,7 @@
-// Basic remote persist: captures URL, extra params, headers, and query text in the snapshot.
+// `includeQueryText: true` keeps `text` non-null in the artifact params after persisting (default is null).
 
 //- component.js
-graphql`query RemotePersistCaptureQuery { greeting }`
+graphql`query RemotePersistIncludeQueryTextQuery { greeting }`
 
 //- relay.config.json
 {
@@ -10,7 +10,7 @@ graphql`query RemotePersistCaptureQuery { greeting }`
    "src": "./",
    "persistConfig": {
       "url": "relay-test://persist",
-      "params": { "app_id": "12345" }
+      "includeQueryText": true
    }
 }
 

@@ -1,0 +1,20 @@
+//- component.js
+graphql`query RemotePersistNoRequestIdQuery { greeting }`
+
+// Matching @relayHash but no @relayRequestID in existing artifact → re-persist.
+
+//- __generated__/RemotePersistNoRequestIdQuery.graphql.js
+ * @relayHash c82d7de154d429fd4861a7c6ac6b5f12
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "src": "./",
+   "persistConfig": {
+      "url": "relay-test://persist"
+   }
+}
+
+//- schema.graphql
+type Query { greeting: String }

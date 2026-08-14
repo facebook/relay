@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b101d369b92a2d248ad3e7f7754dd5ee>>
+ * @generated SignedSource<<74f55424ecd3ab4f353a0927a77853b4>>
  */
 
 mod relay_compiler_integration;
@@ -538,13 +538,6 @@ async fn remote_persist_id_cached_from_existing_artifact() {
 }
 
 #[tokio::test]
-async fn remote_persist_id_cached_when_relay_hash_absent() {
-    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_id_cached_when_relay_hash_absent.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_id_cached_when_relay_hash_absent.expected");
-    test_fixture(transform_fixture, file!(), "remote_persist_id_cached_when_relay_hash_absent.input", "relay_compiler_integration/fixtures/remote_persist_id_cached_when_relay_hash_absent.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn remote_persist_id_recache_on_hash_mismatch() {
     let input = include_str!("relay_compiler_integration/fixtures/remote_persist_id_recache_on_hash_mismatch.input");
     let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_id_recache_on_hash_mismatch.expected");
@@ -563,6 +556,13 @@ async fn remote_persist_id_recache_when_request_id_absent() {
     let input = include_str!("relay_compiler_integration/fixtures/remote_persist_id_recache_when_request_id_absent.input");
     let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_id_recache_when_request_id_absent.expected");
     test_fixture(transform_fixture, file!(), "remote_persist_id_recache_when_request_id_absent.input", "relay_compiler_integration/fixtures/remote_persist_id_recache_when_request_id_absent.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_id_repersisted_when_relay_hash_absent() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_id_repersisted_when_relay_hash_absent.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_id_repersisted_when_relay_hash_absent.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_id_repersisted_when_relay_hash_absent.input", "relay_compiler_integration/fixtures/remote_persist_id_repersisted_when_relay_hash_absent.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -1,7 +1,8 @@
 //- component.js
 graphql`query RemotePersistNoRelayHashQuery { greeting }`
 
-// No @relayHash in existing artifact: @relayRequestID reused without hash verification.
+// No @relayHash in existing artifact: cannot verify the persist ID is still valid,
+// so the query is re-persisted and a fresh ID is assigned.
 
 //- __generated__/RemotePersistNoRelayHashQuery.graphql.js
 // @relayRequestID pre-existing-persist-id

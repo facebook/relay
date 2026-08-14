@@ -1,0 +1,18 @@
+//- foo.js
+graphql`query FooQuery { greeting }`
+
+//- bar.js
+graphql`query BarQuery { greeting }`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "src": "./",
+   "persistConfig": {
+      "url": "relay-test://persist"
+   }
+}
+
+//- schema.graphql
+type Query { greeting: String }

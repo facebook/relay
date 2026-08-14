@@ -1,0 +1,22 @@
+//- src/component.js
+graphql`query RemotePersistMultiProjectQuery { greeting }`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "test_project"
+   },
+   "projects": {
+      "test_project": {
+         "schema": "schema.graphql",
+         "language": "flow",
+         "persist": {
+            "url": "relay-test://persist",
+            "params": { "app_id": "12345" }
+         }
+      }
+   }
+}
+
+//- schema.graphql
+type Query { greeting: String }

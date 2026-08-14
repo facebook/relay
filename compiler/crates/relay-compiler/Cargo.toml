@@ -90,6 +90,7 @@ fixture-tests = { path = "../fixture-tests" }
 futures-util = { version = "0.3.30", features = ["compat"] }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }
+url = "2.5.8"
 
 [target.'cfg(target_os = "linux")'.dev-dependencies]
 tempfile = "3.27.0"

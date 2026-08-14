@@ -1,0 +1,16 @@
+//- component.js
+graphql`query RemotePersistCaptureQuery { greeting }`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "src": "./",
+   "persistConfig": {
+      "url": "relay-test://persist",
+      "params": { "app_id": "12345" }
+   }
+}
+
+//- schema.graphql
+type Query { greeting: String }

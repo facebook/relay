@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a04527254ed592c40836185646d8c1cc>>
+ * @generated SignedSource<<ab1bd89f8d7be0a6a25e884cacf03d62>>
  */
 
 mod relay_compiler_integration;
@@ -500,6 +500,27 @@ async fn relay_resolvers_in_throw_on_field_error() {
     let input = include_str!("relay_compiler_integration/fixtures/relay_resolvers_in_throw_on_field_error.input");
     let expected = include_str!("relay_compiler_integration/fixtures/relay_resolvers_in_throw_on_field_error.expected");
     test_fixture(transform_fixture, file!(), "relay_resolvers_in_throw_on_field_error.input", "relay_compiler_integration/fixtures/relay_resolvers_in_throw_on_field_error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_capture() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_capture.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_capture.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_capture.input", "relay_compiler_integration/fixtures/remote_persist_capture.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_capture_multi_project_config() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_capture_multi_project_config.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_capture_multi_project_config.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_capture_multi_project_config.input", "relay_compiler_integration/fixtures/remote_persist_capture_multi_project_config.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_capture_multiple_operations() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_capture_multiple_operations.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_capture_multiple_operations.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_capture_multiple_operations.input", "relay_compiler_integration/fixtures/remote_persist_capture_multiple_operations.expected", input, expected).await;
 }
 
 #[tokio::test]

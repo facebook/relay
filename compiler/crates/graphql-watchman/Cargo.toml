@@ -12,4 +12,4 @@ license = "MIT"
 log = { version = "0.4.33", features = ["kv_unstable", "kv_unstable_std"] }
 serde = { version = "1.0.229", features = ["derive", "rc"] }
 serde_bser = "0.4"
-watchman_client = "0.9.0"
+watchman_client = "0.9"

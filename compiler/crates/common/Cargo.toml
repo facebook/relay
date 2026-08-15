@@ -20,7 +20,7 @@ log = { version = "0.4.33", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-types = "0.97"
 md-5 = "0.10"
 rayon = "1.11.0"
-schemars = { version = "1.2.1", features = ["indexmap2"] }
+schemars = { version = "1.2.2", features = ["indexmap2"] }
 serde = { version = "1.0.229", features = ["derive", "rc"] }
 serde_json = { version = "1.0.151", features = ["alloc", "float_roundtrip", "raw_value", "unbounded_depth"] }
 typetag = "0.2.23"

@@ -29,7 +29,7 @@ name = "relay_compiler_subschema_extraction_test"
 path = "tests/subschema_extraction_test.rs"
 
 [dependencies]
-async-trait = "0.1.91"
+async-trait = "0.1.92"
 bincode = { version = "2", features = ["serde"] }
 common = { path = "../common" }
 common-path = "1.0.0"

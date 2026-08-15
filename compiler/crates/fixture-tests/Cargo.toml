@@ -21,4 +21,4 @@ clap = { version = "4.6.2", features = ["derive", "env", "string", "unicode", "w
 colored = "2.1.0"
 diff = "0.1.13"
 signedsource = { path = "../signedsource" }
-tokio = { version = "1.52.4", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.53.1", features = ["full", "test-util", "tracing"] }

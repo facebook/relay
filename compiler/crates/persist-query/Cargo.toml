@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 bytes = { version = "1.12.1", features = ["serde"] }
-http = "1.4.2"
+http = "1.5.0"
 http-body-util = "0.1.4"
 hyper = { version = "1.11.0", features = ["client", "http1", "http2"] }
 hyper-tls = "0.6"

@@ -17,7 +17,7 @@ common = { path = "../common" }
 intern = { path = "../intern" }
 logos = "0.15"
 serde = { version = "1.0.229", features = ["derive", "rc"] }
-thiserror = "2.0.19"
+thiserror = "2.0.20"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

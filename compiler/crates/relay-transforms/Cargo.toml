@@ -144,7 +144,7 @@ relay-schema = { path = "../relay-schema" }
 rustc-hash = "2.1.3"
 schema = { path = "../schema" }
 serde = { version = "1.0.229", features = ["derive", "rc"] }
-thiserror = "2.0.19"
+thiserror = "2.0.20"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

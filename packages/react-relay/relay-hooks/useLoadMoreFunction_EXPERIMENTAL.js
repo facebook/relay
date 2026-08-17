@@ -260,6 +260,13 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables extends Variables>(
     },
     // NOTE: We disable react-hooks-deps warning because all values
     // inside paginationMetadata are static
+    // NOTE: `fragmentIdentifier` stands in for `fragmentRef`. The identifier
+    // encodes everything `getSelector` derives from the ref (owner identifier,
+    // fragment variables, data IDs), so refs sharing an identifier are
+    // interchangeable here. Depending on the ref itself would rebuild this
+    // callback on every render after a refetch, because
+    // `useRefetchableFragmentInternal` re-reads the refetched ref from a fresh
+    // `readFragmentInternal` call each render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       environment,
@@ -268,7 +275,7 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables extends Variables>(
       cursor,
       isRequestInvalid,
       fragmentNode.name,
-      fragmentRef,
+      fragmentIdentifier,
       componentDisplayName,
     ],
   );

@@ -1803,6 +1803,31 @@ describe.each([
         expect(callback).toBeCalledWith(error);
       });
 
+      it('does not recreate loadNext when re-rendered with an equivalent fragment ref', () => {
+        renderFragment();
+        expectFragmentResults([
+          {
+            data: initialUser,
+            hasNext: true,
+            hasPrevious: false,
+            isLoadingNext: false,
+            isLoadingPrevious: false,
+          },
+        ]);
+        const loadNextBeforeRerender = loadNext;
+
+        // Re-render with a new fragment ref object that points at the same
+        // record with the same owner. useRefetchableFragmentInternal produces
+        // one of these on every render once refetch has been called, since it
+        // re-reads the ref from a fresh readFragmentInternal call, so a
+        // callback keyed on ref identity would never stabilize afterwards.
+        TestRenderer.act(() => {
+          setOwner({...query});
+        });
+
+        expect(loadNext).toBe(loadNextBeforeRerender);
+      });
+
       it('preserves pagination request if re-rendered with same fragment ref', () => {
         const callback = jest.fn<[Error | null], void>();
         const renderer = renderFragment();

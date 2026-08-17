@@ -660,31 +660,48 @@ fn field_definitions_doc(fields: &[FieldDefinition]) -> RcDoc<'static, ()> {
 }
 
 fn field_definition_doc(field: &FieldDefinition) -> RcDoc<'static, ()> {
+    let name = field.name.value.to_string();
     let mut doc = description_doc(&field.description, "  ");
     doc = doc.append(RcDoc::text("  "));
-    doc = doc.append(RcDoc::text(field.name.value.to_string()));
+    doc = doc.append(RcDoc::text(name.clone()));
 
     let type_str = render_doc(type_annotation_doc(&field.type_), LINE_WIDTH);
     let suffix_len = ": ".len() + type_str.len();
     let has_directives = !field.directives.is_empty();
 
-    if let Some(ref arguments) = field.arguments {
-        doc = doc.append(arguments_definition_doc(
-            &arguments.items,
-            &field.name.value.to_string(),
-            suffix_len,
-            has_directives,
-        ));
+    let arguments = field
+        .arguments
+        .as_ref()
+        .map(|args| &args.items[..])
+        .filter(|args| !args.is_empty());
+
+    // Whether the argument list stays on the field's own line decides where that
+    // line ends, which is what the directives then have to fit after.
+    let inline_arguments =
+        arguments.and_then(|args| arguments_inline_form(args, &name, suffix_len, has_directives));
+
+    if let Some(args) = arguments {
+        doc = doc.append(match &inline_arguments {
+            Some(single_line) => RcDoc::text(single_line.clone()),
+            None => expanded_arguments_definition_doc(args),
+        });
     }
 
     doc = doc.append(RcDoc::text(": ")).append(RcDoc::text(type_str));
 
-    // Add directives with breaking
-    if !field.directives.is_empty() {
-        let current_line_estimate = 2 + field.name.value.to_string().len() + suffix_len;
+    if has_directives {
+        // Directives are appended to whatever line the type annotation ended on.
+        // With an expanded argument list that line is the closing `  )`, not the
+        // field name, so measuring from the name would wrap directives that
+        // actually fit (and vice versa for a long inline argument list).
+        let current_line_len = match &inline_arguments {
+            Some(single_line) => 2 + name.len() + single_line.len() + suffix_len,
+            None if arguments.is_some() => "  )".len() + suffix_len,
+            None => 2 + name.len() + suffix_len,
+        };
         doc = doc.append(directives_with_suffix_doc(
             &field.directives,
-            current_line_estimate,
+            current_line_len,
             0,
             INDENT_WIDTH * 2,
         ));
@@ -693,21 +710,20 @@ fn field_definition_doc(field: &FieldDefinition) -> RcDoc<'static, ()> {
     doc
 }
 
-fn arguments_definition_doc(
+/// Returns the single-line rendering of a field's argument list when it may stay
+/// on the field's own line, or `None` when it has to be expanded one-per-line.
+fn arguments_inline_form(
     arguments: &[InputValueDefinition],
     context: &str,
     suffix_len: usize,
     has_following_directives: bool,
-) -> RcDoc<'static, ()> {
-    if arguments.is_empty() {
-        return RcDoc::nil();
+) -> Option<String> {
+    if arguments.iter().any(|a| a.description.is_some()) {
+        return None;
     }
 
     let single_line = format_arguments_single_line(arguments);
-    let prefix_len = 2 + context.len(); // 2 for indent
-
-    let has_descriptions = arguments.iter().any(|a| a.description.is_some());
-    let total_len = prefix_len + single_line.len() + suffix_len;
+    let total_len = 2 + context.len() + single_line.len() + suffix_len; // 2 for indent
 
     let fits = if has_following_directives {
         total_len < LINE_WIDTH
@@ -715,30 +731,29 @@ fn arguments_definition_doc(
         total_len <= LINE_WIDTH
     };
 
-    if !has_descriptions && fits {
-        RcDoc::text(single_line)
-    } else {
-        // Expanded form
-        let arg_docs: Vec<RcDoc<'static, ()>> = arguments
-            .iter()
-            .map(|arg| {
-                let mut arg_doc = description_doc(&arg.description, "    ");
-                // Base indent for field args is 4 spaces, directive break adds 2 more = 6 total
-                arg_doc = arg_doc.append(RcDoc::text("    ").append(input_value_definition_doc(
-                    arg,
-                    4,
-                    INDENT_WIDTH * 3,
-                )));
-                arg_doc
-            })
-            .collect();
+    fits.then_some(single_line)
+}
 
-        RcDoc::text("(")
-            .append(RcDoc::hardline())
-            .append(balanced_intersperse(arg_docs, RcDoc::hardline()))
-            .append(RcDoc::hardline())
-            .append(RcDoc::text("  )"))
-    }
+fn expanded_arguments_definition_doc(arguments: &[InputValueDefinition]) -> RcDoc<'static, ()> {
+    let arg_docs: Vec<RcDoc<'static, ()>> = arguments
+        .iter()
+        .map(|arg| {
+            let mut arg_doc = description_doc(&arg.description, "    ");
+            // Base indent for field args is 4 spaces, directive break adds 2 more = 6 total
+            arg_doc = arg_doc.append(RcDoc::text("    ").append(input_value_definition_doc(
+                arg,
+                4,
+                INDENT_WIDTH * 3,
+            )));
+            arg_doc
+        })
+        .collect();
+
+    RcDoc::text("(")
+        .append(RcDoc::hardline())
+        .append(balanced_intersperse(arg_docs, RcDoc::hardline()))
+        .append(RcDoc::hardline())
+        .append(RcDoc::text("  )"))
 }
 
 fn format_arguments_single_line(arguments: &[InputValueDefinition]) -> String {

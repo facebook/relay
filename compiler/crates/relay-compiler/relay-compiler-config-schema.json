@@ -1185,6 +1185,11 @@
           "type": "boolean",
           "default": false
         },
+        "includeSchemaText": {
+          "description": "Send the project's schema with every persist request, as the\n`schema_text` POST parameter next to the operation in `text`.\n\nUse it when the persist endpoint cannot look the schema up by name — an\napp that composes its schema at build time, for instance, whose\ndocuments the endpoint has no other way to validate.\n\nWhat is sent is the project's server schema. Client-side additions are\nnot included — neither `schemaExtensions` nor the types Relay Resolvers\nadd through docblocks — since the compiler strips selections on those\nout of a document before persisting it.\n\nNot supported for `schemaCompact` projects, which keep the schema as\nbytes and have no text to send.\n\nWhile the schema is being sent, persist requests are capped at 16\nconcurrent unless `concurrency` says otherwise, since each in-flight\nrequest holds its own copy of the schema.",
+          "type": "boolean",
+          "default": false
+        },
         "params": {
           "description": "Additional parameters to include in the POST request.\n\nThe main document will be in a POST parameter `text`. This map can contain\nadditional parameters to send.",
           "type": "object",

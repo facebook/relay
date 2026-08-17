@@ -489,14 +489,14 @@ fn normalize_path_from_config(
     let mut src = current_dir.join(path_from_config.clone());
 
     src = canonicalize(src.clone())
-        .unwrap_or_else(|err| panic!("Unable to canonicalize file {:?}. Error: {:?}", &src, err));
+        .unwrap_or_else(|err| panic!("Unable to canonicalize file {:?}. Error: {:?}", src, err));
 
     src.strip_prefix(common_path.clone())
         .unwrap_or_else(|_| {
             panic!(
                 "Expect to be able to strip common_path from {:?} {:?}",
-                &src,
-                &common_path.clone(),
+                src,
+                common_path.clone(),
             );
         })
         .to_path_buf()
@@ -1797,6 +1797,11 @@ pub struct ArtifactForPersister {
     pub text: String,
     pub relative_path: PathBuf,
     pub override_schema: Option<String>,
+    /// The schema this document was compiled against, when the project's
+    /// persist config asks for it to be sent. Shared rather than copied: every
+    /// artifact in a build carries the same schema, which routinely runs to
+    /// hundreds of kilobytes.
+    pub schema_text: Option<Arc<String>>,
 }
 
 #[async_trait]

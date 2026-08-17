@@ -86,5 +86,6 @@ pub use get_programs::get_programs;
 pub use graphql_asts::GraphQLAsts;
 pub use operation_persister::LocalPersister;
 pub use operation_persister::RemotePersister;
+pub use operation_persister::persist_params;
 pub use relay_config::ProjectName;
 pub use utils::get_parser_features;

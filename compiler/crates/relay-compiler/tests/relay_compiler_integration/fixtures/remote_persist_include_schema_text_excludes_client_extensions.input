@@ -1,0 +1,29 @@
+# The schema text sent with a persist request is the server schema only: the
+# project's schemaExtensions are NOT part of it.
+#
+# `schemaExtensions` are CLIENT extensions. The client-extensions transform
+# strips those selections out of the document before it is persisted, so
+# sending their SDL would describe fields no persisted query can select. The
+# operation has to select a server field too — one selecting only client fields
+# compiles to a ClientQuery and is never persisted at all.
+
+//- component.js
+graphql`query RemotePersistExcludesClientExtensionsQuery { greeting localOnly }`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "schemaExtensions": ["extensions"],
+   "src": "./",
+   "persistConfig": {
+      "url": "relay-test://persist",
+      "includeSchemaText": true
+   }
+}
+
+//- schema.graphql
+type Query { greeting: String }
+
+//- extensions/extensions.graphql
+extend type Query { localOnly: String }

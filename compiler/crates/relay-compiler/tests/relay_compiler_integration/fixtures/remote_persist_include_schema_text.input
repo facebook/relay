@@ -1,0 +1,22 @@
+# `includeSchemaText: true` sends the project's schema as the `schema_text`
+# param, next to the operation in `text`.
+#
+# The negative case (no `schema_text` param when the option is absent) is
+# covered by remote_persist_capture.
+
+//- component.js
+graphql`query RemotePersistIncludeSchemaTextQuery { greeting }`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "src": "./",
+   "persistConfig": {
+      "url": "relay-test://persist",
+      "includeSchemaText": true
+   }
+}
+
+//- schema.graphql
+type Query { greeting: String }

@@ -603,8 +603,12 @@ pub async fn commit_project(
     mut artifacts_to_remove: DashSet<PathBuf, FnvBuildHasher>,
     source_control_update_status: Arc<SourceControlUpdateStatus>,
     // Pre-spawned Eden hash map RPC handle, started earlier in compiler.rs
-    // to overlap with build_commit_state_time processing.
+    // to overlap with build_commit_state processing.
     hash_map_handle: Option<get_artifacts_file_hash_map::ArtifactHashMapHandle>,
+    // The schema the project's programs were built from, when its persist
+    // config asks for it to be sent with each document. Assembled by the
+    // caller, which holds the compiler state the schema was built from.
+    schema_text: Option<Arc<String>>,
 ) -> Result<ArtifactMap, BuildProjectFailure> {
     let log_event = perf_logger.create_event("commit_project");
     log_event.string("project", project_config.name.to_string());
@@ -639,6 +643,7 @@ pub async fn commit_project(
             &(*operation_persister),
             &log_event,
             &programs,
+            schema_text,
         )
         .await?;
         log_event.stop(persist_operations_timer);
@@ -717,7 +722,7 @@ pub async fn commit_project(
                 if !existing_artifacts.remove(&artifact.path) {
                     debug!(
                         "[{}] new artifact {:?} from definitions {:?}",
-                        project_config.name, &artifact.path, &artifact.artifact_source_keys
+                        project_config.name, artifact.path, artifact.artifact_source_keys
                     );
                 }
             }

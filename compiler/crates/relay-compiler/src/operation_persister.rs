@@ -10,3 +10,4 @@ mod remote_persister;
 
 pub use local_persister::LocalPersister;
 pub use remote_persister::RemotePersister;
+pub use remote_persister::persist_params;

@@ -1,0 +1,42 @@
+# A base project's schemaExtensions are excluded from the schema text as well,
+# not just the persisting project's own.
+#
+# The derived project persists but does not list the extensions itself, so
+# `localOnly` is in scope only via "base" — the one path that could smuggle a
+# client extension in through a project that declares none.
+
+//- base_src/base.js
+graphql`query RemotePersistExcludesBaseExtensionsBaseQuery { greeting }`
+
+//- derived_src/derived.js
+graphql`query RemotePersistExcludesBaseExtensionsDerivedQuery { greeting localOnly }`
+
+//- relay.config.json
+{
+  "sources": {
+    "base_src": "base_project",
+    "derived_src": "derived_project"
+  },
+  "projects": {
+    "base_project": {
+      "schema": "schema.graphql",
+      "schemaExtensions": ["extensions"],
+      "language": "flow"
+    },
+    "derived_project": {
+      "schema": "schema.graphql",
+      "base": "base_project",
+      "language": "flow",
+      "persist": {
+        "url": "relay-test://persist",
+        "includeSchemaText": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query { greeting: String }
+
+//- extensions/extensions.graphql
+extend type Query { localOnly: String }

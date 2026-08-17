@@ -44,6 +44,11 @@ use crate::resolvers_schema_module_config::ResolversSchemaModuleConfig;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
+/// The POST parameter carrying the schema when
+/// `RemotePersistConfig::include_schema_text` is set, alongside the operation
+/// itself in `text`.
+pub const SCHEMA_TEXT_PARAM: &str = "schema_text";
+
 /// Configuration for remote persistence of GraphQL documents.
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
@@ -60,6 +65,27 @@ pub struct RemotePersistConfig {
     /// Additional headers to include in the POST request.
     #[serde(default)]
     pub headers: FnvIndexMap<String, String>,
+
+    /// Send the project's schema with every persist request, as the
+    /// `schema_text` POST parameter next to the operation in `text`.
+    ///
+    /// Use it when the persist endpoint cannot look the schema up by name — an
+    /// app that composes its schema at build time, for instance, whose
+    /// documents the endpoint has no other way to validate.
+    ///
+    /// What is sent is the project's server schema. Client-side additions are
+    /// not included — neither `schemaExtensions` nor the types Relay Resolvers
+    /// add through docblocks — since the compiler strips selections on those
+    /// out of a document before persisting it.
+    ///
+    /// Not supported for `schemaCompact` projects, which keep the schema as
+    /// bytes and have no text to send.
+    ///
+    /// While the schema is being sent, persist requests are capped at 16
+    /// concurrent unless `concurrency` says otherwise, since each in-flight
+    /// request holds its own copy of the schema.
+    #[serde(default)]
+    pub include_schema_text: bool,
 
     /// Number of concurrent requests that can be made to the server.
     #[serde(
@@ -134,13 +160,35 @@ impl PersistConfig {
             PersistConfig::Local(local_config) => local_config.include_query_text,
         }
     }
+
+    /// Whether the project's schema should be sent with each persist request.
+    /// Only the remote variant has anywhere to send it.
+    pub fn include_schema_text(&self) -> bool {
+        match self {
+            PersistConfig::Remote(remote_config) => remote_config.include_schema_text,
+            PersistConfig::Local(_) => false,
+        }
+    }
 }
 
 impl<'de> Deserialize<'de> for PersistConfig {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> std::result::Result<Self, D::Error> {
         let value = Value::deserialize(deserializer)?;
         match RemotePersistConfig::deserialize(value.clone()) {
-            Ok(remote_config) => Ok(PersistConfig::Remote(remote_config)),
+            Ok(remote_config) => {
+                // Both would be sent, and which one the endpoint honors is
+                // unspecified. The parameter is ours to set when
+                // `includeSchemaText` is on, so a configured one is a mistake.
+                if remote_config.include_schema_text
+                    && remote_config.params.contains_key(SCHEMA_TEXT_PARAM)
+                {
+                    return Err(Error::custom(format!(
+                        "`persistConfig.params.{SCHEMA_TEXT_PARAM}` cannot be set together with `includeSchemaText`, which sends the project's schema under that same parameter. Remove one of them."
+                    )));
+                }
+
+                Ok(PersistConfig::Remote(remote_config))
+            }
             Err(remote_error) => match LocalPersistConfig::deserialize(value) {
                 Ok(local_config) => {
                     if !local_config.file.exists() {
@@ -716,5 +764,62 @@ mod tests {
             "Bar.graphql.js".to_owned(),
             true,
         );
+    }
+
+    fn parse_persist_config(json: &str) -> Result<PersistConfig, serde_json::Error> {
+        serde_json::from_str(json)
+    }
+
+    #[test]
+    fn persist_config_with_url_is_a_remote_config() {
+        let config = parse_persist_config(r#"{"url": "https://example.com/persist"}"#).unwrap();
+        match config {
+            PersistConfig::Remote(remote_config) => {
+                assert_eq!(remote_config.url, "https://example.com/persist");
+                assert!(
+                    !remote_config.include_schema_text,
+                    "sending the schema is opt-in; omitting the key must not send one"
+                );
+            }
+            other => panic!("expected a remote config, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn remote_persist_config_accepts_include_schema_text() {
+        let config = parse_persist_config(
+            r#"{"url": "https://example.com/persist", "includeSchemaText": true}"#,
+        )
+        .unwrap();
+        match config {
+            PersistConfig::Remote(remote_config) => {
+                assert!(remote_config.include_schema_text);
+            }
+            other => panic!("expected a remote config, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn remote_persist_config_rejects_a_schema_text_param_alongside_include_schema_text() {
+        let error = parse_persist_config(
+            r#"{"url": "https://example.com/persist", "includeSchemaText": true, "params": {"schema_text": "..."}}"#,
+        )
+        .unwrap_err();
+        let message = error.to_string();
+        assert!(
+            message.contains("cannot be set together with `includeSchemaText`"),
+            "the conflict must be named: {message}"
+        );
+    }
+
+    #[test]
+    fn remote_persist_config_allows_a_schema_text_param_without_include_schema_text() {
+        // Nothing of ours is sent, so a caller who wants to manage the
+        // parameter by hand still can.
+        let config = parse_persist_config(
+            r#"{"url": "https://example.com/persist", "params": {"schema_text": "..."}}"#,
+        )
+        .unwrap();
+        assert!(matches!(config, PersistConfig::Remote(_)), "got {config:?}");
     }
 }

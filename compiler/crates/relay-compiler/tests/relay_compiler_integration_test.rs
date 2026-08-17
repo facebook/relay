@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<74f55424ecd3ab4f353a0927a77853b4>>
+ * @generated SignedSource<<f79a30f1b5207f484f90191102ee4253>>
  */
 
 mod relay_compiler_integration;
@@ -570,6 +570,27 @@ async fn remote_persist_include_query_text() {
     let input = include_str!("relay_compiler_integration/fixtures/remote_persist_include_query_text.input");
     let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_include_query_text.expected");
     test_fixture(transform_fixture, file!(), "remote_persist_include_query_text.input", "relay_compiler_integration/fixtures/remote_persist_include_query_text.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_include_schema_text() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_include_schema_text.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_include_schema_text.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_include_schema_text.input", "relay_compiler_integration/fixtures/remote_persist_include_schema_text.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_include_schema_text_excludes_base_extensions() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_include_schema_text_excludes_base_extensions.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_include_schema_text_excludes_base_extensions.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_include_schema_text_excludes_base_extensions.input", "relay_compiler_integration/fixtures/remote_persist_include_schema_text_excludes_base_extensions.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn remote_persist_include_schema_text_excludes_client_extensions() {
+    let input = include_str!("relay_compiler_integration/fixtures/remote_persist_include_schema_text_excludes_client_extensions.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/remote_persist_include_schema_text_excludes_client_extensions.expected");
+    test_fixture(transform_fixture, file!(), "remote_persist_include_schema_text_excludes_client_extensions.input", "relay_compiler_integration/fixtures/remote_persist_include_schema_text_excludes_client_extensions.expected", input, expected).await;
 }
 
 #[tokio::test]

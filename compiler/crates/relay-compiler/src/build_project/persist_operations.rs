@@ -8,6 +8,7 @@
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::sync::LazyLock;
 
 use common::PerfLogEvent;
@@ -33,6 +34,10 @@ static RELAY_HASH_REGEX: LazyLock<Regex> =
 static REQUEST_ID_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"@relayRequestID (.+)\n"#).unwrap());
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Threading the schema text down from the caller that holds the compiler state adds an eighth; splitting the persist inputs into a struct would touch every caller for no behavioral gain."
+)]
 pub async fn persist_operations(
     artifacts: &mut [Artifact],
     root_dir: &Path,
@@ -41,6 +46,7 @@ pub async fn persist_operations(
     operation_persister: &'_ (dyn OperationPersister + Send + Sync),
     log_event: &impl PerfLogEvent,
     programs: &Programs,
+    schema_text: Option<Arc<String>>,
 ) -> Result<(), BuildProjectError> {
     let handles = artifacts
         .par_iter_mut()
@@ -85,12 +91,15 @@ pub async fn persist_operations(
                         None
                     } else {
                         let text = text.clone();
+                        // An `Arc` clone: the same schema for every document.
+                        let schema_text = schema_text.clone();
                         Some(async move {
                             operation_persister
                                 .persist_artifact(ArtifactForPersister {
                                     text,
                                     relative_path,
                                     override_schema,
+                                    schema_text,
                                 })
                                 .await
                                 .map(|id| {

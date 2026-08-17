@@ -754,6 +754,11 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
             .unwrap_or_default();
 
         let source_control_update_status = Arc::clone(&compiler_state.source_control_update_status);
+        // Assembled here, the last point that holds the compiler state the
+        // schema was built from, so what goes over the wire is the schema the
+        // documents were validated against rather than a second read of the
+        // same files.
+        let schema_text = schema_text_for_persist(compiler_state, &config, project_name);
         handles.push(task::spawn(async move {
             // Spawn the Eden hash map RPC inside this per-project tokio task so
             // (a) the synchronous artifact-path extraction parallelizes across
@@ -788,6 +793,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 dirty_artifact_paths,
                 source_control_update_status,
                 hash_map_handle,
+                schema_text,
             )
             .await?;
             Ok(((project_name, artifact_map, schema), diagnostics))
@@ -833,6 +839,56 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     }
 
     Ok(all_diagnostics)
+}
+
+/// The schema text to send alongside this project's persisted documents, or
+/// `None` when the project does not ask for it or has none to send.
+///
+/// The project's server schema SDL, taken from compiler state rather than
+/// re-read from disk, so a mid-build edit cannot swap the schema out from under
+/// documents already validated against it.
+///
+/// Deliberately *only* the server schema. `compiler_state.extensions` — the
+/// project's `schemaExtensions` and its base project's — is client schema
+/// extensions, which the client-extensions transform strips out of a document
+/// before it is persisted. Sending them would describe fields that no document
+/// the endpoint receives can select.
+///
+/// The other client-side additions have no SDL sources to concatenate here
+/// anyway: `build_schema_impl` folds in `RELAY_EXTENSIONS` and the types Relay
+/// Resolvers contribute from docblocks. Their absence is consistent with
+/// dropping the extensions above. `BUILTINS`, which the `schema` crate injects,
+/// is likewise absent — any spec-compliant SDL parser supplies it.
+///
+/// A `schemaCompact` project keeps its schema as bytes rather than SDL and so
+/// has no text to send; that returns `None` too, and the persister reports it
+/// against the config that asked for it.
+fn schema_text_for_persist(
+    compiler_state: &CompilerState,
+    config: &Config,
+    project_name: relay_config::ProjectName,
+) -> Option<Arc<String>> {
+    let project_config = &config.projects[&project_name];
+    if !project_config
+        .persist
+        .as_ref()
+        .is_some_and(|persist| persist.include_schema_text())
+    {
+        return None;
+    }
+
+    let sources = compiler_state.schemas.get(&project_name)?.get_sources();
+    if sources.is_empty() {
+        return None;
+    }
+
+    Some(Arc::new(
+        sources
+            .into_iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>()
+            .join("\n"),
+    ))
 }
 
 /// Get the list of removed docblock sources.

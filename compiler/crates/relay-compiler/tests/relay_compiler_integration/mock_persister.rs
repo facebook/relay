@@ -17,6 +17,7 @@ use relay_compiler::OperationPersister;
 use relay_compiler::config::ArtifactForPersister;
 use relay_compiler::config::PersistId;
 use relay_compiler::config::PersistResult;
+use relay_compiler::persist_params;
 use relay_config::RemotePersistConfig;
 use url::form_urlencoded;
 
@@ -58,10 +59,12 @@ impl OperationPersister for MockPersister {
             .map(|b| format!("{b:02x}"))
             .collect::<String>();
 
+        // Assembled by the real persister's logic, so params the config adds
+        // (notably `schema_text`) are captured rather than silently skipped.
         let request = build_persist_request(
             &artifact.text,
             &self.config.url,
-            &self.config.params,
+            persist_params(&self.config, &artifact)?,
             &self.config.headers,
         );
 

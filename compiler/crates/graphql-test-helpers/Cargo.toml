@@ -11,10 +11,9 @@ license = "MIT"
 [dependencies]
 common = { path = "../common" }
 fixture-tests = { path = "../fixture-tests" }
-fnv = "1.0"
 graphql-cli = { path = "../graphql-cli" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
+project-fixture = { path = "../project-fixture" }
 relay-test-schema = { path = "../relay-test-schema" }
-walkdir = "2.3"

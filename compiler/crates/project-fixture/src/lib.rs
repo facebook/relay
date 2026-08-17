@@ -5,12 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! A file format for encoding a multi-file project as a single file, so a
+//! whole directory tree can be used as the input to — or the snapshot of — a
+//! compiler test.
+//!
+//! This lives in its own crate so consumers can depend on the format without
+//! pulling in the GraphQL stack that the rest of `graphql-test-helpers` needs.
+
+mod temp_dir;
+
 use std::fs;
 use std::path::MAIN_SEPARATOR;
 use std::path::Path;
 use std::path::PathBuf;
 
 use fnv::FnvHashMap;
+pub use temp_dir::TestDir;
 use walkdir::WalkDir;
 
 /// Represents a file change: either an update with new content, or a deletion.
@@ -55,6 +65,18 @@ pub struct ProjectFixture {
 }
 
 impl ProjectFixture {
+    /// Build a fixture from an in-memory set of files.
+    ///
+    /// Useful when the files never touch disk — for example when a code
+    /// generator writes into a virtual filesystem and the test wants to
+    /// snapshot the result with [`ProjectFixture::serialize`].
+    pub fn from_files(files: impl IntoIterator<Item = (PathBuf, String)>) -> Self {
+        Self {
+            files: files.into_iter().collect(),
+            file_changes: Default::default(),
+        }
+    }
+
     /// Parse a fixture file. Useful for parsing an existing fixture test.
     pub fn deserialize(input: &str) -> Self {
         let mut files: FnvHashMap<PathBuf, String> = Default::default();

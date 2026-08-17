@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-mod project_fixture;
-mod temp_dir;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -26,11 +24,13 @@ use graphql_syntax::parse_executable;
 use graphql_text_printer::PrinterOptions;
 use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
+// Re-exported so existing consumers keep working after the format moved into
+// its own dependency-light crate.
 pub use project_fixture::FileChange;
 pub use project_fixture::ProjectFixture;
+pub use project_fixture::TestDir;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_located_extensions;
-pub use temp_dir::TestDir;
 
 pub fn apply_transform_for_test<T>(fixture: &Fixture<'_>, transform: T) -> Result<String, String>
 where

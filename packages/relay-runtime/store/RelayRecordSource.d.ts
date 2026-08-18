@@ -13,7 +13,7 @@ export class RelayRecordSource implements MutableRecordSource {
     constructor(records?: RecordMap);
 
     static create(records?: RecordMap): MutableRecordSource;
-    get<T extends object = Record<string, unknown>>(dataID: DataID): Record<T> | null | undefined;
+    get<T extends object = {[key: string]: unknown}>(dataID: DataID): Record<T> | null | undefined;
     getRecordIDs(): DataID[];
     getStatus(dataID: DataID): RecordState;
     has(dataID: DataID): boolean;

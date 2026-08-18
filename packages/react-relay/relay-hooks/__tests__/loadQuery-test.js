@@ -25,8 +25,10 @@ import type {
   UploadableMap,
   Variables,
 } from 'relay-runtime';
+import type {OperationAvailabilityConfig} from 'relay-runtime/network/RelayNetworkTypes';
 
 const {loadQuery} = require('../loadQuery');
+const nullthrows = require('nullthrows');
 // Need React require for OSS build
 // eslint-disable-next-line no-unused-vars
 const React = require('react');
@@ -34,6 +36,7 @@ const {
   Network,
   Observable,
   PreloadableQueryRegistry,
+  createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
 const {
@@ -95,9 +98,9 @@ describe('loadQuery', () => {
     loadQueryTestQuery$data,
   >;
   let mockAvailability: {fetchTime?: number, status: string};
+  let operationAvailabilityConfig: ?OperationAvailabilityConfig;
   let disposeOnloadCallback;
   let executeOnloadCallback;
-  let checkOperation;
 
   beforeEach(() => {
     fetch = jest.fn(
@@ -126,9 +129,18 @@ describe('loadQuery', () => {
     );
     function wrapNetworkExecute(network: INetwork): INetwork {
       return {
-        execute: (_1, _2, _3, _4, _5, _6, _7, _checkOperation) => {
-          checkOperation = _checkOperation;
-          return network.execute(_1, _2, _3, _4, _5, _6, _7, _checkOperation);
+        execute: (_1, _2, _3, _4, _5, _6, _7, _availabilityConfig) => {
+          operationAvailabilityConfig = _availabilityConfig;
+          return network.execute(
+            _1,
+            _2,
+            _3,
+            _4,
+            _5,
+            _6,
+            _7,
+            _availabilityConfig,
+          );
         },
       };
     }
@@ -434,7 +446,9 @@ describe('loadQuery', () => {
             fetchPolicy: 'store-and-network',
           });
           expect(fetch).toHaveBeenCalled();
-          expect(checkOperation != null && checkOperation().status).toEqual(
+          const config = nullthrows(operationAvailabilityConfig);
+          const parentOperation = nullthrows(config.parentOperation);
+          expect(config.checkOperation(parentOperation).status).toEqual(
             'available',
           );
         });
@@ -446,7 +460,9 @@ describe('loadQuery', () => {
             fetchPolicy: 'store-and-network',
           });
           expect(fetch).toHaveBeenCalled();
-          expect(checkOperation != null && checkOperation().status).toEqual(
+          const config = nullthrows(operationAvailabilityConfig);
+          const parentOperation = nullthrows(config.parentOperation);
+          expect(config.checkOperation(parentOperation).status).toEqual(
             'missing',
           );
         });
@@ -457,6 +473,24 @@ describe('loadQuery', () => {
       beforeEach(() => {
         resolvedModule = null;
       });
+
+      it('provides a stateless checker without a parent operation before the AST loads', () => {
+        loadQuery(environment, preloadableConcreteRequest, variables, {
+          fetchPolicy: 'store-and-network',
+        });
+        const relatedOperation = createOperationDescriptor(query, variables);
+        const config = nullthrows(operationAvailabilityConfig);
+
+        expect(config.parentOperation).toBe(null);
+        expect(config.checkOperation(relatedOperation)).toBe(mockAvailability);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+        expect(environment.check).toHaveBeenLastCalledWith(relatedOperation);
+
+        executeOnloadCallback(query);
+        expect(operationAvailabilityConfig).toBe(config);
+        expect(config.parentOperation).toBe(null);
+      });
+
       it('should make a network request', done => {
         const {source} = loadQuery(
           environment,

@@ -10,7 +10,10 @@
  */
 
 'use strict';
-import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {
+  GraphQLResponse,
+  OperationAvailabilityConfig,
+} from '../../network/RelayNetworkTypes';
 
 const RelayObservable = require('../../network/RelayObservable');
 const {graphql} = require('../../query/GraphQLTag');
@@ -20,11 +23,13 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
-describe('execute() provides a `check` function for the network layer to determine availability of data in store', () => {
+describe('execute() provides operation availability to the network layer', () => {
+  let availabilityConfig: ?OperationAvailabilityConfig;
   let callbacks;
   let complete;
   let environment;
@@ -37,7 +42,6 @@ describe('execute() provides a `check` function for the network layer to determi
   let subject;
   let variables;
   let network;
-  let check;
   beforeEach(() => {
     query = graphql`
       query RelayModernEnvironmentExecuteWithCheckTestQuery(
@@ -61,8 +65,17 @@ describe('execute() provides a `check` function for the network layer to determi
 
     network = {
       execute: jest.fn(
-        (_query, _variables, _cacheConfig, _1, _2, _3, _4, _check) => {
-          check = _check;
+        (
+          _query,
+          _variables,
+          _cacheConfig,
+          _1,
+          _2,
+          _3,
+          _4,
+          _availabilityConfig,
+        ) => {
+          availabilityConfig = _availabilityConfig;
           return RelayObservable.create(sink => {
             subject = sink;
           });
@@ -77,9 +90,11 @@ describe('execute() provides a `check` function for the network layer to determi
     });
   });
 
-  it('returns the correct availability in the check function', () => {
+  it('checks the explicitly supplied parent operation', () => {
     environment.execute({operation}).subscribe(callbacks);
-    expect(check().status).toBe('missing');
+    const firstConfig = nullthrows(availabilityConfig);
+    expect(firstConfig.parentOperation).toBe(operation);
+    expect(firstConfig.checkOperation(operation).status).toBe('missing');
     subject.next({
       data: {
         me: {
@@ -92,6 +107,31 @@ describe('execute() provides a `check` function for the network layer to determi
     jest.runAllTimers();
 
     environment.execute({operation}).subscribe(callbacks);
-    expect(check().status).toBe('available');
+    const secondConfig = nullthrows(availabilityConfig);
+    expect(secondConfig.parentOperation).toBe(operation);
+    expect(secondConfig.checkOperation(operation).status).toBe('available');
+  });
+
+  it('checks a related operation without implicit parent fallback', () => {
+    const availableOperation = createOperationDescriptor(query, {
+      fetchSize: false,
+    });
+    const parentOperation = createOperationDescriptor(query, {
+      fetchSize: true,
+    });
+    environment.commitPayload(availableOperation, {
+      me: {
+        __typename: 'User',
+        id: '842472',
+        name: 'Joe',
+      },
+    });
+
+    environment.execute({operation: parentOperation}).subscribe(callbacks);
+
+    const config = nullthrows(availabilityConfig);
+    expect(config.parentOperation).toBe(parentOperation);
+    expect(config.checkOperation(parentOperation).status).toBe('missing');
+    expect(config.checkOperation(availableOperation).status).toBe('available');
   });
 });

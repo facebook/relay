@@ -340,6 +340,14 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
             operation.request.variables,
             operation.request.cacheConfig || {},
             null,
+            undefined,
+            undefined,
+            undefined,
+            {
+              checkOperation: candidateOperation =>
+                actorEnvironment.check(candidateOperation),
+              parentOperation: operation,
+            },
           ),
       isClientPayload: false,
       operation,

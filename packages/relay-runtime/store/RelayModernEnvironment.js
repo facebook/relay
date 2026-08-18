@@ -361,7 +361,11 @@ class RelayModernEnvironment implements IEnvironment {
           undefined,
           undefined,
           undefined,
-          () => this.check(operation),
+          {
+            checkOperation: candidateOperation =>
+              this.check(candidateOperation),
+            parentOperation: operation,
+          },
         );
       },
       isClientPayload: false,

@@ -12,6 +12,10 @@
 'use strict';
 
 import type {
+  CheckOperation,
+  OperationAvailabilityConfig,
+} from '../../relay-runtime/network/RelayNetworkTypes';
+import type {
   PreloadableConcreteRequest,
   PreloadedQueryInner_DEPRECATED,
   PreloadFetchPolicy,
@@ -24,7 +28,6 @@ import type {
   GraphQLResponse,
   GraphQLTaggedNode,
   IEnvironment,
-  OperationAvailability,
   OperationType,
   Subscription,
 } from 'relay-runtime';
@@ -171,16 +174,15 @@ function preloadQueryDeduped<TQuery extends OperationType>(
   }`;
   const prevQueryEntry = pendingQueries.get(cacheKey);
 
-  function checkOperation(): OperationAvailability {
-    return query != null
-      ? environment.check(
-          createOperationDescriptor(query, variables, networkCacheConfig),
-        )
-      : {status: 'missing'};
-  }
+  const checkOperation: CheckOperation = candidateOperation =>
+    environment.check(candidateOperation);
+  const parentOperation =
+    query != null
+      ? createOperationDescriptor(query, variables, networkCacheConfig)
+      : null;
   const availability =
-    fetchPolicy === STORE_OR_NETWORK_DEFAULT
-      ? checkOperation()
+    fetchPolicy === STORE_OR_NETWORK_DEFAULT && parentOperation != null
+      ? checkOperation(parentOperation)
       : {status: 'missing'};
 
   let nextQueryEntry: ?PendingQueryEntry;
@@ -212,6 +214,10 @@ function preloadQueryDeduped<TQuery extends OperationType>(
     }
   } else if (prevQueryEntry == null || prevQueryEntry.kind !== 'network') {
     // Should fetch but we're not already fetching: fetch!
+    const operationAvailability: OperationAvailabilityConfig = {
+      checkOperation,
+      parentOperation,
+    };
     const source = network.execute(
       params,
       variables,
@@ -220,7 +226,7 @@ function preloadQueryDeduped<TQuery extends OperationType>(
       undefined,
       undefined,
       undefined,
-      checkOperation,
+      operationAvailability,
     );
     const subject = new ReplaySubject<GraphQLResponse>();
     nextQueryEntry = {

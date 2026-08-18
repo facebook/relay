@@ -12,15 +12,13 @@
 'use strict';
 import type ActorSpecificEnvironment from '../multi-actor-environment/ActorSpecificEnvironment';
 import type RelayModernEnvironment from '../store/RelayModernEnvironment';
-import type {
-  LogRequestInfoFunction,
-  OperationAvailability,
-} from '../store/RelayStoreTypes';
+import type {LogRequestInfoFunction} from '../store/RelayStoreTypes';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {
   GraphQLResponse,
   INetwork,
+  OperationAvailabilityConfig,
   UploadableMap,
   preprocessResponseFunction,
 } from './RelayNetworkTypes';
@@ -50,7 +48,7 @@ function wrapNetworkWithLogObserver(
       _?: ?LogRequestInfoFunction,
       encryptedVariables?: ?string,
       preprocessResponse?: ?preprocessResponseFunction,
-      checkOperation?: () => OperationAvailability,
+      operationAvailability?: ?OperationAvailabilityConfig,
     ): RelayObservable<GraphQLResponse> {
       const networkRequestId = generateID();
       const logObserver = {
@@ -106,7 +104,7 @@ function wrapNetworkWithLogObserver(
           logRequestInfo,
           encryptedVariables,
           preprocessResponse,
-          checkOperation,
+          operationAvailability,
         )
         .do(logObserver);
     },

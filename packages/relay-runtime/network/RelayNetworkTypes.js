@@ -11,7 +11,10 @@
 
 'use strict';
 
-import type {OperationAvailability} from '../store/RelayStoreTypes';
+import type {
+  OperationAvailability,
+  OperationDescriptor,
+} from '../store/RelayStoreTypes';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type RelayObservable, {ObservableFromValue} from './RelayObservable';
@@ -92,6 +95,16 @@ export type preprocessResponseFunction = (
   response: RelayObservable<GraphQLResponse>,
 ) => RelayObservable<GraphQLResponse>;
 
+export type CheckOperation = (
+  operation: OperationDescriptor,
+) => OperationAvailability;
+
+export type OperationAvailabilityConfig = Readonly<{
+  checkOperation: CheckOperation,
+  // Preloadable queries can start their raw request before the AST is loaded.
+  parentOperation: ?OperationDescriptor,
+}>;
+
 /**
  * A function that returns an Observable representing the response of executing
  * a GraphQL operation.
@@ -104,8 +117,7 @@ export type ExecuteFunction = (
   logRequestInfo?: ?LogRequestInfoFunction,
   encryptedVariables?: ?string,
   preprocessResponse?: ?preprocessResponseFunction,
-  // Run datachecker on the current operation and returns the OperationAvailability
-  checkOperation?: () => OperationAvailability,
+  operationAvailability?: ?OperationAvailabilityConfig,
 ) => RelayObservable<GraphQLResponse>;
 
 /**

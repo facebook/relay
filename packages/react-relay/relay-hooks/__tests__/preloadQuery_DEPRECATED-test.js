@@ -14,9 +14,11 @@
 import type {
   GraphQLResponse,
   INetwork,
+  OperationAvailabilityConfig,
 } from 'relay-runtime/network/RelayNetworkTypes';
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const nullthrows = require('nullthrows');
 const {
   Environment,
   Network,
@@ -79,7 +81,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let sink;
         let variables;
         let operation;
-        let checkOperation;
+        let operationAvailabilityConfig: ?OperationAvailabilityConfig;
 
         beforeEach(() => {
           // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
@@ -91,8 +93,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
           function wrapNetworkExecute(network: INetwork): INetwork {
             return {
-              execute: (_1, _2, _3, _4, _5, _6, _7, _checkOperation) => {
-                checkOperation = _checkOperation;
+              execute: (_1, _2, _3, _4, _5, _6, _7, _availabilityConfig) => {
+                operationAvailabilityConfig = _availabilityConfig;
                 return network.execute(
                   _1,
                   _2,
@@ -101,7 +103,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   _5,
                   _6,
                   _7,
-                  _checkOperation,
+                  _availabilityConfig,
                 );
               },
             };
@@ -556,10 +558,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch.mock.calls[0][0]).toBe(query.params);
             expect(fetch.mock.calls[0][1]).toEqual(variables);
             expect(fetch.mock.calls[0][2]).toEqual({force: true});
-            expect(checkOperation && checkOperation()).toEqual({
+            const config = nullthrows(operationAvailabilityConfig);
+            const parentOperation = nullthrows(config.parentOperation);
+            expect(config.checkOperation(parentOperation)).toEqual({
               fetchTime,
               status: 'available',
             });
+            expect(check).toHaveBeenLastCalledWith(parentOperation);
 
             const [events, observer] = createObserver();
             if (preloaded.source) {

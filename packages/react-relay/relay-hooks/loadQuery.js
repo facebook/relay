@@ -12,6 +12,10 @@
 'use strict';
 
 import type {
+  CheckOperation,
+  OperationAvailabilityConfig,
+} from '../../relay-runtime/network/RelayNetworkTypes';
+import type {
   EnvironmentProviderOptions,
   LoadQueryOptions,
   PreloadableConcreteRequest,
@@ -28,7 +32,6 @@ import type {
   RequestIdentifier,
   RequestParameters,
 } from 'relay-runtime';
-import type {OperationAvailability} from 'relay-runtime/store/RelayStoreTypes';
 
 const invariant = require('invariant');
 const {
@@ -97,6 +100,8 @@ function loadQuery<
   // the network events for the operation.
   let retainReference;
   let didExecuteNetworkSource = false;
+  const checkOperation: CheckOperation = candidateOperation =>
+    environment.check(candidateOperation);
   const executeWithNetworkSource = (
     operation: OperationDescriptor,
     networkObservable: Observable<GraphQLResponse>,
@@ -131,7 +136,7 @@ function loadQuery<
   let didMakeNetworkRequest = false;
   const makeNetworkRequest = (
     params: RequestParameters,
-    checkOperation?: () => OperationAvailability,
+    parentOperation: ?OperationDescriptor,
   ): Observable<GraphQLResponse> => {
     // N.B. this function is called synchronously or not at all
     // didMakeNetworkRequest is safe to rely on in the returned value
@@ -162,6 +167,10 @@ function loadQuery<
       'raw-network-request-' + getRequestIdentifier(params, variables);
     const observable = fetchQueryDeduped(environment, identifier, () => {
       const network = environment.getNetwork();
+      const operationAvailability: OperationAvailabilityConfig = {
+        checkOperation,
+        parentOperation,
+      };
       return network.execute(
         params,
         variables,
@@ -170,7 +179,7 @@ function loadQuery<
         undefined,
         undefined,
         undefined,
-        checkOperation,
+        operationAvailability,
       );
     });
 
@@ -268,7 +277,7 @@ function loadQuery<
         // we can immediately fetch and execute the operation.
         const networkObservable = makeNetworkRequest(
           concreteRequest.params,
-          () => environment.check(operation),
+          operation,
         );
         const executeObservable = executeWithNetworkSource(
           operation,
@@ -307,7 +316,7 @@ function loadQuery<
       // available, then this query could've never been written to the
       // store in the first place, so it couldn't have been cached.
       const networkObservable =
-        fetchPolicy === 'store-only' ? null : makeNetworkRequest(params);
+        fetchPolicy === 'store-only' ? null : makeNetworkRequest(params, null);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
         queryId,

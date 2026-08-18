@@ -24,7 +24,6 @@ const {
   Network,
   Observable,
   RecordSource,
-  RelayFeatureFlags,
   Store,
   createOperationDescriptor,
   graphql,
@@ -501,10 +500,6 @@ it('does not recreate the active-request observable when re-rendered with a new 
   // now memoized on the stable `owner` (which the wrapper ref preserves by
   // reference), so re-rendering with a same-owner fragmentRef must NOT recreate
   // it.
-  //
-  // The stabilized-observable behavior is gated behind a feature flag for a
-  // gradual rollout, so enable it for this regression test.
-  RelayFeatureFlags.ENABLE_STABLE_OPERATION_NODE_ACTIVE_OBSERVABLE = true;
   const getObservableSpy = require('relay-runtime').__internal
     .getObservableForActiveRequest as $FlowFixMe;
 
@@ -546,55 +541,6 @@ it('does not recreate the active-request observable when re-rendered with a new 
   // Memoized on the stable request identifier → no extra recreations.
   // Before the fix this grew by one per re-render.
   expect(getObservableSpy.mock.calls.length).toBe(callsAfterMount);
-
-  RelayFeatureFlags.ENABLE_STABLE_OPERATION_NODE_ACTIVE_OBSERVABLE = false;
-});
-
-it('recreates the active-request observable per fragmentRef when the stabilization flag is disabled (legacy behavior)', async () => {
-  // Two-sided coverage for the gate: with
-  // ENABLE_STABLE_OPERATION_NODE_ACTIVE_OBSERVABLE disabled (the default), the
-  // observable is keyed on `fragmentRef`, so a fresh same-request fragmentRef on
-  // every render recreates it — the pre-fix behavior. This locks in the flag's
-  // off path so the rollout is verifiably reversible.
-  RelayFeatureFlags.ENABLE_STABLE_OPERATION_NODE_ACTIVE_OBSERVABLE = false;
-  const getObservableSpy = require('relay-runtime').__internal
-    .getObservableForActiveRequest as $FlowFixMe;
-
-  // Keep the parent request in-flight so it stays "active".
-  fetchQuery(environment, operation).subscribe({});
-  expect(fetch).toBeCalledTimes(1);
-  getObservableSpy.mockClear();
-
-  let forceRerender: () => void = () => {};
-  function Component() {
-    const [, setTick] = React.useState(0);
-    forceRerender = () => setTick((t: number) => t + 1);
-    // Fresh fragmentRef object each render, same underlying owner / request.
-    const ref: $FlowFixMe = {...fragmentRef};
-    return String(useIsParentQueryActive(fragment, ref));
-  }
-
-  await act(() => {
-    ReactTestingLibrary.render(
-      <RelayEnvironmentProvider environment={environment}>
-        <Component />
-      </RelayEnvironmentProvider>,
-    );
-  });
-  await act(() => jest.runAllImmediates());
-
-  const callsAfterMount = getObservableSpy.mock.calls.length;
-  expect(callsAfterMount).toBeGreaterThan(0);
-
-  // Re-render several times, each with a fresh (same-request) fragmentRef.
-  for (let i = 0; i < 5; i++) {
-    await act(() => {
-      forceRerender();
-    });
-  }
-
-  // Legacy fragmentRef keying → observable recreated on re-render.
-  expect(getObservableSpy.mock.calls.length).toBeGreaterThan(callsAfterMount);
 });
 
 it('re-detects a reloaded request (new query owner) with the same variables', async () => {
@@ -604,8 +550,6 @@ it('re-detects a reloaded request (new query owner) with the same variables', as
   // newly in-flight request is re-detected. (Keying on the request identifier
   // *string* — identical across same-variable reloads — would instead keep the
   // stale, completed observable, which is the risk the reviewer flagged.)
-  RelayFeatureFlags.ENABLE_STABLE_OPERATION_NODE_ACTIVE_OBSERVABLE = true;
-
   let setRef: (ref: $FlowFixMe) => void = () => {};
   const states: Array<boolean> = [];
   function Component() {
@@ -651,6 +595,4 @@ it('re-detects a reloaded request (new query owner) with the same variables', as
   await act(() => jest.runAllImmediates());
   // New owner → observable refreshed → the reloaded request is detected.
   expect(states[states.length - 1]).toBe(true);
-
-  RelayFeatureFlags.ENABLE_STABLE_OPERATION_NODE_ACTIVE_OBSERVABLE = false;
 });

@@ -105,16 +105,6 @@ export type FeatureFlags = {
   //
   // See https://github.com/facebook/relay/issues/5339
   ENABLE_CATCH_IGNORE_HANDLED_FIELD_ERRORS: boolean,
-
-  // When enabled, `useIsOperationNodeActive` (which backs `useIsParentQueryActive`
-  // and `useLoadMoreFunction`) memoizes its active-request Observable on the
-  // request's stable identifier instead of on `fragmentRef`, which Relay
-  // re-derives with a fresh identity on every render. Keying on `fragmentRef`
-  // recreated the Observable every render and re-ran the subscribe effect, which
-  // could self-sustain a re-render loop and throw "Maximum update depth
-  // exceeded". This flag exists to gate a gradual rollout of the fix across the
-  // many pagination / is-parent-query-active consumers it affects.
-  ENABLE_STABLE_OPERATION_NODE_ACTIVE_OBSERVABLE: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -149,7 +139,6 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_FIELD_GRANULAR_NOTIFICATIONS: false,
   ENABLE_READER_FRAGMENTS_LOGGING: false,
   ENABLE_CATCH_IGNORE_HANDLED_FIELD_ERRORS: false,
-  ENABLE_STABLE_OPERATION_NODE_ACTIVE_OBSERVABLE: false,
 };
 
 module.exports = RelayFeatureFlags;

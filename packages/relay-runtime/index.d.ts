@@ -11,6 +11,7 @@ import ConnectionInterface from './handlers/connection/ConnectionInterface';
 import RelayDefaultHandlerProvider from './handlers/RelayDefaultHandlerProvider';
 import QueryResponseCache from './network/RelayQueryResponseCache';
 import * as fetchQueryInternal from './query/fetchQueryInternal';
+import * as RelayModernRecord from './store/RelayModernRecord';
 import * as RelayResolverFragments from './store/ResolverFragments';
 import withProvidedVariables from './util/withProvidedVariables';
 
@@ -163,7 +164,7 @@ export { RelayNetwork as Network } from './network/RelayNetwork';
 export { RelayObservable as Observable } from './network/RelayObservable';
 export { default as Environment, EnvironmentConfig } from './store/RelayModernEnvironment';
 export { QueryResponseCache };
-export { RelayModernRecord as Record } from './store/RelayModernRecord';
+export { RelayModernRecord as Record };
 export { default as Store } from './store/RelayModernStore';
 export { RelayRecordSource as RecordSource } from './store/RelayRecordSource';
 export { type IdOf, isErrorResult, isValueResult, type Result } from './experimental';

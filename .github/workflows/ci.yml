@@ -78,6 +78,20 @@ jobs:
       - name: Flow
         run: yarn run typecheck
 
+  typecheck-typescript:
+    name: TypeScript Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20.x
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+      - name: TypeScript
+        run: yarn run typecheck:ts
+
   build-tests:
     name: Rust Tests (${{ matrix.target.os }})
     strategy:

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": false,
+    "strict": true,
+    "noEmit": true,
+    "target": "es2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": []
+  },
+  "include": ["**/*.d.ts"]
+}

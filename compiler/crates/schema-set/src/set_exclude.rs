@@ -988,7 +988,8 @@ pub mod tests {
                     DirectivePolicy {
                         service_only_ok: true,
                         client_only_ok: true,
-                        divergent_args: None
+                        divergent_args: None,
+                        service_owns_divergent_args: false,
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1297,7 +1298,8 @@ pub mod tests {
                     DirectivePolicy {
                         service_only_ok: true,
                         client_only_ok: true,
-                        divergent_args: None
+                        divergent_args: None,
+                        service_owns_divergent_args: false,
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1321,7 +1323,8 @@ pub mod tests {
                     DirectivePolicy {
                         service_only_ok: true,
                         client_only_ok: true,
-                        divergent_args: None
+                        divergent_args: None,
+                        service_owns_divergent_args: false,
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1594,6 +1597,7 @@ pub mod tests {
                         divergent_args: Some(DivergentArgs::Only(vec![ArgumentName(
                             "oncall".intern(),
                         )])),
+                        service_owns_divergent_args: false,
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1626,6 +1630,7 @@ pub mod tests {
                         divergent_args: Some(DivergentArgs::Only(vec![ArgumentName(
                             "oncall".intern(),
                         )])),
+                        service_owns_divergent_args: false,
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1653,6 +1658,7 @@ pub mod tests {
                         service_only_ok: false,
                         client_only_ok: false,
                         divergent_args: Some(DivergentArgs::All),
+                        service_owns_divergent_args: false,
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1686,6 +1692,7 @@ pub mod tests {
                         service_only_ok: true,
                         client_only_ok: false,
                         divergent_args: Some(DivergentArgs::All),
+                        service_owns_divergent_args: false,
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1710,7 +1717,8 @@ pub mod tests {
                     DirectivePolicy {
                         service_only_ok: true,
                         client_only_ok: true,
-                        divergent_args: None
+                        divergent_args: None,
+                        service_owns_divergent_args: false,
                     },
                 )]),
                 ..SafeExclusionOptions::default()
@@ -1736,7 +1744,8 @@ pub mod tests {
                     DirectivePolicy {
                         service_only_ok: true,
                         client_only_ok: true,
-                        divergent_args: None
+                        divergent_args: None,
+                        service_owns_divergent_args: false,
                     },
                 )]),
                 ..SafeExclusionOptions::default()

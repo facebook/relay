@@ -751,6 +751,7 @@ mod tests {
             service_only_ok: true,
             client_only_ok: true,
             divergent_args: Some(DivergentArgs::All),
+            service_owns_divergent_args: false,
         };
         let policies = DirectivePolicies::from_iter(
             subset_directives
@@ -1236,6 +1237,7 @@ mod tests {
                 service_only_ok: true,
                 client_only_ok: false,
                 divergent_args: None,
+                service_owns_divergent_args: false,
             },
         )]);
         let v = find_subset_violations(&base, &subset, &policies);
@@ -1568,6 +1570,7 @@ mod tests {
             service_only_ok: false,
             client_only_ok: false,
             divergent_args,
+            service_owns_divergent_args: false,
         }
     }
 

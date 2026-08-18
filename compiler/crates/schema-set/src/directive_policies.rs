@@ -39,6 +39,8 @@ static DIVERGENT_ARGS_ARG: LazyLock<ArgumentName> =
     LazyLock::new(|| ArgumentName("divergentArgs".intern()));
 static ALL_ARGS_MAY_DIVERGE_ARG: LazyLock<ArgumentName> =
     LazyLock::new(|| ArgumentName("allArgsMayDiverge".intern()));
+static SERVICE_OWNS_DIVERGENT_ARGS_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("serviceOwnsDivergentArgs".intern()));
 
 /// Errors from reading `@divergence` off a directive definition.
 #[derive(Debug, Error, Serialize)]
@@ -82,6 +84,13 @@ pub struct DirectivePolicy {
     /// Which of the directive's arguments may differ between the service and the
     /// client, or `None` if all arguments must match.
     pub divergent_args: Option<DivergentArgs>,
+    /// Whether the service, rather than the client, owns the values of
+    /// [`Self::divergent_args`]. Validation tolerates a mismatch on those
+    /// arguments either way; this decides which side wins when a reconcile has
+    /// to pick one. Set it for arguments the client never reads, where
+    /// tolerating drift is a convenience but the client's copy is not the
+    /// source of truth.
+    pub service_owns_divergent_args: bool,
 }
 
 impl DirectivePolicy {
@@ -91,6 +100,7 @@ impl DirectivePolicy {
         service_only_ok: false,
         client_only_ok: false,
         divergent_args: None,
+        service_owns_divergent_args: false,
     };
 
     /// Policy for directives that are authoritative on the service schema.
@@ -98,6 +108,7 @@ impl DirectivePolicy {
         service_only_ok: true,
         client_only_ok: false,
         divergent_args: None,
+        service_owns_divergent_args: false,
     };
 
     /// Policy for directives that may freely diverge between service and client
@@ -108,7 +119,20 @@ impl DirectivePolicy {
         service_only_ok: true,
         client_only_ok: true,
         divergent_args: Some(DivergentArgs::All),
+        service_owns_divergent_args: false,
     };
+
+    /// True when a reconcile must preserve the client's value for `name`: the
+    /// argument may diverge and the client owns it. Arguments that may not
+    /// diverge, and divergent arguments the service owns, are taken from the
+    /// service instead.
+    pub fn client_owns_arg(&self, name: &ArgumentName) -> bool {
+        !self.service_owns_divergent_args
+            && self
+                .divergent_args
+                .as_ref()
+                .is_some_and(|d| d.may_diverge(name))
+    }
 }
 
 /// The reconciliation policy for every directive, read once from the
@@ -229,6 +253,7 @@ fn policy_from_allow_divergence(
         service_only_ok: bool_arg(directive, *SERVICE_ONLY_ARG),
         client_only_ok: bool_arg(directive, *CLIENT_ONLY_ARG),
         divergent_args,
+        service_owns_divergent_args: bool_arg(directive, *SERVICE_OWNS_DIVERGENT_ARGS_ARG),
     })
 }
 
@@ -291,14 +316,17 @@ mod tests {
               clientOnly: Boolean! = false
               divergentArgs: [String!]! = []
               allArgsMayDiverge: Boolean! = false
+              serviceOwnsDivergentArgs: Boolean! = false
             ) on DIRECTIVE_DEFINITION
             directive @cdn_url on FIELD_DEFINITION
             directive @fb_owner(oncall: String) on OBJECT
             directive @fbid on FIELD_DEFINITION
+            directive @provenance(schemas: [String!]) on FIELD_DEFINITION
             directive @source(name: String) on FIELD_DEFINITION
             extend directive @cdn_url @divergence(serviceOnly: true)
             extend directive @fb_owner @divergence(serviceOnly: true, clientOnly: true, divergentArgs: ["oncall"])
             extend directive @fbid @divergence(serviceOnly: true, clientOnly: true, allArgsMayDiverge: true)
+            extend directive @provenance @divergence(serviceOnly: true, divergentArgs: ["schemas"], serviceOwnsDivergentArgs: true)
             type Query { q: String }
             "#,
         );
@@ -315,6 +343,7 @@ mod tests {
                 service_only_ok: true,
                 client_only_ok: true,
                 divergent_args: Some(DivergentArgs::Only(vec![ArgumentName("oncall".intern())])),
+                service_owns_divergent_args: false,
             },
         );
         // allArgsMayDiverge: true → every argument may diverge.
@@ -322,10 +351,43 @@ mod tests {
             policies.policy_for(&DirectiveName("fbid".intern())),
             DirectivePolicy::ANY_DIVERGENCE,
         );
+        assert_eq!(
+            policies.policy_for(&DirectiveName("provenance".intern())),
+            DirectivePolicy {
+                service_only_ok: true,
+                client_only_ok: false,
+                divergent_args: Some(DivergentArgs::Only(vec![ArgumentName("schemas".intern())])),
+                service_owns_divergent_args: true,
+            },
+        );
         // No @divergence on @source → defaults to EXACT_MATCH.
         assert_eq!(
             policies.policy_for(&DirectiveName("source".intern())),
             DirectivePolicy::EXACT_MATCH,
+        );
+    }
+
+    #[test]
+    fn service_owned_divergent_arg_is_not_client_owned() {
+        let schemas = ArgumentName("schemas".intern());
+        let oncall = ArgumentName("oncall".intern());
+        let divergent = || Some(DivergentArgs::Only(vec![ArgumentName("schemas".intern())]));
+
+        let client_owned = DirectivePolicy {
+            divergent_args: divergent(),
+            ..DirectivePolicy::SERVICE_FIRST
+        };
+        assert!(client_owned.client_owns_arg(&schemas));
+        assert!(!client_owned.client_owns_arg(&oncall));
+
+        let service_owned = DirectivePolicy {
+            divergent_args: divergent(),
+            service_owns_divergent_args: true,
+            ..DirectivePolicy::SERVICE_FIRST
+        };
+        assert!(
+            !service_owned.client_owns_arg(&schemas),
+            "a divergent arg the service owns must still be resynced from the service"
         );
     }
 

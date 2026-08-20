@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// Cargo resolves modules declared in an integration test root relative to
+// `tests/`, so point it at the file's actual location next to the fixtures.
+#[path = "relay_compiler_integration/mock_persister.rs"]
 mod mock_persister;
 
 use std::path::Path;

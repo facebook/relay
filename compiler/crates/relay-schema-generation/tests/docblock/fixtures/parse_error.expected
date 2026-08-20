@@ -16,15 +16,7 @@ func() {}
 ==================================== OUTPUT ===================================
 
 
-✖︎ ';' expected
-
-  module.js:5:8
-    4 │ / @RelayResolver
-    5 │ func() {}
-      │        ^
-
-
-✖︎ non-terminated regular expression literal
+✖︎ Invalid regular expression: missing /
 
   module.js:4:17
     3 │ 
@@ -33,11 +25,9 @@ func() {}
     5 │ func() {}
 
 
-✖︎ regular expression started here
+✖︎ Unexpected token `{`, expected the end of an expression statement (`;`)
 
-  module.js:4:1
-    2 │ import type CatFlowType from "Cat";
-    3 │ 
+  module.js:5:8
     4 │ / @RelayResolver
-      │ ^
     5 │ func() {}
+      │        ^

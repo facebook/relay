@@ -10,9 +10,7 @@ license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
-hermes_comments = { git = "https://github.com/facebook/hermes.git" }
-hermes_estree = { git = "https://github.com/facebook/hermes.git" }
-hermes_parser = { git = "https://github.com/facebook/hermes.git" }
+flow_parser = { git = "https://github.com/facebook/flow.git" }
 intern = { path = "../intern" }
 rustc-hash = "2.1.3"
 serde = { version = "1.0.229", features = ["derive", "rc"] }

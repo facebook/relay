@@ -8,30 +8,27 @@
 #![deny(warnings)]
 #![deny(clippy::all)]
 
+use std::convert::Infallible;
 use std::fmt;
 use std::path::Path;
 
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
-use common::Diagnostic;
-use common::DiagnosticsResult;
 use common::Location;
-use common::SourceLocationKey;
-use hermes_estree::_Literal;
-use hermes_estree::Declaration;
-use hermes_estree::ImportDeclarationSpecifier;
-use hermes_estree::Visitor;
+use flow_parser::ast;
+use flow_parser::ast::statement::StatementInner;
+use flow_parser::ast::statement::import_declaration::Specifier;
+use flow_parser::ast_visitor::AstVisitor;
+use flow_parser::loc::Loc;
 use rustc_hash::FxHashMap;
+use schema_extractor::LocationResolver;
 use serde::Serialize;
 
-use crate::SchemaGenerationError;
-use crate::to_location;
 pub type JSModules = FxHashMap<StringKey, ModuleResolutionKey>;
 pub struct ImportExportVisitor {
     imports: JSModules,
     exports: JSModules,
-    errors: Vec<Diagnostic>,
-    location: SourceLocationKey,
+    locations: LocationResolver,
     current_module_name: StringKey,
 }
 pub struct ModuleResolution {
@@ -65,12 +62,11 @@ pub struct ModuleResolutionKey {
 }
 
 impl ImportExportVisitor {
-    pub fn new(source_module_path: &str) -> Self {
+    pub fn new(locations: LocationResolver, source_module_path: &str) -> Self {
         Self {
-            location: SourceLocationKey::standalone(source_module_path),
+            locations,
             imports: Default::default(),
             exports: Default::default(),
-            errors: vec![],
             current_module_name: Path::new(source_module_path)
                 .file_stem()
                 .unwrap()
@@ -80,69 +76,81 @@ impl ImportExportVisitor {
     }
 
     /// Returns a ModuleResolution that can be used to lookup module imports/exports
-    pub fn get_module_resolution(
-        mut self,
-        ast: &'_ hermes_estree::Program,
-    ) -> DiagnosticsResult<ModuleResolution> {
-        self.visit_program(ast);
-        if !self.errors.is_empty() {
-            Err(self.errors)
-        } else {
-            Ok(ModuleResolution {
-                imports: self.imports,
-                exports: self.exports,
-            })
+    pub fn get_module_resolution(mut self, ast: &'_ ast::Program<Loc, Loc>) -> ModuleResolution {
+        self.program(ast).unwrap_or_else(|never| match never {});
+        ModuleResolution {
+            imports: self.imports,
+            exports: self.exports,
         }
     }
 }
 
-impl Visitor<'_> for ImportExportVisitor {
-    fn visit_import_declaration(&mut self, ast: &'_ hermes_estree::ImportDeclaration) {
-        let location = to_location(self.location, &ast.source);
-        let source = match &ast.source {
-            _Literal::StringLiteral(node) => (&node.value).intern(),
-            _ => {
-                self.errors.push(Diagnostic::error(
-                    SchemaGenerationError::ExpectedStringLiteralSource,
-                    location,
-                ));
-                return;
-            }
-        };
-
-        self.imports
-            .extend(ast.specifiers.iter().map(|specifier| match specifier {
-                ImportDeclarationSpecifier::ImportDefaultSpecifier(node) => (
-                    (&node.local.name).intern(),
-                    ModuleResolutionKey {
-                        module_name: source,
-                        import_type: JSImportType::Default,
-                    },
-                ),
-                ImportDeclarationSpecifier::ImportSpecifier(node) => (
-                    (&node.local.name).intern(),
-                    ModuleResolutionKey {
-                        module_name: source,
-                        import_type: JSImportType::Named((&node.imported.name).intern()),
-                    },
-                ),
-                ImportDeclarationSpecifier::ImportNamespaceSpecifier(node) => (
-                    (&node.local.name).intern(),
-                    ModuleResolutionKey {
-                        module_name: source,
-                        import_type: JSImportType::Namespace(to_location(
-                            self.location,
-                            &node.local,
-                        )),
-                    },
-                ),
-            }));
+impl<'a> AstVisitor<'a, Loc, Loc, &'a Loc, Infallible> for ImportExportVisitor {
+    fn normalize_loc(loc: &'a Loc) -> &'a Loc {
+        loc
     }
 
-    fn visit_export_named_declaration(&mut self, ast: &'_ hermes_estree::ExportNamedDeclaration) {
-        let maybe_name = ast.declaration.as_ref().and_then(|decl| match decl {
-            Declaration::TypeAlias(node) => Some((&node.id.name).intern()),
-            Declaration::OpaqueType(node) => Some((&node.id.name).intern()),
+    fn normalize_type(type_: &'a Loc) -> &'a Loc {
+        type_
+    }
+
+    fn import_declaration(
+        &mut self,
+        _loc: &'a Loc,
+        ast: &'a ast::statement::ImportDeclaration<Loc, Loc>,
+    ) -> Result<(), Infallible> {
+        let source = ast.source.1.value.as_str().intern();
+
+        if let Some(default) = &ast.default {
+            self.imports.insert(
+                default.identifier.name.as_str().intern(),
+                ModuleResolutionKey {
+                    module_name: source,
+                    import_type: JSImportType::Default,
+                },
+            );
+        }
+
+        match &ast.specifiers {
+            Some(Specifier::ImportNamedSpecifiers(specifiers)) => {
+                self.imports.extend(specifiers.iter().map(|specifier| {
+                    let local = specifier.local.as_ref().unwrap_or(&specifier.remote);
+                    (
+                        local.name.as_str().intern(),
+                        ModuleResolutionKey {
+                            module_name: source,
+                            import_type: JSImportType::Named(
+                                specifier.remote.name.as_str().intern(),
+                            ),
+                        },
+                    )
+                }));
+            }
+            Some(Specifier::ImportNamespaceSpecifier((_, local))) => {
+                self.imports.insert(
+                    local.name.as_str().intern(),
+                    ModuleResolutionKey {
+                        module_name: source,
+                        import_type: JSImportType::Namespace(
+                            self.locations.to_location(&local.loc),
+                        ),
+                    },
+                );
+            }
+            None => {}
+        }
+
+        Ok(())
+    }
+
+    fn export_named_declaration(
+        &mut self,
+        _loc: &'a Loc,
+        ast: &'a ast::statement::ExportNamedDeclaration<Loc, Loc>,
+    ) -> Result<(), Infallible> {
+        let maybe_name = ast.declaration.as_ref().and_then(|decl| match &**decl {
+            StatementInner::TypeAlias { inner, .. } => Some(inner.id.name.as_str().intern()),
+            StatementInner::OpaqueType { inner, .. } => Some(inner.id.name.as_str().intern()),
             _ => None,
         });
         if let Some(name) = maybe_name {
@@ -154,6 +162,7 @@ impl Visitor<'_> for ImportExportVisitor {
                 },
             );
         }
+        Ok(())
     }
 }
 

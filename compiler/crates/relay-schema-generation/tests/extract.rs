@@ -10,33 +10,19 @@ use common::FeatureFlag;
 use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
+use flow_parser::ast::statement::StatementInner;
 use graphql_cli::DiagnosticPrinter;
-use hermes_comments::find_nodes_after_comments;
-use hermes_estree::IntoFunction;
-use hermes_estree::Node;
-use hermes_parser::ParserDialect;
-use hermes_parser::ParserFlags;
-use hermes_parser::parse;
 use relay_schema_generation::RelayResolverExtractor;
+use relay_schema_generation::find_nodes_after_comments::AttachedNode;
+use relay_schema_generation::find_nodes_after_comments::find_nodes_after_comments;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    let result = parse(
-        fixture.content,
-        fixture.file_name,
-        ParserFlags {
-            strict_mode: true,
-            enable_jsx: false,
-            dialect: ParserDialect::Flow,
-            parse_flow_match: false,
-            store_doc_block: false,
-            store_comments: true,
-        },
-    )
-    .unwrap();
+    let mut extractor = RelayResolverExtractor::new(&FeatureFlag::Enabled);
+    let ast = extractor
+        .parse_source(fixture.content, SourceLocationKey::generated())
+        .unwrap();
 
-    let attached_comments = find_nodes_after_comments(&result.ast, &result.comments);
-
-    let extractor = RelayResolverExtractor::new(&FeatureFlag::Enabled);
+    let attached_comments = find_nodes_after_comments(&ast);
 
     let output = attached_comments
         .into_iter()
@@ -44,10 +30,13 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             let comment = comment.trim();
             match comment {
                 "extract" => match node {
-                    Node::FunctionDeclaration(node) => {
-                        Some(extractor.extract_function(node.function()))
-                    }
-                    _ => None,
+                    AttachedNode::Statement(statement) => match &**statement {
+                        StatementInner::FunctionDeclaration { inner, .. } => {
+                            Some(extractor.extract_function(inner))
+                        }
+                        _ => None,
+                    },
+                    AttachedNode::ObjectTypeProperty(_) => None,
                 },
                 _ => None,
             }

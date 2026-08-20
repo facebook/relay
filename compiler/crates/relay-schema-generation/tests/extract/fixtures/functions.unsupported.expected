@@ -25,15 +25,20 @@ Strong(
             location: <generated>:212:216,
             item: "name",
         },
-        return_type: StringTypeAnnotation(
-            StringTypeAnnotation {
-                loc: None,
-                range: SourceRange {
-                    start: 220,
-                    end: 226,
+        return_type: String {
+            loc: Loc {
+                source: None,
+                start: Position {
+                    line: 10,
+                    column: 17,
+                },
+                end: Position {
+                    line: 10,
+                    column: 23,
                 },
             },
-        ),
+            comments: None,
+        },
         entity_type: None,
         arguments: None,
         is_live: None,

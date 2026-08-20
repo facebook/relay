@@ -30,8 +30,6 @@ pub enum SchemaGenerationError {
         "Can't find Flow type definition for `{name}`. Expected the type to be imported from another module, or exported from the current module"
     )]
     ExpectedFlowDefinitionForType { name: StringKey },
-    #[error("Expected import source to be a string literal")]
-    ExpectedStringLiteralSource,
     #[error("Generic types not supported")]
     GenericNotSupported,
     #[error("Object types not supported")]

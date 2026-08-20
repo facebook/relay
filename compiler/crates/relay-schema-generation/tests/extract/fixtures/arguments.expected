@@ -15,118 +15,177 @@ Strong(
             location: <generated>:211:224,
             item: "favorite_page",
         },
-        return_type: GenericTypeAnnotation(
-            GenericTypeAnnotation {
-                id: Identifier(
-                    Identifier {
-                        name: "Page",
-                        binding: None,
-                        type_annotation: None,
-                        loc: None,
-                        range: SourceRange {
-                            start: 254,
-                            end: 258,
+        return_type: Generic {
+            loc: Loc {
+                source: None,
+                start: Position {
+                    line: 9,
+                    column: 52,
+                },
+                end: Position {
+                    line: 9,
+                    column: 56,
+                },
+            },
+            inner: Generic {
+                id: Unqualified(
+                    IdentifierInner {
+                        loc: Loc {
+                            source: None,
+                            start: Position {
+                                line: 9,
+                                column: 52,
+                            },
+                            end: Position {
+                                line: 9,
+                                column: 56,
+                            },
                         },
+                        name: "Page",
+                        comments: None,
                     },
                 ),
-                type_parameters: None,
-                loc: None,
-                range: SourceRange {
-                    start: 254,
-                    end: 258,
+                targs: None,
+                comments: None,
+            },
+        },
+        entity_type: Some(
+            Generic {
+                loc: Loc {
+                    source: None,
+                    start: Position {
+                        line: 9,
+                        column: 29,
+                    },
+                    end: Position {
+                        line: 9,
+                        column: 33,
+                    },
+                },
+                inner: Generic {
+                    id: Unqualified(
+                        IdentifierInner {
+                            loc: Loc {
+                                source: None,
+                                start: Position {
+                                    line: 9,
+                                    column: 29,
+                                },
+                                end: Position {
+                                    line: 9,
+                                    column: 33,
+                                },
+                            },
+                            name: "User",
+                            comments: None,
+                        },
+                    ),
+                    targs: None,
+                    comments: None,
                 },
             },
         ),
-        entity_type: Some(
-            GenericTypeAnnotation(
-                GenericTypeAnnotation {
-                    id: Identifier(
-                        Identifier {
-                            name: "User",
-                            binding: None,
-                            type_annotation: None,
-                            loc: None,
-                            range: SourceRange {
-                                start: 231,
-                                end: 235,
-                            },
-                        },
-                    ),
-                    type_parameters: None,
-                    loc: None,
-                    range: SourceRange {
-                        start: 231,
-                        end: 235,
+        arguments: Some(
+            Object {
+                loc: Loc {
+                    source: None,
+                    start: Position {
+                        line: 9,
+                        column: 41,
+                    },
+                    end: Position {
+                        line: 9,
+                        column: 49,
                     },
                 },
-            ),
-        ),
-        arguments: Some(
-            ObjectTypeAnnotation(
-                ObjectTypeAnnotation {
+                inner: Object {
+                    exact: false,
+                    inexact: false,
                     properties: [
-                        ObjectTypeProperty(
-                            ObjectTypeProperty {
+                        NormalProperty(
+                            NormalProperty {
+                                loc: Loc {
+                                    source: None,
+                                    start: Position {
+                                        line: 9,
+                                        column: 42,
+                                    },
+                                    end: Position {
+                                        line: 9,
+                                        column: 48,
+                                    },
+                                },
                                 key: Identifier(
-                                    Identifier {
-                                        name: "id",
-                                        binding: None,
-                                        type_annotation: None,
-                                        loc: None,
-                                        range: SourceRange {
-                                            start: 244,
-                                            end: 246,
+                                    IdentifierInner {
+                                        loc: Loc {
+                                            source: None,
+                                            start: Position {
+                                                line: 9,
+                                                column: 42,
+                                            },
+                                            end: Position {
+                                                line: 9,
+                                                column: 44,
+                                            },
                                         },
+                                        name: "id",
+                                        comments: None,
                                     },
                                 ),
-                                value: GenericTypeAnnotation(
-                                    GenericTypeAnnotation {
-                                        id: Identifier(
-                                            Identifier {
-                                                name: "ID",
-                                                binding: None,
-                                                type_annotation: None,
-                                                loc: None,
-                                                range: SourceRange {
-                                                    start: 248,
-                                                    end: 250,
+                                value: Init(
+                                    Some(
+                                        Generic {
+                                            loc: Loc {
+                                                source: None,
+                                                start: Position {
+                                                    line: 9,
+                                                    column: 46,
+                                                },
+                                                end: Position {
+                                                    line: 9,
+                                                    column: 48,
                                                 },
                                             },
-                                        ),
-                                        type_parameters: None,
-                                        loc: None,
-                                        range: SourceRange {
-                                            start: 248,
-                                            end: 250,
+                                            inner: Generic {
+                                                id: Unqualified(
+                                                    IdentifierInner {
+                                                        loc: Loc {
+                                                            source: None,
+                                                            start: Position {
+                                                                line: 9,
+                                                                column: 46,
+                                                            },
+                                                            end: Position {
+                                                                line: 9,
+                                                                column: 48,
+                                                            },
+                                                        },
+                                                        name: "ID",
+                                                        comments: None,
+                                                    },
+                                                ),
+                                                targs: None,
+                                                comments: None,
+                                            },
                                         },
-                                    },
+                                    ),
                                 ),
-                                method: false,
                                 optional: false,
-                                is_static: false,
+                                static_: false,
                                 proto: false,
+                                method: false,
+                                abstract_: false,
+                                override_: false,
                                 variance: None,
-                                kind: Init,
-                                loc: None,
-                                range: SourceRange {
-                                    start: 244,
-                                    end: 250,
-                                },
+                                ts_accessibility: None,
+                                init: None,
+                                comments: None,
                             },
                         ),
                     ],
-                    indexers: [],
-                    call_properties: [],
-                    internal_slots: [],
-                    inexact: false,
-                    exact: false,
-                    loc: None,
-                    range: SourceRange {
-                        start: 243,
-                        end: 251,
-                    },
+                    comments: None,
                 },
-            ),
+            },
         ),
         is_live: None,
     },

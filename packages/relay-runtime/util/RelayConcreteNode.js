@@ -16,6 +16,7 @@ import type {
   NormalizationSplitOperation,
 } from './NormalizationNode';
 import type {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
+import type {OperationType} from './RelayRuntimeTypes';
 
 /**
  * Represents a common GraphQL request that can be executed, an `operation`
@@ -33,6 +34,29 @@ export type ConcreteRequest = {
 export type ConcreteUpdatableQuery = {
   readonly kind: 'UpdatableQuery',
   readonly fragment: ReaderFragment,
+};
+
+/**
+ * A lightweight stand-in for a `ConcreteRequest` emitted by the compiler for
+ * `@preloadable` queries: a `$Parameters.js` artifact containing only the
+ * `RequestParameters` (e.g. the persisted query `id`), so that the full
+ * normalization/reader AST can be code-split away from eager query loaders.
+ *
+ * This mirrors the type already published in the TypeScript declarations
+ * (`RelayConcreteNode.d.ts`) and re-exported from `relay-runtime`'s
+ * `index.d.ts`; the Flow definition previously only lived in `react-relay`
+ * (`EntryPointTypes.flow.js`), so Flow consumers could not import it from
+ * `relay-runtime` the way TypeScript consumers can.
+ */
+export type PreloadableConcreteRequest<out TQuery extends OperationType> = {
+  kind: 'PreloadableConcreteRequest',
+  params: RequestParameters,
+  // Note: the phantom type parameter here helps ensures that the
+  // $Parameters.js value matches the type param provided to preloadQuery.
+  // We also need to add usage of this generic here,
+  // becuase not using the generic in the definition makes it
+  // unconstrained in the call to a function that accepts PreloadableConcreteRequest<T>
+  readonly __phantom__?: ?TQuery,
 };
 
 export type NormalizationRootNode =

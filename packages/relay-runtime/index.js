@@ -223,6 +223,7 @@ export type {
   ClientRequest,
   ConcreteUpdatableQuery,
   GeneratedNode,
+  PreloadableConcreteRequest,
   RequestParameters,
 } from './util/RelayConcreteNode';
 export type {

@@ -228,19 +228,7 @@ class RelayPublishQueue implements PublishQueue {
       !runIsANoop,
       'RelayPublishQueue.run was called, but the call would have been a noop.',
     );
-    RelayFeatureFlags.DISALLOW_NESTED_UPDATES
-      ? invariant(
-          this._isRunning !== true,
-          'A store update was detected within another store update. Please ' +
-            "make sure new store updates aren't being executed within an " +
-            'updater function for a different update.',
-        )
-      : warning(
-          this._isRunning !== true,
-          'A store update was detected within another store update. Please ' +
-            "make sure new store updates aren't being executed within an " +
-            'updater function for a different update.',
-        );
+    this._assertNotRunning();
     this._isRunning = true;
 
     if (runIsANoop) {
@@ -248,6 +236,19 @@ class RelayPublishQueue implements PublishQueue {
       return [];
     }
 
+    const invalidatedStore = this._runWithoutNotifying();
+    this._isRunning = false;
+    return this._store.notify(sourceOperation, invalidatedStore);
+  }
+
+  /**
+   * The store-mutating half of `run()`: restore the pre-optimistic base, commit
+   * the pending data, then re-snapshot and rebase the applied optimistic
+   * updates on top of it. Reaches no subscriber — only `notify()` does that.
+   *
+   * Returns whether one of the commits globally invalidated the store.
+   */
+  _runWithoutNotifying(): boolean {
     if (this._pendingBackupRebase) {
       if (this._hasStoreSnapshot) {
         this._store.restore();
@@ -276,8 +277,23 @@ class RelayPublishQueue implements PublishQueue {
         this._gcHold = null;
       }
     }
-    this._isRunning = false;
-    return this._store.notify(sourceOperation, invalidatedStore);
+    return invalidatedStore;
+  }
+
+  _assertNotRunning(): void {
+    RelayFeatureFlags.DISALLOW_NESTED_UPDATES
+      ? invariant(
+          this._isRunning !== true,
+          'A store update was detected within another store update. Please ' +
+            "make sure new store updates aren't being executed within an " +
+            'updater function for a different update.',
+        )
+      : warning(
+          this._isRunning !== true,
+          'A store update was detected within another store update. Please ' +
+            "make sure new store updates aren't being executed within an " +
+            'updater function for a different update.',
+        );
   }
 
   /**

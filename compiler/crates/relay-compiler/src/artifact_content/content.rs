@@ -420,7 +420,7 @@ pub fn generate_operation(
 
     // -- Begin Top Level Statements Section --
     let mut section: GenericSection = GenericSection::default();
-    write!(section, "{}", &top_level_statements)?;
+    write!(section, "{}", top_level_statements)?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Top Level Statements Section --
 
@@ -578,7 +578,7 @@ pub fn generate_split_operation(
     let operation =
         printer.print_operation(schema, normalization_operation, &mut top_level_statements);
 
-    write!(section, "{}", &top_level_statements)?;
+    write!(section, "{}", top_level_statements)?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Top Level Statements Section --
 
@@ -744,7 +744,7 @@ fn generate_read_only_fragment(
     let mut top_level_statements = Default::default();
     let fragment = printer.print_fragment(schema, reader_fragment, &mut top_level_statements);
 
-    write!(section, "{}", &top_level_statements)?;
+    write!(section, "{}", top_level_statements)?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Top Level Statements Section --
 
@@ -1134,7 +1134,7 @@ pub fn generate_resolvers_schema_module_content(
 
     // -- Begin Top Level Statements Section --
     let mut section: GenericSection = GenericSection::default();
-    write!(section, "{}", &top_level_statements)?;
+    write!(section, "{}", top_level_statements)?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Top Level Statements Section --
 

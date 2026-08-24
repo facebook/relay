@@ -11,6 +11,7 @@ import {
   Network,
   PayloadData,
   PayloadError,
+  PayloadExtensions,
   ReactFlightServerTree,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
@@ -1004,6 +1005,7 @@ export type TRelayFieldError =
     & TRelayFieldErrorForDisplay
     & Readonly<{
         message: string;
+        extensions?: PayloadExtensions | undefined;
     }>;
 
 /**

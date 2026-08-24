@@ -8,6 +8,7 @@
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::BufWriter;
+use std::io::ErrorKind;
 use std::io::Write;
 
 use async_trait::async_trait;
@@ -37,10 +38,16 @@ impl LocalPersister {
     pub fn new(config: LocalPersistConfig) -> Self {
         let query_map: DashMap<String, String> = match std::fs::read_to_string(&config.file) {
             Ok(content) => serde_json::from_str(&content).unwrap_or_default(),
-            Err(_e) => {
+            Err(e) if e.kind() == ErrorKind::NotFound => {
+                // First run: the file doesn't exist yet. Start with an empty
+                // map; `finalize` creates the file.
+                Default::default()
+            }
+            Err(e) => {
                 panic!(
-                    "LocalPersister: Expected the {} file to exist.",
-                    &config.file.display(),
+                    "LocalPersister: Unable to read the {} file: {}",
+                    config.file.display(),
+                    e,
                 )
             }
         };
@@ -91,6 +98,13 @@ impl OperationPersister for LocalPersister {
             .map(|x| (x.key().clone(), x.value().clone()))
             .collect();
 
+        // `Path::parent` returns `Some("")` for a bare relative file name like
+        // `persisted_queries.json`, and `create_dir_all("")` fails.
+        if let Some(parent) = self.config.file.parent()
+            && !parent.as_os_str().is_empty()
+        {
+            std::fs::create_dir_all(parent)?;
+        }
         let mut writer = BufWriter::new(File::create(&self.config.file)?);
         serde_json::to_writer_pretty(&mut writer, &ordered)?;
         writer.write_all(b"\n")?;

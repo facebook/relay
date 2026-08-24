@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f79a30f1b5207f484f90191102ee4253>>
+ * @generated SignedSource<<67f90c4549c25528b892e3eec20ac2d9>>
  */
 
 mod relay_compiler_integration;
@@ -451,6 +451,27 @@ async fn non_relay_file_in_generated_dir_with_custom_output() {
     let input = include_str!("relay_compiler_integration/fixtures/non_relay_file_in_generated_dir_with_custom_output.input");
     let expected = include_str!("relay_compiler_integration/fixtures/non_relay_file_in_generated_dir_with_custom_output.expected");
     test_fixture(transform_fixture, file!(), "non_relay_file_in_generated_dir_with_custom_output.input", "relay_compiler_integration/fixtures/non_relay_file_in_generated_dir_with_custom_output.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn persisted_queries_file_created_when_missing() {
+    let input = include_str!("relay_compiler_integration/fixtures/persisted_queries_file_created_when_missing.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/persisted_queries_file_created_when_missing.expected");
+    test_fixture(transform_fixture, file!(), "persisted_queries_file_created_when_missing.input", "relay_compiler_integration/fixtures/persisted_queries_file_created_when_missing.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn persisted_queries_file_existing_entries_preserved() {
+    let input = include_str!("relay_compiler_integration/fixtures/persisted_queries_file_existing_entries_preserved.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/persisted_queries_file_existing_entries_preserved.expected");
+    test_fixture(transform_fixture, file!(), "persisted_queries_file_existing_entries_preserved.input", "relay_compiler_integration/fixtures/persisted_queries_file_existing_entries_preserved.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn persisted_queries_file_missing_parent_directories_created() {
+    let input = include_str!("relay_compiler_integration/fixtures/persisted_queries_file_missing_parent_directories_created.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/persisted_queries_file_missing_parent_directories_created.expected");
+    test_fixture(transform_fixture, file!(), "persisted_queries_file_missing_parent_directories_created.input", "relay_compiler_integration/fixtures/persisted_queries_file_missing_parent_directories_created.expected", input, expected).await;
 }
 
 #[tokio::test]

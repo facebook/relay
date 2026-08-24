@@ -10,7 +10,10 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 use std::ops::Deref;
 
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
 use intern::Lookup;
+use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use relay_config::TypegenConfig;
 use relay_config::TypegenLanguage;
@@ -23,7 +26,7 @@ use crate::flow::FlowPrinter;
 use crate::javascript::JavaScriptPrinter;
 use crate::typescript::TypeScriptPrinter;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(clippy::upper_case_acronyms)]
 pub enum AST {
     Union(SortedASTList),
@@ -62,14 +65,14 @@ pub enum AST {
     },
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FunctionTypeAssertion {
     pub function_name: StringKey,
     pub arguments: Vec<KeyValuePairProp>,
     pub return_type: Box<AST>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SortedASTList(Vec<AST>);
 
 impl Deref for SortedASTList {
@@ -87,7 +90,7 @@ impl SortedASTList {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct ExactObject(Vec<Prop>);
 
 impl Deref for ExactObject {
@@ -157,7 +160,7 @@ impl Ord for ExactObject {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct InexactObject(Vec<Prop>);
 
 impl Deref for InexactObject {
@@ -221,7 +224,7 @@ impl PartialOrd for InexactObject {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SortedStringKeyList(Vec<StringKey>);
 
 impl Deref for SortedStringKeyList {
@@ -241,7 +244,7 @@ impl SortedStringKeyList {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub enum Prop {
     KeyValuePair(KeyValuePairProp),
     Spread(SpreadProp),
@@ -254,7 +257,7 @@ impl From<KeyValuePairProp> for Prop {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct KeyValuePairProp {
     pub key: StringKey,
     pub value: AST,
@@ -302,12 +305,12 @@ enum PropSortOrder {
     FragmentSpread,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct SpreadProp {
     pub value: StringKey,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct GetterSetterPairProp {
     pub key: StringKey,
     pub getter_return_value: AST,
@@ -324,7 +327,7 @@ pub struct GetterSetterPairProp {
 /// This exception is to preserve the "natural" order of enums, which
 /// are Union's containing StringLiteral's, i.e. we want
 /// "%future added value" to follow the variants.
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq)]
 pub struct StringLiteral(pub StringKey);
 
 impl Deref for StringLiteral {
@@ -352,6 +355,231 @@ impl PartialOrd for StringLiteral {
     }
 }
 
+pub(crate) struct DeduplicatedType {
+    pub(crate) type_: AST,
+    pub(crate) aliases: Vec<(StringKey, AST)>,
+}
+
+pub(crate) struct DeduplicatedTypes {
+    pub(crate) types: Vec<AST>,
+    pub(crate) aliases: Vec<(StringKey, AST)>,
+}
+
+pub(crate) fn deduplicate_raw_response_types(
+    raw_response_types: &[&AST],
+    operation_name: StringKey,
+) -> DeduplicatedTypes {
+    let mut visited = FnvHashSet::default();
+    let mut duplicates = FnvHashSet::default();
+    raw_response_types.iter().for_each(|raw_response_type| {
+        collect_composite_duplicates(raw_response_type, &mut visited, &mut duplicates)
+    });
+
+    let mut deduplicator = TypeDeduplicator {
+        operation_name,
+        duplicates,
+        aliases_by_type: Default::default(),
+        aliases: Vec::new(),
+    };
+    let types = raw_response_types
+        .iter()
+        .map(|raw_response_type| deduplicator.transform(raw_response_type))
+        .collect();
+
+    DeduplicatedTypes {
+        types,
+        aliases: deduplicator.aliases,
+    }
+}
+
+fn collect_composite_duplicates<'a>(
+    ast: &'a AST,
+    visited: &mut FnvHashSet<&'a AST>,
+    duplicates: &mut FnvHashSet<&'a AST>,
+) {
+    if is_nonempty_composite(ast) && !visited.insert(ast) {
+        duplicates.insert(ast);
+        return;
+    }
+
+    visit_ast_children(ast, |child| {
+        collect_composite_duplicates(child, visited, duplicates)
+    });
+}
+
+fn is_nonempty_composite(ast: &AST) -> bool {
+    match ast {
+        AST::Union(members) => members.len() > 1,
+        AST::Local3DPayload(_, _) => true,
+        AST::ExactObject(props) => !props.is_empty(),
+        AST::InexactObject(props) => !props.is_empty(),
+        _ => false,
+    }
+}
+
+fn visit_ast_children<'a>(ast: &'a AST, mut visit: impl FnMut(&'a AST)) {
+    match ast {
+        AST::Union(members) => members.iter().for_each(&mut visit),
+        AST::ReadOnlyArray(inner)
+        | AST::Nullable(inner)
+        | AST::NonNullable(inner)
+        | AST::Callable(inner) => visit(inner),
+        AST::Local3DPayload(_, selections) => visit(selections),
+        AST::ExactObject(props) => props.iter().for_each(|prop| visit_prop(prop, &mut visit)),
+        AST::InexactObject(props) => props.iter().for_each(|prop| visit_prop(prop, &mut visit)),
+        AST::ReturnTypeOfMethodCall(object, _) => visit(object),
+        AST::AssertFunctionType(assertion) => {
+            assertion
+                .arguments
+                .iter()
+                .for_each(|argument| visit(&argument.value));
+            visit(&assertion.return_type);
+        }
+        AST::GenericType { inner, .. } => inner.iter().for_each(visit),
+        AST::PropertyType { type_, .. } => visit(type_),
+        AST::Identifier(_)
+        | AST::RawType(_)
+        | AST::String
+        | AST::StringLiteral(_)
+        | AST::OtherTypename
+        | AST::Number
+        | AST::Boolean
+        | AST::Any
+        | AST::Mixed
+        | AST::Empty
+        | AST::FragmentReference(_)
+        | AST::FragmentReferenceType(_)
+        | AST::ReturnTypeOfFunctionWithName(_) => {}
+    }
+}
+
+fn visit_prop<'a>(prop: &'a Prop, visit: &mut impl FnMut(&'a AST)) {
+    match prop {
+        Prop::KeyValuePair(key_value_pair) => visit(&key_value_pair.value),
+        Prop::GetterSetterPair(pair) => {
+            visit(&pair.getter_return_value);
+            visit(&pair.setter_parameter);
+        }
+        Prop::Spread(_) => {}
+    }
+}
+
+struct TypeDeduplicator<'a> {
+    operation_name: StringKey,
+    duplicates: FnvHashSet<&'a AST>,
+    aliases_by_type: FnvHashMap<&'a AST, StringKey>,
+    aliases: Vec<(StringKey, AST)>,
+}
+
+impl<'a> TypeDeduplicator<'a> {
+    fn transform(&mut self, ast: &'a AST) -> AST {
+        if !self.duplicates.contains(ast) {
+            return self.transform_children(ast);
+        }
+        if let Some(alias) = self.aliases_by_type.get(ast) {
+            return AST::Identifier(*alias);
+        }
+
+        let value = self.transform_children(ast);
+        let alias = format!(
+            "{}$rawResponse$alias{}",
+            self.operation_name,
+            self.aliases.len()
+        )
+        .as_str()
+        .intern();
+        self.aliases_by_type.insert(ast, alias);
+        self.aliases.push((alias, value));
+        AST::Identifier(alias)
+    }
+
+    fn transform_children(&mut self, ast: &'a AST) -> AST {
+        match ast {
+            AST::Union(members) => AST::Union(SortedASTList::new(
+                members
+                    .iter()
+                    .map(|member| self.transform(member))
+                    .collect(),
+            )),
+            AST::ReadOnlyArray(inner) => AST::ReadOnlyArray(Box::new(self.transform(inner))),
+            AST::Nullable(inner) => AST::Nullable(Box::new(self.transform(inner))),
+            AST::NonNullable(inner) => AST::NonNullable(Box::new(self.transform(inner))),
+            AST::Callable(inner) => AST::Callable(Box::new(self.transform(inner))),
+            AST::Local3DPayload(document_name, selections) => {
+                AST::Local3DPayload(*document_name, Box::new(self.transform(selections)))
+            }
+            AST::ExactObject(props) => AST::ExactObject(ExactObject::new(
+                props.iter().map(|prop| self.transform_prop(prop)).collect(),
+            )),
+            AST::InexactObject(props) => AST::InexactObject(InexactObject::new(
+                props.iter().map(|prop| self.transform_prop(prop)).collect(),
+            )),
+            AST::ReturnTypeOfMethodCall(object, method_name) => {
+                AST::ReturnTypeOfMethodCall(Box::new(self.transform(object)), *method_name)
+            }
+            AST::AssertFunctionType(assertion) => AST::AssertFunctionType(FunctionTypeAssertion {
+                function_name: assertion.function_name,
+                arguments: assertion
+                    .arguments
+                    .iter()
+                    .map(|argument| self.transform_key_value_pair(argument))
+                    .collect(),
+                return_type: Box::new(self.transform(&assertion.return_type)),
+            }),
+            AST::GenericType { outer, inner } => AST::GenericType {
+                outer: *outer,
+                inner: inner.iter().map(|inner| self.transform(inner)).collect(),
+            },
+            AST::PropertyType {
+                type_,
+                property_name,
+            } => AST::PropertyType {
+                type_: Box::new(self.transform(type_)),
+                property_name: *property_name,
+            },
+            AST::Identifier(_)
+            | AST::RawType(_)
+            | AST::String
+            | AST::StringLiteral(_)
+            | AST::OtherTypename
+            | AST::Number
+            | AST::Boolean
+            | AST::Any
+            | AST::Mixed
+            | AST::Empty
+            | AST::FragmentReference(_)
+            | AST::FragmentReferenceType(_)
+            | AST::ReturnTypeOfFunctionWithName(_) => ast.clone(),
+        }
+    }
+
+    fn transform_prop(&mut self, prop: &'a Prop) -> Prop {
+        match prop {
+            Prop::KeyValuePair(key_value_pair) => {
+                Prop::KeyValuePair(self.transform_key_value_pair(key_value_pair))
+            }
+            Prop::GetterSetterPair(pair) => Prop::GetterSetterPair(GetterSetterPairProp {
+                key: pair.key,
+                getter_return_value: self.transform(&pair.getter_return_value),
+                setter_parameter: self.transform(&pair.setter_parameter),
+            }),
+            Prop::Spread(spread) => Prop::Spread(spread.clone()),
+        }
+    }
+
+    fn transform_key_value_pair(
+        &mut self,
+        key_value_pair: &'a KeyValuePairProp,
+    ) -> KeyValuePairProp {
+        KeyValuePairProp {
+            key: key_value_pair.key,
+            value: self.transform(&key_value_pair.value),
+            read_only: key_value_pair.read_only,
+            optional: key_value_pair.optional,
+        }
+    }
+}
+
 pub trait Writer: Write {
     fn into_string(self: Box<Self>) -> String;
 
@@ -360,6 +588,8 @@ pub trait Writer: Write {
     fn write(&mut self, ast: &AST) -> FmtResult;
 
     fn write_type_assertion(&mut self, name: &str, ast: &AST) -> FmtResult;
+
+    fn write_type_definition(&mut self, name: &str, ast: &AST) -> FmtResult;
 
     fn write_export_type(&mut self, name: &str, ast: &AST) -> FmtResult;
 
@@ -403,6 +633,153 @@ mod tests {
 
     use super::*;
     use crate::FUTURE_ENUM_VALUE;
+
+    #[test]
+    fn deduplicate_raw_response_type_hoists_repeated_composite_subtree() {
+        let repeated_object = AST::ExactObject(ExactObject::new(
+            (0..16)
+                .map(|index| {
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: format!("nested_field_{index}").as_str().intern(),
+                        value: AST::String,
+                        read_only: true,
+                        optional: false,
+                    })
+                })
+                .collect(),
+        ));
+        let repeated_type = AST::Nullable(Box::new(repeated_object.clone()));
+        let raw_response_type = AST::ExactObject(ExactObject::new(
+            (0..10)
+                .map(|index| {
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: format!("repeated_field_{index}").as_str().intern(),
+                        value: repeated_type.clone(),
+                        read_only: true,
+                        optional: false,
+                    })
+                })
+                .collect(),
+        ));
+
+        let deduplicated =
+            deduplicate_raw_response_types(&[&raw_response_type], "TestQuery".intern());
+
+        assert_eq!(deduplicated.aliases.len(), 1);
+        assert_eq!(
+            deduplicated.aliases[0],
+            ("TestQuery$rawResponse$alias0".intern(), repeated_object)
+        );
+        assert_eq!(
+            deduplicated.types[0],
+            AST::ExactObject(ExactObject::new(
+                (0..10)
+                    .map(|index| {
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: format!("repeated_field_{index}").as_str().intern(),
+                            value: AST::Nullable(Box::new(AST::Identifier(
+                                "TestQuery$rawResponse$alias0".intern(),
+                            ))),
+                            read_only: true,
+                            optional: false,
+                        })
+                    })
+                    .collect(),
+            ))
+        );
+    }
+
+    #[test]
+    fn deduplicate_raw_response_types_hoists_subtree_shared_across_roots() {
+        let repeated_object = AST::ExactObject(ExactObject::new(vec![Prop::KeyValuePair(
+            KeyValuePairProp {
+                key: "shared_field".intern(),
+                value: AST::String,
+                read_only: true,
+                optional: false,
+            },
+        )]));
+        let first_root = AST::Nullable(Box::new(repeated_object.clone()));
+        let second_root = AST::ReadOnlyArray(Box::new(repeated_object.clone()));
+
+        let deduplicated =
+            deduplicate_raw_response_types(&[&first_root, &second_root], "TestQuery".intern());
+
+        assert_eq!(
+            deduplicated.aliases,
+            vec![("TestQuery$rawResponse$alias0".intern(), repeated_object,)]
+        );
+        assert_eq!(
+            deduplicated.types,
+            vec![
+                AST::Nullable(Box::new(AST::Identifier(
+                    "TestQuery$rawResponse$alias0".intern(),
+                ))),
+                AST::ReadOnlyArray(Box::new(AST::Identifier(
+                    "TestQuery$rawResponse$alias0".intern(),
+                ))),
+            ]
+        );
+    }
+
+    #[test]
+    fn deduplicate_raw_response_types_hoists_identical_roots() {
+        let repeated_root = AST::ExactObject(ExactObject::new(vec![Prop::KeyValuePair(
+            KeyValuePairProp {
+                key: "shared_field".intern(),
+                value: AST::String,
+                read_only: true,
+                optional: false,
+            },
+        )]));
+
+        let deduplicated =
+            deduplicate_raw_response_types(&[&repeated_root, &repeated_root], "TestQuery".intern());
+
+        assert_eq!(
+            deduplicated.aliases,
+            vec![("TestQuery$rawResponse$alias0".intern(), repeated_root,)]
+        );
+        assert_eq!(
+            deduplicated.types,
+            vec![
+                AST::Identifier("TestQuery$rawResponse$alias0".intern()),
+                AST::Identifier("TestQuery$rawResponse$alias0".intern()),
+            ]
+        );
+    }
+
+    #[test]
+    fn deduplicate_raw_response_types_hoists_root_repeated_in_another_root() {
+        let repeated_root = AST::ExactObject(ExactObject::new(vec![Prop::KeyValuePair(
+            KeyValuePairProp {
+                key: "shared_field".intern(),
+                value: AST::String,
+                read_only: true,
+                optional: false,
+            },
+        )]));
+        let containing_root = AST::Nullable(Box::new(repeated_root.clone()));
+
+        let deduplicated = deduplicate_raw_response_types(
+            &[&repeated_root, &containing_root],
+            "TestQuery".intern(),
+        );
+
+        assert_eq!(
+            deduplicated.aliases,
+            vec![("TestQuery$rawResponse$alias0".intern(), repeated_root,)]
+        );
+        assert_eq!(
+            deduplicated.types,
+            vec![
+                AST::Identifier("TestQuery$rawResponse$alias0".intern()),
+                AST::Nullable(Box::new(AST::Identifier(
+                    "TestQuery$rawResponse$alias0".intern(),
+                ))),
+            ]
+        );
+    }
 
     /// Regression test: InexactObject::cmp previously called self.cmp(other)
     /// instead of self.0.cmp(&other.0), causing infinite recursion (stack overflow)

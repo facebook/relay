@@ -39,6 +39,10 @@ impl Writer for JavaScriptPrinter {
         Ok(())
     }
 
+    fn write_type_definition(&mut self, _name: &str, _value: &AST) -> FmtResult {
+        Ok(())
+    }
+
     fn write_export_type(&mut self, _name: &str, _value: &AST) -> FmtResult {
         Ok(())
     }

@@ -91,6 +91,12 @@ impl Writer for FlowPrinter {
         writeln!(&mut self.result, ");")
     }
 
+    fn write_type_definition(&mut self, name: &str, value: &AST) -> FmtResult {
+        write!(&mut self.result, "type {name} = ")?;
+        self.write(value)?;
+        writeln!(&mut self.result, ";")
+    }
+
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
         write!(&mut self.result, "export type {name} = ")?;
         self.write(value)?;

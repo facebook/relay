@@ -1,0 +1,144 @@
+==================================== INPUT ====================================
+query RawResponseTypeDedupQuery @raw_response_type {
+  node(id: "1") {
+    ...RawResponseTypeDedupFragment @alias
+  }
+  viewer {
+    actor {
+      ...RawResponseTypeDedupFragment @alias
+    }
+  }
+}
+
+fragment RawResponseTypeDedupFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+}
+==================================== OUTPUT ===================================
+import type { Local3DPayload } from "relay-runtime";
+import type { RawResponseTypeDedupFragment$fragmentType } from "RawResponseTypeDedupFragment.graphql";
+import type { MarkdownUserNameRenderer_name$normalization } from "MarkdownUserNameRenderer_name$normalization.graphql";
+import type { PlainUserNameRenderer_name$normalization } from "PlainUserNameRenderer_name$normalization.graphql";
+export type RawResponseTypeDedupQuery$variables = {};
+export type RawResponseTypeDedupQuery$data = {
+  readonly node: ?{
+    readonly RawResponseTypeDedupFragment: ?{
+      readonly $fragmentSpreads: RawResponseTypeDedupFragment$fragmentType,
+    },
+  },
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly RawResponseTypeDedupFragment: ?{
+        readonly $fragmentSpreads: RawResponseTypeDedupFragment$fragmentType,
+      },
+    },
+  },
+};
+export type PlainUserNameRenderer_name = {
+  ...PlainUserNameRenderer_name$normalization,
+};
+export type MarkdownUserNameRenderer_name = {
+  ...MarkdownUserNameRenderer_name$normalization,
+};
+type RawResponseTypeDedupQuery$rawResponse$alias0 = {
+  readonly __typename: "User",
+  readonly id: string,
+  readonly nameRenderer: ?(Local3DPayload<"RawResponseTypeDedupFragment", {
+    readonly __typename: "MarkdownUserNameRenderer",
+    ...MarkdownUserNameRenderer_name,
+  }> | Local3DPayload<"RawResponseTypeDedupFragment", {
+    readonly __typename: "PlainUserNameRenderer",
+    ...PlainUserNameRenderer_name,
+  }> | {
+    readonly __typename: "MarkdownUserNameRenderer",
+    readonly __module_component_RawResponseTypeDedupFragment: ?any,
+    readonly __module_operation_RawResponseTypeDedupFragment: ?any,
+    ...MarkdownUserNameRenderer_name,
+  } | {
+    readonly __typename: "PlainUserNameRenderer",
+    readonly __module_component_RawResponseTypeDedupFragment: ?any,
+    readonly __module_operation_RawResponseTypeDedupFragment: ?any,
+    ...PlainUserNameRenderer_name,
+  } | {
+    readonly __typename: string,
+  }),
+} | {
+  readonly __typename: string,
+  readonly id: string,
+};
+export type RawResponseTypeDedupQuery$rawResponse = {
+  readonly node: ?RawResponseTypeDedupQuery$rawResponse$alias0,
+  readonly viewer: ?{
+    readonly actor: ?RawResponseTypeDedupQuery$rawResponse$alias0,
+  },
+};
+export type RawResponseTypeDedupQuery = {
+  rawResponse: RawResponseTypeDedupQuery$rawResponse,
+  response: RawResponseTypeDedupQuery$data,
+  variables: RawResponseTypeDedupQuery$variables,
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type MarkdownUserNameRenderer_name$fragmentType: FragmentType;
+export type MarkdownUserNameRenderer_name$data = {
+  readonly markdown: ?string,
+  readonly $fragmentType: MarkdownUserNameRenderer_name$fragmentType,
+};
+export type MarkdownUserNameRenderer_name$key = {
+  readonly $data?: MarkdownUserNameRenderer_name$data,
+  readonly $fragmentSpreads: MarkdownUserNameRenderer_name$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type PlainUserNameRenderer_name$fragmentType: FragmentType;
+export type PlainUserNameRenderer_name$data = {
+  readonly plaintext: ?string,
+  readonly $fragmentType: PlainUserNameRenderer_name$fragmentType,
+};
+export type PlainUserNameRenderer_name$key = {
+  readonly $data?: PlainUserNameRenderer_name$data,
+  readonly $fragmentSpreads: PlainUserNameRenderer_name$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { MarkdownUserNameRenderer_name$fragmentType } from "MarkdownUserNameRenderer_name.graphql";
+import type { PlainUserNameRenderer_name$fragmentType } from "PlainUserNameRenderer_name.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RawResponseTypeDedupFragment$fragmentType: FragmentType;
+export type RawResponseTypeDedupFragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?({
+    readonly __typename: "MarkdownUserNameRenderer",
+    readonly __fragmentPropName: ?string,
+    readonly __module_component: ?string,
+    readonly $fragmentSpreads: MarkdownUserNameRenderer_name$fragmentType,
+  } | {
+    readonly __typename: "PlainUserNameRenderer",
+    readonly __fragmentPropName: ?string,
+    readonly __module_component: ?string,
+    readonly $fragmentSpreads: PlainUserNameRenderer_name$fragmentType,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
+  readonly $fragmentType: RawResponseTypeDedupFragment$fragmentType,
+};
+export type RawResponseTypeDedupFragment$key = {
+  readonly $data?: RawResponseTypeDedupFragment$data,
+  readonly $fragmentSpreads: RawResponseTypeDedupFragment$fragmentType,
+  ...
+};

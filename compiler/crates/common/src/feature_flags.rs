@@ -175,6 +175,21 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub disable_deduping_common_structures_in_artifacts: FeatureFlag,
 
+    /// Temporarily gate the rollout of structural deduplication in generated
+    /// raw response types. This flag can be removed once every project has
+    /// regenerated its artifacts with the optimization enabled.
+    #[serde(default)]
+    pub dedupe_common_structures_in_raw_response_types: FeatureFlag,
+
+    /// Skip the optimization which extracts common structures in generated
+    /// raw response types into private type aliases and uses them by reference
+    /// in each position in which they occur.
+    ///
+    /// This optimization can make it hard to follow changes to generated
+    /// types, so being able to disable it can be helpful for debugging.
+    #[serde(default)]
+    pub disable_deduping_common_structures_in_raw_response_types: FeatureFlag,
+
     /// The `path` field in `@required` Reader AST nodes is no longer used. But
     /// removing them in one diff is too large of a change to ship at once.
     ///
@@ -255,6 +270,8 @@ impl Default for FeatureFlags {
             use_reader_module_imports: Default::default(),
             omit_resolver_type_assertions_for_confirmed_types: Default::default(),
             disable_deduping_common_structures_in_artifacts: Default::default(),
+            dedupe_common_structures_in_raw_response_types: Default::default(),
+            disable_deduping_common_structures_in_raw_response_types: Default::default(),
             legacy_include_path_in_required_reader_nodes: Default::default(),
             disallow_required_action_throw_on_semantically_nullable_fields: Default::default(),
             enable_shadow_resolvers: Default::default(),

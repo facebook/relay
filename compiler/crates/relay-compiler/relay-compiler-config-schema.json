@@ -606,8 +606,22 @@
             "kind": "disabled"
           }
         },
+        "dedupe_common_structures_in_raw_response_types": {
+          "description": "Temporarily gate the rollout of structural deduplication in generated\nraw response types. This flag can be removed once every project has\nregenerated its artifacts with the optimization enabled.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "disable_deduping_common_structures_in_artifacts": {
           "description": "Skip the optimization which extracts common JavaScript structures in\ngenerated artifacts into numbered variables and uses them by reference\nin each position in which they occur.\n\nThis optimization can make it hard to follow changes to generated\ncode, so being able to disable it can be helpful for debugging.\n\nTo disable deduping for just one fragment or operation's generated\nartifacts:\n\n```json\n\"disable_deduping_common_structures_in_artifacts\": {\n  { \"kind\": \"limited\", \"allowList\": [\"<operation_or_fragment_name>\"] }\n}\n```",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
+        "disable_deduping_common_structures_in_raw_response_types": {
+          "description": "Skip the optimization which extracts common structures in generated\nraw response types into private type aliases and uses them by reference\nin each position in which they occur.\n\nThis optimization can make it hard to follow changes to generated\ntypes, so being able to disable it can be helpful for debugging.",
           "$ref": "#/$defs/FeatureFlag",
           "default": {
             "kind": "disabled"
@@ -949,7 +963,13 @@
             "compact_query_text": {
               "kind": "disabled"
             },
+            "dedupe_common_structures_in_raw_response_types": {
+              "kind": "disabled"
+            },
             "disable_deduping_common_structures_in_artifacts": {
+              "kind": "disabled"
+            },
+            "disable_deduping_common_structures_in_raw_response_types": {
               "kind": "disabled"
             },
             "disable_edge_type_name_validation_on_declerative_connection_directives": {

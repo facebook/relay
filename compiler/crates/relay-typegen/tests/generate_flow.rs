@@ -85,6 +85,15 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             .collect(),
         },
         relay_resolver_enable_interface_output_type: FeatureFlag::Enabled,
+        dedupe_common_structures_in_raw_response_types: match fixture.file_name {
+            "query-with-deduplicated-raw-response-type.graphql"
+            | "query-with-disabled-deduplicated-raw-response-type.graphql" => FeatureFlag::Enabled,
+            _ => FeatureFlag::Disabled,
+        },
+        disable_deduping_common_structures_in_raw_response_types: match fixture.file_name {
+            "query-with-disabled-deduplicated-raw-response-type.graphql" => FeatureFlag::Enabled,
+            _ => FeatureFlag::Disabled,
+        },
         enable_typename_discriminated_unions: typename_discriminated_unions_flag(fixture),
         ..Default::default()
     };

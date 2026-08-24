@@ -20,6 +20,7 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
 use indexmap::IndexMap;
@@ -68,6 +69,7 @@ use crate::visit::raw_response_visit_selections;
 use crate::visit::transform_input_type;
 use crate::visit::visit_selections;
 use crate::writer::AST;
+use crate::writer::DeduplicatedType;
 use crate::writer::ExactObject;
 use crate::writer::InexactObject;
 use crate::writer::KeyValuePairProp;
@@ -76,6 +78,7 @@ use crate::writer::SortedASTList;
 use crate::writer::SortedStringKeyList;
 use crate::writer::StringLiteral;
 use crate::writer::Writer;
+use crate::writer::deduplicate_raw_response_types;
 
 pub(crate) type CustomScalarsImports = HashSet<(StringKey, PathBuf)>;
 
@@ -172,18 +175,22 @@ pub(crate) fn write_operation_type_exports_section(
                 None,
                 is_throw_on_field_error,
             );
-            Some((
-                raw_response_selections_to_babel(
-                    typegen_context,
-                    normalization_operation.name.item,
-                    raw_response_selections.into_iter(),
-                    None,
-                    &mut encountered_enums,
-                    &mut runtime_imports,
-                    &mut custom_scalars,
-                ),
+            let raw_response_type = raw_response_selections_to_babel(
+                typegen_context,
+                normalization_operation.name.item,
+                raw_response_selections.into_iter(),
+                None,
+                &mut encountered_enums,
+                &mut runtime_imports,
+                &mut custom_scalars,
+            );
+            let deduplicated_types = maybe_deduplicate_raw_response_types(
+                typegen_context,
+                normalization_operation.name.item,
+                raw_response_type,
                 match_fields,
-            ))
+            );
+            Some(deduplicated_types)
         } else {
             None
         };
@@ -276,7 +283,7 @@ pub(crate) fn write_operation_type_exports_section(
 }
 
 fn write_raw_response_and_get_raw_response_prop(
-    raw_response_type_and_match_fields: Option<(AST, MatchFields)>,
+    raw_response_type_and_match_fields: Option<(DeduplicatedType, MatchFields)>,
     writer: &mut Box<dyn Writer>,
     typegen_operation: &OperationDefinition,
 ) -> Result<Option<KeyValuePairProp>, std::fmt::Error> {
@@ -284,8 +291,11 @@ fn write_raw_response_and_get_raw_response_prop(
         for (key, ast) in match_fields.0 {
             writer.write_export_type(key.lookup(), &ast)?;
         }
+        for (name, ast) in raw_response_type.aliases {
+            writer.write_type_definition(name.lookup(), &ast)?;
+        }
         let raw_response_identifier = format!("{}$rawResponse", typegen_operation.name.item.0);
-        writer.write_export_type(&raw_response_identifier, &raw_response_type)?;
+        writer.write_export_type(&raw_response_identifier, &raw_response_type.type_)?;
 
         Ok(Some(KeyValuePairProp {
             key: *KEY_RAW_RESPONSE,
@@ -338,6 +348,12 @@ pub(crate) fn write_split_operation_type_exports_section(
         &mut runtime_imports,
         &mut custom_scalars,
     );
+    let (raw_response_type, match_fields) = maybe_deduplicate_raw_response_types(
+        typegen_context,
+        normalization_operation.name.item,
+        raw_response_type,
+        match_fields,
+    );
 
     runtime_imports.write_runtime_imports(writer)?;
     write_fragment_imports(typegen_context, None, encountered_fragments, writer)?;
@@ -349,10 +365,76 @@ pub(crate) fn write_split_operation_type_exports_section(
     for (key, ast) in match_fields.0 {
         writer.write_export_type(key.lookup(), &ast)?;
     }
+    for (name, ast) in raw_response_type.aliases {
+        writer.write_type_definition(name.lookup(), &ast)?;
+    }
 
-    writer.write_export_type(typegen_operation.name.item.0.lookup(), &raw_response_type)?;
+    writer.write_export_type(
+        typegen_operation.name.item.0.lookup(),
+        &raw_response_type.type_,
+    )?;
 
     Ok(())
+}
+
+fn maybe_deduplicate_raw_response_types(
+    typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
+    raw_response_type: AST,
+    match_fields: MatchFields,
+) -> (DeduplicatedType, MatchFields) {
+    if typegen_context.project_config.typegen_config.language == TypegenLanguage::Flow
+        && typegen_context
+            .project_config
+            .feature_flags
+            .dedupe_common_structures_in_raw_response_types
+            .is_enabled_for(operation_name.0)
+        && !typegen_context
+            .project_config
+            .feature_flags
+            .disable_deduping_common_structures_in_raw_response_types
+            .is_enabled_for(operation_name.0)
+    {
+        let match_fields = match_fields.0.into_iter().collect_vec();
+        let raw_response_types = match_fields
+            .iter()
+            .map(|(_, type_)| type_)
+            .chain(std::iter::once(&raw_response_type))
+            .collect_vec();
+        let deduplicated = deduplicate_raw_response_types(&raw_response_types, operation_name.0);
+        let mut deduplicated_types = deduplicated.types.into_iter();
+        let match_fields = MatchFields(
+            match_fields
+                .into_iter()
+                .map(|(name, _)| {
+                    let type_ = deduplicated_types
+                        .next()
+                        .expect("should return one deduplicated type per match field");
+                    (name, type_)
+                })
+                .collect(),
+        );
+        let raw_response_type = deduplicated_types
+            .next()
+            .expect("should return the deduplicated raw response type");
+        debug_assert!(deduplicated_types.next().is_none());
+
+        (
+            DeduplicatedType {
+                type_: raw_response_type,
+                aliases: deduplicated.aliases,
+            },
+            match_fields,
+        )
+    } else {
+        (
+            DeduplicatedType {
+                type_: raw_response_type,
+                aliases: Vec::new(),
+            },
+            match_fields,
+        )
+    }
 }
 
 pub(crate) fn write_fragment_type_exports_section(
@@ -959,24 +1041,24 @@ fn write_abstract_validator_function(
     write!(
         writer,
         "function {}(value{}: ",
-        VALIDATOR_EXPORT_NAME, &open_comment
+        VALIDATOR_EXPORT_NAME, open_comment
     )?;
 
     writer.write(&parameter_type)?;
-    write!(writer, "{}){}: ", &close_comment, &open_comment)?;
+    write!(writer, "{}){}: ", close_comment, open_comment)?;
     writer.write(&return_type)?;
     write!(
         writer,
         "{} {{\n  return value.{} != null ? ",
-        &close_comment,
+        close_comment,
         abstract_fragment_spread_marker.lookup(),
     )?;
 
     match language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-            write!(writer, "(value{}:: as ", &open_comment)?;
+            write!(writer, "(value{}:: as ", open_comment)?;
             writer.write(&AST::Any)?;
-            write!(writer, "{}) ", &close_comment)?;
+            write!(writer, "{}) ", close_comment)?;
         }
         TypegenLanguage::TypeScript => {
             write!(writer, "value ")?;
@@ -1059,24 +1141,24 @@ fn write_concrete_validator_function(
     write!(
         writer,
         "function {}(value{}: ",
-        VALIDATOR_EXPORT_NAME, &open_comment
+        VALIDATOR_EXPORT_NAME, open_comment
     )?;
     writer.write(&parameter_type)?;
-    write!(writer, "{}){}: ", &close_comment, &open_comment)?;
+    write!(writer, "{}){}: ", close_comment, open_comment)?;
     writer.write(&return_type)?;
     write!(
         writer,
         "{} {{\n  return value.{} === '{}' ? ",
-        &close_comment,
+        close_comment,
         KEY_TYPENAME.lookup(),
         concrete_typename.lookup()
     )?;
 
     match typegen_language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-            write!(writer, "(value{}:: as ", &open_comment)?;
+            write!(writer, "(value{}:: as ", open_comment)?;
             writer.write(&AST::Any)?;
-            write!(writer, "{}) ", &close_comment)?;
+            write!(writer, "{}) ", close_comment)?;
         }
         TypegenLanguage::TypeScript => {
             write!(writer, "value ")?;

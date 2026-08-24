@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c36e30e660a2d61489e44bc6a9308caa>>
+ * @generated SignedSource<<14fdfc048c58a85c2311fec0fb3719c2>>
  */
 
 mod generate_flow;
@@ -346,6 +346,20 @@ async fn query_provided_variables_custom_scalar() {
     let input = include_str!("generate_flow/fixtures/query-provided-variables-custom-scalar.graphql");
     let expected = include_str!("generate_flow/fixtures/query-provided-variables-custom-scalar.expected");
     test_fixture(transform_fixture, file!(), "query-provided-variables-custom-scalar.graphql", "generate_flow/fixtures/query-provided-variables-custom-scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_deduplicated_raw_response_type() {
+    let input = include_str!("generate_flow/fixtures/query-with-deduplicated-raw-response-type.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-deduplicated-raw-response-type.expected");
+    test_fixture(transform_fixture, file!(), "query-with-deduplicated-raw-response-type.graphql", "generate_flow/fixtures/query-with-deduplicated-raw-response-type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_disabled_deduplicated_raw_response_type() {
+    let input = include_str!("generate_flow/fixtures/query-with-disabled-deduplicated-raw-response-type.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-disabled-deduplicated-raw-response-type.expected");
+    test_fixture(transform_fixture, file!(), "query-with-disabled-deduplicated-raw-response-type.graphql", "generate_flow/fixtures/query-with-disabled-deduplicated-raw-response-type.expected", input, expected).await;
 }
 
 #[tokio::test]

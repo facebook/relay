@@ -760,11 +760,11 @@ impl Config {
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
                     test_path_regex,
-                    feature_flags: Arc::new(
-                        config_file_project
-                            .feature_flags
-                            .unwrap_or_else(|| config_file_feature_flags.clone()),
-                    ),
+                    feature_flags: Arc::new(feature_flags_for_project(
+                        config_file_project.feature_flags,
+                        &config_file_feature_flags,
+                        is_multi_project,
+                    )),
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
                     relativize_js_module_paths: config_file_project.relativize_js_module_paths,
@@ -1048,6 +1048,21 @@ impl Config {
     }
 }
 
+fn feature_flags_for_project(
+    project_feature_flags: Option<FeatureFlags>,
+    global_feature_flags: &FeatureFlags,
+    is_multi_project: bool,
+) -> FeatureFlags {
+    let mut feature_flags = project_feature_flags.unwrap_or_else(|| global_feature_flags.clone());
+    if is_multi_project {
+        feature_flags.disable_deduping_common_structures_in_raw_response_types =
+            global_feature_flags
+                .disable_deduping_common_structures_in_raw_response_types
+                .clone();
+    }
+    feature_flags
+}
+
 /// Finds the roots of a set of paths. This filters any paths
 /// that are a subdirectory of other paths in the input.
 fn unify_roots(mut paths: Vec<PathBuf>) -> Vec<PathBuf> {
@@ -1068,7 +1083,64 @@ fn unify_roots(mut paths: Vec<PathBuf>) -> Vec<PathBuf> {
 
 #[cfg(test)]
 mod test {
+    use common::FeatureFlag;
+
     use super::*;
+
+    #[test]
+    fn raw_response_type_deduplication_killswitch_is_global() {
+        let global_feature_flags = FeatureFlags {
+            disable_deduping_common_structures_in_raw_response_types: FeatureFlag::Enabled,
+            ..Default::default()
+        };
+        let project_feature_flags = FeatureFlags {
+            disable_full_argument_type_validation: FeatureFlag::Enabled,
+            ..Default::default()
+        };
+
+        let merged_feature_flags =
+            feature_flags_for_project(Some(project_feature_flags), &global_feature_flags, true);
+
+        assert!(
+            merged_feature_flags
+                .disable_deduping_common_structures_in_raw_response_types
+                .is_fully_enabled()
+        );
+        assert!(
+            merged_feature_flags
+                .disable_full_argument_type_validation
+                .is_fully_enabled()
+        );
+    }
+
+    #[test]
+    fn single_project_raw_response_type_deduplication_killswitch_is_preserved() {
+        let config = Config::from_string_for_test(
+            r#"{
+                "src": ".",
+                "schema": ".",
+                "language": "flow",
+                "featureFlags": {
+                    "disable_deduping_common_structures_in_raw_response_types": {
+                        "kind": "enabled"
+                    }
+                }
+            }"#,
+        )
+        .expect("should parse single-project config");
+        let project = config
+            .projects
+            .values()
+            .next()
+            .expect("should contain the single project");
+
+        assert!(
+            project
+                .feature_flags
+                .disable_deduping_common_structures_in_raw_response_types
+                .is_fully_enabled()
+        );
+    }
 
     /// Asserts the consume-once invariant of `load_saved_state_file` and
     /// `initial_external_changed_files_list` — once `take()`d, the slot is

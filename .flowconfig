@@ -1,9 +1,9 @@
 [ignore]
-glob:dist/**
-glob:compiler/**
-glob:**/*/node_modules/**
-glob:packages/relay-e2e-test/**
-glob:**/node_modules/resolve/test/resolver/malformed_package_json/package.json
+dist/**
+compiler/**
+**/*/node_modules/**
+packages/relay-e2e-test/**
+**/node_modules/resolve/test/resolver/malformed_package_json/package.json
 
 [options]
 module.system=haste

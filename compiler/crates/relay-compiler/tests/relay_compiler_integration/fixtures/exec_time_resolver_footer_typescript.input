@@ -1,0 +1,19 @@
+//- foo.js
+// The exec-time footer is emitted per typegen language. This pins the TypeScript
+// form, which needs a real `as any` cast rather than the Flow comment cast.
+graphql`
+  query fooQuery @exec_time_resolvers {
+   userName
+  }`;
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { userName: String }

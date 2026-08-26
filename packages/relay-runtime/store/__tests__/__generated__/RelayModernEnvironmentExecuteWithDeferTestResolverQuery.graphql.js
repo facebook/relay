@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fa2cb9b5a762f647ece63ae7cb506329>>
+ * @generated SignedSource<<5cfc4149dd5a783daaefcb163118d99a>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -159,6 +159,8 @@ return {
 if (__DEV__) {
   (node/*:: as any*/).hash = "56440e2904f55cb46bcb26cb00575108";
 }
+
+(node.params.metadata/*:: as any*/).operation = node.operation;
 
 module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithDeferTestResolverQuery$variables,

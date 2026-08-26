@@ -15,10 +15,12 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
 use intern::string_key::StringKey;
+use relay_codegen::EXEC_TIME_RESOLVERS;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
 use relay_codegen::build_request_params;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
+use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
 use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::is_operation_preloadable;
 use relay_typegen::FragmentLocations;
@@ -445,6 +447,35 @@ pub fn generate_operation(
     )?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Query Node Hash Section --
+
+    // -- Begin Exec Time Resolvers Section --
+    let mut section = GenericSection::default();
+    if normalization_operation
+        .directives
+        .named(*EXEC_TIME_RESOLVERS)
+        .is_some()
+        && ClientEdgeGeneratedQueryMetadataDirective::find(&normalization_operation.directives)
+            .is_none()
+    {
+        // Routing an exec-time query happens at the network layer, which is handed only
+        // `params` and never the operation AST. Assigning at module scope keeps this a
+        // self-reference, so it costs no duplicated AST in the artifact.
+        match project_config.typegen_config.language {
+            TypegenLanguage::Flow => writeln!(
+                section,
+                "(node.params.metadata/*:: as any*/).operation = node.operation;"
+            )?,
+            TypegenLanguage::JavaScript => {
+                writeln!(section, "node.params.metadata.operation = node.operation;")?
+            }
+            TypegenLanguage::TypeScript => writeln!(
+                section,
+                "(node.params.metadata as any).operation = node.operation;"
+            )?,
+        }
+    }
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Exec Time Resolvers Section --
 
     // -- Begin PreloadableQueryRegistry Section --
     let mut section = GenericSection::default();

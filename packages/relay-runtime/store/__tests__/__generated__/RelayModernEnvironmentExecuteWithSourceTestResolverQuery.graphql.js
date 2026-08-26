@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a0ebf34709c8b0e0c3bbba9a6a783754>>
+ * @generated SignedSource<<3eccdcd343a7d5708dfc75ef4649b175>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -109,6 +109,8 @@ return {
 if (__DEV__) {
   (node/*:: as any*/).hash = "f4edc2aa49bc406ef5fc57d2d43b3cbe";
 }
+
+(node.params.metadata/*:: as any*/).operation = node.operation;
 
 module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayModernEnvironmentExecuteWithSourceTestResolverQuery$variables,

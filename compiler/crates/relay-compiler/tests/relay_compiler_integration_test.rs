@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<67f90c4549c25528b892e3eec20ac2d9>>
+ * @generated SignedSource<<7ba95a1bac9b8f35d7f8439a3136c95c>>
  */
 
 mod relay_compiler_integration;
@@ -185,6 +185,20 @@ async fn exec_resolvers_directive_with_root_fragment() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.expected");
     test_fixture(transform_fixture, file!(), "exec_resolvers_directive_with_root_fragment.input", "relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_resolver_footer_javascript() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_footer_javascript.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_footer_javascript.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_footer_javascript.input", "relay_compiler_integration/fixtures/exec_time_resolver_footer_javascript.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_resolver_footer_typescript() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_footer_typescript.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_footer_typescript.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_footer_typescript.input", "relay_compiler_integration/fixtures/exec_time_resolver_footer_typescript.expected", input, expected).await;
 }
 
 #[tokio::test]

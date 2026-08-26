@@ -24,6 +24,7 @@ pub use ast::QueryID;
 pub use ast::RequestParameters;
 pub use build_ast::CodegenBuilder;
 pub use build_ast::CodegenVariant;
+pub use build_ast::EXEC_TIME_RESOLVERS;
 pub use build_ast::build_request_params;
 pub use build_ast::is_static_storage_key_available;
 pub use constants::CODEGEN_CONSTANTS;

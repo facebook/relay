@@ -1,0 +1,19 @@
+//- foo.js
+// The exec-time footer is emitted per typegen language. This pins the plain
+// JavaScript form, which must not contain a Flow or TypeScript cast.
+graphql`
+  query fooQuery @exec_time_resolvers {
+   userName
+  }`;
+
+//- relay.config.json
+{
+  "language": "javascript",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { userName: String }

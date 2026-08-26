@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2efbd2e6be74effb6f4338c48f1085e3>>
+ * @generated SignedSource<<73f00fb4c75500a5d10d1dc77746e871>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -384,6 +384,8 @@ return {
 if (__DEV__) {
   (node/*:: as any*/).hash = "6e8ef036cc7105493415758b86368fe7";
 }
+
+(node.params.metadata/*:: as any*/).operation = node.operation;
 
 module.exports = ((node/*:: as any*/)/*:: as Query<
   DataCheckerTestExecWithServerDataQuery$variables,

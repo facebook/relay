@@ -34,7 +34,7 @@ pub struct TokenKindExtras {
 )]
 #[serde(tag = "type")]
 #[logos(extras = TokenKindExtras)]
-#[logos(skip r"[ \t\r\n\f,\ufeff]+|#[^\n\r]*")] // whitespace
+#[logos(skip(r"[ \t\r\n\f,\ufeff]+|#[^\n\r]*", allow_greedy = true))] // whitespace
 pub enum TokenKind {
     ErrorUnterminatedString,
     ErrorUnsupportedStringCharacter,

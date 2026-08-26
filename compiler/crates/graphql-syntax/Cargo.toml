@@ -15,7 +15,7 @@ path = "tests/print_test.rs"
 [dependencies]
 common = { path = "../common" }
 intern = { path = "../intern" }
-logos = "0.15"
+logos = "0.16.1"
 serde = { version = "1.0.229", features = ["derive", "rc"] }
 thiserror = "2.0.20"
 

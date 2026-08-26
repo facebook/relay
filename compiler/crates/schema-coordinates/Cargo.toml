@@ -10,4 +10,4 @@ license = "MIT"
 
 [dependencies]
 intern = { path = "../intern" }
-logos = "0.15"
+logos = "0.16.1"

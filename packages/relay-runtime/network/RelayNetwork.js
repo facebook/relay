@@ -48,6 +48,7 @@ function create(
     const operationVariables = withProvidedVariables(
       variables,
       request.providedVariables,
+      network,
     );
     if (request.operationKind === 'subscription') {
       invariant(
@@ -83,7 +84,10 @@ function create(
     );
   }
 
-  return {execute};
+  // `execute` memoizes provided variable values per network, so it needs the
+  // network it belongs to. It only runs once this is assigned.
+  const network: INetwork = {execute};
+  return network;
 }
 
 module.exports = {create};

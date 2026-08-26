@@ -76,7 +76,10 @@ To add a provided variable:
   `@argumentDefinitions`
 - ensure that `[JSModule].relayprovider.js` exists and exports a `get()`
   function
-  - `get` should return the same value on every call for a given run.
+  - `get` should return the same value on every call for a given run. Its value
+    is resolved once per network and reused for every operation that network
+    executes, so a server that serves several requests from one process should
+    build a network per request.
 
 ```graphql
 fragment TodoItem_item on TodoList

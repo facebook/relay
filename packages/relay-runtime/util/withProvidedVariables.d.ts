@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { Network } from '../network/RelayNetworkTypes';
 import { ProvidedVariablesType } from './RelayConcreteNode';
 import { Variables } from './RelayRuntimeTypes';
 
@@ -12,6 +13,7 @@ interface WithProvidedVariablesFn {
     (
         userSuppliedVariables: Variables,
         providedVariables: ProvidedVariablesType | null | undefined,
+        network?: Network | null,
     ): Variables;
     tests_only_resetDebugCache: undefined | (() => void);
 }

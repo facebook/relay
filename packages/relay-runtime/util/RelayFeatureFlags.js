@@ -105,6 +105,14 @@ export type FeatureFlags = {
   //
   // See https://github.com/facebook/relay/issues/5339
   ENABLE_CATCH_IGNORE_HANDLED_FIELD_ERRORS: boolean,
+
+  // Temporary flag for the gradual rollout of the ifEmpty cancellation fix.
+  // When enabled, `ifEmpty` captures the primary subscription via the `start`
+  // callback so an alternate selected during synchronous completion of the
+  // primary (e.g. a network request chosen after a synchronous cache miss)
+  // stays reachable by `unsubscribe`. Defaults off; without it the alternate is
+  // orphaned and runs to completion, matching prior behavior.
+  ENABLE_IF_EMPTY_CANCELLATION: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -139,6 +147,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_FIELD_GRANULAR_NOTIFICATIONS: false,
   ENABLE_READER_FRAGMENTS_LOGGING: false,
   ENABLE_CATCH_IGNORE_HANDLED_FIELD_ERRORS: false,
+  ENABLE_IF_EMPTY_CANCELLATION: false,
 };
 
 module.exports = RelayFeatureFlags;

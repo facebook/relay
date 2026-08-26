@@ -10,6 +10,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayObservable = require('../RelayObservable');
 const {
   injectPromisePolyfill__DEPRECATED,
@@ -1955,6 +1956,58 @@ describe('RelayObservable', () => {
         'cleanup cities',
         'cleanup empty',
       ]);
+    });
+
+    it('Unsubscribes the alternate when the first completed synchronously and ENABLE_IF_EMPTY_CANCELLATION is set', () => {
+      RelayFeatureFlags.ENABLE_IF_EMPTY_CANCELLATION = true;
+      try {
+        const list = [];
+
+        // Completes during subscribe(), so ifEmpty's `complete` handler runs
+        // before subscribe() has returned.
+        const empty = RelayObservable.create(sink => {
+          sink.complete();
+          return () => list.push('cleanup empty');
+        });
+
+        // Stays open, standing in for an in-flight network request.
+        const pending = RelayObservable.create(
+          () => () => list.push('cleanup pending'),
+        );
+
+        const subscription = empty.ifEmpty(pending).subscribe({});
+        subscription.unsubscribe();
+
+        // Regression: the alternate's subscription used to be clobbered by the
+        // trailing `current = this.subscribe(...)` assignment, so unsubscribing
+        // hit the already-closed primary subscription and the alternate kept
+        // running until it finished on its own. Enabling the flag makes it
+        // reachable.
+        expect(list).toContain('cleanup pending');
+      } finally {
+        RelayFeatureFlags.ENABLE_IF_EMPTY_CANCELLATION = false;
+      }
+    });
+
+    it('Does not unsubscribe a synchronously-selected alternate when the flag is off', () => {
+      const list = [];
+
+      const empty = RelayObservable.create(sink => {
+        sink.complete();
+        return () => list.push('cleanup empty');
+      });
+
+      const pending = RelayObservable.create(
+        () => () => list.push('cleanup pending'),
+      );
+
+      // With ENABLE_IF_EMPTY_CANCELLATION off (default), the alternate selected
+      // during synchronous completion is not reachable by unsubscribe (legacy
+      // behavior preserved).
+      const subscription = empty.ifEmpty(pending).subscribe({});
+      subscription.unsubscribe();
+
+      expect(list).not.toContain('cleanup pending');
     });
 
     it('Error passes through without starting the second', () => {

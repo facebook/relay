@@ -12,6 +12,7 @@
 'use strict';
 
 const isPromise = require('../util/isPromise');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 
 /**
  * A Subscription object is returned from .subscribe(), which can be
@@ -271,7 +272,22 @@ class RelayObservable<out T> implements Subscribable<T> {
     return RelayObservable.create(sink => {
       let hasValue = false;
       let current: ?Subscription;
-      current = this.subscribe({
+      // When ENABLE_IF_EMPTY_CANCELLATION is set, capture the primary
+      // subscription via `start` rather than the return value of `subscribe`. If
+      // this Observable completes synchronously, the `complete` handler below
+      // runs *during* the `subscribe` call and assigns the alternate's
+      // subscription to `current`; assigning the return value afterwards would
+      // clobber it with the already-closed primary subscription, leaving the
+      // alternate un-unsubscribable and its work (e.g. an in-flight network
+      // request) orphaned until it finishes on its own. `concat` and `catch`
+      // already capture via `start` for this reason. Gated for a gradual
+      // rollout; the default preserves prior behavior.
+      const subscription = this.subscribe({
+        start(sub) {
+          if (RelayFeatureFlags.ENABLE_IF_EMPTY_CANCELLATION) {
+            current = sub;
+          }
+        },
         next(value) {
           hasValue = true;
           sink.next(value);
@@ -285,6 +301,9 @@ class RelayObservable<out T> implements Subscribable<T> {
           }
         },
       });
+      if (!RelayFeatureFlags.ENABLE_IF_EMPTY_CANCELLATION) {
+        current = subscription;
+      }
       return () => {
         current && current.unsubscribe();
       };

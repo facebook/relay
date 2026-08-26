@@ -308,26 +308,34 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('processes a nested @defer chunk when the outer defer streams as sub-path chunks only', () => {
-        const query = graphql`
-          query RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedQuery(
-            $id: ID!
-          ) {
-            node(id: $id) {
-              ... on User {
-                id
-                allPhones {
-                  phoneNumber {
-                    displayNumber
-                  }
+      // Shared by the two nested-@defer tests below: graphql documents must
+      // be defined once per file, so both tests close over these.
+      const query = graphql`
+        query RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedQuery(
+          $id: ID!
+        ) {
+          node(id: $id) {
+            ... on User {
+              id
+              allPhones {
+                phoneNumber {
+                  displayNumber
                 }
-                ...RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedOuterFragment
-                  @dangerously_unaliased_fixme
-                  @defer(label: "NestedOuterFragment")
               }
+              ...RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedOuterFragment
+                @dangerously_unaliased_fixme
+                @defer(label: "NestedOuterFragment")
             }
           }
-        `;
+        }
+      `;
+      const innerFragment = graphql`
+        fragment RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedInnerFragment on User {
+          name
+        }
+      `;
+
+      it('processes a nested @defer chunk when the outer defer streams as sub-path chunks only', () => {
         graphql`
           fragment RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedOuterFragment on User {
             allPhones {
@@ -335,11 +343,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             }
             ...RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedInnerFragment
               @defer(label: "NestedInnerFragment")
-          }
-        `;
-        const innerFragment = graphql`
-          fragment RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedInnerFragment on User {
-            name
           }
         `;
         const operation = createOperationDescriptor(query, {id: '1'});
@@ -356,9 +359,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             node: {
               id: '1',
               __typename: 'User',
-              allPhones: [
-                {phoneNumber: {displayNumber: '+1-555-0100'}},
-              ],
+              allPhones: [{phoneNumber: {displayNumber: '+1-555-0100'}}],
             },
           },
         });
@@ -393,30 +394,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('processes a nested @defer chunk when the outer defer emits no chunk of its own', () => {
-        const query = graphql`
-          query RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedQuery(
-            $id: ID!
-          ) {
-            node(id: $id) {
-              ... on User {
-                id
-                allPhones {
-                  phoneNumber {
-                    displayNumber
-                  }
-                }
-                ...RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedOuterFragment
-                  @dangerously_unaliased_fixme
-                  @defer(label: "NestedOuterFragment")
-              }
-            }
-          }
-        `;
-        const innerFragment = graphql`
-          fragment RelayModernEnvironmentExecuteWithDeferAndSubPathTestNestedInnerFragment on User {
-            name
-          }
-        `;
         const operation = createOperationDescriptor(query, {id: '1'});
         const innerSelector = createReaderSelector(
           innerFragment,
@@ -431,9 +408,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             node: {
               id: '1',
               __typename: 'User',
-              allPhones: [
-                {phoneNumber: {displayNumber: '+1-555-0100'}},
-              ],
+              allPhones: [{phoneNumber: {displayNumber: '+1-555-0100'}}],
             },
           },
         });

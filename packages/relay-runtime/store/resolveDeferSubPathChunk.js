@@ -58,10 +58,27 @@ function recoverAtParentRecord(
   subPath: ReadonlyArray<unknown>,
   storeSource: RecordSource,
 ): RecoveredDeferPayload {
+  // Inject each hop's store id into its wrapper level. The server dedupes
+  // already-delivered fields, so the chunk carries no `id` — normalizing it
+  // re-derives record identity from the partial payload via getDataID, and
+  // defaultGetDataID's Viewer special case then answers the constant
+  // `client:root:viewer` even when the store's link is a real-id viewer,
+  // repointing the link at a record the chunk's fields get stranded on.
+  // Supplying the id the store already holds keeps identity stable.
+  const hopIDs = resolveSubPathRecordIDs(
+    placeholder.selector.node,
+    subPath,
+    storeSource,
+    placeholder.selector.dataID,
+    placeholder.selector.variables,
+  );
   return {
     selector: placeholder.selector,
     typeName: placeholder.typeName,
-    response: {...response, data: wrapUnderSubPath(subPath, response.data)},
+    response: {
+      ...response,
+      data: wrapUnderSubPath(subPath, response.data, hopIDs),
+    },
     existingRootRecord: storeSource.get(placeholder.selector.dataID),
   };
 }
@@ -98,18 +115,88 @@ function recoverAtChildRecord(
 /**
  * Fold string subPath keys back into `data`:
  * `wrapUnderSubPath(['address'], {city}) → {address: {city}}`.
+ * When `hopIDs` is given, the record object at each level gets its store id
+ * injected (see recoverAtParentRecord).
  */
 function wrapUnderSubPath(
   subPath: ReadonlyArray<unknown>,
   data: unknown,
+  hopIDs: ReadonlyArray<DataID>,
 ): {[string]: unknown} {
-  let wrapped: {[string]: unknown} = {
-    [String(subPath[subPath.length - 1])]: data,
-  };
-  for (let i = subPath.length - 2; i >= 0; i--) {
+  let wrapped: unknown = data;
+  for (let i = subPath.length - 1; i >= 0; i--) {
+    wrapped = withInjectedRecordID(
+      wrapped,
+      i < hopIDs.length ? hopIDs[i] : null,
+    );
     wrapped = {[String(subPath[i])]: wrapped};
   }
-  return wrapped;
+  // The loop always ends on a wrapping step, so the result is an object.
+  return wrapped as $FlowFixMe;
+}
+
+/**
+ * Return `data` with `id` set to the record's store id — only when the store
+ * id is a real server id (never fabricate a `client:` id as a server field),
+ * `data` is a record object, and the chunk did not already supply an id.
+ */
+function withInjectedRecordID(data: unknown, dataID: ?DataID): unknown {
+  if (
+    dataID == null ||
+    dataID.startsWith('client:') ||
+    data == null ||
+    typeof data !== 'object' ||
+    Array.isArray(data) ||
+    (data as $FlowFixMe).id != null
+  ) {
+    return data;
+  }
+  return {...data, id: dataID};
+}
+
+/**
+ * Resolve the store dataID of each hop along a string-only subPath. Entry i
+ * is the record reached after following subPath[0..i]. Resolution is greedy:
+ * it stops at the first unresolvable hop — a missing LinkedField in the AST
+ * or a link the store has not written yet — and returns the ids gathered so
+ * far. A link the store does not hold has no identity to protect, so
+ * normalization is free to derive one for it.
+ */
+function resolveSubPathRecordIDs(
+  node: NormalizationSelectableNode,
+  subPath: ReadonlyArray<unknown>,
+  storeSource: RecordSource,
+  rootDataID: DataID,
+  variables: Variables,
+): ReadonlyArray<DataID> {
+  let currentSelections = node.selections;
+  let currentDataID = rootDataID;
+  const ids: Array<DataID> = [];
+  for (let i = 0; i < subPath.length; i++) {
+    const key = subPath[i];
+    if (typeof key !== 'string') {
+      break;
+    }
+    const field = findLinkedField(currentSelections, key);
+    if (field == null || field.plural === true) {
+      break;
+    }
+    const record = storeSource.get(currentDataID);
+    if (record == null) {
+      break;
+    }
+    const linked = RelayModernRecord.getLinkedRecordID(
+      record,
+      getStorageKey(field, variables),
+    );
+    if (linked == null) {
+      break;
+    }
+    currentDataID = linked;
+    currentSelections = field.selections;
+    ids.push(currentDataID);
+  }
+  return ids;
 }
 
 type WalkState = {
@@ -166,11 +253,21 @@ function stepIntoField(
   if (field.plural === true) {
     const pendingIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
     if (pendingIDs == null) return null;
-    return {field, selections: field.selections, dataID: state.dataID, pendingIDs};
+    return {
+      field,
+      selections: field.selections,
+      dataID: state.dataID,
+      pendingIDs,
+    };
   }
   const linked = RelayModernRecord.getLinkedRecordID(record, storageKey);
   if (linked == null) return null;
-  return {field, selections: field.selections, dataID: linked, pendingIDs: null};
+  return {
+    field,
+    selections: field.selections,
+    dataID: linked,
+    pendingIDs: null,
+  };
 }
 
 function stepIntoIndex(state: WalkState, index: number): ?WalkState {

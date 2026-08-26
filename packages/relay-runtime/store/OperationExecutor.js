@@ -1926,7 +1926,10 @@ function findDeferPlaceholderByPrefix(
   placeholder: IncrementalResults,
   subPath: ReadonlyArray<unknown>,
 } {
-  for (let prefixLen = path.length - 1; prefixLen > 0; prefixLen--) {
+  // prefixLen reaches 0: a fragment deferred at the query root registers
+  // its placeholder at path [] (the empty key), so the walk must include
+  // the empty prefix or root-level chunks never match.
+  for (let prefixLen = path.length - 1; prefixLen >= 0; prefixLen--) {
     const prefixKey = path.slice(0, prefixLen).map(String).join('.');
     const result = resultForLabel.get(prefixKey);
     if (result != null && result.kind === 'placeholder') {
@@ -1951,10 +1954,7 @@ function forEachInnerDefer(
     for (const sel of selections) {
       switch (sel.kind) {
         case 'Defer':
-          if (
-            sel.if === null ||
-            Boolean(selector.variables[sel.if])
-          ) {
+          if (sel.if === null || Boolean(selector.variables[sel.if])) {
             visit(sel);
           }
           break;

@@ -48,6 +48,7 @@ describe('withProvidedVariables', () => {
       const newVariables = withProvidedVariables(
         userVariables,
         userQuery.params.providedVariables,
+        new Map(),
       );
       expect(
         newVariables.__relay_internal__pv__provideNumberOfFriendsrelayprovider,
@@ -86,6 +87,7 @@ describe('withProvidedVariables', () => {
       const newVariables = withProvidedVariables(
         userVariables,
         userQuery.params.providedVariables,
+        new Map(),
       );
       expect(
         newVariables.__relay_internal__pv__provideNumberOfFriendsrelayprovider,
@@ -127,6 +129,7 @@ describe('withProvidedVariables', () => {
       const newVariables = withProvidedVariables(
         userVariables,
         userQuery.params.providedVariables,
+        new Map(),
       );
       expect(
         newVariables.__relay_internal__pv__provideNumberOfFriendsrelayprovider,
@@ -188,6 +191,7 @@ describe('withProvidedVariables', () => {
       const newVariables = withProvidedVariables(
         userVariables,
         userQuery.params.providedVariables,
+        new Map(),
       );
       expect(
         newVariables.__relay_internal__pv__provideNumberOfFriendsrelayprovider,
@@ -200,6 +204,11 @@ describe('withProvidedVariables', () => {
   });
 
   describe('When a provider function returns different values', () => {
+    // Shared across both cases on purpose: the second asserts that a provider
+    // reused by a *different* query still resolves to the value cached the
+    // first time. Deliberately not reset between cases.
+    const cache = new Map();
+
     it('warns for every provider that returns a changed value', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest5Query {
@@ -233,6 +242,7 @@ describe('withProvidedVariables', () => {
       let vars = withProvidedVariables(
         userVariables,
         userQuery.params.providedVariables,
+        cache,
       );
       // first call should return 0
       expect(
@@ -254,6 +264,7 @@ describe('withProvidedVariables', () => {
           vars = withProvidedVariables(
             userVariables,
             userQuery.params.providedVariables,
+            cache,
           );
         },
       );
@@ -298,6 +309,7 @@ describe('withProvidedVariables', () => {
           vars = withProvidedVariables(
             userVariables,
             userQuery.params.providedVariables,
+            cache,
           );
         },
       );

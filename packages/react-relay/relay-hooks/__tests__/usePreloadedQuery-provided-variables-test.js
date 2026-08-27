@@ -37,7 +37,6 @@ const {
   Store,
   graphql,
 } = require('relay-runtime');
-const withProvidedVariables = require('relay-runtime/util/withProvidedVariables');
 const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -137,9 +136,6 @@ describe('usePreloadedQuery provided variables (%s)', () => {
       store: new Store(new RecordSource()),
     });
     RelayProvider_impure.test_reset();
-    if (withProvidedVariables.tests_only_resetDebugCache !== undefined) {
-      withProvidedVariables.tests_only_resetDebugCache();
-    }
   });
 
   describe('using preloadQuery_DEPRECATED', () => {

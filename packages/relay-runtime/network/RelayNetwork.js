@@ -37,6 +37,10 @@ function create(
 ): INetwork {
   // Convert to functions that returns RelayObservable.
   const observeFetch = convertFetch(fetchFn);
+  // Keyed on the provider's `get`, which the compiler emits as a method on a
+  // module-scope singleton — so these keys are never collectable and a
+  // WeakMap would buy nothing over a Map.
+  const providerValueCache: Map<() => unknown, unknown> = new Map();
 
   function execute(
     request: RequestParameters,
@@ -48,6 +52,7 @@ function create(
     const operationVariables = withProvidedVariables(
       variables,
       request.providedVariables,
+      providerValueCache,
     );
     if (request.operationKind === 'subscription') {
       invariant(

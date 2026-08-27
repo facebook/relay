@@ -17,18 +17,10 @@ import type {Variables} from './RelayRuntimeTypes';
 const areEqual = require('areEqual');
 const warning = require('warning');
 
-const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
-let debugCache:
-  | Map<unknown, unknown>
-  | Map<() => unknown, unknown>
-  | WeakMap<interface {} | ReadonlyArray<unknown>, unknown>
-  | WeakMap<() => unknown, unknown> = WEAKMAP_SUPPORTED
-  ? new WeakMap()
-  : new Map();
-
 function withProvidedVariables(
   userSuppliedVariables: Variables,
   providedVariables: ?ProvidedVariablesType,
+  cache: Map<() => unknown, unknown>,
 ): Variables {
   if (providedVariables != null) {
     const operationVariables: {[string]: unknown} = {};
@@ -36,17 +28,18 @@ function withProvidedVariables(
     Object.assign(operationVariables, userSuppliedVariables);
     Object.keys(providedVariables).forEach((varName: string) => {
       const providerFunction = providedVariables[varName].get;
-      const providerResult = providerFunction();
 
-      // people like to ignore these warnings, so use the cache to
-      // enforce that we only compute the value the first time
-      if (!debugCache.has(providerFunction)) {
-        debugCache.set(providerFunction, providerResult);
+      if (!cache.has(providerFunction)) {
+        const providerResult = providerFunction();
+        cache.set(providerFunction, providerResult);
         operationVariables[varName] = providerResult;
       } else {
-        const cachedResult = debugCache.get(providerFunction);
+        const cachedResult = cache.get(providerFunction);
 
         if (__DEV__) {
+          // people like to ignore these warnings, so recompute on every call
+          // to detect if the provider has become impure
+          const providerResult = providerFunction();
           warning(
             areEqual(providerResult, cachedResult),
             'Relay: Expected function `%s` for provider `%s` to be a pure function, ' +
@@ -65,13 +58,5 @@ function withProvidedVariables(
     return userSuppliedVariables;
   }
 }
-
-withProvidedVariables.tests_only_resetDebugCache = (
-  __DEV__
-    ? () => {
-        debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
-      }
-    : undefined
-) as void | (() => void);
 
 module.exports = withProvidedVariables;

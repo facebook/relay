@@ -12,8 +12,8 @@ interface WithProvidedVariablesFn {
     (
         userSuppliedVariables: Variables,
         providedVariables: ProvidedVariablesType | null | undefined,
+        cache: Map<() => unknown, unknown>,
     ): Variables;
-    tests_only_resetDebugCache: undefined | (() => void);
 }
 declare const withProvidedVariables: WithProvidedVariablesFn;
 export default withProvidedVariables;

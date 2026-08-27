@@ -30,6 +30,7 @@ use lsp_server::Message;
 use lsp_server::Notification;
 use lsp_server::Response as ServerResponse;
 use lsp_server::ResponseError;
+use lsp_server::ResponseKind;
 pub use lsp_state::GlobalState;
 pub use lsp_state::LSPState;
 pub use lsp_state::Schemas;
@@ -345,12 +346,13 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
         ControlFlow::Break(response) => response,
         ControlFlow::Continue(request) => ServerResponse {
             id: request.id,
-            result: None,
-            error: Some(ResponseError {
-                code: ErrorCode::MethodNotFound as i32,
-                data: None,
-                message: format!("No handler registered for method '{}'", request.method),
-            }),
+            response_kind: ResponseKind::Err {
+                error: ResponseError {
+                    code: ErrorCode::MethodNotFound as i32,
+                    data: None,
+                    message: format!("No handler registered for method '{}'", request.method),
+                },
+            },
         },
     }
 }
@@ -366,21 +368,22 @@ fn with_request_logging<'a>(
 
         let response = get_response(request);
 
-        if response.result.is_some() {
-            lsp_request_event.string("lsp_outcome", "success".to_string());
-        } else if let Some(error) = &response.error {
-            if error.code == ErrorCode::RequestCanceled as i32 {
-                lsp_request_event.string("lsp_outcome", "canceled".to_string());
-            } else {
-                lsp_request_event.string("lsp_outcome", "error".to_string());
-                lsp_request_event.string("lsp_error_message", error.message.to_string());
-                if let Some(data) = &error.data {
-                    lsp_request_event.string("lsp_error_data", data.to_string());
+        match &response.response_kind {
+            ResponseKind::Ok { .. } => {
+                lsp_request_event.string("lsp_outcome", "success".to_string());
+            }
+            ResponseKind::Err { error } => {
+                if error.code == ErrorCode::RequestCanceled as i32 {
+                    lsp_request_event.string("lsp_outcome", "canceled".to_string());
+                } else {
+                    lsp_request_event.string("lsp_outcome", "error".to_string());
+                    lsp_request_event.string("lsp_error_message", error.message.to_string());
+                    if let Some(data) = &error.data {
+                        lsp_request_event.string("lsp_error_data", data.to_string());
+                    }
                 }
             }
         }
-        // N.B. we don't handle the case where the ServerResponse has neither a result nor
-        // an error, which is an invalid state.
 
         lsp_request_event.stop(lsp_request_processing_time);
         response

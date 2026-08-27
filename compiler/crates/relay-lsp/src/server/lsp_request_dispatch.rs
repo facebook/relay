@@ -13,7 +13,6 @@ use lsp_server::RequestId;
 use lsp_server::RequestId as ServerRequestId;
 use lsp_server::Response as ServerResponse;
 use lsp_server::ResponseError;
-use lsp_server::ResponseKind;
 use lsp_types::request::Request;
 use serde_json::Value;
 
@@ -77,13 +76,11 @@ fn convert_to_lsp_response(
     match result {
         Ok(result) => ServerResponse {
             id,
-            response_kind: ResponseKind::Ok { result },
+            response_result: Ok(result),
         },
         Err(LSPRuntimeError::ExpectedError) => ServerResponse {
             id,
-            response_kind: ResponseKind::Ok {
-                result: Value::Null,
-            },
+            response_result: Ok(Value::Null),
         },
         Err(runtime_error) => {
             let response_error: Option<ResponseError> = runtime_error.into();
@@ -94,9 +91,7 @@ fn convert_to_lsp_response(
             });
             ServerResponse {
                 id,
-                response_kind: ResponseKind::Err {
-                    error: response_error,
-                },
+                response_result: Err(response_error),
             }
         }
     }

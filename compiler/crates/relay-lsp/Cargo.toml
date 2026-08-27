@@ -32,7 +32,7 @@ graphql-watchman = { path = "../graphql-watchman" }
 intern = { path = "../intern" }
 itertools = "0.15.0"
 log = { version = "0.4.33", features = ["kv_unstable", "kv_unstable_std"] }
-lsp-server = "0.9.0"
+lsp-server = "0.10.0"
 lsp-types = "0.97"
 percent-encoding = "2.1"
 rand = "0.10.2"

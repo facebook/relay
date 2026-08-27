@@ -2420,6 +2420,70 @@ function cloneEventWithSets(event: LogEvent) {
           });
         });
 
+        it('keeps an over-capacity entry that is younger than gcReleaseBufferTTL', () => {
+          const ttlSource = getRecordSourceImplementation(simpleClone(data));
+          const ttlStore = new RelayModernStore(ttlSource, {
+            gcReleaseBufferSize: 1,
+            gcReleaseBufferTTL: 60 * 1000,
+          });
+
+          ttlStore
+            .retain(createOperationDescriptor(UserQuery, {id: '4', size: 32}))
+            .dispose();
+          ttlStore
+            .retain(createOperationDescriptor(UserQuery, {id: '5', size: 32}))
+            .dispose();
+          jest.runAllTimers();
+
+          // The buffer is over its size floor, but both entries were released
+          // moments ago, so neither is evicted and no data is collected.
+          expect(ttlSource.toJSON()).toEqual(initialData);
+        });
+
+        it('collects an over-capacity entry once it is older than gcReleaseBufferTTL', () => {
+          let now = Date.now();
+          jest.spyOn(global.Date, 'now').mockImplementation(() => now);
+
+          const ttlSource = getRecordSourceImplementation(simpleClone(data));
+          const ttlStore = new RelayModernStore(ttlSource, {
+            gcReleaseBufferSize: 1,
+            gcReleaseBufferTTL: 60 * 1000,
+          });
+
+          ttlStore
+            .retain(createOperationDescriptor(UserQuery, {id: '4', size: 32}))
+            .dispose();
+
+          now += 60 * 1000 + 1;
+
+          // Releasing a second operation puts the buffer over its floor. The
+          // oldest entry is now past the TTL, so it is evicted and collected.
+          ttlStore
+            .retain(createOperationDescriptor(UserQuery, {id: '5', size: 32}))
+            .dispose();
+          jest.runAllTimers();
+
+          expect(ttlSource.toJSON()).toEqual({
+            '5': {
+              __id: '5',
+              __typename: 'User',
+              id: '5',
+              name: 'Other',
+              'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
+            },
+            'client:2': {
+              __id: 'client:2',
+              uri: 'https://photo2.jpg',
+            },
+            'client:root': {
+              __id: 'client:root',
+              __typename: '__Root',
+              'node(id:\"4\")': {__ref: '4'},
+              'node(id:\"5\")': {__ref: '5'},
+            },
+          });
+        });
+
         it('does not free data if previously disposed query is retained again', () => {
           // Disposing and re-retaining an operation should cause that query to *not* count
           // toward the release buffer capacity.

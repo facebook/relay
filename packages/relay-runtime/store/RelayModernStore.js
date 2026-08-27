@@ -109,6 +109,8 @@ class RelayModernStore implements Store {
   _recordSource: MutableRecordSource;
   _resolverCache: LiveResolverCache;
   _releaseBuffer: Array<string>;
+  _releaseBufferTTL: number;
+  _releaseTimes: Map<string, number>;
   _roots: Map<
     string,
     {
@@ -137,6 +139,7 @@ class RelayModernStore implements Store {
       operationLoader?: ?OperationLoader,
       getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
+      gcReleaseBufferTTL?: ?number,
       queryCacheExpirationTime?: ?number,
       shouldProcessClientComponents?: ?boolean,
       resolverContext?: ResolverContext,
@@ -179,6 +182,8 @@ class RelayModernStore implements Store {
     this._optimisticSource = null;
     this._recordSource = source;
     this._releaseBuffer = [];
+    this._releaseBufferTTL = options?.gcReleaseBufferTTL ?? 0;
+    this._releaseTimes = new Map();
     this._roots = new Map();
     this._shouldScheduleGC = false;
     this._resolverCache = new LiveResolverCache(
@@ -404,18 +409,8 @@ class RelayModernStore implements Store {
           this.scheduleGC();
         } else {
           this._releaseBuffer.push(id);
-
-          // If the release buffer is now over-full, remove the least-recently
-          // added entry and schedule a GC. Note that all items in the release
-          // buffer have a refCount of 0.
-          if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
-            const _id = this._releaseBuffer.shift();
-            if (!this._shouldRetainWithinTTL_EXPERIMENTAL) {
-              // $FlowFixMe[incompatible-type]
-              this._roots.delete(_id);
-            }
-            this.scheduleGC();
-          }
+          this._releaseTimes.set(id, Date.now());
+          this._trimReleaseBuffer();
         }
       }
     };
@@ -427,6 +422,7 @@ class RelayModernStore implements Store {
         // there since it's retained. Remove it to maintain the invariant that
         // all release buffer entries have a refCount of 0.
         this._releaseBuffer = this._releaseBuffer.filter(_id => _id !== id);
+        this._releaseTimes.delete(id);
       }
       // If we've previously retained this operation, increment the refCount
       rootEntry.refCount += 1;
@@ -441,6 +437,52 @@ class RelayModernStore implements Store {
     }
 
     return {dispose};
+  }
+
+  /**
+   * Evict released roots from the release buffer, least-recently-released
+   * first. Entries in the buffer have a refCount of 0.
+   *
+   * The buffer exists to keep a query's data around between "this screen was
+   * released" and "the user came back to it". Sizing that window by *count*
+   * mis-serves React `<Activity>`: a hidden subtree's effects are destroyed, so
+   * its query is released while the subtree is still mounted and will read
+   * again on reveal. A handful of navigations then pushes it out of the buffer,
+   * GC collects records the mounted tree still points at, and the reveal reads
+   * missing data.
+   *
+   * `gcReleaseBufferTTL` sizes the same window by *age* instead: an entry stays
+   * while it is younger than the TTL no matter how many releases followed, and
+   * `gcReleaseBufferSize` remains the floor. Zero (the default) preserves the
+   * count-only behaviour.
+   *
+   * The buffer is ordered by release time, so the first entry still within the
+   * TTL ends the scan. Eviction is lazy — it happens on the next release rather
+   * than on a timer, so an idle store keeps whatever it last held.
+   */
+  _trimReleaseBuffer(): void {
+    const ttl = this._releaseBufferTTL;
+    const now = Date.now();
+    let evicted = false;
+    while (this._releaseBuffer.length > this._gcReleaseBufferSize) {
+      const oldest = this._releaseBuffer[0];
+      if (ttl > 0) {
+        const releasedAt = this._releaseTimes.get(oldest);
+        if (releasedAt != null && now - releasedAt < ttl) {
+          break;
+        }
+      }
+      this._releaseBuffer.shift();
+      this._releaseTimes.delete(oldest);
+      if (!this._shouldRetainWithinTTL_EXPERIMENTAL) {
+        // $FlowFixMe[incompatible-type]
+        this._roots.delete(oldest);
+      }
+      evicted = true;
+    }
+    if (evicted) {
+      this.scheduleGC();
+    }
   }
 
   lookup(selector: SingularReaderSelector): Snapshot {

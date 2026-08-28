@@ -531,11 +531,13 @@ impl Config {
         }
     }
 
-    fn default_loader_sources() -> [LoaderSource; 3] {
+    fn default_loader_sources() -> [LoaderSource; 5] {
         [
             LoaderSource::PackageJson("relay".to_string()),
             LoaderSource::Json("relay.config.json".to_string()),
             LoaderSource::Js("relay.config.js".to_string()),
+            LoaderSource::Js("relay.config.cjs".to_string()),
+            LoaderSource::Js("relay.config.mjs".to_string()),
         ]
     }
 
@@ -558,14 +560,17 @@ impl Config {
             );
         }
 
-        let loader = if config_path.extension() == Some(OsStr::new("js")) {
+        let loader = if config_path.extension() == Some(OsStr::new("js"))
+            || config_path.extension() == Some(OsStr::new("cjs"))
+            || config_path.extension() == Some(OsStr::new("mjs"))
+        {
             LoaderSource::Js(config_path.display().to_string())
         } else if config_path.extension() == Some(OsStr::new("json")) {
             LoaderSource::Json(config_path.display().to_string())
         } else {
             return Err(Error::ConfigError {
                 details: format!(
-                    "Invalid file extension. Expected `.js` or `.json`. Provided file \"{}\".",
+                    "Invalid file extension. Expected `.js`, `.cjs`, `.mjs` or `.json`. Provided file \"{}\".",
                     config_path.display()
                 ),
             });

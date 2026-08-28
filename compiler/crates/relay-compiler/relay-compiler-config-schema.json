@@ -672,6 +672,13 @@
             "kind": "disabled"
           }
         },
+        "emit_nogrep_annotation_hack": {
+          "description": "Mirror of `emit_nogrep_annotation` for the fb-only Hack artifacts\n(query preloaders and text artifacts). Kept separate so the Hack and\nJavaScript corpora can be migrated independently; the Hack corpus is\nroughly four times the size and needs its own rollout schedule.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "enabled"
+          }
+        },
         "enable_3d_branch_arg_generation": {
           "type": "boolean",
           "default": false
@@ -988,6 +995,9 @@
             },
             "emit_nogrep_annotation": {
               "kind": "disabled"
+            },
+            "emit_nogrep_annotation_hack": {
+              "kind": "enabled"
             },
             "enable_3d_branch_arg_generation": false,
             "enable_exec_time_resolvers_directive": false,

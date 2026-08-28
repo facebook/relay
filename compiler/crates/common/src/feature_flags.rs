@@ -230,6 +230,13 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub emit_nogrep_annotation: FeatureFlag,
 
+    /// Mirror of `emit_nogrep_annotation` for the fb-only Hack artifacts
+    /// (query preloaders and text artifacts). Kept separate so the Hack and
+    /// JavaScript corpora can be migrated independently; the Hack corpus is
+    /// roughly four times the size and needs its own rollout schedule.
+    #[serde(default = "enabled_feature_flag")]
+    pub emit_nogrep_annotation_hack: FeatureFlag,
+
     /// Disable the generation of a more precise raw response type
     /// for selections on abstract types.
     #[serde(default)]
@@ -283,6 +290,7 @@ impl Default for FeatureFlags {
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,
+            emit_nogrep_annotation_hack: FeatureFlag::Enabled,
         }
     }
 }

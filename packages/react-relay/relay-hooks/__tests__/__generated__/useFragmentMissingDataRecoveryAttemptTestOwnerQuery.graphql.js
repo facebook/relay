@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df076dba5c2e820165a983523b0d3237>>
+ * @generated SignedSource<<ab6b9bf33672605ec27e386d384a6568>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,18 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { useFragmentMissingDataOwnerRefetchTestUserFragment$fragmentType } from "./useFragmentMissingDataOwnerRefetchTestUserFragment.graphql";
-export type useFragmentMissingDataOwnerRefetchTestOwnerQuery$variables = {
+import type { useFragmentMissingDataRecoveryAttemptTestSiblingFragment$fragmentType } from "./useFragmentMissingDataRecoveryAttemptTestSiblingFragment.graphql";
+import type { useFragmentMissingDataRecoveryAttemptTestUserFragment$fragmentType } from "./useFragmentMissingDataRecoveryAttemptTestUserFragment.graphql";
+export type useFragmentMissingDataRecoveryAttemptTestOwnerQuery$variables = {
   id: string,
 };
-export type useFragmentMissingDataOwnerRefetchTestOwnerQuery$data = {
+export type useFragmentMissingDataRecoveryAttemptTestOwnerQuery$data = {
   readonly node: ?{
-    readonly $fragmentSpreads: useFragmentMissingDataOwnerRefetchTestUserFragment$fragmentType,
+    readonly $fragmentSpreads: useFragmentMissingDataRecoveryAttemptTestSiblingFragment$fragmentType & useFragmentMissingDataRecoveryAttemptTestUserFragment$fragmentType,
   },
 };
-export type useFragmentMissingDataOwnerRefetchTestOwnerQuery = {
-  response: useFragmentMissingDataOwnerRefetchTestOwnerQuery$data,
-  variables: useFragmentMissingDataOwnerRefetchTestOwnerQuery$variables,
+export type useFragmentMissingDataRecoveryAttemptTestOwnerQuery = {
+  response: useFragmentMissingDataRecoveryAttemptTestOwnerQuery$data,
+  variables: useFragmentMissingDataRecoveryAttemptTestOwnerQuery$variables,
 };
 */
 
@@ -52,7 +53,7 @@ return {
     "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "useFragmentMissingDataOwnerRefetchTestOwnerQuery",
+    "name": "useFragmentMissingDataRecoveryAttemptTestOwnerQuery",
     "selections": [
       {
         "alias": null,
@@ -65,7 +66,12 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "useFragmentMissingDataOwnerRefetchTestUserFragment"
+            "name": "useFragmentMissingDataRecoveryAttemptTestUserFragment"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "useFragmentMissingDataRecoveryAttemptTestSiblingFragment"
           }
         ],
         "storageKey": null
@@ -78,7 +84,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
-    "name": "useFragmentMissingDataOwnerRefetchTestOwnerQuery",
+    "name": "useFragmentMissingDataRecoveryAttemptTestOwnerQuery",
     "selections": [
       {
         "alias": null,
@@ -140,21 +146,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "5941e2ee515c83c10833a11580193c26",
+    "cacheID": "c3ede778067fa11d72bd4b58785f9b29",
     "id": null,
     "metadata": {},
-    "name": "useFragmentMissingDataOwnerRefetchTestOwnerQuery",
+    "name": "useFragmentMissingDataRecoveryAttemptTestOwnerQuery",
     "operationKind": "query",
-    "text": "query useFragmentMissingDataOwnerRefetchTestOwnerQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...useFragmentMissingDataOwnerRefetchTestUserFragment\n    id\n  }\n}\n\nfragment useFragmentMissingDataOwnerRefetchTestUserFragment on User {\n  name\n  birthdate {\n    day\n  }\n}\n"
+    "text": "query useFragmentMissingDataRecoveryAttemptTestOwnerQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...useFragmentMissingDataRecoveryAttemptTestUserFragment\n    ...useFragmentMissingDataRecoveryAttemptTestSiblingFragment\n    id\n  }\n}\n\nfragment useFragmentMissingDataRecoveryAttemptTestSiblingFragment on User {\n  name\n}\n\nfragment useFragmentMissingDataRecoveryAttemptTestUserFragment on User {\n  name\n  birthdate {\n    day\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*:: as any*/).hash = "8338f0fba26c637a3afff95c70b07479";
+  (node/*:: as any*/).hash = "e92843ce6c00f8297f6e6b1d88c75ba6";
 }
 
 module.exports = ((node/*:: as any*/)/*:: as Query<
-  useFragmentMissingDataOwnerRefetchTestOwnerQuery$variables,
-  useFragmentMissingDataOwnerRefetchTestOwnerQuery$data,
+  useFragmentMissingDataRecoveryAttemptTestOwnerQuery$variables,
+  useFragmentMissingDataRecoveryAttemptTestOwnerQuery$data,
 >*/);

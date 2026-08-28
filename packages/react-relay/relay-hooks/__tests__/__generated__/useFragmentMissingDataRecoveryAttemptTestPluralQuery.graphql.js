@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df076dba5c2e820165a983523b0d3237>>
+ * @generated SignedSource<<43e97202f458ae5b45416ed04c23671d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { useFragmentMissingDataOwnerRefetchTestUserFragment$fragmentType } from "./useFragmentMissingDataOwnerRefetchTestUserFragment.graphql";
-export type useFragmentMissingDataOwnerRefetchTestOwnerQuery$variables = {
-  id: string,
+import type { useFragmentMissingDataRecoveryAttemptTestPluralFragment$fragmentType } from "./useFragmentMissingDataRecoveryAttemptTestPluralFragment.graphql";
+export type useFragmentMissingDataRecoveryAttemptTestPluralQuery$variables = {
+  ids?: ?ReadonlyArray<string>,
 };
-export type useFragmentMissingDataOwnerRefetchTestOwnerQuery$data = {
-  readonly node: ?{
-    readonly $fragmentSpreads: useFragmentMissingDataOwnerRefetchTestUserFragment$fragmentType,
-  },
+export type useFragmentMissingDataRecoveryAttemptTestPluralQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: useFragmentMissingDataRecoveryAttemptTestPluralFragment$fragmentType,
+  }>,
 };
-export type useFragmentMissingDataOwnerRefetchTestOwnerQuery = {
-  response: useFragmentMissingDataOwnerRefetchTestOwnerQuery$data,
-  variables: useFragmentMissingDataOwnerRefetchTestOwnerQuery$variables,
+export type useFragmentMissingDataRecoveryAttemptTestPluralQuery = {
+  response: useFragmentMissingDataRecoveryAttemptTestPluralQuery$data,
+  variables: useFragmentMissingDataRecoveryAttemptTestPluralQuery$variables,
 };
 */
 
@@ -37,14 +37,14 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "id"
+    "name": "ids"
   }
 ],
 v1 = [
   {
     "kind": "Variable",
-    "name": "id",
-    "variableName": "id"
+    "name": "ids",
+    "variableName": "ids"
   }
 ];
 return {
@@ -52,20 +52,20 @@ return {
     "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "useFragmentMissingDataOwnerRefetchTestOwnerQuery",
+    "name": "useFragmentMissingDataRecoveryAttemptTestPluralQuery",
     "selections": [
       {
         "alias": null,
         "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
+        "name": "nodes",
+        "plural": true,
         "selections": [
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "useFragmentMissingDataOwnerRefetchTestUserFragment"
+            "name": "useFragmentMissingDataRecoveryAttemptTestPluralFragment"
           }
         ],
         "storageKey": null
@@ -78,15 +78,15 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
-    "name": "useFragmentMissingDataOwnerRefetchTestOwnerQuery",
+    "name": "useFragmentMissingDataRecoveryAttemptTestPluralQuery",
     "selections": [
       {
         "alias": null,
         "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
+        "name": "nodes",
+        "plural": true,
         "selections": [
           {
             "alias": null,
@@ -140,21 +140,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "5941e2ee515c83c10833a11580193c26",
+    "cacheID": "d39de45cc485952e266f0d36a5b344a3",
     "id": null,
     "metadata": {},
-    "name": "useFragmentMissingDataOwnerRefetchTestOwnerQuery",
+    "name": "useFragmentMissingDataRecoveryAttemptTestPluralQuery",
     "operationKind": "query",
-    "text": "query useFragmentMissingDataOwnerRefetchTestOwnerQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...useFragmentMissingDataOwnerRefetchTestUserFragment\n    id\n  }\n}\n\nfragment useFragmentMissingDataOwnerRefetchTestUserFragment on User {\n  name\n  birthdate {\n    day\n  }\n}\n"
+    "text": "query useFragmentMissingDataRecoveryAttemptTestPluralQuery(\n  $ids: [ID!]\n) {\n  nodes(ids: $ids) {\n    __typename\n    ...useFragmentMissingDataRecoveryAttemptTestPluralFragment\n    id\n  }\n}\n\nfragment useFragmentMissingDataRecoveryAttemptTestPluralFragment on User {\n  name\n  birthdate {\n    day\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*:: as any*/).hash = "8338f0fba26c637a3afff95c70b07479";
+  (node/*:: as any*/).hash = "8f8f63b9fac3b8c44c432c61952f6940";
 }
 
 module.exports = ((node/*:: as any*/)/*:: as Query<
-  useFragmentMissingDataOwnerRefetchTestOwnerQuery$variables,
-  useFragmentMissingDataOwnerRefetchTestOwnerQuery$data,
+  useFragmentMissingDataRecoveryAttemptTestPluralQuery$variables,
+  useFragmentMissingDataRecoveryAttemptTestPluralQuery$data,
 >*/);

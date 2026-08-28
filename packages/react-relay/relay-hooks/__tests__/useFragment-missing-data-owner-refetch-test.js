@@ -42,6 +42,12 @@ let userRef;
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_MISSING_DATA_OWNER_REFETCH = true;
+  // Recovery is what happens when prevention did not apply, so these cases
+  // need the collection to actually occur. ENABLE_SUBSCRIPTION_GC_ROOTS would
+  // keep a subscribed fragment's records alive and the recovery path would
+  // never be reached — see the both-flags case in
+  // useFragment-missing-data-recovery-attempt-test.js.
+  RelayFeatureFlags.ENABLE_SUBSCRIPTION_GC_ROOTS = false;
 
   // gcReleaseBufferSize 0 + a synchronous scheduler make GC deterministic in
   // one dispose; the default 10-slot release buffer gets there over a session.
@@ -52,8 +58,15 @@ beforeEach(() => {
     }),
   });
 
+  // `name` is read alongside the field that goes missing so that
+  // writeOverlappingParentRecord() changes this fragment's DATA. Without it a
+  // re-read yields an identical partial snapshot, recycleNodesInto returns the
+  // same object, the subscription never fires, and the component never
+  // re-renders — which would make the assertions that follow such a write
+  // vacuous rather than failing.
   gqlFragment = graphql`
     fragment useFragmentMissingDataOwnerRefetchTestUserFragment on User {
+      name
       birthdate {
         day
       }
@@ -85,6 +98,7 @@ beforeEach(() => {
     node: {
       __typename: 'User',
       id: '1',
+      name: 'Alice',
       birthdate: {day: 15, month: 7, year: 1991},
     },
   });
@@ -99,6 +113,10 @@ beforeEach(() => {
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_MISSING_DATA_OWNER_REFETCH = false;
+  // RTL auto-cleanup is disabled globally (scripts/jest/environment.js), so
+  // trees rendered here stay mounted and subscribed to a superseded
+  // environment unless each test unmounts them.
+  ReactTestingLibrary.cleanup();
 });
 
 component UserBirthday(userRef: unknown) {
@@ -162,6 +180,7 @@ async function resolveOwnerRefetch(operation: $FlowFixMe) {
         node: {
           __typename: 'User',
           id: '1',
+          name: 'Alice',
           birthdate: {day: 15, month: 7, year: 1991},
         },
       },
@@ -233,7 +252,7 @@ test('recovers a remounted fragment whose ref outlived the owner (fresh mount, m
   expect(remounted.container.textContent).toBe('15');
 });
 
-test('refetches only once: a transport error does not start a request loop', async () => {
+test('does not retry immediately: a transport error does not start a request loop', async () => {
   const renderer = ReactTestingLibrary.render(
     <TestHarness userRef={userRef} />,
   );
@@ -250,16 +269,17 @@ test('refetches only once: a transport error does not start a request loop', asy
     jest.runAllImmediates();
   });
 
-  // The read is still missing, but the once-per-owner marker holds: no new
+  // The read is still missing, but the attempt's cooldown holds: no new
   // pending operation appears (getAllOperations lists pending ones; the
   // rejected refetch is gone), and the fragment falls through to today's
-  // partial render.
+  // partial render. That the owner is re-armed once the cooldown elapses is
+  // covered in useFragment-missing-data-recovery-attempt-test.js.
   writeOverlappingParentRecord();
   expect(environment.mock.getAllOperations().length).toBe(0);
   expect(renderer.container.textContent).toBe('partial');
 });
 
-test('the marker clears once data reads back complete: a second GC episode recovers again', async () => {
+test('the attempt is released once data reads back complete: a second GC episode recovers again', async () => {
   const renderer = ReactTestingLibrary.render(
     <TestHarness userRef={userRef} />,
   );
@@ -278,7 +298,7 @@ test('the marker clears once data reads back complete: a second GC episode recov
     undefined,
   );
 
-  // The data-complete render after episode one cleared the marker, so this
+  // The data-complete render after episode one released the attempt, so this
   // episode recovers with one more request instead of staying broken.
   writeOverlappingParentRecord();
   expect(renderer.container.textContent).toBe('Fallback');
@@ -288,8 +308,8 @@ test('the marker clears once data reads back complete: a second GC episode recov
   expect(renderer.container.textContent).toBe('15');
 });
 
-test("a store-wide invalidation ('stale') clears the marker instead of permanently disarming recovery", async () => {
-  // Episode one fails at transport, so the marker is retained with the data
+test("a store-wide invalidation ('stale') releases the attempt instead of permanently disarming recovery", async () => {
+  // Episode one fails at transport, so the attempt is retained with the data
   // still missing.
   const renderer = ReactTestingLibrary.render(
     <TestHarness userRef={userRef} />,
@@ -307,7 +327,7 @@ test("a store-wide invalidation ('stale') clears the marker instead of permanent
 
   // The data heals through an unrelated write, and the whole store is then
   // invalidated (e.g. an auth boundary): the complete read now checks as
-  // 'stale', not 'available'. That must still clear the marker.
+  // 'stale', not 'available'. That must still release the attempt.
   await act(async () => {
     environment.commitPayload(ownerOperation, {
       node: {
@@ -325,7 +345,7 @@ test("a store-wide invalidation ('stale') clears the marker instead of permanent
 
   // Episode two: expire any temporary retain left by episode one's failed
   // refetch, then a retain/release cycle lets GC collect the healed birthdate
-  // again. Recovery must re-arm — a permanently retained marker would render
+  // again. Recovery must re-arm — a permanently retained attempt would render
   // 'partial' here.
   await act(async () => {
     jest.runAllTimers();

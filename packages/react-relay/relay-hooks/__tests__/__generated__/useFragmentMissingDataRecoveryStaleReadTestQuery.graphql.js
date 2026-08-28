@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df076dba5c2e820165a983523b0d3237>>
+ * @generated SignedSource<<3baf9f694bbbb9cdc35db109ae620cd4>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -17,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { useFragmentMissingDataOwnerRefetchTestUserFragment$fragmentType } from "./useFragmentMissingDataOwnerRefetchTestUserFragment.graphql";
-export type useFragmentMissingDataOwnerRefetchTestOwnerQuery$variables = {
+import type { useFragmentMissingDataRecoveryStaleReadTestUserFragment$fragmentType } from "./useFragmentMissingDataRecoveryStaleReadTestUserFragment.graphql";
+export type useFragmentMissingDataRecoveryStaleReadTestQuery$variables = {
   id: string,
 };
-export type useFragmentMissingDataOwnerRefetchTestOwnerQuery$data = {
+export type useFragmentMissingDataRecoveryStaleReadTestQuery$data = {
   readonly node: ?{
-    readonly $fragmentSpreads: useFragmentMissingDataOwnerRefetchTestUserFragment$fragmentType,
+    readonly $fragmentSpreads: useFragmentMissingDataRecoveryStaleReadTestUserFragment$fragmentType,
   },
 };
-export type useFragmentMissingDataOwnerRefetchTestOwnerQuery = {
-  response: useFragmentMissingDataOwnerRefetchTestOwnerQuery$data,
-  variables: useFragmentMissingDataOwnerRefetchTestOwnerQuery$variables,
+export type useFragmentMissingDataRecoveryStaleReadTestQuery = {
+  response: useFragmentMissingDataRecoveryStaleReadTestQuery$data,
+  variables: useFragmentMissingDataRecoveryStaleReadTestQuery$variables,
 };
 */
 
@@ -46,13 +46,27 @@ v1 = [
     "name": "id",
     "variableName": "id"
   }
-];
+],
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "useFragmentMissingDataOwnerRefetchTestOwnerQuery",
+    "name": "useFragmentMissingDataRecoveryStaleReadTestQuery",
     "selections": [
       {
         "alias": null,
@@ -65,7 +79,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "useFragmentMissingDataOwnerRefetchTestUserFragment"
+            "name": "useFragmentMissingDataRecoveryStaleReadTestUserFragment"
           }
         ],
         "storageKey": null
@@ -78,7 +92,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
-    "name": "useFragmentMissingDataOwnerRefetchTestOwnerQuery",
+    "name": "useFragmentMissingDataRecoveryStaleReadTestQuery",
     "selections": [
       {
         "alias": null,
@@ -98,28 +112,17 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "Date",
+                "concreteType": "User",
                 "kind": "LinkedField",
-                "name": "birthdate",
+                "name": "author",
                 "plural": false,
                 "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "day",
-                    "storageKey": null
-                  }
+                  (v3/*:: as any*/),
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -127,34 +130,28 @@ return {
             "type": "User",
             "abstractKey": null
           },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "5941e2ee515c83c10833a11580193c26",
+    "cacheID": "0b2cc332c6f9f6ba423dedce441272ac",
     "id": null,
     "metadata": {},
-    "name": "useFragmentMissingDataOwnerRefetchTestOwnerQuery",
+    "name": "useFragmentMissingDataRecoveryStaleReadTestQuery",
     "operationKind": "query",
-    "text": "query useFragmentMissingDataOwnerRefetchTestOwnerQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...useFragmentMissingDataOwnerRefetchTestUserFragment\n    id\n  }\n}\n\nfragment useFragmentMissingDataOwnerRefetchTestUserFragment on User {\n  name\n  birthdate {\n    day\n  }\n}\n"
+    "text": "query useFragmentMissingDataRecoveryStaleReadTestQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...useFragmentMissingDataRecoveryStaleReadTestUserFragment\n    id\n  }\n}\n\nfragment useFragmentMissingDataRecoveryStaleReadTestUserFragment on User {\n  name\n  author {\n    id\n    name\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*:: as any*/).hash = "8338f0fba26c637a3afff95c70b07479";
+  (node/*:: as any*/).hash = "b1f842e4898ff9941928392220c78424";
 }
 
 module.exports = ((node/*:: as any*/)/*:: as Query<
-  useFragmentMissingDataOwnerRefetchTestOwnerQuery$variables,
-  useFragmentMissingDataOwnerRefetchTestOwnerQuery$data,
+  useFragmentMissingDataRecoveryStaleReadTestQuery$variables,
+  useFragmentMissingDataRecoveryStaleReadTestQuery$data,
 >*/);

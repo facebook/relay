@@ -39,6 +39,7 @@ const {
   getVariablesFromFragment,
   handlePotentialSnapshotErrors,
   recycleNodesInto,
+  stableCopy,
 } = require('relay-runtime');
 const warning = require('warning');
 
@@ -77,44 +78,133 @@ function isMissingData(state: FragmentState): boolean {
   }
 }
 
-// Owners already refetched (once) because a fragment read missing data with no
-// pending operation — see ENABLE_MISSING_DATA_OWNER_REFETCH below. Keeping a
-// marker after a failed recovery (partial response, transport error) is what
-// prevents refetch loops; the marker is cleared when the owner query reads
-// back without missing data.
+// Owners already refetched because a fragment read missing data with no pending
+// operation — see ENABLE_MISSING_DATA_OWNER_REFETCH below. An attempt records
+// WHEN it was made and WHICH readers were missing under it; both are needed to
+// keep recovery from turning into a request loop without also disarming it
+// forever.
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 interface IMap<K, V> {
   get(key: K): V | void;
   set(key: K, value: V): IMap<K, V>;
 }
+type MissingDataRefetchAttempt = {
+  at: number,
+  // How many recovery requests this episode has already spent.
+  count: number,
+  // The readers that were missing under this attempt, keyed by reader identity
+  // (see getReaderKey). The attempt may only be released once every one of
+  // them has read back complete.
+  missingReaders: Set<string>,
+};
 const missingDataRefetchesByEnvironment: IMap<
   IEnvironment,
-  Set<string>,
+  Map<string, MissingDataRefetchAttempt>,
 > = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
 const MAX_MISSING_DATA_REFETCHES = 1000;
+// A failed recovery must not disable recovery for the rest of the session, and
+// it must not turn into a heartbeat either. An episode may spend
+// MAX_MISSING_DATA_REFETCH_ATTEMPTS requests, spaced by a doubling backoff from
+// this base, and then stops: a read the server can never satisfy costs a
+// bounded number of requests rather than one every cooldown forever, while a
+// recovery that failed once — a dropped connection — still gets another chance
+// instead of disarming the owner for the environment's lifetime.
+//
+// The budget is per EPISODE, not per session: releasing the attempt (every
+// reader that was missing has read back complete) drops the record entirely, so
+// a later episode on the same owner starts again from a full budget.
+const MISSING_DATA_REFETCH_COOLDOWN_MS = 30 * 1000;
+const MAX_MISSING_DATA_REFETCH_ATTEMPTS = 3;
 let nextMissingDataRefetchID = 0;
 
+function getMissingDataRefetches(
+  environment: IEnvironment,
+): Map<string, MissingDataRefetchAttempt> {
+  let refetches = missingDataRefetchesByEnvironment.get(environment);
+  if (refetches == null) {
+    refetches = new Map<string, MissingDataRefetchAttempt>();
+    missingDataRefetchesByEnvironment.set(environment, refetches);
+  }
+  return refetches;
+}
+
+/**
+ * Identity of one reader within its owner: the fragment, the record(s) it was
+ * pointed at, and the @arguments it was spread with.
+ *
+ * The fragment NAME alone is not enough. A list renders the same fragment once
+ * per row against different records, so one row reading missing while another
+ * reads fine is routine — and if both share a key, the healthy row cancels the
+ * broken row's attempt and re-arms it on the next round trip. Variables matter
+ * for the same reason at a single record: two spreads of one fragment with
+ * different @arguments read different fields and can disagree about missingness.
+ */
+function getReaderKey(
+  fragmentName: string,
+  fragmentSelector: ReaderSelector,
+): string {
+  const selectors =
+    fragmentSelector.kind === 'PluralReaderSelector'
+      ? fragmentSelector.selectors
+      : [fragmentSelector];
+  return (
+    fragmentName +
+    '\u0000' +
+    selectors
+      .map(
+        selector =>
+          selector.dataID + JSON.stringify(stableCopy(selector.variables)),
+      )
+      .join(',')
+  );
+}
+
+/**
+ * Record that `readerKey` read missing data under `identifier`'s owner, and
+ * report whether this read should issue a recovery refetch.
+ */
 function markMissingDataRefetch(
   environment: IEnvironment,
   identifier: string,
+  readerKey: string,
 ): boolean {
-  let refetches = missingDataRefetchesByEnvironment.get(environment);
-  if (refetches == null) {
-    refetches = new Set<string>();
-    missingDataRefetchesByEnvironment.set(environment, refetches);
+  const refetches = getMissingDataRefetches(environment);
+  const lastAttempt = refetches.get(identifier);
+  const now = Date.now();
+  if (lastAttempt != null) {
+    const backoff =
+      MISSING_DATA_REFETCH_COOLDOWN_MS * Math.pow(2, lastAttempt.count - 1);
+    if (
+      lastAttempt.count >= MAX_MISSING_DATA_REFETCH_ATTEMPTS ||
+      now - lastAttempt.at < backoff
+    ) {
+      // Still broken for this reader. Record it even though we are not
+      // refetching: otherwise the attempt forgets that this reader is broken
+      // and a healthy sibling can release it (see the complete branch below).
+      lastAttempt.missingReaders.add(readerKey);
+      return false;
+    }
   }
-  if (refetches.has(identifier)) {
-    return false;
-  }
-  if (refetches.size >= MAX_MISSING_DATA_REFETCHES) {
-    // Bound memory; evicting the oldest marker only re-arms a single refetch
+  if (
+    !refetches.has(identifier) &&
+    refetches.size >= MAX_MISSING_DATA_REFETCHES
+  ) {
+    // Bound memory; evicting the oldest attempt only re-arms a single refetch
     // for that owner.
-    const oldest = refetches.values().next().value;
+    const oldest = refetches.keys().next().value;
     if (oldest != null) {
       refetches.delete(oldest);
     }
   }
-  refetches.add(identifier);
+  // Replacing the record rather than mutating it is what keeps `missingReaders`
+  // from accumulating keys for readers that have since changed identity (a
+  // plural reader whose row set grew, a singular one re-pointed at another
+  // record): each attempt tracks only the readers that were missing under it.
+  refetches.set(identifier, {
+    at: now,
+    count: lastAttempt == null ? 1 : lastAttempt.count + 1,
+    missingReaders: new Set([readerKey]),
+  });
   return true;
 }
 
@@ -513,6 +603,36 @@ hook useFragmentInternal_EXPERIMENTAL(
     state = newState;
   }
 
+  if (
+    RelayFeatureFlags.ENABLE_MISSING_DATA_OWNER_REFETCH &&
+    isMissingData(state)
+  ) {
+    // `state` is a snapshot taken at an earlier store epoch, and the render
+    // path has no other way to refresh it: `getFragmentState` above re-reads
+    // only when the selector or environment changed, and `handleMissedUpdates`
+    // — the only epoch-refreshing read — is reachable only from effects. The
+    // recovery branch below suspends by throwing during render, so those
+    // effects never run for that render. A recovery refetch that lands while
+    // this tree is suspended (or hidden inside a React <Activity>) therefore
+    // restores the records without the reader ever seeing them: the retry
+    // render still reads `isMissingData`, the once-per-owner marker is already
+    // spent, and the fragment renders the partial snapshot that recovery had
+    // just repaired.
+    //
+    // Re-read against the current store before deciding. This converges:
+    // `handleMissedUpdates` returns null when the epoch has not advanced, and
+    // the state adopted here carries the current epoch, so the next render
+    // re-reads nothing. Adopting a state that is still missing is intentional
+    // — `handlePotentialSnapshotErrorsForState` below reports
+    // `snapshot.fieldErrors`, and those have to describe the read that
+    // actually failed rather than a stale one.
+    const recoveryReread = handleMissedUpdates(environment, state);
+    if (recoveryReread != null) {
+      setState(recoveryReread[1]);
+      state = recoveryReread[1];
+    }
+  }
+
   // The purpose of this is to detect whether we have ever committed, because we
   // don't suspend on store updates, only when the component either is first trying
   // to mount or when the our selector changes. The selector change in particular is
@@ -678,17 +798,18 @@ hook useFragmentInternal_EXPERIMENTAL(
     // network request even when a completed QueryResource entry or a
     // response-cache layer would otherwise short-circuit it. Only query
     // owners are refetched — a mutation or subscription must never
-    // re-execute. The once-per-owner marker (per environment) prevents
+    // re-execute. A per-owner attempt record (per environment) prevents
     // request loops when the refetch itself cannot fill the data; in that
-    // case execution falls through to today's partial-render behavior.
+    // case execution falls through to today's partial-render behavior until
+    // the attempt's cooldown elapses.
     //
     // Retention of the refetched payload: when the owner query is still
     // mounted (the <Activity> route case) its own retain keeps the data
     // durably; when only the fragment ref survived, the data is held by the
     // prepare() call's temporary retain (a TEMPORARY_RETAIN_DURATION_MS TTL)
     // and is GC-eligible again after it lapses. That is by design — the
-    // marker clears once the data reads back complete (see the else branch
-    // below), so a later GC episode simply recovers again with one more
+    // attempt is released once the data reads back complete (see the else
+    // branch below), so a later GC episode simply recovers again with one more
     // request rather than staying broken.
     //
     // For a plural fragment only selectors[0].owner is refetched, matching
@@ -717,10 +838,16 @@ hook useFragmentInternal_EXPERIMENTAL(
         }
         // Marking + fetching during render is the same tradeoff QueryResource
         // itself makes (it writes its cache during render): a discarded
-        // concurrent render leaves the marker set with its fetch already in
-        // flight, which at worst suppresses one later refetch until a
-        // data-complete render clears the marker.
-        if (markMissingDataRefetch(environment, fragmentOwner.identifier)) {
+        // concurrent render leaves the attempt recorded with its fetch already
+        // in flight, which at worst suppresses one later refetch until the
+        // cooldown elapses or a data-complete render releases the attempt.
+        if (
+          markMissingDataRefetch(
+            environment,
+            fragmentOwner.identifier,
+            getReaderKey(fragmentNode.name, fragmentSelector),
+          )
+        ) {
           const QueryResource = getQueryResourceForEnvironment(environment);
           const cacheBreaker = `missing-data-${nextMissingDataRefetchID++}`;
           QueryResource.prepare(
@@ -755,25 +882,46 @@ hook useFragmentInternal_EXPERIMENTAL(
         ? fragmentSelector.selectors[0].owner
         : fragmentSelector.owner;
     const refetches = missingDataRefetchesByEnvironment.get(environment);
+    const attempt = refetches?.get(fragmentOwner.identifier);
     if (
       refetches != null &&
-      refetches.has(fragmentOwner.identifier) &&
+      attempt != null &&
       fragmentOwner.node.params.operationKind === 'query'
     ) {
-      // Clear the marker only once the whole owner query reads back without
-      // missing data: a sibling fragment of a partially-failed recovery must
-      // not re-arm the refetch (clearing while 'missing' would loop forever
-      // against a server that keeps returning partial data). 'stale' — data
-      // fully present but invalidated, e.g. invalidateStore() at an auth
-      // boundary — is loop-safe and must clear, or the owner would stay
-      // permanently exempt from recovery in later GC episodes.
-      const ownerOperation = createOperationDescriptor(
-        fragmentOwner.node,
-        fragmentOwner.variables,
-        fragmentOwner.cacheConfig,
+      // This branch runs for a fragment whose OWN read is complete, and one
+      // query owner is shared by every fragment spread under it. Releasing the
+      // attempt on `check(owner)` alone therefore lets a healthy reader disarm
+      // a broken one: reader A reads missing and takes an attempt, the
+      // response lands, sibling B reads fine and releases it, A re-reads
+      // missing and takes a *fresh* attempt — an unbounded refetch loop at
+      // network speed.
+      //
+      // `environment.check()` is not a proxy for "no reader is missing". It
+      // walks the normalization AST from the query root and only asks whether
+      // records exist, while a reader walks one fragment's AST from the record
+      // its pointer captured and additionally applies @required, client
+      // resolvers, and missing_expected_data. A query can report 'available'
+      // while a fragment under it reads missing — and 'stale' can even be
+      // returned for an unretained owner whose data is genuinely absent. So
+      // the still-missing readers are tracked explicitly rather than inferred,
+      // and `check` is kept only as a secondary, conservative gate.
+      //
+      // Releasing at all still matters: a store-wide invalidation leaves data
+      // present but 'stale', and consecutive episodes must each be able to
+      // recover. Over-conservatism is survivable now that an attempt also
+      // expires on its own after MISSING_DATA_REFETCH_COOLDOWN_MS.
+      attempt.missingReaders.delete(
+        getReaderKey(fragmentNode.name, fragmentSelector),
       );
-      if (environment.check(ownerOperation).status !== 'missing') {
-        refetches.delete(fragmentOwner.identifier);
+      if (attempt.missingReaders.size === 0) {
+        const ownerOperation = createOperationDescriptor(
+          fragmentOwner.node,
+          fragmentOwner.variables,
+          fragmentOwner.cacheConfig,
+        );
+        if (environment.check(ownerOperation).status !== 'missing') {
+          refetches.delete(fragmentOwner.identifier);
+        }
       }
     }
   }

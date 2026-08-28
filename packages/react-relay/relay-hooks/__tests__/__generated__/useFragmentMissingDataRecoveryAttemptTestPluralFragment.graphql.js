@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7abeac178e003fe0e9eeca03ef3ee51e>>
+ * @generated SignedSource<<2aae866be442f0949e6faeead2514dab>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,26 +18,28 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-declare export opaque type useFragmentMissingDataOwnerRefetchTestUserFragment$fragmentType: FragmentType;
-export type useFragmentMissingDataOwnerRefetchTestUserFragment$data = {
+declare export opaque type useFragmentMissingDataRecoveryAttemptTestPluralFragment$fragmentType: FragmentType;
+export type useFragmentMissingDataRecoveryAttemptTestPluralFragment$data = ReadonlyArray<{
   readonly birthdate: ?{
     readonly day: ?number,
   },
   readonly name: ?string,
-  readonly $fragmentType: useFragmentMissingDataOwnerRefetchTestUserFragment$fragmentType,
-};
-export type useFragmentMissingDataOwnerRefetchTestUserFragment$key = {
-  readonly $data?: useFragmentMissingDataOwnerRefetchTestUserFragment$data,
-  readonly $fragmentSpreads: useFragmentMissingDataOwnerRefetchTestUserFragment$fragmentType,
+  readonly $fragmentType: useFragmentMissingDataRecoveryAttemptTestPluralFragment$fragmentType,
+}>;
+export type useFragmentMissingDataRecoveryAttemptTestPluralFragment$key = ReadonlyArray<{
+  readonly $data?: useFragmentMissingDataRecoveryAttemptTestPluralFragment$data,
+  readonly $fragmentSpreads: useFragmentMissingDataRecoveryAttemptTestPluralFragment$fragmentType,
   ...
-};
+}>;
 */
 
 var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
-  "name": "useFragmentMissingDataOwnerRefetchTestUserFragment",
+  "metadata": {
+    "plural": true
+  },
+  "name": "useFragmentMissingDataRecoveryAttemptTestPluralFragment",
   "selections": [
     {
       "alias": null,
@@ -70,10 +72,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*:: as any*/).hash = "6fcbdb9733e7fc4c21d97717f3348f98";
+  (node/*:: as any*/).hash = "9e3f5fffb9cf171e9f52ef78a60a6f7d";
 }
 
 module.exports = ((node/*:: as any*/)/*:: as Fragment<
-  useFragmentMissingDataOwnerRefetchTestUserFragment$fragmentType,
-  useFragmentMissingDataOwnerRefetchTestUserFragment$data,
+  useFragmentMissingDataRecoveryAttemptTestPluralFragment$fragmentType,
+  useFragmentMissingDataRecoveryAttemptTestPluralFragment$data,
 >*/);

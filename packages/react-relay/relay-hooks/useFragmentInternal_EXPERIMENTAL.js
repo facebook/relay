@@ -129,8 +129,8 @@ function getMissingDataRefetches(
 }
 
 /**
- * Identity of one reader within its owner: the fragment, the record(s) it was
- * pointed at, and the @arguments it was spread with.
+ * Identity of what one reader read, as one key per constituent selector: the
+ * fragment, the record it was pointed at, and the @arguments it was spread with.
  *
  * The fragment NAME alone is not enough. A list renders the same fragment once
  * per row against different records, so one row reading missing while another
@@ -138,24 +138,28 @@ function getMissingDataRefetches(
  * broken row's attempt and re-arms it on the next round trip. Variables matter
  * for the same reason at a single record: two spreads of one fragment with
  * different @arguments read different fields and can disagree about missingness.
+ *
+ * Per selector rather than one key over the whole row set, because a plural
+ * reader's row set is not stable: a list that paginates while a recovery is in
+ * flight reads back complete over a different set than the one that went
+ * missing. A single combined key would then be deleted under a name that was
+ * never added, leaving the attempt permanently unreleasable — the next genuinely
+ * new missing episode would find a live attempt and get no recovery at all.
  */
-function getReaderKey(
+function getReaderKeys(
   fragmentName: string,
   fragmentSelector: ReaderSelector,
-): string {
+): Array<string> {
   const selectors =
     fragmentSelector.kind === 'PluralReaderSelector'
       ? fragmentSelector.selectors
       : [fragmentSelector];
-  return (
-    fragmentName +
-    '\u0000' +
-    selectors
-      .map(
-        selector =>
-          selector.dataID + JSON.stringify(stableCopy(selector.variables)),
-      )
-      .join(',')
+  return selectors.map(
+    selector =>
+      fragmentName +
+      '\u0000' +
+      selector.dataID +
+      JSON.stringify(stableCopy(selector.variables)),
   );
 }
 
@@ -166,7 +170,7 @@ function getReaderKey(
 function markMissingDataRefetch(
   environment: IEnvironment,
   identifier: string,
-  readerKey: string,
+  readerKeys: Array<string>,
 ): boolean {
   const refetches = getMissingDataRefetches(environment);
   const lastAttempt = refetches.get(identifier);
@@ -181,7 +185,9 @@ function markMissingDataRefetch(
       // Still broken for this reader. Record it even though we are not
       // refetching: otherwise the attempt forgets that this reader is broken
       // and a healthy sibling can release it (see the complete branch below).
-      lastAttempt.missingReaders.add(readerKey);
+      readerKeys.forEach(readerKey => {
+        lastAttempt.missingReaders.add(readerKey);
+      });
       return false;
     }
   }
@@ -203,7 +209,7 @@ function markMissingDataRefetch(
   refetches.set(identifier, {
     at: now,
     count: lastAttempt == null ? 1 : lastAttempt.count + 1,
-    missingReaders: new Set([readerKey]),
+    missingReaders: new Set(readerKeys),
   });
   return true;
 }
@@ -845,7 +851,7 @@ hook useFragmentInternal_EXPERIMENTAL(
           markMissingDataRefetch(
             environment,
             fragmentOwner.identifier,
-            getReaderKey(fragmentNode.name, fragmentSelector),
+            getReaderKeys(fragmentNode.name, fragmentSelector),
           )
         ) {
           const QueryResource = getQueryResourceForEnvironment(environment);
@@ -910,9 +916,9 @@ hook useFragmentInternal_EXPERIMENTAL(
       // present but 'stale', and consecutive episodes must each be able to
       // recover. Over-conservatism is survivable now that an attempt also
       // expires on its own after MISSING_DATA_REFETCH_COOLDOWN_MS.
-      attempt.missingReaders.delete(
-        getReaderKey(fragmentNode.name, fragmentSelector),
-      );
+      getReaderKeys(fragmentNode.name, fragmentSelector).forEach(readerKey => {
+        attempt.missingReaders.delete(readerKey);
+      });
       if (attempt.missingReaders.size === 0) {
         const ownerOperation = createOperationDescriptor(
           fragmentOwner.node,

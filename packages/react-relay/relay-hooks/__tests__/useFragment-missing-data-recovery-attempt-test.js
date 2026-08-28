@@ -172,7 +172,7 @@ beforeEach(() => {
   // A plural owner over records the singular fixture does not touch, so
   // releasing one owner cannot disturb the other.
   pluralOperation = createOperationDescriptor(gqlPluralQuery, {
-    ids: ['8', '9'],
+    ids: ['8', '9', '10'],
   });
   environment.commitPayload(pluralOperation, {
     nodes: [
@@ -187,6 +187,12 @@ beforeEach(() => {
         id: '9',
         name: 'Nine',
         birthdate: {day: 9, month: 9, year: 1999},
+      },
+      {
+        __typename: 'User',
+        id: '10',
+        name: 'Ten',
+        birthdate: {day: 10, month: 10, year: 2000},
       },
     ],
   });
@@ -431,6 +437,79 @@ describe('the attempt is not released by an unrelated reader', () => {
     expect(pendingRecoveryOperations().length).toBe(0);
   });
 
+  it('releases when the plural row set changed between the missing read and the complete read', async () => {
+    // A reader's identity has to survive its own row set changing — a list that
+    // paginates while a recovery is in flight is the ordinary case. Keyed by the
+    // joined dataID list, the read that goes missing and the read that comes
+    // back complete produce DIFFERENT keys, so the completion deletes a key that
+    // was never added and the attempt is never released: the next genuinely new
+    // missing episode finds a live attempt and gets no recovery at all.
+    const renderer = ReactTestingLibrary.render(
+      <Harness>
+        <PluralBirthdays userRefs={[pluralRefs[0], pluralRefs[1]]} />
+      </Harness>,
+    );
+    expect(renderer.container.textContent).toBe('8/9');
+
+    act(() => {
+      const source = environment.getStore().getSource() as $FlowFixMe;
+      source.remove('client:9:birthdate');
+      environment.commitUpdate(store => {
+        store.get('9')?.setValue('Nine!', 'name');
+      });
+    });
+    expect(renderer.container.textContent).toBe('Fallback');
+    expect(environment.mock.getAllOperations().length).toBe(1);
+
+    await act(async () => {
+      environment.mock.resolve(environment.mock.getAllOperations()[0], {
+        data: {
+          nodes: [
+            {
+              __typename: 'User',
+              id: '8',
+              name: 'Eight',
+              birthdate: {day: 8, month: 8, year: 1988},
+            },
+            {
+              __typename: 'User',
+              id: '9',
+              name: 'Nine',
+              birthdate: {day: 9, month: 9, year: 1999},
+            },
+            {
+              __typename: 'User',
+              id: '10',
+              name: 'Ten',
+              birthdate: {day: 10, month: 10, year: 2000},
+            },
+          ],
+        },
+      });
+      // The list grows in the SAME commit as the response, so the suspended
+      // reader's retry render never sees its old row set complete — the only
+      // complete read it performs covers the new one.
+      renderer.rerender(
+        <Harness>
+          <PluralBirthdays userRefs={pluralRefs} />
+        </Harness>,
+      );
+      jest.runAllImmediates();
+    });
+    expect(renderer.container.textContent).toBe('8/9/10');
+
+    // Everything the missing read covered is complete now, so a brand-new
+    // episode must be able to recover rather than finding a stale attempt.
+    act(() => {
+      const source = environment.getStore().getSource() as $FlowFixMe;
+      source.remove('client:8:birthdate');
+      environment.commitUpdate(store => {
+        store.get('8')?.setValue('Eight!', 'name');
+      });
+    });
+    expect(environment.mock.getAllOperations().length).toBe(1);
+  });
+
   it('holds when a plural reader over a DIFFERENT row set reads complete', async () => {
     // Reader identity has to survive the plural branch too: keyed only by
     // fragment name, every plural reader under one owner collapses into one
@@ -438,7 +517,7 @@ describe('the attempt is not released by an unrelated reader', () => {
     const renderer = ReactTestingLibrary.render(
       <Harness>
         <PluralBirthdays userRefs={[pluralRefs[0]]} />
-        <PluralBirthdays userRefs={pluralRefs} />
+        <PluralBirthdays userRefs={[pluralRefs[0], pluralRefs[1]]} />
       </Harness>,
     );
     expect(renderer.container.textContent).toBe('88/9');

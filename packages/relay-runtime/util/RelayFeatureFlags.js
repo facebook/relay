@@ -56,6 +56,13 @@ export type FeatureFlags = {
   // Temporary flag to experiment to enable compatibility with React's unstable <Activity> API
   ENABLE_ACTIVITY_COMPATIBILITY: boolean,
 
+  // Treat the records read by every active store subscription as GC roots.
+  // Without this, RelayModernStore's GC computes reachability only from
+  // retained operations, so a record that a currently-observed fragment is
+  // reading is collected as soon as no retained operation selects it — e.g.
+  // when a React <Activity> route is hidden and its query's retain lapses.
+  ENABLE_SUBSCRIPTION_GC_ROOTS: boolean,
+
   // When a fragment reads missing data and no operation affecting its owner is
   // pending (e.g. its records were GC'd while a React <Activity> was hidden
   // and the fragment ref outlived the owner query's retain), refetch the owner
@@ -142,6 +149,7 @@ const RelayFeatureFlags: FeatureFlags = {
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: false,
   ENABLE_CYLE_DETECTION_IN_VARIABLES: false,
   ENABLE_ACTIVITY_COMPATIBILITY: true,
+  ENABLE_SUBSCRIPTION_GC_ROOTS: false,
   ENABLE_MISSING_DATA_OWNER_REFETCH: false,
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: true,
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,

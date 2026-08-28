@@ -651,7 +651,23 @@ class RelayModernStore implements Store {
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable {
-    return this._storeSubscriptions.subscribe(snapshot, callback);
+    const disposable = this._storeSubscriptions.subscribe(snapshot, callback);
+    if (!RelayFeatureFlags.ENABLE_SUBSCRIPTION_GC_ROOTS) {
+      return disposable;
+    }
+    // While subscriptions are GC roots, losing one can make records
+    // unreachable — and unlike releasing a retain, disposing a subscription
+    // reaches no path that would notice. This is not a rare corner: React tears
+    // an <Activity> route down in effect declaration order, so the query's
+    // retain is released (scheduling a GC) while the fragment below it is still
+    // subscribed, and that pass marks exactly the records the route was hiding
+    // to release. The pass scheduled here is the one that collects them.
+    return {
+      dispose: () => {
+        disposable.dispose();
+        this.scheduleGC();
+      },
+    };
   }
 
   holdGC(): Disposable {
@@ -905,6 +921,19 @@ class RelayModernStore implements Store {
           }
           continue top;
         }
+      }
+
+      if (RelayFeatureFlags.ENABLE_SUBSCRIPTION_GC_ROOTS) {
+        // Retained operations are not the only reachability roots. A mounted
+        // fragment observes the store through a subscription, and the records
+        // it reads may be selected by no retained operation at all — e.g. its
+        // owner query's retain lapsed while a React <Activity> route was
+        // hidden, and a different retained operation keeps the parent record
+        // alive without selecting the subtree the fragment reads. Collecting
+        // there would leave the fragment reading a record that is gone: a
+        // partial read, where a field the schema declares non-nullable comes
+        // back undefined.
+        this._storeSubscriptions.markReferences(references);
       }
 
       // NOTE: It may be tempting to use `this._recordSource.clear()`

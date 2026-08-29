@@ -102,6 +102,7 @@ function prepareEntryPoint<
       );
 
       // $FlowFixMe[incompatible-type]
+      // $FlowFixMe[cannot-write]
       preloadedQueries[queryPropName] = preloadQuery_DEPRECATED<
         OperationType,
         unknown,

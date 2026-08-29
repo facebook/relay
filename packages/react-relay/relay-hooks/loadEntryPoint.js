@@ -73,6 +73,7 @@ function loadEntryPoint<
       );
 
       // $FlowFixMe[underconstrained-implicit-instantiation]
+      // $FlowFixMe[cannot-write]
       preloadedQueries[queryPropName] = loadQuery(
         environment,
         parameters,

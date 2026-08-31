@@ -1,0 +1,21 @@
+//- foo.js
+// Provider-gated exec-time queries expose their operation only when the
+// provider selects exec-time mode.
+graphql`
+  query fooQuery
+  @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
+    userName
+  }
+`;
+
+//- relay.config.json
+{
+  "language": "flow",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { userName: String }

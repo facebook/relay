@@ -106,7 +106,7 @@ pub static THROW_ON_FIELD_ERROR_DIRECTIVE_NAME: LazyLock<DirectiveName> =
     LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));
 pub static EXEC_TIME_RESOLVERS: LazyLock<DirectiveName> =
     LazyLock::new(|| DirectiveName("exec_time_resolvers".intern()));
-static EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT: LazyLock<ArgumentName> =
+pub static EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT: LazyLock<ArgumentName> =
     LazyLock::new(|| ArgumentName("enabledProvider".intern()));
 static FRAGMENT_KEY: LazyLock<StringKey> = LazyLock::new(|| "fragment".intern());
 

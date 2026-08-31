@@ -16,6 +16,7 @@ use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
 use intern::string_key::StringKey;
 use relay_codegen::EXEC_TIME_RESOLVERS;
+use relay_codegen::EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
 use relay_codegen::build_request_params;
@@ -450,28 +451,43 @@ pub fn generate_operation(
 
     // -- Begin Exec Time Resolvers Section --
     let mut section = GenericSection::default();
-    if normalization_operation
+    if let Some(exec_time_resolvers_directive) = normalization_operation
         .directives
         .named(*EXEC_TIME_RESOLVERS)
-        .is_some()
         && ClientEdgeGeneratedQueryMetadataDirective::find(&normalization_operation.directives)
             .is_none()
     {
         // Routing an exec-time query happens at the network layer, which is handed only
         // `params` and never the operation AST. Assigning at module scope keeps this a
         // self-reference, so it costs no duplicated AST in the artifact.
+        // Provider-gated queries expose it only when the provider selects exec-time mode.
+        let has_enabled_provider = exec_time_resolvers_directive
+            .arguments
+            .named(*EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT)
+            .is_some();
+        if has_enabled_provider {
+            writeln!(
+                section,
+                "if (node.operation.exec_time_resolvers_enabled_provider?.get() === true) {{"
+            )?;
+        }
+        let indentation = if has_enabled_provider { "  " } else { "" };
         match project_config.typegen_config.language {
             TypegenLanguage::Flow => writeln!(
                 section,
-                "(node.params.metadata/*:: as any*/).operation = node.operation;"
+                "{indentation}(node.params.metadata/*:: as any*/).operation = node.operation;"
             )?,
-            TypegenLanguage::JavaScript => {
-                writeln!(section, "node.params.metadata.operation = node.operation;")?
-            }
+            TypegenLanguage::JavaScript => writeln!(
+                section,
+                "{indentation}node.params.metadata.operation = node.operation;"
+            )?,
             TypegenLanguage::TypeScript => writeln!(
                 section,
-                "(node.params.metadata as any).operation = node.operation;"
+                "{indentation}(node.params.metadata as any).operation = node.operation;"
             )?,
+        }
+        if has_enabled_provider {
+            writeln!(section, "}}")?;
         }
     }
     content_sections.push(ContentSection::Generic(section));

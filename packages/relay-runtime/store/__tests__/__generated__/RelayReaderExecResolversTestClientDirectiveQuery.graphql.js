@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<455369d343a7c3b13d15f72248c1331d>>
+ * @generated SignedSource<<442bd22709f080958559d43bf491e7de>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -404,7 +404,9 @@ if (__DEV__) {
   (node/*:: as any*/).hash = "6a6cebf94e46a5bc998e01e8c6a67718";
 }
 
-(node.params.metadata/*:: as any*/).operation = node.operation;
+if (node.operation.exec_time_resolvers_enabled_provider?.get() === true) {
+  (node.params.metadata/*:: as any*/).operation = node.operation;
+}
 
 module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayReaderExecResolversTestClientDirectiveQuery$variables,

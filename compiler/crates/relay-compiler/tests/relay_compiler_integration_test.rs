@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7ba95a1bac9b8f35d7f8439a3136c95c>>
+ * @generated SignedSource<<c748a7fea2feb96a989be06227fdcfff>>
  */
 
 mod relay_compiler_integration;
@@ -185,6 +185,13 @@ async fn exec_resolvers_directive_with_root_fragment() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.expected");
     test_fixture(transform_fixture, file!(), "exec_resolvers_directive_with_root_fragment.input", "relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_resolver_footer_enabled_provider() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_footer_enabled_provider.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_footer_enabled_provider.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_footer_enabled_provider.input", "relay_compiler_integration/fixtures/exec_time_resolver_footer_enabled_provider.expected", input, expected).await;
 }
 
 #[tokio::test]

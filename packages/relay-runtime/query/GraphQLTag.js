@@ -166,11 +166,13 @@ function getRefetchableFragment(
 
 function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
   const request = getNode(taggedNode);
-  invariant(
-    isRequest(request),
-    'GraphQLTag: Expected a request, got `%s`.',
-    JSON.stringify(request),
-  );
+  if (!isRequest(request)) {
+    invariant(
+      false,
+      'GraphQLTag: Expected a request, got `%s`.',
+      JSON.stringify(request),
+    );
+  }
   return request as any;
 }
 
@@ -178,11 +180,13 @@ function getUpdatableQuery(
   taggedNode: GraphQLTaggedNode,
 ): ConcreteUpdatableQuery {
   const updatableQuery = getNode(taggedNode);
-  invariant(
-    isUpdatableQuery(updatableQuery),
-    'GraphQLTag: Expected a request, got `%s`.',
-    JSON.stringify(updatableQuery),
-  );
+  if (!isUpdatableQuery(updatableQuery)) {
+    invariant(
+      false,
+      'GraphQLTag: Expected a request, got `%s`.',
+      JSON.stringify(updatableQuery),
+    );
+  }
   return updatableQuery as any;
 }
 

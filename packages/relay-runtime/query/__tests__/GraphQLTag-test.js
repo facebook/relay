@@ -15,6 +15,7 @@ const {
   getPaginationFragment,
   getRefetchableFragment,
   getRequest,
+  getUpdatableQuery,
   graphql,
   isFragment,
   isRequest,
@@ -22,6 +23,10 @@ const {
 
 beforeEach(() => {
   jest.resetModules();
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
 describe('isFragment/getFragment()', () => {
@@ -69,6 +74,25 @@ describe('isRequest/getRequest()', () => {
     // this is legacy behavior and to be removed in the future
     expect(isRequest(() => query)).toBe(true);
     expect(getRequest(() => query)).toBe(query);
+  });
+
+  it('does not serialize valid request-like nodes', () => {
+    const stringify = jest.spyOn(JSON, 'stringify');
+    const updatableQuery = {kind: 'UpdatableQuery'};
+
+    expect(getRequest(query)).toBe(query);
+    expect(getUpdatableQuery(updatableQuery)).toBe(updatableQuery);
+    expect(stringify).not.toHaveBeenCalled();
+  });
+
+  it('serializes invalid nodes for error messages', () => {
+    const invalidNode = {kind: 'Invalid'};
+    const stringify = jest.spyOn(JSON, 'stringify');
+
+    expect(() => getRequest(invalidNode)).toThrow(
+      'GraphQLTag: Expected a request',
+    );
+    expect(stringify).toHaveBeenCalledWith(invalidNode);
   });
 });
 

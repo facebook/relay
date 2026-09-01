@@ -42,6 +42,19 @@ The test harness resolves the relay-compiler binary in this order:
 
 To test compiler changes, build with `cargo build --manifest-path=compiler/Cargo.toml --bin relay` and re-run tests.
 
+When the `CI` environment variable is set, the npm fallback is a hard error rather than a silent downgrade to the last published release. `babel-plugin-relay` is resolved the same way, so CI must run `yarn build` first. Both are backstops: the two things that run this suite in CI — GitHub Actions and the fbsource Buck test — each supply their own binaries.
+
+## Updating snapshots
+
+Snapshots are plain `.snap.md` files, but follow jest's standard semantics:
+
+```
+yarn test:e2e -u      # rewrite changed snapshots
+yarn test:e2e --ci    # never write; a new or changed snapshot fails
+```
+
+A new fixture's snapshot is written on a plain `yarn test:e2e`; a *changed* snapshot always fails unless `-u` is passed. Jest treats a CI environment as `--ci` automatically, so commit the generated `.snap.md` alongside its fixture.
+
 ## Writing fixtures
 
 For the complete writing guide including fixture format, server/client code patterns, the interaction DSL, and snapshot behavior, see [`.llms/skills/relay-e2e-test.md`](.llms/skills/relay-e2e-test.md).

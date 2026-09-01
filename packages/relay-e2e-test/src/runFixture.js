@@ -22,6 +22,10 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
  * 2. Local cargo build output in repo root: compiler/target/debug/relay
  * 3. Local cargo build output in main worktree (if running from a git worktree)
  * 4. Fallback to node_modules/.bin/relay-compiler (npm version)
+ *
+ * The npm fallback is a published release that can lag the compiler in this
+ * repo, so under CI it is an error rather than a silent downgrade: a run that
+ * quietly tests last release's compiler is worse than no run at all.
  */
 function getRelayCompilerBinary(): string {
   if (process.env.RELAY_COMPILER_BINARY) {
@@ -52,6 +56,20 @@ function getRelayCompilerBinary(): string {
     if (fs.existsSync(mainBinary)) {
       return mainBinary;
     }
+  }
+
+  // Plain `CI` is enough: GitHub Actions always sets it, and the fbsource Buck
+  // test supplies RELAY_COMPILER_BINARY outright, so this is only a backstop
+  // there. Jest's own `--ci` detection is broader (it uses `ci-info`), which
+  // would matter on a CI system that sets only BUILD_NUMBER or RUN_ID -- not
+  // something either of those two run on.
+  if (process.env.CI) {
+    throw new Error(
+      'No relay-compiler built from this repo was found, and the published ' +
+        'npm relay-compiler must not be used in CI.\nEither set ' +
+        'RELAY_COMPILER_BINARY to the compiler under test, or build it with:' +
+        '\n  cargo build --manifest-path=compiler/Cargo.toml --bin relay',
+    );
   }
 
   return path.join(PROJECT_ROOT, 'node_modules', '.bin', 'relay-compiler');

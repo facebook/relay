@@ -132,7 +132,17 @@ Roles are [ARIA roles](https://testing-library.com/docs/queries/byrole/#api) (`b
 
 ## Snapshots
 
-Run tests to generate snapshots. Delete a `.snap.md` file and re-run to regenerate. Console output (log/warn/error) is captured and included in the snapshot when present.
+Snapshots are plain `.snap.md` files rather than jest's own `.snap` format, so they stay readable in review — but they follow jest's standard snapshot semantics:
+
+| | new snapshot | changed snapshot |
+|---|---|---|
+| `yarn test:e2e` | written, passes | **fails** |
+| `yarn test:e2e -u` | written, passes | rewritten, passes |
+| `yarn test:e2e --ci` | **fails** | **fails** |
+
+So running a new fixture locally generates its `.snap.md`, and `-u` regenerates after an intentional behavior change. Console output (log/warn/error) is captured and included in the snapshot when present.
+
+Always commit the `.snap.md` alongside the fixture. Jest treats a CI environment as `--ci` automatically (via `ci-info`, which checks `CI` among others), so a fixture landed without its snapshot fails there rather than silently writing one and passing forever.
 
 ## Relay docs
 

@@ -49,4 +49,12 @@ The test harness resolves the relay-compiler binary in this order:
 2. Local cargo build: `compiler/target/debug/relay`
 3. npm fallback: `node_modules/.bin/relay-compiler`
 
-To test compiler changes, build with `cargo build --manifest-path=compiler/Cargo.toml --bin relay` and re-run tests.
+Internally, point `RELAY_COMPILER_BINARY` at the Buck-built compiler so the tests exercise the compiler in this repo rather than the last published release:
+
+```bash
+RELAY_COMPILER_BINARY="$(buck2 build --show-full-simple-output fbcode//relay/oss/crates/relay-bin:relay)"
+```
+
+The two differ in practice — fixtures using `@module` fail against the npm compiler and pass against the Buck-built one.
+
+When the `CI` environment variable is set, step 3 is a hard error instead of a fallback. The same applies to `babel-plugin-relay`, which internally cannot come from `yarn build` at all: gulp expects `packages/babel-plugin-relay/`, and the package lives at `oss/babel-plugin-relay/`. Both are backstops internally — the Buck test supplies `RELAY_COMPILER_BINARY` and `BABEL_PLUGIN_RELAY_PATH` itself.

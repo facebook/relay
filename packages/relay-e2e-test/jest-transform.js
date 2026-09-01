@@ -36,6 +36,22 @@ function findBabelPluginRelay() {
       return mainPath;
     }
   }
+  // The npm fallback is a published release that can lag the source in this
+  // repo, so under CI it is an error rather than a silent downgrade.
+  //
+  // Plain `CI` is enough: GitHub Actions always sets it, and the fbsource Buck
+  // test supplies BABEL_PLUGIN_RELAY_PATH outright, so this is only a backstop
+  // there. Jest's own `--ci` detection is broader (it uses `ci-info`), which
+  // would matter on a CI system that sets only BUILD_NUMBER or RUN_ID -- not
+  // something either of those two run on.
+  if (process.env.CI) {
+    throw new Error(
+      'No babel-plugin-relay built from this repo was found at ' +
+        `${relPath}, and the published npm babel-plugin-relay must not be ` +
+        'used in CI.\nBuild it from the repo root with:\n  yarn build',
+    );
+  }
+
   // Fall back to npm version from e2e node_modules
   return require.resolve('babel-plugin-relay');
 }

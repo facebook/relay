@@ -12,7 +12,7 @@ const {runFixture} = require('../src/runFixture');
 const {runInteractions} = require('../src/runInteractions');
 const {setupTempDir} = require('../src/setupTempDir');
 const {cleanup, render} = require('@testing-library/react');
-const {readdirSync, readFileSync} = require('fs');
+const {readdirSync, readFileSync, writeFileSync} = require('fs');
 const {rm} = require('fs/promises');
 const path = require('path');
 const React = require('react');
@@ -103,11 +103,48 @@ for (const file of fixtureFiles) {
         // Snap file doesn't exist yet
       }
 
+      // Snapshots are plain files rather than jest's own `.snap` format so
+      // they stay reviewable, but they follow jest's update semantics: `-u`
+      // rewrites, `--ci` (or a detected CI environment) refuses to write.
+      const snapshotState = expect.getState().snapshotState;
+      const updateSnapshot = snapshotState?._updateSnapshot;
+      // `_updateSnapshot` is private to jest. Fail loudly if it ever moves:
+      // reading it as undefined would silently downgrade CI back to writing
+      // snapshots and passing, which is the exact failure this guards against.
+      if (
+        updateSnapshot !== 'all' &&
+        updateSnapshot !== 'new' &&
+        updateSnapshot !== 'none'
+      ) {
+        throw new Error(
+          "Could not read jest's snapshot update mode from " +
+            '`expect.getState().snapshotState._updateSnapshot` (got ' +
+            `${String(updateSnapshot)}). It is a private jest field, so a ` +
+            'jest upgrade may have moved it; this test needs updating.',
+        );
+      }
+
       if (expected == null) {
-        // Write new snapshot
-        const {writeFileSync} = require('fs');
+        if (updateSnapshot === 'none') {
+          snapshotState.unmatched++;
+          throw new Error(
+            `No snapshot file exists for fixture "${name}".\n\n` +
+              `Expected to find: fixtures/${name}.snap.md\n\n` +
+              'One was not generated because snapshots are never written in ' +
+              'a continuous integration (CI) environment. If this fixture is ' +
+              'new, run `yarn test:e2e` locally and commit the generated ' +
+              'snapshot alongside it.',
+          );
+        }
         writeFileSync(snapPath, actual);
+        snapshotState.added++;
+      } else if (actual === expected) {
+        snapshotState.matched++;
+      } else if (updateSnapshot === 'all') {
+        writeFileSync(snapPath, actual);
+        snapshotState.updated++;
       } else {
+        snapshotState.unmatched++;
         expect(actual).toBe(expected);
       }
     } finally {

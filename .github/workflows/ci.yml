@@ -46,6 +46,42 @@ jobs:
       - name: Run tests
         run: yarn run jest
 
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    # The fixtures are compiled with the Relay compiler, and the suite refuses
+    # to fall back to the published npm one when CI is set. Reuse the binary
+    # build-compiler already produces rather than building a second copy --
+    # that also keeps the pinned Rust toolchain in one place.
+    needs: build-compiler
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20.x
+          cache: "yarn"
+      - name: Download artifact relay-bin-linux-x64
+        uses: actions/download-artifact@v7
+        with:
+          name: relay-bin-linux-x64
+          path: artifacts/linux-x64
+      # upload-artifact does not preserve the executable bit.
+      - name: Mark the compiler as executable
+        run: chmod +x artifacts/linux-x64/relay
+      # Deliberately not --ignore-scripts: the postinstall build produces
+      # dist/babel-plugin-relay, which the fixtures are compiled with.
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      # The e2e package pins its own react and graphql, so it is not part of
+      # the root workspace and installs separately.
+      - name: Install e2e dependencies
+        working-directory: ./packages/relay-e2e-test
+        run: yarn install --frozen-lockfile
+      - name: Run e2e tests
+        env:
+          RELAY_COMPILER_BINARY: ${{ github.workspace }}/artifacts/linux-x64/relay
+        run: yarn test:e2e
+
   js-lint:
     name: JS Lint
     runs-on: ubuntu-latest
@@ -262,7 +298,7 @@ jobs:
     name: Publish to NPM
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.repository == 'facebook/relay' && (github.ref == 'refs/heads/main' || (github.ref_type == 'tag' && startsWith(github.ref_name, 'v')))
-    needs: [js-tests, js-lint, typecheck, build-tests, build-compiler]
+    needs: [js-tests, js-lint, typecheck, build-tests, build-compiler, e2e-tests]
     environment: npm-publish
     permissions:
       contents: read   # Required for actions/checkout

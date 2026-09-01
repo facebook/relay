@@ -23,6 +23,14 @@ const fs = require('fs');
 const path = require('path');
 
 function findBabelPluginRelay() {
+  // Explicit override, for callers that build the plugin themselves. The
+  // internal layout has no `dist/` (`yarn build` only works once the packages
+  // have been laid out the way the OSS repo expects), so fbsource builds the
+  // plugin from `oss/babel-plugin-relay/` and points here.
+  if (process.env.BABEL_PLUGIN_RELAY_PATH) {
+    return process.env.BABEL_PLUGIN_RELAY_PATH;
+  }
+
   // Prefer local build from source (tests latest changes)
   const relPath = 'dist/babel-plugin-relay/lib/BabelPluginRelay.js';
   const local = path.join(RELAY_ROOT, relPath);
@@ -48,7 +56,8 @@ function findBabelPluginRelay() {
     throw new Error(
       'No babel-plugin-relay built from this repo was found at ' +
         `${relPath}, and the published npm babel-plugin-relay must not be ` +
-        'used in CI.\nBuild it from the repo root with:\n  yarn build',
+        'used in CI.\nBuild it from the repo root with `yarn build`, or set ' +
+        'BABEL_PLUGIN_RELAY_PATH to a build of it.',
     );
   }
 

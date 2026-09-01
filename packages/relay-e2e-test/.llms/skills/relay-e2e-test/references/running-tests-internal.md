@@ -25,6 +25,12 @@ cd packages/relay-e2e-test && yarn install --ignore-engines
 
 No `yarn build` step is needed — the babel plugin is installed from npm.
 
+> **Careful with step 2.** `__github__` is a member of the `xplat/js` yarn workspace, so a bare `yarn install` inside the e2e package resolves the workspace root up at `xplat/js` and can strip `__github__/node_modules/.bin` — taking jest with it, which then fails as an opaque `MODULE_NOT_FOUND`. `smart-install` will not repair this; it no-ops when its cached state looks current. Repair with a full workspace install:
+>
+> ```bash
+> cd xplat/js && ../third-party/yarn/yarn install
+> ```
+
 ## Commands
 
 All commands run from `xplat/js/RKJSModules/Libraries/Relay/oss/__github__/`.

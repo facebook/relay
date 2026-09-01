@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a56a5026fa3257ec3400e9702b37b823>>
+ * @generated SignedSource<<d6906f7af1960b72742e5573befef43c>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -18,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { usePaginationFragmentCatchTestRootCatchFragment$fragmentType } from "./usePaginationFragmentCatchTestRootCatchFragment.graphql";
-export type usePaginationFragmentCatchTestRootCatchQuery$variables = {|
+export type usePaginationFragmentCatchTestRootCatchQuery$variables = {
   after?: ?string,
   first?: ?number,
-|};
-export type usePaginationFragmentCatchTestRootCatchQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: usePaginationFragmentCatchTestRootCatchFragment$fragmentType,
-  |},
-|};
-export type usePaginationFragmentCatchTestRootCatchQuery = {|
+};
+export type usePaginationFragmentCatchTestRootCatchQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: usePaginationFragmentCatchTestRootCatchFragment$fragmentType,
+  },
+};
+export type usePaginationFragmentCatchTestRootCatchQuery = {
   response: usePaginationFragmentCatchTestRootCatchQuery$data,
   variables: usePaginationFragmentCatchTestRootCatchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){

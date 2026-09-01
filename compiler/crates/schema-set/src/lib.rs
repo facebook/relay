@@ -23,6 +23,7 @@ mod set_exclude;
 mod set_merges;
 mod set_remove_defined_references;
 mod set_type_reference;
+pub mod transform;
 
 use std::sync::LazyLock;
 
@@ -78,6 +79,7 @@ pub use crate::schema_set::StringKeyNamed;
 pub use crate::schema_set_collection_options::UsedSchemaCollectionOptions;
 pub use crate::set_type_reference::OutputNonNull;
 pub use crate::set_type_reference::OutputTypeReference;
+pub use crate::transform::Transformer;
 
 static DIVERGENCE: LazyLock<DirectiveName> = LazyLock::new(|| DirectiveName("divergence".intern()));
 static SEMANTIC_NON_NULL: LazyLock<DirectiveName> =

@@ -73,7 +73,7 @@ function Message() {
         onClick={() => {
           startTransition(async () => {
             const response = await commitAction({ text: "Hello from mutation!" });
-            setResult(response.setMessage);
+            setResult(response.setMessage ?? null);
           });
         }}
       >

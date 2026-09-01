@@ -66,7 +66,7 @@ function GreetingForm() {
     );
 
   const [message, formAction, isPending] = useActionState(
-    async (_prev: string, formData: FormData) => {
+    async (_prev: string | null | undefined, formData: FormData) => {
       const name = formData.get("name") as string;
       const response = await commitAction({ name });
       return response.greetUser;

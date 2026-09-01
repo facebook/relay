@@ -90,10 +90,15 @@ function Publisher() {
             const createResponse = await createItem({
               name: "draft",
             });
+            // `createItem` is a nullable String in the schema, so it has to be
+            // narrowed before it can be passed as the String! `id` variable.
+            if (createResponse.createItem == null) {
+              return;
+            }
             const publishResponse = await publishItem({
               id: createResponse.createItem,
             });
-            setResult(publishResponse.publishItem);
+            setResult(publishResponse.publishItem ?? null);
           });
         }}
       >

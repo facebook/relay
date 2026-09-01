@@ -56,7 +56,7 @@ interface IPerson extends GqlNode {
   /** @gqlField */
   id: ID;
   /** @gqlField */
-  pet: IAnimal | null;
+  pet(): IAnimal | null;
 }
 
 /** @gqlType */

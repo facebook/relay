@@ -73,7 +73,7 @@ function LikeButton() {
   );
 
   const [optimisticCount, addOptimistic] = useOptimistic(
-    data.likeCount,
+    data.likeCount ?? 0,
     (current, _increment: number) => current + _increment,
   );
 
@@ -95,7 +95,7 @@ function LikeButton() {
           startTransition(async () => {
             addOptimistic(1);
             const response = await commitAction({});
-            setConfirmed(response.like);
+            setConfirmed(response.like ?? null);
           });
         }}
       >

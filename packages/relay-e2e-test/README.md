@@ -1,6 +1,6 @@
 # Relay E2E Tests
 
-Markdown-driven end-to-end tests for Relay. Each test is a self-contained `.md` file that defines a GraphQL server (via [Grats](https://grats.capt.dev/)), a Relay-powered React component, and optional interaction steps. The test harness extracts the code blocks, compiles them with Grats + relay-compiler, renders with React Testing Library, runs interactions, and snapshot-tests the output.
+Markdown-driven end-to-end tests for Relay. Each test is a self-contained `.md` file that defines a GraphQL server (via [Grats](https://grats.capt.dev/)), a Relay-powered React component, and optional interaction steps. The test harness extracts the code blocks, compiles them with Grats + relay-compiler, typechecks them with `tsc`, renders with React Testing Library, runs interactions, and snapshot-tests the output.
 
 Tests run against **Relay runtime packages from source** (`packages/relay-runtime/` and `packages/react-relay/`), so changes are reflected immediately without a build step.
 
@@ -54,6 +54,12 @@ yarn test:e2e --ci    # never write; a new or changed snapshot fails
 ```
 
 A new fixture's snapshot is written on a plain `yarn test:e2e`; a *changed* snapshot always fails unless `-u` is passed. Jest treats a CI environment as `--ci` automatically, so commit the generated `.snap.md` alongside its fixture.
+
+## Typechecking
+
+Each fixture is typechecked with `tsc` after the Relay compiler runs, against the generated `__generated__/*.graphql.ts` artifacts and the `.d.ts` files `relay-runtime` and `react-relay` ship from this repo (wired up via generated `paths` in the fixture's tsconfig). Type errors are reported in a `## Type Errors` section of the snapshot rather than failing the test outright — see the [writing guide](.llms/skills/relay-e2e-test/references/writing-fixtures.md#type-errors).
+
+The repo's other TypeScript check, `yarn typecheck:ts`, only verifies that `relay-runtime`'s declarations are internally well-formed. The e2e suite is what checks they are actually *usable*.
 
 ## Writing fixtures
 

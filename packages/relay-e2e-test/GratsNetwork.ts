@@ -7,15 +7,20 @@
 
 import { Network, Observable, GraphQLResponse } from "relay-runtime";
 import type { RelayObservable } from "relay-runtime/lib/network/RelayObservable";
-import type { ExecutionResult } from "graphql";
+import type { AsyncExecutionResult, ExecutionResult } from "graphql";
 import type { PromiseOrValue } from "graphql/jsutils/PromiseOrValue";
 import { execute, subscribe, parse } from "graphql";
 import { getSchema } from "./schema";
 
 const executableSchema = getSchema();
 
+// The async branch yields `AsyncExecutionResult`, not `ExecutionResult`: under
+// incremental delivery each payload after the first is an `ExecutionPatchResult`,
+// whose `data` is `unknown` rather than an object map. Narrowing this to
+// `ExecutionResult` would not typecheck against what `execute`/`subscribe`
+// actually return from this graphql build.
 type GraphQLResult = PromiseOrValue<
-  ExecutionResult | AsyncIterable<ExecutionResult>
+  ExecutionResult | AsyncIterable<AsyncExecutionResult>
 >;
 
 function toObservable(result: GraphQLResult): RelayObservable<GraphQLResponse> {

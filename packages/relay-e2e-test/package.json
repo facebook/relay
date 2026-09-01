@@ -11,6 +11,8 @@
     "@babel/plugin-transform-typescript": "^7.25.2",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "babel-plugin-relay": "^20.1.1",
     "fbjs": "^3.0.2",
     "graphql": "16.1.0-experimental-stream-defer.6",

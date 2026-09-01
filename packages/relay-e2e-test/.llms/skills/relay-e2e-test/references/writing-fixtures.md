@@ -142,6 +142,24 @@ Snapshots are plain `.snap.md` files rather than jest's own `.snap` format, so t
 
 So running a new fixture locally generates its `.snap.md`, and `-u` regenerates after an intentional behavior change. Console output (log/warn/error) is captured and included in the snapshot when present.
 
+### Type errors
+
+After the Relay compiler runs, the harness typechecks the fixture with `tsc`, so `App.tsx` and `server.ts` are checked against both the generated `__generated__/*.graphql.ts` artifacts and the `.d.ts` files that `relay-runtime` and `react-relay` ship in this repo. This is the only place those hand-written declarations are exercised against real usage, so a fixture that annotates its hooks (`useLazyLoadQuery<AppTestQuery>`) and reads fields off the result is testing Relay's TypeScript support, not just its runtime.
+
+Type errors do **not** fail the test. They are written into a `## Type Errors` section at the top of the snapshot:
+
+````markdown
+## Type Errors
+
+```
+template/App.tsx(18,20): error TS2339: Property 'greetng' does not exist on type 'AppTestQuery$data'.
+```
+````
+
+The section is omitted entirely when a fixture is clean, so a passing fixture's snapshot has no trace of it. Because it lives in the snapshot, a type regression still fails CI — as a snapshot diff — while letting you land a fixture that characterises a known-bad generated type before it is fixed.
+
+`fixtures/typechecking/unselected-field.md` is the worked example: it selects `greeting` but reads `farewell`, a field that exists on `Query` but was not selected. The GraphQL is valid, the Relay compiler is happy, and at runtime the field is `undefined` and renders as nothing — so the component works and the `wait` step passes. Only the typecheck catches it. Use it as the template when adding a fixture whose whole point is a type error.
+
 Always commit the `.snap.md` alongside the fixture. Jest treats a CI environment as `--ci` automatically (via `ci-info`, which checks `CI` among others), so a fixture landed without its snapshot fails there rather than silently writing one and passing forever.
 
 ## Relay docs

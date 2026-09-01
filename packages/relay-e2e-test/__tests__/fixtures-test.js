@@ -66,7 +66,7 @@ for (const file of fixtureFiles) {
       });
 
     try {
-      await runFixture(tempDir);
+      const typeErrors = await runFixture(tempDir);
 
       // Dynamic import of the built App component
       // Jest's transform will handle TSX compilation
@@ -84,6 +84,14 @@ for (const file of fixtureFiles) {
 
       // Build snapshot string
       const sections: Array<string> = [];
+
+      // First, because it reflects the compile step that precedes the render.
+      // Omitted entirely when clean, so a fixture that typechecks keeps a
+      // snapshot with no trace of this section.
+      if (typeErrors.length > 0) {
+        sections.push('## Type Errors\n');
+        sections.push('```\n' + typeErrors.join('\n') + '\n```\n');
+      }
 
       if (logs.length > 0) {
         sections.push('## Console\n');

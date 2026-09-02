@@ -41,6 +41,7 @@ component Container(
   userRef: ?usePrefetchableForwardPaginationFragmentTest_user$key,
   minimalEdgesToFetch: number = 1,
   UNSTABLE_extraVariables?: unknown,
+  maxFetchSize?: ?number,
 ) {
   const {
     edges,
@@ -76,6 +77,8 @@ component Container(
       UNSTABLE_extraVariables,
     },
     minimalEdgesToFetch,
+    false,
+    maxFetchSize,
   );
   loadMore = loadNext;
   refetch = _refetch;
@@ -1107,4 +1110,355 @@ it('getServerEdges should return all unfiltered server edges', async () => {
       node: {__typename: 'User', id: 'node:3', name: 'node3'},
     },
   ]);
+});
+
+it('should cap the prefetch request size at `maxFetchSize`', async () => {
+  const fragmentKey = environment.lookup(query.fragment).data?.node;
+  // render the initial page
+  let app;
+  await act(() => {
+    app = create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Suspense fallback="Fallback">
+          {/* $FlowFixMe[incompatible-type] */}
+          <Container userRef={fragmentKey} maxFetchSize={1} />
+        </Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
+  if (app == null) {
+    throw new Error('should not be null');
+  }
+  expect(app.toJSON()).toEqual('node1/0');
+
+  // The buffer size is 2, but `maxFetchSize` caps each request at 1 so we don't
+  // generate a query large enough to overwhelm the backend.
+  expect(environment.mock.getAllOperations().length).toBe(1);
+  expect(environment.mock.getAllOperations()[0].fragment.variables.first).toBe(
+    1,
+  );
+
+  await act(() => {
+    environment.mock.resolveMostRecentOperation({
+      data: {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                  name: 'node2',
+                  username: 'username:node:2',
+                },
+              },
+            ],
+            pageInfo: {
+              startCursor: 'cursor:2',
+              endCursor: 'cursor:2',
+              hasNextPage: true,
+              hasPreviousPage: true,
+            },
+          },
+        },
+      },
+    });
+  });
+
+  expect(app.toJSON()).toEqual('node1/1');
+
+  // The buffer still isn't full, so it prefetches again, again capped at 1.
+  expect(environment.mock.getAllOperations().length).toBe(1);
+  expect(environment.mock.getAllOperations()[0].fragment.variables.first).toBe(
+    1,
+  );
+});
+
+it('should cap an explicit `loadNext` request size at `maxFetchSize`', async () => {
+  const fragmentKey = environment.lookup(query.fragment).data?.node;
+  // render the initial page
+  let app;
+  await act(() => {
+    app = create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Suspense fallback="Fallback">
+          {/* $FlowFixMe[incompatible-type] */}
+          <Container userRef={fragmentKey} maxFetchSize={3} />
+        </Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
+  if (app == null) {
+    throw new Error('should not be null');
+  }
+  expect(app.toJSON()).toEqual('node1/0');
+
+  // Fulfill the initial prefetch so there is no pending operation.
+  await act(() => {
+    environment.mock.resolveMostRecentOperation({
+      data: {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                  name: 'node2',
+                  username: 'username:node:2',
+                },
+              },
+              {
+                cursor: 'cursor:3',
+                node: {
+                  __typename: 'User',
+                  id: 'node:3',
+                  name: 'node3',
+                  username: 'username:node:3',
+                },
+              },
+            ],
+            pageInfo: {
+              startCursor: 'cursor:3',
+              endCursor: 'cursor:3',
+              hasNextPage: true,
+              hasPreviousPage: true,
+            },
+          },
+        },
+      },
+    });
+  });
+  expect(app.toJSON()).toEqual('node1/2');
+
+  // Ask for many more items than exist in the buffer. Without a cap this would
+  // request `numToAdd + buffer` items; `maxFetchSize` limits it to 3.
+  await act(() => {
+    loadMore(100);
+  });
+  expect(environment.mock.getAllOperations().length).toBe(1);
+  expect(environment.mock.getAllOperations()[0].fragment.variables.first).toBe(
+    3,
+  );
+});
+
+it('should stop prefetching after a pagination request errors to avoid thrashing the server', async () => {
+  const fragmentKey = environment.lookup(query.fragment).data?.node;
+  // render the initial page
+  let app;
+  await act(() => {
+    app = create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Suspense fallback="Fallback">
+          {/* $FlowFixMe[incompatible-type] */}
+          <Container userRef={fragmentKey} />
+        </Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
+  if (app == null) {
+    throw new Error('should not be null');
+  }
+  expect(app.toJSON()).toEqual('node1/0');
+
+  // It starts prefetching to fill the buffer.
+  expect(environment.mock.getAllOperations().length).toBe(1);
+
+  // The server errors on the pagination request.
+  await act(() => {
+    environment.mock.rejectMostRecentOperation(new Error('uh oh'));
+  });
+
+  // Prefetching must NOT immediately retry, even though the buffer is not full
+  // and `hasNext` is still true. Otherwise it would thrash the server (DDOS).
+  expect(environment.mock.getAllOperations().length).toBe(0);
+});
+
+it('should resume prefetching after an error once `loadNext` is explicitly called', async () => {
+  const fragmentKey = environment.lookup(query.fragment).data?.node;
+  // render the initial page
+  let app;
+  await act(() => {
+    app = create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Suspense fallback="Fallback">
+          {/* $FlowFixMe[incompatible-type] */}
+          <Container userRef={fragmentKey} />
+        </Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
+  if (app == null) {
+    throw new Error('should not be null');
+  }
+  expect(app.toJSON()).toEqual('node1/0');
+  expect(environment.mock.getAllOperations().length).toBe(1);
+
+  await act(() => {
+    environment.mock.rejectMostRecentOperation(new Error('uh oh'));
+  });
+  // Automatic prefetching is paused.
+  expect(environment.mock.getAllOperations().length).toBe(0);
+
+  // An explicit `loadNext` is a deliberate user action, so it should retry.
+  await act(() => {
+    loadMore(1);
+  });
+  expect(environment.mock.getAllOperations().length).toBe(1);
+
+  await act(() => {
+    environment.mock.resolveMostRecentOperation({
+      data: {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                  name: 'node2',
+                  username: 'username:node:2',
+                },
+              },
+            ],
+            pageInfo: {
+              startCursor: 'cursor:2',
+              endCursor: 'cursor:2',
+              hasNextPage: true,
+              hasPreviousPage: true,
+            },
+          },
+        },
+      },
+    });
+  });
+  expect(app.toJSON()).toEqual('node1,node2/0');
+});
+
+it('should resume prefetching after an error when a later `loadNext` is served from the buffer', async () => {
+  const fragmentKey = environment.lookup(query.fragment).data?.node;
+  // render the initial page
+  let app;
+  await act(() => {
+    app = create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Suspense fallback="Fallback">
+          {/* $FlowFixMe[incompatible-type] */}
+          <Container userRef={fragmentKey} />
+        </Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
+  if (app == null) {
+    throw new Error('should not be null');
+  }
+  expect(app.toJSON()).toEqual('node1/0');
+
+  // Initial prefetch fills the buffer (bufferSize = 2).
+  expect(environment.mock.getAllOperations().length).toBe(1);
+  await act(() => {
+    environment.mock.resolveMostRecentOperation({
+      data: {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                  name: 'node2',
+                  username: 'username:node:2',
+                },
+              },
+              {
+                cursor: 'cursor:3',
+                node: {
+                  __typename: 'User',
+                  id: 'node:3',
+                  name: 'node3',
+                  username: 'username:node:3',
+                },
+              },
+            ],
+            pageInfo: {
+              startCursor: 'cursor:3',
+              endCursor: 'cursor:3',
+              hasNextPage: true,
+              hasPreviousPage: true,
+            },
+          },
+        },
+      },
+    });
+  });
+  expect(app.toJSON()).toEqual('node1/2');
+  // Buffer is full, so nothing is in flight.
+  expect(environment.mock.getAllOperations().length).toBe(0);
+
+  // Consume one buffered item; this kicks off a top-up prefetch.
+  await act(() => {
+    loadMore(1);
+  });
+  expect(app.toJSON()).toEqual('node1,node2/1');
+  expect(environment.mock.getAllOperations().length).toBe(1);
+
+  // The top-up prefetch fails, pausing automatic prefetching. One buffered edge
+  // (node3) still remains.
+  await act(() => {
+    environment.mock.rejectMostRecentOperation(new Error('uh oh'));
+  });
+  expect(environment.mock.getAllOperations().length).toBe(0);
+
+  // A later `loadNext` that is fulfilled entirely from the buffer (no network
+  // request) should still re-enable automatic prefetching.
+  await act(() => {
+    loadMore(1);
+  });
+  expect(app.toJSON()).toEqual('node1,node2,node3/0');
+  // Prefetching resumed: a fresh request is issued to refill the buffer.
+  expect(environment.mock.getAllOperations().length).toBe(1);
+});
+
+it('should treat a non-positive `maxFetchSize` as no cap (never requests `first: 0`)', async () => {
+  const fragmentKey = environment.lookup(query.fragment).data?.node;
+  // render the initial page
+  let app;
+  await act(() => {
+    app = create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Suspense fallback="Fallback">
+          {/* $FlowFixMe[incompatible-type] */}
+          <Container userRef={fragmentKey} maxFetchSize={0} />
+        </Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
+  if (app == null) {
+    throw new Error('should not be null');
+  }
+  expect(app.toJSON()).toEqual('node1/0');
+
+  // `maxFetchSize` of 0 is invalid and is ignored rather than clamping the
+  // request to `first: 0` (which would make no progress and loop forever). The
+  // hook still prefetches to fill the buffer (bufferSize = 2).
+  expect(environment.mock.getAllOperations().length).toBe(1);
+  expect(environment.mock.getAllOperations()[0].fragment.variables.first).toBe(
+    2,
+  );
 });

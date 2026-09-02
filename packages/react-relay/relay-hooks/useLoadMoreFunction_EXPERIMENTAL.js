@@ -250,7 +250,7 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables extends Variables>(
         },
         error: error => {
           fetchStatusRef.current = {kind: 'none'};
-          observer.complete && observer.complete();
+          observer.error && observer.error(error);
           onComplete && onComplete(error);
         },
       });

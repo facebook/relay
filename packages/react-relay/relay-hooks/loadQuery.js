@@ -318,6 +318,8 @@ function loadQuery<
       const networkObservable =
         fetchPolicy === 'store-only' ? null : makeNetworkRequest(params, null);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+       * unsoundness in flow */
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
         queryId,
         preloadedModule => {

@@ -549,6 +549,8 @@ function cloneEventWithSets(event: LogEvent) {
             },
           });
           store.publish(nextSource);
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           dispose();
           store.notify();
           expect(callback).not.toBeCalled();

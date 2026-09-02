@@ -94,6 +94,8 @@ describe('retain()', () => {
       {},
       operation.request,
     );
+    /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+     * unsoundness in flow */
     dispose();
     // GC runs asynchronously; data should still be in the store
     expect(environment.lookup(selector).data).toEqual({

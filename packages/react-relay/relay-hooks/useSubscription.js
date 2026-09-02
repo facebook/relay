@@ -46,6 +46,8 @@ hook useSubscription<TVariables, TData, TRawResponse>(
   useEffect(() => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = actualRequestSubscription(environment, config);
+    /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+     * unsoundness in flow */
     return dispose;
   }, [environment, config, actualRequestSubscription]);
 }

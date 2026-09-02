@@ -186,6 +186,8 @@ if (__DEV__) {
     context.visitedPaths.add(path);
     switch (field.kind) {
       case 'ScalarField':
+        /* $FlowFixMe[invalid-this-arg] Error exposed after fixing this typing
+         * unsoundness in flow */
         if (hasOwnProperty.call(optimisticResponse, fieldName) === false) {
           addFieldToDiff(path, context.missingDiff, true);
         }
@@ -194,6 +196,8 @@ if (__DEV__) {
         const selections = field.selections;
         if (
           optimisticResponse[fieldName] === null ||
+          /* $FlowFixMe[invalid-this-arg] Error exposed after fixing this
+           * typing unsoundness in flow */
           (hasOwnProperty.call(optimisticResponse, fieldName) &&
             optimisticResponse[fieldName] === undefined)
         ) {

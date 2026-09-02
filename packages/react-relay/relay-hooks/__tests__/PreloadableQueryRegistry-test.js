@@ -89,6 +89,8 @@ describe('PreloadableQueryRegistry', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       const {dispose} = PreloadableQueryRegistry.onLoad(id1, callback);
       expect(callback).not.toHaveBeenCalled();
+      /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+       * unsoundness in flow */
       dispose();
       PreloadableQueryRegistry.set(id1, c1);
       expect(callback).not.toHaveBeenCalled();
@@ -108,6 +110,8 @@ describe('PreloadableQueryRegistry', () => {
       expect(cb1).toHaveBeenCalledTimes(1);
       expect(cb2).toHaveBeenCalledTimes(1);
 
+      /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+       * unsoundness in flow */
       dispose();
       PreloadableQueryRegistry.set(id1, c1);
       expect(cb1).toHaveBeenCalledTimes(1);

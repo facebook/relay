@@ -119,6 +119,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         });
         callback.mockClear();
+        /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+         * unsoundness in flow */
         dispose();
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0].data).toEqual(undefined);
@@ -317,6 +319,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           callback.mockClear();
 
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           dispose();
 
           // Verify task was scheduled and run it

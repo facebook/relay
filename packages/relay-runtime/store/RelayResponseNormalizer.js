@@ -279,6 +279,8 @@ class RelayResponseNormalizer {
         case 'TypeDiscriminator': {
           const {abstractKey} = selection;
           // $FlowFixMe[method-unbinding] - data could be prototype less
+          /* $FlowFixMe[invalid-this-arg] Error exposed after fixing this
+           * typing unsoundness in flow */
           const implementsInterface = Object.prototype.hasOwnProperty.call(
             data,
             abstractKey,
@@ -398,6 +400,8 @@ class RelayResponseNormalizer {
       }
     } else {
       // $FlowFixMe[method-unbinding] - data could be prototype less
+      /* $FlowFixMe[invalid-this-arg] Error exposed after fixing this typing
+       * unsoundness in flow */
       const implementsInterface = Object.prototype.hasOwnProperty.call(
         data,
         abstractKey,

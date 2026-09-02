@@ -132,6 +132,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const environmentCheck = environment.check;
           // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           check = jest.fn((...args) =>
+            /* $FlowFixMe[invalid-this-arg] Error exposed after fixing this
+             * typing unsoundness in flow */
             environmentCheck.apply(environment, args),
           );
           (environment as $FlowFixMe).check = check;

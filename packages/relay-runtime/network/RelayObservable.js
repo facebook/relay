@@ -378,11 +378,15 @@ class RelayObservable<out T> implements Subscribable<T> {
         }
       }
 
+      /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+       * unsoundness in flow */
       this.subscribe({
         start,
         next(value) {
           try {
             if (!sink.closed) {
+              /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+               * typing unsoundness in flow */
               RelayObservable.from(fn(value)).subscribe({
                 start,
                 next: sink.next,

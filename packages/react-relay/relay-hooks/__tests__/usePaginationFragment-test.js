@@ -252,6 +252,8 @@ function createMockEnvironment() {
   const originalRetain = environment.retain;
   // $FlowFixMe[cannot-write]
   environment.retain = jest.fn((...args: any) =>
+    /* $FlowFixMe[invalid-this-arg] Error exposed after fixing this typing
+     * unsoundness in flow */
     originalRetain.apply(environment, args),
   );
   return [environment, fetchFn];

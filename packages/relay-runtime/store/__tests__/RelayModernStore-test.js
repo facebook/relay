@@ -203,6 +203,8 @@ function cloneEventWithSets(event: LogEvent) {
           const {dispose} = store.retain(
             createOperationDescriptor(UserQuery, {id: '4', size: 32}),
           );
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           dispose();
           expect(data).toEqual(initialData);
           jest.runAllTimers();
@@ -245,6 +247,8 @@ function cloneEventWithSets(event: LogEvent) {
           );
           store.retain(createOperationDescriptor(JoeQuery, {id: '842472'}));
 
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           dispose(); // release one of the holds but not the other
           jest.runAllTimers();
           expect(source.toJSON()).toEqual(nextSource.toJSON());
@@ -873,6 +877,8 @@ function cloneEventWithSets(event: LogEvent) {
             },
           });
           store.publish(nextSource);
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           dispose();
           store.notify();
           expect(callback).not.toBeCalled();
@@ -2538,6 +2544,8 @@ function cloneEventWithSets(event: LogEvent) {
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           const {dispose} = writeAndRetainNode('a');
           expect(schedulerQueue.length).toBe(0);
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           dispose();
           expect(schedulerQueue.length).toBe(1);
           schedulerQueue.length = 0;
@@ -2548,7 +2556,11 @@ function cloneEventWithSets(event: LogEvent) {
           const {dispose: disposeA} = writeAndRetainNode('a');
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           const {dispose: disposeB} = writeAndRetainNode('b');
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           disposeA();
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           disposeB();
           expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
           // nothing retained, prunes the store in one scheduler job
@@ -2560,6 +2572,8 @@ function cloneEventWithSets(event: LogEvent) {
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           const {dispose: disposeA} = writeAndRetainNode('a');
           writeAndRetainNode('b');
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           disposeA();
           expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
           // mark first operation
@@ -2575,6 +2589,8 @@ function cloneEventWithSets(event: LogEvent) {
           const {dispose: disposeA} = writeAndRetainNode('a');
           writeAndRetainNode('b');
           expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           disposeA();
           // mark first operation
           runNextScheduledJob();
@@ -2596,6 +2612,8 @@ function cloneEventWithSets(event: LogEvent) {
           const {dispose: disposeA} = writeAndRetainNode('a');
           writeAndRetainNode('b');
           expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           disposeA();
           // mark first operation
           runNextScheduledJob();
@@ -2616,6 +2634,8 @@ function cloneEventWithSets(event: LogEvent) {
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           const {dispose: disposeA} = writeAndRetainNode('a');
           writeAndRetainNode('b');
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           disposeA();
           expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
           // mark first operation
@@ -2688,6 +2708,8 @@ function cloneEventWithSets(event: LogEvent) {
           const {dispose} = store.retain(
             createOperationDescriptor(UserQuery, {id: '4', size: 32}),
           );
+          /* $FlowFixMe[incompatible-type] Error exposed after fixing this
+           * typing unsoundness in flow */
           dispose();
           expect(data).toEqual(initialData);
           jest.runAllTimers();

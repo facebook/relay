@@ -476,23 +476,31 @@ function createMockEnvironment(
 
   // $FlowExpectedError[cannot-write]
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+  /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+   * unsoundness in flow */
   environment.execute = createExecuteProxy(environment, environment.execute);
   // $FlowExpectedError[cannot-write]
   environment.executeSubscription = createExecuteProxy(
     environment,
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+     * unsoundness in flow */
     environment.executeSubscription,
   );
   // $FlowExpectedError[cannot-write]
   environment.executeWithSource = createExecuteProxy(
     environment,
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+     * unsoundness in flow */
     environment.executeWithSource,
   );
   // $FlowExpectedError[cannot-write]
   environment.executeMutation = createExecuteProxy(
     environment,
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+     * unsoundness in flow */
     environment.executeMutation,
   );
 

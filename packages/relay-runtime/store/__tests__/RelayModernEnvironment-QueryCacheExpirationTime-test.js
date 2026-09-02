@@ -97,6 +97,8 @@ describe('query cache expiration time', () => {
       });
 
       fetchTime += QUERY_CACHE_EXPIRATION_TIME - 1;
+      /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+       * unsoundness in flow */
       dispose();
       jest.runAllTimers();
       const snapshot2 = environment.lookup(
@@ -142,6 +144,8 @@ describe('query cache expiration time', () => {
         },
       });
       fetchTime += QUERY_CACHE_EXPIRATION_TIME;
+      /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+       * unsoundness in flow */
       dispose();
       jest.runAllTimers();
       const snapshot2 = environment.lookup(
@@ -174,6 +178,8 @@ describe('query cache expiration time', () => {
         fetchTime: originalFetchTime,
       });
 
+      /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
+       * unsoundness in flow */
       dispose();
       fetchTime += QUERY_CACHE_EXPIRATION_TIME - 1;
       expect(environment.check(operationDescriptor)).toEqual({

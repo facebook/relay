@@ -1,10 +1,7 @@
-# BUG: a screen goes permanently blank after you leave it mid-refresh
+# A screen must not go blank after you leave it mid-refresh
 
-**This fixture records current, broken behaviour.** The snapshot below is the
-bug, not the goal. It exists so that the fix can be reviewed as a diff of the
-snapshot.
-
-The bug as a user would report it: *"If I open the profile, go back while it's
+Regression test for the zombie `QueryResource` cache entry. The bug, as a user
+would have reported it: *"If I open the profile, go back while it's
 refreshing, and open it again later, the name is just blank. No spinner, no
 error. It stays blank until I reload the page."*
 
@@ -35,8 +32,8 @@ the background" policy. Every step is an ordinary user action:
    `undefined`. There is no fetch to wait for, no error to catch, and no
    suspense to fall back to, so the screen renders blank and stays blank.
 
-Once a disposed entry stays disposed, step 6 will cache-miss, refetch, and
-render `Alice #3`. Until then the snapshot reads `(blank forever)`.
+A disposed entry now stays disposed, so step 6 cache-misses, refetches, and
+renders `Alice #3`.
 
 ## Relay Config
 
@@ -169,9 +166,8 @@ export default function TestApp() {
 
 ## Steps
 
-The last visit is the assertion, and it currently asserts the bug. When the
-zombie is fixed this becomes `wait "name = Alice #3"` and the snapshot changes
-with it.
+The last visit is the assertion. `Alice #3` means the profile refetched;
+`(blank forever)` would mean it reused a zombie and read reclaimed records.
 
 ```steps
 wait "sidebar = Alice #1"
@@ -181,5 +177,5 @@ click button "Back"
 click button "Deliver refresh"
 click button "Close sidebar"
 click button "Open profile"
-wait "(blank forever)"
+wait "name = Alice #3"
 ```

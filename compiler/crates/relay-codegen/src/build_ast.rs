@@ -16,7 +16,6 @@ use ::intern::string_key::StringKey;
 use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
-use common::ObjectName;
 use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use graphql_ir::Argument;
@@ -83,7 +82,6 @@ use relay_transforms::relay_resolvers::get_resolver_info;
 use relay_transforms::relay_resolvers::resolver_import_alias;
 use relay_transforms::remove_directive;
 use schema::Field;
-use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -1556,6 +1554,38 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
     }
 
+    /// Where a resolver's function is imported from, and the name the generated
+    /// artifact binds it to — i.e. both halves of the emitted
+    /// `require('<path>').<name>`.
+    ///
+    /// `path` comes from the metadata's own `import_path`. The binding name comes
+    /// from `generate_local_resolver_name`, which builds it from the field's
+    /// parent type and field name. Both are read off the `RelayResolverMetadata`
+    /// passed in, so two artifacts given the same metadata always emit the same
+    /// import and the same binding.
+    fn resolver_js_module_dependency(
+        &self,
+        relay_resolver_metadata: &RelayResolverMetadata,
+    ) -> JSModuleDependency {
+        let import_path = self.project_config.js_module_import_identifier(
+            &self
+                .project_config
+                .artifact_path_for_definition(self.definition_source_location),
+            &PathBuf::from(relay_resolver_metadata.import_path.lookup()),
+        );
+        let variable_name = relay_resolver_metadata.generate_local_resolver_name(self.schema);
+        JSModuleDependency {
+            path: import_path,
+            import_name: match relay_resolver_metadata.import_name {
+                Some(name) => ModuleImportName::Named {
+                    name,
+                    import_as: Some(variable_name),
+                },
+                None => ModuleImportName::Default(variable_name),
+            },
+        }
+    }
+
     fn build_client_edge_model_resolvers(
         &mut self,
         model_resolvers: &[ClientEdgeModelResolver],
@@ -1563,47 +1593,31 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     ) -> Vec<ObjectEntry> {
         model_resolvers
             .iter()
-            .map(|model_resolver| {
-                let type_name = model_resolver.type_name.item.0;
-                ObjectEntry {
-                    key: type_name,
-                    value: match self.variant {
-                        CodegenVariant::Reader => self.build_reader_client_edge_model_resolver(
-                            &model_resolver.model_field_id,
-                            &model_resolver.type_name,
-                            &model_resolver.resolver_info,
+            .map(|model_resolver| ObjectEntry {
+                key: model_resolver.type_name.item.0,
+                value: match self.variant {
+                    CodegenVariant::Reader => self.build_reader_client_edge_model_resolver(
+                        model_resolver,
+                        relay_resolver_metadata,
+                    ),
+                    CodegenVariant::Normalization => self
+                        .build_normalization_client_edge_model_resolver(
+                            model_resolver,
                             relay_resolver_metadata,
                         ),
-                        CodegenVariant::Normalization => self
-                            .build_normalization_client_edge_model_resolver(
-                                model_resolver.type_name,
-                                relay_resolver_metadata,
-                            ),
-                    },
-                }
+                },
             })
             .collect()
     }
 
     fn build_normalization_client_edge_model_resolver(
         &mut self,
-        type_name: WithLocation<ObjectName>,
-        relay_resolver_metadata: &RelayResolverMetadata,
+        model_resolver: &ClientEdgeModelResolver,
+        backing_resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
-        let import_path = self.project_config.js_module_import_identifier(
-            &self
-                .project_config
-                .artifact_path_for_definition(self.definition_source_location),
-            &PathBuf::from(type_name.location.source_location().path()),
-        );
-        let variable_name = relay_resolver_metadata.generate_local_resolver_name(self.schema);
-        let resolver_module = JSModuleDependency {
-            path: import_path,
-            import_name: ModuleImportName::Named {
-                name: type_name.item.0,
-                import_as: Some(variable_name),
-            },
-        };
+        let model_resolver_metadata =
+            client_edge_model_resolver_metadata(model_resolver, backing_resolver_metadata);
+        let resolver_module = self.resolver_js_module_dependency(&model_resolver_metadata);
 
         let object_props = object! {
             resolver_module: Primitive::JSModuleDependency(resolver_module),
@@ -1614,36 +1628,15 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     fn build_reader_client_edge_model_resolver(
         &mut self,
-        model_field_id: &FieldID,
-        type_name: &WithLocation<ObjectName>,
-        resolver_info: &ResolverInfo,
+        model_resolver: &ClientEdgeModelResolver,
         backing_resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
-        let fragment_name = resolver_info.fragment_name.unwrap();
-
-        let path = format!(
-            "{}.{}",
-            backing_resolver_metadata.field_path, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD
-        )
-        .intern();
-
-        let model_resolver_metadata = RelayResolverMetadata {
-            field_id: *model_field_id,
-            import_path: resolver_info.import_path,
-            import_name: Some(type_name.item.0),
-            field_alias: None,
-            field_path: path,
-            field_arguments: vec![], // The model resolver field does not take GraphQL arguments.
-            fragment_arguments: vec![],
-            live: resolver_info.live,
-            output_type_info: ResolverOutputTypeInfo::ScalarField,
-            fragment_data_injection_mode: resolver_info
-                .fragment_data_injection_mode
-                .map(|mode| (WithLocation::new(type_name.location, fragment_name), mode)),
-            type_confirmed: resolver_info.type_confirmed,
-            resolver_type: resolver_info.resolver_type,
-            return_fragment: None,
-        };
+        let model_resolver_metadata =
+            client_edge_model_resolver_metadata(model_resolver, backing_resolver_metadata);
+        let fragment_name = model_resolver
+            .resolver_info
+            .fragment_name
+            .expect(MODEL_RESOLVER_FRAGMENT_EXPECTATION);
         let fragment_primitive = Primitive::Key(self.object(object! {
             args: Primitive::SkippableNull,
             kind: Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
@@ -1710,26 +1703,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             CODEGEN_CONSTANTS.relay_resolver
         };
 
-        let import_path = self.project_config.js_module_import_identifier(
-            &self
-                .project_config
-                .artifact_path_for_definition(self.definition_source_location),
-            &PathBuf::from(relay_resolver_metadata.import_path.lookup()),
-        );
-
         let args = self.build_reader_relay_resolver_args(relay_resolver_metadata);
 
-        let variable_name = relay_resolver_metadata.generate_local_resolver_name(self.schema);
-        let resolver_js_module = JSModuleDependency {
-            path: import_path,
-            import_name: match relay_resolver_metadata.import_name {
-                Some(name) => ModuleImportName::Named {
-                    name,
-                    import_as: Some(variable_name),
-                },
-                None => ModuleImportName::Default(variable_name),
-            },
-        };
+        let resolver_js_module = self.resolver_js_module_dependency(relay_resolver_metadata);
 
         let resolver_module = if let Some((fragment_name, injection_mode)) =
             relay_resolver_metadata.fragment_data_injection_mode
@@ -3020,6 +2996,58 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
 
         self.object(params_object)
+    }
+}
+
+const MODEL_RESOLVER_FRAGMENT_EXPECTATION: &str = "should have a generated fragment: a client edge model resolver is always backed by a `@__RelayResolverModel` type";
+
+/// Describe a client edge's MODEL resolver — the one that materializes the model
+/// the edge points at — as a resolver in its own right, separate from the
+/// BACKING FIELD resolver that returns the edge.
+///
+/// The reader and the normalization AST both derive their module reference from
+/// this one construction, so they cannot disagree about which module backs a
+/// given model.
+///
+/// The `field_id` here must be the model's, not the backing field's. The name the
+/// artifact binds the import to comes from `generate_local_resolver_name`, which
+/// is derived from the field's parent type and field name — so building this from
+/// the backing field would name the model's import after the backing field (say
+/// `best_friend`), which is the name that field's own resolver import already
+/// uses. One name, two different modules, and whichever is emitted second wins.
+fn client_edge_model_resolver_metadata(
+    model_resolver: &ClientEdgeModelResolver,
+    backing_resolver_metadata: &RelayResolverMetadata,
+) -> RelayResolverMetadata {
+    let ClientEdgeModelResolver {
+        model_field_id,
+        type_name,
+        resolver_info,
+    } = model_resolver;
+
+    RelayResolverMetadata {
+        field_id: *model_field_id,
+        import_path: resolver_info.import_path,
+        import_name: Some(type_name.item.0),
+        field_alias: None,
+        field_path: format!(
+            "{}.{}",
+            backing_resolver_metadata.field_path, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD
+        )
+        .intern(),
+        field_arguments: vec![], // The model resolver field does not take GraphQL arguments.
+        fragment_arguments: vec![],
+        live: resolver_info.live,
+        output_type_info: ResolverOutputTypeInfo::ScalarField,
+        fragment_data_injection_mode: resolver_info.fragment_data_injection_mode.map(|mode| {
+            let fragment_name = resolver_info
+                .fragment_name
+                .expect(MODEL_RESOLVER_FRAGMENT_EXPECTATION);
+            (WithLocation::new(type_name.location, fragment_name), mode)
+        }),
+        type_confirmed: resolver_info.type_confirmed,
+        resolver_type: resolver_info.resolver_type,
+        return_fragment: None,
     }
 }
 

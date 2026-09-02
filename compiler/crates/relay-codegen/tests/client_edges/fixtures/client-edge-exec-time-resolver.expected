@@ -46,7 +46,7 @@ extend type Query {
           "kind": "ClientEdgeToClientObject",
           "modelResolvers": {
             "Cat": {
-              "resolverModule": require('<generated>').Cat
+              "resolverModule": require('CatNameResolver').Cat
             }
           },
           "backingField": {

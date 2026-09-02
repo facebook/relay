@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<73f00fb4c75500a5d10d1dc77746e871>>
+ * @generated SignedSource<<e0d2dc3a4af2ae3b65990cfaea6b1511>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -87,6 +87,11 @@ v2 = {
   "storageKey": null
 },
 v3 = {
+  "RelayReaderExecResolversTestUser": {
+    "resolverModule": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
+  }
+},
+v4 = {
   "name": "name",
   "args": null,
   "kind": "RelayResolver",
@@ -95,11 +100,6 @@ v3 = {
   "resolverInfo": {
     "resolverFunction": require('../RelayReader-ExecResolvers-test').name,
     "rootFragment": null
-  }
-},
-v4 = {
-  "RelayReaderExecResolversTestUser": {
-    "resolverModule": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
   }
 },
 v5 = {
@@ -288,11 +288,7 @@ return {
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
-        "modelResolvers": {
-          "RelayReaderExecResolversTestUser": {
-            "resolverModule": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
-          }
-        },
+        "modelResolvers": (v3/*:: as any*/),
         "backingField": {
           "name": "RelayReaderExecResolversTest_user_one",
           "args": null,
@@ -312,10 +308,10 @@ return {
           "name": "RelayReaderExecResolversTest_user_one",
           "plural": false,
           "selections": [
-            (v3/*:: as any*/),
+            (v4/*:: as any*/),
             {
               "kind": "ClientEdgeToClientObject",
-              "modelResolvers": (v4/*:: as any*/),
+              "modelResolvers": (v3/*:: as any*/),
               "backingField": (v5/*:: as any*/),
               "linkedField": {
                 "alias": null,
@@ -325,10 +321,10 @@ return {
                 "name": "best_friend",
                 "plural": false,
                 "selections": [
-                  (v3/*:: as any*/),
+                  (v4/*:: as any*/),
                   {
                     "kind": "ClientEdgeToClientObject",
-                    "modelResolvers": (v4/*:: as any*/),
+                    "modelResolvers": (v3/*:: as any*/),
                     "backingField": (v5/*:: as any*/),
                     "linkedField": {
                       "alias": null,
@@ -338,7 +334,7 @@ return {
                       "name": "best_friend",
                       "plural": false,
                       "selections": [
-                        (v3/*:: as any*/),
+                        (v4/*:: as any*/),
                         (v6/*:: as any*/)
                       ],
                       "storageKey": null

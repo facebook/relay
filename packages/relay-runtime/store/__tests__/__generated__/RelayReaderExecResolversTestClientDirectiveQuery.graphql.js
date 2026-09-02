@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<442bd22709f080958559d43bf491e7de>>
+ * @generated SignedSource<<dc6b5346e90d5d89fea1ee06dd0d9027>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -87,13 +87,18 @@ v1 = {
   "name": "RelayReaderExecResolversTestUser____relay_model_instance"
 },
 v2 = {
+  "RelayReaderExecResolversTestUser": {
+    "resolverModule": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
+  }
+},
+v3 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v3 = {
+v4 = {
   "kind": "InlineFragment",
   "selections": [
     {
@@ -109,7 +114,7 @@ v3 = {
       "fragment": {
         "kind": "InlineFragment",
         "selections": [
-          (v2/*:: as any*/)
+          (v3/*:: as any*/)
         ],
         "type": "RelayReaderExecResolversTestUser",
         "abstractKey": null
@@ -119,7 +124,7 @@ v3 = {
   "type": "RelayReaderExecResolversTestUser",
   "abstractKey": null
 },
-v4 = {
+v5 = {
   "name": "name",
   "args": null,
   "kind": "RelayResolver",
@@ -129,11 +134,11 @@ v4 = {
     "resolverFunction": require('../RelayReader-ExecResolvers-test').name,
     "rootFragment": null
   },
-  "fragment": (v3/*:: as any*/)
+  "fragment": (v4/*:: as any*/)
 },
-v5 = [
-  (v4/*:: as any*/),
-  (v2/*:: as any*/)
+v6 = [
+  (v5/*:: as any*/),
+  (v3/*:: as any*/)
 ];
 return {
   "fragment": {
@@ -295,11 +300,7 @@ return {
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
-        "modelResolvers": {
-          "RelayReaderExecResolversTestUser": {
-            "resolverModule": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
-          }
-        },
+        "modelResolvers": (v2/*:: as any*/),
         "backingField": {
           "name": "RelayReaderExecResolversTest_user_one",
           "args": null,
@@ -320,14 +321,10 @@ return {
           "name": "RelayReaderExecResolversTest_user_one",
           "plural": false,
           "selections": [
-            (v4/*:: as any*/),
+            (v5/*:: as any*/),
             {
               "kind": "ClientEdgeToClientObject",
-              "modelResolvers": {
-                "RelayReaderExecResolversTestUser": {
-                  "resolverModule": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
-                }
-              },
+              "modelResolvers": (v2/*:: as any*/),
               "backingField": {
                 "name": "best_friend",
                 "args": null,
@@ -338,7 +335,7 @@ return {
                   "resolverFunction": require('../RelayReader-ExecResolvers-test').best_friend,
                   "rootFragment": null
                 },
-                "fragment": (v3/*:: as any*/)
+                "fragment": (v4/*:: as any*/)
               },
               "linkedField": {
                 "alias": null,
@@ -347,17 +344,13 @@ return {
                 "kind": "LinkedField",
                 "name": "best_friend",
                 "plural": false,
-                "selections": (v5/*:: as any*/),
+                "selections": (v6/*:: as any*/),
                 "storageKey": null
               }
             },
             {
               "kind": "ClientEdgeToClientObject",
-              "modelResolvers": {
-                "RelayReaderExecResolversTestUser": {
-                  "resolverModule": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
-                }
-              },
+              "modelResolvers": (v2/*:: as any*/),
               "backingField": {
                 "name": "friends",
                 "args": null,
@@ -368,7 +361,7 @@ return {
                   "resolverFunction": require('../RelayReader-ExecResolvers-test').friends,
                   "rootFragment": null
                 },
-                "fragment": (v3/*:: as any*/)
+                "fragment": (v4/*:: as any*/)
               },
               "linkedField": {
                 "alias": null,
@@ -377,11 +370,11 @@ return {
                 "kind": "LinkedField",
                 "name": "friends",
                 "plural": true,
-                "selections": (v5/*:: as any*/),
+                "selections": (v6/*:: as any*/),
                 "storageKey": null
               }
             },
-            (v2/*:: as any*/)
+            (v3/*:: as any*/)
           ],
           "storageKey": null
         }

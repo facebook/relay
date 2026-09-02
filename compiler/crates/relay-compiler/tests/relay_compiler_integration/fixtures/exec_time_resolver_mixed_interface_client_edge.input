@@ -1,0 +1,75 @@
+// Test: under @exec_time_resolvers a client edge to an interface implemented by
+// both a server type (`ServerVehicle`) and a client model (`ClientVehicle`)
+// compiles. The edge keeps the sparse `modelResolvers` map read time already
+// uses (client arms only) and one shared `linkedField`, and no per-implementor
+// `ClientEdgeQuery` is generated -- exec time has no refetch path, so a server
+// arm is reachable only when its record is already available.
+//- MixedVehicle.js
+graphql`query MixedVehicleQuery @exec_time_resolvers {
+  vehicle {
+    common_name
+    ... on ServerVehicle {
+      server_name
+    }
+    ... on ClientVehicle {
+      client_name
+    }
+  }
+}`
+
+//- VehicleResolver.js
+/**
+ * @relayField Query.vehicle: IVehicle
+ */
+export function vehicle() {}
+
+//- ClientVehicleResolvers.js
+/**
+ * @relayType ClientVehicle implements IVehicle
+ */
+export function ClientVehicle() {}
+
+/**
+ * @relayField ClientVehicle.common_name: String
+ */
+export function common_name() {}
+
+/**
+ * @relayField ClientVehicle.client_name: String
+ */
+export function client_name() {}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": {"kind": "enabled"}
+  }
+}
+
+//- schema.graphql
+type Query {
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type ServerVehicle implements Node {
+  id: ID!
+  common_name: String
+  server_name: String
+}
+
+//- schema-extensions/extension.graphql
+interface IVehicle {
+  id: ID!
+  common_name: String
+}
+
+extend type ServerVehicle implements IVehicle

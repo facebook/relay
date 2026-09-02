@@ -1,0 +1,44 @@
+==================================== INPUT ====================================
+#expected-to-throw
+# relay-resolver-enable-interface-output-type
+
+# Test: `@waterfall` is rejected on a client edge to a MIXED abstract type under
+# exec-time resolvers, because the executor has no refetch path to opt into.
+#
+# `IMixedThing` is mixed: implemented by the client model `BestFriend` and by
+# the server type `Bicycle`.
+
+query TestQuery @exec_time_resolvers {
+  best_friend @waterfall {
+    id
+  }
+}
+
+fragment BestFriendResolverFragment_name on Query {
+  __typename
+}
+
+# %extensions%
+
+interface IMixedThing implements Node {
+  id: ID!
+}
+
+type BestFriend implements IMixedThing @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "BestFriendResolver" fragment_name: "BestFriend__id", generated_fragment: true, inject_fragment_data: "id", import_name: "BestFriend")
+}
+
+extend type Bicycle implements IMixedThing
+
+extend type Query {
+  best_friend: IMixedThing @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+==================================== ERROR ====================================
+✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
+
+  client-edge-to-mixed-interface-waterfall-with-exec-time-resolvers.invalid.graphql:11:15
+   10 │ query TestQuery @exec_time_resolvers {
+   11 │   best_friend @waterfall {
+      │               ^^^^^^^^^^
+   12 │     id

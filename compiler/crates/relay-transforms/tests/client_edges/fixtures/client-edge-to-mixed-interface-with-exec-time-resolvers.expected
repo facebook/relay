@@ -1,0 +1,117 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+# Test: under exec-time resolvers a client edge to a MIXED abstract type keeps
+# its client-arm `model_resolvers` but records no `server_object_operations`,
+# because the exec-time executor has no refetch path. Outside exec-time
+# resolvers the same field requires `@waterfall`.
+#
+# `IMixedThing` is mixed because it is implemented by a client model
+# (`BestFriend`, a `@__RelayResolverModel`) AND a server type (`Bicycle`, from
+# the test schema, pulled in below with `extend type ... implements`). The
+# interface itself is declared in the client schema extension; that is what the
+# older `ClientOnlyInterface` naming referred to, and it says nothing about the
+# implementors. The query selects through both arms so both appear in the
+# output.
+
+query TestQuery @exec_time_resolvers {
+  best_friend {
+    id
+    ... on Bicycle {
+      wheels
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on Query {
+  __typename
+}
+
+# %extensions%
+
+interface IMixedThing implements Node {
+  id: ID!
+}
+
+type BestFriend implements IMixedThing @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "BestFriendResolver" fragment_name: "BestFriend__id", generated_fragment: true, inject_fragment_data: "id", import_name: "BestFriend")
+}
+
+extend type Bicycle implements IMixedThing
+
+extend type Query {
+  best_friend: IMixedThing @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on Query {
+  __typename
+}
+
+query TestQuery @exec_time_resolvers {
+  ... @__ClientEdgeMetadataDirective
+  # ClientObject {
+  #     type_name: None,
+  #     unique_id: 0,
+  #     model_resolvers: [
+  #         ClientEdgeModelResolver {
+  #             model_field_id: FieldID(534),
+  #             type_name: WithLocation {
+  #                 location: <generated>:60:70,
+  #                 item: ObjectName(
+  #                     "BestFriend",
+  #                 ),
+  #             },
+  #             resolver_info: ResolverInfo {
+  #                 fragment_name: Some(
+  #                     FragmentDefinitionName(
+  #                         "BestFriend__id",
+  #                     ),
+  #                 ),
+  #                 fragment_data_injection_mode: Some(
+  #                     Field {
+  #                         name: "id",
+  #                         is_required: true,
+  #                     },
+  #                 ),
+  #                 import_path: "BestFriendResolver",
+  #                 import_name: Some(
+  #                     "BestFriend",
+  #                 ),
+  #                 live: false,
+  #                 has_output_type: false,
+  #                 type_confirmed: false,
+  #                 resolver_type: ResolverModule,
+  #                 return_fragment: None,
+  #                 may_waterfall: false,
+  #             },
+  #         },
+  #     ],
+  #     server_object_operations: [],
+  # }
+   {
+    ...BestFriendResolverFragment_name @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(535),
+    #     import_path: "BestFriendResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "best_friend",
+    #     field_arguments: [],
+    #     fragment_arguments: [],
+    #     live: false,
+    #     output_type_info: EdgeTo,
+    #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
+    #     return_fragment: None,
+    # }
+    
+    best_friend {
+      id
+      ... on Bicycle {
+        wheels
+      }
+    }
+  }
+}

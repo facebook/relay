@@ -1,0 +1,44 @@
+# relay-resolver-enable-interface-output-type
+
+# Test: under exec-time resolvers a client edge to a MIXED abstract type keeps
+# its client-arm `model_resolvers` but records no `server_object_operations`,
+# because the exec-time executor has no refetch path. Outside exec-time
+# resolvers the same field requires `@waterfall`.
+#
+# `IMixedThing` is mixed because it is implemented by a client model
+# (`BestFriend`, a `@__RelayResolverModel`) AND a server type (`Bicycle`, from
+# the test schema, pulled in below with `extend type ... implements`). The
+# interface itself is declared in the client schema extension; that is what the
+# older `ClientOnlyInterface` naming referred to, and it says nothing about the
+# implementors. The query selects through both arms so both appear in the
+# output.
+
+query TestQuery @exec_time_resolvers {
+  best_friend {
+    id
+    ... on Bicycle {
+      wheels
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on Query {
+  __typename
+}
+
+# %extensions%
+
+interface IMixedThing implements Node {
+  id: ID!
+}
+
+type BestFriend implements IMixedThing @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "BestFriendResolver" fragment_name: "BestFriend__id", generated_fragment: true, inject_fragment_data: "id", import_name: "BestFriend")
+}
+
+extend type Bicycle implements IMixedThing
+
+extend type Query {
+  best_friend: IMixedThing @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}

@@ -1,3 +1,10 @@
+// Test: `enabledProvider` makes exec-vs-read time a RUNTIME decision, so this
+// document can still run at read time and its client edge to the mixed interface
+// `IVehicle` keeps the per-implementor `ClientEdgeQuery`. `@waterfall` is
+// required, not rejected: read time performs the refetch, and suppressing the
+// operation at compile time would leave read time unable to resolve the server
+// arm. Contrast the bare-directive
+// `exec_time_resolver_mixed_interface_client_edge_waterfall.invalid`.
 //- PersonComponent.js
 graphql`query PersonComponentQuery @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
   vehicle @waterfall {

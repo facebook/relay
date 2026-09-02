@@ -1,0 +1,176 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+# Test: `enabledProvider` makes exec-vs-read time a RUNTIME decision, so a mixed
+# abstract client edge keeps its `server_object_operations`. When the provider
+# returns false the document runs at READ time, which performs the client-edge
+# refetch — suppressing the operation at compile time would leave read time with
+# no way to resolve the server arm. `@waterfall` is therefore required here, as
+# it is for any read-time-capable mixed edge.
+#
+# Contrast `client-edge-to-mixed-interface-with-exec-time-resolvers`, which is
+# unconditionally exec time and does suppress the operations.
+
+query TestQuery @exec_time_resolvers(enabledProvider: "provideExecTime") {
+  best_friend @waterfall {
+    id
+    ... on Bicycle {
+      wheels
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on Query {
+  __typename
+}
+
+# %extensions%
+
+interface IMixedThing implements Node {
+  id: ID!
+}
+
+type BestFriend implements IMixedThing @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "BestFriendResolver" fragment_name: "BestFriend__id", generated_fragment: true, inject_fragment_data: "id", import_name: "BestFriend")
+}
+
+extend type Bicycle implements IMixedThing
+
+extend type Query {
+  best_friend: IMixedThing @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on Query {
+  __typename
+}
+
+fragment RefetchableClientEdgeQuery_TestQuery_best_friend on Bicycle @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-to-mixed-interface-exec-time-enabled-provider.graphql:645:654,
+#         item: OperationDefinitionName(
+#             OperationDefinitionName(
+#                 "TestQuery",
+#             ),
+#         ),
+#     },
+# }
+ @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: OperationDefinitionName(
+#         "ClientEdgeQuery_TestQuery_best_friend",
+#     ),
+#     path: [
+#         "node",
+#     ],
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
+#     ),
+#     is_prefetchable_pagination: false,
+# }
+ {
+  id
+  ... on Bicycle {
+    wheels
+  }
+}
+
+query ClientEdgeQuery_TestQuery_best_friend(
+  $id: ID!
+) @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-to-mixed-interface-exec-time-enabled-provider.graphql:645:654,
+#         item: OperationDefinitionName(
+#             OperationDefinitionName(
+#                 "TestQuery",
+#             ),
+#         ),
+#     },
+# }
+ @exec_time_resolvers {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_TestQuery_best_friend
+  }
+}
+
+query TestQuery @exec_time_resolvers(enabledProvider: "provideExecTime") {
+  ... @__ClientEdgeMetadataDirective
+  # ClientObject {
+  #     type_name: None,
+  #     unique_id: 0,
+  #     model_resolvers: [
+  #         ClientEdgeModelResolver {
+  #             model_field_id: FieldID(534),
+  #             type_name: WithLocation {
+  #                 location: <generated>:60:70,
+  #                 item: ObjectName(
+  #                     "BestFriend",
+  #                 ),
+  #             },
+  #             resolver_info: ResolverInfo {
+  #                 fragment_name: Some(
+  #                     FragmentDefinitionName(
+  #                         "BestFriend__id",
+  #                     ),
+  #                 ),
+  #                 fragment_data_injection_mode: Some(
+  #                     Field {
+  #                         name: "id",
+  #                         is_required: true,
+  #                     },
+  #                 ),
+  #                 import_path: "BestFriendResolver",
+  #                 import_name: Some(
+  #                     "BestFriend",
+  #                 ),
+  #                 live: false,
+  #                 has_output_type: false,
+  #                 type_confirmed: false,
+  #                 resolver_type: ResolverModule,
+  #                 return_fragment: None,
+  #                 may_waterfall: false,
+  #             },
+  #         },
+  #     ],
+  #     server_object_operations: [
+  #         ClientEdgeServerObjectOperation {
+  #             type_name: ObjectName(
+  #                 "Bicycle",
+  #             ),
+  #             query_name: OperationDefinitionName(
+  #                 "ClientEdgeQuery_TestQuery_best_friend",
+  #             ),
+  #         },
+  #     ],
+  # }
+   {
+    ...BestFriendResolverFragment_name @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(535),
+    #     import_path: "BestFriendResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "best_friend",
+    #     field_arguments: [],
+    #     fragment_arguments: [],
+    #     live: false,
+    #     output_type_info: EdgeTo,
+    #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
+    #     return_fragment: None,
+    # }
+     @waterfall
+    best_friend @waterfall {
+      id
+      ... on Bicycle {
+        wheels
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c748a7fea2feb96a989be06227fdcfff>>
+ * @generated SignedSource<<f35ace47ac14f921839b5944e7b81967>>
  */
 
 mod relay_compiler_integration;
@@ -209,10 +209,24 @@ async fn exec_time_resolver_footer_typescript() {
 }
 
 #[tokio::test]
-async fn exec_time_resolver_mixed_interface_client_edge_invalid() {
-    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.expected");
-    test_fixture(transform_fixture, file!(), "exec_time_resolver_mixed_interface_client_edge.invalid.input", "relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.invalid.expected", input, expected).await;
+async fn exec_time_resolver_mixed_interface_client_edge() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_mixed_interface_client_edge.input", "relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_resolver_mixed_interface_client_edge_enabled_provider() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge_enabled_provider.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge_enabled_provider.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_mixed_interface_client_edge_enabled_provider.input", "relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge_enabled_provider.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_resolver_mixed_interface_client_edge_waterfall_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge_waterfall.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge_waterfall.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_mixed_interface_client_edge_waterfall.invalid.input", "relay_compiler_integration/fixtures/exec_time_resolver_mixed_interface_client_edge_waterfall.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -220,6 +234,13 @@ async fn exec_time_resolver_query_root_no_flag() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_query_root_no_flag.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_query_root_no_flag.expected");
     test_fixture(transform_fixture, file!(), "exec_time_resolver_query_root_no_flag.input", "relay_compiler_integration/fixtures/exec_time_resolver_query_root_no_flag.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_resolver_query_root_shadow_routes() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_query_root_shadow_routes.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_query_root_shadow_routes.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_query_root_shadow_routes.input", "relay_compiler_integration/fixtures/exec_time_resolver_query_root_shadow_routes.expected", input, expected).await;
 }
 
 #[tokio::test]

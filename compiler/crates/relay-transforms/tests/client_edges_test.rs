@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<19c8f39f2a974df038adfc3e38aabdda>>
+ * @generated SignedSource<<bcdc8183abbb891d584a164dbb21b08e>>
  */
 
 mod client_edges;
@@ -104,10 +104,38 @@ async fn client_edge_to_mixed_interface() {
 }
 
 #[tokio::test]
-async fn client_edge_to_mixed_interface_with_exec_time_resolvers_invalid() {
-    let input = include_str!("client_edges/fixtures/client-edge-to-mixed-interface-with-exec-time-resolvers.invalid.graphql");
-    let expected = include_str!("client_edges/fixtures/client-edge-to-mixed-interface-with-exec-time-resolvers.invalid.expected");
-    test_fixture(transform_fixture, file!(), "client-edge-to-mixed-interface-with-exec-time-resolvers.invalid.graphql", "client_edges/fixtures/client-edge-to-mixed-interface-with-exec-time-resolvers.invalid.expected", input, expected).await;
+async fn client_edge_to_mixed_interface_exec_time_enabled_provider() {
+    let input = include_str!("client_edges/fixtures/client-edge-to-mixed-interface-exec-time-enabled-provider.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-to-mixed-interface-exec-time-enabled-provider.expected");
+    test_fixture(transform_fixture, file!(), "client-edge-to-mixed-interface-exec-time-enabled-provider.graphql", "client_edges/fixtures/client-edge-to-mixed-interface-exec-time-enabled-provider.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_to_mixed_interface_exec_time_use_experimental_provider() {
+    let input = include_str!("client_edges/fixtures/client-edge-to-mixed-interface-exec-time-use-experimental-provider.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-to-mixed-interface-exec-time-use-experimental-provider.expected");
+    test_fixture(transform_fixture, file!(), "client-edge-to-mixed-interface-exec-time-use-experimental-provider.graphql", "client_edges/fixtures/client-edge-to-mixed-interface-exec-time-use-experimental-provider.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_to_mixed_interface_waterfall_with_exec_time_resolvers_invalid() {
+    let input = include_str!("client_edges/fixtures/client-edge-to-mixed-interface-waterfall-with-exec-time-resolvers.invalid.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-to-mixed-interface-waterfall-with-exec-time-resolvers.invalid.expected");
+    test_fixture(transform_fixture, file!(), "client-edge-to-mixed-interface-waterfall-with-exec-time-resolvers.invalid.graphql", "client_edges/fixtures/client-edge-to-mixed-interface-waterfall-with-exec-time-resolvers.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_to_mixed_interface_with_exec_time_resolvers() {
+    let input = include_str!("client_edges/fixtures/client-edge-to-mixed-interface-with-exec-time-resolvers.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-to-mixed-interface-with-exec-time-resolvers.expected");
+    test_fixture(transform_fixture, file!(), "client-edge-to-mixed-interface-with-exec-time-resolvers.graphql", "client_edges/fixtures/client-edge-to-mixed-interface-with-exec-time-resolvers.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_to_server_only_interface_with_exec_time_resolvers() {
+    let input = include_str!("client_edges/fixtures/client-edge-to-server-only-interface-with-exec-time-resolvers.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-to-server-only-interface-with-exec-time-resolvers.expected");
+    test_fixture(transform_fixture, file!(), "client-edge-to-server-only-interface-with-exec-time-resolvers.graphql", "client_edges/fixtures/client-edge-to-server-only-interface-with-exec-time-resolvers.expected", input, expected).await;
 }
 
 #[tokio::test]

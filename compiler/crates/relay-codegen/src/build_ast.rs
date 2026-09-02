@@ -978,16 +978,27 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         resolver_metadata: &RelayResolverMetadata,
         inline_fragment: Option<Primitive>,
     ) -> Primitive {
-        // Detect S2C resolvers: client extension field on a non-Query server
-        // type with a rootFragment. Query-rooted resolvers don't traverse a
-        // server-to-client boundary, so they don't need network normalization.
-        // Only relevant for exec-time resolver queries.
+        // Detect S2C resolvers: a client extension field on a server type whose
+        // `@rootFragment` reads server data, and so cannot run until the response
+        // has been normalized. Only relevant for exec-time resolver queries.
         if !context.has_server_to_client_resolvers && context.has_exec_time_resolvers_directive {
             let field = resolver_metadata.field(self.schema);
             if let Some(parent_type) = field.parent_type
                 && !self.schema.is_extension_type(parent_type)
-                && Some(parent_type) != self.schema.query_type()
                 && get_resolver_fragment_dependency_name(field).is_some()
+                && (Some(parent_type) != self.schema.query_type()
+                    // A Query-rooted resolver normally reads only client state,
+                    // hence the exclusion above. A magic fragment is the
+                    // exception: `@returnFragment` transplants server selections
+                    // into this operation and its root fragment then reads them,
+                    // so it crosses the same boundary and needs the same path.
+                    //
+                    // Magic fragments are a proper subset of shadow resolvers,
+                    // and this carve-out covers only that subset. A Query-rooted
+                    // resolver whose root fragment reads server data without
+                    // declaring `@returnFragment` crosses the same boundary and
+                    // is still excluded here.
+                    || resolver_metadata.return_fragment.is_some())
             {
                 context.has_server_to_client_resolvers = true;
             }

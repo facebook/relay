@@ -1,0 +1,66 @@
+// Test: a Query-rooted SHADOW resolver under @exec_time_resolvers sets
+// `has_server_to_client_resolvers`, which routes the operation through
+// `executeWithNetwork` so the resolver runs after normalization.
+//
+// A Query-rooted resolver is normally excluded from that flag, because it reads
+// only client state. A shadow resolver is the exception: `@returnFragment`
+// transplants server selections into this operation (see the `page` selection in
+// the emitted operation) and the root fragment then reads them, so it cannot run
+// before the response is normalized.
+//
+// The negative control lives in `exec_time_resolver_query_root_no_flag`: a
+// Query-rooted resolver with no `@returnFragment` must still omit the flag.
+//- QueryShadowPage.js
+/**
+ * @relayField Query.shadow_page: IPage
+ * @rootFragment QueryShadowPageResolverFragment
+ * @returnFragment QueryShadowPageReturnFragment
+ */
+graphql`fragment QueryShadowPageResolverFragment on Query {
+  page {
+    ...QueryShadowPageReturnFragment
+  }
+}`
+
+//- Consumer.js
+graphql`query ConsumerQuery @exec_time_resolvers {
+  shadow_page {
+    title
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": {"kind": "enabled"},
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": {"kind": "enabled"}
+  }
+}
+
+//- schema.graphql
+type Query {
+  page: Page
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type Page implements Node {
+  id: ID!
+  title: String
+}
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

@@ -1,0 +1,41 @@
+# relay-resolver-enable-interface-output-type
+
+# Test: `enabledProvider` makes exec-vs-read time a RUNTIME decision, so a mixed
+# abstract client edge keeps its `server_object_operations`. When the provider
+# returns false the document runs at READ time, which performs the client-edge
+# refetch — suppressing the operation at compile time would leave read time with
+# no way to resolve the server arm. `@waterfall` is therefore required here, as
+# it is for any read-time-capable mixed edge.
+#
+# Contrast `client-edge-to-mixed-interface-with-exec-time-resolvers`, which is
+# unconditionally exec time and does suppress the operations.
+
+query TestQuery @exec_time_resolvers(enabledProvider: "provideExecTime") {
+  best_friend @waterfall {
+    id
+    ... on Bicycle {
+      wheels
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on Query {
+  __typename
+}
+
+# %extensions%
+
+interface IMixedThing implements Node {
+  id: ID!
+}
+
+type BestFriend implements IMixedThing @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "BestFriendResolver" fragment_name: "BestFriend__id", generated_fragment: true, inject_fragment_data: "id", import_name: "BestFriend")
+}
+
+extend type Bicycle implements IMixedThing
+
+extend type Query {
+  best_friend: IMixedThing @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}

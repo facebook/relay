@@ -1,0 +1,36 @@
+# relay-resolver-enable-interface-output-type
+
+# Test: suppression is NOT narrowed to the mixed shape. `IServerOnlyThing` is
+# abstract with no client-model implementor, and its `server_object_operations`
+# are suppressed under exec time just as a mixed edge's are, because exec time
+# has no refetch path for any arm. `@waterfall` is consequently rejected here,
+# exactly as in `client-edge-to-mixed-interface-waterfall-with-exec-time-resolvers.invalid`.
+#
+# The shape is reachable: a magic fragment whose return interface has a single
+# server implementor compiles this way and gets its data from the transplanted
+# consumer selections in the main operation, not from a refetch.
+
+query TestQuery @exec_time_resolvers {
+  best_friend {
+    id
+    ... on Bicycle {
+      wheels
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on Query {
+  __typename
+}
+
+# %extensions%
+
+interface IServerOnlyThing implements Node {
+  id: ID!
+}
+
+extend type Bicycle implements IServerOnlyThing
+
+extend type Query {
+  best_friend: IServerOnlyThing @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}

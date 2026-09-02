@@ -78,6 +78,23 @@ pub static CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: LazyLock<DirectiveName> =
     LazyLock::new(|| DirectiveName("waterfall".intern()));
 pub static EXEC_TIME_RESOLVERS_DIRECTIVE_NAME: LazyLock<DirectiveName> =
     LazyLock::new(|| DirectiveName("exec_time_resolvers".intern()));
+/// Argument on `@exec_time_resolvers` naming a provider that decides exec-vs-read
+/// time at RUNTIME. Its presence alone matters here; the value is not known at
+/// compile time.
+///
+/// This is the exec-vs-read gate. `useExperimentalProvider` is a different
+/// argument that only selects which exec-time executor runs, so a document
+/// carrying it is still unconditionally exec time. Codegen draws the same line:
+/// `use_exec_time_resolvers` requires this argument to be ABSENT, while
+/// `use_exec_and_read_time_resolvers` requires it present.
+///
+/// MUST match `relay_codegen::EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT`, which is the
+/// same string. The two cannot be shared: `relay-codegen` depends on
+/// `relay-transforms`, not the reverse, so this crate cannot import theirs — and
+/// theirs has its own consumer in `relay-compiler`, so it cannot be replaced by
+/// this one without moving the definition and updating both.
+pub static EXEC_TIME_RESOLVERS_ENABLED_PROVIDER_ARG: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("enabledProvider".intern()));
 
 /// Directive added to inline fragments created by the transform. The inline
 /// fragment groups together the client edge's backing field as well as a linked
@@ -106,12 +123,9 @@ associated_data_impl!(ClientEdgeMetadataDirective);
 ///
 /// A regular client edge to an abstract type needs a `ClientEdgeQuery` per
 /// server-type implementor (recorded as a `ClientEdgeServerObjectOperation`) so
-/// the runtime can refetch the server record. A magic fragment always
-/// transplants the consumer's selections onto the shadowed server field in the
-/// main operation, so the common case (the returned pointer targets the
-/// shadowed record) needs no refetch. It still generates a `ClientEdgeQuery`
-/// when `@waterfall` opts in to the cross-object backstop -- the transplant and
-/// the refetch are complementary, and the runtime picks between them per read.
+/// the runtime can refetch the server record. Two callers suppress that: a magic
+/// fragment, whose transplant already fetched the shadowed record in the main
+/// operation, and an exec-time resolver, whose executor has no refetch path.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum ServerObjectOperationMode {
     /// Regular client edge, or a `@waterfall` magic fragment: generate a
@@ -120,12 +134,16 @@ enum ServerObjectOperationMode {
     /// refetch backstop that fires only when the returned pointer is missing
     /// from the store; the transplant still serves the common case.
     GenerateWaterfallOperations,
-    /// Magic fragment without `@waterfall`: collect model resolvers for
-    /// client-extension members as usual, but generate no `ClientEdgeQuery` and
-    /// record no `ClientEdgeServerObjectOperation` (so `server_object_operations`
-    /// stays empty). The server members are fetched solely by the transplant in
-    /// the main operation; a cross-object pointer has no refetch backstop.
-    SuppressForMagicFragmentTransplant,
+    /// Collect model resolvers for client-extension members as usual, but
+    /// generate no `ClientEdgeQuery` and record no
+    /// `ClientEdgeServerObjectOperation`, so `server_object_operations` stays
+    /// empty. Two callers, two reasons:
+    /// - magic fragment without `@waterfall`: the transplant in the main
+    ///   operation serves the shadowed record, and a cross-object pointer has
+    ///   no refetch backstop;
+    /// - exec-time resolvers: the executor cannot run a client-edge refetch, so
+    ///   a server arm is reachable only when its record is already available.
+    SuppressWaterfallOperations,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -214,17 +232,19 @@ pub fn client_edges(
     //      un-fanned IR has no per-concrete arm for the fan-out to mint them from.
     is_typegen: bool,
 ) -> DiagnosticsResult<Program> {
-    let fragments_in_exec_time_operations = if validate_exec_time_resolvers {
-        collect_fragments_in_exec_time_operations(program)
-    } else {
-        Default::default()
-    };
+    let (fragments_in_exec_time_operations, fragments_in_unconditional_exec_time_operations) =
+        if validate_exec_time_resolvers {
+            collect_fragments_in_exec_time_operations(program)
+        } else {
+            Default::default()
+        };
 
     let mut transform = ClientEdgesTransform::new(
         program,
         project_config,
         base_fragment_names,
         fragments_in_exec_time_operations,
+        fragments_in_unconditional_exec_time_operations,
         is_typegen,
     );
     let mut next_program = transform
@@ -244,24 +264,65 @@ pub fn client_edges(
     }
 }
 
-fn collect_fragments_in_exec_time_operations(program: &Program) -> FragmentDefinitionNameSet {
-    let mut collector = FragmentCollector {
+/// True when `@exec_time_resolvers` is present with no `enabledProvider`, i.e.
+/// this document can ONLY ever run at exec time.
+fn is_unconditional_exec_time(directives: &[Directive]) -> bool {
+    directives
+        .named(*EXEC_TIME_RESOLVERS_DIRECTIVE_NAME)
+        .is_some_and(|directive| {
+            directive
+                .arguments
+                .named(*EXEC_TIME_RESOLVERS_ENABLED_PROVIDER_ARG)
+                .is_none()
+        })
+}
+
+/// Two sets: every fragment reached from an `@exec_time_resolvers` operation,
+/// and the subset reached ONLY from operations that can never run at read time.
+///
+/// The second set drives suppression of codegen that read time needs, so it is
+/// computed by subtraction: a fragment keeps its operations if ANY operation
+/// reaching it is read-time-capable. That includes ordinary operations with no
+/// exec-time directive at all, not just `enabledProvider`-gated ones — a
+/// fragment shared between a plain query and an exec-time query is reachable at
+/// read time through the former.
+fn collect_fragments_in_exec_time_operations(
+    program: &Program,
+) -> (FragmentDefinitionNameSet, FragmentDefinitionNameSet) {
+    let mut all_exec_time = FragmentCollector {
+        program,
+        fragments: Default::default(),
+    };
+    let mut unconditional_exec_time = FragmentCollector {
+        program,
+        fragments: Default::default(),
+    };
+    let mut read_time_capable = FragmentCollector {
         program,
         fragments: Default::default(),
     };
 
     for operation in program.operations() {
-        let has_exec_time_resolvers = operation
+        let has_directive = operation
             .directives
             .named(*EXEC_TIME_RESOLVERS_DIRECTIVE_NAME)
             .is_some();
-
-        if has_exec_time_resolvers {
-            collector.collect_fragments_in_selections(&operation.selections);
+        if has_directive {
+            all_exec_time.collect_fragments_in_selections(&operation.selections);
+        }
+        if is_unconditional_exec_time(&operation.directives) {
+            unconditional_exec_time.collect_fragments_in_selections(&operation.selections);
+        } else {
+            read_time_capable.collect_fragments_in_selections(&operation.selections);
         }
     }
 
-    collector.fragments
+    let unconditional_only = unconditional_exec_time
+        .fragments
+        .difference(&read_time_capable.fragments)
+        .cloned()
+        .collect();
+    (all_exec_time.fragments, unconditional_only)
 }
 
 struct FragmentCollector<'p> {
@@ -313,7 +374,12 @@ struct ClientEdgesTransform<'program, 'pc> {
     next_key: u32,
     base_fragment_names: &'program FragmentDefinitionNameSet,
     has_exec_time_resolvers: bool,
+    /// Exec time is not merely requested but GUARANTEED: `@exec_time_resolvers`
+    /// with no `enabledProvider`. Only this justifies dropping codegen a
+    /// read-time execution would need.
+    is_unconditional_exec_time: bool,
     fragments_in_exec_time_operations: FragmentDefinitionNameSet,
+    fragments_in_unconditional_exec_time_operations: FragmentDefinitionNameSet,
     /// The typegen pipeline runs on the un-fanned IR; see `client_edges`. Drives
     /// `@waterfall` diagnostic suppression and per-implementor query self-projection.
     is_typegen: bool,
@@ -325,6 +391,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         project_config: &'pc ProjectConfig,
         base_fragment_names: &'program FragmentDefinitionNameSet,
         fragments_in_exec_time_operations: FragmentDefinitionNameSet,
+        fragments_in_unconditional_exec_time_operations: FragmentDefinitionNameSet,
         is_typegen: bool,
     ) -> Self {
         Self {
@@ -339,8 +406,10 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             project_config,
             base_fragment_names,
             has_exec_time_resolvers: false,
+            is_unconditional_exec_time: false,
             is_typegen,
             fragments_in_exec_time_operations,
+            fragments_in_unconditional_exec_time_operations,
         }
     }
 
@@ -516,6 +585,25 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         resolver_directive: Option<&DirectiveValue>,
         new_selections: &[Selection],
     ) -> Option<ClientEdgeMetadataDirective> {
+        // Exec time has no client-edge refetch path, so a per-implementor
+        // `ClientEdgeQuery` would advertise a waterfall the executor cannot run.
+        // A server arm is reachable only when its record is already available;
+        // a returned id the parent operation never fetched needs `@mayWaterfall`
+        // support that does not exist yet.
+        //
+        // Only UNCONDITIONAL exec time may suppress them. Under
+        // `@exec_time_resolvers(enabledProvider: ...)` the same document still runs
+        // at read time when the provider is false, and read time does perform the
+        // refetch — dropping the operation at compile time would leave it with no
+        // way to resolve the edge. Suppression is additionally narrowed to genuinely
+        // mixed edges where the operations are consumed; see `has_server_type`.
+        // (Narrowing to the mixed shape is intentionally NOT done there.)
+        let server_object_operation_mode = if self.is_unconditional_exec_time {
+            ServerObjectOperationMode::SuppressWaterfallOperations
+        } else {
+            ServerObjectOperationMode::GenerateWaterfallOperations
+        };
+
         let result = match edge_to_type {
             Type::Interface(interface_id) => {
                 let interface = self.program.schema.interface(interface_id);
@@ -546,7 +634,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     interface.name.item.0,
                     field,
                     new_selections,
-                    ServerObjectOperationMode::GenerateWaterfallOperations,
+                    server_object_operation_mode,
                 )
             }
             Type::Union(union) => {
@@ -556,7 +644,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     union.name.item.0,
                     field,
                     new_selections,
-                    ServerObjectOperationMode::GenerateWaterfallOperations,
+                    server_object_operation_mode,
                 )
             }
             Type::Object(object_id) => {
@@ -583,7 +671,9 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         }) = &result
         {
             if server_object_operations.is_empty() {
-                // No server type implementors: @waterfall is unexpected.
+                // Nothing to refetch — either there are no server type
+                // implementors, or the mode above suppressed their operations.
+                // Either way @waterfall has nothing to opt into.
                 if let Some(directive) = waterfall_directive {
                     self.push_unexpected_waterfall(directive.location);
                 }
@@ -592,16 +682,6 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 if waterfall_directive.is_none() {
                     let field_name = self.program.schema.field(field.definition.item).name.item;
                     self.push_missing_waterfall(field_name, field.definition.location);
-                }
-
-                // Mixed interfaces are not supported in exec-time resolvers
-                // because server-type implementors need a waterfall refetch
-                // that exec-time resolvers cannot perform.
-                if self.has_exec_time_resolvers {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::ClientEdgeToMixedInterfaceWithExecTimeResolvers,
-                        field.definition.location,
-                    ));
                 }
             }
         }
@@ -663,7 +743,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
     /// regular client-edge path.
     ///
     /// `is_waterfall` selects how server members are served:
-    /// - `false` (default, no `@waterfall`): `SuppressForMagicFragmentTransplant` — no
+    /// - `false` (default, no `@waterfall`): `SuppressWaterfallOperations` — no
     ///   `ClientEdgeQuery` is generated and `server_object_operations` stays empty;
     ///   the consumer's selections for a server member are transplanted onto the
     ///   shadowed server field in the main operation by
@@ -706,7 +786,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         let server_object_operation_mode = if is_waterfall {
             ServerObjectOperationMode::GenerateWaterfallOperations
         } else {
-            ServerObjectOperationMode::SuppressForMagicFragmentTransplant
+            ServerObjectOperationMode::SuppressWaterfallOperations
         };
         self.get_client_object_for_abstract_type(
             members.iter(),
@@ -767,10 +847,8 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             if is_server_type {
                 // Strong (Node) server implementor. Collected unconditionally, but
                 // only consumed under `GenerateWaterfallOperations`. In
-                // `SuppressForMagicFragmentTransplant` mode these ids are
-                // gathered-but-unused: the server member's selections are
-                // transplanted onto the shadowed field in the main operation, so no
-                // per-server refetch query is generated.
+                // `SuppressWaterfallOperations` mode these ids are
+                // gathered-but-unused: no per-server refetch query is generated.
                 server_type_object_ids.push(*object_id);
             } else {
                 // Client model type: try to get a model resolver.
@@ -810,11 +888,16 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
 
         model_resolvers.sort();
 
-        // A magic fragment fetches its server members via the transplant in the
-        // main operation, so it generates no `ClientEdgeQuery` and records no
-        // `ClientEdgeServerObjectOperation`. Model resolvers for client-extension
-        // members are still collected above; only the server-refetch operations
-        // are suppressed.
+        // Model resolvers for client-extension members are collected above in
+        // every mode; only the server-refetch operations are suppressed.
+        //
+        // Suppression is deliberately NOT narrowed to the mixed shape. An abstract
+        // edge whose implementors are all server types is suppressed too: exec time
+        // has no refetch path for any of them, and a magic fragment supplies such an
+        // arm's data by transplanting the consumer's selections onto the shadowed
+        // server field in the main operation, so no refetch is wanted. Any future
+        // fetch is gated on explicit `@mayWaterfall` plus `@waterfall`; until then an
+        // unavailable reference is a field error and null link, never a silent fetch.
         let has_server_type = !server_type_object_ids.is_empty()
             && server_object_operation_mode
                 == ServerObjectOperationMode::GenerateWaterfallOperations;
@@ -1482,10 +1565,19 @@ impl Transformer<'_> for ClientEdgesTransform<'_, '_> {
         self.has_exec_time_resolvers =
             previous_exec_time_resolvers || fragment_in_exec_time_operation;
 
+        // A fragment reachable from any read-time-capable operation is absent from
+        // the unconditional set, so it keeps its refetch operations.
+        let previous_unconditional = self.is_unconditional_exec_time;
+        self.is_unconditional_exec_time = previous_unconditional
+            || self
+                .fragments_in_unconditional_exec_time_operations
+                .contains(&fragment.name.item);
+
         let new_fragment = self.default_transform_fragment(fragment);
 
         // Restore the previous state
         self.has_exec_time_resolvers = previous_exec_time_resolvers;
+        self.is_unconditional_exec_time = previous_unconditional;
         self.document_name = None;
         new_fragment
     }
@@ -1501,11 +1593,13 @@ impl Transformer<'_> for ClientEdgesTransform<'_, '_> {
             .directives
             .named(*EXEC_TIME_RESOLVERS_DIRECTIVE_NAME)
             .is_some();
+        self.is_unconditional_exec_time = is_unconditional_exec_time(&operation.directives);
 
         let new_operation = self.default_transform_operation(operation);
 
-        // Reset the flag after processing the operation
+        // Reset the flags after processing the operation
         self.has_exec_time_resolvers = false;
+        self.is_unconditional_exec_time = false;
         self.document_name = None;
         new_operation
     }

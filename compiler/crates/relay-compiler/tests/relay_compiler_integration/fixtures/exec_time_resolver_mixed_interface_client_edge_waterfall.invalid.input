@@ -1,6 +1,14 @@
-==================================== INPUT ====================================
+// Test: `@waterfall` is rejected on a client edge to a mixed interface under
+// UNCONDITIONAL @exec_time_resolvers, because the executor has no refetch path
+// to opt into. `IVehicle` is mixed: the server type `Bicycle` and the client
+// model `Car`.
+//
+// The directive must stay bare. With `enabledProvider` the document is also
+// read-time-capable, `@waterfall` becomes required rather than rejected, and the
+// refetch operation is generated -- see
+// `exec_time_resolver_mixed_interface_client_edge_enabled_provider`.
 //- PersonComponent.js
-graphql`query PersonComponentQuery @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
+graphql`query PersonComponentQuery @exec_time_resolvers {
   vehicle @waterfall {
     id
   }
@@ -58,11 +66,3 @@ interface IVehicle {
 }
 
 extend type Bicycle implements IVehicle
-==================================== OUTPUT ===================================
-✖︎ Client edges to interfaces or unions with server type implementors are not supported in exec time resolvers, because the server type data requires a waterfall refetch that exec time resolvers cannot perform.
-
-  PersonComponent.js:2:3
-    1 │ query PersonComponentQuery @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
-    2 │   vehicle @waterfall {
-      │   ^^^^^^^
-    3 │     id

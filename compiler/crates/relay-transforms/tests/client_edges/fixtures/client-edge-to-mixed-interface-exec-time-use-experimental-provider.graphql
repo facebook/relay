@@ -1,0 +1,36 @@
+# relay-resolver-enable-interface-output-type
+
+# Test: `useExperimentalProvider` selects WHICH exec-time executor runs; it is not
+# the exec-vs-read gate (`enabledProvider` is). A document carrying only it is
+# still unconditionally exec time, so `server_object_operations` stay suppressed
+# and no `@waterfall` is required — matching the bare-directive fixture.
+
+query TestQuery @exec_time_resolvers(useExperimentalProvider: "provideExperimental") {
+  best_friend {
+    id
+    ... on Bicycle {
+      wheels
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on Query {
+  __typename
+}
+
+# %extensions%
+
+interface IMixedThing implements Node {
+  id: ID!
+}
+
+type BestFriend implements IMixedThing @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "BestFriendResolver" fragment_name: "BestFriend__id", generated_fragment: true, inject_fragment_data: "id", import_name: "BestFriend")
+}
+
+extend type Bicycle implements IMixedThing
+
+extend type Query {
+  best_friend: IMixedThing @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}

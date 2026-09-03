@@ -224,7 +224,7 @@ describe('toWarn()', () => {
 
   it('throws if `warning` it not previously mocked', () => {
     jest.unmock('warning');
-    expect(toWarn).toThrowError("toWarn(): Requires `jest.mock('warning')`.");
+    expect(toWarn).toThrow("toWarn(): Requires `jest.mock('warning')`.");
   });
 
   it('allows errors thrown during its callback to bubble up', () => {
@@ -232,7 +232,7 @@ describe('toWarn()', () => {
       toWarn(() => {
         throw new Error('BOOM!');
       });
-    }).toThrowError('BOOM!');
+    }).toThrow('BOOM!');
   });
 
   describe('when not supplied an argument', () => {

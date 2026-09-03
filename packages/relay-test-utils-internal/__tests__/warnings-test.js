@@ -30,12 +30,12 @@ describe('warnings', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
   it('throws when disallow warnings is called twice', () => {
-    expect(disallowWarnings).toThrowError(
+    expect(disallowWarnings).toThrow(
       'disallowWarnings should be called only once',
     );
   });
   it('throws when unexpected warning is fired', () => {
-    expect(() => warning(false, unexpected_message)).toThrowError(
+    expect(() => warning(false, unexpected_message)).toThrow(
       'Warning: ' + unexpected_message,
     );
   });
@@ -55,7 +55,7 @@ describe('warnings', () => {
   });
 
   it('warns on unfired contextual warning', () => {
-    expect(() => expectToWarn(expected_message1, () => {})).toThrowError(
+    expect(() => expectToWarn(expected_message1, () => {})).toThrow(
       'Expected warning in callback: ' + expected_message1,
     );
   });
@@ -65,7 +65,7 @@ describe('warnings', () => {
       expectToWarn(expected_message1, () => {
         warning(false, expected_message2);
       }),
-    ).toThrowError('Warning: ' + expected_message2);
+    ).toThrow('Warning: ' + expected_message2);
   });
 
   it('matches multiple contextual warnings first', () => {
@@ -84,7 +84,7 @@ describe('warnings', () => {
         warning(false, expected_message1);
         warning(false, expected_message2);
       });
-    }).toThrowError('Warning: ' + expected_message1);
+    }).toThrow('Warning: ' + expected_message1);
   });
 
   it('warnings for unfired warning, given multiple contextual warnings', () => {
@@ -96,6 +96,6 @@ describe('warnings', () => {
           warning(false, expected_message2);
         },
       );
-    }).toThrowError('Expected warning in callback: ' + expected_message3);
+    }).toThrow('Expected warning in callback: ' + expected_message3);
   });
 });

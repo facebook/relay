@@ -22,7 +22,7 @@ type Props = {
   environment: $FlowFixMe,
   query: $FlowFixMe,
   variables: Variables,
-  children: ExactReactElement_DEPRECATED<$FlowFixMe>,
+  children: React.MixedElement,
   ...
 };
 
@@ -68,7 +68,7 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
             this.props.environment || this.props.children.props.environment,
         }}>
         {React.cloneElement(
-          this.props.children,
+          this.props.children as $FlowFixMe,
           newProps,
           // $FlowFixMe[prop-missing] : error found when enabling flow for this file.
           this.props.children.children,

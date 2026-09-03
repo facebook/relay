@@ -25,6 +25,7 @@ const {
   Observable,
   RecordSource,
   Store,
+  commitLocalUpdate,
   createOperationDescriptor,
   getRequest,
   graphql,
@@ -69,7 +70,7 @@ const PlainQuery = graphql`
 `;
 
 describe('useQueryFromServer with a @connection', () => {
-  it('BUG: suspends rather than rendering the payload it was handed', async () => {
+  it('renders the connection from the server payload', async () => {
     // Preload on a *server* environment, exactly as an RSC render does. Only
     // the returned ref crosses to the client — the store this populated, handle
     // records and all, does not.
@@ -101,7 +102,7 @@ describe('useQueryFromServer with a @connection', () => {
     });
 
     const environment = new Environment({
-      // Never emits, so a fetch leaves the tree suspended forever.
+      // Never emits, so a fetch would leave the tree suspended forever.
       // $FlowFixMe[invalid-tuple-arity]
       network: Network.create(() =>
         Observable.create<GraphQLResponse>(() => {}),
@@ -126,12 +127,10 @@ describe('useQueryFromServer with a @connection', () => {
     // Let `use(queryRef._response)` settle and the tree re-render.
     await TestRenderer.act(async () => {});
 
-    // Should be 'node-1'. The connection record is missing, so the read comes
-    // up short and Relay suspends on a fetch that will never resolve.
-    expect(renderer.toJSON()).toEqual('Loading');
+    expect(renderer.toJSON()).toEqual('node-1');
   });
 
-  it('BUG: refetches data the server already sent', async () => {
+  it('issues no network request, the response having already been supplied', async () => {
     const serverEnvironment = new Environment({
       network: Network.create(() =>
         Observable.from({
@@ -159,8 +158,8 @@ describe('useQueryFromServer with a @connection', () => {
       id: '<feedbackid>',
     });
 
-    // A fetch here is already the bug: whatever the hook did with the server's
-    // response, it did not leave the store able to answer the query.
+    // A fetch here would mean the hook did not leave the store able to answer
+    // the query it was handed.
     const fetch = jest.fn(() => Observable.create<GraphQLResponse>(() => {}));
     const environment = new Environment({
       // $FlowFixMe[invalid-tuple-arity]
@@ -184,14 +183,12 @@ describe('useQueryFromServer with a @connection', () => {
     );
     await TestRenderer.act(async () => {});
 
-    // Should be 0. The whole point of preloading on the server is not to make
-    // this request.
-    expect(fetch).toBeCalledTimes(1);
+    expect(fetch).toBeCalledTimes(0);
   });
 });
 
 describe('useQueryFromServer publishing into a live store', () => {
-  it('BUG: drops the payload when an optimistic update is reverted', async () => {
+  it('keeps the payload when an optimistic update is reverted', async () => {
     const serverEnvironment = new Environment({
       // $FlowFixMe[invalid-tuple-arity]
       network: Network.create(() =>
@@ -234,8 +231,6 @@ describe('useQueryFromServer publishing into a live store', () => {
     );
     await TestRenderer.act(async () => {});
 
-    // Reads fine for now — the hook is reading through the same optimistic
-    // layer it just wrote into.
     expect(renderer.toJSON()).toEqual('Zuck');
 
     // The mutation settles and its optimistic layer is thrown away.
@@ -243,13 +238,60 @@ describe('useQueryFromServer publishing into a live store', () => {
       optimistic.dispose();
     });
 
-    // Should be 'available'. `Store.publish` targets
-    // `_optimisticSource ?? _recordSource`, so publishing outside the queue
-    // while an optimistic update is applied writes into that layer, and
-    // `restore()` takes the server's payload out with it. Permanently: the hook
-    // has already marked this ref committed and will not publish it again.
+    // Publishing through the queue put this in the base store, underneath the
+    // optimistic layer rather than inside it, so the revert leaves it behind.
     const operation = createOperationDescriptor(getRequest(PlainQuery), {});
-    expect(environment.check(operation).status).toEqual('missing');
+    expect(environment.check(operation).status).toEqual('available');
+  });
+
+  it('satisfies its own render even when the store has been invalidated', async () => {
+    const serverEnvironment = new Environment({
+      // $FlowFixMe[invalid-tuple-arity]
+      network: Network.create(() =>
+        Observable.from({
+          data: {me: {__typename: 'User', id: '4', name: 'Zuck'}},
+        }),
+      ),
+      store: new Store(new RecordSource()),
+      isServer: true,
+    });
+    const queryRef = serverPreloadQuery(serverEnvironment, PlainQuery, {});
+
+    let fetchCount = 0;
+    const environment = new Environment({
+      // $FlowFixMe[invalid-tuple-arity]
+      network: Network.create(() => {
+        fetchCount++;
+        // Never emits, so a fetch would leave the tree suspended forever.
+        return Observable.create<GraphQLResponse>(() => {});
+      }),
+      store: new Store(new RecordSource()),
+    });
+
+    // Any app that has ever reached for the invalidateStore sledgehammer.
+    commitLocalUpdate(environment, store => store.invalidateStore());
+
+    function Name(): React.Node {
+      const data = useQueryFromServer(PlainQuery, queryRef);
+      return data.me?.name ?? 'no name';
+    }
+
+    const renderer = TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading">
+          <Name />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+    await TestRenderer.act(async () => {});
+
+    // `usePreloadedQuery` checks the store later in the same render, before any
+    // notify. An operation the store has no record of reads as stale once the
+    // store has been invalidated, so recording it at publish rather than at the
+    // notify is what keeps this from suspending on a fetch for data it just
+    // published.
+    expect(renderer.toJSON()).toEqual('Zuck');
+    expect(fetchCount).toBe(0);
   });
 
   it('BUG: a mounted subscriber never sees the data the hook published', async () => {

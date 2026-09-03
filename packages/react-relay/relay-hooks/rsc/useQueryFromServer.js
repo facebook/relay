@@ -20,16 +20,14 @@ import type {Query, Variables} from 'relay-runtime';
 
 const usePreloadedQuery = require('../usePreloadedQuery');
 const useRelayEnvironment = require('../useRelayEnvironment');
+const invariant = require('invariant');
 // $FlowFixMe[missing-export] React.use is available in React 19+
 const {use, useMemo} = require('react');
 const {
-  __internal,
-  ROOT_TYPE,
+  Environment: RelayModernEnvironment,
   createOperationDescriptor,
   getRequest,
 } = require('relay-runtime');
-
-const {defaultGetDataID, normalizeResponse} = __internal;
 
 // $FlowFixMe[unclear-type] WeakSet used for identity-based dedup only
 const committedRefs: WeakSet<any> = new WeakSet();
@@ -44,11 +42,6 @@ hook useQueryFromServer<TVariables extends Variables, TData>(
   const environment = useRelayEnvironment();
   const request = getRequest(query);
   const threshold = options?.staleThresholdMs ?? DEFAULT_STALE_MS;
-  // TODO: Add a method to IEnvironment for server-side publish so custom
-  // IEnvironment implementations don't need to access _getDataID.
-  // $FlowFixMe[prop-missing] _getDataID is not on IEnvironment
-  // $FlowFixMe[unclear-type]
-  const getDataID: any = environment._getDataID ?? defaultGetDataID;
 
   const response: PreloadedQueryResponse<TData> = use(queryRef._response);
 
@@ -61,6 +54,16 @@ hook useQueryFromServer<TVariables extends Variables, TData>(
   // This avoids the React "Cannot update a component while rendering a
   // different component" error that occurs when store.notify() triggers
   // setState in other mounted components that subscribe to overlapping records.
+
+  // `publishWithDeferredNotify` is on RelayModernEnvironment rather than
+  // IEnvironment while the API is experimental.
+  invariant(
+    environment instanceof RelayModernEnvironment,
+    'useQueryFromServer: expected a RelayModernEnvironment, got `%s`. ' +
+      'useQueryFromServer is currently only compatible with RelayModernStore.',
+    environment.constructor?.name ?? typeof environment,
+  );
+
   if (shouldCommit) {
     committedRefs.add(queryRef);
 
@@ -71,23 +74,8 @@ hook useQueryFromServer<TVariables extends Variables, TData>(
       data: response.data,
       errors: response.errors,
     };
-    const relayPayload = normalizeResponse(
-      responsePayload,
-      operation.root,
-      ROOT_TYPE,
-      {
-        getDataID,
-        treatMissingFieldsAsNull: false,
-        deferDeduplicatedFields: false,
-        // $FlowFixMe[prop-missing]
-        log: environment.__log ?? null,
-        path: [],
-        shouldProcessClientComponents: false,
-      },
-      false,
-    );
-
-    environment.getStore().publish(relayPayload.source);
+    // The notify is not flushed here; it lands on the next `run()`.
+    environment.publishWithDeferredNotify(operation, responsePayload);
   }
 
   // Build a PreloadedQuery shim. Fresh data was committed to the store

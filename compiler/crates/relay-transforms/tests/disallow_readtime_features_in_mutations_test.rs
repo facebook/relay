@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ce28c55dce46aeeb001d3f3402c4050e>>
+ * @generated SignedSource<<b316821e973cbe31597fc8685e09e72d>>
  */
 
 mod disallow_readtime_features_in_mutations;
@@ -52,6 +52,13 @@ async fn mutation_with_scalar_resolver_invalid() {
     let input = include_str!("disallow_readtime_features_in_mutations/fixtures/mutation_with_scalar_resolver.invalid.graphql");
     let expected = include_str!("disallow_readtime_features_in_mutations/fixtures/mutation_with_scalar_resolver.invalid.expected");
     test_fixture(transform_fixture, file!(), "mutation_with_scalar_resolver.invalid.graphql", "disallow_readtime_features_in_mutations/fixtures/mutation_with_scalar_resolver.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn mutation_with_throw_on_field_error_invalid() {
+    let input = include_str!("disallow_readtime_features_in_mutations/fixtures/mutation_with_throw_on_field_error.invalid.graphql");
+    let expected = include_str!("disallow_readtime_features_in_mutations/fixtures/mutation_with_throw_on_field_error.invalid.expected");
+    test_fixture(transform_fixture, file!(), "mutation_with_throw_on_field_error.invalid.graphql", "disallow_readtime_features_in_mutations/fixtures/mutation_with_throw_on_field_error.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -33,7 +33,7 @@ typegen configuration to be enabled.
 
 [Read More](https://relay.dev/docs/api-reference/graphql-and-directives/)
 """
-directive @throwOnFieldError on QUERY | FRAGMENT_DEFINITION
+directive @throwOnFieldError on QUERY | MUTATION | FRAGMENT_DEFINITION
 
 """
 (Relay only)

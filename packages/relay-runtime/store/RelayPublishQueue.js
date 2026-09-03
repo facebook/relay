@@ -92,6 +92,9 @@ class RelayPublishQueue implements PublishQueue {
   // True if the next `run()` should apply the backup and rerun all optimistic
   // updates performing a rebase.
   _pendingBackupRebase: boolean;
+  // A global invalidation raised by `_commitData()`, owed to the next
+  // `notify()`.
+  _pendingInvalidatedStore: boolean;
   // Payloads to apply or Sources to publish to the store with the next `run()`.
   // $FlowFixMe[unclear-type] See explanation below.
   _pendingData: Set<PendingCommit<any>>;
@@ -120,6 +123,7 @@ class RelayPublishQueue implements PublishQueue {
     this._hasStoreSnapshot = false;
     this._handlerProvider = handlerProvider || null;
     this._pendingBackupRebase = false;
+    this._pendingInvalidatedStore = false;
     this._pendingData = new Set();
     this._pendingOptimisticUpdates = new Set();
     this._store = store;
@@ -236,7 +240,9 @@ class RelayPublishQueue implements PublishQueue {
       return [];
     }
 
-    const invalidatedStore = this._runWithoutNotifying();
+    this._runWithoutNotifying();
+    const invalidatedStore = this._pendingInvalidatedStore;
+    this._pendingInvalidatedStore = false;
     this._isRunning = false;
     return this._store.notify(sourceOperation, invalidatedStore);
   }
@@ -246,16 +252,19 @@ class RelayPublishQueue implements PublishQueue {
    * the pending data, then re-snapshot and rebase the applied optimistic
    * updates on top of it. Reaches no subscriber — only `notify()` does that.
    *
-   * Returns whether one of the commits globally invalidated the store.
+   * A global invalidation raised by a commit is left on
+   * `_pendingInvalidatedStore` for the next `notify()`.
    */
-  _runWithoutNotifying(): boolean {
+  _runWithoutNotifying(): void {
     if (this._pendingBackupRebase) {
       if (this._hasStoreSnapshot) {
         this._store.restore();
         this._hasStoreSnapshot = false;
       }
     }
-    const invalidatedStore = this._commitData();
+    if (this._commitData()) {
+      this._pendingInvalidatedStore = true;
+    }
     if (
       this._pendingOptimisticUpdates.size ||
       (this._pendingBackupRebase && this._appliedOptimisticUpdates.size)
@@ -277,7 +286,6 @@ class RelayPublishQueue implements PublishQueue {
         this._gcHold = null;
       }
     }
-    return invalidatedStore;
   }
 
   _assertNotRunning(): void {

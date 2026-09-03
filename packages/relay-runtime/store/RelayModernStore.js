@@ -277,7 +277,7 @@ class RelayModernStore implements Store {
       this._batch = null;
       this.notify(undefined, batch.invalidateStore);
       for (const sourceOperation of batch.sourceOperations) {
-        this._recordSourceOperation(sourceOperation);
+        this._recordSourceOperation(sourceOperation, this._currentWriteEpoch);
       }
       if (log != null) {
         log({
@@ -403,19 +403,7 @@ class RelayModernStore implements Store {
           }
           this.scheduleGC();
         } else {
-          this._releaseBuffer.push(id);
-
-          // If the release buffer is now over-full, remove the least-recently
-          // added entry and schedule a GC. Note that all items in the release
-          // buffer have a refCount of 0.
-          if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
-            const _id = this._releaseBuffer.shift();
-            if (!this._shouldRetainWithinTTL_EXPERIMENTAL) {
-              // $FlowFixMe[incompatible-type]
-              this._roots.delete(_id);
-            }
-            this.scheduleGC();
-          }
+          this._pushToReleaseBuffer(id);
         }
       }
     };
@@ -568,7 +556,7 @@ class RelayModernStore implements Store {
     }
 
     if (sourceOperation != null) {
-      this._recordSourceOperation(sourceOperation);
+      this._recordSourceOperation(sourceOperation, this._currentWriteEpoch);
     }
 
     if (log != null) {
@@ -589,18 +577,21 @@ class RelayModernStore implements Store {
   }
 
   /**
-   * Record that a source operation was written at the current epoch.
+   * Record that a source operation was written at the given epoch.
    * We only track the epoch at which the operation was written if
    * it was previously retained, to keep the size of our operation
    * epoch map bounded. If a query wasn't retained, we assume it can
    * be deleted at any moment and thus is not relevant for us to track
    * for the purposes of invalidation.
    */
-  _recordSourceOperation(sourceOperation: OperationDescriptor): void {
+  _recordSourceOperation(
+    sourceOperation: OperationDescriptor,
+    epoch: number,
+  ): void {
     const id = sourceOperation.request.identifier;
     const rootEntry = this._roots.get(id);
     if (rootEntry != null) {
-      rootEntry.epoch = this._currentWriteEpoch;
+      rootEntry.epoch = epoch;
       rootEntry.fetchTime = Date.now();
     } else if (
       sourceOperation.request.node.params.operationKind === 'query' &&
@@ -612,13 +603,30 @@ class RelayModernStore implements Store {
       const temporaryRootEntry = {
         operation: sourceOperation,
         refCount: 0,
-        epoch: this._currentWriteEpoch,
+        epoch,
         fetchTime: Date.now(),
       };
-      this._releaseBuffer.push(id);
       /* $FlowFixMe[incompatible-type] Natural Inference rollout. See
        * https://fburl.com/gdoc/y8dn025u */
       this._roots.set(id, temporaryRootEntry);
+      this._pushToReleaseBuffer(id);
+    }
+  }
+
+  /**
+   * Add a released (refCount 0) root to the release buffer, evicting the
+   * least-recently-added entry and scheduling a GC if that puts the buffer
+   * over its bound. The eviction deletes from `_roots` too: the buffer is the
+   * only removal path for a refCount-0 root.
+   */
+  _pushToReleaseBuffer(id: DataID): void {
+    this._releaseBuffer.push(id);
+    if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
+      const evictedID = this._releaseBuffer.shift();
+      if (evictedID != null && !this._shouldRetainWithinTTL_EXPERIMENTAL) {
+        this._roots.delete(evictedID);
+      }
+      this.scheduleGC();
     }
   }
 

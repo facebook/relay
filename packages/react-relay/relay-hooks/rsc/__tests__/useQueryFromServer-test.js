@@ -185,6 +185,129 @@ describe('useQueryFromServer with a @connection', () => {
 
     expect(fetch).toBeCalledTimes(0);
   });
+
+  it('flushes the deferred notify once the render has committed', async () => {
+    const queryRef = serverPreloadQuery(
+      new Environment({
+        // $FlowFixMe[invalid-tuple-arity]
+        network: Network.create(() =>
+          Observable.from({
+            data: {
+              node: {
+                __typename: 'Feedback',
+                id: '<feedbackid>',
+                comments: {
+                  edges: [
+                    {
+                      cursor: 'cursor-1',
+                      node: {__typename: 'Comment', id: 'node-1'},
+                    },
+                  ],
+                  pageInfo: {hasNextPage: false, endCursor: 'cursor-1'},
+                },
+              },
+            },
+          }),
+        ),
+        store: new Store(new RecordSource()),
+        isServer: true,
+      }),
+      ConnectionQuery,
+      {id: '<feedbackid>'},
+    );
+
+    const environment = new Environment({
+      // $FlowFixMe[invalid-tuple-arity]
+      network: Network.create(() =>
+        Observable.create<GraphQLResponse>(() => {}),
+      ),
+      store: new Store(new RecordSource()),
+    });
+    const notify = jest.spyOn(environment.getStore(), 'notify');
+
+    function Comments(): React.Node {
+      const data = useQueryFromServer(ConnectionQuery, queryRef);
+      return (data.node?.comments?.edges ?? [])
+        .map(edge => edge?.node?.id)
+        .join(',');
+    }
+
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading">
+          <Comments />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+    await TestRenderer.act(async () => {});
+
+    // Nothing else drives this environment -- no fetch, no mutation -- so the
+    // notify can only be the hook's layout effect. Without it the count is 0.
+    expect(notify).toBeCalledTimes(1);
+  });
+
+  it('flushes when the attempt that published is not the attempt that commits', async () => {
+    const queryRef = serverPreloadQuery(
+      new Environment({
+        // $FlowFixMe[invalid-tuple-arity]
+        network: Network.create(() =>
+          Observable.from({
+            data: {
+              node: {
+                __typename: 'Feedback',
+                id: '<feedbackid>',
+                comments: {
+                  edges: [
+                    {
+                      cursor: 'cursor-1',
+                      node: {__typename: 'Comment', id: 'node-1'},
+                    },
+                  ],
+                  pageInfo: {hasNextPage: false, endCursor: 'cursor-1'},
+                },
+              },
+            },
+          }),
+        ),
+        store: new Store(new RecordSource()),
+        isServer: true,
+      }),
+      ConnectionQuery,
+      {id: '<feedbackid>'},
+    );
+
+    const environment = new Environment({
+      // $FlowFixMe[invalid-tuple-arity]
+      network: Network.create(() =>
+        Observable.create<GraphQLResponse>(() => {}),
+      ),
+      store: new Store(new RecordSource()),
+    });
+    const notify = jest.spyOn(environment.getStore(), 'notify');
+
+    function Comments(): React.Node {
+      const data = useQueryFromServer(ConnectionQuery, queryRef);
+      return (data.node?.comments?.edges ?? [])
+        .map(edge => edge?.node?.id)
+        .join(',');
+    }
+
+    // StrictMode renders twice and commits the second, which takes the
+    // already-published path and produces no continuation of its own. One
+    // carried from render to effect would be lost; one keyed on the ref is not.
+    TestRenderer.create(
+      <React.StrictMode>
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="Loading">
+            <Comments />
+          </React.Suspense>
+        </RelayEnvironmentProvider>
+      </React.StrictMode>,
+    );
+    await TestRenderer.act(async () => {});
+
+    expect(notify).toBeCalledTimes(1);
+  });
 });
 
 describe('useQueryFromServer publishing into a live store', () => {
@@ -294,7 +417,62 @@ describe('useQueryFromServer publishing into a live store', () => {
     expect(fetchCount).toBe(0);
   });
 
-  it('BUG: a mounted subscriber never sees the data the hook published', async () => {
+  it('publishes into each environment a ref is rendered under', async () => {
+    const serverEnvironment = new Environment({
+      // $FlowFixMe[invalid-tuple-arity]
+      network: Network.create(() =>
+        Observable.from({
+          data: {me: {__typename: 'User', id: '4', name: 'Zuck'}},
+        }),
+      ),
+      store: new Store(new RecordSource()),
+      isServer: true,
+    });
+    // One ref, rendered under two environments -- a second Relay root on the
+    // page, or a test reusing a ref across cases.
+    const queryRef = serverPreloadQuery(serverEnvironment, PlainQuery, {});
+
+    function makeEnvironment() {
+      return new Environment({
+        // $FlowFixMe[invalid-tuple-arity]
+        network: Network.create(() =>
+          Observable.create<GraphQLResponse>(() => {}),
+        ),
+        store: new Store(new RecordSource()),
+      });
+    }
+
+    function Name(): React.Node {
+      const data = useQueryFromServer(PlainQuery, queryRef);
+      return data.me?.name ?? 'no name';
+    }
+
+    async function renderUnder(environment: Environment) {
+      const renderer = TestRenderer.create(
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="Loading">
+            <Name />
+          </React.Suspense>
+        </RelayEnvironmentProvider>,
+      );
+      await TestRenderer.act(async () => {});
+      await TestRenderer.act(async () => renderer.unmount());
+    }
+
+    const first = makeEnvironment();
+    const second = makeEnvironment();
+    await renderUnder(first);
+    await renderUnder(second);
+
+    // Tracked globally, the second environment is told the ref was already
+    // published, never publishes, and is left with an empty store -- while the
+    // fetch policy reads store-or-network on the strength of the first.
+    const operation = createOperationDescriptor(getRequest(PlainQuery), {});
+    expect(first.check(operation).status).toEqual('available');
+    expect(second.check(operation).status).toEqual('available');
+  });
+
+  it('a mounted subscriber sees the data the hook published', async () => {
     const serverEnvironment = new Environment({
       // $FlowFixMe[invalid-tuple-arity]
       network: Network.create(() =>
@@ -346,10 +524,8 @@ describe('useQueryFromServer publishing into a live store', () => {
     );
     await TestRenderer.act(async () => {});
 
-    // Should be ['Zuck', 'Zuck']. The hook publishes without notifying and
-    // nothing else drives this environment, so the subscriber is left holding
-    // the snapshot it read before the publish — two components, one store, two
-    // different answers.
-    expect(renderer.toJSON()).toEqual(['Mark', 'Zuck']);
+    // The layout effect discharges the deferred notify once the commit lands,
+    // so the subscriber re-reads and the two components agree.
+    expect(renderer.toJSON()).toEqual(['Zuck', 'Zuck']);
   });
 });

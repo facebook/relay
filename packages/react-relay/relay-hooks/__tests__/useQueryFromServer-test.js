@@ -416,12 +416,17 @@ describe('useQueryFromServer', () => {
     dateNowSpy.mockRestore();
   });
 
-  it('publishes to the store without calling notify', async () => {
+  it('publishes during render but defers the notify to commit', async () => {
     const notifySpy = jest.spyOn(environment.getStore(), 'notify');
     const queryRef = createQueryRef({id: '1', name: 'Alice'});
 
+    let notifyCallsAtFirstRender = null;
+
     function TestComponent() {
       const data = useQueryFromServer(testQuery, queryRef);
+      if (notifyCallsAtFirstRender == null) {
+        notifyCallsAtFirstRender = notifySpy.mock.calls.length;
+      }
       return <div data-testid="result">{data.name}</div>;
     }
 
@@ -435,7 +440,11 @@ describe('useQueryFromServer', () => {
       );
     });
 
-    expect(notifySpy).not.toHaveBeenCalled();
+    // Notifying during render would be a setState during render, so the hook
+    // holds the continuation and flushes it from a layout effect instead --
+    // late enough to be out of render, early enough to be before paint.
+    expect(notifyCallsAtFirstRender).toBe(0);
+    expect(notifySpy).toHaveBeenCalledTimes(1);
     expect(ReactTestingLibrary.screen.getByTestId('result').textContent).toBe(
       'Alice',
     );

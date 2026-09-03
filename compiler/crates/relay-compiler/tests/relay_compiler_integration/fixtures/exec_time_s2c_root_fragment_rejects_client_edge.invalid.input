@@ -1,0 +1,98 @@
+// Test: under exec time, an S2C resolver's `@rootFragment` may select only
+// `__typename` and/or `id`. A client edge is rejected.
+//
+// This pins a PRECONDITION that other code depends on. `IVehicle` is
+// implemented by a server type (`ServerVehicle`) and a client model
+// (`ClientVehicle`), so `User.vehicle` compiles to a `ClientObject` client edge
+// that nonetheless has a server arm -- and under exec time no per-implementor
+// `ClientEdgeQuery` is generated, so `server_object_operations` stays empty
+// while the server arm still exists.
+//
+// `selections_reach_server_field` in relay-codegen, which decides
+// `hasServerField`, treats a client edge as server data only when its metadata
+// directive is `ServerObject`. A mixed edge is a `ClientObject`, so that test
+// would under-report it. The reason that is not a live defect is the validation
+// asserted here: such an edge can never appear inside an exec-time S2C root
+// fragment in the first place.
+//
+// So if this fixture ever stops erroring -- in particular if the identity-only
+// restriction is relaxed to let a root fragment READ its transplanted data --
+// `selections_reach_server_field` must start treating an abstract `ClientObject`
+// edge as reaching server data, or a resolver that genuinely waits on the
+// response will be evaluated during tree construction against an empty store.
+
+//- NeedsWaitQuery.js
+graphql`query NeedsWaitQuery @exec_time_resolvers {
+  me {
+    needs_wait
+  }
+}`
+
+//- User_needs_wait.js
+/**
+ * @relayField User.needs_wait: String
+ * @rootFragment UserNeedsWaitFragment
+ */
+graphql`fragment UserNeedsWaitFragment on User {
+  vehicle @waterfall {
+    common_name
+  }
+}`
+
+//- VehicleResolver.js
+/**
+ * @relayField User.vehicle: IVehicle
+ */
+export function vehicle() {}
+
+//- ClientVehicleResolvers.js
+/**
+ * @relayType ClientVehicle implements IVehicle
+ */
+export function ClientVehicle() {}
+
+/**
+ * @relayField ClientVehicle.common_name: String
+ */
+export function common_name() {}
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "resolversSchemaModule": {
+    "path": "__generated__/ResolversSchemaModule.js"
+  },
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": {"kind": "enabled"}
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type User {
+  name: String
+}
+
+type ServerVehicle implements Node {
+  id: ID!
+  common_name: String
+}
+
+//- schema-extensions/extension.graphql
+interface IVehicle {
+  id: ID!
+  common_name: String
+}
+
+extend type ServerVehicle implements IVehicle

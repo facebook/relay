@@ -35,36 +35,50 @@ use crate::get_resolver_fragment_dependency_name;
 pub struct IsResolverRootFragment();
 associated_data_impl!(IsResolverRootFragment);
 
+/// Marks a split operation as having been generated from a resolver's
+/// `@rootFragment`.
+///
+/// Codegen uses this to decide whether to compute `hasServerField`, which it
+/// must not do for `@module` split operations or any other kind. The *value* of
+/// that flag is computed in codegen rather than here, because it depends on the
+/// `ClientExtension` wrappers that the `client_extensions` transform inserts —
+/// and that runs in `apply_normalization_transforms`, after this one.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct IsResolverRootFragmentSplitOperation();
+associated_data_impl!(IsResolverRootFragmentSplitOperation);
+
 pub fn generate_relay_resolvers_root_fragment_split_operation(
     program: &Program,
 ) -> DiagnosticsResult<Program> {
     let mut operations = vec![];
     for fragment in program.fragments() {
         if IsResolverRootFragment::find(&fragment.directives).is_some() {
+            let mut directives = vec![
+                SplitOperationMetadata {
+                    location: fragment.name.location,
+                    parent_documents: FxHashSet::from_iter([fragment.name.item.into()]),
+                    derived_from: Some(fragment.name.item),
+                    raw_response_type_generation_mode: None,
+                }
+                .into(),
+                Directive {
+                    name: WithLocation::new(
+                        fragment.name.location,
+                        DirectiveName(intern!("exec_time_resolvers")),
+                    ),
+                    arguments: vec![],
+                    data: None,
+                    location: fragment.name.location,
+                },
+            ];
+            directives.push(IsResolverRootFragmentSplitOperation().into());
             operations.push(Arc::new(OperationDefinition {
                 name: fragment.name.map(|name| {
                     OperationDefinitionName(get_normalization_operation_name(name.0).intern())
                 }),
                 type_: fragment.type_condition,
                 variable_definitions: fragment.variable_definitions.clone(),
-                directives: vec![
-                    SplitOperationMetadata {
-                        location: fragment.name.location,
-                        parent_documents: FxHashSet::from_iter([fragment.name.item.into()]),
-                        derived_from: Some(fragment.name.item),
-                        raw_response_type_generation_mode: None,
-                    }
-                    .into(),
-                    Directive {
-                        name: WithLocation::new(
-                            fragment.name.location,
-                            DirectiveName(intern!("exec_time_resolvers")),
-                        ),
-                        arguments: vec![],
-                        data: None,
-                        location: fragment.name.location,
-                    },
-                ],
+                directives,
                 selections: fragment.selections.clone(),
                 kind: OperationKind::Query,
             }));

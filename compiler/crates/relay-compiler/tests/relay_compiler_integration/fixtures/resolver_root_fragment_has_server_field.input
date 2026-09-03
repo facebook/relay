@@ -1,0 +1,41 @@
+// Test: `hasServerField` on a resolver root fragment's split operation.
+//
+// The flag answers one question — can this resolver produce a value before the
+// response is normalized? It cannot if its root fragment reads any server field,
+// because that data does not exist yet. The exec-time executor uses it to decide
+// whether to evaluate the resolver while building the execution tree, or to
+// leave it to the post-normalization drain.
+//
+// It is a property of the ROOT FRAGMENT, not of the return type, so the resolver
+// here returns a scalar and no client-edge machinery is involved.
+//
+// This fixture covers the positive case only. This harness emits a split
+// operation for a resolver root fragment only when that fragment normalizes
+// something, so a client-only root fragment produces no artifact here and the
+// negative case cannot be observed. It is covered instead against real generated
+// artifacts, where both kinds exist side by side — see
+// `TestSchemaThreadFieldWithClientRootFragment$normalization.graphql.js`
+// (client-only, no flag) next to
+// `TestSchemaServerUserGreetingFragment$normalization.graphql.js` (S2C, flag).
+
+//- User_server_backed.js
+/**
+ * @relayField User.server_backed: String
+ * @rootFragment UserServerBackedFragment
+ */
+graphql`fragment UserServerBackedFragment on User {
+  name
+}`
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "schema.graphql",
+  "resolversSchemaModule": {
+    "path": "__generated__/ResolversSchemaModule.js"
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

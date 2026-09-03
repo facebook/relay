@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f35ace47ac14f921839b5944e7b81967>>
+ * @generated SignedSource<<89b80988f7bb7abcf8a906e62165be6c>>
  */
 
 mod relay_compiler_integration;
@@ -255,6 +255,13 @@ async fn exec_time_resolver_use_network_normalization_provider() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_use_network_normalization_provider.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_use_network_normalization_provider.expected");
     test_fixture(transform_fixture, file!(), "exec_time_resolver_use_network_normalization_provider.input", "relay_compiler_integration/fixtures/exec_time_resolver_use_network_normalization_provider.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_root_fragment_rejects_client_edge_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_client_edge.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_client_edge.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_rejects_client_edge.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_client_edge.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -864,6 +871,13 @@ async fn resolver_returns_weak_client_schema_type() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_weak_client_schema_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_weak_client_schema_type.expected");
     test_fixture(transform_fixture, file!(), "resolver_returns_weak_client_schema_type.input", "relay_compiler_integration/fixtures/resolver_returns_weak_client_schema_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_root_fragment_has_server_field() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_root_fragment_has_server_field.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_root_fragment_has_server_field.expected");
+    test_fixture(transform_fixture, file!(), "resolver_root_fragment_has_server_field.input", "relay_compiler_integration/fixtures/resolver_root_fragment_has_server_field.expected", input, expected).await;
 }
 
 #[tokio::test]

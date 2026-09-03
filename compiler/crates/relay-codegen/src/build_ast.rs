@@ -58,6 +58,7 @@ use relay_transforms::FragmentDataInjectionMode;
 use relay_transforms::INLINE_DIRECTIVE_NAME;
 use relay_transforms::INTERNAL_METADATA_DIRECTIVE;
 use relay_transforms::InlineDirectiveMetadata;
+use relay_transforms::IsResolverRootFragmentSplitOperation;
 use relay_transforms::ModuleMetadata;
 use relay_transforms::NoInlineFragmentSpreadMetadata;
 use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
@@ -468,7 +469,27 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         };
         match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
             Some(_split_directive) => {
-                let metadata = Primitive::Key(self.object(vec![]));
+                // A resolver root fragment that reaches a server field cannot produce
+                // a value until the response is normalized. Only resolver root
+                // fragments are asked — the marker comes from
+                // `generate_relay_resolvers_root_fragment_split_operation`, so
+                // `@module` and other split operations are untouched.
+                //
+                // It goes in `metadata`, which `NormalizationSplitOperation` types as
+                // an open dictionary, so consuming it needs no runtime type change.
+                // A new top-level field would, and the `www` mirror of that type is
+                // RepoSync-generated from landed revisions only — which would make
+                // every consumer wait a landing cycle to read its own flag.
+                let mut metadata_entries = vec![];
+                if IsResolverRootFragmentSplitOperation::find(&operation.directives).is_some()
+                    && Self::selections_reach_server_field(&operation.selections)
+                {
+                    metadata_entries.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.has_server_field,
+                        value: Primitive::Bool(true),
+                    });
+                }
+                let metadata = Primitive::Key(self.object(metadata_entries));
                 let selections = self.build_selections(&mut context, operation.selections.iter());
                 let mut fields = object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.split_operation),
@@ -837,6 +858,48 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             name: Primitive::String(fragment.name.item.0),
         };
         self.object(object)
+    }
+
+    /// Whether a selection set reaches a field outside every `ClientExtension`.
+    ///
+    /// By the time codegen runs, the `client_extensions` transform has wrapped every
+    /// client-extension selection in an inline fragment carrying
+    /// `CLIENT_EXTENSION_DIRECTIVE_NAME`, so anything reachable without crossing one
+    /// of those is server data. Keying on the wrapper rather than on
+    /// `field.is_extension` matters: resolver backing fields such as `__context` and
+    /// `__rawThreadObject` are not flagged as extensions in the schema, but they do
+    /// sit inside the wrapper.
+    ///
+    /// A client edge is decided by its target rather than by descending into it. Its
+    /// linked field looks like a server `LinkedField`, but a `ClientObject` edge
+    /// resolves entirely on the client, and a `ServerObject` edge resolves through a
+    /// separate waterfall request rather than this fragment's own normalization.
+    /// Only the latter counts.
+    ///
+    /// A `FragmentSpread` surviving to codegen is opaque — a `@no_inline` fragment
+    /// lives in its own artifact — so it counts as server data. That errs toward
+    /// "reads server data", which is the safe direction: a resolver evaluated later
+    /// than necessary is correct, one evaluated before its data exists is not.
+    fn selections_reach_server_field(selections: &[Selection]) -> bool {
+        selections.iter().any(|selection| match selection {
+            Selection::InlineFragment(fragment) => {
+                if let Some(client_edge_metadata) = ClientEdgeMetadata::find(fragment) {
+                    return matches!(
+                        client_edge_metadata.metadata_directive,
+                        ClientEdgeMetadataDirective::ServerObject { .. }
+                    );
+                }
+                let is_client_extension = fragment.directives.len() == 1
+                    && fragment.directives[0].name.item == *CLIENT_EXTENSION_DIRECTIVE_NAME;
+                !is_client_extension && Self::selections_reach_server_field(&fragment.selections)
+            }
+            Selection::Condition(condition) => {
+                Self::selections_reach_server_field(&condition.selections)
+            }
+            Selection::LinkedField(_)
+            | Selection::ScalarField(_)
+            | Selection::FragmentSpread(_) => true,
+        })
     }
 
     fn build_selections<'a, Selections>(

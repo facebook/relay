@@ -47,6 +47,9 @@ type PendingRelayPayload<TMutation extends MutationParameters> = {
   readonly operation: OperationDescriptor,
   readonly payload: RelayResponsePayload,
   readonly updater: ?SelectorStoreUpdater<TMutation['response']>,
+  // No `notify()` follows this commit in the same turn, so the publish has to
+  // record the operation itself. See `publishWithDeferredNotify`.
+  readonly deferNotify?: boolean,
 };
 type PendingRecordSource = {
   readonly kind: 'source',
@@ -95,6 +98,9 @@ class RelayPublishQueue implements PublishQueue {
   // A global invalidation raised by `_commitData()`, owed to the next
   // `notify()`.
   _pendingInvalidatedStore: boolean;
+  // True if data was published without notifying, so the next `run()` must not
+  // short-circuit as a noop and leave those subscribers untold.
+  _pendingNotify: boolean;
   // Payloads to apply or Sources to publish to the store with the next `run()`.
   // $FlowFixMe[unclear-type] See explanation below.
   _pendingData: Set<PendingCommit<any>>;
@@ -124,6 +130,7 @@ class RelayPublishQueue implements PublishQueue {
     this._handlerProvider = handlerProvider || null;
     this._pendingBackupRebase = false;
     this._pendingInvalidatedStore = false;
+    this._pendingNotify = false;
     this._pendingData = new Set();
     this._pendingOptimisticUpdates = new Set();
     this._store = store;
@@ -213,6 +220,44 @@ class RelayPublishQueue implements PublishQueue {
   }
 
   /**
+   * Publish a payload into the store replaying any pending optimistic updates
+   * but without triggering a notification. Instead a continuation function is
+   * returned which will trigger a notification if needed.
+   *
+   * **It is the responsibility of the caller to invoke the returned
+   * continuation function before the next browser paint**.
+   */
+  publishWithDeferredNotify(
+    operation: OperationDescriptor,
+    payload: RelayResponsePayload,
+  ): () => void {
+    this._assertNotRunning();
+    // `commitPayload`, but flagged so the publish routes to the store's
+    // `publishWithDeferredNotify`.
+    this._pendingBackupRebase = true;
+    this._pendingData.add({
+      kind: 'payload',
+      operation,
+      payload,
+      updater: null,
+      deferNotify: true,
+    });
+    this._isRunning = true;
+    this._runWithoutNotifying();
+    this._isRunning = false;
+    this._pendingNotify = true;
+
+    // Holds no state: flushes whatever notify is pending, so extra or stale
+    // calls are free and two publishes in one render share one flush.
+    return () => {
+      // Already discharged, by an earlier call or by an unrelated `run()`.
+      if (this._pendingNotify) {
+        this.run();
+      }
+    };
+  }
+
+  /**
    * Execute all queued up operations from the other public methods.
    */
   run(sourceOperation?: OperationDescriptor): ReadonlyArray<RequestDescriptor> {
@@ -226,6 +271,9 @@ class RelayPublishQueue implements PublishQueue {
       // update has potentially been reverted or if this._pendingData is not empty.
       !this._pendingBackupRebase &&
       this._pendingOptimisticUpdates.size === 0 &&
+      // A non-notifying publish already committed its data, so none of the
+      // above is pending — but its subscribers still have not been told.
+      !this._pendingNotify &&
       !runWillClearGcHold;
 
     warning(
@@ -243,7 +291,10 @@ class RelayPublishQueue implements PublishQueue {
     this._runWithoutNotifying();
     const invalidatedStore = this._pendingInvalidatedStore;
     this._pendingInvalidatedStore = false;
+    this._pendingNotify = false;
     this._isRunning = false;
+    // Any deferred publish this flush covers was stamped at publish time, so
+    // this only has to record the caller's own operation, if it has one.
     return this._store.notify(sourceOperation, invalidatedStore);
   }
 
@@ -311,7 +362,7 @@ class RelayPublishQueue implements PublishQueue {
   _publishSourceFromPayload<TMutation extends MutationParameters>(
     pendingPayload: PendingRelayPayload<TMutation>,
   ): boolean {
-    const {payload, operation, updater} = pendingPayload;
+    const {payload, operation, updater, deferNotify} = pendingPayload;
     const {source, fieldPayloads} = payload;
     const mutator = new RelayRecordSourceMutator(
       this._store.getSource(),
@@ -354,7 +405,15 @@ class RelayPublishQueue implements PublishQueue {
     }
     const idsMarkedForInvalidation =
       recordSourceProxy.getIDsMarkedForInvalidation();
-    this._store.publish(source, idsMarkedForInvalidation);
+    if (deferNotify === true) {
+      this._store.publishWithDeferredNotify(
+        source,
+        operation,
+        idsMarkedForInvalidation,
+      );
+    } else {
+      this._store.publish(source, idsMarkedForInvalidation);
+    }
     return recordSourceProxy.isStoreMarkedForInvalidation();
   }
 

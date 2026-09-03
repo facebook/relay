@@ -33,9 +33,12 @@ const nullthrows = require('nullthrows');
 // eslint-disable-next-line no-unused-vars
 const React = require('react');
 const {
+  Environment,
   Network,
   Observable,
   PreloadableQueryRegistry,
+  RecordSource,
+  Store,
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -48,15 +51,15 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-describe('loadQuery', () => {
-  const query = graphql`
-    query loadQueryTestQuery($id: ID!) {
-      node(id: $id) {
-        id
-      }
+const query = graphql`
+  query loadQueryTestQuery($id: ID!) {
+    node(id: $id) {
+      id
     }
-  `;
+  }
+`;
 
+describe('loadQuery', () => {
   // Only queries with an ID are preloadable
   const ID = '12345';
   (query.params as $FlowFixMe).id = ID;
@@ -978,5 +981,62 @@ describe('loadQuery', () => {
         expect(disposeEnvironmentRetain).toHaveBeenCalledTimes(1);
       });
     });
+  });
+});
+
+// A page with two `useQueryFromServer` components publishes both payloads
+// during one render pass and flushes both continuations after it commits. A
+// shared `notify()` can only record one source operation, so each publish
+// records its own.
+describe('loadQuery after two deferred publishes share one notify', () => {
+  function responseFor(id: string) {
+    return {data: {node: {__typename: 'User', id}}};
+  }
+
+  it('serves both queries from the store', () => {
+    const networkFetch = jest.fn(
+      (
+        _query: RequestParameters,
+        _variables: Variables,
+        _cacheConfig: CacheConfig,
+        _uploadables: ?UploadableMap,
+        _logRequestInfo: ?LogRequestInfoFunction,
+      ) => Observable.create<$FlowFixMe>(() => {}),
+    );
+    const env = new Environment({
+      network: Network.create(networkFetch),
+      store: new Store(RecordSource.create()),
+    });
+
+    const first = createOperationDescriptor(query, {id: '4'});
+    const second = createOperationDescriptor(query, {id: '5'});
+    env.retain(first);
+    env.retain(second);
+
+    // Something invalidated the store earlier in the session. Data written
+    // afterwards is still fresh -- but only if the store was told which
+    // operation wrote it.
+    env.commitUpdate(storeProxy => {
+      storeProxy.invalidateStore();
+    });
+
+    const flushFirst = env.publishWithDeferredNotify(first, responseFor('4'));
+    const flushSecond = env.publishWithDeferredNotify(second, responseFor('5'));
+    flushFirst();
+    flushSecond();
+
+    // Both payloads landed. Whatever `loadQuery` decides below, it is not
+    // deciding it because data is missing.
+    expect(env.lookup(first.fragment).data).toEqual({node: {id: '4'}});
+    expect(env.lookup(second.fragment).data).toEqual({node: {id: '5'}});
+
+    loadQuery(env, query, {id: '4'}, {fetchPolicy: 'store-or-network'});
+    expect(networkFetch).toHaveBeenCalledTimes(0);
+
+    // Same data, same retention, same store -- and now the same write epoch,
+    // so `second` is served from the store too. Which continuation ran first
+    // no longer decides whether a query hits the network.
+    loadQuery(env, query, {id: '5'}, {fetchPolicy: 'store-or-network'});
+    expect(networkFetch).toHaveBeenCalledTimes(0);
   });
 });

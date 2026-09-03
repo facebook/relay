@@ -19,6 +19,7 @@ import type {
 
 const {graphql} = require('../../query/GraphQLTag');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const defaultGetDataID = require('../defaultGetDataID');
 const {
   createOperationDescriptor,
@@ -1756,6 +1757,370 @@ describe('RelayPublishQueue', () => {
       expect(Array.from(publish.mock.calls[0][1])).toEqual(['1364586419']);
       expect(notify.mock.calls.length).toBe(1);
       expect(notify.mock.calls[0][1]).toBe(false);
+    });
+  });
+
+  describe('publishWithDeferredNotify()', () => {
+    const NameQuery = graphql`
+      query RelayPublishQueueTest12Query {
+        me {
+          name
+        }
+      }
+    `;
+
+    // Server payload setting name to 'zuck', for a store whose '4' starts as
+    // 'mark'.
+    function namePayload() {
+      return {
+        source: new RelayRecordSource({
+          [ROOT_ID]: {
+            [ID_KEY]: ROOT_ID,
+            [TYPENAME_KEY]: ROOT_TYPE,
+            me: {[REF_KEY]: '4'},
+          },
+          4: {
+            [ID_KEY]: '4',
+            [TYPENAME_KEY]: 'User',
+            id: '4',
+            name: 'zuck',
+          },
+        }),
+      };
+    }
+
+    const initialData = {
+      4: {
+        __id: '4',
+        __typename: 'User',
+        name: 'mark',
+      },
+    };
+
+    // Uppercases the name in place, so a rebase is observable: applied against
+    // 'mark' it yields 'MARK', against the payload's 'zuck' it yields 'ZUCK'.
+    const uppercaseName = {
+      storeUpdater: (storeProxy: $FlowFixMe) => {
+        const zuck = storeProxy.get('4');
+        zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
+      },
+    };
+
+    it('publishes handle field payloads now, notifies on the continuation', () => {
+      const notify = jest.fn(() => []);
+      const publishWithDeferredNotify = jest.fn();
+      const source = new RelayRecordSource();
+      const store = {
+        getSource: () => source,
+        notify,
+        publish: jest.fn(),
+        holdGC: jest.fn(),
+        restore: jest.fn(),
+        snapshot: jest.fn(() => []),
+        publishWithDeferredNotify,
+      };
+      const NameHandler = {
+        update(storeProxy: $FlowFixMe, payload: $FlowFixMe) {
+          const record = storeProxy.get(payload.dataID);
+          const name = record.getValue(payload.fieldKey);
+          record.setValue(name.toUpperCase(), payload.handleKey);
+        },
+      };
+      const queue = new RelayPublishQueue(
+        store,
+        () => NameHandler,
+        defaultGetDataID,
+        null,
+      );
+
+      const flush = queue.publishWithDeferredNotify(
+        createOperationDescriptor(NameQuery, {}),
+        {
+          ...namePayload(),
+          fieldPayloads: [
+            {
+              dataID: '4',
+              fieldKey: 'name',
+              handleKey: getRelayHandleKey('handleName', null, 'name'),
+              handle: 'handleName',
+            },
+          ],
+        },
+      );
+
+      // Before the continuation: the payload is in the store, including the
+      // record the handler derived — it wrote into the payload's own source, so
+      // it rides along in the same publish rather than being dropped — and no
+      // subscriber has been told.
+      expect(publishWithDeferredNotify).toBeCalledTimes(1);
+      expect(publishWithDeferredNotify.mock.calls[0][0].toJSON()['4']).toEqual({
+        __id: '4',
+        __typename: 'User',
+        id: '4',
+        name: 'zuck',
+        __name_handleName: 'ZUCK',
+      });
+      expect(notify).not.toBeCalled();
+
+      // After: the notify lands, and nothing is written a second time.
+      flush();
+      expect(notify).toBeCalledTimes(1);
+      expect(publishWithDeferredNotify).toBeCalledTimes(1);
+    });
+
+    it('records the operation when it publishes, not when it notifies', () => {
+      const notify = jest.fn(() => []);
+      const publishWithDeferredNotify = jest.fn();
+      const source = new RelayRecordSource();
+      const store = {
+        getSource: () => source,
+        notify,
+        publish: jest.fn(),
+        holdGC: jest.fn(),
+        restore: jest.fn(),
+        snapshot: jest.fn(() => []),
+        publishWithDeferredNotify,
+      };
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
+      const operation = createOperationDescriptor(NameQuery, {});
+
+      queue.publishWithDeferredNotify(operation, namePayload());
+
+      // The store records an operation's write epoch and fetchTime from the
+      // single source operation `notify()` is given, which cannot describe a
+      // flush shared by several publishes. Recording at publish time instead
+      // decouples the two, and is what puts the operation in the root set
+      // before any notify happens.
+      expect(publishWithDeferredNotify).toBeCalledTimes(1);
+      expect(publishWithDeferredNotify.mock.calls[0][1]).toBe(operation);
+      expect(notify).not.toBeCalled();
+    });
+
+    it('records every publish sharing a flush, not just one of them', () => {
+      const publishWithDeferredNotify = jest.fn();
+      const source = new RelayRecordSource();
+      const store = {
+        getSource: () => source,
+        notify: jest.fn(() => []),
+        publish: jest.fn(),
+        holdGC: jest.fn(),
+        restore: jest.fn(),
+        snapshot: jest.fn(() => []),
+        publishWithDeferredNotify,
+      };
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
+
+      const firstOperation = createOperationDescriptor(NameQuery, {});
+      const secondOperation = createOperationDescriptor(NameQuery, {});
+      queue.publishWithDeferredNotify(firstOperation, namePayload());
+      queue.publishWithDeferredNotify(secondOperation, namePayload());
+
+      // Both are recorded, and both before either continuation runs, so
+      // neither depends on which one flushes first.
+      expect(publishWithDeferredNotify.mock.calls.map(call => call[1])).toEqual(
+        [firstOperation, secondOperation],
+      );
+    });
+
+    it('holds no state in the continuation: extra calls no-op', () => {
+      const notify = jest.fn(() => []);
+      const source = new RelayRecordSource();
+      const store = {
+        getSource: () => source,
+        notify,
+        publish: jest.fn(),
+        holdGC: jest.fn(),
+        restore: jest.fn(),
+        snapshot: jest.fn(() => []),
+        publishWithDeferredNotify: jest.fn(),
+      };
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
+
+      const first = queue.publishWithDeferredNotify(
+        createOperationDescriptor(NameQuery, {}),
+        namePayload(),
+      );
+      const second = queue.publishWithDeferredNotify(
+        createOperationDescriptor(NameQuery, {}),
+        namePayload(),
+      );
+
+      // `notify()` drains the store's updated records globally, so the first
+      // call discharges both publishes and the rest have nothing to do. They
+      // must not fall through to `run()`, which would warn that it is a noop —
+      // `disallowWarnings()` fails the test if any of these do.
+      first();
+      expect(notify).toBeCalledTimes(1);
+      second();
+      first();
+      expect(notify).toBeCalledTimes(1);
+    });
+
+    it('falls back to the next run() when the continuation is dropped', () => {
+      const notify = jest.fn(() => []);
+      const source = new RelayRecordSource();
+      const publishWithDeferredNotify = jest.fn();
+      const store = {
+        getSource: () => source,
+        notify,
+        publish: jest.fn(),
+        holdGC: jest.fn(),
+        restore: jest.fn(),
+        snapshot: jest.fn(() => []),
+        publishWithDeferredNotify,
+      };
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
+
+      // React can discard the render that published, so the continuation is
+      // never guaranteed to be called.
+      const operation = createOperationDescriptor(NameQuery, {});
+      queue.publishWithDeferredNotify(operation, namePayload());
+      expect(notify).not.toBeCalled();
+
+      // The operation was recorded when it published, so dropping the
+      // continuation costs it nothing but latency.
+      expect(publishWithDeferredNotify.mock.calls[0][1]).toBe(operation);
+
+      // The publish drained the queue, so without `_pendingNotify` this run()
+      // would short-circuit as a noop and these records would never reach a
+      // subscriber.
+      queue.run();
+      expect(notify).toBeCalledTimes(1);
+    });
+
+    it('rebases applied optimistic updates onto the published payload', () => {
+      const store = new RelayModernStore(
+        new RelayRecordSource(simpleClone(initialData)),
+      );
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
+      queue.applyUpdate(uppercaseName);
+      queue.run();
+
+      queue.publishWithDeferredNotify(
+        createOperationDescriptor(NameQuery, {}),
+        namePayload(),
+      );
+
+      // 'ZUCK', not 'MARK': the updater reran against the payload instead of
+      // shadowing it with a value derived from the base it first saw.
+      expect(store.getSource().toJSON()).toEqual({
+        [ROOT_ID]: {
+          __id: ROOT_ID,
+          __typename: ROOT_TYPE,
+          me: {[REF_KEY]: '4'},
+        },
+        4: {
+          ...initialData['4'],
+          id: '4',
+          name: 'ZUCK',
+        },
+      });
+    });
+
+    it('publishes to the base store, so the payload survives a revert', () => {
+      const store = new RelayModernStore(
+        new RelayRecordSource(simpleClone(initialData)),
+      );
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
+      queue.applyUpdate(uppercaseName);
+      queue.run();
+
+      queue.publishWithDeferredNotify(
+        createOperationDescriptor(NameQuery, {}),
+        namePayload(),
+      );
+
+      queue.revertAll();
+      queue.run();
+
+      // Dropping the optimistic layer leaves the server payload behind. A
+      // publish that landed in that layer would have gone with it.
+      expect(store.getSource().toJSON()).toEqual({
+        [ROOT_ID]: {
+          __id: ROOT_ID,
+          __typename: ROOT_TYPE,
+          me: {[REF_KEY]: '4'},
+        },
+        4: {
+          ...initialData['4'],
+          id: '4',
+          name: 'zuck',
+        },
+      });
+    });
+
+    it('stamps the operation at an epoch the store reaches, even when OPTIMIZE_NOTIFY would skip the increment', () => {
+      // A payload identical to what the store already holds, so the publish
+      // dirties no record and OPTIMIZE_NOTIFY has nothing to notify about.
+      const store = new RelayModernStore(
+        new RelayRecordSource({
+          [ROOT_ID]: {
+            [ID_KEY]: ROOT_ID,
+            [TYPENAME_KEY]: ROOT_TYPE,
+            me: {[REF_KEY]: '4'},
+          },
+          4: {
+            [ID_KEY]: '4',
+            [TYPENAME_KEY]: 'User',
+            id: '4',
+            name: 'zuck',
+          },
+        }),
+      );
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
+      const operation = createOperationDescriptor(NameQuery, {});
+
+      RelayFeatureFlags.OPTIMIZE_NOTIFY = true;
+      try {
+        queue.publishWithDeferredNotify(operation, namePayload())();
+
+        // Invalidating a record the operation reads stamps it at the epoch
+        // after this notify, which must land above the operation's own.
+        queue.commitUpdate(proxy => {
+          proxy.get('4').invalidateRecord();
+        });
+        queue.run();
+      } finally {
+        RelayFeatureFlags.OPTIMIZE_NOTIFY = false;
+      }
+
+      // Were the publish's notify allowed to skip its increment, the operation
+      // would sit one epoch above the clock and tie with the invalidation
+      // instead of falling behind it -- reading as 'available' and serving data
+      // the invalidation was supposed to condemn.
+      expect(store.check(operation)).toEqual({status: 'stale'});
+    });
+
+    it('roots the operation, so a GC before the flush cannot evict the payload', () => {
+      const store = new RelayModernStore(new RelayRecordSource());
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
+
+      queue.publishWithDeferredNotify(
+        createOperationDescriptor(NameQuery, {}),
+        namePayload(),
+      );
+
+      // The publish lands during render and the continuation runs in a layout
+      // effect, so a GC scheduled on a microtask can run in between. Nothing
+      // retains this operation yet -- `usePreloadedQuery` only retains in an
+      // effect -- so the mark phase has to reach it via the root entry the
+      // publish itself created. Without one it marks nothing and the sweep
+      // takes the whole payload, silently.
+      store.__gc();
+
+      expect(store.getSource().toJSON()).toEqual({
+        [ROOT_ID]: {
+          __id: ROOT_ID,
+          __typename: ROOT_TYPE,
+          me: {[REF_KEY]: '4'},
+        },
+        4: {
+          __id: '4',
+          __typename: 'User',
+          id: '4',
+          name: 'zuck',
+        },
+      });
     });
   });
 

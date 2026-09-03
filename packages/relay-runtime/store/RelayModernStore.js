@@ -100,6 +100,9 @@ class RelayModernStore implements Store {
   _gcScheduler: Scheduler;
   _getDataID: GetDataID;
   _globalInvalidationEpoch: ?number;
+  // True if an operation is stamped at an epoch the clock has not reached yet,
+  // so the next `notify()` must increment. See `publishWithDeferredNotify`.
+  _hasPendingSourceOperation: boolean;
   _invalidationSubscriptions: Set<InvalidationSubscription>;
   _invalidatedRecordIDs: DataIDSet;
   __log: ?LogFunction;
@@ -171,6 +174,7 @@ class RelayModernStore implements Store {
     this._gcScheduler = options?.gcScheduler ?? resolveImmediate;
     this._getDataID = options?.getDataID ?? defaultGetDataID;
     this._globalInvalidationEpoch = null;
+    this._hasPendingSourceOperation = false;
     this._invalidationSubscriptions = new Set();
     this._invalidatedRecordIDs = new Set();
     this.__log = options?.log ?? null;
@@ -277,7 +281,11 @@ class RelayModernStore implements Store {
       this._batch = null;
       this.notify(undefined, batch.invalidateStore);
       for (const sourceOperation of batch.sourceOperations) {
-        this._recordSourceOperation(sourceOperation, this._currentWriteEpoch);
+        this._recordSourceOperation(
+          sourceOperation,
+          this._currentWriteEpoch,
+          false,
+        );
       }
       if (log != null) {
         log({
@@ -531,6 +539,9 @@ class RelayModernStore implements Store {
         updatedOwners.length > 0 ||
         this._invalidatedRecordIDs.size > 0 ||
         invalidateStore === true ||
+        // An operation is already stamped at the epoch this notify produces,
+        // so skipping the increment would leave it above the clock.
+        this._hasPendingSourceOperation ||
         this._globalInvalidationEpoch === this._currentWriteEpoch)
     ) {
       // Increment the current write when notifying after executing
@@ -556,7 +567,11 @@ class RelayModernStore implements Store {
     }
 
     if (sourceOperation != null) {
-      this._recordSourceOperation(sourceOperation, this._currentWriteEpoch);
+      this._recordSourceOperation(
+        sourceOperation,
+        this._currentWriteEpoch,
+        false,
+      );
     }
 
     if (log != null) {
@@ -572,6 +587,7 @@ class RelayModernStore implements Store {
 
     this._updatedRecordIDs.clear();
     this._invalidatedRecordIDs.clear();
+    this._hasPendingSourceOperation = false;
 
     return updatedOwners;
   }
@@ -583,10 +599,14 @@ class RelayModernStore implements Store {
    * epoch map bounded. If a query wasn't retained, we assume it can
    * be deleted at any moment and thus is not relevant for us to track
    * for the purposes of invalidation.
+   *
+   * `forceRootEntry` creates the entry even when the release buffer is full,
+   * for a caller that needs the operation's records reachable from a root.
    */
   _recordSourceOperation(
     sourceOperation: OperationDescriptor,
     epoch: number,
+    forceRootEntry: boolean,
   ): void {
     const id = sourceOperation.request.identifier;
     const rootEntry = this._roots.get(id);
@@ -596,7 +616,7 @@ class RelayModernStore implements Store {
     } else if (
       sourceOperation.request.node.params.operationKind === 'query' &&
       this._gcReleaseBufferSize > 0 &&
-      this._releaseBuffer.length < this._gcReleaseBufferSize
+      (forceRootEntry || this._releaseBuffer.length < this._gcReleaseBufferSize)
     ) {
       // The operation isn't retained but there is space in the release buffer:
       // temporarily track this operation in case the data can be reused soon.
@@ -653,6 +673,28 @@ class RelayModernStore implements Store {
         optimistic: target === this._optimisticSource,
       });
     }
+  }
+
+  publishWithDeferredNotify(
+    source: RecordSource,
+    sourceOperation: OperationDescriptor,
+    idsMarkedForInvalidation?: DataIDSet,
+  ): void {
+    this.publish(source, idsMarkedForInvalidation);
+
+    // Keeps that notify from skipping its increment and leaving the operation
+    // stamped above the clock, which would outlive an invalidation.
+    this._hasPendingSourceOperation = true;
+
+    // `notify()` is what increments, so this data belongs to the next epoch —
+    // the same prediction the `publish()` above made for `INVALIDATED_AT_KEY`.
+    // The root entry is forced because it is also what keeps these records
+    // reachable from a root until the notify; a GC before then would sweep them.
+    this._recordSourceOperation(
+      sourceOperation,
+      this._currentWriteEpoch + 1,
+      true,
+    );
   }
 
   subscribe(

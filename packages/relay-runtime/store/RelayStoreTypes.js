@@ -312,6 +312,19 @@ export interface Store {
   publish(source: RecordSource, idsMarkedForInvalidation?: DataIDSet): void;
 
   /**
+   * Publish on behalf of `sourceOperation` when no `notify()` will follow in
+   * this turn. `publish()` also defers notification, but expects a `notify()`
+   * imminently, and it is that call which records the operation as written.
+   * Until the deferred notify happens the store must treat the operation as
+   * written: `check()` must resolve it, and its records must not be collected.
+   */
+  publishWithDeferredNotify(
+    source: RecordSource,
+    sourceOperation: OperationDescriptor,
+    idsMarkedForInvalidation?: DataIDSet,
+  ): void;
+
+  /**
    * Ensure that all the records necessary to fulfill the given selector are
    * retained in memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
@@ -1602,6 +1615,19 @@ export interface PublishQueue {
    * are missing in the store.
    */
   commitSource(source: RecordSource): void;
+
+  /**
+   * Publish a payload into the store replaying any pending optimistic updates
+   * but without triggering a notification. Instead a continuation function is
+   * returned which will trigger a notification if needed.
+   *
+   * **It is the responsibility of the caller to invoke the returned
+   * continuation function before the next browser paint**.
+   */
+  publishWithDeferredNotify(
+    operation: OperationDescriptor,
+    payload: RelayResponsePayload,
+  ): () => void;
 
   /**
    * Execute all queued up operations from the other public methods.

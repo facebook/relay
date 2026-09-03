@@ -15,6 +15,7 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
   GraphQLResponse,
+  GraphQLResponseWithData,
   INetwork,
   PayloadData,
 } from '../network/RelayNetworkTypes';
@@ -61,6 +62,7 @@ const OperationExecutor = require('./OperationExecutor');
 const RelayModernStore = require('./RelayModernStore');
 const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
+const {ROOT_TYPE} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 
 export type EnvironmentConfig = {
@@ -263,6 +265,35 @@ class RelayModernEnvironment implements IEnvironment {
       optimisticConfig: null,
       updater: null,
     }).subscribe({});
+  }
+
+  /**
+   * Publishes a payload but does not notify existing subscribers synchronously.
+   * Instead, a continuation function is returned which will trigger any pending
+   * notifications.
+   *
+   * **It is the responsibility of the caller to invoke the returned
+   * continuation function before the next browser paint**.
+   */
+  publishWithDeferredNotify(
+    operation: OperationDescriptor,
+    response: GraphQLResponseWithData,
+  ): () => void {
+    const payload = this._normalizeResponse(
+      response,
+      operation.root,
+      ROOT_TYPE,
+      {
+        deferDeduplicatedFields: false,
+        getDataID: this._getDataID,
+        log: this.__log,
+        path: [],
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+      },
+      false,
+    );
+    return this._publishQueue.publishWithDeferredNotify(operation, payload);
   }
 
   commitUpdate(updater: StoreUpdater): void {

@@ -445,6 +445,14 @@ export interface StoreSubscriptions {
    * returns the number of subscriptions
    */
   size(): number;
+
+  /**
+   * Adds every record read by an active subscription to `references`, so that
+   * the store's GC can treat observed data as reachable even when no retained
+   * operation selects it. Only consulted when
+   * RelayFeatureFlags.ENABLE_SUBSCRIPTION_GC_ROOTS is enabled.
+   */
+  markReferences(references: DataIDSet): void;
 }
 
 /**

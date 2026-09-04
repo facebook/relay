@@ -263,6 +263,23 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
   size(): number {
     return this._subscriptions.size;
   }
+
+  /**
+   * Add every record read by an active subscription to `references`.
+   *
+   * `snapshot.seenRecords` is exactly the set of records backing a
+   * subscription's currently rendered data, so treating them as GC roots
+   * restores the invariant that anything actively observed survives
+   * collection. Records already absent from the source are harmless here: the
+   * collection pass only deletes IDs that are missing from `references`.
+   */
+  markReferences(references: DataIDSet): void {
+    this._subscriptions.forEach(subscription => {
+      subscription.snapshot.seenRecords.forEach(dataID => {
+        references.add(dataID);
+      });
+    });
+  }
 }
 
 module.exports = RelayStoreSubscriptions;

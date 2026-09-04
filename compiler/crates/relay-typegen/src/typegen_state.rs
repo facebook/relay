@@ -59,7 +59,7 @@ impl RuntimeImports {
             runtime_import_types.push(RESULT_TYPE_NAME.lookup());
         }
         if !runtime_import_types.is_empty() {
-            writer.write_import_type(&runtime_import_types, RELAY_RUNTIME)
+            writer.write_import_type(&runtime_import_types, RELAY_RUNTIME, false)
         } else {
             Ok(())
         }

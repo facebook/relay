@@ -42,6 +42,7 @@ const {
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
+const execTimeQuery = require('relay-runtime/store/__tests__/__generated__/RelayModernEnvironmentExecuteWithDeferTestResolverQuery.graphql');
 const {
   createMockEnvironment,
   disallowConsoleErrors,
@@ -96,10 +97,10 @@ describe('loadQuery', () => {
 
   let disposeEnvironmentRetain: ?JestMockFn<ReadonlyArray<unknown>, unknown>;
 
-  let resolvedModule: ?Query<
-    loadQueryTestQuery$variables,
-    loadQueryTestQuery$data,
-  >;
+  let resolvedModule:
+    | Query<loadQueryTestQuery$variables, loadQueryTestQuery$data>
+    | typeof execTimeQuery
+    | null;
   let mockAvailability: {fetchTime?: number, status: string};
   let operationAvailabilityConfig: ?OperationAvailabilityConfig;
   let disposeOnloadCallback;
@@ -225,6 +226,20 @@ describe('loadQuery', () => {
         loadQuery(environment, preloadableConcreteRequest, variables);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.check).toHaveBeenCalled();
+      });
+
+      it('uses the exec-time default when the available AST enables exec-time resolvers', () => {
+        resolvedModule = execTimeQuery;
+
+        const preloadedQuery = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+        );
+
+        expect(preloadedQuery.fetchPolicy).toBe('store-and-network');
+        expect(fetch).toHaveBeenCalled();
+        expect(executeObservable).toBeDefined();
       });
 
       describe("with fetchPolicy === 'store-or-network'", () => {
@@ -728,6 +743,17 @@ describe('loadQuery', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.check).toHaveBeenCalled();
     });
+
+    describe('default fetch policy for exec-time resolver queries', () => {
+      it('uses store-and-network when exec-time resolvers are enabled', () => {
+        const preloadedQuery = loadQuery(environment, execTimeQuery, variables);
+
+        expect(preloadedQuery.fetchPolicy).toBe('store-and-network');
+        expect(fetch).toHaveBeenCalled();
+        expect(executeObservable).toBeDefined();
+      });
+    });
+
     describe('when the query can be fulfilled by the store', () => {
       it("when fetchPolicy === 'store-or-network', it avoids a network request", () => {
         loadQuery(environment, query, variables, {

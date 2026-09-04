@@ -27,6 +27,7 @@ import type {
   Subscription,
 } from 'relay-runtime';
 
+const {isExecTimeResolversEnabled} = require('./execTimeResolvers');
 const LRUCache = require('./LRUCache');
 const SuspenseResource = require('./SuspenseResource');
 const invariant = require('invariant');
@@ -74,7 +75,21 @@ interface IMap<K, V> {
 }
 
 function operationIsLiveQuery(operation: OperationDescriptor): boolean {
-  return operation.request.node.params.metadata.live !== undefined;
+  return (
+    operation.request.node.params.metadata.live !== undefined ||
+    isExecTimeResolversEnabled(operation.request.node.operation)
+  );
+}
+
+function getDefaultFetchPolicy(operation: OperationDescriptor): FetchPolicy {
+  if (operationIsLiveQuery(operation)) {
+    return DEFAULT_LIVE_FETCH_POLICY;
+  }
+  const request = operation.request.node;
+  if (request.params.id == null && request.params.text == null) {
+    return 'store-only';
+  }
+  return DEFAULT_FETCH_POLICY;
 }
 
 function getQueryCacheIdentifier(
@@ -84,11 +99,7 @@ function getQueryCacheIdentifier(
   maybeRenderPolicy: ?RenderPolicy,
   cacheBreaker?: ?string | ?number,
 ): string {
-  const fetchPolicy =
-    maybeFetchPolicy ??
-    (operationIsLiveQuery(operation)
-      ? DEFAULT_LIVE_FETCH_POLICY
-      : DEFAULT_FETCH_POLICY);
+  const fetchPolicy = maybeFetchPolicy ?? getDefaultFetchPolicy(operation);
   const renderPolicy =
     maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
   const cacheIdentifier = `${fetchPolicy}-${renderPolicy}-${operation.request.identifier}`;
@@ -241,11 +252,7 @@ class QueryResourceImpl {
     profilerContext: unknown,
   ): QueryResult {
     const environment = this._environment;
-    const fetchPolicy =
-      maybeFetchPolicy ??
-      (operationIsLiveQuery(operation)
-        ? DEFAULT_LIVE_FETCH_POLICY
-        : DEFAULT_FETCH_POLICY);
+    const fetchPolicy = maybeFetchPolicy ?? getDefaultFetchPolicy(operation);
     const renderPolicy =
       maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
 

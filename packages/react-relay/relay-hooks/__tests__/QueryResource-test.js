@@ -126,6 +126,74 @@ describe('QueryResource', () => {
   });
 
   describe('prepare', () => {
+    describe('default fetch policy for exec-time resolver queries', () => {
+      it('uses store-and-network when exec-time resolvers are enabled', () => {
+        const execTimeRequest = {
+          ...gqlQuery,
+          operation: {
+            ...gqlQuery.operation,
+            use_exec_time_resolvers: true,
+          },
+        };
+        const execTimeQuery = createOperationDescriptor(
+          execTimeRequest,
+          variables,
+          {force: true},
+        );
+
+        QueryResource.prepare(
+          execTimeQuery,
+          fetchQuery(environment, execTimeQuery),
+          null,
+          renderPolicy,
+        );
+
+        expect(
+          environment.mock.isLoading(
+            execTimeQuery.request.node,
+            execTimeQuery.request.variables,
+            {force: true},
+          ),
+        ).toBe(true);
+      });
+
+      it('uses store-only for a client-only query with a disabled provider', () => {
+        const clientRequest = {
+          ...gqlQueryMissingData,
+          operation: {
+            ...gqlQueryMissingData.operation,
+            exec_time_resolvers_enabled_provider: {get: () => false},
+          },
+          params: {
+            ...gqlQueryMissingData.params,
+            cacheID: 'client-query',
+            id: null,
+            text: null,
+          },
+        };
+        const clientQuery = createOperationDescriptor(
+          clientRequest,
+          variables,
+          {force: true},
+        );
+
+        QueryResource.prepare(
+          clientQuery,
+          fetchQuery(environment, clientQuery),
+          null,
+          renderPolicy,
+        );
+
+        expect(
+          environment.mock.isLoading(
+            clientQuery.request.node,
+            clientQuery.request.variables,
+            {force: true},
+          ),
+        ).toBe(false);
+      });
+    });
+
     describe('fetchPolicy: store-or-network', () => {
       beforeEach(() => {
         fetchPolicy = 'store-or-network';
@@ -2433,6 +2501,46 @@ describe('QueryResource', () => {
           {force: true},
         ),
       ).toEqual(false);
+    });
+
+    it('cancels an exec-time resolver query after releasing it while the request is still in flight', () => {
+      const execTimeRequest = {
+        ...gqlQueryMissingData,
+        operation: {
+          ...gqlQueryMissingData.operation,
+          use_exec_time_resolvers: true,
+        },
+      };
+      const execTimeQuery = createOperationDescriptor(
+        execTimeRequest,
+        variables,
+        {force: true},
+      );
+      const result = QueryResource.prepare(
+        execTimeQuery,
+        fetchQuery(environment, execTimeQuery),
+        fetchPolicy,
+        renderPolicy,
+      );
+
+      expect(
+        environment.mock.isLoading(
+          execTimeQuery.request.node,
+          execTimeQuery.request.variables,
+          {force: true},
+        ),
+      ).toBe(true);
+
+      const disposable = QueryResource.retain(result);
+      disposable.dispose();
+
+      expect(
+        environment.mock.isLoading(
+          execTimeQuery.request.node,
+          execTimeQuery.request.variables,
+          {force: true},
+        ),
+      ).toBe(false);
     });
 
     describe('when retaining the same query multiple times', () => {

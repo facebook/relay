@@ -23,6 +23,7 @@ import type {
 } from './EntryPointTypes.flow';
 import type {
   ConcreteRequest,
+  FetchPolicy,
   GraphQLResponse,
   GraphQLTaggedNode,
   IEnvironment,
@@ -33,6 +34,7 @@ import type {
   RequestParameters,
 } from 'relay-runtime';
 
+const {isExecTimeResolversEnabled} = require('./execTimeResolvers');
 const invariant = require('invariant');
 const {
   __internal: {fetchQueryDeduped},
@@ -43,6 +45,23 @@ const {
   getRequest,
   getRequestIdentifier,
 } = require('relay-runtime');
+
+const DEFAULT_FETCH_POLICY: FetchPolicy = 'store-or-network';
+const DEFAULT_LIVE_FETCH_POLICY: FetchPolicy = 'store-and-network';
+
+function getDefaultFetchPolicy(request: ConcreteRequest): FetchPolicy {
+  if (
+    request.params.metadata.live !== undefined ||
+    isExecTimeResolversEnabled(request.operation)
+  ) {
+    return DEFAULT_LIVE_FETCH_POLICY;
+  }
+  if (request.params.id == null && request.params.text == null) {
+    // A client-only query using read-time resolvers has no server operation to fetch.
+    return 'store-only';
+  }
+  return DEFAULT_FETCH_POLICY;
+}
 
 let fetchKey = 100001;
 
@@ -89,7 +108,10 @@ function loadQuery<
   // necessary.
   fetchKey++;
 
-  const fetchPolicy = options?.fetchPolicy ?? 'store-or-network';
+  const providedFetchPolicy = options?.fetchPolicy;
+  // Keep the existing default for params-only preloadable requests. Full
+  // ConcreteRequests get an exec-time-aware default below.
+  let fetchPolicy: FetchPolicy = providedFetchPolicy ?? DEFAULT_FETCH_POLICY;
   const networkCacheConfig = {
     ...options?.networkCacheConfig,
     force: true,
@@ -252,6 +274,9 @@ function loadQuery<
   };
 
   const checkAvailabilityAndExecute = (concreteRequest: ConcreteRequest) => {
+    if (providedFetchPolicy == null) {
+      fetchPolicy = getDefaultFetchPolicy(concreteRequest);
+    }
     const operation = createOperationDescriptor(
       concreteRequest,
       variables,

@@ -136,6 +136,7 @@ export type PreloadedQuery<
     TQuery extends OperationType,
     TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = Readonly<{
+    ' $queryShape': TQuery;
     kind: 'PreloadedQuery';
     environment: IEnvironment;
     environmentProviderOptions?: TEnvironmentProviderOptions | null | undefined;

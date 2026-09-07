@@ -18,6 +18,8 @@ directive @client_polling(interval: Int) on QUERY
 
 directive @live on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+directive @live_fragment on FRAGMENT_DEFINITION
+
 directive @customDirective(level: Int!) on FIELD | FRAGMENT_SPREAD
 
 directive @fixme_fat_interface on FIELD

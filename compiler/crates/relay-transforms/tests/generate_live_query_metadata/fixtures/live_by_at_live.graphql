@@ -58,3 +58,21 @@ query TestLinkedField($id: ID!) {
     }
   }
 }
+
+query TestLiveInsideSpreadFragment($id: ID!) {
+  node(id: $id) {
+    id
+    ... UserWithLiveChild
+  }
+}
+
+fragment UserWithLiveChild on User @live_fragment {
+  ... UserBirthdate @live
+}
+
+query TestNonLiveFragmentSpread($id: ID!) {
+  node(id: $id) {
+    id
+    ... UserBirthdate
+  }
+}

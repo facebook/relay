@@ -17,6 +17,7 @@ use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::ConstantArgument;
 use graphql_ir::ConstantValue;
+use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinition;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
@@ -34,6 +35,8 @@ static CLIENT_POLLING_DIRECTIVE_NAME: LazyLock<DirectiveName> =
     LazyLock::new(|| DirectiveName("client_polling".intern()));
 static LIVE_DIRECTIVE_NAME: LazyLock<DirectiveName> =
     LazyLock::new(|| DirectiveName("live".intern()));
+static LIVE_FRAGMENT_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("live_fragment".intern()));
 static CLIENT_POLLING_INTERVAL_ARG: LazyLock<ArgumentName> =
     LazyLock::new(|| ArgumentName("interval".intern()));
 static CONFIG_ID_ARG: LazyLock<ArgumentName> = LazyLock::new(|| ArgumentName("config_id".intern()));
@@ -120,18 +123,27 @@ impl Transformer<'_> for GenerateLiveQueryMetadata {
 }
 
 fn has_live_directive(selections: &[Selection]) -> bool {
-    selections.iter().any(|selection| -> bool {
-        match selection {
-            Selection::FragmentSpread(_) => is_live_selection(selection),
-            Selection::InlineFragment(inline_fragment) => {
-                is_live_selection(selection) || has_live_directive(&inline_fragment.selections)
-            }
-            Selection::LinkedField(linked_field) => {
-                is_live_selection(selection) || has_live_directive(&linked_field.selections)
-            }
-            Selection::ScalarField(_) => false,
-            Selection::Condition(condition) => has_live_directive(&condition.selections),
+    selections.iter().any(|selection| match selection {
+        Selection::FragmentSpread(fragment_spread) => {
+            is_live_selection(selection) || spreads_live_fragment(fragment_spread)
         }
+        Selection::InlineFragment(inline_fragment) => {
+            is_live_selection(selection) || has_live_directive(&inline_fragment.selections)
+        }
+        Selection::LinkedField(linked_field) => {
+            is_live_selection(selection) || has_live_directive(&linked_field.selections)
+        }
+        Selection::ScalarField(_) => false,
+        Selection::Condition(condition) => has_live_directive(&condition.selections),
+    })
+}
+
+fn spreads_live_fragment(fragment_spread: &FragmentSpread) -> bool {
+    fragment_spread.signature.as_ref().is_some_and(|signature| {
+        signature
+            .directives
+            .named(*LIVE_FRAGMENT_DIRECTIVE_NAME)
+            .is_some()
     })
 }
 

@@ -59,6 +59,24 @@ query TestLinkedField($id: ID!) {
     }
   }
 }
+
+query TestLiveInsideSpreadFragment($id: ID!) {
+  node(id: $id) {
+    id
+    ... UserWithLiveChild
+  }
+}
+
+fragment UserWithLiveChild on User @live_fragment {
+  ... UserBirthdate @live
+}
+
+query TestNonLiveFragmentSpread($id: ID!) {
+  node(id: $id) {
+    id
+    ... UserBirthdate
+  }
+}
 ==================================== OUTPUT ===================================
 query TestCondition1(
   $id: ID!
@@ -121,6 +139,24 @@ query TestLinkedField(
   }
 }
 
+query TestLiveInsideSpreadFragment(
+  $id: ID!
+) @__metadata(live: {config_id: ""}) {
+  node(id: $id) {
+    id
+    ...UserWithLiveChild
+  }
+}
+
+query TestNonLiveFragmentSpread(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...UserBirthdate
+  }
+}
+
 query TestRootField(
   $id: ID!
 ) @__metadata(live: {config_id: ""}) {
@@ -133,4 +169,8 @@ fragment UserBirthdate on User {
   birthdate {
     day
   }
+}
+
+fragment UserWithLiveChild on User @live_fragment {
+  ...UserBirthdate @live
 }

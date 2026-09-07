@@ -144,16 +144,19 @@ describe('QueryResource fetch ownership and GC recovery', () => {
       'partial',
     );
     resource.retain(firstResult).dispose();
+    const observer = {next: jest.fn(), complete: jest.fn()};
     const secondResult = resource.prepare(
       operation,
       fetchQuery(environment, operation),
       'store-and-network',
       'partial',
-      null,
+      observer,
       'replacement',
     );
     const retained = resource.retain(secondResult);
     expect(environment.mock.getAllOperations()).toHaveLength(1);
+    expect(observer.next).not.toHaveBeenCalled();
+    expect(observer.complete).not.toHaveBeenCalled();
 
     environment.mock.resolve(operation, {
       data: {node: {__typename: 'User', id: 'target', name: 'Shared result'}},
@@ -176,6 +179,12 @@ describe('QueryResource fetch ownership and GC recovery', () => {
         ),
       ).getValue(),
     ).toEqual(secondResult);
+    expect(observer.next).toHaveBeenCalledTimes(1);
+    expect(observer.next.mock.calls[0][0]).toMatchObject({
+      isMissingData: false,
+      data: {node: {id: 'target', name: 'Shared result'}},
+    });
+    expect(observer.complete).toHaveBeenCalledTimes(1);
     expect(environment.lookup(operation.fragment).data).toMatchObject({
       node: {name: 'Shared result'},
     });
@@ -184,14 +193,16 @@ describe('QueryResource fetch ownership and GC recovery', () => {
 
   it.each(['next', 'error'])(
     'does not overwrite a replacement entry with an older fetch %s',
-    event => {
+    async event => {
       let firstSink: ?Sink<GraphQLResponse>;
       const first = Observable.create<GraphQLResponse>(value => {
         firstSink = value;
       });
-      captureSuspense(() =>
+      const oldPending = captureSuspense(() =>
         resource.prepare(operation, first, 'network-only', 'full'),
       );
+      const oldSettled = jest.fn();
+      oldPending.then(oldSettled);
       jest.runAllTimers();
 
       let secondSink: ?Sink<GraphQLResponse>;
@@ -204,6 +215,11 @@ describe('QueryResource fetch ownership and GC recovery', () => {
       const replacement = nullthrows(
         resource.TESTS_ONLY__getCacheEntry(operation, 'network-only', 'full'),
       );
+      const replacementSettled = jest.fn();
+      pending.then(replacementSettled);
+      await Promise.resolve();
+      expect(oldSettled).not.toHaveBeenCalled();
+      expect(replacementSettled).not.toHaveBeenCalled();
 
       if (event === 'next') {
         nullthrows(firstSink).next({data: {}});
@@ -211,9 +227,62 @@ describe('QueryResource fetch ownership and GC recovery', () => {
         nullthrows(firstSink).error(new Error('Old fetch failed'));
       }
 
+      await Promise.resolve();
+      expect(oldSettled).toHaveBeenCalledTimes(1);
+      expect(replacementSettled).not.toHaveBeenCalled();
       expect(replacement.getValue()).toBe(pending);
+
       nullthrows(secondSink).next({data: {}});
-      expect(replacement.getValue()).not.toBe(pending);
+      await Promise.resolve();
+      expect(replacementSettled).toHaveBeenCalledTimes(1);
+      expect(replacement.getValue()).toMatchObject({
+        operation,
+        fragmentNode: operation.fragment.node,
+      });
+      expect(resource.prepare(operation, second, 'network-only', 'full')).toBe(
+        replacement.getValue(),
+      );
+    },
+  );
+
+  it.each(['next', 'error', 'complete'])(
+    'settles the suspended render promise after asynchronous %s',
+    async event => {
+      let sink: ?Sink<GraphQLResponse>;
+      const observable = Observable.create<GraphQLResponse>(value => {
+        sink = value;
+      });
+      const pending = captureSuspense(() =>
+        resource.prepare(operation, observable, 'network-only', 'full'),
+      );
+      const settled = jest.fn();
+      pending.then(settled);
+      await Promise.resolve();
+      expect(settled).not.toHaveBeenCalled();
+
+      const error = new Error('Asynchronous transport error');
+      if (event === 'next') {
+        nullthrows(sink).next({data: {}});
+      } else if (event === 'error') {
+        nullthrows(sink).error(error);
+      } else {
+        nullthrows(sink).complete();
+      }
+
+      // Flush Promise reactions without waiting for an unresolved promise to
+      // time out: missing wake-ups must fail at this assertion.
+      await Promise.resolve();
+      expect(settled).toHaveBeenCalledTimes(1);
+      expect(settled).toHaveBeenCalledWith(undefined);
+      if (event === 'next') {
+        expect(
+          resource.prepare(operation, observable, 'network-only', 'full'),
+        ).toMatchObject({operation, fragmentNode: operation.fragment.node});
+      } else if (event === 'error') {
+        expect(() =>
+          resource.prepare(operation, observable, 'network-only', 'full'),
+        ).toThrow(error);
+      }
     },
   );
 

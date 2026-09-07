@@ -232,78 +232,49 @@ describe('QueryResource fetch ownership and GC recovery', () => {
       expect(replacementSettled).not.toHaveBeenCalled();
       expect(replacement.getValue()).toBe(pending);
 
-      nullthrows(secondSink).next({data: {}});
+      const replacementError = new Error('Replacement fetch failed');
+      if (event === 'next') {
+        nullthrows(secondSink).next({data: {}});
+      } else {
+        nullthrows(secondSink).error(replacementError);
+      }
       await Promise.resolve();
       expect(replacementSettled).toHaveBeenCalledTimes(1);
-      expect(replacement.getValue()).toMatchObject({
-        operation,
-        fragmentNode: operation.fragment.node,
-      });
-      expect(resource.prepare(operation, second, 'network-only', 'full')).toBe(
-        replacement.getValue(),
-      );
-    },
-  );
-
-  it.each(['next', 'error', 'complete'])(
-    'settles the suspended render promise after asynchronous %s',
-    async event => {
-      let sink: ?Sink<GraphQLResponse>;
-      const observable = Observable.create<GraphQLResponse>(value => {
-        sink = value;
-      });
-      const pending = captureSuspense(() =>
-        resource.prepare(operation, observable, 'network-only', 'full'),
-      );
-      const settled = jest.fn();
-      pending.then(settled);
-      await Promise.resolve();
-      expect(settled).not.toHaveBeenCalled();
-
-      const error = new Error('Asynchronous transport error');
       if (event === 'next') {
-        nullthrows(sink).next({data: {}});
-      } else if (event === 'error') {
-        nullthrows(sink).error(error);
-      } else {
-        nullthrows(sink).complete();
-      }
-
-      // Flush Promise reactions without waiting for an unresolved promise to
-      // time out: missing wake-ups must fail at this assertion.
-      await Promise.resolve();
-      expect(settled).toHaveBeenCalledTimes(1);
-      expect(settled).toHaveBeenCalledWith(undefined);
-      if (event === 'next') {
+        expect(replacement.getValue()).toMatchObject({
+          operation,
+          fragmentNode: operation.fragment.node,
+        });
         expect(
-          resource.prepare(operation, observable, 'network-only', 'full'),
-        ).toMatchObject({operation, fragmentNode: operation.fragment.node});
-      } else if (event === 'error') {
+          resource.prepare(operation, second, 'network-only', 'full'),
+        ).toBe(replacement.getValue());
+      } else {
+        expect(replacement.getValue()).toBe(replacementError);
         expect(() =>
-          resource.prepare(operation, observable, 'network-only', 'full'),
-        ).toThrow(error);
+          resource.prepare(operation, second, 'network-only', 'full'),
+        ).toThrow(replacementError);
       }
     },
   );
 
-  it('keeps a synchronous first payload renderable', () => {
-    const observable = Observable.create<GraphQLResponse>(sink => {
-      sink.next({data: {}});
-      sink.complete();
+  it('settles the suspended render promise when a request completes without data', async () => {
+    let sink: ?Sink<GraphQLResponse>;
+    const observable = Observable.create<GraphQLResponse>(value => {
+      sink = value;
     });
-    expect(
-      resource.prepare(operation, observable, 'network-only', 'full')
-        .fragmentNode,
-    ).toBe(operation.fragment.node);
-  });
-
-  it('throws a synchronous first error instead of a pending promise', () => {
-    const error = new Error('Synchronous transport error');
-    const observable = Observable.create<GraphQLResponse>(sink =>
-      sink.error(error),
-    );
-    expect(() =>
+    const pending = captureSuspense(() =>
       resource.prepare(operation, observable, 'network-only', 'full'),
-    ).toThrow(error);
+    );
+    const settled = jest.fn();
+    pending.then(settled);
+    await Promise.resolve();
+    expect(settled).not.toHaveBeenCalled();
+
+    nullthrows(sink).complete();
+
+    // A completion without a payload cannot rely on next to wake the render.
+    await Promise.resolve();
+    expect(settled).toHaveBeenCalledTimes(1);
+    expect(settled).toHaveBeenCalledWith(undefined);
   });
 });

@@ -6,6 +6,7 @@
  */
 
 use std::path::Path;
+use std::path::PathBuf;
 
 use common::Location;
 use common::SourceLocationKey;
@@ -23,6 +24,7 @@ use log::debug;
 use lsp_types::Position;
 use lsp_types::TextDocumentPositionParams;
 use lsp_types::Uri;
+use percent_encoding::percent_decode_str;
 use relay_compiler::FileCategorizer;
 use relay_compiler::FileGroup;
 use relay_compiler::ProjectConfig;
@@ -36,10 +38,7 @@ use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 
 pub fn is_file_uri_in_dir(root_dir: &Path, file_uri: &Uri) -> bool {
-    file_uri
-        .scheme()
-        .is_some_and(|scheme| scheme.eq_lowercase("file"))
-        && Path::new(file_uri.path().as_str()).starts_with(root_dir)
+    uri_to_file_path(file_uri).is_some_and(|file_path| file_path.starts_with(root_dir))
 }
 
 pub fn extract_executable_definitions_from_text_document(
@@ -53,7 +52,12 @@ pub fn extract_executable_definitions_from_text_document(
         // the source has no graphql documents.
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let path = text_document_uri.path();
+    let file_path = uri_to_file_path(text_document_uri).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!(
+            "Unable to convert URI to file path: {text_document_uri:?}",
+        ))
+    })?;
+    let path = file_path.to_string_lossy();
 
     let definitions = source_features
         .iter()
@@ -65,7 +69,7 @@ pub fn extract_executable_definitions_from_text_document(
         .flat_map(|(i, graphql_source)| {
             let document = parse_executable_with_error_recovery_and_parser_features(
                 &graphql_source.text_source().text,
-                SourceLocationKey::embedded(path.as_str(), i),
+                SourceLocationKey::embedded(&path, i),
                 parser_features,
             )
             .item;
@@ -83,12 +87,11 @@ pub fn get_file_group_from_uri(
     root_dir: &Path,
     config: &Config,
 ) -> LSPRuntimeResult<FileGroup> {
-    let absolute_file_path = Path::new(uri.path().as_str());
-    if !absolute_file_path.is_absolute() {
-        return Err(LSPRuntimeError::UnexpectedError(format!(
-            "Unable to convert URI to file path: {uri:?}",
-        )));
-    }
+    let absolute_file_path = uri_to_file_path(uri)
+        .filter(|path| path.is_absolute())
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!("Unable to convert URI to file path: {uri:?}"))
+        })?;
 
     let file_path = absolute_file_path.strip_prefix(root_dir).map_err(|_e| {
         LSPRuntimeError::UnexpectedError(format!(
@@ -163,7 +166,10 @@ pub fn extract_feature_from_text(
         })
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let source_location_key = SourceLocationKey::embedded(uri.path().as_str(), index);
+    let file_path = uri_to_file_path(uri).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!("Unable to convert URI to file path: {uri:?}"))
+    })?;
+    let source_location_key = SourceLocationKey::embedded(&file_path.to_string_lossy(), index);
 
     let parser_features = get_parser_features(project_config);
 
@@ -296,6 +302,57 @@ pub fn position_to_offset(
     None
 }
 
+/// Converts a `file://` URI into a filesystem path, handling both Unix and
+/// Windows paths.
+///
+/// This restores the behavior that was lost when relay-lsp migrated from
+/// `lsp_types::Url` (backed by the `url` crate) to `lsp_types::Uri` (backed by
+/// `fluent-uri`). `Url::to_file_path()` used to percent-decode the path and
+/// normalize Windows drive letters, whereas `Uri::path()` exposes only the
+/// raw, still-percent-encoded path. Without this, Windows editors that send
+/// URIs such as `file:///c%3A/dir/file.graphql` produce the path
+/// `/c%3A/dir/file.graphql`, which is neither absolute nor a real file (see
+/// https://github.com/facebook/relay/issues/5347).
+///
+/// Returns `None` for non-`file` URIs.
+pub fn uri_to_file_path(uri: &Uri) -> Option<PathBuf> {
+    if !uri
+        .scheme()
+        .is_some_and(|scheme| scheme.eq_lowercase("file"))
+    {
+        return None;
+    }
+
+    // Percent-decode the path, e.g. `%3A` -> `:` for Windows drive letters and
+    // `%20` -> ` ` for paths containing spaces.
+    let decoded = percent_decode_str(uri.path().as_str()).decode_utf8_lossy();
+    Some(decoded_uri_path_to_file_path(&decoded))
+}
+
+/// Maps the (already percent-decoded) path component of a `file://` URI to a
+/// filesystem path.
+fn decoded_uri_path_to_file_path(decoded_path: &str) -> PathBuf {
+    // A `file://` URI always begins its path with `/`. On Windows the path is
+    // of the form `/C:/dir/file`, and the leading slash must be removed so it
+    // maps to the absolute path `C:/dir/file`. Unix paths (`/home/user`) are
+    // used verbatim.
+    let path = decoded_path
+        .strip_prefix('/')
+        .filter(|rest| is_windows_drive_prefix(rest))
+        .unwrap_or(decoded_path);
+    PathBuf::from(path)
+}
+
+/// Returns `true` if `path` begins with a Windows drive-letter component such
+/// as `C:`, `C:/`, or `C:\`.
+fn is_windows_drive_prefix(path: &str) -> bool {
+    let bytes = path.as_bytes();
+    bytes.len() >= 2
+        && bytes[0].is_ascii_alphabetic()
+        && bytes[1] == b':'
+        && (bytes.len() == 2 || bytes[2] == b'/' || bytes[2] == b'\\')
+}
+
 /// Converts a filesystem path to a `file://` URI, handling both Unix and Windows paths.
 pub fn path_to_file_uri(path: &Path) -> Option<Uri> {
     let path_str = path.to_str()?;
@@ -317,4 +374,87 @@ fn str_path_to_file_uri(path: &str) -> Option<Uri> {
         format!("file:///{normalized}")
     };
     uri_str.parse::<Uri>().ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+
+    use lsp_types::Uri;
+
+    use super::is_windows_drive_prefix;
+    use super::path_to_file_uri;
+    use super::uri_to_file_path;
+
+    fn uri(s: &str) -> Uri {
+        s.parse::<Uri>().unwrap()
+    }
+
+    #[test]
+    fn uri_to_file_path_unix() {
+        assert_eq!(
+            uri_to_file_path(&uri("file:///Users/alice/project/src/foo.graphql")),
+            Some(PathBuf::from("/Users/alice/project/src/foo.graphql"))
+        );
+    }
+
+    #[test]
+    fn uri_to_file_path_windows_percent_encoded_drive_letter() {
+        // Editors such as VSCode encode the drive-letter colon as `%3A`. This
+        // is the exact shape reported in facebook/relay#5347.
+        assert_eq!(
+            uri_to_file_path(&uri(
+                "file:///c%3A/Development/repo-relay-compiler-bug/src/something.graphql"
+            )),
+            Some(PathBuf::from(
+                "c:/Development/repo-relay-compiler-bug/src/something.graphql"
+            ))
+        );
+    }
+
+    #[test]
+    fn uri_to_file_path_windows_unencoded_drive_letter() {
+        assert_eq!(
+            uri_to_file_path(&uri("file:///C:/Development/foo.graphql")),
+            Some(PathBuf::from("C:/Development/foo.graphql"))
+        );
+    }
+
+    #[test]
+    fn uri_to_file_path_decodes_spaces() {
+        assert_eq!(
+            uri_to_file_path(&uri("file:///Users/alice/my%20project/foo.graphql")),
+            Some(PathBuf::from("/Users/alice/my project/foo.graphql"))
+        );
+    }
+
+    #[test]
+    fn uri_to_file_path_rejects_non_file_scheme() {
+        assert_eq!(
+            uri_to_file_path(&uri("https://example.com/foo.graphql")),
+            None
+        );
+    }
+
+    #[test]
+    fn uri_to_file_path_roundtrips_windows_path() {
+        // `path_to_file_uri` (the reverse direction) followed by
+        // `uri_to_file_path` should recover a usable absolute Windows path.
+        let file_uri = path_to_file_uri(&PathBuf::from("C:\\Development\\foo.graphql")).unwrap();
+        assert_eq!(
+            uri_to_file_path(&file_uri),
+            Some(PathBuf::from("C:/Development/foo.graphql"))
+        );
+    }
+
+    #[test]
+    fn windows_drive_prefix_detection() {
+        assert!(is_windows_drive_prefix("C:"));
+        assert!(is_windows_drive_prefix("c:/dir"));
+        assert!(is_windows_drive_prefix("Z:\\dir"));
+        assert!(!is_windows_drive_prefix("Users/alice"));
+        assert!(!is_windows_drive_prefix("/c:/dir"));
+        assert!(!is_windows_drive_prefix("cc:/dir"));
+        assert!(!is_windows_drive_prefix("1:/dir"));
+    }
 }

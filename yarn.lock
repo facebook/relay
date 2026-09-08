@@ -3704,26 +3704,26 @@ flow-bin@^0.331.0:
   resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.331.0.tgz#a9fb60c16a47084a081a6f5ea56e9f41c7e4e173"
   integrity sha512-GRM2hiixc8gE2q6AoolTfgtS4tWS1sced0iQAbOmZ5jCD/GTsGSINoM/6ENu1oAjqmodWA4H+1qyNhVb+r3V3A==
 
-flow-eslint@0.327.0:
-  version "0.327.0"
-  resolved "https://registry.yarnpkg.com/flow-eslint/-/flow-eslint-0.327.0.tgz#cddb2cc70401d2f546142cecdc0689c55fe490ec"
-  integrity sha512-qFUCnVPvKN5Wg2+E/XLKb9mHJVGTKoodHMX1SolV9731sCdB8MXgWF+oYWkmSAiXb2U4R/EYvQ0ADxJMCkIH3A==
+flow-eslint@0.331.0:
+  version "0.331.0"
+  resolved "https://registry.yarnpkg.com/flow-eslint/-/flow-eslint-0.331.0.tgz#4fee8ed51eb924ff8cff45537fe7d3af53f6ddcd"
+  integrity sha512-6l1WAnvBMmrGljLLpnb+yuqbKbOcaHWQ6iz9M2QlUWXLgRUkxl1dQJfJ7dU/U3kvTjJyHCDt9vJiM9kf4BtA8Q==
   dependencies:
     esrecurse "^4.3.0"
-    flow-estree "0.327.0"
-    flow-parser "0.327.0"
+    flow-estree "0.331.0"
+    flow-parser "0.331.0"
 
-flow-estree@0.327.0:
-  version "0.327.0"
-  resolved "https://registry.yarnpkg.com/flow-estree/-/flow-estree-0.327.0.tgz#59c1b87cc6c5dd7ad195ac059e9f8efa6c28c2df"
-  integrity sha512-f9vK751YUzD0qaHSpKc5/qQM6gqOlgGS+4ZRqTNcZOpVqn3mC55yEQ6dUG2K1eaVm5FbKkz9CFWe6XNvrkQFQg==
+flow-estree@0.331.0:
+  version "0.331.0"
+  resolved "https://registry.yarnpkg.com/flow-estree/-/flow-estree-0.331.0.tgz#4069f6b5e86337805413ee511d785753a015ceaa"
+  integrity sha512-FVLYkSL/ITb/QXBEQvNWPjPooRGswuUtGOwrH+puSlMDneNkxy640+FZsk/TfKL+b7Wbw/Fg9FTUv2bMQDpj2w==
 
-flow-parser@0.327.0:
-  version "0.327.0"
-  resolved "https://registry.yarnpkg.com/flow-parser/-/flow-parser-0.327.0.tgz#05ab7e7ab6304a992a151cc89faf9111d89d8596"
-  integrity sha512-/MYZ5hXWf5ozpbdfUDmazMgQXviLxWEiRLH3MppEGDdW0itRVqmB5UaU7QX+SBCDNiq+gEesSVn8nlxmPDyDkw==
+flow-parser@0.331.0:
+  version "0.331.0"
+  resolved "https://registry.yarnpkg.com/flow-parser/-/flow-parser-0.331.0.tgz#d4b1ff0026930fb82788b02173449efd5e7b25c0"
+  integrity sha512-vEZcHIlnKeN8JSVtYFczj8sWJfHIJOkz+YG00O/oul/Bete+t1ZhTi+O6JRRLFYvGW+yJkZ0YgL16iStnbkUqQ==
   dependencies:
-    flow-estree "0.327.0"
+    flow-estree "0.331.0"
 
 flush-write-stream@^1.0.2:
   version "1.1.1"

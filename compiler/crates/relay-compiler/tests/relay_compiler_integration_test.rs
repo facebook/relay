@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<89b80988f7bb7abcf8a906e62165be6c>>
+ * @generated SignedSource<<29a9ef679dc4c36c5331cab097998249>>
  */
 
 mod relay_compiler_integration;
@@ -31,6 +31,13 @@ async fn client_extension_interface_backed_by_resolvers_in_throw_on_field_error(
     let input = include_str!("relay_compiler_integration/fixtures/client_extension_interface_backed_by_resolvers_in_throw_on_field_error.input");
     let expected = include_str!("relay_compiler_integration/fixtures/client_extension_interface_backed_by_resolvers_in_throw_on_field_error.expected");
     test_fixture(transform_fixture, file!(), "client_extension_interface_backed_by_resolvers_in_throw_on_field_error.input", "relay_compiler_integration/fixtures/client_extension_interface_backed_by_resolvers_in_throw_on_field_error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_model_sdl_extend_implements_interface() {
+    let input = include_str!("relay_compiler_integration/fixtures/client_model_sdl_extend_implements_interface.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/client_model_sdl_extend_implements_interface.expected");
+    test_fixture(transform_fixture, file!(), "client_model_sdl_extend_implements_interface.input", "relay_compiler_integration/fixtures/client_model_sdl_extend_implements_interface.expected", input, expected).await;
 }
 
 #[tokio::test]

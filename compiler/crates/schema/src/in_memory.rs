@@ -957,10 +957,29 @@ impl InMemorySchema {
             }
         }
 
+        // Within the client documents, extensions are applied only after every
+        // client type definition, so an extension may forward-reference a type
+        // defined later in the batch. Unlike a hand-written schema file, the
+        // order of the client documents is not author-controlled: the compiler
+        // concatenates hand-written client schema extensions with the generated
+        // Relay Resolver model types, appending the latter. Without this, an
+        // `extend type <ResolverModel>` could never resolve. Server documents
+        // keep the stricter spec ordering, where the extended type must already
+        // be defined.
+        let mut deferred_client_extensions = Vec::new();
+
         for document in client_schema_documents.iter() {
             for definition in document.0.iter() {
-                schema.add_definition(definition, &document.1.source_location(), true)?;
+                if is_type_system_extension(definition) {
+                    deferred_client_extensions.push((*definition, document.1.source_location()));
+                } else {
+                    schema.add_definition(definition, &document.1.source_location(), true)?;
+                }
             }
+        }
+
+        for (definition, source_location) in deferred_client_extensions {
+            schema.add_definition(definition, &source_location, true)?;
         }
 
         if !duplicate_definitions.is_empty() {
@@ -2247,6 +2266,31 @@ fn extend_without_duplicates<T: PartialEq>(
         if !target.contains(&extension) {
             target.push(extension);
         }
+    }
+}
+
+/// `InMemorySchema::build_impl` applies every *client* type definition before any
+/// client type extension, so an extension may forward-reference a type defined
+/// later in the batch. Exhaustive on purpose: a new `TypeSystemDefinition` variant
+/// must be classified here rather than silently defaulting to "definition".
+fn is_type_system_extension(definition: &TypeSystemDefinition) -> bool {
+    match definition {
+        TypeSystemDefinition::SchemaExtension(_)
+        | TypeSystemDefinition::EnumTypeExtension(_)
+        | TypeSystemDefinition::InterfaceTypeExtension(_)
+        | TypeSystemDefinition::ObjectTypeExtension(_)
+        | TypeSystemDefinition::UnionTypeExtension(_)
+        | TypeSystemDefinition::InputObjectTypeExtension(_)
+        | TypeSystemDefinition::ScalarTypeExtension(_)
+        | TypeSystemDefinition::DirectiveDefinitionExtension(_) => true,
+        TypeSystemDefinition::SchemaDefinition(_)
+        | TypeSystemDefinition::EnumTypeDefinition(_)
+        | TypeSystemDefinition::InterfaceTypeDefinition(_)
+        | TypeSystemDefinition::ObjectTypeDefinition(_)
+        | TypeSystemDefinition::UnionTypeDefinition(_)
+        | TypeSystemDefinition::InputObjectTypeDefinition(_)
+        | TypeSystemDefinition::ScalarTypeDefinition(_)
+        | TypeSystemDefinition::DirectiveDefinition(_) => false,
     }
 }
 

@@ -1,0 +1,40 @@
+//- PetComponent.js
+graphql`fragment PetComponentFragment on IPet {
+  name
+}`
+
+//- CatResolvers.js
+/**
+ * @relayType Cat
+ */
+
+/**
+ * @relayField Cat.name: String
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "enable_resolver_normalization_ast": true,
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+//- schema-extensions/extension.graphql
+interface IPet {
+  id: ID!
+  name: String
+}
+
+extend type Cat implements IPet

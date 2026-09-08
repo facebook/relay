@@ -466,6 +466,42 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
+            location: kitchen-sink.graphql:835:839,
+            item: "name",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(8),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+        description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: kitchen-sink.graphql:961:963,
+            item: "id",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(4),
+        ),
+        description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
             location: kitchen-sink.graphql:772:780,
             item: "nickname",
         },
@@ -500,23 +536,6 @@ Text Schema:Schema {
     },
     Field {
         name: WithLocation {
-            location: kitchen-sink.graphql:835:839,
-            item: "name",
-        },
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Scalar(8),
-        ),
-        directives: [],
-        parent_type: Some(
-            Interface(1),
-        ),
-        description: None,
-        hack_source: None,
-    },
-    Field {
-        name: WithLocation {
             location: kitchen-sink.graphql:896:900,
             item: "name",
         },
@@ -528,25 +547,6 @@ Text Schema:Schema {
         directives: [],
         parent_type: Some(
             Interface(0),
-        ),
-        description: None,
-        hack_source: None,
-    },
-    Field {
-        name: WithLocation {
-            location: kitchen-sink.graphql:961:963,
-            item: "id",
-        },
-        is_extension: true,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(4),
-            ),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(4),
         ),
         description: None,
         hack_source: None,
@@ -800,7 +800,7 @@ Text Schema:Schema {
         ],
         fields: [
             FieldID(2),
-            FieldID(11),
+            FieldID(12),
         ],
         directives: [],
         interfaces: [
@@ -822,7 +822,7 @@ Text Schema:Schema {
             ObjectID(1),
         ],
         fields: [
-            FieldID(10),
+            FieldID(8),
         ],
         directives: [],
         interfaces: [],
@@ -859,8 +859,8 @@ Text Schema:Schema {
         fields: [
             FieldID(3),
             FieldID(4),
-            FieldID(8),
-            FieldID(9),
+            FieldID(10),
+            FieldID(11),
         ],
         interfaces: [
             InterfaceID(0),
@@ -912,7 +912,7 @@ Text Schema:Schema {
         },
         is_extension: true,
         fields: [
-            FieldID(12),
+            FieldID(9),
         ],
         interfaces: [],
         directives: [],

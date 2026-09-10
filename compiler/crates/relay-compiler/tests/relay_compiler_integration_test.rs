@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<29a9ef679dc4c36c5331cab097998249>>
+ * @generated SignedSource<<148af1b7c6c4ea04e3bf7e6ef5debf93>>
  */
 
 mod relay_compiler_integration;
@@ -192,6 +192,13 @@ async fn exec_resolvers_directive_with_root_fragment() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.expected");
     test_fixture(transform_fixture, file!(), "exec_resolvers_directive_with_root_fragment.input", "relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_query_rooted_server_reading_resolver_not_routed() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_query_rooted_server_reading_resolver_not_routed.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_query_rooted_server_reading_resolver_not_routed.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_query_rooted_server_reading_resolver_not_routed.input", "relay_compiler_integration/fixtures/exec_time_query_rooted_server_reading_resolver_not_routed.expected", input, expected).await;
 }
 
 #[tokio::test]

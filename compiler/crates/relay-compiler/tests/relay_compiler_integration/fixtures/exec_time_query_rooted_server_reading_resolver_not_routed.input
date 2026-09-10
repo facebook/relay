@@ -1,0 +1,68 @@
+// Test: a QUERY-ROOTED resolver whose `@rootFragment` reads server data but which
+// does NOT declare `@returnFragment` is currently EXCLUDED from
+// `has_server_to_client_resolvers`.
+//
+// This pins a known gap, not desired behaviour. `build_ast.rs` decides the flag with
+//
+//     Some(parent_type) != self.schema.query_type()
+//         || resolver_metadata.return_fragment.is_some()
+//
+// so a Query parent only qualifies via the magic-fragment carve-out. The exclusion
+// exists because a Query-rooted resolver normally reads only client state; the
+// carve-out was added for magic fragments, whose transplant puts server selections
+// into the operation. A resolver that reads server data through a plain
+// `@rootFragment` crosses exactly the same boundary and is still excluded — the
+// comment in `build_ast.rs` says so.
+//
+// Why it matters: without the flag, `LSRelayEnvironmentConfig` never routes the
+// operation to `executeWithNetwork`. It lands on the legacy path, where the resolver
+// and the network run as two concurrent subscriptions and the root fragment is
+// evaluated against an empty store — silently yielding null.
+//
+// It has not bitten yet only because every Query-rooted shadow resolver we ship IS a
+// magic fragment, so the carve-out covers it.
+//
+// EXPECTED IN THE GOLDEN: `NeedsRoutingQuery` must NOT contain
+// `has_server_to_client_resolvers`.
+//
+// The fix is already available and this fixture is what will catch it landing. The
+// compiler ALREADY emits `hasServerField` on a resolver root fragment that reaches a
+// server field — see the `resolver_root_fragment_has_server_field` fixture — which is
+// exactly the predicate the routing flag should key on instead of `@returnFragment`.
+// (That signal is not shown here because emitting a split operation needs
+// `resolversSchemaModule`, which this minimal schema cannot register.) When the flag
+// switches to it, this fixture must be updated rather than passing silently.
+
+//- NeedsRoutingQuery.js
+graphql`query NeedsRoutingQuery @exec_time_resolvers {
+  server_reading_greeting
+}`
+
+//- Query_server_reading_greeting.js
+/**
+ * @relayField Query.server_reading_greeting: String
+ * @rootFragment QueryServerReadingGreetingFragment
+ */
+graphql`fragment QueryServerReadingGreetingFragment on Query {
+  me {
+    name
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+}

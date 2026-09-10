@@ -132,6 +132,51 @@ pub fn skip_redundant_nodes(
 #[derive(Default, Clone, Debug)]
 struct SelectionMap(VecMap<NodeIdentifier<RelayLocationAgnosticBehavior>, Option<SelectionMap>>);
 
+type SelectionMapEntry = (
+    NodeIdentifier<RelayLocationAgnosticBehavior>,
+    Option<SelectionMap>,
+);
+
+/// `SelectionMap` nests as deeply as a selection set is *wide*, not as deeply as
+/// it is nested: forking (see the inline-fragment and condition arms of
+/// `transform_selection`) seeds a child with a clone of its parent and then
+/// stores that child back into the parent, so each additional sibling adds a
+/// level.
+///
+/// That width is reachable in practice. `relay_resolvers_abstract_types` rewrites
+/// an interface-level selection into one inline fragment per implementing object
+/// as soon as any implementor is a client extension, and `Node` has several in
+/// the intern schema — so a lone `id` selected through a `Node`-typed field
+/// becomes ~44k siblings. The derived recursive drop then overflowed the thread
+/// stack, killing the process with `SIGSEGV` instead of reporting a diagnostic.
+///
+/// Tearing down with an explicit work list makes the depth irrelevant. Stealing
+/// each child's entries before it goes out of scope is what keeps this from
+/// recursing: the child is then dropped holding an empty `Vec`, which returns
+/// immediately.
+impl Drop for SelectionMap {
+    fn drop(&mut self) {
+        let mut pending: Vec<Vec<SelectionMapEntry>> = Vec::new();
+        match Arc::get_mut(&mut self.0.data) {
+            // Shared with another owner, so this drop only decrements a refcount
+            // and cannot recurse. Whoever holds the last reference tears it down.
+            None => return,
+            Some(entries) if entries.is_empty() => return,
+            Some(entries) => pending.push(std::mem::take(entries)),
+        }
+        while let Some(entries) = pending.pop() {
+            for (_key, child) in entries {
+                if let Some(mut child) = child
+                    && let Some(grandchildren) = Arc::get_mut(&mut child.0.data)
+                    && !grandchildren.is_empty()
+                {
+                    pending.push(std::mem::take(grandchildren));
+                }
+            }
+        }
+    }
+}
+
 type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 
 pub struct SkipRedundantNodesTransform {

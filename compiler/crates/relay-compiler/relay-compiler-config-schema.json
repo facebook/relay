@@ -665,6 +665,13 @@
             "kind": "disabled"
           }
         },
+        "emit_document_type_registry": {
+          "description": "TypeScript only. Changes how you write GraphQL documents, and in\nreturn gives you type safety without generics.\n\nDocuments move to the call form, ``graphql(`...`)``, which becomes the\nrequired spelling for the project -- the tagged template\n`` graphql`...` `` becomes an error. `relay codemod fix-all` rewrites\nexisting documents for you.\n\nIn exchange, `useLazyLoadQuery` and `useFragment` take their variable\nand response types from the literal itself, so they no longer need an\nexplicit type argument or an import of the generated artifact.\n\nOnly the spelling has to change. A call site that already passes an\nexplicit type argument, `useLazyLoadQuery<FooQuery>(...)`, keeps\ncompiling as-is; the argument just stops being necessary. The one\nexception is `useFragment<Foo$key>(...)`, which has to drop its type\nargument -- `useFragment` infers the key from the ref it is given, so\nthat argument was always redundant.\n\nLimited and rollout variants are keyed by operation or fragment\ndefinition name, and stage only the typing -- the call form is required\nthroughout the project either way.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "emit_nogrep_annotation": {
           "description": "When enabled, the `@nogrep` annotation is included in the docblock\nheader of generated artifacts. This annotation was historically always\nemitted but is no longer needed. This flag allows incremental removal\nacross projects using the rollout variant keyed on the artifact name.",
           "$ref": "#/$defs/FeatureFlag",
@@ -991,6 +998,9 @@
             "disable_resolver_reader_ast": false,
             "disable_schema_validation": false,
             "disallow_required_action_throw_on_semantically_nullable_fields": {
+              "kind": "disabled"
+            },
+            "emit_document_type_registry": {
               "kind": "disabled"
             },
             "emit_nogrep_annotation": {

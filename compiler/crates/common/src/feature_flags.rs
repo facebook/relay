@@ -247,6 +247,31 @@ pub struct FeatureFlags {
     /// rollout variants are keyed by operation or fragment definition name.
     #[serde(default)]
     pub enable_typename_discriminated_unions: FeatureFlag,
+
+    /// TypeScript only. Changes how you write GraphQL documents, and in
+    /// return gives you type safety without generics.
+    ///
+    /// Documents move to the call form, ``graphql(`...`)``, which becomes the
+    /// required spelling for the project -- the tagged template
+    /// `` graphql`...` `` becomes an error. `relay codemod fix-all` rewrites
+    /// existing documents for you.
+    ///
+    /// In exchange, `useLazyLoadQuery` and `useFragment` take their variable
+    /// and response types from the literal itself, so they no longer need an
+    /// explicit type argument or an import of the generated artifact.
+    ///
+    /// Only the spelling has to change. A call site that already passes an
+    /// explicit type argument, `useLazyLoadQuery<FooQuery>(...)`, keeps
+    /// compiling as-is; the argument just stops being necessary. The one
+    /// exception is `useFragment<Foo$key>(...)`, which has to drop its type
+    /// argument -- `useFragment` infers the key from the ref it is given, so
+    /// that argument was always redundant.
+    ///
+    /// Limited and rollout variants are keyed by operation or fragment
+    /// definition name, and stage only the typing -- the call form is required
+    /// throughout the project either way.
+    #[serde(default)]
+    pub emit_document_type_registry: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -287,6 +312,7 @@ impl Default for FeatureFlags {
             emit_nogrep_annotation: Default::default(),
             disable_more_precise_abstract_selection_raw_response_type: Default::default(),
             enable_typename_discriminated_unions: Default::default(),
+            emit_document_type_registry: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

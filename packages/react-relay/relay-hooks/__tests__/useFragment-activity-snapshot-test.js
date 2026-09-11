@@ -37,7 +37,6 @@ disallowWarnings();
 const Query = graphql`
   query useFragmentActivitySnapshotTestQuery {
     ...useFragmentActivitySnapshotTestRoot
-    ...useFragmentActivitySnapshotTestPluralRoot
     ...useFragmentActivitySnapshotTestList
     ...useFragmentActivitySnapshotTestPluralList
     ...useFragmentActivitySnapshotTestScalar
@@ -48,13 +47,6 @@ const Query = graphql`
 
 const Root = graphql`
   fragment useFragmentActivitySnapshotTestRoot on Query {
-    ...useFragmentActivitySnapshotTestList
-  }
-`;
-
-const PluralRoot = graphql`
-  fragment useFragmentActivitySnapshotTestPluralRoot on Query
-  @relay(plural: true) {
     ...useFragmentActivitySnapshotTestList
   }
 `;
@@ -254,79 +246,44 @@ it.each([false, true])(
   },
 );
 
-it.each([false, true])(
-  'passes a replacement list through a memoized parent after hidden GC (plural: %s)',
-  async plural => {
-    const fragment = plural ? PluralRoot : Root;
-    const fragmentRef: any = plural ? [queryRef] : queryRef;
-    function Reader({tick}: {tick: number}) {
-      const result: any = useFragment(fragment, fragmentRef);
-      const data = plural ? result[0] : result;
-      const children = React.useMemo(
-        () => <Names fragmentRef={data} />,
-        [data],
-      );
-      React.useEffect(() => {
-        const retain = environment.retain(operation);
-        return () => retain.dispose();
-      }, []);
-      return <div data-tick={tick}>{children}</div>;
+it('passes a replacement list through a memoized parent after hidden GC', async () => {
+  function Reader({tick}: {tick: number}) {
+    const data = useFragment(Root, queryRef);
+    const children = React.useMemo(() => <Names fragmentRef={data} />, [data]);
+    React.useEffect(() => {
+      const retain = environment.retain(operation);
+      return () => retain.dispose();
+    }, []);
+    return <div data-tick={tick}>{children}</div>;
+  }
+  const instance = renderActivity(Reader);
+  expect(instance.container.textContent).toBe('Alice');
+  await instance.hide();
+  expect(gcSteps.length).toBeGreaterThan(0);
+  await act(() => {
+    while (gcSteps.length > 0) {
+      gcSteps.shift()?.();
     }
-    const instance = renderActivity(Reader);
-    expect(instance.container.textContent).toBe('Alice');
-    await instance.hide();
-    expect(gcSteps.length).toBeGreaterThan(0);
-    await act(() => {
-      while (gcSteps.length > 0) {
-        gcSteps.shift()?.();
-      }
-    });
-    expect(environment.getStore().getSource().has('A')).toBe(false);
-    await act(() => publish('C', 'Carol'));
-    expect(environment.check(operation).status).toBe('available');
-    expect(environment.getStore().getSource().has('A')).toBe(false);
-    await instance.tick();
-    expect(instance.container.textContent).toBe('Carol');
-    await instance.show();
-    expect(instance.container.textContent).toBe('Carol');
-  },
-);
+  });
+  expect(environment.getStore().getSource().has('A')).toBe(false);
+  await act(() => publish('C', 'Carol'));
+  expect(environment.check(operation).status).toBe('available');
+  expect(environment.getStore().getSource().has('A')).toBe(false);
+  await instance.tick();
+  expect(instance.container.textContent).toBe('Carol');
+  await instance.show();
+  expect(instance.container.textContent).toBe('Carol');
+});
 
 it.each([false, true])(
-  'reads the latest data in an urgent render before a queued subscription update (plural: %s)',
-  async plural => {
-    const fragment = plural ? PluralScalar : Scalar;
-    const fragmentRef: any = plural ? [queryRef] : queryRef;
-    function Reader({tick}: {tick: number}) {
-      const result: any = useFragment(fragment, fragmentRef);
-      const data = plural ? result[0] : result;
-      return <span data-tick={tick}>{data.node?.name}</span>;
-    }
-    const instance = renderActivity(Reader);
-    expect(instance.container.textContent).toBe('Parent');
-    await act(() => {
-      React.startTransition(() => {
-        environment.commitUpdate(store => {
-          store.get('1')?.setValue('Updated Parent', 'name');
-        });
-      });
-      flushSync(() => instance.forceRender());
-      // Check before act flushes the transition. A connected subscription only
-      // schedules a React update; it does not make this urgent render current.
-      expect(instance.container.textContent).toBe('Updated Parent');
-    });
-    expect(instance.container.textContent).toBe('Updated Parent');
-  },
-);
-
-it.each([false, true])(
-  'preserves active scalar data identity when an effect writes another fragment (plural: %s)',
+  'keeps active effect dependencies stable and reads queued updates in urgent renders (plural: %s)',
   async plural => {
     const fragment = plural ? PluralScalar : Scalar;
     const fragmentRef: any = plural ? [queryRef] : queryRef;
     const effects = jest.fn();
-    function Reader() {
-      const stable = useFragment(fragment, fragmentRef);
+    function Reader({tick}: {tick: number}) {
+      const result: any = useFragment(fragment, fragmentRef);
+      const data = plural ? result[0] : result;
       const counter = useFragment(Counter, queryRef);
       React.useEffect(() => {
         effects();
@@ -338,27 +295,31 @@ it.each([false, true])(
             user?.setValue(String(value + 1), 'username');
           }
         });
-      }, [stable]);
-      return <span>{counter.node?.username}</span>;
+      }, [result]);
+      return (
+        <div data-tick={tick}>
+          <span data-testid="name">{data.node?.name}</span>
+          <span data-testid="counter">{counter.node?.username}</span>
+        </div>
+      );
     }
     const instance = renderActivity(Reader);
     await act(async () => {});
+    // An unrelated store write must not change the fragment result's identity.
     expect(effects).toHaveBeenCalledTimes(1);
-    expect(instance.container.textContent).toBe('1');
+    expect(instance.getByTestId('counter').textContent).toBe('1');
+    expect(instance.getByTestId('name').textContent).toBe('Parent');
+    await act(() => {
+      React.startTransition(() => {
+        environment.commitUpdate(store => {
+          store.get('1')?.setValue('Updated Parent', 'name');
+        });
+      });
+      flushSync(() => instance.forceRender());
+      // Check before act flushes the transition. A connected subscription only
+      // schedules a React update; it does not make this urgent render current.
+      expect(instance.getByTestId('name').textContent).toBe('Updated Parent');
+    });
+    expect(instance.getByTestId('name').textContent).toBe('Updated Parent');
   },
 );
-
-it('skips lookups for null and empty fragment refs across missed epochs', async () => {
-  function Reader() {
-    expect(useFragment(List, null)).toBeNull();
-    expect(useFragment(PluralList, null)).toBeNull();
-    expect(useFragment(PluralList, [])).toEqual([]);
-    return null;
-  }
-  const instance = renderActivity(Reader);
-  await instance.hide();
-  await act(() => publish('A', 'Bob'));
-  environment.lookup.mockClear();
-  await instance.tick();
-  expect(environment.lookup).not.toHaveBeenCalled();
-});

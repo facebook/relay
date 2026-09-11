@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3215063452d4e118d8125cf8872189f2>>
+ * @generated SignedSource<<d4cb5fc6739f5d0d2ab0de3384a16206>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -20,13 +20,12 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useFragmentActivitySnapshotTestCounter$fragmentType } from "./useFragmentActivitySnapshotTestCounter.graphql";
 import type { useFragmentActivitySnapshotTestList$fragmentType } from "./useFragmentActivitySnapshotTestList.graphql";
 import type { useFragmentActivitySnapshotTestPluralList$fragmentType } from "./useFragmentActivitySnapshotTestPluralList.graphql";
-import type { useFragmentActivitySnapshotTestPluralRoot$fragmentType } from "./useFragmentActivitySnapshotTestPluralRoot.graphql";
 import type { useFragmentActivitySnapshotTestPluralScalar$fragmentType } from "./useFragmentActivitySnapshotTestPluralScalar.graphql";
 import type { useFragmentActivitySnapshotTestRoot$fragmentType } from "./useFragmentActivitySnapshotTestRoot.graphql";
 import type { useFragmentActivitySnapshotTestScalar$fragmentType } from "./useFragmentActivitySnapshotTestScalar.graphql";
 export type useFragmentActivitySnapshotTestQuery$variables = {};
 export type useFragmentActivitySnapshotTestQuery$data = {
-  readonly $fragmentSpreads: useFragmentActivitySnapshotTestCounter$fragmentType & useFragmentActivitySnapshotTestList$fragmentType & useFragmentActivitySnapshotTestPluralList$fragmentType & useFragmentActivitySnapshotTestPluralRoot$fragmentType & useFragmentActivitySnapshotTestPluralScalar$fragmentType & useFragmentActivitySnapshotTestRoot$fragmentType & useFragmentActivitySnapshotTestScalar$fragmentType,
+  readonly $fragmentSpreads: useFragmentActivitySnapshotTestCounter$fragmentType & useFragmentActivitySnapshotTestList$fragmentType & useFragmentActivitySnapshotTestPluralList$fragmentType & useFragmentActivitySnapshotTestPluralScalar$fragmentType & useFragmentActivitySnapshotTestRoot$fragmentType & useFragmentActivitySnapshotTestScalar$fragmentType,
 };
 export type useFragmentActivitySnapshotTestQuery = {
   response: useFragmentActivitySnapshotTestQuery$data,
@@ -60,11 +59,6 @@ return {
         "args": null,
         "kind": "FragmentSpread",
         "name": "useFragmentActivitySnapshotTestRoot"
-      },
-      {
-        "args": null,
-        "kind": "FragmentSpread",
-        "name": "useFragmentActivitySnapshotTestPluralRoot"
       },
       {
         "args": null,
@@ -185,18 +179,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "24735ca748d0e7550579e7bc991de4d6",
+    "cacheID": "b1456f5a67c1c6e4ed950001c3b6b2b9",
     "id": null,
     "metadata": {},
     "name": "useFragmentActivitySnapshotTestQuery",
     "operationKind": "query",
-    "text": "query useFragmentActivitySnapshotTestQuery {\n  ...useFragmentActivitySnapshotTestRoot\n  ...useFragmentActivitySnapshotTestPluralRoot\n  ...useFragmentActivitySnapshotTestList\n  ...useFragmentActivitySnapshotTestPluralList\n  ...useFragmentActivitySnapshotTestScalar\n  ...useFragmentActivitySnapshotTestPluralScalar\n  ...useFragmentActivitySnapshotTestCounter\n}\n\nfragment useFragmentActivitySnapshotTestChild on User {\n  name\n}\n\nfragment useFragmentActivitySnapshotTestCounter on Query {\n  node(id: \"1\") {\n    __typename\n    ... on User {\n      username\n    }\n    id\n  }\n}\n\nfragment useFragmentActivitySnapshotTestList on Query {\n  node(id: \"1\") {\n    __typename\n    ... on User {\n      friends(first: 1) {\n        edges {\n          node {\n            id\n            ...useFragmentActivitySnapshotTestChild\n          }\n        }\n      }\n    }\n    id\n  }\n}\n\nfragment useFragmentActivitySnapshotTestPluralList on Query {\n  node(id: \"1\") {\n    __typename\n    ... on User {\n      friends(first: 1) {\n        edges {\n          node {\n            id\n            ...useFragmentActivitySnapshotTestChild\n          }\n        }\n      }\n    }\n    id\n  }\n}\n\nfragment useFragmentActivitySnapshotTestPluralRoot on Query {\n  ...useFragmentActivitySnapshotTestList\n}\n\nfragment useFragmentActivitySnapshotTestPluralScalar on Query {\n  node(id: \"1\") {\n    __typename\n    name\n    id\n  }\n}\n\nfragment useFragmentActivitySnapshotTestRoot on Query {\n  ...useFragmentActivitySnapshotTestList\n}\n\nfragment useFragmentActivitySnapshotTestScalar on Query {\n  node(id: \"1\") {\n    __typename\n    name\n    id\n  }\n}\n"
+    "text": "query useFragmentActivitySnapshotTestQuery {\n  ...useFragmentActivitySnapshotTestRoot\n  ...useFragmentActivitySnapshotTestList\n  ...useFragmentActivitySnapshotTestPluralList\n  ...useFragmentActivitySnapshotTestScalar\n  ...useFragmentActivitySnapshotTestPluralScalar\n  ...useFragmentActivitySnapshotTestCounter\n}\n\nfragment useFragmentActivitySnapshotTestChild on User {\n  name\n}\n\nfragment useFragmentActivitySnapshotTestCounter on Query {\n  node(id: \"1\") {\n    __typename\n    ... on User {\n      username\n    }\n    id\n  }\n}\n\nfragment useFragmentActivitySnapshotTestList on Query {\n  node(id: \"1\") {\n    __typename\n    ... on User {\n      friends(first: 1) {\n        edges {\n          node {\n            id\n            ...useFragmentActivitySnapshotTestChild\n          }\n        }\n      }\n    }\n    id\n  }\n}\n\nfragment useFragmentActivitySnapshotTestPluralList on Query {\n  node(id: \"1\") {\n    __typename\n    ... on User {\n      friends(first: 1) {\n        edges {\n          node {\n            id\n            ...useFragmentActivitySnapshotTestChild\n          }\n        }\n      }\n    }\n    id\n  }\n}\n\nfragment useFragmentActivitySnapshotTestPluralScalar on Query {\n  node(id: \"1\") {\n    __typename\n    name\n    id\n  }\n}\n\nfragment useFragmentActivitySnapshotTestRoot on Query {\n  ...useFragmentActivitySnapshotTestList\n}\n\nfragment useFragmentActivitySnapshotTestScalar on Query {\n  node(id: \"1\") {\n    __typename\n    name\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*:: as any*/).hash = "2f4a0983c9d36e5828f7d79307bb0926";
+  (node/*:: as any*/).hash = "e0a2530fac8550bb552bbef3ca2fdcec";
 }
 
 module.exports = ((node/*:: as any*/)/*:: as Query<

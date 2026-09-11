@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<148af1b7c6c4ea04e3bf7e6ef5debf93>>
+ * @generated SignedSource<<5413a1f91ababde9b006505e033428d5>>
  */
 
 mod relay_compiler_integration;
@@ -195,10 +195,17 @@ async fn exec_resolvers_directive_with_root_fragment() {
 }
 
 #[tokio::test]
-async fn exec_time_query_rooted_server_reading_resolver_not_routed() {
-    let input = include_str!("relay_compiler_integration/fixtures/exec_time_query_rooted_server_reading_resolver_not_routed.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_query_rooted_server_reading_resolver_not_routed.expected");
-    test_fixture(transform_fixture, file!(), "exec_time_query_rooted_server_reading_resolver_not_routed.input", "relay_compiler_integration/fixtures/exec_time_query_rooted_server_reading_resolver_not_routed.expected", input, expected).await;
+async fn exec_time_client_model_resolver_reads_server_data() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_client_model_resolver_reads_server_data.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_client_model_resolver_reads_server_data.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_client_model_resolver_reads_server_data.input", "relay_compiler_integration/fixtures/exec_time_client_model_resolver_reads_server_data.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_query_rooted_server_reading_resolver_routed() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_query_rooted_server_reading_resolver_routed.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_query_rooted_server_reading_resolver_routed.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_query_rooted_server_reading_resolver_routed.input", "relay_compiler_integration/fixtures/exec_time_query_rooted_server_reading_resolver_routed.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -244,10 +251,10 @@ async fn exec_time_resolver_mixed_interface_client_edge_waterfall_invalid() {
 }
 
 #[tokio::test]
-async fn exec_time_resolver_query_root_no_flag() {
-    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_query_root_no_flag.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_query_root_no_flag.expected");
-    test_fixture(transform_fixture, file!(), "exec_time_resolver_query_root_no_flag.input", "relay_compiler_integration/fixtures/exec_time_resolver_query_root_no_flag.expected", input, expected).await;
+async fn exec_time_resolver_query_root_reads_server_field() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_query_root_reads_server_field.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_query_root_reads_server_field.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_query_root_reads_server_field.input", "relay_compiler_integration/fixtures/exec_time_resolver_query_root_reads_server_field.expected", input, expected).await;
 }
 
 #[tokio::test]

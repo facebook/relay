@@ -959,6 +959,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             )
                         }
                         CodegenVariant::Normalization => {
+                            // `inline_fragments` has already expanded the
+                            // resolver's `@rootFragment` spread into this inline
+                            // fragment, so these selections ARE the root
+                            // fragment's. That makes this the one place the
+                            // question can be answered without a `Program`,
+                            // which `CodegenBuilder` does not have.
+                            let root_fragment_reaches_server_field =
+                                Self::selections_reach_server_field(&inline_fragment.selections);
                             let fragment_primitive =
                                 self.build_inline_fragment(context, inline_fragment);
 
@@ -966,6 +974,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                                 context,
                                 resolver_metadata,
                                 Some(fragment_primitive),
+                                root_fragment_reaches_server_field,
                             )]
                         }
                     }
@@ -1019,7 +1028,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let resolver_primitive = match self.variant {
             CodegenVariant::Reader => self.build_reader_relay_resolver(resolver_metadata, None),
             CodegenVariant::Normalization => {
-                self.build_normalization_relay_resolver(context, resolver_metadata, None)
+                // A scalar-backed resolver has no inline fragment and therefore
+                // no root fragment to reach a server field through.
+                self.build_normalization_relay_resolver(context, resolver_metadata, None, false)
             }
         };
         if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
@@ -1040,28 +1051,26 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         context: &mut ContextualMetadata,
         resolver_metadata: &RelayResolverMetadata,
         inline_fragment: Option<Primitive>,
+        root_fragment_reaches_server_field: bool,
     ) -> Primitive {
         // Detect S2C resolvers: a client extension field on a server type whose
         // `@rootFragment` reads server data, and so cannot run until the response
         // has been normalized. Only relevant for exec-time resolver queries.
+        //
+        // The condition is the literal question, not a proxy for it. It used to
+        // ask whether the resolver had a root fragment at all, and then exclude
+        // `Query` parents except when `@returnFragment` was declared — which
+        // covered magic fragments only, and wrongly excluded a Query-rooted
+        // resolver whose root fragment reads server data without declaring one.
+        //
+        // The parent-type gate stays: a resolver on a client extension type can
+        // also read server data through its root fragment, but that is a
+        // different classification and does not take this path.
         if !context.has_server_to_client_resolvers && context.has_exec_time_resolvers_directive {
             let field = resolver_metadata.field(self.schema);
             if let Some(parent_type) = field.parent_type
                 && !self.schema.is_extension_type(parent_type)
-                && get_resolver_fragment_dependency_name(field).is_some()
-                && (Some(parent_type) != self.schema.query_type()
-                    // A Query-rooted resolver normally reads only client state,
-                    // hence the exclusion above. A magic fragment is the
-                    // exception: `@returnFragment` transplants server selections
-                    // into this operation and its root fragment then reads them,
-                    // so it crosses the same boundary and needs the same path.
-                    //
-                    // Magic fragments are a proper subset of shadow resolvers,
-                    // and this carve-out covers only that subset. A Query-rooted
-                    // resolver whose root fragment reads server data without
-                    // declaring `@returnFragment` crosses the same boundary and
-                    // is still excluded here.
-                    || resolver_metadata.return_fragment.is_some())
+                && root_fragment_reaches_server_field
             {
                 context.has_server_to_client_resolvers = true;
             }

@@ -5,8 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::LazyLock;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::FeatureFlag;
 use common::NamedItem;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
@@ -20,11 +23,15 @@ use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
+use intern::string_key::Intern;
 use schema::Schema;
 
 use crate::ACTION_ARGUMENT;
 use crate::REQUIRED_DIRECTIVE_NAME;
 use crate::THROW_ACTION;
+
+static THROW_ON_FIELD_ERROR_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));
 
 /// Some Relay features will cause a field to throw or suspend at read time.
 /// These behaviors are incompatible with our mutation APIs.
@@ -115,6 +122,12 @@ impl Validator for DisallowReadtimeFeaturesInMutations<'_> {
         if !operation.is_mutation() {
             // No need to traverse into non-mutation operations
             return Ok(());
+        }
+        if let Some(directive) = operation.directives.named(*THROW_ON_FIELD_ERROR_DIRECTIVE) {
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::ThrowOnFieldErrorInMutation,
+                directive.name.location,
+            )]);
         }
         self.allow_resolvers_for_this_mutation = self.enable_relay_resolver_mutations
             || self

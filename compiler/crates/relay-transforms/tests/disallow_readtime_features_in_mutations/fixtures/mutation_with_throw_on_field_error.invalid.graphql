@@ -1,7 +1,8 @@
 # expected-to-throw
-
 mutation MyMutation @throwOnFieldError {
   setName(name: "Alice") {
     name
   }
 }
+
+# %extensions%

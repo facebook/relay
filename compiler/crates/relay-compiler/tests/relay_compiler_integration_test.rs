@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ea756dc22a941baa6d7034a8c967fae4>>
+ * @generated SignedSource<<fa24e987b2d2731da4be58b8584f21b0>>
  */
 
 mod relay_compiler_integration;
@@ -206,6 +206,13 @@ async fn exec_time_client_model_resolver_reads_server_data() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_client_model_resolver_reads_server_data.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_client_model_resolver_reads_server_data.expected");
     test_fixture(transform_fixture, file!(), "exec_time_client_model_resolver_reads_server_data.input", "relay_compiler_integration/fixtures/exec_time_client_model_resolver_reads_server_data.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_module_rejects_arguments_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_module_rejects_arguments.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_module_rejects_arguments.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_module_rejects_arguments.invalid.input", "relay_compiler_integration/fixtures/exec_time_module_rejects_arguments.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

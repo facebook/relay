@@ -1,0 +1,72 @@
+// Test: `@module` rejects `@arguments`.
+//
+// This pins the reason the S2C work item needs no variable environment.
+//
+// The work item collected by `RelayResponseNormalizer._collectS2CExecution` is
+// `{recordID, typeName, selections}` and carries no variables, while the executor
+// later resolves those selections' arguments against top-level
+// `this.request.variables`. That would be wrong if a resolver could be collected
+// under a DIFFERENT variable environment.
+//
+// Two routes could produce one, and both are closed:
+//
+//  * `@module` -- `NormalizationEngine._normalizeFollowup` calls
+//    `getLocalVariables(followup.variables, operationNode.argumentDefinitions,
+//    followup.args)` when normalizing a module's split operation. But
+//    `followup.args` comes from `moduleImport.args`, and this validation means a
+//    `@module` spread can never carry `@arguments`, so there is nothing to bind.
+//  * `@no_inline` -- the other way a `FragmentSpread` reaches a normalization AST,
+//    where `RelayResponseNormalizer` does install local variables. Not used by the
+//    exec-time project.
+//
+// If this validation is ever relaxed, the work item must start carrying its
+// variable environment, and the change has to apply to the cold normalizer path
+// and any warm collection path together -- a warm-only shape would make the two
+// disagree about what a work item means.
+
+//- src/App.js
+graphql`
+  query AppQuery @exec_time_resolvers {
+    me {
+      ...ModuleFrag @arguments(who: "moduleLocal") @module(name: "./ModuleFrag")
+    }
+  }
+`;
+
+//- src/ModuleFrag.js
+graphql`
+  fragment ModuleFrag on User
+  @argumentDefinitions(who: {type: "String!"}) {
+    greeting_for(who: $who)
+  }
+`;
+
+//- src/User_greeting_for.js
+/**
+ * @relayField User.greeting_for(who: String!): String
+ * @rootFragment UserGreetingForFragment
+ */
+graphql`fragment UserGreetingForFragment on User {
+  name
+}`
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "./schema.graphql",
+  "resolversSchemaModule": {
+    "path": "__generated__/ResolversSchemaModule.js"
+  },
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+}

@@ -1168,15 +1168,20 @@ describe.each([
             },
           },
         });
-        expectFragmentResults([
-          {
-            data: expectedUser,
-            hasNext: false,
-            hasPrevious: false,
-            isLoadingNext: false,
-            isLoadingPrevious: false,
-          },
-        ]);
+        const expectedResult = {
+          data: expectedUser,
+          hasNext: false,
+          hasPrevious: false,
+          isLoadingNext: false,
+          isLoadingPrevious: false,
+        };
+        // The empty response advances the store epoch without changing data.
+        // The experimental hook records that epoch during the completion render.
+        expectFragmentResults(
+          ENABLE_ACTIVITY_COMPATIBILITY
+            ? [expectedResult, expectedResult]
+            : [expectedResult],
+        );
         expect(callback).toBeCalledTimes(1);
       });
 

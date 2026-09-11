@@ -1,0 +1,84 @@
+// Test: an interface-level selection is rewritten into ONE INLINE FRAGMENT PER
+// IMPLEMENTING OBJECT as soon as ANY implementor is a client extension.
+//
+// This pins a scaling mechanism, not a resolver bug. `IThing` here has three
+// implementors — one server type and one client model — so a single interface-level
+// selection expands to one arm per implementor. (Deliberately two implementors, not
+// three: with two symmetric server types the emitted arm ORDER is not stable across
+// builds, which would make this fixture flaky. The count is what is being pinned.) The expansion is linear in the number
+// of implementors and is triggered by the PRESENCE of a client implementor, not by
+// the selection asking for anything client-specific.
+//
+// Why this is pinned at all: in a real internal schema `Node` has ~44k implementors,
+// five of them client extensions — three belonging to an unrelated product that
+// merely shares the schema. A single `id` through a `Node`-typed field expanded to
+// 44,119 inline fragments, and a bare `nodes(ids: $ids) { id }` with no resolver
+// anywhere in it expanded identically. Every `Node`-typed selection in that project
+// pays it.
+//
+// That fan-out is what made `skip_redundant_nodes` recurse ~44k deep and kill the
+// compiler with SIGSEGV. D118149581 fixed the TEARDOWN so the compiler survives and
+// reports; it did not reduce the expansion. This fixture holds the expansion itself,
+// so a future narrowing — expanding only for implementors the selection can actually
+// reach, say — has to update it rather than pass silently.
+//
+// NOT caused by resolvers or by exec time: there is no `@exec_time_resolvers` here.
+// `@waterfall` is required simply because this is the ordinary read-time shape for a
+// client edge to an interface with server implementors; it is not what drives the
+// expansion.
+
+//- ThingQuery.js
+graphql`query ThingQuery {
+  thing @waterfall {
+    common_name
+  }
+}`
+
+//- ThingResolver.js
+/**
+ * @relayField Query.thing: IThing
+ */
+export function thing() {}
+
+//- ClientThingResolvers.js
+/**
+ * @relayType ClientThing implements IThing
+ */
+export function ClientThing() {}
+
+/**
+ * @relayField ClientThing.common_name: String
+ */
+export function common_name() {}
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "relay_resolver_enable_interface_output_type": {"kind": "enabled"}
+  }
+}
+
+//- schema.graphql
+type Query {
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type ServerThingA implements Node {
+  id: ID!
+  common_name: String
+}
+
+//- schema-extensions/extension.graphql
+interface IThing {
+  id: ID!
+  common_name: String
+}
+
+extend type ServerThingA implements IThing

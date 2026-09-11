@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5413a1f91ababde9b006505e033428d5>>
+ * @generated SignedSource<<ea756dc22a941baa6d7034a8c967fae4>>
  */
 
 mod relay_compiler_integration;
 
 use relay_compiler_integration::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn abstract_type_expands_one_inline_fragment_per_implementor() {
+    let input = include_str!("relay_compiler_integration/fixtures/abstract_type_expands_one_inline_fragment_per_implementor.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/abstract_type_expands_one_inline_fragment_per_implementor.expected");
+    test_fixture(transform_fixture, file!(), "abstract_type_expands_one_inline_fragment_per_implementor.input", "relay_compiler_integration/fixtures/abstract_type_expands_one_inline_fragment_per_implementor.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn bare_graphql_token_does_not_loop() {

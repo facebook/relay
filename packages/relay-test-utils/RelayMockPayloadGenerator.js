@@ -810,6 +810,14 @@ class RelayMockPayloadGenerator {
       if (fieldDefaultValue === null) {
         return null;
       }
+      // `fieldPath` above already indexes plural fields by `index`; the prior
+      // data must be indexed the same way, or the whole array is passed as each
+      // element's previous value and the list double-nests (`[[item]]`).
+      const prevFieldData = field.plural
+        ? index != null && Array.isArray(data[applicationName])
+          ? data[applicationName][index]
+          : null
+        : data[applicationName];
       return this._traverse(
         {
           selections: field.selections,
@@ -820,9 +828,9 @@ class RelayMockPayloadGenerator {
           args,
         },
         fieldPath,
-        typeof data[applicationName] === 'object'
+        typeof prevFieldData === 'object' && prevFieldData !== null
           ? // $FlowFixMe[incompatible-variance]
-            data[applicationName]
+            prevFieldData
           : null,
         // $FlowFixMe[incompatible-type]
         fieldDefaultValue,

@@ -23,6 +23,7 @@ import type {
 } from 'relay-runtime';
 
 const getConnectionState = require('./getConnectionState');
+const getFragmentInternalData = require('./getFragmentInternalData');
 const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useIsMountedRef = require('./useIsMountedRef');
 const useIsOperationNodeActive = require('./useIsOperationNodeActive');
@@ -100,11 +101,17 @@ hook useLoadMoreFunction_CURRENT<TVariables extends Variables>(
     fragmentNode,
     componentDisplayName,
   );
+  // When @catch wraps the fragment root in a Result envelope, look inside
+  // .value for the connection / identifier fields.
+  const internalFragmentData = getFragmentInternalData(
+    fragmentNode,
+    fragmentData,
+  );
   const identifierValue =
     identifierInfo?.identifierField != null &&
-    fragmentData != null &&
-    typeof fragmentData === 'object'
-      ? fragmentData[identifierInfo.identifierField]
+    internalFragmentData != null &&
+    typeof internalFragmentData === 'object'
+      ? internalFragmentData[identifierInfo.identifierField]
       : null;
 
   const isMountedRef = useIsMountedRef();
@@ -130,7 +137,7 @@ hook useLoadMoreFunction_CURRENT<TVariables extends Variables>(
   const {cursor, hasMore} = getConnectionState(
     direction,
     fragmentNode,
-    fragmentData,
+    internalFragmentData,
     connectionPathInFragmentData,
   );
 
@@ -141,7 +148,7 @@ hook useLoadMoreFunction_CURRENT<TVariables extends Variables>(
     };
   }, [disposeFetch]);
 
-  const isRequestInvalid = fragmentData == null || isParentQueryActive;
+  const isRequestInvalid = internalFragmentData == null || isParentQueryActive;
 
   const loadMore = useCallback(
     (

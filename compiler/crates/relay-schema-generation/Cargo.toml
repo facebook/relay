@@ -26,7 +26,7 @@ flow_parser = { git = "https://github.com/facebook/flow.git" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-indexmap = { version = "2.14.0", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.14.2", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 relay-config = { path = "../relay-config" }
 relay-docblock = { path = "../relay-docblock" }

@@ -996,12 +996,13 @@ describe.each([
         },
       };
 
-      if (isUsingNewImplementation) {
-        // The new implementation simply finishes the render in progress.
+      if (useFragmentNodeOriginal === useFragmentNode_CURRENT) {
         expectSchedulerToFlushAndYield([]);
         assertFragmentResults([expectedData]);
       } else {
-        // The old implementation also does an extra re-render.
+        // The experimental implementation records the new store epoch even
+        // when data is equal. Like the legacy implementation, it re-renders
+        // without using the update to the previous fragment pointer.
         expectSchedulerToFlushAndYield([
           'Hey user,',
           'Foo',
@@ -1383,12 +1384,12 @@ describe.each([
           ...createFragmentRef('1', newQuery),
         },
       };
-      if (isUsingNewImplementation) {
-        // The new implementation simply finishes the render in progress.
+      if (useFragmentNodeOriginal === useFragmentNode_CURRENT) {
         expectSchedulerToFlushAndYield([]);
         assertFragmentResults([expectedData]);
       } else {
-        // The old implementation also does an extra re-render.
+        // Recording the missed epoch can re-render, but both reads must use
+        // the new variables rather than the update to the old selection.
         expectSchedulerToFlushAndYield([
           'Hey user,',
           'uri32',

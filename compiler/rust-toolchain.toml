@@ -1,5 +1,5 @@
 [toolchain]
 # Should stay in sync with fbcode/buck2/rust-toolchain.toml
 # And references in .github/workflows/ci.yml and docusaurus.yml
-channel = "nightly-2026-07-05"
+channel = "nightly-2026-05-22"
 targets = ["x86_64-unknown-linux-musl"]

@@ -2315,6 +2315,77 @@ describe('RelayPublishQueue', () => {
       expect(disposeGC).toBeCalled();
     });
 
+    // KNOWN BUG (documented, not endorsed): `run()` decides whether it is a
+    // noop with
+    //
+    //   const runWillClearGcHold =
+    //     this._appliedOptimisticUpdates === 0 && !!this._gcHold;
+    //
+    // `_appliedOptimisticUpdates` is a `Set`, so `=== 0` is always false and
+    // the whole term is dead -- two `$FlowFixMe` suppressions
+    // (`incompatible-type`, `invalid-compare`) sit on top of it. The intent
+    // was `.size === 0`: "the only work left in this run is releasing the GC
+    // hold". Because the term is dead, a `run()` whose only job is releasing
+    // the hold is misclassified as a noop and returns early, before the
+    // `_gcHold.dispose()` and `_store.notify()` at the bottom of `run()`.
+    //
+    // CORRECT BEHAVIOR: the run below should not warn, should dispose the GC
+    // hold, and should notify the store.
+    it('should treat run() as a noop when releasing the gc hold is the only work left', () => {
+      const disposeGC = jest.fn();
+      const notify = jest.fn(() => []);
+      const source = new RelayRecordSource();
+      const store = {
+        getSource: () => source,
+        notify,
+        publish: jest.fn(),
+        holdGC: jest.fn(),
+        restore: jest.fn(),
+        snapshot: jest.fn(() => []),
+      };
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
+      // `run()` assigns `_gcHold` from the return value of `holdGC()`, so a
+      // revert from inside `holdGC()` is the only way to reach the state the
+      // dead term was written for: a GC hold is held, the applied-update set is
+      // empty, and no rebase is pending. Nothing in the runtime reenters the
+      // queue from `holdGC()` today -- the guard exists for the code paths that
+      // will empty the applied set without flagging a rebase.
+      store.holdGC.mockImplementation(() => {
+        queue.revertAll();
+        queue.run();
+        return {dispose: disposeGC};
+      });
+      queue.applyUpdate({
+        storeUpdater: storeProxy => {
+          storeProxy.create('4', 'User');
+        },
+      });
+      expectWarningWillFire(
+        "A store update was detected within another store update. Please make sure new store updates aren't being executed within an updater function for a different update.",
+      );
+      queue.run();
+      expect(store.holdGC).toBeCalled();
+      expect(disposeGC).not.toBeCalled();
+      notify.mockClear();
+
+      // BUG: this run has real work -- the GC hold has to be released -- but
+      // the dead `runWillClearGcHold` term lets `runIsANoop` be true, so it
+      // warns and returns early.
+      expectToWarn(
+        'RelayPublishQueue.run was called, but the call would have been a noop.',
+        () => {
+          queue.run();
+        },
+      );
+      // BUG: GC stays disabled for the lifetime of the store. Every later bare
+      // `run()` takes the same early return, so nothing ever revisits the hold
+      // and the store never collects again.
+      expect(disposeGC).not.toBeCalled();
+      // BUG: the early return also skips `_store.notify()`, so subscribers are
+      // never told about the reverted optimistic data.
+      expect(notify).not.toBeCalled();
+    });
+
     it('should warn if run() is called during a run()', () => {
       const source = new RelayRecordSource();
       const store = new RelayModernStore(source);

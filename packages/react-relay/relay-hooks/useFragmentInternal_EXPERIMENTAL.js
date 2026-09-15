@@ -59,6 +59,7 @@ type FragmentState = Readonly<
   | {
       kind: 'plural',
       snapshots: ReadonlyArray<Snapshot>,
+      data: Array<?SelectorData>,
       epoch: number,
       selector: ReaderSelector,
       environment: IEnvironment,
@@ -148,6 +149,7 @@ function handlePotentialSnapshotErrorsForState(
 function handleMissedUpdates(
   environment: IEnvironment,
   state: FragmentState,
+  useFreshSnapshot: boolean = false,
 ): null | [/* has data changed */ boolean, FragmentState] {
   if (state.kind === 'bailout') {
     return null;
@@ -161,10 +163,9 @@ function handleMissedUpdates(
   // so check for any updates to the data we're rendering:
   if (state.kind === 'singular') {
     const currentSnapshot = environment.lookup(state.snapshot.selector);
-    const updatedData = recycleNodesInto(
-      state.snapshot.data,
-      currentSnapshot.data,
-    );
+    const updatedData = useFreshSnapshot
+      ? currentSnapshot.data
+      : recycleNodesInto(state.snapshot.data, currentSnapshot.data);
     const updatedCurrentSnapshot: Snapshot = {
       data: updatedData,
       fieldErrors: currentSnapshot.fieldErrors,
@@ -190,7 +191,9 @@ function handleMissedUpdates(
     for (let index = 0; index < state.snapshots.length; index++) {
       const snapshot = state.snapshots[index];
       const currentSnapshot = environment.lookup(snapshot.selector);
-      const updatedData = recycleNodesInto(snapshot.data, currentSnapshot.data);
+      const updatedData = useFreshSnapshot
+        ? currentSnapshot.data
+        : recycleNodesInto(snapshot.data, currentSnapshot.data);
       const updatedCurrentSnapshot: Snapshot = {
         data: updatedData,
         fieldErrors: currentSnapshot.fieldErrors,
@@ -217,6 +220,9 @@ function handleMissedUpdates(
         kind: 'plural',
         selector: state.selector,
         snapshots: currentSnapshots,
+        // An epoch or snapshot metadata change must not replace an unchanged
+        // result array: callers may use that array as an effect dependency.
+        data: didMissUpdates ? currentSnapshots.map(s => s.data) : state.data,
       },
     ];
   }
@@ -349,6 +355,7 @@ function subscribeToSnapshot(
               kind: 'plural',
               selector: state.selector,
               snapshots: updated,
+              data: updated.map(s => s.data),
             };
           }
           return nextState;
@@ -372,12 +379,16 @@ function getFragmentState(
   } else if (fragmentSelector.kind === 'PluralReaderSelector') {
     // Note that if fragmentRef is an empty array, fragmentSelector will be null so we'll hit the above case.
     // Null is returned by getSelector if fragmentRef has no non-null items.
+    const snapshots = fragmentSelector.selectors.map(s =>
+      environment.lookup(s),
+    );
     return {
       environment,
       epoch: environment.getStore().getEpoch(),
       kind: 'plural',
       selector: fragmentSelector,
-      snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
+      snapshots,
+      data: snapshots.map(s => s.data),
     };
   } else {
     return {
@@ -456,6 +467,16 @@ hook useFragmentInternal_EXPERIMENTAL(
   const [_state, setState] = useState<FragmentState>(() =>
     getFragmentState(environment, fragmentSelector),
   );
+  const storeSubscriptionRef = useRef<
+    | {
+        kind: 'initialized',
+        dispose: () => void,
+        selector: ?ReaderSelector,
+        environment: IEnvironment,
+      }
+    | {kind: 'missed-updates'}
+    | {kind: 'uninitialized'},
+  >({kind: 'uninitialized'});
   let state = _state;
   const previousEnvironment = state.environment;
 
@@ -470,6 +491,23 @@ hook useFragmentInternal_EXPERIMENTAL(
     // the component would render the wrong information temporarily (including
     // possibly incorrectly triggering some warnings below).
     state = newState;
+  }
+
+  // Reconcile missed store updates before reading client edges, resolver state,
+  // or missing data. Effects cannot repair a render that suspends or throws.
+  // Adopt data, errors, seen records, and epoch together, even if data is equal.
+  // Disconnected subscriptions need fresh masked fragment refs so memoized
+  // children re-read their data too. Active subscriptions keep recycling to
+  // preserve data identity for effects that depend on fragment results.
+  const updates = handleMissedUpdates(
+    environment,
+    state,
+    // $FlowFixMe[react-rule-unsafe-ref]
+    storeSubscriptionRef.current.kind !== 'initialized',
+  );
+  if (updates != null) {
+    state = updates[1];
+    setState(state);
   }
 
   // The purpose of this is to detect whether we have ever committed, because we
@@ -640,16 +678,6 @@ hook useFragmentInternal_EXPERIMENTAL(
   //   or detaches (<Activity> going hidden), and then re-subscribes when the component
   //   re-attaches (<Activity> going visible). These cases wouldn't fire the
   //   "update" effect because the state and environment don't change.
-  const storeSubscriptionRef = useRef<
-    | {
-        kind: 'initialized',
-        dispose: () => void,
-        selector: ?ReaderSelector,
-        environment: IEnvironment,
-      }
-    | {kind: 'missed-updates'}
-    | {kind: 'uninitialized'},
-  >({kind: 'uninitialized'});
   // $FlowFixMe[react-rule-hook] - the condition is static
   useEffect(() => {
     const storeSubscription = storeSubscriptionRef.current;
@@ -735,8 +763,8 @@ hook useFragmentInternal_EXPERIMENTAL(
 
   let data: ?SelectorData | Array<?SelectorData>;
   if (isPlural) {
-    // Plural fragments require allocating an array of the snapshot data values,
-    // which has to be memoized to avoid triggering downstream re-renders.
+    // Plural result arrays are stored in state so metadata-only updates preserve
+    // their identity. Memoization also keeps empty bailout arrays stable.
     //
     // Note that isPlural is a constant property of the fragment and does not change
     // for a particular useFragment invocation site
@@ -754,7 +782,7 @@ hook useFragmentInternal_EXPERIMENTAL(
           state.kind === 'plural',
           'Expected state to be plural because fragment is plural',
         );
-        return state.snapshots.map(s => s.data);
+        return state.data;
       }
     }, [state, fragmentRefIsNullish]);
   } else if (state.kind === 'bailout') {

@@ -34,9 +34,25 @@ function live_user_suspends_when_odd(): LiveState<{|readonly id: DataID|}> {
     subscribe(cb): () => void {
       return GLOBAL_STORE.subscribe(cb);
     },
+    getSuspenseDisplayName(): ?string {
+      displayNameCallCount++;
+      return 'LiveUserSuspendsWhenOdd(waiting for even)';
+    },
   };
 }
 
+let displayNameCallCount = 0;
+
+const __debug = {
+  getDisplayNameCallCount(): number {
+    return displayNameCallCount;
+  },
+  resetDisplayNameCallCount() {
+    displayNameCallCount = 0;
+  },
+};
+
 module.exports = {
+  __debug,
   live_user_suspends_when_odd,
 };

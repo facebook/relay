@@ -577,14 +577,31 @@ hook useFragmentInternal_EXPERIMENTAL(
         isMount: committedFragmentSelectorRef.current === false,
         suspendingLiveResolvers,
       });
-      const promise = Promise.all(
-        suspendingLiveResolvers.map(liveStateID => {
-          // $FlowFixMe[prop-missing] This is expected to be a RelayModernStore
-          return environment.getStore().getLiveResolverPromise(liveStateID);
-        }),
-      );
+      const store = environment.getStore();
+      const promises = suspendingLiveResolvers.map(liveStateID => {
+        // $FlowFixMe[prop-missing] This is expected to be a RelayModernStore
+        return store.getLiveResolverPromise(liveStateID);
+      });
+      // `Promise.all` yields a new promise, so the names already set on the
+      // promises it wraps are lost. Fold them into this one. Built with a loop
+      // and string concatenation rather than filter/join: this runs on every
+      // suspending read, and the intermediate array is the expensive part.
+      let described = '';
+      for (let i = 0; i < promises.length; i++) {
+        // $FlowFixMe[prop-missing] Expando to annotate Promises.
+        const liveStateName: ?string = promises[i].displayName;
+        if (liveStateName != null && liveStateName !== '') {
+          described =
+            described === '' ? liveStateName : described + ',' + liveStateName;
+        }
+      }
+      const promise = Promise.all(promises);
+      // Appended, not substituted: the `RelayLiveResolver(<fragment>)` form is
+      // pattern-matched by profiling tools, and it is the only part that says
+      // where the spinner rendered.
+      const name = 'RelayLiveResolver(' + fragmentNode.name + ')';
       // $FlowExpectedError[prop-missing] Expando to annotate Promises.
-      promise.displayName = 'RelayLiveResolver(' + fragmentNode.name + ')';
+      promise.displayName = described === '' ? name : name + ' <- ' + described;
       throw promise;
     }
     // Suspend if an active operation bears on this fragment, either the

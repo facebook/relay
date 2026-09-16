@@ -32,6 +32,11 @@ class Store {
       default:
         action.type as empty;
     }
+    this.notify();
+  }
+  // Notify subscribers without changing state, so a test can force a re-read
+  // that is expected to produce an unchanged value.
+  notify() {
     this._subscriptions.forEach(cb => cb());
   }
   subscribe(cb: () => void): () => void {

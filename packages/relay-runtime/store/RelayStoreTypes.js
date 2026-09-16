@@ -1666,6 +1666,17 @@ export type LiveState<out T> = {
    * call the callback when the value of the live state changes.
    */
   subscribe(cb: () => void): () => void,
+  /**
+   * Optional. Called when Relay creates a suspense promise for this live
+   * state, and used to name that promise. Called at promise-creation time, so
+   * it can describe whatever is loading at that moment.
+   *
+   * Runs while a read is suspending, so it must be pure and cheap. The name
+   * may be reported to profiling tools, so prefer a fixed label or a small
+   * enum over anything request-specific. Return null when there is nothing
+   * specific to say.
+   */
+  readonly getSuspenseDisplayName?: () => ?string,
 };
 
 /**

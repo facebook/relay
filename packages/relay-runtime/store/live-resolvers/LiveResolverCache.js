@@ -332,12 +332,24 @@ class LiveResolverCache implements ResolverCache {
       RELAY_RESOLVER_LIVE_STATE_VALUE,
     );
 
-    return new Promise(resolve => {
+    const promise = new Promise<void>(resolve => {
       const unsubscribe: () => void = liveState.subscribe(() => {
         unsubscribe();
         resolve();
       });
     });
+
+    if (liveState.getSuspenseDisplayName != null) {
+      try {
+        // $FlowExpectedError[prop-missing] Expando to annotate Promises.
+        promise.displayName = liveState.getSuspenseDisplayName();
+      } catch {
+        // The name only annotates the promise, so a bug in the producer's
+        // implementation must not fail the read that is suspending.
+      }
+    }
+
+    return promise;
   }
 
   // Register a new Live State object in the store, subscribing to future

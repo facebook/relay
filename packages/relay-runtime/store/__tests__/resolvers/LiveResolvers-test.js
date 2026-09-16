@@ -15,6 +15,7 @@ import type {Snapshot} from '../../RelayStoreTypes';
 const {
   live_external_greeting: LiveExternalGreeting,
 } = require('./LiveExternalGreeting');
+const {__debug: LiveUserSuspendsWhenOdd} = require('./LiveUserSuspendsWhenOdd');
 const {suspenseSentinel} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
@@ -39,6 +40,15 @@ disallowConsoleErrors();
 beforeEach(() => {
   resetStore();
 });
+
+const SUSPENDS_QUERY = graphql`
+  query LiveResolversTestUnsubscribesWhenSuspendsQuery {
+    user: live_user_suspends_when_odd @waterfall {
+      id
+    }
+    greeting: live_external_greeting
+  }
+`;
 
 test('unsubscribe happens when record is updated due to missing data', () => {
   const source = RelayRecordSource.create({
@@ -65,17 +75,7 @@ test('unsubscribe happens when record is updated due to missing data', () => {
       name: 'user 2',
     },
   });
-  const operation = createOperationDescriptor(
-    graphql`
-      query LiveResolversTestUnsubscribesWhenSuspendsQuery {
-        user: live_user_suspends_when_odd @waterfall {
-          id
-        }
-        greeting: live_external_greeting
-      }
-    `,
-    {},
-  );
+  const operation = createOperationDescriptor(SUSPENDS_QUERY, {});
   const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
@@ -504,5 +504,79 @@ test('Reflects optimistic updates, and reverts of optimistic updates', () => {
   expect(handler.mock.calls.length).toBe(2);
   expect(handler.mock.calls[1][0].data).toEqual({
     me: {greeting: 'Hello, Alice!'},
+  });
+});
+
+// `getSuspenseDisplayName` exists only to name the suspense promise, so it must
+// not participate in change detection: implementing it must not add a single
+// store notification, and it must never be consulted on the ordinary read
+// path.
+describe('getSuspenseDisplayName does not affect change detection', () => {
+  function subscribedEnvironment() {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+      },
+      '0': {__id: '0', __typename: 'User', id: '0', name: 'user 0'},
+      '1': {__id: '1', __typename: 'User', id: '1', name: 'user 1'},
+      '2': {__id: '2', __typename: 'User', id: '2', name: 'user 2'},
+    });
+    const operation = createOperationDescriptor(SUSPENDS_QUERY, {});
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+    const environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store,
+    });
+    const snapshot = environment.lookup(operation.fragment);
+    let data: $FlowFixMe = snapshot.data;
+    const handler = jest.fn(() => {
+      data = environment.lookup(operation.fragment).data;
+    });
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+    environment.subscribe(snapshot, handler);
+    return {getData: () => data, handler};
+  }
+
+  beforeEach(() => {
+    LiveUserSuspendsWhenOdd.resetDisplayNameCallCount();
+  });
+
+  test('suspending and resuming notifies exactly once each way', () => {
+    const {getData, handler} = subscribedEnvironment();
+
+    expect(handler).not.toHaveBeenCalled();
+    expect(getData().user.id).toBe('0');
+
+    // Suspend.
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(getData().user).toBe(suspenseSentinel());
+
+    // Re-read repeatedly while suspended, without changing state. The resolver
+    // returns the shared sentinel singleton every time, so nothing should be
+    // reported as changed.
+    GLOBAL_STORE.notify();
+    GLOBAL_STORE.notify();
+    GLOBAL_STORE.notify();
+    expect(handler).toHaveBeenCalledTimes(1);
+
+    // Resume.
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    expect(handler).toHaveBeenCalledTimes(2);
+    expect(getData().user.id).toBe('2');
+  });
+
+  test('the method is never consulted by reads or updates', () => {
+    const {handler} = subscribedEnvironment();
+
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    GLOBAL_STORE.notify();
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    expect(handler).toHaveBeenCalledTimes(2);
+
+    // Only the suspense-promise path may call it, and nothing above builds a
+    // suspense promise.
+    expect(LiveUserSuspendsWhenOdd.getDisplayNameCallCount()).toBe(0);
   });
 });

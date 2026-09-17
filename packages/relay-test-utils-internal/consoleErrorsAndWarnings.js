@@ -59,7 +59,6 @@ function createConsoleInterceptionSystem(
       optionalMessages.splice(optionalIndex, 1);
     } else {
       // log to console in case the error gets swallowed somewhere
-      // $FlowFixMe[incompatible-type]
       originalConsoleError(`Unexpected ${typenameCap}: ` + message);
       throw new Error(`${typenameCap}: ` + message);
     }

@@ -247,8 +247,13 @@ class RelayReferenceMarker {
       | NormalizationClientEdgeToServerObject,
     record: Record,
   ): void {
+    const {linkedField} = field;
     if (this._useExecTimeResolvers) {
-      this._traverseLink(field.linkedField, record);
+      if (linkedField.plural) {
+        this._traversePluralLink(linkedField, record);
+      } else {
+        this._traverseLink(linkedField, record);
+      }
       return;
     }
     const dataID = this._traverseResolverField(field.backingField, record);
@@ -259,7 +264,6 @@ class RelayReferenceMarker {
     if (resolverRecord == null) {
       return;
     }
-    const {linkedField} = field;
     if (field.backingField.isOutputType) {
       // Mark all @outputType record IDs
       const outputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);

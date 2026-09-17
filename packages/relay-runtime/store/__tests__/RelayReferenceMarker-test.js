@@ -945,7 +945,7 @@ describe('RelayReferenceMarker', () => {
         `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`,
       ]);
     });
-    it('with @edgeTo client object is retained', () => {
+    it('with plural @edgeTo client object is retained for read-time and exec-time resolvers', () => {
       const storeData: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
@@ -1018,6 +1018,38 @@ describe('RelayReferenceMarker', () => {
         'client:AstrologicalSign:Virgo',
         'client:root',
         `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}all_astrological_signs`,
+      ]);
+
+      const execTimeSource = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: 'Query',
+          all_astrological_signs: {
+            __refs: ['client:AstrologicalSign:Aquarius'],
+          },
+        },
+        'client:AstrologicalSign:Aquarius': {
+          __id: 'client:AstrologicalSign:Aquarius',
+          __typename: 'AstrologicalSign',
+          id: 'Aquarius',
+        },
+      });
+      const execTimeReferences = new Set<DataID>();
+      mark(
+        execTimeSource,
+        createNormalizationSelector(
+          nodes.FooQuery.operation,
+          'client:root',
+          {},
+        ),
+        execTimeReferences,
+        loader,
+        undefined,
+        true,
+      );
+      expect(Array.from(execTimeReferences).sort()).toEqual([
+        'client:AstrologicalSign:Aquarius',
+        'client:root',
       ]);
     });
   });

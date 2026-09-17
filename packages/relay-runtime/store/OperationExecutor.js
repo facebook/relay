@@ -562,9 +562,30 @@ class Executor<TMutation extends MutationParameters> {
     } else if (this._state === 'started') {
       this._state = 'loading_incremental';
     }
+    // Both reads are confined to this method on purpose. Detecting the
+    // transition inside `_updateActiveState` would be tidier, but that runs on
+    // every payload of every operation in the app, and only this path — which
+    // no non-exec-time query can reach — needs the answer. Keep it free for
+    // everyone else.
+    const identifier = this._operation.request.identifier;
+    const wasActive = this._operationExecutions.get(identifier) === 'active';
     const updatedOwners = this._runPublishQueue(this._operation);
     this._updateActiveState();
     this._updateOperationTracker(updatedOwners);
+    // Announce the end of the request on the operation sink.
+    //
+    // `commitPayload` + `_runPublishQueue` above reach consumers that are
+    // already mounted and subscribed to the store. A consumer *suspended* on
+    // this operation is not one of them: it is parked on
+    // `getPromiseForActiveRequest`, which re-reads `isRequestActive` only when
+    // a response lands on the sink. Ending the request without emitting leaves
+    // that consumer waiting on a state change it can never observe.
+    //
+    // The payload carries no data — `commitPayload` already normalized it into
+    // the store — so this is a liveness signal, not a second delivery.
+    if (wasActive && this._operationExecutions.get(identifier) === 'inactive') {
+      this._sink.next({data: null, extensions: {is_final: true}});
+    }
   }
 
   _handleNext(response: GraphQLResponse): void {

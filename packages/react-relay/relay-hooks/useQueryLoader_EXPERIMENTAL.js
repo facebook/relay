@@ -236,6 +236,7 @@ hook useQueryLoader_EXPERIMENTAL<
     // we don't want to free queries that may be used when the component reveals
     // again.
     return () => {
+      // $FlowFixMe[sketchy-null-number]
       cleanupTimerRef.current && clearTimeout(cleanupTimerRef.current);
       cleanupTimerRef.current = null;
       disposeAllRemainingQueryReferences(preloadableRequest, null);

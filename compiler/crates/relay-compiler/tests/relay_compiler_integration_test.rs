@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fa24e987b2d2731da4be58b8584f21b0>>
+ * @generated SignedSource<<9ea5999fd9f83bb01a802794c5e8905e>>
  */
 
 mod relay_compiler_integration;
@@ -717,6 +717,13 @@ async fn required_conditional_field() {
     let input = include_str!("relay_compiler_integration/fixtures/required_conditional_field.input");
     let expected = include_str!("relay_compiler_integration/fixtures/required_conditional_field.expected");
     test_fixture(transform_fixture, file!(), "required_conditional_field.input", "relay_compiler_integration/fixtures/required_conditional_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_interface_semantic_non_null_id() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_interface_semantic_non_null_id.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_interface_semantic_non_null_id.expected");
+    test_fixture(transform_fixture, file!(), "resolver_interface_semantic_non_null_id.input", "relay_compiler_integration/fixtures/resolver_interface_semantic_non_null_id.expected", input, expected).await;
 }
 
 #[tokio::test]

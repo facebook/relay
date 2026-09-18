@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aeefd53d772458f8afaa154bd5a7a57c>>
+ * @generated SignedSource<<e944ddf0722b0026b425db8f9f0d8e86>>
  */
 
 mod to_schema;
@@ -94,6 +94,13 @@ async fn relay_resolver_strong_object_with_implements_interface_non_interface() 
     let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-non-interface.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-non-interface.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-strong-object-with-implements-interface-non-interface.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-non-interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_strong_object_with_implements_interface_semantic_non_null_id() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-semantic-non-null-id.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-semantic-non-null-id.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-strong-object-with-implements-interface-semantic-non-null-id.js", "to_schema/fixtures/relay-resolver-strong-object-with-implements-interface-semantic-non-null-id.expected", input, expected).await;
 }
 
 #[tokio::test]

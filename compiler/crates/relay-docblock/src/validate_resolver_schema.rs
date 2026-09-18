@@ -191,7 +191,8 @@ fn is_valid_mutation_resolver_return_type(type_: &TypeReference<Type>) -> bool {
 }
 
 /// Validate that each interface that the strong object implements is client
-/// defined and contains an id: ID! field.
+/// defined and contains an id field that is non-null, either structurally
+/// (`id: ID!`) or semantically (`id: ID @semanticNonNull`).
 fn validate_strong_object_implements_client_interface_with_id_field(
     object: &Object,
     schema: &SDLSchema,
@@ -232,8 +233,18 @@ fn validate_strong_object_implements_client_interface_with_id_field(
             });
             match found_id_field {
                 Some(id_field) => {
-                    if id_field.type_ != non_null_id_type {
+                    // Compared against the SEMANTIC type, so `id: ID @semanticNonNull`
+                    // is accepted alongside `id: ID!`. Semantic non-null already means
+                    // non-null everywhere else in the compiler — typegen, `@required`
+                    // and schema validation all read `semantic_type()` — and a strong
+                    // object's own identity is non-null by construction, so this
+                    // interface declaration is a contract for consumers rather than
+                    // the mechanism that identifies the model. A plain nullable
+                    // `id: ID` carries no such guarantee and is still rejected.
+                    if id_field.semantic_type() != non_null_id_type {
                         let mut invalid_type_string = String::new();
+                        // The type as WRITTEN, so the diagnostic shows what the author
+                        // declared rather than a type they never typed.
                         schema
                             .write_type_string(&mut invalid_type_string, &id_field.type_)
                             .expect("Failed to write type to string.");

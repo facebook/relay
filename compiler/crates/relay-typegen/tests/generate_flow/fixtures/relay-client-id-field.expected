@@ -41,6 +41,9 @@ export type RelayClientIDFieldQuery$data = {
     readonly __typename: "Comment",
     readonly __id: string,
     readonly commentBody: ?({
+      readonly __typename: "MarkdownCommentBody",
+      readonly __id: string,
+    } | {
       readonly __typename: "PlainCommentBody",
       readonly __id: string,
       readonly text: ?{
@@ -58,6 +61,10 @@ export type RelayClientIDFieldQuery$data = {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other",
+  } | {
+    readonly __typename: "Bicycle" | "Feedback" | "FetchableType" | "Page" | "PhotoStory" | "Story" | "User",
+    readonly __id: string,
+    readonly id: string,
   }),
 };
 export type RelayClientIDFieldQuery = {

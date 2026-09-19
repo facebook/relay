@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<80ba7fa5975b05327892a75c5b06ad05>>
+ * @generated SignedSource<<449bd4ef4f7dcfdee197aeec845a8d16>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -23,7 +23,7 @@ export type readUpdatableQueryTestRegularQuery$variables = {};
 export type readUpdatableQueryTestRegularQuery$data = {
   readonly me: ?{
     readonly __id: string,
-    readonly __isreadUpdatableQueryTest_node?: "User",
+    readonly __isreadUpdatableQueryTest_node: "User",
     readonly author: ?{
       readonly client_best_friend: ?{
         readonly name: ?string,

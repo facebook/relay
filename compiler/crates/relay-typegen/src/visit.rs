@@ -167,6 +167,7 @@ pub(crate) fn visit_selections(
     custom_scalars: &mut CustomScalarsImports,
     runtime_imports: &mut RuntimeImports,
     custom_error_import: &mut Option<CustomTypeImport>,
+    parent_type: Type,
     enclosing_linked_field_concrete_type: Option<Type>,
     emit_semantic_types: bool,
 ) -> Vec<TypeSelection> {
@@ -184,6 +185,7 @@ pub(crate) fn visit_selections(
                 encountered_fragments,
                 imported_resolvers,
                 runtime_imports,
+                parent_type,
                 emit_semantic_types,
             ),
             Selection::InlineFragment(inline_fragment) => visit_inline_fragment(
@@ -198,6 +200,7 @@ pub(crate) fn visit_selections(
                 custom_scalars,
                 runtime_imports,
                 custom_error_import,
+                parent_type,
                 enclosing_linked_field_concrete_type,
                 emit_semantic_types,
             ),
@@ -234,6 +237,7 @@ pub(crate) fn visit_selections(
                             custom_scalars,
                             runtime_imports,
                             custom_error_import,
+                            linked_field_type,
                             nested_enclosing_linked_field_concrete_type,
                             field_emit_semantic_types,
                         )
@@ -284,6 +288,7 @@ pub(crate) fn visit_selections(
                 custom_scalars,
                 runtime_imports,
                 custom_error_import,
+                parent_type,
                 enclosing_linked_field_concrete_type,
                 emit_semantic_types,
             ),
@@ -304,6 +309,7 @@ fn visit_fragment_spread(
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     runtime_imports: &mut RuntimeImports,
+    parent_type: Type,
     emit_semantic_types: bool,
 ) {
     if let Some(resolver_metadata) = RelayResolverMetadata::find(&fragment_spread.directives) {
@@ -328,7 +334,7 @@ fn visit_fragment_spread(
             .0
             .insert(EncounteredFragment::Spread(name));
 
-        let spread_selection = TypeSelection::FragmentSpread(TypeSelectionFragmentSpread {
+        let mut spread_selection = TypeSelection::FragmentSpread(TypeSelectionFragmentSpread {
             fragment_name: name,
             conditional: false,
             concrete_type: None,
@@ -339,6 +345,26 @@ fn visit_fragment_spread(
                 .named(*UPDATABLE_DIRECTIVE_FOR_TYPEGEN)
                 .is_some(),
         });
+
+        // Track non-redundant fragment-spread type refinements only for typename
+        // discriminated unions. The legacy path leaves fragment spreads unclassified
+        // to preserve existing generated types.
+        if typegen_context
+            .project_config
+            .feature_flags
+            .enable_typename_discriminated_unions
+            .is_enabled_for(typegen_context.definition_source_location.item)
+            && let Some(signature) = &fragment_spread.signature
+            && !typegen_context
+                .schema
+                .is_named_type_subtype_of(parent_type, signature.type_condition)
+        {
+            if signature.type_condition.is_abstract_type() {
+                spread_selection.set_abstract_type(signature.type_condition);
+            } else {
+                spread_selection.set_concrete_type(signature.type_condition);
+            }
+        }
 
         type_selections.push(spread_selection);
     }
@@ -903,6 +929,7 @@ fn visit_client_edge(
     imported_resolvers: &mut ImportedResolvers,
     runtime_imports: &mut RuntimeImports,
     custom_error_import: &mut Option<CustomTypeImport>,
+    parent_type: Type,
     enclosing_linked_field_concrete_type: Option<Type>,
     emit_semantic_types: bool,
 ) {
@@ -947,6 +974,7 @@ fn visit_client_edge(
         custom_scalars,
         runtime_imports,
         custom_error_import,
+        parent_type,
         enclosing_linked_field_concrete_type,
         emit_semantic_types,
     );
@@ -966,6 +994,7 @@ fn visit_inline_fragment(
     custom_scalars: &mut CustomScalarsImports,
     runtime_imports: &mut RuntimeImports,
     custom_error_import: &mut Option<CustomTypeImport>,
+    parent_type: Type,
     enclosing_linked_field_concrete_type: Option<Type>,
     emit_semantic_types: bool,
 ) {
@@ -1011,6 +1040,7 @@ fn visit_inline_fragment(
             imported_resolvers,
             runtime_imports,
             custom_error_import,
+            parent_type,
             enclosing_linked_field_concrete_type,
             emit_semantic_types,
         );
@@ -1026,6 +1056,7 @@ fn visit_inline_fragment(
             custom_scalars,
             runtime_imports,
             custom_error_import,
+            parent_type,
             enclosing_linked_field_concrete_type,
             emit_semantic_types
                 || inline_fragment
@@ -1063,19 +1094,35 @@ fn visit_inline_fragment(
                 is_result_type,
             })]
         } else {
-            // If the inline fragment is on an abstract type, its selections must be
-            // made nullable since the type condition may not match, and
-            // there will be no way for the user to refine the type to
-            // ensure it did match. However, inline fragments with @alias are
-            // not subject to this limitation since RelayReader will make the field null
-            // if the type does not match, allowing the user to perform a
-            // field (alias) null check to ensure the type matched.
+            // For a non-redundant abstract type refinement, selections historically need
+            // to be conditional because the generated type cannot prove that the refinement
+            // matched. With typename discriminated unions enabled, preserve the abstract
+            // refinement instead so matching runtime arms can keep those selections required.
+            // Inline fragments with @alias are handled above because the alias itself can be
+            // null-checked to determine whether the refinement matched.
             if let Some(type_condition) = inline_fragment.type_condition {
-                for selection in &mut inline_selections {
-                    if type_condition.is_abstract_type() {
-                        selection.set_conditional(true);
-                    } else {
-                        selection.set_concrete_type(type_condition);
+                let enable_typename_discriminated_unions = typegen_context
+                    .project_config
+                    .feature_flags
+                    .enable_typename_discriminated_unions
+                    .is_enabled_for(typegen_context.definition_source_location.item);
+                if !typegen_context
+                    .schema
+                    .is_named_type_subtype_of(parent_type, type_condition)
+                {
+                    for selection in &mut inline_selections {
+                        if type_condition.is_abstract_type() {
+                            // Preserve the innermost abstract refinement. If a concrete refinement is
+                            // also present, concrete classification takes precedence later.
+                            if selection.get_enclosing_abstract_type().is_none() {
+                                selection.set_abstract_type(type_condition);
+                            }
+                            if !enable_typename_discriminated_unions {
+                                selection.set_conditional(true);
+                            }
+                        } else {
+                            selection.set_concrete_type(type_condition);
+                        }
                     }
                 }
             }
@@ -1337,6 +1384,7 @@ fn visit_condition(
     custom_scalars: &mut CustomScalarsImports,
     runtime_imports: &mut RuntimeImports,
     custom_error_import: &mut Option<CustomTypeImport>,
+    parent_type: Type,
     enclosing_linked_field_concrete_type: Option<Type>,
     emit_semantic_types: bool,
 ) {
@@ -1351,6 +1399,7 @@ fn visit_condition(
         custom_scalars,
         runtime_imports,
         custom_error_import,
+        parent_type,
         enclosing_linked_field_concrete_type,
         emit_semantic_types,
     );
@@ -1414,15 +1463,27 @@ fn selections_to_babel(
     // for non scalar/linked fields.
     // When we encounter additional TypeSelections with matching keys (e.g. multiple linked
     // fields with the same name?), we merge those into the existing TypeSelection.
+    let enable_typename_discriminated_unions = typegen_context
+        .project_config
+        .feature_flags
+        .enable_typename_discriminated_unions
+        .is_enabled_for(typegen_context.definition_source_location.item);
     let mut base_fields: IndexMap<StringKey, TypeSelection> = Default::default();
 
-    // A map of Type => Vec<TypeSelection> of all types that are found within inline fragments.
     let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
+    let mut by_abstract_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
     for selection in selections {
         if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
             by_concrete_type
                 .entry(concrete_type)
+                .or_default()
+                .push(selection);
+        } else if enable_typename_discriminated_unions
+            && let Some(abstract_type) = selection.get_enclosing_abstract_type()
+        {
+            by_abstract_type
+                .entry(abstract_type)
                 .or_default()
                 .push(selection);
         } else {
@@ -1439,19 +1500,17 @@ fn selections_to_babel(
         }
     }
 
-    let enable_typename_discriminated_unions = typegen_context
-        .project_config
-        .feature_flags
-        .enable_typename_discriminated_unions
-        .is_enabled_for(typegen_context.definition_source_location.item);
     if should_emit_discriminated_union(
         concrete_type,
         &by_concrete_type,
+        &by_abstract_type,
         &base_fields,
         enable_typename_discriminated_unions,
     ) {
         get_discriminated_union_ast(
-            by_concrete_type,
+            *concrete_type,
+            &by_concrete_type,
+            &by_abstract_type,
             &base_fields,
             typegen_context,
             encountered_enums,
@@ -1466,6 +1525,7 @@ fn selections_to_babel(
         get_merged_object_with_optional_fields(
             base_fields,
             by_concrete_type,
+            by_abstract_type,
             typegen_context,
             encountered_enums,
             encountered_fragments,
@@ -1478,12 +1538,13 @@ fn selections_to_babel(
     }
 }
 
-/// If we have top-level non-__typename selections, then selections within type refinements to concrete
-/// types are flattened to the top and made optional
+/// Flattens selections from type refinements into the base object, making them optional when a
+/// discriminated union cannot be emitted.
 #[allow(clippy::too_many_arguments)]
 fn get_merged_object_with_optional_fields(
     base_fields: IndexMap<StringKey, TypeSelection>,
     by_concrete_type: IndexMap<Type, Vec<TypeSelection>>,
+    by_abstract_type: IndexMap<Type, Vec<TypeSelection>>,
     typegen_context: &'_ TypegenContext<'_>,
     encountered_enums: &mut EncounteredEnums,
     encountered_fragments: &mut EncounteredFragments,
@@ -1494,6 +1555,19 @@ fn get_merged_object_with_optional_fields(
     custom_error_import: &mut Option<CustomTypeImport>,
 ) -> AST {
     let mut selection_map = selections_to_map(hashmap_into_values(base_fields), false);
+    for abstract_type_selections in hashmap_into_values(by_abstract_type) {
+        merge_selection_maps(
+            &mut selection_map,
+            selections_to_map(
+                abstract_type_selections.into_iter().map(|mut selection| {
+                    selection.set_conditional(true);
+                    selection
+                }),
+                false,
+            ),
+            true,
+        );
+    }
     for concrete_type_selections in hashmap_into_values(by_concrete_type) {
         merge_selection_maps(
             &mut selection_map,
@@ -1575,9 +1649,10 @@ fn get_merged_object_with_optional_fields(
     }
 }
 
-#[allow(clippy::too_many_arguments)]
 fn get_discriminated_union_ast(
-    by_concrete_type: IndexMap<Type, Vec<TypeSelection>>,
+    parent_type: Type,
+    by_concrete_type: &IndexMap<Type, Vec<TypeSelection>>,
+    by_abstract_type: &IndexMap<Type, Vec<TypeSelection>>,
     base_fields: &IndexMap<StringKey, TypeSelection>,
     typegen_context: &'_ TypegenContext<'_>,
     encountered_enums: &mut EncounteredEnums,
@@ -1588,102 +1663,237 @@ fn get_discriminated_union_ast(
     runtime_imports: &mut RuntimeImports,
     custom_error_import: &mut Option<CustomTypeImport>,
 ) -> AST {
-    let mut types: Vec<Vec<Prop>> = Vec::new();
-    let mut typename_aliases = IndexSet::new();
-    for (concrete_type, concrete_type_selections) in by_concrete_type {
-        let mut selection_map = selections_to_map(hashmap_into_values(base_fields.clone()), false);
-        merge_selection_maps(
-            &mut selection_map,
-            selections_to_map(concrete_type_selections.into_iter(), false),
-            false,
-        );
-        types.push(
-            group_refs(hashmap_into_values(selection_map))
+    let schema = typegen_context.schema;
+    let is_subtype =
+        |type_: Type, supertype: Type| schema.is_named_type_subtype_of(type_, supertype);
+
+    let typename_alias = |selection: &TypeSelection| {
+        selection
+            .get_field_name_or_alias()
+            .expect("A typename selection always has a field name or alias")
+    };
+
+    // Collect base __typename aliases both to identify useful abstract
+    // refinements and to initialize the aliases emitted in %other.
+    let base_typename_aliases = base_fields
+        .values()
+        .filter(|selection| selection.is_typename())
+        .map(typename_alias)
+        .collect::<IndexSet<_>>();
+
+    let has_base_payload = base_fields
+        .values()
+        .any(|selection| !selection.is_typename());
+
+    // Ignore abstract refinements that add no information beyond
+    // __typename selections already present in the base scope.
+    let mut useful_abstract_types = by_abstract_type
+        .iter()
+        .filter(|(_, selections)| {
+            selections.iter().any(|selection| {
+                !selection.is_typename()
+                    || !base_typename_aliases.contains(&typename_alias(selection))
+            })
+        })
+        .map(|(abstract_type, _)| *abstract_type)
+        .collect::<Vec<_>>();
+
+    // Keep parent abstract types before their descendants so selections
+    // are merged in a deterministic parent -> child order.
+    useful_abstract_types.sort_by_key(|abstract_type| {
+        by_abstract_type
+            .keys()
+            .filter(|ancestor| {
+                **ancestor != *abstract_type && is_subtype(*abstract_type, **ancestor)
+            })
+            .count()
+    });
+
+    let mut other_typename_aliases = base_typename_aliases;
+
+    // Materialize the base shape once.
+    let mut base_shape = TypeSelectionMap::default();
+    merge_selections_into_discriminated_union_arm(&mut base_shape, base_fields.values().cloned());
+
+    // When the base scope has payload, every runtime type must be represented.
+    // Otherwise, only runtime types covered by a useful abstract refinement or
+    // an explicit concrete refinement need an arm.
+    let runtime_objects = match parent_type {
+        Type::Interface(interface_id) => schema
+            .interface(interface_id)
+            .recursively_implementing_objects(schema)
+            .into_iter()
+            .collect::<Vec<_>>(),
+        Type::Union(union_id) => schema.union(union_id).members.clone(),
+        _ => unreachable!("discriminated union parent must be an abstract type"),
+    };
+
+    let runtime_types = runtime_objects
+        .into_iter()
+        .map(Type::Object)
+        .filter(|runtime_type| {
+            has_base_payload
+                || useful_abstract_types
+                    .iter()
+                    .any(|abstract_type| is_subtype(*runtime_type, *abstract_type))
+                || by_concrete_type.contains_key(runtime_type)
+        })
+        .collect::<Vec<_>>();
+
+    // Group runtime types by the abstract refinements that apply to them.
+    // Runtime types with the same signature can reuse the same merged shape.
+    let mut arm_types: IndexMap<Vec<Type>, Vec<Type>> = Default::default();
+
+    for runtime_type in runtime_types {
+        let signature = useful_abstract_types
+            .iter()
+            .filter(|abstract_type| is_subtype(runtime_type, **abstract_type))
+            .copied()
+            .collect::<Vec<_>>();
+
+        arm_types.entry(signature).or_default().push(runtime_type);
+    }
+
+    let make_object = |mut props: Vec<Prop>| {
+        if let Some(fragment_type_name) = fragment_type_name {
+            props.push(Prop::KeyValuePair(KeyValuePairProp {
+                key: *KEY_FRAGMENT_TYPE,
+                optional: false,
+                read_only: true,
+                value: AST::FragmentReferenceType(fragment_type_name),
+            }));
+        }
+
+        if mask_status == MaskStatus::Unmasked {
+            AST::InexactObject(InexactObject::new(props))
+        } else {
+            AST::ExactObject(ExactObject::new(props))
+        }
+    };
+
+    let mut types = Vec::new();
+
+    {
+        let mut emit_arm = |selection_map: TypeSelectionMap, runtime_types: &[Type]| {
+            let props = group_refs(hashmap_into_values(selection_map))
                 .map(|selection| {
-                    if selection.is_typename() {
-                        typename_aliases.insert(selection.get_field_name_or_alias().expect(
-                            "Just checked this exists by checking that the field is typename",
-                        ));
+                    let is_typename = selection.is_typename();
+
+                    if is_typename {
+                        other_typename_aliases.insert(typename_alias(&selection));
                     }
-                    make_prop(
+
+                    let mut prop = make_prop(
                         typegen_context,
                         selection,
                         mask_status,
-                        Some(concrete_type),
+                        Some(runtime_types[0]),
                         encountered_enums,
                         encountered_fragments,
                         custom_scalars,
                         runtime_imports,
                         custom_error_import,
-                    )
+                    );
+
+                    if runtime_types.len() > 1
+                        && is_typename
+                        && let Prop::KeyValuePair(key_value) = &mut prop
+                    {
+                        key_value.value = AST::Union(SortedASTList::new(
+                            runtime_types
+                                .iter()
+                                .map(|runtime_type| {
+                                    AST::StringLiteral(StringLiteral(
+                                        schema.get_type_name(*runtime_type),
+                                    ))
+                                })
+                                .collect(),
+                        ));
+                    }
+
+                    prop
                 })
-                .collect(),
-        );
+                .collect();
+
+            types.push(make_object(props));
+        };
+
+        // Materialize each shared base + abstract shape once.
+        // Explicit concrete refinements only add their concrete selections.
+        for (signature, runtime_types) in arm_types {
+            let mut shape = base_shape.clone();
+
+            for abstract_type in signature {
+                merge_selections_into_discriminated_union_arm(
+                    &mut shape,
+                    by_abstract_type[&abstract_type].iter().cloned(),
+                );
+            }
+
+            let mut remaining_runtime = Vec::new();
+
+            for runtime_type in runtime_types {
+                if let Some(concrete_selections) = by_concrete_type.get(&runtime_type) {
+                    let mut concrete_shape = shape.clone();
+
+                    merge_selections_into_discriminated_union_arm(
+                        &mut concrete_shape,
+                        concrete_selections.iter().cloned(),
+                    );
+
+                    emit_arm(concrete_shape, std::slice::from_ref(&runtime_type));
+                } else {
+                    remaining_runtime.push(runtime_type);
+                }
+            }
+
+            if !remaining_runtime.is_empty() {
+                emit_arm(shape, &remaining_runtime);
+            }
+        }
     }
-    types.push(
-        typename_aliases
-            .iter()
+
+    // Keep all emitted __typename selections/aliases in %other,
+    // preserving the existing discriminated-union fallback behavior.
+    types.push(make_object(
+        other_typename_aliases
+            .into_iter()
             .map(|typename_alias| {
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: *typename_alias,
+                    key: typename_alias,
                     read_only: true,
                     optional: false,
                     value: AST::OtherTypename,
                 })
             })
             .collect(),
-    );
+    ));
 
-    AST::Union(SortedASTList::new(
-        types
-            .into_iter()
-            .map(|mut props: Vec<Prop>| {
-                // If we are in a masked fragment, add the $fragmentType: NameOfFragment$fragmentType
-                // type to the generated object.
-                if let Some(fragment_type_name) = fragment_type_name {
-                    props.push(Prop::KeyValuePair(KeyValuePairProp {
-                        key: *KEY_FRAGMENT_TYPE,
-                        optional: false,
-                        read_only: true,
-                        value: AST::FragmentReferenceType(fragment_type_name),
-                    }));
-                }
-                if mask_status == MaskStatus::Unmasked {
-                    AST::InexactObject(InexactObject::new(props))
-                } else {
-                    AST::ExactObject(ExactObject::new(props))
-                }
-            })
-            .collect(),
-    ))
+    AST::Union(SortedASTList::new(types))
 }
 
-/// In the following condition, if base_fields is empty, the .all will return true
-/// but the .any will return false.
-///
-/// So, we can read this as:
-///
-/// If base fields is empty
-///   * if we have a type refinement to a concrete type
-///   * and within each type refinement, there is a __typename selection
-///
-/// If base fields is not empty
-///   * if we have a type refinement to a concrete type
-///   * and all fields outside of type refinements are __typename selections
-///
-/// If this condition passes, we emit a discriminated union
+/// Decides whether the selections can be represented as a discriminated union.
+/// The feature-enabled path accepts abstract refinements and requires a base
+/// `__typename`; the legacy path retains its stricter existing checks.
 fn should_emit_discriminated_union(
     concrete_type: &Type,
     by_concrete_type: &IndexMap<Type, Vec<TypeSelection>>,
+    by_abstract_type: &IndexMap<Type, Vec<TypeSelection>>,
     base_fields: &IndexMap<StringKey, TypeSelection>,
     enable_typename_discriminated_unions: bool,
 ) -> bool {
-    if by_concrete_type.is_empty() || !concrete_type.is_abstract_type() {
+    let has_refinements = if enable_typename_discriminated_unions {
+        !by_concrete_type.is_empty() || !by_abstract_type.is_empty()
+    } else {
+        !by_concrete_type.is_empty()
+    };
+
+    if !concrete_type.is_abstract_type() || !has_refinements {
         return false;
     }
 
     if enable_typename_discriminated_unions {
-        !base_fields.is_empty() && base_fields.values().any(TypeSelection::is_typename)
+        base_fields.values().any(TypeSelection::is_typename)
     } else {
         base_fields.values().all(TypeSelection::is_typename)
             && (base_fields.values().any(TypeSelection::is_typename)
@@ -2773,11 +2983,13 @@ fn selections_to_map(
             TypeSelectionKey {
                 key: selection_key,
                 concrete_type: selection.get_enclosing_concrete_type(),
+                abstract_type: selection.get_enclosing_abstract_type(),
             }
         } else {
             TypeSelectionKey {
                 key: selection_key,
                 concrete_type: None,
+                abstract_type: None,
             }
         };
 
@@ -2841,6 +3053,75 @@ fn merge_selection_maps(
         let item = a.swap_remove(&key);
         a.insert(key, merge_selection(item, value, should_set_conditional));
     }
+}
+
+fn merge_selections_into_discriminated_union_arm(
+    arm_selections: &mut TypeSelectionMap,
+    selections: impl IntoIterator<Item = TypeSelection>,
+) {
+    for selection in selections {
+        let key = TypeSelectionKey {
+            key: selection.get_string_key(),
+            concrete_type: None,
+            abstract_type: None,
+        };
+        let previous = arm_selections.swap_remove(&key);
+        arm_selections.insert(
+            key,
+            merge_selection_for_discriminated_union_arm(previous, selection),
+        );
+    }
+}
+
+// Merges selections after their runtime arm has been chosen. Type refinements do not
+// make fields optional within the arm; real GraphQL conditions remain conditional.
+fn merge_selection_for_discriminated_union_arm(
+    a: Option<TypeSelection>,
+    b: TypeSelection,
+) -> TypeSelection {
+    let Some(a) = a else {
+        return b;
+    };
+
+    let both_are_conditional = a.is_conditional() && b.is_conditional();
+
+    let mut merged = if let TypeSelection::LinkedField(mut lf_a) = a {
+        if let TypeSelection::LinkedField(lf_b) = b {
+            if lf_a.conditional {
+                for selection in lf_a.node_selections.values_mut() {
+                    selection.set_conditional(true);
+                }
+            }
+
+            for (key, mut value) in lf_b.node_selections {
+                if lf_b.conditional {
+                    value.set_conditional(true);
+                }
+
+                let previous = lf_a.node_selections.swap_remove(&key);
+
+                lf_a.node_selections.insert(
+                    key,
+                    merge_selection_for_discriminated_union_arm(previous, value),
+                );
+            }
+
+            TypeSelection::LinkedField(lf_a)
+        } else {
+            panic!("Invalid variants passed to discriminated-union linked field merge")
+        }
+    } else if let TypeSelection::ScalarField(sf_a) = a {
+        if matches!(b, TypeSelection::ScalarField(_)) {
+            TypeSelection::ScalarField(sf_a)
+        } else {
+            panic!("Invalid variants passed to discriminated-union scalar field merge")
+        }
+    } else {
+        a
+    };
+
+    merged.set_conditional(both_are_conditional);
+    merged
 }
 
 // TODO: T85950736 Fix these clippy errors

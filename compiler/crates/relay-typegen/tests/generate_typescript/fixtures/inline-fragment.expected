@@ -66,12 +66,21 @@ fragment SomeFragment on User {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragment$data = {
+  readonly __typename: "Page";
+  readonly id: string;
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "InlineFragment";
+} | {
   readonly __typename: "User";
   readonly id: string;
   readonly message: {
     readonly text: string | null | undefined;
   } | null | undefined;
-  readonly name?: string | null | undefined;
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "InlineFragment";
+} | {
+  readonly __typename: "Bicycle" | "Comment" | "Feedback" | "FetchableType" | "PhotoStory" | "Story";
+  readonly id: string;
   readonly " $fragmentType": "InlineFragment";
 } | {
   // This will never be '%other', but we need some

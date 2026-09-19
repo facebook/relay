@@ -75,6 +75,9 @@ export type TypenameDiscriminatedUnionsNestedEnabledQuery$data = {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other",
+  } | {
+    readonly __typename: "Bicycle" | "Comment" | "Feedback" | "FetchableType" | "Page" | "PhotoStory" | "Story",
+    readonly $fragmentSpreads: TypenameDiscriminatedUnionsNamedFragmentDisabled$fragmentType,
   }),
 };
 export type TypenameDiscriminatedUnionsNestedEnabledQuery = {
@@ -98,6 +101,10 @@ export type TypenameDiscriminatedUnionsCommonFieldDisabled$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameDiscriminatedUnionsCommonFieldEnabled$fragmentType: FragmentType;
 export type TypenameDiscriminatedUnionsCommonFieldEnabled$data = {
+  readonly __typename: "Page",
+  readonly id: string,
+  readonly $fragmentType: TypenameDiscriminatedUnionsCommonFieldEnabled$fragmentType,
+} | {
   readonly __typename: "User",
   readonly id: string,
   readonly name: ?string,

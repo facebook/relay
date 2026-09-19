@@ -1,0 +1,135 @@
+fragment RedundantAbstractSupertypesOnConcrete on User {
+  __typename
+  id
+
+  ... on Actor {
+    actorType: __typename
+
+    ... on Named {
+      namedType: __typename
+      name
+    }
+  }
+}
+
+fragment AbstractConcreteMixedInline on Actor {
+  __typename
+  id
+  ... on Named { name }
+  ... on User { firstName }
+  ... on Page { subscribeStatus }
+}
+
+fragment SingleConcreteWithTypename on Actor {
+  __typename
+  ... on User {
+    firstName
+  }
+}
+
+fragment SingleConcreteWithoutBaseFields on Actor {
+  ... on User {
+    __typename
+    firstName
+  }
+}
+
+
+fragment TypenameOnlyOnAbstract on Actor {
+  __typename
+}
+
+fragment SingleConcreteTypenameOnly on Actor {
+  __typename
+  ... on User {
+    userType: __typename
+  }
+}
+
+fragment AbstractConcreteMixed on Actor {
+  __typename
+  id
+  ... on Named {
+    name
+  }
+  ... on Page {
+    subscribeStatus
+  }
+}
+
+fragment AbstractSignatureGrouping on Actor {
+  __typename
+  id
+  ... on VideoLike {
+    canPlay
+  }
+}
+
+fragment NestedAbstractIntersection on Actor {
+  __typename
+  id
+  ... on Named {
+    name
+    ... on VideoLike {
+      canPlay
+    }
+  }
+}
+
+fragment AbstractFragmentSpread on Actor {
+  __typename
+  id
+  ...AbstractUnionNamedFragment @dangerously_unaliased_fixme
+  ... on Page {
+    subscribeStatus
+  }
+}
+
+query ConditionalLinkedFieldMerge($condition: Boolean!) {
+  node(id: "4") {
+    __typename
+    ... on VideoLike {
+      ... on User {
+        address @include(if: $condition) {
+          street
+        }
+      }
+    }
+    ... on Named {
+      ... on User {
+        address {
+          country
+        }
+      }
+    }
+  }
+}
+
+fragment AbstractTypenameAliasGrouping on Actor {
+  __typename
+  ... on VideoLike {
+    kind: __typename
+  }
+}
+
+fragment AbstractUnionNamedFragment on Named {
+  name
+}
+
+%extensions%
+
+interface VideoLike {
+  canPlay: Boolean
+}
+
+extend type User implements VideoLike {
+  canPlay: Boolean
+}
+
+extend type Page implements VideoLike {
+  canPlay: Boolean
+}
+
+type AbstractUnionActorOnly implements Actor {
+  id: ID!
+}

@@ -19,8 +19,11 @@ query ExampleQuery @raw_response_type {
 export type ExampleQuery$variables = {};
 export type ExampleQuery$data = {
   readonly node: ?({
+    readonly __typename: "PhotoStory",
+    readonly id: string,
+  } | {
     readonly __typename: "Story",
-    readonly id?: string,
+    readonly id: string,
     readonly name: ?string,
   } | {
     // This will never be '%other', but we need some

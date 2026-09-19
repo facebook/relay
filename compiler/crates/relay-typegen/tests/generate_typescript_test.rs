@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1cb5af3786b27f356af84af885731db8>>
+ * @generated SignedSource<<3fdaeded5554375121e98ca5a493d389>>
  */
 
 mod generate_typescript;
@@ -675,6 +675,20 @@ async fn spread_interface_fragment_on_concrete_raw_type() {
     let input = include_str!("generate_typescript/fixtures/spread-interface-fragment-on-concrete-raw-type.graphql");
     let expected = include_str!("generate_typescript/fixtures/spread-interface-fragment-on-concrete-raw-type.expected");
     test_fixture(transform_fixture, file!(), "spread-interface-fragment-on-concrete-raw-type.graphql", "generate_typescript/fixtures/spread-interface-fragment-on-concrete-raw-type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn typename_abstract_discriminated_unions() {
+    let input = include_str!("generate_typescript/fixtures/typename-abstract-discriminated-unions.graphql");
+    let expected = include_str!("generate_typescript/fixtures/typename-abstract-discriminated-unions.expected");
+    test_fixture(transform_fixture, file!(), "typename-abstract-discriminated-unions.graphql", "generate_typescript/fixtures/typename-abstract-discriminated-unions.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn typename_abstract_discriminated_unions_disabled() {
+    let input = include_str!("generate_typescript/fixtures/typename-abstract-discriminated-unions-disabled.graphql");
+    let expected = include_str!("generate_typescript/fixtures/typename-abstract-discriminated-unions-disabled.expected");
+    test_fixture(transform_fixture, file!(), "typename-abstract-discriminated-unions-disabled.graphql", "generate_typescript/fixtures/typename-abstract-discriminated-unions-disabled.expected", input, expected).await;
 }
 
 #[tokio::test]

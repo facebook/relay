@@ -23,6 +23,9 @@ export type ExampleQuery$data = {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other";
+  } | {
+    readonly __typename: "Bicycle" | "Comment" | "Feedback" | "FetchableType" | "Page" | "PhotoStory" | "User";
+    readonly id: string;
   } | null | undefined;
 };
 export type ExampleQuery$rawResponse = {

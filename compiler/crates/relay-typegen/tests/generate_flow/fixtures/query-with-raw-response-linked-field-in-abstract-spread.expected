@@ -22,12 +22,18 @@ query ExampleQuery @raw_response_type {
 export type ExampleQuery$variables = {};
 export type ExampleQuery$data = {
   readonly node: ?({
+    readonly __typename: "PhotoStory",
+    readonly message: ?{
+      readonly text: ?string,
+    },
+    readonly tracking: ?string,
+  } | {
     readonly __typename: "Story",
-    readonly message?: ?{
+    readonly message: ?{
       readonly text: ?string,
     },
     readonly name: ?string,
-    readonly tracking?: ?string,
+    readonly tracking: ?string,
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.

@@ -203,6 +203,7 @@ pub(crate) type TypeSelectionMap = IndexMap<TypeSelectionKey, TypeSelection>;
 pub(crate) struct TypeSelectionKey {
     pub(crate) key: StringKey,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) abstract_type: Option<Type>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

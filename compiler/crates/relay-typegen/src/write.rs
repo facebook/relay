@@ -122,6 +122,7 @@ pub(crate) fn write_operation_type_exports_section(
         &mut custom_scalars,
         &mut runtime_imports,
         &mut custom_error_import,
+        typegen_operation.type_,
         None,
         is_throw_on_field_error || is_catch,
     );
@@ -480,6 +481,7 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut custom_scalars,
         &mut runtime_imports,
         &mut custom_error_import,
+        fragment_definition.type_condition,
         None,
         is_throw_on_field_error || is_catch,
     );

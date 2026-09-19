@@ -23,11 +23,11 @@ export type ExampleQuery$data = {
     readonly photo: ?{
       readonly uri: ?string,
     },
-    readonly tracking?: ?string,
+    readonly tracking: ?string,
   } | {
     readonly __typename: "Story",
     readonly name: ?string,
-    readonly tracking?: ?string,
+    readonly tracking: ?string,
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.

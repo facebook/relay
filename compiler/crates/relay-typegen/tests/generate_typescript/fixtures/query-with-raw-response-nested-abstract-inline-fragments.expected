@@ -25,14 +25,12 @@ export type ExampleQuery$variables = Record<PropertyKey, never>;
 export type ExampleQuery$data = {
   readonly node: {
     readonly __typename: "Comment";
-    readonly actor_key?: string;
     readonly body: {
       readonly text: string | null | undefined;
     } | null | undefined;
     readonly id: string;
   } | {
     readonly __typename: "Story";
-    readonly actor_key?: string;
     readonly body: {
       readonly text: string | null | undefined;
     } | null | undefined;
@@ -41,6 +39,13 @@ export type ExampleQuery$data = {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other";
+  } | {
+    readonly __typename: "Page" | "User";
+    readonly actor_key: string;
+    readonly id: string;
+  } | {
+    readonly __typename: "Bicycle" | "Feedback" | "FetchableType" | "PhotoStory";
+    readonly id: string;
   } | null | undefined;
 };
 export type ExampleQuery$rawResponse = {

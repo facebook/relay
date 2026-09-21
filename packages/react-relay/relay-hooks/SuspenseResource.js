@@ -70,6 +70,7 @@ class SuspenseResource {
     const retention = this._retain(environment);
     let releaseQueryTimeout = null;
     const releaseTemporaryRetain = () => {
+      // $FlowFixMe[incompatible-type]
       clearTimeout(releaseQueryTimeout);
       releaseQueryTimeout = null;
       this._releaseTemporaryRetain = null;

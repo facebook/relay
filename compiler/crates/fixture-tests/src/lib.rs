@@ -131,7 +131,7 @@ pub async fn test_fixture<T, U, V>(
 ==================================== OUTPUT ===================================
 {}
 ",
-            &fixture.content.trim(),
+            fixture.content.trim(),
             output,
         ),
         Err(output) => format!(

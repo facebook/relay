@@ -49,7 +49,7 @@ fn main() {
         let test_name = dir.file_name().unwrap().to_str().unwrap();
         let fixtures_dir = dir.join("fixtures");
         let paths = fs::read_dir(&fixtures_dir)
-            .unwrap_or_else(|_| panic!("Fixtures dir does not exist: {:?}", &fixtures_dir));
+            .unwrap_or_else(|_| panic!("Fixtures dir does not exist: {:?}", fixtures_dir));
         let mut test_cases: HashMap<String, TestCase> = HashMap::new();
         for dir_entry in paths {
             let path = dir_entry.unwrap().path();
@@ -105,7 +105,7 @@ async fn {0}() {{
     test_fixture(transform_fixture, file!(), "{2}", "{1}/fixtures/{3}", input, expected).await;
 }}"#,
                     test_case.name,
-                    &test_name,
+                    test_name,
                     test_case
                         .input
                         .unwrap_or_else(|| panic!(
@@ -127,12 +127,8 @@ async fn {0}() {{
             .collect::<Vec<_>>()
             .join("\n\n");
 
-        let mut file = File::create(
-            dir.parent()
-                .unwrap()
-                .join(format!("{}_test.rs", &test_name)),
-        )
-        .unwrap();
+        let mut file =
+            File::create(dir.parent().unwrap().join(format!("{}_test.rs", test_name))).unwrap();
 
         // Slightly hacky way to find out if these fixture tests are in the OSS
         // directory. This test should work on GitHub and in the internal repo.
@@ -174,7 +170,7 @@ use fixture_tests::test_fixture;
 {test_cases}
 ",
             header = header,
-            test_name = &test_name,
+            test_name = test_name,
             test_cases = test_cases,
         );
         file.write_all(sign_file(&content).as_bytes()).unwrap();

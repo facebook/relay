@@ -26,6 +26,7 @@ import type {
   VariablesOf,
 } from 'relay-runtime';
 
+const getFragmentInternalData = require('./getFragmentInternalData');
 const ProfilerContext = require('./ProfilerContext');
 const {getQueryResourceForEnvironment} = require('./QueryResource');
 const readFragmentInternal = require('./readFragmentInternal');
@@ -383,11 +384,17 @@ hook useRefetchFunction<TQuery extends OperationType>(
   refetchableRequest: ConcreteRequest,
 ): RefetchFn<TQuery, InternalOptions> {
   const isMountedRef = useIsMountedRef();
+  // When @catch wraps the fragment root in a Result envelope, look inside
+  // .value for the identifier field.
+  const internalFragmentData = getFragmentInternalData(
+    fragmentNode,
+    fragmentData,
+  );
   const identifierValue =
     identifierInfo?.identifierField != null &&
-    fragmentData != null &&
-    typeof fragmentData === 'object'
-      ? fragmentData[identifierInfo.identifierField]
+    internalFragmentData != null &&
+    typeof internalFragmentData === 'object'
+      ? internalFragmentData[identifierInfo.identifierField]
       : null;
   return useCallback(
     (

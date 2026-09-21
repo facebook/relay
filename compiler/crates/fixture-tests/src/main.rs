@@ -174,15 +174,22 @@ use fixture_tests::test_fixture;
             test_cases = test_cases,
         );
         file.write_all(sign_file(&content).as_bytes()).unwrap();
-        check_targets_file(&dir);
+        check_build_file(&dir);
     }
 }
 
-fn check_targets_file(test_dir: &Path) {
-    let targets_path = test_dir.parent().unwrap().parent().unwrap().join("TARGETS");
-    let targets_content = match std::fs::read_to_string(&targets_path) {
-        Ok(content) => content,
-        Err(_) => return,
+fn check_build_file(test_dir: &Path) {
+    let build_dir = test_dir.parent().unwrap().parent().unwrap();
+    // Candidate order mirrors fbcode's `buildfile.name_v2 = TARGETS,BUCK`, so a
+    // directory carrying both is checked against the one buck2 itself reads.
+    let Some((build_file_path, build_file_content)) =
+        ["TARGETS", "BUCK"].into_iter().find_map(|name| {
+            let path = build_dir.join(name);
+            let content = std::fs::read_to_string(&path).ok()?;
+            Some((path, content))
+        })
+    else {
+        return;
     };
 
     let expected_substr = format!(
@@ -190,10 +197,10 @@ fn check_targets_file(test_dir: &Path) {
         test_dir.file_stem().unwrap().to_str().unwrap()
     );
 
-    if !targets_content.contains(&expected_substr) {
+    if !build_file_content.contains(&expected_substr) {
         eprintln!(
             "{}",
-            format!("WARNING: expected {targets_path:?} to contain substring {expected_substr}")
+            format!("WARNING: expected {build_file_path:?} to contain substring {expected_substr}")
                 .yellow()
         );
     }

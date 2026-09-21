@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DirectiveName;
 use common::NamedItem;
 use intern::Lookup;
 use intern::string_key::StringKey;
@@ -29,6 +30,8 @@ pub struct SchemaFileLocation {
 
 use crate::CanHaveDirectives;
 use crate::DirectivePolicies;
+use crate::DirectivePolicy;
+use crate::DivergentArgs;
 use crate::OutputTypeReference;
 use crate::SchemaSet;
 use crate::SetArgument;
@@ -81,7 +84,7 @@ pub struct SubsetViolation {
 /// but not covered by base), then walks the remainder to produce structured
 /// violation objects.
 ///
-/// `policies` describes how directives may diverge between base and subset:
+/// `directive_policies` describes how directives may diverge between base and subset:
 ///
 /// * `client_only_ok = true` permits the subset to carry the directive even
 ///   when the base does not — e.g. a typical `@deprecated` policy lets a
@@ -93,13 +96,20 @@ pub struct SubsetViolation {
 pub fn find_subset_violations(
     base: &SchemaSet,
     subset: &SchemaSet,
-    policies: &DirectivePolicies,
+    directive_policies: &DirectivePolicies,
 ) -> Vec<SubsetViolation> {
-    let remainder = subset.exclude_set(base, policies);
+    let remainder = subset.exclude_set(base, directive_policies);
     let mut violations = Vec::new();
 
     for (type_name, rem_type) in &remainder.types {
-        walk_type_violations(&mut violations, *type_name, rem_type, base, subset);
+        walk_type_violations(
+            &mut violations,
+            *type_name,
+            rem_type,
+            base,
+            subset,
+            directive_policies,
+        );
     }
 
     for rem_dir in remainder.directives.values() {
@@ -116,6 +126,7 @@ fn walk_type_violations(
     rem_type: &SetType,
     base: &SchemaSet,
     subset: &SchemaSet,
+    directive_policies: &DirectivePolicies,
 ) {
     match base.types.get(&type_name) {
         None => {
@@ -147,7 +158,14 @@ fn walk_type_violations(
                     subset_locations: Vec::new(),
                 });
             } else {
-                walk_same_kind_violations(violations, type_name, rem_type, base_type, subset);
+                walk_same_kind_violations(
+                    violations,
+                    type_name,
+                    rem_type,
+                    base_type,
+                    subset,
+                    directive_policies,
+                );
             }
         }
     }
@@ -159,6 +177,7 @@ fn walk_same_kind_violations(
     rem_type: &SetType,
     base_type: &SetType,
     subset: &SchemaSet,
+    directive_policies: &DirectivePolicies,
 ) {
     match (rem_type, base_type) {
         (SetType::Object(rem_obj), SetType::Object(base_obj)) => {
@@ -173,6 +192,7 @@ fn walk_same_kind_violations(
                 &rem_obj.fields,
                 &base_obj.fields,
                 subset_obj.map(|o| &o.fields),
+                directive_policies,
             );
 
             for (iface_name, _) in &rem_obj.interfaces {
@@ -201,6 +221,7 @@ fn walk_same_kind_violations(
                 &rem_iface.fields,
                 &base_iface.fields,
                 subset_iface.map(|i| &i.fields),
+                directive_policies,
             );
 
             for (iface_name, _) in &rem_iface.interfaces {
@@ -270,7 +291,14 @@ fn walk_same_kind_violations(
         _ => {}
     }
 
-    walk_type_directive_violations(violations, type_name, rem_type);
+    walk_type_directive_violations(
+        violations,
+        type_name,
+        rem_type,
+        base_type,
+        subset.types.get(&type_name),
+        directive_policies,
+    );
 }
 
 fn walk_field_violations(
@@ -279,6 +307,7 @@ fn walk_field_violations(
     rem_fields: &StringKeyMap<SetField>,
     base_fields: &StringKeyMap<SetField>,
     subset_fields: Option<&StringKeyMap<SetField>>,
+    directive_policies: &DirectivePolicies,
 ) {
     for (field_name, rem_field) in rem_fields {
         match base_fields.get(field_name) {
@@ -318,9 +347,7 @@ fn walk_field_violations(
                     });
                 }
 
-                let subset_args = subset_fields
-                    .and_then(|sf| sf.get(field_name))
-                    .map(|f| &f.arguments);
+                let subset_field = subset_fields.and_then(|sf| sf.get(field_name));
 
                 walk_arg_violations(
                     violations,
@@ -328,10 +355,18 @@ fn walk_field_violations(
                     *field_name,
                     &rem_field.arguments,
                     &base_field.arguments,
-                    subset_args,
+                    subset_field.map(|f| &f.arguments),
                 );
 
-                walk_field_directive_violations(violations, type_name, *field_name, rem_field);
+                walk_field_directive_violations(
+                    violations,
+                    type_name,
+                    *field_name,
+                    rem_field,
+                    base_field,
+                    subset_field,
+                    directive_policies,
+                );
             }
         }
     }
@@ -566,24 +601,26 @@ fn walk_type_directive_violations(
     violations: &mut Vec<SubsetViolation>,
     type_name: StringKey,
     rem_type: &SetType,
+    base_type: &SetType,
+    subset_type: Option<&SetType>,
+    directive_policies: &DirectivePolicies,
 ) {
+    let coordinate = SchemaCoordinate::Type { name: type_name }.to_string();
+    let subset_directives = subset_type
+        .map(|t| t.directives().as_slice())
+        .unwrap_or(&[]);
+
     for directive in rem_type.directives() {
-        if let Some(v) = missing_directive_marker_to_violation(directive, type_name, None) {
-            violations.push(v);
-            continue;
-        }
-        violations.push(SubsetViolation {
-            violation_type: SubsetViolationType::InconsistentDirectiveUse,
-            description: format!(
-                "{type_name} does not have {directive_definition} in the base schema.",
-                directive_definition = print_set_directive_value(directive),
-            ),
-            schema_coordinate: SchemaCoordinate::Type { name: type_name }.to_string(),
-            base: None,
-            subset: None,
-            base_locations: Vec::new(),
-            subset_locations: Vec::new(),
-        });
+        let name = missing_required_directive_name(directive).unwrap_or(directive.name);
+        let policy = directive_policies.policy_for(&name);
+        violations.push(directive_violation(
+            type_name.to_string(),
+            coordinate.clone(),
+            directive,
+            base_type.directives(),
+            subset_directives,
+            &policy,
+        ));
     }
 }
 
@@ -592,80 +629,126 @@ fn walk_field_directive_violations(
     type_name: StringKey,
     field_name: StringKey,
     rem_field: &SetField,
+    base_field: &SetField,
+    subset_field: Option<&SetField>,
+    directive_policies: &DirectivePolicies,
 ) {
+    let coordinate = SchemaCoordinate::Member {
+        parent_name: type_name,
+        member_name: field_name,
+    }
+    .to_string();
+    let subset_directives = subset_field.map(|f| f.directives.as_slice()).unwrap_or(&[]);
+
     for directive in &rem_field.directives {
-        if let Some(v) =
-            missing_directive_marker_to_violation(directive, type_name, Some(field_name))
-        {
-            violations.push(v);
-            continue;
-        }
-        violations.push(SubsetViolation {
-            violation_type: SubsetViolationType::InconsistentDirectiveUse,
-            description: format!(
-                "{type_name}.{field_name} does not have {directive_definition} in the base schema.",
-                directive_definition = print_set_directive_value(directive),
-            ),
-            schema_coordinate: SchemaCoordinate::Member {
-                parent_name: type_name,
-                member_name: field_name,
-            }
-            .to_string(),
-            base: None,
-            subset: None,
-            base_locations: Vec::new(),
-            subset_locations: Vec::new(),
-        });
+        let name = missing_required_directive_name(directive).unwrap_or(directive.name);
+        let policy = directive_policies.policy_for(&name);
+        violations.push(directive_violation(
+            format!("{type_name}.{field_name}"),
+            coordinate.clone(),
+            directive,
+            &base_field.directives,
+            subset_directives,
+            &policy,
+        ));
     }
 }
 
-/// If `directive` is a `@missing_required_directive` marker (injected by
-/// `exclude_directives` for base_restricted_directives), build and return
-/// the corresponding `BaseDirectiveNotInSubset` violation. Returns `None`
-/// for regular directives.
-fn missing_directive_marker_to_violation(
-    directive: &SetDirectiveValue,
-    type_name: StringKey,
-    field_name: Option<StringKey>,
-) -> Option<SubsetViolation> {
+fn directive_violation(
+    subject: String,
+    coordinate: String,
+    violating_directive: &SetDirectiveValue,
+    base_directives: &[SetDirectiveValue],
+    subset_directives: &[SetDirectiveValue],
+    policy: &DirectivePolicy,
+) -> SubsetViolation {
+    let (violation_type, name) = match missing_required_directive_name(violating_directive) {
+        Some(name) => (SubsetViolationType::BaseDirectiveNotInSubset, name),
+        None => (
+            SubsetViolationType::InconsistentDirectiveUse,
+            violating_directive.name,
+        ),
+    };
+
+    let base = applied_directives(base_directives, name);
+    let subset = applied_directives(subset_directives, name);
+
+    let description = format!(
+        "{subject}: {rule} Base has {base_side}; subset has {subset_side}.",
+        rule = directive_rule_sentence(name, policy),
+        base_side = render_directive_side(&base, name),
+        subset_side = render_directive_side(&subset, name),
+    );
+
+    SubsetViolation {
+        violation_type,
+        description,
+        schema_coordinate: coordinate,
+        base: (!base.is_empty()).then(|| base.join(", ")),
+        subset: (!subset.is_empty()).then(|| subset.join(", ")),
+        base_locations: Vec::new(),
+        subset_locations: Vec::new(),
+    }
+}
+
+// Return *all* directives with the given name (used instead of `named()` for
+// repeatable directives).
+fn applied_directives(directives: &[SetDirectiveValue], name: DirectiveName) -> Vec<String> {
+    directives
+        .iter()
+        .filter(|directive| directive.name == name)
+        .map(print_set_directive_value)
+        .collect()
+}
+
+fn render_directive_side(applied: &[String], name: DirectiveName) -> String {
+    if applied.is_empty() {
+        format!("no @{name}")
+    } else {
+        applied.join(", ")
+    }
+}
+
+fn directive_rule_sentence(name: DirectiveName, policy: &DirectivePolicy) -> String {
+    let application_rule = match (policy.service_only_ok, policy.client_only_ok) {
+        (false, false) => "must be applied in both schemas",
+        (false, true) => "in the base schema must also be applied in the subset schema",
+        (true, false) => "in the subset schema must also be applied in the base schema",
+        // Never flagged: either side may carry the directive alone.
+        (true, true) => "must agree between the base and subset schemas",
+    };
+
+    let argument_rule = match &policy.divergent_args {
+        None => " with all arguments matching".to_string(),
+        Some(DivergentArgs::All) => String::new(),
+        Some(DivergentArgs::Only(divergent)) if divergent.is_empty() => {
+            " with all arguments matching".to_string()
+        }
+        Some(DivergentArgs::Only(divergent)) => format!(
+            " with all arguments except {} matching",
+            divergent
+                .iter()
+                .map(ToString::to_string)
+                .collect::<Vec<_>>()
+                .join(", "),
+        ),
+    };
+
+    format!("@{name} {application_rule}{argument_rule}.")
+}
+
+fn missing_required_directive_name(directive: &SetDirectiveValue) -> Option<DirectiveName> {
     if directive.name != *MISSING_REQUIRED_DIRECTIVE {
         return None;
     }
 
-    let dir_name_value = directive
+    let name = directive
         .arguments
         .named(*MISSING_REQUIRED_DIRECTIVE_NAME)
         .and_then(|a| a.value.get_string_literal())
         .expect("missing_required_directive marker should always have a name argument");
 
-    let (schema_coordinate, description) = match field_name {
-        Some(field_name) => (
-            SchemaCoordinate::Member {
-                parent_name: type_name,
-                member_name: field_name,
-            }
-            .to_string(),
-            format!(
-                "{type_name}.{field_name} has @{dir_name_value} in the base schema but not in the subset schema.",
-            ),
-        ),
-        None => (
-            SchemaCoordinate::Type { name: type_name }.to_string(),
-            format!(
-                "{type_name} has @{dir_name_value} in the base schema but not in the subset schema.",
-            ),
-        ),
-    };
-
-    Some(SubsetViolation {
-        violation_type: SubsetViolationType::BaseDirectiveNotInSubset,
-        description,
-        schema_coordinate,
-        base: None,
-        subset: None,
-        base_locations: Vec::new(),
-        subset_locations: Vec::new(),
-    })
+    Some(DirectiveName(name))
 }
 
 fn format_output_type_ref(type_ref: &OutputTypeReference<StringKey>) -> String {
@@ -1769,6 +1852,193 @@ mod tests {
             "Expected no violations when both have @source on enum, got: {:?}",
             v.iter().map(|v| &v.description).collect::<Vec<_>>()
         );
+    }
+
+    // ───────────────────────────────────────────────────────────────
+    // Directive messages
+    // ───────────────────────────────────────────────────────────────
+
+    fn description_of(violations: &[SubsetViolation], kind: SubsetViolationType) -> &str {
+        let matching: Vec<_> = violations
+            .iter()
+            .filter(|v| v.violation_type == kind)
+            .collect();
+        assert_eq!(
+            matching.len(),
+            1,
+            "Expected exactly one {kind:?}, got: {:?}",
+            violations
+                .iter()
+                .map(|v| format!("{:?}: {}", v.violation_type, v.description))
+                .collect::<Vec<_>>()
+        );
+        &matching[0].description
+    }
+
+    #[test]
+    fn test_rule_sentence_per_policy() {
+        let divergent = |names: &[&str]| {
+            Some(DivergentArgs::Only(
+                names.iter().map(|n| ArgumentName(n.intern())).collect(),
+            ))
+        };
+        let cases = [
+            (
+                DirectivePolicy::EXACT_MATCH,
+                "@mydir must be applied in both schemas with all arguments matching.",
+            ),
+            (
+                DirectivePolicy::SERVICE_FIRST,
+                "@mydir in the subset schema must also be applied in the base schema with all arguments matching.",
+            ),
+            (
+                DirectivePolicy {
+                    client_only_ok: true,
+                    ..DirectivePolicy::EXACT_MATCH
+                },
+                "@mydir in the base schema must also be applied in the subset schema with all arguments matching.",
+            ),
+            (
+                DirectivePolicy::ANY_DIVERGENCE,
+                "@mydir must agree between the base and subset schemas.",
+            ),
+            (
+                DirectivePolicy {
+                    divergent_args: divergent(&["schemas"]),
+                    ..DirectivePolicy::EXACT_MATCH
+                },
+                "@mydir must be applied in both schemas with all arguments except schemas matching.",
+            ),
+            (
+                DirectivePolicy {
+                    divergent_args: divergent(&["a", "c"]),
+                    ..DirectivePolicy::EXACT_MATCH
+                },
+                "@mydir must be applied in both schemas with all arguments except a, c matching.",
+            ),
+            (
+                DirectivePolicy {
+                    divergent_args: Some(DivergentArgs::All),
+                    ..DirectivePolicy::EXACT_MATCH
+                },
+                "@mydir must be applied in both schemas.",
+            ),
+            (
+                // An empty list exempts nothing, so it must not read
+                // "all arguments except  matching".
+                DirectivePolicy {
+                    divergent_args: Some(DivergentArgs::Only(Vec::new())),
+                    ..DirectivePolicy::EXACT_MATCH
+                },
+                "@mydir must be applied in both schemas with all arguments matching.",
+            ),
+        ];
+
+        for (policy, expected) in cases {
+            assert_eq!(
+                directive_rule_sentence(DirectiveName("mydir".intern()), &policy),
+                expected,
+                "wrong rule for {policy:?}",
+            );
+        }
+    }
+
+    #[test]
+    fn test_subset_only_directive() {
+        let v = violations(
+            "type Query { myQ: String }",
+            r#"type Query { myQ: String @mydir(a: "x") }"#,
+        );
+        assert_eq!(
+            description_of(&v, SubsetViolationType::InconsistentDirectiveUse),
+            concat!(
+                "Query.myQ: @mydir must be applied in both schemas with all arguments matching. ",
+                r#"Base has no @mydir; subset has @mydir(a: "x")."#,
+            ),
+        );
+        assert_eq!(v[0].base, None);
+        assert_eq!(v[0].subset.as_deref(), Some(r#"@mydir(a: "x")"#));
+    }
+
+    #[test]
+    fn test_base_only_directive() {
+        let v = violations_with_base_restricted_directives(
+            r#"type Query { myQ: String @source(name: "x") }"#,
+            "type Query { myQ: String }",
+            &["source"],
+        );
+        assert_eq!(
+            description_of(&v, SubsetViolationType::BaseDirectiveNotInSubset),
+            concat!(
+                "Query.myQ: @source must be applied in both schemas with all arguments matching. ",
+                r#"Base has @source(name: "x"); subset has no @source."#,
+            ),
+        );
+        assert_eq!(v[0].base.as_deref(), Some(r#"@source(name: "x")"#));
+        assert_eq!(v[0].subset, None);
+    }
+
+    #[test]
+    fn test_directive_on_both_sides_with_differing_args() {
+        let v = violations_with_policy(
+            r#"type Query { myQ: String @mydir(a: "base") }"#,
+            r#"type Query { myQ: String @mydir(a: "subset") }"#,
+            "mydir",
+            DirectivePolicy::EXACT_MATCH,
+        );
+        assert_eq!(
+            description_of(&v, SubsetViolationType::InconsistentDirectiveUse),
+            concat!(
+                "Query.myQ: @mydir must be applied in both schemas with all arguments matching. ",
+                r#"Base has @mydir(a: "base"); subset has @mydir(a: "subset")."#,
+            ),
+            "A directive present on both sides must not be reported as missing from the base",
+        );
+    }
+
+    #[test]
+    fn test_repeatable_directive_lists_every_application() {
+        // The subset mirrors @tag(a: 1) but not @tag(a: 2). Reporting only the
+        // first application would print the same value on both sides.
+        let v = violations_with_base_restricted_directives(
+            r#"type Query { myQ: String @tag(a: 1) @tag(a: 2) }"#,
+            r#"type Query { myQ: String @tag(a: 1) }"#,
+            &["tag"],
+        );
+        assert_eq!(
+            description_of(&v, SubsetViolationType::BaseDirectiveNotInSubset),
+            concat!(
+                "Query.myQ: @tag must be applied in both schemas with all arguments matching. ",
+                "Base has @tag(a: 1), @tag(a: 2); subset has @tag(a: 1).",
+            ),
+        );
+    }
+
+    #[test]
+    fn test_every_unmirrored_application_is_reported() {
+        // Both base applications are unmirrored, so `exclude_directives` emits a
+        // marker per application. Each violation must name both, rather than
+        // every marker resolving to the first application.
+        let v = violations_with_base_restricted_directives(
+            r#"type Query { myQ: String @tag(a: 1) @tag(a: 2) }"#,
+            r#"type Query { myQ: String }"#,
+            &["tag"],
+        );
+        let reported: Vec<&str> = v
+            .iter()
+            .filter(|v| v.violation_type == SubsetViolationType::BaseDirectiveNotInSubset)
+            .map(|v| v.description.as_str())
+            .collect();
+        assert!(!reported.is_empty(), "base-only @tag should be flagged");
+        for description in reported {
+            assert_eq!(
+                description,
+                concat!(
+                    "Query.myQ: @tag must be applied in both schemas with all arguments matching. ",
+                    "Base has @tag(a: 1), @tag(a: 2); subset has no @tag.",
+                ),
+            );
+        }
     }
 
     #[test]

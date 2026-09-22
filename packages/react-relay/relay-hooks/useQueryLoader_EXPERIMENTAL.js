@@ -195,7 +195,7 @@ hook useQueryLoader_EXPERIMENTAL<
     [],
   );
 
-  const cleanupTimerRef = useRef<?TimeoutID>(null);
+  const cleanupTimerRef = useRef<?ReturnType<typeof setTimeout>>(null);
   useEffect(() => {
     // When a new queryReference is committed, we iterate over all
     // query references in undisposedQueryReferences and dispose all of

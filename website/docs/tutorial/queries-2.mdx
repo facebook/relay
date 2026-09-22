@@ -100,7 +100,7 @@ const PosterDetailsHovercardContentsQuery = graphql`
     // color1
     node(id: "1") {
       // color2
-      ... on Actor {
+      ... on Actor @alias(as: "actor") {
         ...PosterDetailsHovercardContentsBodyFragment
       }
     }
@@ -110,7 +110,7 @@ const PosterDetailsHovercardContentsQuery = graphql`
 
 <p><span className="color1">The <code>node</code> field</span> is a top-level field defined in our schema that lets us fetch any graph node given its unique ID. It takes the ID as an argument, which is currently hard-coded. In this exercise, we’ll be replacing this hard-coded ID with a variable supplied by our UI state.</p>
 
-The funny-looking `... on Actor` is a <span className="color2">*type refinement*</span>. We’ll look at these in more detail in the next section and can ignore it for now. In brief, since we could supply any ID at all to the `node` field, there’s no way to know statically what *type* of node we’d be selecting. The type refinement specifies what type we expect, allowing us to use fields from the `Actor` type.
+The funny-looking `... on Actor` is a <span className="color2">*type refinement*</span>. We’ll look at these in more detail in the next section and can ignore it for now. In brief, since we could supply any ID at all to the `node` field, there’s no way to know statically what *type* of node we’d be selecting. The type refinement specifies what type we expect, allowing us to use fields from the `Actor` type. Because the node might not actually be an `Actor` at runtime, we tag the refinement with [`@alias(as: "actor")`](../guides/alias-directive.mdx), which exposes it as a nullable `actor` field on `node` — that's why the component below reads `data.node?.actor`.
 
 Within that, we simply spread a fragment that contains the fields we want to show — about which more later. For now, here are the steps to take to replace this hard-coded ID with the ID of the poster we’re hovering over:
 
@@ -125,7 +125,7 @@ const PosterDetailsHovercardContentsQuery = graphql`
     $posterID: ID!
   ) {
     node(id: "1") {
-      ... on Actor {
+      ... on Actor @alias(as: "actor") {
         ...PosterDetailsHovercardContentsBodyFragment
       }
     }
@@ -147,7 +147,7 @@ const PosterDetailsHovercardContentsQuery = graphql`
       // change-line
       id: $posterID
     ) {
-    ... on Actor {
+    ... on Actor @alias(as: "actor") {
       ...PosterDetailsHovercardContentsBodyFragment
       }
     }
@@ -176,7 +176,7 @@ export default function PosterDetailsHovercardContents({
     // change-line
     {posterID},
   );
-  return <PosterDetailsHovercardContentsBody poster={data.node} />;
+  return <PosterDetailsHovercardContentsBody poster={data.node?.actor} />;
 }
 ```
 
@@ -268,7 +268,7 @@ export default function PosterDetailsHovercardContents({
     PosterDetailsHovercardContentsQuery,
     {posterID},
   );
-  return <PosterDetailsHovercardContentsBody poster={data.node} />;
+  return <PosterDetailsHovercardContentsBody poster={data.node?.actor} />;
 }
 ```
 

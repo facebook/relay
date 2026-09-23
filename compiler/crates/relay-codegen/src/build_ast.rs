@@ -482,7 +482,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 // every consumer wait a landing cycle to read its own flag.
                 let mut metadata_entries = vec![];
                 if IsResolverRootFragmentSplitOperation::find(&operation.directives).is_some()
-                    && Self::selections_reach_server_field(&operation.selections)
+                    && selections_reach_server_field(&operation.selections)
                 {
                     metadata_entries.push(ObjectEntry {
                         key: CODEGEN_CONSTANTS.has_server_field,
@@ -860,48 +860,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         self.object(object)
     }
 
-    /// Whether a selection set reaches a field outside every `ClientExtension`.
-    ///
-    /// By the time codegen runs, the `client_extensions` transform has wrapped every
-    /// client-extension selection in an inline fragment carrying
-    /// `CLIENT_EXTENSION_DIRECTIVE_NAME`, so anything reachable without crossing one
-    /// of those is server data. Keying on the wrapper rather than on
-    /// `field.is_extension` matters: resolver backing fields such as `__context` and
-    /// `__rawThreadObject` are not flagged as extensions in the schema, but they do
-    /// sit inside the wrapper.
-    ///
-    /// A client edge is decided by its target rather than by descending into it. Its
-    /// linked field looks like a server `LinkedField`, but a `ClientObject` edge
-    /// resolves entirely on the client, and a `ServerObject` edge resolves through a
-    /// separate waterfall request rather than this fragment's own normalization.
-    /// Only the latter counts.
-    ///
-    /// A `FragmentSpread` surviving to codegen is opaque — a `@no_inline` fragment
-    /// lives in its own artifact — so it counts as server data. That errs toward
-    /// "reads server data", which is the safe direction: a resolver evaluated later
-    /// than necessary is correct, one evaluated before its data exists is not.
-    fn selections_reach_server_field(selections: &[Selection]) -> bool {
-        selections.iter().any(|selection| match selection {
-            Selection::InlineFragment(fragment) => {
-                if let Some(client_edge_metadata) = ClientEdgeMetadata::find(fragment) {
-                    return matches!(
-                        client_edge_metadata.metadata_directive,
-                        ClientEdgeMetadataDirective::ServerObject { .. }
-                    );
-                }
-                let is_client_extension = fragment.directives.len() == 1
-                    && fragment.directives[0].name.item == *CLIENT_EXTENSION_DIRECTIVE_NAME;
-                !is_client_extension && Self::selections_reach_server_field(&fragment.selections)
-            }
-            Selection::Condition(condition) => {
-                Self::selections_reach_server_field(&condition.selections)
-            }
-            Selection::LinkedField(_)
-            | Selection::ScalarField(_)
-            | Selection::FragmentSpread(_) => true,
-        })
-    }
-
     fn build_selections<'a, Selections>(
         &mut self,
         context: &mut ContextualMetadata,
@@ -966,7 +924,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             // question can be answered without a `Program`,
                             // which `CodegenBuilder` does not have.
                             let root_fragment_reaches_server_field =
-                                Self::selections_reach_server_field(&inline_fragment.selections);
+                                selections_reach_server_field(&inline_fragment.selections);
                             let fragment_primitive =
                                 self.build_inline_fragment(context, inline_fragment);
 
@@ -3145,6 +3103,49 @@ fn is_type_discriminator_selection(selection: &Selection) -> bool {
     }
 }
 
+/// Whether a selection set reaches a field outside every `ClientExtension`.
+///
+/// By the time codegen runs, the `client_extensions` transform has wrapped every
+/// client-extension selection in an inline fragment carrying
+/// `CLIENT_EXTENSION_DIRECTIVE_NAME`, so anything reachable without crossing one
+/// of those is server data. That precondition is what makes the wrapper a usable
+/// signal here, and it is why this cannot be reused from the pre-transform
+/// validation phase, which sees no wrappers at all.
+///
+/// Keying on the wrapper rather than on `field.is_extension` matters: resolver
+/// backing fields such as `__context` and `__rawThreadObject` are not flagged as
+/// extensions in the schema, but they do sit inside the wrapper.
+///
+/// A client edge is decided by its target rather than by descending into it. Its
+/// linked field looks like a server `LinkedField`, but a `ClientObject` edge
+/// resolves entirely on the client, and a `ServerObject` edge resolves through a
+/// separate waterfall request rather than this fragment's own normalization.
+/// Only the latter counts.
+///
+/// A `FragmentSpread` surviving to codegen is opaque — a `@no_inline` fragment
+/// lives in its own artifact — so it counts as server data. That errs toward
+/// "reads server data", which is the safe direction: a resolver evaluated later
+/// than necessary is correct, one evaluated before its data exists is not.
+fn selections_reach_server_field(selections: &[Selection]) -> bool {
+    selections.iter().any(|selection| match selection {
+        Selection::InlineFragment(fragment) => {
+            if let Some(client_edge_metadata) = ClientEdgeMetadata::find(fragment) {
+                return matches!(
+                    client_edge_metadata.metadata_directive,
+                    ClientEdgeMetadataDirective::ServerObject { .. }
+                );
+            }
+            let is_client_extension = fragment.directives.len() == 1
+                && fragment.directives[0].name.item == *CLIENT_EXTENSION_DIRECTIVE_NAME;
+            !is_client_extension && selections_reach_server_field(&fragment.selections)
+        }
+        Selection::Condition(condition) => selections_reach_server_field(&condition.selections),
+        Selection::LinkedField(_) | Selection::ScalarField(_) | Selection::FragmentSpread(_) => {
+            true
+        }
+    })
+}
+
 // Storage key is only pre-computable if the arguments don't contain variables
 pub fn is_static_storage_key_available(arguments: &[Argument]) -> bool {
     !arguments
@@ -3222,6 +3223,210 @@ struct ContextualMetadata {
     has_exec_time_resolvers_enabled_provider: bool,
     has_server_to_client_resolvers: bool,
     use_experimental_provider: Option<WithLocation<StringKey>>,
+}
+
+#[cfg(test)]
+mod selections_reach_server_field_tests {
+    use std::sync::Arc;
+
+    use ::intern::string_key::Intern;
+    use common::Location;
+    use schema::FieldID;
+
+    // Brings in the IR types and `CLIENT_EXTENSION_DIRECTIVE_NAME` /
+    // `ClientEdgeMetadataDirective`, which `build_ast` already imports.
+    use super::*;
+
+    /// The classifier matches on selection variants and directives only; it never
+    /// resolves a `FieldID` against a schema. An arbitrary id is therefore
+    /// sufficient, and these tests need no schema.
+    const ANY_FIELD: FieldID = FieldID(0);
+
+    fn scalar_field() -> Selection {
+        Selection::ScalarField(Arc::new(ScalarField {
+            alias: None,
+            definition: WithLocation::generated(ANY_FIELD),
+            arguments: vec![],
+            directives: vec![],
+        }))
+    }
+
+    fn linked_field(selections: Vec<Selection>) -> Selection {
+        Selection::LinkedField(Arc::new(LinkedField {
+            alias: None,
+            definition: WithLocation::generated(ANY_FIELD),
+            arguments: vec![],
+            directives: vec![],
+            selections,
+        }))
+    }
+
+    fn fragment_spread() -> Selection {
+        Selection::FragmentSpread(Arc::new(FragmentSpread {
+            fragment: WithLocation::generated(FragmentDefinitionName("SomeFragment".intern())),
+            arguments: vec![],
+            signature: None,
+            directives: vec![],
+        }))
+    }
+
+    fn inline_fragment(directives: Vec<Directive>, selections: Vec<Selection>) -> Selection {
+        Selection::InlineFragment(Arc::new(InlineFragment {
+            type_condition: None,
+            directives,
+            selections,
+            spread_location: Location::generated(),
+        }))
+    }
+
+    fn condition(selections: Vec<Selection>) -> Selection {
+        Selection::Condition(Arc::new(Condition {
+            selections,
+            value: ConditionValue::Constant(true),
+            passing_value: true,
+            location: Location::generated(),
+        }))
+    }
+
+    fn directive(name: DirectiveName) -> Directive {
+        Directive {
+            name: WithLocation::generated(name),
+            arguments: vec![],
+            data: None,
+            location: Location::generated(),
+        }
+    }
+
+    /// What the `client_extensions` transform wraps client-extension selections in.
+    fn client_extension_wrapper(selections: Vec<Selection>) -> Selection {
+        inline_fragment(
+            vec![directive(*CLIENT_EXTENSION_DIRECTIVE_NAME)],
+            selections,
+        )
+    }
+
+    /// A client edge is modelled as an inline fragment with exactly two
+    /// selections — the backing field, then the linked field holding the
+    /// consumer's selections. `ClientEdgeMetadata::find` asserts that shape, so
+    /// the fixture has to honour it.
+    fn client_edge(metadata_directive: ClientEdgeMetadataDirective) -> Selection {
+        inline_fragment(
+            vec![metadata_directive.into()],
+            vec![scalar_field(), linked_field(vec![scalar_field()])],
+        )
+    }
+
+    fn server_object_edge() -> Selection {
+        client_edge(ClientEdgeMetadataDirective::ServerObject {
+            query_name: OperationDefinitionName("SomeClientEdgeQuery".intern()),
+            unique_id: 0,
+        })
+    }
+
+    fn client_object_edge() -> Selection {
+        client_edge(ClientEdgeMetadataDirective::ClientObject {
+            type_name: None,
+            unique_id: 0,
+            model_resolvers: vec![],
+            server_object_operations: vec![],
+        })
+    }
+
+    #[test]
+    fn empty_selection_set_reaches_nothing() {
+        assert!(!selections_reach_server_field(&[]));
+    }
+
+    #[test]
+    fn plain_fields_are_server_data() {
+        assert!(selections_reach_server_field(&[scalar_field()]));
+        assert!(selections_reach_server_field(&[linked_field(vec![])]));
+    }
+
+    /// A spread surviving to codegen is opaque, so it is treated as server data
+    /// even though its contents are unknown.
+    #[test]
+    fn opaque_fragment_spread_is_server_data() {
+        assert!(selections_reach_server_field(&[fragment_spread()]));
+    }
+
+    /// The central negative: a client-extension wrapper is a hard stop. Without
+    /// it, every resolver backing field would look like server data.
+    #[test]
+    fn client_extension_wrapper_is_not_server_data() {
+        assert!(!selections_reach_server_field(&[client_extension_wrapper(
+            vec![scalar_field(), linked_field(vec![scalar_field()])],
+        )]));
+    }
+
+    /// An inline fragment that is not a client-extension wrapper is transparent.
+    #[test]
+    fn plain_inline_fragment_descends() {
+        assert!(selections_reach_server_field(&[inline_fragment(
+            vec![],
+            vec![scalar_field()],
+        )]));
+        assert!(!selections_reach_server_field(&[inline_fragment(
+            vec![],
+            vec![client_extension_wrapper(vec![scalar_field()])],
+        )]));
+    }
+
+    /// A `ServerObject` edge refetches through its own waterfall query rather
+    /// than through this selection set's normalization, but it still counts —
+    /// the resolver cannot produce the pointer before the response arrives.
+    #[test]
+    fn server_object_client_edge_is_server_data() {
+        assert!(selections_reach_server_field(&[server_object_edge()]));
+    }
+
+    /// The other central negative: a `ClientObject` edge resolves entirely on
+    /// the client, so its server-looking `LinkedField` must not be descended
+    /// into.
+    #[test]
+    fn client_object_client_edge_is_not_server_data() {
+        assert!(!selections_reach_server_field(&[client_object_edge()]));
+    }
+
+    #[test]
+    fn condition_is_transparent() {
+        assert!(selections_reach_server_field(&[condition(vec![
+            scalar_field(),
+        ])]));
+        assert!(!selections_reach_server_field(&[condition(vec![
+            client_extension_wrapper(vec![scalar_field()]),
+        ])]));
+    }
+
+    /// Any one server-reaching sibling is enough.
+    #[test]
+    fn a_single_server_sibling_decides_the_set() {
+        assert!(selections_reach_server_field(&[
+            client_extension_wrapper(vec![scalar_field()]),
+            client_object_edge(),
+            scalar_field(),
+        ]));
+        assert!(!selections_reach_server_field(&[
+            client_extension_wrapper(vec![scalar_field()]),
+            client_object_edge(),
+        ]));
+    }
+
+    /// The wrapper is recognised by being the fragment's ONLY directive, which
+    /// mirrors how `build_inline_fragment` decides to emit a `ClientExtension`
+    /// node. An inline fragment carrying an extra directive is not a wrapper to
+    /// either of them, so it is descended into.
+    #[test]
+    fn wrapper_with_an_extra_directive_is_descended_into() {
+        let directives = vec![
+            directive(*CLIENT_EXTENSION_DIRECTIVE_NAME),
+            directive(DirectiveName("someOtherDirective".intern())),
+        ];
+        assert!(selections_reach_server_field(&[inline_fragment(
+            directives,
+            vec![scalar_field()],
+        )]));
+    }
 }
 
 #[cfg(test)]

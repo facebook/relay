@@ -95,6 +95,20 @@ class RelayReferenceMarker {
     if (node.kind === 'Operation' || node.kind === 'SplitOperation') {
       this._operationName = node.name;
     }
+    if (node.kind === 'Operation') {
+      const {clientAbstractTypes} = node;
+      if (clientAbstractTypes != null) {
+        for (const abstractType of Object.keys(clientAbstractTypes)) {
+          const concreteTypes = clientAbstractTypes[abstractType];
+          if (concreteTypes == null) {
+            continue;
+          }
+          for (const concreteType of concreteTypes) {
+            this._references.add(generateTypeID(concreteType));
+          }
+        }
+      }
+    }
     this._traverse(node, dataID);
   }
 

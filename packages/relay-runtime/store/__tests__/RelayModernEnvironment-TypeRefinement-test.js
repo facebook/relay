@@ -52,7 +52,7 @@ const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateTypeID} = require('../TypeID');
+const {TYPE_SCHEMA_TYPE, generateTypeID} = require('../TypeID');
 const nullthrows = require('nullthrows');
 const {
   disallowWarnings,
@@ -1920,6 +1920,56 @@ describe('missing data detection', () => {
   });
 
   describe('Abstract types defined in client schema extension', () => {
+    it('retains client abstract type metadata while the operation is retained', () => {
+      const source = RelayRecordSource.create();
+      const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
+      const gcEnvironment = new RelayModernEnvironment({
+        network: RelayNetwork.create(jest.fn()),
+        store,
+      });
+      const gcOperation = createOperationDescriptor(AbstractClientQuery, {});
+      const retainedOperation = gcEnvironment.retain(gcOperation);
+      const concreteType = 'OtherClientTypeImplementingClientInterface';
+      const typeID = generateTypeID(concreteType);
+
+      gcEnvironment.commitUpdate(proxy => {
+        const rootRecord = nullthrows(proxy.get(ROOT_ID));
+        const clientObj = proxy.create('4', concreteType);
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Description', 'description');
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+      gcEnvironment.commitPayload(gcOperation, {});
+
+      expect(source.get('4')).toMatchObject({
+        __id: '4',
+        __typename: concreteType,
+      });
+      expect(source.get(typeID)).toMatchObject({
+        __id: typeID,
+        __isClientInterface: true,
+        __typename: TYPE_SCHEMA_TYPE,
+      });
+
+      store.__gc();
+
+      expect(source.get('4')).toMatchObject({
+        __id: '4',
+        __typename: concreteType,
+      });
+      expect(source.get(typeID)).toMatchObject({
+        __id: typeID,
+        __isClientInterface: true,
+        __typename: TYPE_SCHEMA_TYPE,
+      });
+
+      retainedOperation.dispose();
+      store.__gc();
+
+      expect(source.get('4')).toBe(undefined);
+      expect(source.get(typeID)).toBe(undefined);
+    });
+
     it('knows when concrete types match abstract types by metadata attached to normalizaiton AST', () => {
       operation = createOperationDescriptor(AbstractClientQuery, {});
       environment.commitUpdate(store => {

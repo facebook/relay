@@ -34,6 +34,11 @@ const {
 const Activity = React.unstable_Activity;
 
 const CLEANUP_TIMEOUT = 5 * 60 * 1000;
+const DISPOSED_WARNING =
+  'usePreloadedQuery(): Expected preloadedQuery to not be disposed yet. ' +
+  'This is because disposing the query marks it for future garbage ' +
+  'collection, and as such query results may no longer be present in the ' +
+  'Relay store. In the future, this will become a hard error.';
 
 disallowWarnings();
 
@@ -41,12 +46,15 @@ let environment;
 let gcSteps: Array<() => void>;
 let originalActivityCompatibility;
 let setMode;
-let queryRef;
+let queryRef: any;
 let loadQuery;
+let renders: Array<string>;
 
 function Page({preloadedQuery}: {preloadedQuery: any}) {
   const data: any = usePreloadedQuery(gqlQuery, preloadedQuery);
-  return data.node?.name ?? 'missing';
+  const name = data.node?.name ?? 'missing';
+  renders.push(name);
+  return name;
 }
 
 function Route() {
@@ -79,6 +87,7 @@ beforeEach(() => {
     RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY;
   RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY = true;
   gcSteps = [];
+  renders = [];
   environment = createMockEnvironment({
     store: new Store(new RecordSource(), {
       gcReleaseBufferSize: 0,
@@ -122,15 +131,11 @@ it('reloads a query released while hidden past the cleanup timeout', async () =>
     }
   });
   expect(environment.check(operation).status).toBe('missing');
+  renders = [];
 
   // The revealed tree renders once with the released reference before the
   // loader's effect replaces it.
-  expectWarningWillFire(
-    'usePreloadedQuery(): Expected preloadedQuery to not be disposed yet. ' +
-      'This is because disposing the query marks it for future garbage ' +
-      'collection, and as such query results may no longer be present in the ' +
-      'Relay store. In the future, this will become a hard error.',
-  );
+  expectWarningWillFire(DISPOSED_WARNING);
   await act(() => setMode('visible'));
   expect(queryRef).not.toBe(hiddenRef);
   expect(queryRef?.isDisposed).toBe(false);
@@ -139,6 +144,7 @@ it('reloads a query released while hidden past the cleanup timeout', async () =>
   await act(() => resolve('1', 'Bob'));
   expect(instance.container.textContent).toBe('Bob');
   expect(environment.check(operation).status).toBe('available');
+  expect(renders).not.toContain('missing');
 });
 
 it('keeps the query reference when revealed before the cleanup timeout', async () => {
@@ -166,4 +172,29 @@ it('releases each replaced query reference once', async () => {
   await act(() => resolve('3', 'Carol'));
 
   expect(releaseQuery).toHaveBeenCalledTimes(1);
+});
+
+it('does not render missing data from a released query reference', async () => {
+  await renderApp();
+  const operation = createOperationDescriptor(gqlQuery, {id: '1'});
+  const releasedRef = queryRef;
+  cleanup();
+  releasedRef.releaseQuery();
+  while (gcSteps.length > 0) {
+    gcSteps.shift()?.();
+  }
+  expect(environment.check(operation).status).toBe('missing');
+  renders = [];
+
+  expectWarningWillFire(DISPOSED_WARNING, {count: 2});
+  const instance = render(
+    <RelayEnvironmentProvider environment={environment}>
+      <React.Suspense fallback="Fallback">
+        <Page preloadedQuery={releasedRef} />
+      </React.Suspense>
+    </RelayEnvironmentProvider>,
+  );
+  expect(instance.container.textContent).toBe('Fallback');
+  expect(renders).toEqual([]);
+  expect(environment.mock.getAllOperations()).toHaveLength(1);
 });

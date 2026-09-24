@@ -1,3 +1,22 @@
+// Test: a Query-rooted resolver whose `@rootFragment` reads a plain server field
+// is REJECTED under `@exec_time_resolvers`.
+//
+// This fixture used to assert the opposite — that such a resolver compiles and
+// gets `hasServerField` metadata. It compiled only because the S2C identity-only
+// rule carved `Query` out, on the grounds that a Query-rooted resolver reads only
+// client state. One whose root fragment reads server data does not, and at exec
+// time `hello` was projected from a fabricated record holding just `__typename`
+// and `id`, so it read back as undefined with no error. The carve-out was hiding
+// exactly the case the rule exists to catch.
+//
+// What still compiles is the magic fragment — see
+// `exec_time_resolver_query_root_shadow_routes`, whose Query-rooted root fragment
+// reaches server data through the `@__relay_shadow_return` corridor and keeps its
+// `hasServerField` coverage.
+//
+// To make a shape like this legal again the field has to become projectable from
+// the normalized payload, which is what the `@UNSTABLE_key` work adds. Until then this is
+// a compile error rather than a silent undefined.
 //- FooQuery.js
 graphql`query FooQuery @exec_time_resolvers {
   greeting

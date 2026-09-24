@@ -1,37 +1,26 @@
 // Test: a QUERY-ROOTED resolver whose `@rootFragment` reads server data but which
-// does NOT declare `@returnFragment` is currently EXCLUDED from
-// `has_server_to_client_resolvers`.
+// does NOT declare `@returnFragment` is REJECTED under `@exec_time_resolvers`.
 //
-// This pins a known gap, not desired behaviour. `build_ast.rs` decides the flag with
+// This fixture used to pin a routing gap rather than an error. The flag
+// `has_server_to_client_resolvers` was not set for a Query parent unless the
+// resolver was a magic fragment, so `LSRelayEnvironmentConfig` never routed the
+// operation to `executeWithNetwork`; it landed on the legacy path where the
+// resolver and the network run as two concurrent subscriptions and the root
+// fragment is evaluated against an empty store, silently yielding null.
 //
-//     Some(parent_type) != self.schema.query_type()
-//         || resolver_metadata.return_fragment.is_some()
+// The gap is now closed by rejection instead of by routing. The S2C identity-only
+// rule used to carve `Query` out, which is what let this shape compile at all;
+// with the carve-out gone the operation no longer builds, so there is nothing
+// left to mis-route. Rejecting is the safe direction: the runtime could not have
+// served this correctly, and a compile error says so instead of returning null.
 //
-// so a Query parent only qualifies via the magic-fragment carve-out. The exclusion
-// exists because a Query-rooted resolver normally reads only client state; the
-// carve-out was added for magic fragments, whose transplant puts server selections
-// into the operation. A resolver that reads server data through a plain
-// `@rootFragment` crosses exactly the same boundary and is still excluded — the
-// comment in `build_ast.rs` says so.
+// The magic-fragment case is unaffected — `exec_time_resolver_query_root_shadow_routes`
+// still compiles and still sets the flag, because the transplant puts the server
+// selections into the operation and the shadow corridor permits that path.
 //
-// Why it matters: without the flag, `LSRelayEnvironmentConfig` never routes the
-// operation to `executeWithNetwork`. It lands on the legacy path, where the resolver
-// and the network run as two concurrent subscriptions and the root fragment is
-// evaluated against an empty store — silently yielding null.
-//
-// It has not bitten yet only because every Query-rooted shadow resolver we ship IS a
-// magic fragment, so the carve-out covers it.
-//
-// EXPECTED IN THE GOLDEN: `NeedsRoutingQuery` must NOT contain
-// `has_server_to_client_resolvers`.
-//
-// The fix is already available and this fixture is what will catch it landing. The
-// compiler ALREADY emits `hasServerField` on a resolver root fragment that reaches a
-// server field — see the `resolver_root_fragment_has_server_field` fixture — which is
-// exactly the predicate the routing flag should key on instead of `@returnFragment`.
-// (That signal is not shown here because emitting a split operation needs
-// `resolversSchemaModule`, which this minimal schema cannot register.) When the flag
-// switches to it, this fixture must be updated rather than passing silently.
+// Reading a server field from a Query-rooted root fragment becomes legal again
+// only once the field is projectable from the normalized payload, which is what
+// the `@UNSTABLE_key` work adds.
 
 //- NeedsRoutingQuery.js
 graphql`query NeedsRoutingQuery @exec_time_resolvers {

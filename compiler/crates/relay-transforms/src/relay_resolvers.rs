@@ -38,7 +38,9 @@ pub(crate) use self::resolver_utils::get_argument_value;
 pub(crate) use self::resolver_utils::get_bool_argument_is_true;
 pub use self::resolver_utils::resolver_import_alias;
 pub use self::resolver_utils::resolver_type_import_alias;
+pub(crate) use self::shadow_transform::selections_contain_shadow_return_marker;
 use self::shadow_transform::shadow_resolvers_transform;
+pub(crate) use self::shadow_transform::shadow_return_directive_fragment_name;
 use self::spread_transform::relay_resolvers_spread_transform;
 use super::ValidationMessage;
 

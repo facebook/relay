@@ -1,0 +1,74 @@
+// Test: the magic fragment corridor permits a magic fragment whose shadowed field sits
+// MORE THAN ONE server link below the root fragment.
+//
+// `exec_time_resolver_query_root_shadow_routes` only covers a marker at depth 1,
+// where the root fragment's own selection carries `@__relay_shadow_return`.
+// Production is deeper — `ad_campaign_groups { nodes @__relay_shadow_return }` —
+// so the ancestors on the way down have to be walked through rather than
+// rejected as the non-identity server links they are.
+//
+// `viewer` here is such an ancestor. It is allowed only because the subtree below
+// it reaches the marker; the negative control is
+// `exec_time_s2c_magic_fragment_corridor_rejects_sibling.invalid`, which adds a sibling
+// to this same shape and must fail.
+//- QueryShadowCorridor.js
+/**
+ * @relayField Query.shadow_page: IPage
+ * @rootFragment QueryShadowCorridorResolverFragment
+ * @returnFragment QueryShadowCorridorReturnFragment
+ */
+graphql`fragment QueryShadowCorridorResolverFragment on Query {
+  viewer {
+    page {
+      ...QueryShadowCorridorReturnFragment
+    }
+  }
+}`
+
+//- Consumer.js
+graphql`query ConsumerQuery @exec_time_resolvers {
+  shadow_page {
+    title
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": {"kind": "enabled"},
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": {"kind": "enabled"}
+  }
+}
+
+//- schema.graphql
+type Query {
+  viewer: Viewer
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type Viewer {
+  unsupported_field: String
+  page: Page
+}
+
+type Page implements Node {
+  id: ID!
+  title: String
+}
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

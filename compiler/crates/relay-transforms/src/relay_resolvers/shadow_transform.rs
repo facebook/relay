@@ -296,7 +296,9 @@ impl<'program> ShadowResolversTransform<'program> {
 /// Read the `fragment` argument off a `@__relay_shadow_return` directive (the
 /// internal marker emitted before `build_ir` in place of the `@returnFragment`
 /// placeholder spread). Returns the return fragment name it carries.
-fn shadow_return_directive_fragment_name(field: &LinkedField) -> Option<FragmentDefinitionName> {
+pub(crate) fn shadow_return_directive_fragment_name(
+    field: &LinkedField,
+) -> Option<FragmentDefinitionName> {
     field
         .directives
         .named(*SHADOW_RETURN_DIRECTIVE_NAME)
@@ -316,7 +318,7 @@ fn shadow_return_directive_fragment_name(field: &LinkedField) -> Option<Fragment
 /// fragment name) rather than the original spread. Recursively traverses into
 /// linked fields, inline fragments, and conditions, but does NOT traverse into
 /// other fragment definitions (fragment spreads).
-fn selections_contain_shadow_return_marker(
+pub(crate) fn selections_contain_shadow_return_marker(
     selections: &[Selection],
     return_fragment_name: FragmentDefinitionName,
 ) -> bool {

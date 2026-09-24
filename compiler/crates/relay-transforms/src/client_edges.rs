@@ -50,6 +50,7 @@ use relay_schema::definitions::weak_object_instance_field;
 use schema::DirectiveValue;
 use schema::FieldID;
 use schema::ObjectID;
+use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
@@ -66,6 +67,9 @@ use crate::refetchable_fragment::RefetchableFragment;
 use crate::relay_resolvers::ResolverInfo;
 use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::relay_resolvers::get_resolver_info;
+use crate::relay_resolvers::get_resolver_return_fragment_name;
+use crate::relay_resolvers::selections_contain_shadow_return_marker;
+use crate::relay_resolvers::shadow_return_directive_fragment_name;
 use crate::relay_resolvers_abstract_types::concrete_field_requires_waterfall;
 use crate::relay_resolvers_abstract_types::project_interface_selections_to_concrete;
 
@@ -1098,12 +1102,20 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         }
     }
 
-    /// Returns true if `field_type` is backed by a shadow resolver, i.e. a Relay
+    /// Returns true if `field_type` is backed by a MAGIC FRAGMENT: a Relay
     /// Resolver declaring a `@returnFragment`. Such resolvers shadow a server
     /// field and return a pointer read off the already-normalized record (no
     /// waterfall), so they are routed through the `ClientObject` edge in suppress
     /// mode rather than the regular client-object / server-object client-edge
     /// paths.
+    ///
+    /// This used to say "shadow resolver". It is worth being exact, because the
+    /// two are not the same and reading them as synonyms has produced wrong
+    /// designs more than once. A shadow resolver is one whose parent is a server
+    /// type and whose return type is an interface the runtime picks an arm of;
+    /// declaring `@returnFragment` is an ADDITIONAL property that only some of
+    /// them have. `@returnFragment` therefore identifies the magic-fragment
+    /// subset, never the family.
     fn shadow_resolver_info(&self, field_type: &schema::Field) -> Option<ResolverInfo> {
         // `get_resolver_info` may surface diagnostics, but those are also raised
         // (and reported) by the `relay_resolvers` field transform that runs
@@ -1426,6 +1438,14 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 return Transformed::Keep;
             }
 
+            // A magic fragment reaches server data by construction, so it needs
+            // the identity-only rule applied WITH the corridor below rather than
+            // skipped: the corridor is what distinguishes the transplant's own
+            // path, which the main operation fetches, from a field beside it that
+            // nothing fetches. This branch returns early, so without the call here
+            // a magic fragment's root fragment is never checked at all.
+            self.validate_s2c_root_fragment_for_exec_time(field);
+
             let metadata_directive = match self
                 .get_edge_to_magic_fragment_client_object_metadata_directive(
                     field,
@@ -1457,6 +1477,12 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         } else {
             // Client-to-server edges are now supported in exec time resolvers
             // (validation removed to enable C2S support)
+            //
+            // The identity-only rule still applies though. What the resolver
+            // RETURNS says nothing about what its root fragment can see, and this
+            // branch was the last of the three field shapes reaching the
+            // transform without being checked.
+            self.validate_s2c_root_fragment_for_exec_time(field);
             self.get_edge_to_server_object_metadata_directive(
                 field_type,
                 field.definition.location,
@@ -1656,14 +1682,23 @@ impl ClientEdgesTransform<'_, '_> {
             return;
         }
         let field_type: &schema::Field = self.program.schema.field(field.definition().item);
-        // Only validate S2C fields: client extension fields on server types
-        let is_server_field = field_type
-            .parent_type
-            .is_some_and(|parent_type| !self.program.schema.is_extension_type(parent_type))
-            && field_type.parent_type != self.program.schema.query_type();
-        if !is_server_field {
-            return;
-        }
+        // Only validate S2C fields: client extension fields on server types.
+        //
+        // `Query` is included. It used to be carved out entirely, on the grounds
+        // that a Query-rooted resolver reads only client state — but one whose
+        // root fragment reads SERVER data crosses exactly the same boundary, and
+        // exec time projects it from the response identically, so the carve-out
+        // was hiding the very case this rule exists to catch.
+        //
+        // The legitimate half of that carve-out survives as `allow_client_fields`
+        // below: reading a client-extension field from a Query-rooted root
+        // fragment is resolver composition, not payload projection, so it keeps
+        // working and must keep compiling.
+        let parent_type = match field_type.parent_type {
+            Some(parent_type) if !self.program.schema.is_extension_type(parent_type) => parent_type,
+            _ => return,
+        };
+        let allow_client_fields = Some(parent_type) == self.program.schema.query_type();
         let resolver_directive = field_type.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
         if resolver_directive.is_none() {
             return;
@@ -1687,69 +1722,173 @@ impl ClientEdgesTransform<'_, '_> {
             Some(f) => f,
             None => return, // Fragment not found — other validation will catch this
         };
-        // Validate each selection is only __typename or id
         let id_field_name = self.project_config.schema_config.node_interface_id_field;
-        let typename_field_name = "__typename".intern();
-        for selection in &fragment.selections {
-            match selection {
-                Selection::ScalarField(scalar_field) => {
-                    let sel_field_name = self
-                        .program
-                        .schema
-                        .field(scalar_field.definition.item)
-                        .name
-                        .item;
-                    if sel_field_name != typename_field_name && sel_field_name != id_field_name {
-                        self.errors.push(Diagnostic::error(
-                            ValidationMessage::S2CRootFragmentInvalidSelection {
-                                fragment_name,
-                                field_name: sel_field_name,
-                            },
-                            scalar_field.definition.location,
-                        ));
-                    }
+        let mut errors = vec![];
+        validate_s2c_selections(
+            &self.program.schema,
+            &fragment.selections,
+            fragment_name,
+            id_field_name,
+            allow_client_fields,
+            get_resolver_return_fragment_name(field_type),
+            &mut errors,
+        );
+        self.errors.extend(errors);
+    }
+}
+
+/// Whether this linked field is the one the resolver's own MAGIC FRAGMENT is
+/// transplanted onto, `return_fragment` being that resolver's `@returnFragment`.
+///
+/// The marker alone does not say that. `shadow_return_conversion` rewrites the
+/// root fragment's DEFINITION, so every resolver sharing that root fragment sees
+/// the marker, but `spread_transform` only transplants onto the one naming the
+/// resolver's own `@returnFragment`. For any other sharer the marked field is an
+/// ordinary server link that nothing transplants onto.
+///
+/// Magic fragments are a proper subset of shadow resolvers: a shadow resolver is
+/// one whose parent is a server type and whose return type is an interface the
+/// runtime picks an arm of, and it need not declare `@returnFragment` at all.
+/// Only the ones that do get a transplant, and only a transplant makes
+/// non-identity selections safe to read — so this predicate is deliberately about
+/// the magic fragment, not about shadow resolvers in general. A shadow resolver
+/// without a transplant either has no root fragment, in which case nothing here
+/// looks at it, or has one that reads server data, which is restricted like any
+/// other.
+///
+/// `client_edges` runs before `relay_resolvers`, so the marker here is still the
+/// raw `@__relay_shadow_return` directive that `shadow_return_conversion` injects
+/// before `build_ir`; `shadow_transform` only turns it into the typed
+/// `ShadowReturnMarker` later. Keying on the raw directive is still forgery-safe,
+/// because that same conversion pass rejects any user-authored occurrence of it.
+fn is_magic_fragment_target(
+    field: &LinkedField,
+    return_fragment: Option<FragmentDefinitionName>,
+) -> bool {
+    return_fragment.is_some() && shadow_return_directive_fragment_name(field) == return_fragment
+}
+
+fn selections_contain_magic_fragment(
+    selections: &[Selection],
+    return_fragment: Option<FragmentDefinitionName>,
+) -> bool {
+    return_fragment.is_some_and(|name| selections_contain_shadow_return_marker(selections, name))
+}
+
+/// Checks that a server-to-client resolver's root fragment selects nothing but
+/// identity, allowing the magic fragment's transplant path through.
+///
+/// A walk rather than a flat check because of that path. The shadowed field can
+/// sit several server links below the root — production has
+/// `ad_campaign_groups { nodes @__relay_shadow_return { ... } }` — so its
+/// ancestors have to be walked through rather than rejected on sight.
+///
+/// Those ancestors are a corridor, not a blanket exemption: every sibling is
+/// still checked on its own, so an unrelated field standing next to the shadowed
+/// one is still rejected rather than carried in by its neighbour.
+///
+/// Below the resolver's own marker-bearing field the walk stops. Those
+/// selections are the consumer's, transplanted there by the compiler, and the
+/// transplant is precisely what fetches them in the main operation — so unlike
+/// everything else here they really are present in the payload.
+fn validate_s2c_selections(
+    schema: &SDLSchema,
+    selections: &[Selection],
+    fragment_name: StringKey,
+    id_field_name: StringKey,
+    allow_client_fields: bool,
+    return_fragment: Option<FragmentDefinitionName>,
+    errors: &mut Vec<Diagnostic>,
+) {
+    let typename_field_name = "__typename".intern();
+    for selection in selections {
+        match selection {
+            Selection::ScalarField(scalar_field) => {
+                let sel_field = schema.field(scalar_field.definition.item);
+                if allow_client_fields && sel_field.is_extension {
+                    continue;
                 }
-                Selection::LinkedField(linked_field) => {
-                    let sel_field_name = linked_field.alias_or_name(&self.program.schema);
-                    self.errors.push(Diagnostic::error(
+                let sel_field_name = sel_field.name.item;
+                if sel_field_name != typename_field_name && sel_field_name != id_field_name {
+                    errors.push(Diagnostic::error(
                         ValidationMessage::S2CRootFragmentInvalidSelection {
                             fragment_name,
                             field_name: sel_field_name,
                         },
-                        linked_field.alias_or_name_location(),
+                        scalar_field.definition.location,
                     ));
                 }
-                Selection::FragmentSpread(fragment_spread) => {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::S2CRootFragmentInvalidSelection {
-                            fragment_name,
-                            field_name: fragment_spread.fragment.item.0,
-                        },
-                        fragment_spread.fragment.location,
-                    ));
+            }
+            Selection::LinkedField(linked_field) => {
+                if is_magic_fragment_target(linked_field, return_fragment) {
+                    continue;
                 }
-                Selection::InlineFragment(inline_fragment) => {
-                    let type_name = inline_fragment.type_condition.map_or_else(
-                        || "inline fragment".intern(),
-                        |tc| self.program.schema.get_type_name(tc),
+                // Everything below a client-extension link is reached through
+                // resolver composition, never projected from the payload.
+                if allow_client_fields && schema.field(linked_field.definition.item).is_extension {
+                    continue;
+                }
+                if selections_contain_magic_fragment(&linked_field.selections, return_fragment) {
+                    validate_s2c_selections(
+                        schema,
+                        &linked_field.selections,
+                        fragment_name,
+                        id_field_name,
+                        allow_client_fields,
+                        return_fragment,
+                        errors,
                     );
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::S2CRootFragmentInvalidSelection {
-                            fragment_name,
-                            field_name: type_name,
-                        },
-                        inline_fragment.spread_location,
-                    ));
+                    continue;
                 }
-                Selection::Condition(condition) => {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::S2CRootFragmentInvalidSelection {
-                            fragment_name,
-                            field_name: "@skip/@include condition".intern(),
-                        },
-                        condition.location,
-                    ));
+                errors.push(Diagnostic::error(
+                    ValidationMessage::S2CRootFragmentInvalidSelection {
+                        fragment_name,
+                        field_name: linked_field.alias_or_name(schema),
+                    },
+                    linked_field.alias_or_name_location(),
+                ));
+            }
+            Selection::FragmentSpread(fragment_spread) => {
+                errors.push(Diagnostic::error(
+                    ValidationMessage::S2CRootFragmentInvalidSelection {
+                        fragment_name,
+                        field_name: fragment_spread.fragment.item.0,
+                    },
+                    fragment_spread.fragment.location,
+                ));
+            }
+            Selection::InlineFragment(inline_fragment) => {
+                if selections_contain_magic_fragment(&inline_fragment.selections, return_fragment) {
+                    validate_s2c_selections(
+                        schema,
+                        &inline_fragment.selections,
+                        fragment_name,
+                        id_field_name,
+                        allow_client_fields,
+                        return_fragment,
+                        errors,
+                    );
+                    continue;
                 }
+                let type_name = inline_fragment
+                    .type_condition
+                    .map_or_else(|| "inline fragment".intern(), |tc| schema.get_type_name(tc));
+                errors.push(Diagnostic::error(
+                    ValidationMessage::S2CRootFragmentInvalidSelection {
+                        fragment_name,
+                        field_name: type_name,
+                    },
+                    inline_fragment.spread_location,
+                ));
+            }
+            Selection::Condition(condition) => {
+                errors.push(Diagnostic::error(
+                    ValidationMessage::S2CRootFragmentInvalidSelection {
+                        fragment_name,
+                        field_name: "@skip/@include condition".intern(),
+                    },
+                    condition.location,
+                ));
             }
         }
     }

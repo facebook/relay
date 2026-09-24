@@ -1,0 +1,84 @@
+==================================== INPUT ====================================
+// Test: a magic fragment's corridor is open only to the resolver that owns it.
+//
+// `shadow_return_conversion` rewrites the root fragment DEFINITION, so the
+// `@__relay_shadow_return` marker on `page` is seen by every resolver that names
+// the fragment as its `@rootFragment`. But only the resolver whose
+// `@returnFragment` the marker names gets a transplant onto `page`.
+//
+// `plain_sharer` shares the root fragment without a `@returnFragment`, so for it
+// `viewer` is an ordinary server link and must be rejected. The positive
+// control is `exec_time_s2c_magic_fragment_corridor_allows_nested_path`, which
+// selects the owner, `shadow_page`, against the same root fragment.
+//- QueryShadowCorridor.js
+/**
+ * @relayField Query.shadow_page: IPage
+ * @rootFragment QueryShadowCorridorResolverFragment
+ * @returnFragment QueryShadowCorridorReturnFragment
+ */
+graphql`fragment QueryShadowCorridorResolverFragment on Query {
+  viewer {
+    page {
+      ...QueryShadowCorridorReturnFragment
+    }
+  }
+}`
+
+/**
+ * @relayField Query.plain_sharer: String
+ * @rootFragment QueryShadowCorridorResolverFragment
+ */
+
+//- Consumer.js
+graphql`query ConsumerQuery @exec_time_resolvers {
+  plain_sharer
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": {"kind": "enabled"},
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": {"kind": "enabled"}
+  }
+}
+
+//- schema.graphql
+type Query {
+  viewer: Viewer
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type Viewer {
+  unsupported_field: String
+  page: Page
+}
+
+type Page implements Node {
+  id: ID!
+  title: String
+}
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage
+==================================== OUTPUT ===================================
+✖︎ Server-to-client resolver @rootFragment `QueryShadowCorridorResolverFragment` in exec time resolvers may only select `__typename` and/or `id`. Found disallowed selection: viewer. S2C resolvers must use identity-only @rootFragment.
+
+  QueryShadowCorridor.js:7:3
+    6 │ fragment QueryShadowCorridorResolverFragment on Query {
+    7 │   viewer {
+      │   ^^^^^^
+    8 │     page {

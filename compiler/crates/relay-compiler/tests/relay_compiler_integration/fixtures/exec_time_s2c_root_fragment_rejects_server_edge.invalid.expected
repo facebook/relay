@@ -1,0 +1,69 @@
+==================================== INPUT ====================================
+// Test: the identity-only rule also applies when the S2C resolver returns a
+// SERVER type.
+//
+// `exec_time_s2c_root_fragment_rejects_client_edge.invalid` covers a resolver
+// returning a client type, and `exec_time_resolver_server_to_client_has_flag`
+// covers a scalar one. A resolver returning a server object is the third shape,
+// and it took a different branch in `transform_linked_field_impl` — the one that
+// builds an edge-to-server-object metadata directive — which never ran the
+// validation. The root fragment below reads `name`, which exec time would
+// project from a record holding only identity and get back undefined.
+//
+// Nothing about the return type changes what the root fragment can see, so all
+// three shapes answer to the same rule.
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    related_page @waterfall {
+      title
+    }
+  }
+}`
+
+//- User_related_page.js
+/**
+ * @relayField User.related_page: Page
+ * @rootFragment UserRelatedPageFragment
+ */
+graphql`fragment UserRelatedPageFragment on User {
+  name
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}
+
+type Page implements Node {
+  id: ID!
+  title: String
+}
+==================================== OUTPUT ===================================
+✖︎ Server-to-client resolver @rootFragment `UserRelatedPageFragment` in exec time resolvers may only select `__typename` and/or `id`. Found disallowed selection: name. S2C resolvers must use identity-only @rootFragment.
+
+  User_related_page.js:6:3
+    5 │ fragment UserRelatedPageFragment on User {
+    6 │   name
+      │   ^^^^
+    7 │ }

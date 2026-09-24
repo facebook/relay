@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9ea5999fd9f83bb01a802794c5e8905e>>
+ * @generated SignedSource<<1fb682b28ea51f762102bf41d8a860a2>>
  */
 
 mod relay_compiler_integration;
@@ -293,10 +293,45 @@ async fn exec_time_resolver_use_network_normalization_provider() {
 }
 
 #[tokio::test]
+async fn exec_time_s2c_magic_fragment_corridor_allows_nested_path() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_allows_nested_path.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_allows_nested_path.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_magic_fragment_corridor_allows_nested_path.input", "relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_allows_nested_path.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_magic_fragment_corridor_rejects_foreign_marker_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_rejects_foreign_marker.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_rejects_foreign_marker.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_magic_fragment_corridor_rejects_foreign_marker.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_rejects_foreign_marker.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_magic_fragment_corridor_rejects_root_fragment_sharer_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_rejects_root_fragment_sharer.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_rejects_root_fragment_sharer.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_magic_fragment_corridor_rejects_root_fragment_sharer.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_rejects_root_fragment_sharer.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_magic_fragment_corridor_rejects_sibling_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_rejects_sibling.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_rejects_sibling.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_magic_fragment_corridor_rejects_sibling.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_corridor_rejects_sibling.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn exec_time_s2c_root_fragment_rejects_client_edge_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_client_edge.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_client_edge.invalid.expected");
     test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_rejects_client_edge.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_client_edge.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_root_fragment_rejects_server_edge_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_server_edge.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_server_edge.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_rejects_server_edge.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_server_edge.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

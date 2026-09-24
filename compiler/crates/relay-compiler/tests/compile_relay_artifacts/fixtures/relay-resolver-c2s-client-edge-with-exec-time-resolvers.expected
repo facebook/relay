@@ -2,8 +2,15 @@
 # C2S (client-to-server) edge with @exec_time_resolvers in the full compiler
 # pipeline (compile_relay_artifacts does NOT enable exec-time codegen, so
 # the normalization AST uses read-time format: only the backing resolver field).
+#
+# The root fragment selects `id` rather than `actor_key`, which it used to. Under
+# `@exec_time_resolvers` an S2C resolver's root fragment is identity-only, and
+# `actor_key` is a server field that exec time would project from a record holding
+# only identity — reading back undefined. What is covered here is the C2S pipeline,
+# not the root fragment's contents; the rejection itself is covered by
+# `exec_time_s2c_root_fragment_rejects_server_edge.invalid`.
 fragment relayResolverC2sClientEdgeWithExecTimeResolvers_best_friend_resolver on User {
-  actor_key
+  id
 }
 
 query relayResolverC2sClientEdgeWithExecTimeResolversQuery @exec_time_resolvers {
@@ -234,7 +241,7 @@ fragment RefetchableClientEdgeQuery_relayResolverC2sClientEdgeWithExecTimeResolv
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "actor_key",
+                  "name": "id",
                   "storageKey": null
                 }
               ],
@@ -279,7 +286,7 @@ query relayResolverC2sClientEdgeWithExecTimeResolversQuery {
 }
 
 fragment relayResolverC2sClientEdgeWithExecTimeResolvers_best_friend_resolver on User {
-  actor_key
+  id
 }
 
 
@@ -330,7 +337,7 @@ fragment relayResolverC2sClientEdgeWithExecTimeResolvers_best_friend_resolver on
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "actor_key",
+      "name": "id",
       "storageKey": null
     }
   ],

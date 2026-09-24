@@ -1,0 +1,49 @@
+# validate-extracted-schema
+# Restored implementation fields must keep their narrower return types and additional arguments.
+
+//- src/CovarianceQuery.js
+graphql`
+  query CovarianceQuery {
+    result {
+      ... on FileResult {
+        path
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  result: SearchResult
+}
+
+interface SearchResult {
+  details: Detail
+}
+
+type FileResult implements SearchResult {
+  details(locale: LocaleInput): FileDetail!
+  path: String
+}
+
+interface Detail {
+  name: String
+}
+
+type FileDetail implements Detail {
+  name: String
+}
+
+input LocaleInput {
+  code: String
+}

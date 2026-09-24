@@ -1,0 +1,52 @@
+==================================== INPUT ====================================
+# validate-extracted-schema
+# Omitted defaulted arguments must stay consistent between an interface and its implementation.
+
+//- src/DefaultedArgumentQuery.js
+graphql`
+  query DefaultedArgumentQuery {
+    result {
+      value
+      ... on FileResult {
+        path
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  result: SearchResult
+}
+
+interface SearchResult {
+  value(scale: Int! = 1): Int
+}
+
+type FileResult implements SearchResult {
+  value(scale: Int! = 1): Int
+  path: String
+}
+==================================== OUTPUT ===================================
+type FileResult implements SearchResult {
+  path: String
+  value(scale: Int! = 1): Int
+}
+
+type Query {
+  result: SearchResult
+}
+
+interface SearchResult {
+  value(scale: Int! = 1): Int
+}

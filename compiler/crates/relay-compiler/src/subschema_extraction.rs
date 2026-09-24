@@ -7,18 +7,21 @@
 
 //! Utilities for extracting a subschema from a full schema based on usage.
 
+use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 
 use common::ConsoleLogger;
+use intern::Lookup;
 use intern::string_key::StringKey;
 use program_with_dependencies::ProgramWithDependencies;
 use relay_config::ConnectionInterface;
 use relay_transforms::Programs;
 use schema::SDLSchema;
 use schema::Schema;
+use schema::Type;
 use schema_set::SchemaSet;
 use schema_set::SetType;
 use schema_set::UsedSchemaCollectionOptions;
@@ -195,18 +198,18 @@ pub(crate) fn extract_subschema(
         &programs.operation_text,
     );
 
-    let mut used_schema = SchemaSet::from_ir(
-        &program_with_deps,
-        UsedSchemaCollectionOptions {
-            include_implementations_when_typename_requested: None,
-            include_all_overlapping_concrete_types: false,
-            include_directives_on_schema_definitions: true,
-            include_directive_definitions: true,
-            include_implicit_output_enum_values: true,
-            include_implicit_input_fields_and_enum_values: true,
-        },
-    )
-    .map_err(|diagnostics| SubschemaError::CompilationFailed(format!("{:?}", diagnostics)))?;
+    let options = UsedSchemaCollectionOptions {
+        include_implementations_when_typename_requested: None,
+        include_all_overlapping_concrete_types: false,
+        include_directives_on_schema_definitions: true,
+        include_directive_definitions: true,
+        include_implicit_output_enum_values: true,
+        include_implicit_input_fields_and_enum_values: true,
+    };
+    let mut used_schema = SchemaSet::from_ir(&program_with_deps, options.clone())
+        .map_err(|diagnostics| SubschemaError::CompilationFailed(format!("{:?}", diagnostics)))?;
+
+    hydrate_output_types(&mut used_schema, &programs.source.schema, &options);
 
     used_schema
         .fix_all_types()
@@ -236,6 +239,105 @@ pub(crate) fn extract_subschema(
     output.push('\n');
 
     Ok(output)
+}
+
+/// Keep pruned output types valid without adding selections to the operation.
+/// Restored fields can introduce more output types, so close over their signatures
+/// before pruning unresolved interface and union memberships.
+fn hydrate_output_types(
+    used_schema: &mut SchemaSet,
+    full_schema: &SDLSchema,
+    options: &UsedSchemaCollectionOptions,
+) {
+    let mut hydrated_fields = HashSet::new();
+    loop {
+        let mut fields = Vec::new();
+        let mut union_members = Vec::new();
+        for (name, set_type) in &used_schema.types {
+            let Some(type_) = full_schema.get_type(*name) else {
+                continue;
+            };
+            let (retained_fields, interfaces, canonical_fields) = match (set_type, type_) {
+                (SetType::Object(object), Type::Object(id)) => (
+                    &object.fields,
+                    &object.interfaces,
+                    &full_schema.object(id).fields,
+                ),
+                (SetType::Interface(interface), Type::Interface(id)) => {
+                    for field_name in interface.fields.keys() {
+                        if let Some(field) = full_schema.named_field(type_, *field_name) {
+                            fields.push(field);
+                        }
+                    }
+                    (
+                        &interface.fields,
+                        &interface.interfaces,
+                        &full_schema.interface(id).fields,
+                    )
+                }
+                (SetType::Union(union), Type::Union(id)) => {
+                    if !union.members.iter().any(|(name, member)| {
+                        !member.is_extension && used_schema.types.contains_key(name)
+                    }) && let Some(member) = full_schema
+                        .union(id)
+                        .members
+                        .iter()
+                        .filter(|id| !full_schema.object(**id).is_extension)
+                        .min_by_key(|id| full_schema.object(**id).name.item.0.lookup())
+                    {
+                        union_members.push(Type::Object(*member));
+                    }
+                    continue;
+                }
+                _ => continue,
+            };
+            if retained_fields.is_empty() {
+                // Prefer a leaf to avoid retaining an otherwise unrelated object graph.
+                if let Some(field) = canonical_fields
+                    .iter()
+                    .filter(|id| !full_schema.field(**id).is_extension)
+                    .min_by_key(|id| {
+                        let field = full_schema.field(**id);
+                        (
+                            !matches!(field.type_.inner(), Type::Scalar(_) | Type::Enum(_)),
+                            field.name.item.lookup(),
+                        )
+                    })
+                {
+                    fields.push(*field);
+                }
+            }
+            for interface in interfaces.keys() {
+                if let Some(SetType::Interface(interface)) = used_schema.types.get(interface) {
+                    for field_name in interface.fields.keys() {
+                        // The implementation may narrow the return type or add optional arguments.
+                        if let Some(field) = full_schema.named_field(type_, *field_name) {
+                            fields.push(field);
+                        }
+                    }
+                }
+            }
+        }
+        fields.retain(|field| hydrated_fields.insert(*field));
+        if fields.is_empty() && union_members.is_empty() {
+            break;
+        }
+        for member in union_members {
+            used_schema.touch_output_type(full_schema, &member, options);
+        }
+        for field in fields {
+            used_schema.touch_field(full_schema, &field, options);
+            for argument in full_schema.field(field).arguments.iter() {
+                used_schema.touch_field_argument(
+                    full_schema,
+                    &field,
+                    argument.name.item.0,
+                    options,
+                );
+                used_schema.touch_variable_type(full_schema, &argument.type_.inner(), options);
+            }
+        }
+    }
 }
 
 /// Re-hydrate connection PageInfo fields that may have been pruned by the

@@ -1,0 +1,72 @@
+==================================== INPUT ====================================
+# validate-extracted-schema
+# Output dependencies can introduce an otherwise empty union and cycle back to an earlier type.
+
+//- src/EmptyOutputQuery.js
+graphql`
+  query EmptyOutputQuery {
+    result {
+      ... on FileResult {
+        path
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  result: SearchResult
+}
+
+interface SearchResult {
+  details: Details
+}
+
+type FileResult implements SearchResult {
+  details: Details
+  path: String
+}
+
+type Details {
+  next: DetailsUnion
+}
+
+union DetailsUnion = DetailsLink
+
+type DetailsLink {
+  details: Details
+}
+==================================== OUTPUT ===================================
+type Details {
+  next: DetailsUnion
+}
+
+type DetailsLink {
+  details: Details
+}
+
+type FileResult implements SearchResult {
+  details: Details
+  path: String
+}
+
+type Query {
+  result: SearchResult
+}
+
+interface SearchResult {
+  details: Details
+}
+
+union DetailsUnion =
+  | DetailsLink

@@ -1,0 +1,51 @@
+# validate-extracted-schema
+# A client-only member cannot keep the extracted server union nonempty.
+
+//- src/ClientUnionQuery.js
+graphql`
+  query ClientUnionQuery {
+    result {
+      ... on FileResult {
+        path
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "schemaExtensions": ["./schema-extensions"],
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- schema-extensions/client.graphql
+type AClientDetail {
+  value: String
+}
+
+extend union DetailsUnion = AClientDetail
+
+//- full_schema.graphql
+type Query {
+  result: SearchResult
+}
+
+interface SearchResult {
+  details: DetailsUnion
+}
+
+type FileResult implements SearchResult {
+  details: DetailsUnion
+  path: String
+}
+
+union DetailsUnion = ServerDetail
+
+type ServerDetail {
+  value: String
+}

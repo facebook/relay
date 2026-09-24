@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8861d2f642fcf2b7ea4689406406f61f>>
+ * @generated SignedSource<<f7969df55436618966c2dfb62fd0bf22>>
  */
 
 mod subschema_extraction;
@@ -20,10 +20,38 @@ async fn connection_page_info() {
 }
 
 #[tokio::test]
+async fn defaulted_interface_argument() {
+    let input = include_str!("subschema_extraction/fixtures/defaulted_interface_argument.input");
+    let expected = include_str!("subschema_extraction/fixtures/defaulted_interface_argument.expected");
+    test_fixture(transform_fixture, file!(), "defaulted_interface_argument.input", "subschema_extraction/fixtures/defaulted_interface_argument.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn empty_interface_dependencies() {
+    let input = include_str!("subschema_extraction/fixtures/empty_interface_dependencies.input");
+    let expected = include_str!("subschema_extraction/fixtures/empty_interface_dependencies.expected");
+    test_fixture(transform_fixture, file!(), "empty_interface_dependencies.input", "subschema_extraction/fixtures/empty_interface_dependencies.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn empty_output_type_dependencies() {
+    let input = include_str!("subschema_extraction/fixtures/empty_output_type_dependencies.input");
+    let expected = include_str!("subschema_extraction/fixtures/empty_output_type_dependencies.expected");
+    test_fixture(transform_fixture, file!(), "empty_output_type_dependencies.input", "subschema_extraction/fixtures/empty_output_type_dependencies.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn inlined_nested_input() {
     let input = include_str!("subschema_extraction/fixtures/inlined_nested_input.input");
     let expected = include_str!("subschema_extraction/fixtures/inlined_nested_input.expected");
     test_fixture(transform_fixture, file!(), "inlined_nested_input.input", "subschema_extraction/fixtures/inlined_nested_input.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn interface_field_covariance() {
+    let input = include_str!("subschema_extraction/fixtures/interface_field_covariance.input");
+    let expected = include_str!("subschema_extraction/fixtures/interface_field_covariance.expected");
+    test_fixture(transform_fixture, file!(), "interface_field_covariance.input", "subschema_extraction/fixtures/interface_field_covariance.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -59,6 +87,13 @@ async fn subscription_only() {
     let input = include_str!("subschema_extraction/fixtures/subscription_only.input");
     let expected = include_str!("subschema_extraction/fixtures/subscription_only.expected");
     test_fixture(transform_fixture, file!(), "subscription_only.input", "subschema_extraction/fixtures/subscription_only.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn union_with_client_member() {
+    let input = include_str!("subschema_extraction/fixtures/union_with_client_member.input");
+    let expected = include_str!("subschema_extraction/fixtures/union_with_client_member.expected");
+    test_fixture(transform_fixture, file!(), "union_with_client_member.input", "subschema_extraction/fixtures/union_with_client_member.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -46,7 +46,8 @@ use relay_compiler::subschema_extraction::compile_and_extract_subschema;
 /// 1. Parse the fixture and write files to a temp directory
 /// 2. Load the Relay config
 /// 3. Call the shared compile_and_extract_subschema function
-/// 4. Return the extracted schema content
+/// 4. If marked `# validate-extracted-schema`, recompile and check extraction is stable
+/// 5. Return the extracted schema content
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let project_fixture = ProjectFixture::deserialize(fixture.content);
 
@@ -78,6 +79,17 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         let output_path = test_dir.path().join(&result.original_schema_path);
         fs::write(&output_path, &result.schema_content)
             .map_err(|e| format!("Failed to write subschema: {:#}", e))?;
+
+        if fixture.content.contains("# validate-extracted-schema") {
+            let mut extracted_config =
+                Config::search(&PathBuf::from(test_dir.path())).map_err(|e| format!("{:#}", e))?;
+            extracted_config.file_source_config = FileSourceKind::WalkDir;
+            let extracted_result =
+                compile_and_extract_subschema(extracted_config, &result.original_schema_path)
+                    .await
+                    .map_err(|e| format!("Compilation against extracted schema failed: {:#}", e))?;
+            assert_eq!(result.schema_content, extracted_result.schema_content);
+        }
 
         // Return the extracted subschema content
         Ok(result.schema_content)

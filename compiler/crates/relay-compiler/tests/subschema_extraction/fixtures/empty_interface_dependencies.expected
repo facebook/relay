@@ -1,0 +1,71 @@
+==================================== INPUT ====================================
+# validate-extracted-schema
+# Retaining an unselected interface field must also retain its scalar and input dependencies.
+
+//- src/EmptyInterfaceQuery.js
+graphql`
+  query EmptyInterfaceQuery {
+    result {
+      ... on FileResult {
+        path
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  result: SearchResult
+}
+
+interface SearchResult {
+  js(module: ModuleInput!): JSDependency
+}
+
+type FileResult implements SearchResult {
+  js(module: ModuleInput!): JSDependency
+  path: String
+}
+
+scalar JSDependency
+
+input ModuleInput {
+  location: ModuleLocation!
+}
+
+input ModuleLocation {
+  name: String!
+}
+==================================== OUTPUT ===================================
+scalar JSDependency
+
+input ModuleInput {
+  location: ModuleLocation!
+}
+
+input ModuleLocation {
+  name: String!
+}
+
+type FileResult implements SearchResult {
+  js(module: ModuleInput!): JSDependency
+  path: String
+}
+
+type Query {
+  result: SearchResult
+}
+
+interface SearchResult {
+  js(module: ModuleInput!): JSDependency
+}

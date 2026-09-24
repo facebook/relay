@@ -621,6 +621,7 @@ fn get_mapped_location(location: schema_flatbuffer::DirectiveLocation) -> Direct
         FDL::InputFieldDefinition => DL::InputFieldDefinition,
         FDL::VariableDefinition => DL::VariableDefinition,
         FDL::DirectiveDefinition => DL::DirectiveDefinition,
+        FDL::FragmentVariableDefinition => DL::FragmentVariableDefinition,
         unknown => panic!("unknown DirectiveLocation value: {unknown:?}"),
     }
 }

@@ -654,5 +654,6 @@ fn get_mapped_location(location: DirectiveLocation) -> schema_flatbuffer::Direct
         DL::InputFieldDefinition => FDL::InputFieldDefinition,
         DL::VariableDefinition => FDL::VariableDefinition,
         DL::DirectiveDefinition => FDL::DirectiveDefinition,
+        DL::FragmentVariableDefinition => FDL::FragmentVariableDefinition,
     }
 }

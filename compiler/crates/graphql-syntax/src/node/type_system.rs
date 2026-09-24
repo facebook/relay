@@ -602,6 +602,7 @@ pub enum DirectiveLocation {
     InputFieldDefinition,
     VariableDefinition,
     DirectiveDefinition,
+    FragmentVariableDefinition,
 }
 
 impl From<OperationKind> for DirectiveLocation {
@@ -637,6 +638,9 @@ impl fmt::Display for DirectiveLocation {
             DirectiveLocation::InputFieldDefinition => write!(f, "INPUT_FIELD_DEFINITION"),
             DirectiveLocation::VariableDefinition => write!(f, "VARIABLE_DEFINITION"),
             DirectiveLocation::DirectiveDefinition => write!(f, "DIRECTIVE_DEFINITION"),
+            DirectiveLocation::FragmentVariableDefinition => {
+                write!(f, "FRAGMENT_VARIABLE_DEFINITION")
+            }
         }
     }
 }

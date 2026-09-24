@@ -1483,6 +1483,7 @@ impl<'a> Parser<'a> {
             "INPUT_FIELD_DEFINITION" => Ok(DirectiveLocation::InputFieldDefinition),
             "VARIABLE_DEFINITION" => Ok(DirectiveLocation::VariableDefinition),
             "DIRECTIVE_DEFINITION" => Ok(DirectiveLocation::DirectiveDefinition),
+            "FRAGMENT_VARIABLE_DEFINITION" => Ok(DirectiveLocation::FragmentVariableDefinition),
             token_str => {
                 let error = Diagnostic::error(
                     format!("Unexpected `{token_str}`, expected a directive location."),

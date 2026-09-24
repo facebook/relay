@@ -3,6 +3,7 @@ directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
 directive @extern_type(schema: String, name: String) on INTERFACE
 directive @fetchable(field_name: String) on OBJECT
 directive @repeats(id: String) repeatable on FIELD_DEFINITION
+directive @fragment_variable on FRAGMENT_VARIABLE_DEFINITION
 
 schema {
   query: Query

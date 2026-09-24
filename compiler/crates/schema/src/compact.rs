@@ -327,6 +327,7 @@ impl<'a> Writer<'a> {
             DirectiveLocation::InputFieldDefinition => 17,
             DirectiveLocation::VariableDefinition => 18,
             DirectiveLocation::DirectiveDefinition => 19,
+            DirectiveLocation::FragmentVariableDefinition => 20,
         });
     }
 
@@ -598,6 +599,7 @@ impl<'a> Reader<'a> {
             17 => DirectiveLocation::InputFieldDefinition,
             18 => DirectiveLocation::VariableDefinition,
             19 => DirectiveLocation::DirectiveDefinition,
+            20 => DirectiveLocation::FragmentVariableDefinition,
             v => panic!("invalid DirectiveLocation variant: {v}"),
         }
     }

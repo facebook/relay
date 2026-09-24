@@ -359,7 +359,7 @@ pub const ENUM_MIN_DIRECTIVE_LOCATION: i8 = 0;
     since = "2.0.0",
     note = "Use associated constants instead. This will no longer be generated in 2021."
 )]
-pub const ENUM_MAX_DIRECTIVE_LOCATION: i8 = 18;
+pub const ENUM_MAX_DIRECTIVE_LOCATION: i8 = 19;
 #[deprecated(
     since = "2.0.0",
     note = "Use associated constants instead. This will no longer be generated in 2021."
@@ -1313,7 +1313,6 @@ impl flatbuffers::Verifiable for Type<'_> {
         Ok(())
     }
 }
-
 #[derive(Copy, Clone)]
 pub struct TypeArgs {
     pub kind: TypeKind,
@@ -1959,11 +1958,9 @@ impl<'a> Argument<'a> {
         // Created from valid Table for this object
         // which contains a valid value in this slot
         unsafe {
-            self._tab
-                .get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(
-                    Argument::VT_DIRECTIVES,
-                    None,
-                )
+            self._tab.get::<flatbuffers::ForwardsUOffset<
+                flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>,
+            >>(Argument::VT_DIRECTIVES, None)
         }
     }
 }
@@ -1987,6 +1984,9 @@ impl flatbuffers::Verifiable for Argument<'_> {
                 Self::VT_VALUE,
                 false,
             )?
+            .visit_field::<flatbuffers::ForwardsUOffset<
+                flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue>>,
+            >>("directives", Self::VT_DIRECTIVES, false)?
             .finish();
         Ok(())
     }
@@ -2064,6 +2064,7 @@ impl core::fmt::Debug for Argument<'_> {
         ds.field("name", &self.name());
         ds.field("type_", &self.type_());
         ds.field("value", &self.value());
+        ds.field("directives", &self.directives());
         ds.finish()
     }
 }

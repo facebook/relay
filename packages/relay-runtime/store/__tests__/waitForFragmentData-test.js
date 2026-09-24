@@ -11,11 +11,11 @@
 
 const {graphql} = require('../../query/GraphQLTag');
 const LiveResolverStore = require('../live-resolvers/LiveResolverStore');
-const {waitForFragmentData} = require('../observeFragmentExperimental');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const RelayRecordSource = require('../RelayRecordSource');
+const {waitForFragmentData} = require('../waitForFragmentExperimental');
 const {GLOBAL_STORE} = require('./resolvers/ExampleExternalStateStore');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 

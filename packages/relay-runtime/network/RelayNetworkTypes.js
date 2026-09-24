@@ -25,6 +25,7 @@ import type RelayObservable, {ObservableFromValue} from './RelayObservable';
  */
 export interface INetwork {
   readonly execute: ExecuteFunction;
+  readonly executeWithPreloadedSource?: ExecuteWithPreloadedSourceFunction;
 }
 
 export type LogRequestInfoFunction = unknown => void;
@@ -118,6 +119,18 @@ export type ExecuteFunction = (
   logRequestInfo?: ?LogRequestInfoFunction,
   encryptedVariables?: ?string,
   preprocessResponse?: ?preprocessResponseFunction,
+  operationAvailability?: ?OperationAvailabilityConfig,
+) => RelayObservable<GraphQLResponse>;
+
+/**
+ * Allows a network to adopt a source that was started before the full request
+ * artifact was available.
+ */
+export type ExecuteWithPreloadedSourceFunction = (
+  request: RequestParameters,
+  variables: Variables,
+  cacheConfig: CacheConfig,
+  source: RelayObservable<GraphQLResponse>,
   operationAvailability?: ?OperationAvailabilityConfig,
 ) => RelayObservable<GraphQLResponse>;
 

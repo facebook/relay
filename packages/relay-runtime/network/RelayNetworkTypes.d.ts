@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import {OperationAvailability, OperationDescriptor} from '../store/RelayStoreTypes';
 import { RequestParameters } from '../util/RelayConcreteNode';
 import {CacheConfig, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import {ObservableFromValue, RelayObservable} from './RelayObservable';
@@ -15,6 +16,7 @@ import {ObservableFromValue, RelayObservable} from './RelayObservable';
  */
 export interface Network {
     execute: ExecuteFunction;
+    executeWithPreloadedSource?: ExecuteWithPreloadedSourceFunction;
 }
 export type LogRequestInfoFunction = (arg: any) => void;
 
@@ -86,6 +88,27 @@ export type ExecuteFunction = (
     variables: Variables,
     cacheConfig: CacheConfig,
     uploadables?: UploadableMap | null,
+) => RelayObservable<GraphQLResponse>;
+
+export type CheckOperation = (
+    operation: OperationDescriptor,
+) => OperationAvailability;
+
+export interface OperationAvailabilityConfig {
+    readonly checkOperation: CheckOperation;
+    readonly parentOperation: OperationDescriptor | null | undefined;
+}
+
+/**
+ * Allows a network to adopt a source that was started before the full request
+ * artifact was available.
+ */
+export type ExecuteWithPreloadedSourceFunction = (
+    request: RequestParameters,
+    variables: Variables,
+    cacheConfig: CacheConfig,
+    source: RelayObservable<GraphQLResponse>,
+    operationAvailability?: OperationAvailabilityConfig | null,
 ) => RelayObservable<GraphQLResponse>;
 
 /**

@@ -106,6 +106,7 @@ export type {
 } from './mutations/commitMutation';
 export type {
   ExecuteFunction,
+  ExecuteWithPreloadedSourceFunction,
   FetchFunction,
   GraphQLResponse,
   GraphQLResponseWithData,

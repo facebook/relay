@@ -19,13 +19,17 @@ import type {
 import type {
   CacheConfig,
   INetwork,
+  LogEvent,
   LogRequestInfoFunction,
   Query,
   RequestParameters,
   UploadableMap,
   Variables,
 } from 'relay-runtime';
-import type {OperationAvailabilityConfig} from 'relay-runtime/network/RelayNetworkTypes';
+import type {
+  ExecuteWithPreloadedSourceFunction,
+  OperationAvailabilityConfig,
+} from 'relay-runtime/network/RelayNetworkTypes';
 
 const {loadQuery} = require('../loadQuery');
 const nullthrows = require('nullthrows');
@@ -89,6 +93,8 @@ describe('loadQuery', () => {
   let sink;
   let fetch;
   let environment;
+  let executeWithPreloadedSource: ExecuteWithPreloadedSourceFunction;
+  let logEvents: Array<LogEvent>;
 
   let executeUnsubscribe: ?JestMockFn<ReadonlyArray<unknown>, unknown>;
   let executeObservable;
@@ -131,6 +137,9 @@ describe('loadQuery', () => {
         return observable;
       },
     );
+    executeWithPreloadedSource = jest.fn(
+      (...args: Parameters<ExecuteWithPreloadedSourceFunction>) => args[3],
+    );
     function wrapNetworkExecute(network: INetwork): INetwork {
       return {
         execute: (_1, _2, _3, _4, _5, _6, _7, _availabilityConfig) => {
@@ -146,9 +155,14 @@ describe('loadQuery', () => {
             _availabilityConfig,
           );
         },
+        executeWithPreloadedSource,
       };
     }
+    logEvents = [];
     environment = createMockEnvironment({
+      log: event => {
+        logEvents.push(event);
+      },
       network: wrapNetworkExecute(Network.create(fetch)),
     });
 
@@ -240,6 +254,7 @@ describe('loadQuery', () => {
         expect(preloadedQuery.fetchPolicy).toBe('store-and-network');
         expect(fetch).toHaveBeenCalled();
         expect(executeObservable).toBeDefined();
+        expect(executeWithPreloadedSource).not.toHaveBeenCalled();
       });
 
       describe("with fetchPolicy === 'store-or-network'", () => {
@@ -507,6 +522,60 @@ describe('loadQuery', () => {
         executeOnloadCallback(query);
         expect(operationAvailabilityConfig).toBe(config);
         expect(config.parentOperation).toBe(null);
+      });
+
+      it('adopts the prestarted source after an exec-time AST loads', () => {
+        const preloadedQuery = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+        );
+        Object.freeze(preloadedQuery);
+
+        expect(preloadedQuery.fetchPolicy).toBe('store-or-network');
+        expect(executeWithPreloadedSource).not.toHaveBeenCalled();
+
+        executeOnloadCallback(execTimeQuery);
+
+        expect(preloadedQuery.fetchPolicy).toBe('store-and-network');
+        expect(executeWithPreloadedSource).toHaveBeenCalledTimes(1);
+        expect(executeWithPreloadedSource).toHaveBeenCalledWith(
+          execTimeQuery.params,
+          variables,
+          {force: true},
+          expect.anything(),
+          expect.objectContaining({
+            checkOperation: expect.any(Function),
+            parentOperation: expect.objectContaining({
+              request: expect.objectContaining({node: execTimeQuery}),
+            }),
+          }),
+        );
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(
+          logEvents.filter(event => event.name === 'network.start'),
+        ).toHaveLength(1);
+      });
+
+      it('does not offer an ordinary query for source adoption', () => {
+        loadQuery(environment, preloadableConcreteRequest, variables);
+
+        executeOnloadCallback(query);
+
+        expect(executeWithPreloadedSource).not.toHaveBeenCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+        expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        expect(fetch).toHaveBeenCalledTimes(1);
+      });
+
+      it('falls back to ordinary execution without source adoption support', () => {
+        environment = createMockEnvironment({network: Network.create(fetch)});
+
+        loadQuery(environment, preloadableConcreteRequest, variables);
+        executeOnloadCallback(execTimeQuery);
+
+        expect(executeWithPreloadedSource).not.toHaveBeenCalled();
+        expect(fetch).toHaveBeenCalledTimes(1);
       });
 
       it('should make a network request', done => {

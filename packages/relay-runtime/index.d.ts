@@ -32,6 +32,7 @@ export {
 } from './mutations/RelayDeclarativeMutationConfig';
 export {
     ExecuteFunction,
+    ExecuteWithPreloadedSourceFunction,
     FetchFunction,
     GraphQLResponse,
     GraphQLResponseWithData,

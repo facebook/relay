@@ -108,6 +108,26 @@ function wrapNetworkWithLogObserver(
         )
         .do(logObserver);
     },
+    executeWithPreloadedSource(
+      params: RequestParameters,
+      variables: Variables,
+      cacheConfig: CacheConfig,
+      source: RelayObservable<GraphQLResponse>,
+      operationAvailability?: ?OperationAvailabilityConfig,
+    ): RelayObservable<GraphQLResponse> {
+      const executeWithPreloadedSource = network.executeWithPreloadedSource;
+      if (executeWithPreloadedSource == null) {
+        return source;
+      }
+      // The preloaded source already owns the network logging lifecycle.
+      return executeWithPreloadedSource(
+        params,
+        variables,
+        cacheConfig,
+        source,
+        operationAvailability,
+      );
+    },
   };
 }
 

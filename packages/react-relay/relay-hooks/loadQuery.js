@@ -349,6 +349,9 @@ function loadQuery<
         queryId,
         preloadedModule => {
           cancelOnLoadCallback();
+          if (providedFetchPolicy == null) {
+            fetchPolicy = getDefaultFetchPolicy(preloadedModule);
+          }
           const operation = createOperationDescriptor(
             preloadedModule,
             variables,
@@ -356,9 +359,26 @@ function loadQuery<
           );
           retainReference = environment.retain(operation);
           if (networkObservable != null) {
-            executeDeduped(operation, () =>
-              executeWithNetworkSource(operation, networkObservable),
-            );
+            executeDeduped(operation, () => {
+              const network = environment.getNetwork();
+              const executeWithPreloadedSource =
+                network.executeWithPreloadedSource;
+              const source =
+                preloadedModule.params.metadata.operation == null ||
+                executeWithPreloadedSource == null
+                  ? networkObservable
+                  : executeWithPreloadedSource(
+                      preloadedModule.params,
+                      variables,
+                      networkCacheConfig,
+                      networkObservable,
+                      {
+                        checkOperation,
+                        parentOperation: operation,
+                      },
+                    );
+              return executeWithNetworkSource(operation, source);
+            });
           }
         },
       ));
@@ -400,7 +420,7 @@ function loadQuery<
     cancelOnLoadCallback && cancelOnLoadCallback();
     isNetworkRequestCancelled = true;
   };
-  return {
+  const preloadedQuery = {
     cancelNetworkRequest,
     dispose() {
       if (isDisposed) {
@@ -413,13 +433,16 @@ function loadQuery<
     environment,
     environmentProviderOptions,
     fetchKey,
-    fetchPolicy,
+    // $FlowFixMe[unsafe-getters-setters] - this has no side effects
+    get fetchPolicy() {
+      return fetchPolicy;
+    },
     id: queryId,
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get isDisposed() {
       return isDisposed || isReleased;
     },
-    kind: 'PreloadedQuery',
+    kind: 'PreloadedQuery' as const,
     name: params.name,
     networkCacheConfig,
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
@@ -430,6 +453,7 @@ function loadQuery<
     source: didMakeNetworkRequest ? returnedObservable : undefined,
     variables,
   };
+  return preloadedQuery;
 }
 
 module.exports = {

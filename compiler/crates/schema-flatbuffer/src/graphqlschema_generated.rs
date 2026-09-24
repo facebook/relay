@@ -359,13 +359,13 @@ pub const ENUM_MIN_DIRECTIVE_LOCATION: i8 = 0;
     since = "2.0.0",
     note = "Use associated constants instead. This will no longer be generated in 2021."
 )]
-pub const ENUM_MAX_DIRECTIVE_LOCATION: i8 = 19;
+pub const ENUM_MAX_DIRECTIVE_LOCATION: i8 = 20;
 #[deprecated(
     since = "2.0.0",
     note = "Use associated constants instead. This will no longer be generated in 2021."
 )]
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_DIRECTIVE_LOCATION: [DirectiveLocation; 20] = [
+pub const ENUM_VALUES_DIRECTIVE_LOCATION: [DirectiveLocation; 21] = [
     DirectiveLocation::Query,
     DirectiveLocation::Mutation,
     DirectiveLocation::Subscription,
@@ -386,6 +386,7 @@ pub const ENUM_VALUES_DIRECTIVE_LOCATION: [DirectiveLocation; 20] = [
     DirectiveLocation::InputFieldDefinition,
     DirectiveLocation::VariableDefinition,
     DirectiveLocation::DirectiveDefinition,
+    DirectiveLocation::FragmentVariableDefinition,
 ];
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
@@ -413,9 +414,10 @@ impl DirectiveLocation {
     pub const InputFieldDefinition: Self = Self(17);
     pub const VariableDefinition: Self = Self(18);
     pub const DirectiveDefinition: Self = Self(19);
+    pub const FragmentVariableDefinition: Self = Self(20);
 
     pub const ENUM_MIN: i8 = 0;
-    pub const ENUM_MAX: i8 = 19;
+    pub const ENUM_MAX: i8 = 20;
     pub const ENUM_VALUES: &'static [Self] = &[
         Self::Query,
         Self::Mutation,
@@ -437,6 +439,7 @@ impl DirectiveLocation {
         Self::InputFieldDefinition,
         Self::VariableDefinition,
         Self::DirectiveDefinition,
+        Self::FragmentVariableDefinition,
     ];
     /// Returns the variant's name or "" if unknown.
     pub fn variant_name(self) -> Option<&'static str> {
@@ -461,6 +464,7 @@ impl DirectiveLocation {
             Self::InputFieldDefinition => Some("InputFieldDefinition"),
             Self::VariableDefinition => Some("VariableDefinition"),
             Self::DirectiveDefinition => Some("DirectiveDefinition"),
+            Self::FragmentVariableDefinition => Some("FragmentVariableDefinition"),
             _ => None,
         }
     }

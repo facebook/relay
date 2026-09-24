@@ -110,6 +110,7 @@ enum DirectiveLocation : byte {
     InputFieldDefinition,
     VariableDefinition,
     DirectiveDefinition,
+    FragmentVariableDefinition,
 }
 
 table Directive {

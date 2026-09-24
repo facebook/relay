@@ -242,12 +242,12 @@ function formatStorageKey(name: string, argValues: ?Arguments): string {
     return name;
   }
   const values = [];
-  for (const argName in argValues) {
-    if (argValues.hasOwnProperty(argName)) {
-      const value = argValues[argName];
-      if (value != null) {
-        values.push(argName + ':' + (JSON.stringify(value) ?? 'undefined'));
-      }
+  const argNames = Object.keys(argValues);
+  for (let i = 0; i < argNames.length; i++) {
+    const argName = argNames[i];
+    const value = argValues[argName];
+    if (value != null) {
+      values.push(argName + ':' + (JSON.stringify(value) ?? 'undefined'));
     }
   }
   return values.length === 0 ? name : name + `(${values.join(',')})`;
@@ -259,7 +259,9 @@ function formatStorageKey(name: string, argValues: ?Arguments): string {
  */
 function getStableVariableValue(name: string, variables: Variables): unknown {
   invariant(
-    variables.hasOwnProperty(name),
+    /* $FlowFixMe[invalid-this-arg] Error exposed after fixing this typing
+     * unsoundness in flow */
+    Object.prototype.hasOwnProperty.call(variables, name),
     'getVariableValue(): Undefined variable `%s`.',
     name,
   );

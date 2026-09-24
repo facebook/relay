@@ -31,6 +31,21 @@ describe('RelayStoreUtils', () => {
         orderby: 'name',
       });
     });
+
+    it('supports a variable named hasOwnProperty', () => {
+      expect(
+        RelayStoreUtils.getArgumentValues(
+          [
+            {
+              kind: 'Variable',
+              name: 'size',
+              variableName: 'hasOwnProperty',
+            },
+          ],
+          {hasOwnProperty: 256},
+        ),
+      ).toEqual({size: 256});
+    });
   });
 
   describe('getStorageKey()', () => {
@@ -189,6 +204,12 @@ describe('RelayStoreUtils', () => {
     it('disregards a null or undefined arguments object', () => {
       expect(RelayStoreUtils.getStableStorageKey('foo')).toBe('foo');
       expect(RelayStoreUtils.getStableStorageKey('bar', null)).toBe('bar');
+    });
+
+    it('supports an argument named hasOwnProperty', () => {
+      expect(
+        RelayStoreUtils.getStableStorageKey('foo', {hasOwnProperty: 1}),
+      ).toBe('foo(hasOwnProperty:1)');
     });
   });
 

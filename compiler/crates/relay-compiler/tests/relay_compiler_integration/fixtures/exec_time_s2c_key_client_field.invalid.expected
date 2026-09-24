@@ -1,0 +1,63 @@
+==================================== INPUT ====================================
+// Test: `@UNSTABLE_key` cannot grant a CLIENT field.
+//
+// The grant exists so an exec-time S2C root fragment can read a field out of the
+// normalized SERVER response. A client field is never in that response — it is
+// resolved by composition — so naming one in the field set is a mistake, and
+// silently honouring it would hand the resolver a value that reads back
+// undefined at runtime.
+//
+// The positive control is `exec_time_s2c_root_fragment_allows_key_field`: the
+// same shape granting a server field, which compiles.
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    greeting
+  }
+}`
+
+//- User_greeting.js
+/**
+ * @relayField User.greeting: RelayResolverValue
+ * @rootFragment UserGreetingFragment
+ */
+graphql`fragment UserGreetingFragment on User {
+  id
+  client_nickname
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}
+
+//- schema-extensions/extension.graphql
+extend type User {
+  client_nickname: String
+}
+
+extend type User @UNSTABLE_key(fields: "client_nickname")
+==================================== OUTPUT ===================================
+✖︎ `@UNSTABLE_key` cannot grant `client_nickname` on `User`: it is a CLIENT field. The grant exists so an exec-time server-to-client @rootFragment can read a field out of the normalized server response, and a client field is never in that response — it is resolved by composition instead. Remove it from the field set; if the resolver needs it, read it as an ordinary client field.
+
+  User_greeting.js:7:3
+    6 │   id
+    7 │   client_nickname
+      │   ^^^^^^^^^^^^^^^
+    8 │ }

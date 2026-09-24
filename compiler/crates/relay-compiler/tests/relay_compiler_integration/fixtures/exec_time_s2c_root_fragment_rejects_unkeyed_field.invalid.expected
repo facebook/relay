@@ -1,0 +1,59 @@
+==================================== INPUT ====================================
+// Test: `@UNSTABLE_key` grants exactly the fields it names, and nothing else.
+//
+// Identical to `exec_time_s2c_root_fragment_allows_key_field` — same query, same
+// `extend type User @UNSTABLE_key(fields: "actor_key")` — except the root fragment reads
+// `name`, which the annotation does not cover. Nothing promises `name` arrives in
+// the payload, so it stays a compile error.
+//
+// Without this control the positive fixture would pass just as well against a
+// runtime that treated `@UNSTABLE_key`'s mere PRESENCE on the type as blanket permission.
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    greeting
+  }
+}`
+
+//- User_greeting.js
+/**
+ * @relayField User.greeting: RelayResolverValue
+ * @rootFragment UserGreetingFragment
+ */
+graphql`fragment UserGreetingFragment on User {
+  id
+  name
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+  actor_key: ID!
+}
+
+//- schema-extensions/extension.graphql
+extend type User @UNSTABLE_key(fields: "actor_key")
+==================================== OUTPUT ===================================
+✖︎ Server-to-client resolver @rootFragment `UserGreetingFragment` in exec time resolvers may only select `__typename` and/or `id`. Found disallowed selection: name. S2C resolvers must use identity-only @rootFragment.
+
+  User_greeting.js:7:3
+    6 │   id
+    7 │   name
+      │   ^^^^
+    8 │ }

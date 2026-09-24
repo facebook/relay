@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
 use std::sync::Arc;
 use std::sync::LazyLock;
 
@@ -1775,6 +1776,53 @@ fn selections_contain_magic_fragment(
     return_fragment.is_some_and(|name| selections_contain_shadow_return_marker(selections, name))
 }
 
+/// Name of the escape hatch declared in `relay-extensions.graphql`.
+static UNSTABLE_KEY_DIRECTIVE_NAME: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("UNSTABLE_key".intern()));
+static UNSTABLE_KEY_FIELDS_ARGUMENT_NAME: LazyLock<ArgumentName> =
+    LazyLock::new(|| ArgumentName("fields".intern()));
+
+/// The fields `@UNSTABLE_key` lets an exec-time S2C root fragment read on `type_`, beyond
+/// identity.
+///
+/// `Err` carries a malformed field set. Only a space-separated list of flat field
+/// names is accepted; the composite-schemas spec's nested form (`"a { b }"`) is
+/// not. Splitting one of those on whitespace would hand back `a`, `{`, `b`, `}`
+/// and so GRANT `a` — a field the author only meant to qualify — which is why
+/// this rejects rather than parses what it can.
+fn key_granted_fields(schema: &SDLSchema, type_: Type) -> Result<HashSet<StringKey>, StringKey> {
+    let directives = match type_ {
+        Type::Object(id) => &schema.object(id).directives,
+        Type::Interface(id) => &schema.interface(id).directives,
+        _ => return Ok(HashSet::new()),
+    };
+
+    let mut granted = HashSet::new();
+    // `@UNSTABLE_key` is repeatable, so every occurrence contributes.
+    for directive in directives
+        .iter()
+        .filter(|d| d.name == *UNSTABLE_KEY_DIRECTIVE_NAME)
+    {
+        let Some(field_set) = directive
+            .arguments
+            .iter()
+            .find(|argument| argument.name == *UNSTABLE_KEY_FIELDS_ARGUMENT_NAME)
+            .and_then(|argument| argument.get_string_literal())
+        else {
+            continue;
+        };
+        let field_set_str = field_set.lookup();
+        if field_set_str
+            .chars()
+            .any(|c| !c.is_ascii_alphanumeric() && c != '_' && !c.is_ascii_whitespace())
+        {
+            return Err(field_set);
+        }
+        granted.extend(field_set_str.split_whitespace().map(|name| name.intern()));
+    }
+    Ok(granted)
+}
+
 /// Checks that a server-to-client resolver's root fragment selects nothing but
 /// identity, allowing the magic fragment's transplant path through.
 ///
@@ -1809,15 +1857,63 @@ fn validate_s2c_selections(
                     continue;
                 }
                 let sel_field_name = sel_field.name.item;
-                if sel_field_name != typename_field_name && sel_field_name != id_field_name {
-                    errors.push(Diagnostic::error(
-                        ValidationMessage::S2CRootFragmentInvalidSelection {
-                            fragment_name,
-                            field_name: sel_field_name,
-                        },
-                        scalar_field.definition.location,
-                    ));
+                if sel_field_name == typename_field_name || sel_field_name == id_field_name {
+                    continue;
                 }
+                // `@UNSTABLE_key` on the field's OWN parent type, so the grant follows the
+                // field wherever it is selected rather than being inherited from
+                // whichever type the root fragment happens to be on.
+                match sel_field
+                    .parent_type
+                    .map(|parent_type| key_granted_fields(schema, parent_type))
+                {
+                    Some(Ok(granted)) if granted.contains(&sel_field_name) => {
+                        // A grant is only meaningful for a SERVER field with no
+                        // arguments. Checked where the grant is consulted rather
+                        // than where it is written, because only here is the
+                        // field resolved against its parent type.
+                        let parent_type_name =
+                            schema.get_type_name(sel_field.parent_type.expect("matched above"));
+                        if sel_field.is_extension {
+                            errors.push(Diagnostic::error(
+                                ValidationMessage::KeyDirectiveClientField {
+                                    type_name: parent_type_name,
+                                    field_name: sel_field_name,
+                                },
+                                scalar_field.definition.location,
+                            ));
+                        } else if !sel_field.arguments.is_empty() {
+                            errors.push(Diagnostic::error(
+                                ValidationMessage::KeyDirectiveFieldWithArguments {
+                                    type_name: parent_type_name,
+                                    field_name: sel_field_name,
+                                },
+                                scalar_field.definition.location,
+                            ));
+                        }
+                        continue;
+                    }
+                    Some(Err(field_set)) => {
+                        errors.push(Diagnostic::error(
+                            ValidationMessage::KeyDirectiveUnsupportedFieldSet {
+                                type_name: schema.get_type_name(
+                                    sel_field.parent_type.expect("checked by the match arm"),
+                                ),
+                                field_set,
+                            },
+                            scalar_field.definition.location,
+                        ));
+                        continue;
+                    }
+                    _ => {}
+                }
+                errors.push(Diagnostic::error(
+                    ValidationMessage::S2CRootFragmentInvalidSelection {
+                        fragment_name,
+                        field_name: sel_field_name,
+                    },
+                    scalar_field.definition.location,
+                ));
             }
             Selection::LinkedField(linked_field) => {
                 if is_magic_fragment_target(linked_field, return_fragment) {

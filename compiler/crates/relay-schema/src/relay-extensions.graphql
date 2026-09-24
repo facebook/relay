@@ -440,3 +440,35 @@ directive @exec_time_resolvers(
   useExperimentalProvider: String
   useNetworkNormalizationProvider: String
 ) on QUERY
+
+"""
+(Relay Only)
+
+Names fields that a server-to-client resolver's `@rootFragment` may read in
+addition to `id` and `__typename` when the operation runs at exec time.
+
+Exec time does not read the Relay store. It projects the root fragment from the
+normalized response for the payload that triggered the resolver, so a field is
+readable only if the response is guaranteed to carry it. Annotating a field here
+is an assertion by the schema owner that it is STABLE for the record's lifetime
+and ALWAYS ARRIVES IN THE SAME PAYLOAD as the record itself. Relay cannot check
+either property; without the annotation the field is a compile error rather than
+a silent `undefined` at runtime.
+
+`unstable_` is not decoration: the shape of this directive is expected to change,
+so treat an annotation as something you may have to revisit rather than a stable
+part of the schema.
+
+It is deliberately narrower than the `@key` of the GraphQL composite schemas spec
+(that spelling, without the prefix, is the spec's — this is a different, Relay-only
+directive named after it). Only a space-separated list of FLAT field names on
+the annotated type is accepted -- no nested selections, no arguments, no aliases.
+A nested form such as `fields: "a { b }"` is rejected rather than ignored. The
+annotation grants READ permission inside a root fragment only: it never
+contributes to a record's identity, and has no effect on DataID assignment,
+normalization, dedup or store lookup.
+
+Applied through a client schema extension, e.g.
+`extend type User @UNSTABLE_key(fields: "actor_key")`.
+"""
+directive @UNSTABLE_key(fields: String!) repeatable on OBJECT | INTERFACE

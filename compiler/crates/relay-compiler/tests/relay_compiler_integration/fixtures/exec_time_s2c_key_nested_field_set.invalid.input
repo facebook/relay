@@ -1,0 +1,48 @@
+// Test: a nested `@UNSTABLE_key` field set is rejected, not parsed as best it can be.
+//
+// The composite-schemas spec allows `fields: "actor_key { id }"`. Relay accepts
+// only flat names. Splitting this one on whitespace would yield `actor_key`,
+// `{`, `id`, `}` — granting `actor_key` outright, when the author wrote it only
+// to qualify a nested selection. Granting more than was asked for is the one
+// outcome an escape hatch must never produce, so the malformed set is an error.
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    greeting
+  }
+}`
+
+//- User_greeting.js
+/**
+ * @relayField User.greeting: RelayResolverValue
+ * @rootFragment UserGreetingFragment
+ */
+graphql`fragment UserGreetingFragment on User {
+  id
+  actor_key
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+  actor_key: ID!
+}
+
+//- schema-extensions/extension.graphql
+extend type User @UNSTABLE_key(fields: "actor_key { id }")

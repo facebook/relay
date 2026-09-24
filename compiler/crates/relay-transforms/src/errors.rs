@@ -136,6 +136,30 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "`@UNSTABLE_key` cannot grant `{field_name}` on `{type_name}`: it is a CLIENT field. The grant exists so an exec-time server-to-client @rootFragment can read a field out of the normalized server response, and a client field is never in that response — it is resolved by composition instead. Remove it from the field set; if the resolver needs it, read it as an ordinary client field."
+    )]
+    KeyDirectiveClientField {
+        type_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error(
+        "`@UNSTABLE_key` cannot grant `{field_name}` on `{type_name}`: it TAKES ARGUMENTS. The grant asserts a field is stable for the record's lifetime and always arrives in the same payload as the record, which cannot hold for a field whose value depends on its arguments — two selections with different arguments are different values under one name. Remove it from the field set."
+    )]
+    KeyDirectiveFieldWithArguments {
+        type_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error(
+        "Unsupported `@UNSTABLE_key(fields: \"{field_set}\")` on `{type_name}`. Relay accepts only a space-separated list of field names on the annotated type — no nested selections, arguments or aliases. Parsing `{field_set}` by splitting it would grant fields that were only meant to qualify a selection, so it is rejected instead."
+    )]
+    KeyDirectiveUnsupportedFieldSet {
+        type_name: StringKey,
+        field_set: StringKey,
+    },
+
+    #[error(
         "Relay Resolver field `{field_name}` returns server type `{server_type_name}` which does not implement the `Node` interface and is not `@fetchable`. Server types returned by Relay Resolvers must be refetchable via the `Node` interface or the `@fetchable` directive."
     )]
     ClientEdgeServerTypeNotRefetchable {

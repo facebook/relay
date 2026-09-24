@@ -1,13 +1,10 @@
 ==================================== INPUT ====================================
-// Test: `@UNSTABLE_key` grants exactly the fields it names, and nothing else.
+// Test: descending into an inline fragment still catches what is inside it.
 //
-// Identical to `exec_time_s2c_root_fragment_allows_key_field` — same query, same
-// `extend type User @UNSTABLE_key(fields: "actor_key")` — except the root fragment reads
-// `name`, which the annotation does not cover. Nothing promises `name` arrives in
-// the payload, so it stays a compile error.
-//
-// Without this control the positive fixture would pass just as well against a
-// runtime that treated `@UNSTABLE_key`'s mere PRESENCE on the type as blanket permission.
+// Same shape as `exec_time_s2c_root_fragment_allows_inline_fragment`, but the
+// inline fragment selects `name`. Relaxing the spread must not relax its
+// contents, and the diagnostic should point at `name` rather than at the type
+// condition.
 //- FooQuery.js
 graphql`query FooQuery @exec_time_resolvers {
   me {
@@ -21,8 +18,9 @@ graphql`query FooQuery @exec_time_resolvers {
  * @rootFragment UserGreetingFragment
  */
 graphql`fragment UserGreetingFragment on User {
-  id
-  name
+  ... on User {
+    name
+  }
 }`
 
 //- relay.config.json
@@ -30,30 +28,19 @@ graphql`fragment UserGreetingFragment on User {
   "language": "flow",
   "jsModuleFormat": "haste",
   "schema": "schema.graphql",
-  "schemaExtensions": ["schema-extensions"],
   "featureFlags": {
     "enable_exec_time_resolvers_directive": true
   }
 }
 
 //- schema.graphql
-type Query {
-  me: User
-}
-
-type User {
-  id: ID!
-  name: String
-  actor_key: ID!
-}
-
-//- schema-extensions/extension.graphql
-extend type User @UNSTABLE_key(fields: "actor_key")
+type Query { me: User }
+type User { id: ID!, name: String }
 ==================================== OUTPUT ===================================
 ✖︎ Server-to-client resolver @rootFragment `UserGreetingFragment` runs at exec time, where it is projected from the normalized response rather than read from the store. Found disallowed selection: `name`. Allowed here: identity (`__typename`, `id`, `__id`), a field granted by `@UNSTABLE_key(fields: "...")` on the type that declares it, and the selections the resolver's own magic fragment transplants. Granting `name` asserts it is stable for the record's lifetime and always arrives in the same payload as the record; where that does not hold, read the field at read time instead.
 
-  User_greeting.js:7:3
-    6 │   id
-    7 │   name
-      │   ^^^^
-    8 │ }
+  User_greeting.js:7:5
+    6 │   ... on User {
+    7 │     name
+      │     ^^^^
+    8 │   }

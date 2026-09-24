@@ -60,7 +60,7 @@ type Page implements Node {
   title: String
 }
 ==================================== OUTPUT ===================================
-✖︎ Server-to-client resolver @rootFragment `UserRelatedPageFragment` in exec time resolvers may only select `__typename` and/or `id`. Found disallowed selection: name. S2C resolvers must use identity-only @rootFragment.
+✖︎ Server-to-client resolver @rootFragment `UserRelatedPageFragment` runs at exec time, where it is projected from the normalized response rather than read from the store. Found disallowed selection: `name`. Allowed here: identity (`__typename`, `id`, `__id`), a field granted by `@UNSTABLE_key(fields: "...")` on the type that declares it, and the selections the resolver's own magic fragment transplants. Granting `name` asserts it is stable for the record's lifetime and always arrives in the same payload as the record; where that does not hold, read the field at read time instead.
 
   User_related_page.js:6:3
     5 │ fragment UserRelatedPageFragment on User {

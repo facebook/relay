@@ -1,0 +1,80 @@
+// Test: `@UNSTABLE_key` on an INTERFACE, which the directive declares as a valid location
+// (`repeatable on OBJECT | INTERFACE`) and which no fixture covered.
+//
+// `key_granted_fields` has a separate `Type::Interface` arm from its
+// `Type::Object` one, and every existing `@UNSTABLE_key` fixture uses `extend type`. The
+// interface arm's only signal was the `ads_frameworks_lab_intern` www build,
+// which grants `extend interface Actor @UNSTABLE_key(fields: "name")`.
+//
+// The question this pins is WHERE the grant has to live, and the answer is
+// narrower than the directive's `on OBJECT | INTERFACE` suggests. The grant is
+// looked up on the SELECTED FIELD's resolved parent type, so an interface grant
+// applies only where the selection's parent type IS that interface. All three
+// cases below are here because the interesting part is that they differ:
+//
+//   - `display_name` selected directly on `User` is REJECTED. Relay resolves the
+//     field against `User`, which carries no grant. The grant on `Actor` is not
+//     inherited by implementors.
+//   - the SAME field under `... on Actor` is ACCEPTED, because there the parent
+//     type is the interface. This is what makes the rejection above a
+//     lookup-location limitation rather than the interface arm being dead.
+//   - `handle` is declared on `User` and granted nowhere, so it is rejected in
+//     both worlds — the control that stops this fixture from passing against an
+//     implementation that treated any reachable `@UNSTABLE_key` as blanket permission.
+//
+// The middle case is why `ads_frameworks_lab_intern` works with
+// `extend interface Actor @UNSTABLE_key(fields: "name")`: its fragments select through
+// the interface. An author who annotates an interface and then selects the field
+// on a concrete type gets a compile error pointing at the field, with a grant
+// sitting right there on the interface that does not apply to it. Whether that
+// SHOULD be inherited is an open design question, deliberately not decided here;
+// this fixture pins what the code does today so the answer is a visible change.
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    greeting
+  }
+}`
+
+//- User_greeting.js
+/**
+ * @relayField User.greeting: RelayResolverValue
+ * @rootFragment UserGreetingFragment
+ */
+graphql`fragment UserGreetingFragment on User {
+  id
+  display_name
+  ... on Actor {
+    display_name
+  }
+  handle
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+interface Actor {
+  display_name: String
+}
+
+type User implements Actor {
+  id: ID!
+  display_name: String
+  handle: String
+}
+
+//- schema-extensions/extension.graphql
+extend interface Actor @UNSTABLE_key(fields: "display_name")

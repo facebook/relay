@@ -1,0 +1,76 @@
+// Test: a Query-rooted `@rootFragment` may read CLIENT-extension fields, both
+// scalar and linked, under `@exec_time_resolvers`.
+//
+// This pins the `allow_client_fields` carve-out, which until now had NO fixture
+// at all. It survives only because removing it broke four real fragments in the
+// `reactive_executor` www build — a slow signal nobody runs for this crate, so
+// deleting the carve-out would have left every compiler fixture green.
+//
+// Why it is a carve-out and not a hole. The rule rejects non-identity selections
+// because at exec time they are projected from the normalized response, and a
+// field the response does not carry reads back as `undefined` with no error. A
+// client-extension field is not projected from the response at all — it is
+// produced by resolver composition — so the failure mode the rule exists to
+// prevent does not apply to it.
+//
+// Two distinct branches are exercised here, and they behave differently:
+//   - `client_flag`, a client-extension SCALAR, is accepted by name.
+//   - `client_settings`, a client-extension LINKED field, is skipped WITHOUT
+//     descending into it. `theme` below it is therefore never checked. That is
+//     deliberate and matches the runtime, which skips `CLIENT_EXTENSION`
+//     subtrees when projecting; there is nothing under there to project.
+//
+// The negative control is `exec_time_resolver_query_root_reads_server_field`,
+// where the same Query parent reading a SERVER field is rejected. Together they
+// show the carve-out keys on the field being a client extension, not on the
+// parent being `Query` alone.
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    id
+  }
+  greeting
+}`
+
+//- Query_greeting.js
+/**
+ * @relayField Query.greeting: RelayResolverValue
+ * @rootFragment QueryGreetingFragment
+ */
+graphql`fragment QueryGreetingFragment on Query {
+  client_flag
+  client_settings {
+    theme
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}
+
+//- schema-extensions/extension.graphql
+type ClientSettings {
+  theme: String
+}
+
+extend type Query {
+  client_flag: Boolean
+  client_settings: ClientSettings
+}

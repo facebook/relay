@@ -1,0 +1,75 @@
+// Test: a sibling written INSIDE the shadowed field is rejected too.
+//
+// `exec_time_s2c_magic_fragment_corridor_rejects_sibling.invalid` covers a
+// sibling one level up, beside the shadowed field. This is the other placement,
+// and it is the one that occurs in real code:
+//
+//     me {
+//       title              # author-written, nothing fetches it
+//       ...ReturnFragment  # becomes @__relay_shadow_return on `me`
+//     }
+//
+// The placeholder is converted into a directive on the ENCLOSING field, so after
+// conversion both the author's `title` and the injected `id`/`__typename` are
+// children of a marker-bearing `me`. Skipping a marker-bearing subtree therefore
+// skipped the author's sibling as well, and `title` — which the transplant does
+// NOT fetch, since the transplant carries the CONSUMER's selections — read back
+// undefined at exec time.
+//
+// Found in `AdsFrameworksLabWeakShadowResolver`, whose root fragment is exactly
+// this shape and which compiled clean when it should not have.
+//- Consumer.js
+graphql`query ConsumerQuery @exec_time_resolvers {
+  shadow_page {
+    title
+  }
+}`
+
+//- QueryShadowPage.js
+/**
+ * @relayField Query.shadow_page: IPage
+ * @rootFragment QueryShadowPageResolverFragment
+ * @returnFragment QueryShadowPageReturnFragment
+ */
+graphql`fragment QueryShadowPageResolverFragment on Query {
+  page {
+    title
+    ...QueryShadowPageReturnFragment
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": {"kind": "enabled"},
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": {"kind": "enabled"}
+  }
+}
+
+//- schema.graphql
+type Query {
+  page: Page
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type Page implements Node {
+  id: ID!
+  title: String
+}
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+}
+
+extend type Page implements IPage

@@ -1,0 +1,58 @@
+// Test: `@skip`/`@include` in an S2C root fragment is rejected, and rejected with
+// advice that fits a condition.
+//
+// The conditioned field is `name`, which `@UNSTABLE_key` DOES grant here — so the only
+// thing wrong with this fragment is the condition. That is what makes it a real
+// control: a walk that ignored conditions and just checked the field underneath
+// would accept it.
+//
+// The reason it cannot be accepted is at the other end. The runtime projection
+// (`copyDeclaredLinkedRecords`) descends a `CONDITION` WITHOUT evaluating it, so
+// a conditional selection is projected whether or not it applies. Permitting the
+// shape here would mean the compiler blessing something the projection cannot
+// honour.
+//
+// Like the spread arm, this had no coverage, so it silently shared the generic
+// diagnostic — which named the offending selection as the literal string
+// "@skip/@include condition" and then offered to `@UNSTABLE_key`-grant it.
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    greeting
+  }
+}`
+
+//- User_greeting.js
+/**
+ * @relayField User.greeting: RelayResolverValue
+ * @rootFragment UserGreetingFragment
+ */
+graphql`fragment UserGreetingFragment on User
+@argumentDefinitions(show_name: {type: "Boolean!", defaultValue: false}) {
+  id
+  name @include(if: $show_name)
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}
+
+//- schema-extensions/extension.graphql
+extend type User @UNSTABLE_key(fields: "name")

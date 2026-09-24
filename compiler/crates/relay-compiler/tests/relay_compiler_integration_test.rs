@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2390e8decfb04ed8f4d1cc0f5efff73d>>
+ * @generated SignedSource<<ebb5c739dabfb6a1b8181dca7190abb9>>
  */
 
 mod relay_compiler_integration;
@@ -342,10 +342,45 @@ async fn exec_time_s2c_magic_fragment_corridor_rejects_sibling_invalid() {
 }
 
 #[tokio::test]
+async fn exec_time_s2c_magic_fragment_rejects_inner_sibling_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_rejects_inner_sibling.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_rejects_inner_sibling.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_magic_fragment_rejects_inner_sibling.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_rejects_inner_sibling.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_magic_fragment_value_return_non_query_parent() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_value_return_non_query_parent.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_value_return_non_query_parent.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_magic_fragment_value_return_non_query_parent.input", "relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_value_return_non_query_parent.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_root_fragment_allows_client_fields_on_query() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_allows_client_fields_on_query.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_allows_client_fields_on_query.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_allows_client_fields_on_query.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_allows_client_fields_on_query.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_root_fragment_allows_inline_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_allows_inline_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_allows_inline_fragment.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_allows_inline_fragment.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_allows_inline_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn exec_time_s2c_root_fragment_allows_key_field() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_allows_key_field.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_allows_key_field.expected");
     test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_allows_key_field.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_allows_key_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_root_fragment_key_on_interface() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_key_on_interface.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_key_on_interface.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_key_on_interface.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_key_on_interface.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -356,10 +391,31 @@ async fn exec_time_s2c_root_fragment_rejects_client_edge_invalid() {
 }
 
 #[tokio::test]
+async fn exec_time_s2c_root_fragment_rejects_condition_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_condition.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_condition.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_rejects_condition.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_condition.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_root_fragment_rejects_inline_fragment_field_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_inline_fragment_field.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_inline_fragment_field.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_rejects_inline_fragment_field.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_inline_fragment_field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn exec_time_s2c_root_fragment_rejects_server_edge_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_server_edge.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_server_edge.invalid.expected");
     test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_rejects_server_edge.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_server_edge.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_root_fragment_rejects_spread_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_spread.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_spread.invalid.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_rejects_spread.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_spread.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

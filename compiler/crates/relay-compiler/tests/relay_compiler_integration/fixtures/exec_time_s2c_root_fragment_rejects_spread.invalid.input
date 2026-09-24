@@ -1,0 +1,67 @@
+// Test: a fragment SPREAD in an S2C root fragment is rejected, and rejected with
+// advice that fits a spread.
+//
+// The spread here selects nothing but `id` — it is identity-only, so the shape is
+// harmless in principle. It is still refused, because the walk checks selections
+// one at a time and does not follow a spread into another fragment definition; it
+// therefore cannot tell this apart from one that reads server data.
+//
+// The arm had no coverage at all before this fixture, which is how it came to
+// share the generic diagnostic. That message offers `@UNSTABLE_key` as the fix, and a
+// spread cannot be granted with `@UNSTABLE_key` — it would have read "Granting
+// `UserIdentityFragment` asserts it is stable for the record's lifetime".
+//
+// The placeholder spread of a magic fragment does NOT reach here: it is replaced
+// with the injected identity before `build_ir`, so a spread at this point is
+// always one the author wrote.
+//
+// `@inline` on the spread is load-bearing, and finding that out is half of what
+// this fixture records. A BARE spread never reaches the S2C rule — an earlier
+// resolver validation demands `@inline` or `@relay(mask: false)` first — and
+// `@relay(mask: false)` is inlined at `build_ir`, so the walk sees the contents
+// rather than a spread. `@inline` is what survives as a `FragmentSpread` in the
+// IR, which makes it the ONLY way to reach this arm.
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    greeting
+  }
+}`
+
+//- UserIdentity.js
+graphql`fragment UserIdentityFragment on User @inline {
+  id
+}`
+
+//- User_greeting.js
+/**
+ * @relayField User.greeting: RelayResolverValue
+ * @rootFragment UserGreetingFragment
+ */
+graphql`fragment UserGreetingFragment on User {
+  ...UserIdentityFragment
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}
+
+//- schema-extensions/extension.graphql
+extend type User @UNSTABLE_key(fields: "name")

@@ -1835,10 +1835,20 @@ fn key_granted_fields(schema: &SDLSchema, type_: Type) -> Result<HashSet<StringK
 /// still checked on its own, so an unrelated field standing next to the shadowed
 /// one is still rejected rather than carried in by its neighbour.
 ///
-/// Below the resolver's own marker-bearing field the walk stops. Those
-/// selections are the consumer's, transplanted there by the compiler, and the
-/// transplant is precisely what fetches them in the main operation — so unlike
-/// everything else here they really are present in the payload.
+/// The walk does NOT stop at a marker-bearing field. It used to, on the grounds
+/// that the selections below one are the consumer's — transplanted there by the
+/// compiler, and therefore genuinely fetched by the main operation. But the
+/// transplant has not run yet at this point: what is actually below the marker
+/// is the `id`/`__typename` that `shadow_return_conversion` injected in place of
+/// the placeholder, plus anything the author wrote beside it. Stopping let that
+/// author-written sibling through unchecked.
+///
+/// `allow_client_fields` is decided ONCE, from the resolver FIELD's parent type,
+/// and holds for the whole walk rather than being re-decided per level. So in a
+/// Query-rooted fragment a client-extension field stays permitted even below a
+/// server corridor, where its own parent is no longer `Query`. Reaching that
+/// needs the resolver's own magic fragment: every other server link is rejected
+/// outright, and a client-extension link is skipped without descending into it.
 fn validate_s2c_selections(
     schema: &SDLSchema,
     selections: &[Selection],
@@ -1849,6 +1859,19 @@ fn validate_s2c_selections(
     errors: &mut Vec<Diagnostic>,
 ) {
     let typename_field_name = "__typename".intern();
+    // The universal DataID. `shadow_return_conversion` injects it below the
+    // marker in place of the placeholder for every ALL-INLINE return — a
+    // non-`Node` server value, or an abstract return with any inline implementor
+    // — and injects `id` only for the strong/`EdgeTo` pointer arm. So a shadow
+    // resolver's own generated identity is `__id`, not `id`, for a whole class
+    // of return shapes, and rejecting it rejects code the compiler itself wrote.
+    //
+    // Only reachable since the walk began descending into marker-bearing fields;
+    // before that it never saw the injected identity at all. It stayed hidden
+    // afterwards because every existing exec-time shadow is Query-rooted, where
+    // `allow_client_fields` skips `__id` as an extension field before this check
+    // — an accident, not a rule, and it does not hold for a server-typed parent.
+    let clientid_field_name = schema.field(schema.clientid_field()).name.item;
     for selection in selections {
         match selection {
             Selection::ScalarField(scalar_field) => {
@@ -1857,12 +1880,21 @@ fn validate_s2c_selections(
                     continue;
                 }
                 let sel_field_name = sel_field.name.item;
-                if sel_field_name == typename_field_name || sel_field_name == id_field_name {
+                if sel_field_name == typename_field_name
+                    || sel_field_name == id_field_name
+                    || sel_field_name == clientid_field_name
+                {
                     continue;
                 }
-                // `@UNSTABLE_key` on the field's OWN parent type, so the grant follows the
-                // field wherever it is selected rather than being inherited from
-                // whichever type the root fragment happens to be on.
+                // `@UNSTABLE_key` on the field's OWN parent type, rather than on whichever
+                // type the root fragment happens to be spread on.
+                //
+                // That parent type is the one the SELECTION resolved against, not
+                // every type declaring the field, so an interface grant does NOT
+                // reach the same field selected on an implementor: `display_name`
+                // under `... on Actor` picks up a grant on `Actor`, while
+                // `display_name` selected directly on `User` does not.
+                // `exec_time_s2c_root_fragment_key_on_interface` pins both.
                 match sel_field
                     .parent_type
                     .map(|parent_type| key_granted_fields(schema, parent_type))
@@ -1917,6 +1949,25 @@ fn validate_s2c_selections(
             }
             Selection::LinkedField(linked_field) => {
                 if is_magic_fragment_target(linked_field, return_fragment) {
+                    // Descend rather than skip. At this point the shadowed
+                    // field's children are the `id`/`__typename` that
+                    // `shadow_return_conversion` injected in place of the
+                    // placeholder, PLUS anything the author wrote beside it —
+                    // the transplant that brings the consumer's selections here
+                    // has not run yet. Skipping the subtree let an author-written
+                    // sibling through unchecked, which is the same smuggling the
+                    // corridor prevents one level up: nothing fetches it, so it
+                    // reads back undefined at exec time. The injected identity
+                    // passes the check below on its own.
+                    validate_s2c_selections(
+                        schema,
+                        &linked_field.selections,
+                        fragment_name,
+                        id_field_name,
+                        allow_client_fields,
+                        return_fragment,
+                        errors,
+                    );
                     continue;
                 }
                 // Everything below a client-extension link is reached through
@@ -1945,43 +1996,46 @@ fn validate_s2c_selections(
                 ));
             }
             Selection::FragmentSpread(fragment_spread) => {
+                // Its own diagnostic, because the generic one offers `@UNSTABLE_key` as
+                // the fix and a spread cannot be granted. Not the placeholder
+                // spread either — `shadow_return_conversion` replaces that with
+                // the injected identity before `build_ir`, so by the time this
+                // walk runs a spread here is an ordinary one the author wrote.
                 errors.push(Diagnostic::error(
-                    ValidationMessage::S2CRootFragmentInvalidSelection {
+                    ValidationMessage::S2CRootFragmentUnsupportedSpread {
                         fragment_name,
-                        field_name: fragment_spread.fragment.item.0,
+                        spread_name: fragment_spread.fragment.item.0,
                     },
                     fragment_spread.fragment.location,
                 ));
             }
             Selection::InlineFragment(inline_fragment) => {
-                if selections_contain_magic_fragment(&inline_fragment.selections, return_fragment) {
-                    validate_s2c_selections(
-                        schema,
-                        &inline_fragment.selections,
-                        fragment_name,
-                        id_field_name,
-                        allow_client_fields,
-                        return_fragment,
-                        errors,
-                    );
-                    continue;
-                }
-                let type_name = inline_fragment
-                    .type_condition
-                    .map_or_else(|| "inline fragment".intern(), |tc| schema.get_type_name(tc));
-                errors.push(Diagnostic::error(
-                    ValidationMessage::S2CRootFragmentInvalidSelection {
-                        fragment_name,
-                        field_name: type_name,
-                    },
-                    inline_fragment.spread_location,
-                ));
+                // An inline fragment selects nothing itself — it refines a type
+                // and defers to its contents, which are checked here field by
+                // field. Rejecting the spread outright therefore refused shapes
+                // whose every selection was legal, and forced an author with a
+                // perfectly good `... on User { id }` to restructure the
+                // fragment. The blame also landed on the type condition rather
+                // than on whatever field was actually unreadable.
+                validate_s2c_selections(
+                    schema,
+                    &inline_fragment.selections,
+                    fragment_name,
+                    id_field_name,
+                    allow_client_fields,
+                    return_fragment,
+                    errors,
+                );
             }
             Selection::Condition(condition) => {
+                // Also its own diagnostic: `@UNSTABLE_key` is no answer to a condition
+                // either. `Condition::directive_name` recovers which of the two
+                // spellings the author wrote — `passing_value` is the only place
+                // that survives into the IR.
                 errors.push(Diagnostic::error(
-                    ValidationMessage::S2CRootFragmentInvalidSelection {
+                    ValidationMessage::S2CRootFragmentUnsupportedCondition {
                         fragment_name,
-                        field_name: "@skip/@include condition".intern(),
+                        directive_name: condition.directive_name().intern(),
                     },
                     condition.location,
                 ));

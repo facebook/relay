@@ -1,0 +1,75 @@
+// Test: a shadow resolver on a NON-Query parent whose return is an all-inline
+// SERVER VALUE, under `@exec_time_resolvers`.
+//
+// This crosses two axes that every other fixture here holds fixed, and the
+// crossing is the point:
+//
+// - PARENT. Every other exec-time shadow fixture is rooted on `Query`, where
+//   the S2C rule's `allow_client_fields` carve-out is on. Here the parent is
+//   `Page`, so it is off.
+// - RETURN SHAPE. `PageStats` is a server type that does NOT implement `Node`,
+//   so the return is read in place. `shadow_return_conversion` injects the
+//   universal DataID `__id` below the marker for that shape, and `id` only for
+//   the strong/`EdgeTo` pointer arm that every other fixture happens to use.
+//
+// So this is the one shape where the S2C rule meets `__id` with the carve-out
+// off. It must compile: `__id` IS identity — it is the store key the resolver
+// edge reads off of — and the rule exists to reject NON-identity reads.
+//- PageShadowStats.js
+/**
+ * @relayField Page.shadow_stats: PageStats
+ * @rootFragment PageShadowStatsResolverFragment
+ * @returnFragment PageShadowStatsReturnFragment
+ */
+graphql`fragment PageShadowStatsResolverFragment on Page {
+  stats {
+    ...PageShadowStatsReturnFragment
+  }
+}`
+
+//- Consumer.js
+graphql`query ConsumerQuery @exec_time_resolvers {
+  page {
+    shadow_stats {
+      views
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": {"kind": "enabled"},
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": {"kind": "enabled"}
+  }
+}
+
+//- schema.graphql
+type Query {
+  page: Page
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type Page implements Node {
+  id: ID!
+  title: String
+  stats: PageStats
+}
+
+type PageStats {
+  views: Int
+}
+
+//- schema-extensions/extension.graphql
+extend type Page {
+  unused_client_field: String
+}

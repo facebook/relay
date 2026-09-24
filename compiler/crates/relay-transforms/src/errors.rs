@@ -128,11 +128,27 @@ pub enum ValidationMessage {
     ClientEdgeUnsupportedDirective { directive_name: DirectiveName },
 
     #[error(
-        "Server-to-client resolver @rootFragment `{fragment_name}` in exec time resolvers may only select `__typename` and/or `id`. Found disallowed selection: {field_name}. S2C resolvers must use identity-only @rootFragment."
+        "Server-to-client resolver @rootFragment `{fragment_name}` runs at exec time, where it is projected from the normalized response rather than read from the store. Found disallowed selection: `{field_name}`. Allowed here: identity (`__typename`, `id`, `__id`), a field granted by `@UNSTABLE_key(fields: \"...\")` on the type that declares it, and the selections the resolver's own magic fragment transplants. Granting `{field_name}` asserts it is stable for the record's lifetime and always arrives in the same payload as the record; where that does not hold, read the field at read time instead."
     )]
     S2CRootFragmentInvalidSelection {
         fragment_name: StringKey,
         field_name: StringKey,
+    },
+
+    #[error(
+        "Server-to-client resolver @rootFragment `{fragment_name}` cannot spread `{spread_name}`. At exec time the root fragment is checked selection by selection, and Relay does not follow a spread to see what it selects — so it cannot tell an identity-only fragment from one that reads server data. Inline the selections into `{fragment_name}` instead."
+    )]
+    S2CRootFragmentUnsupportedSpread {
+        fragment_name: StringKey,
+        spread_name: StringKey,
+    },
+
+    #[error(
+        "Server-to-client resolver @rootFragment `{fragment_name}` cannot use `@{directive_name}`. At exec time the fragment is projected from the normalized response by copying the records it declares, and that copy does not evaluate conditions — so a conditional selection would be projected whether or not it applies. Select the field unconditionally, or read it at read time."
+    )]
+    S2CRootFragmentUnsupportedCondition {
+        fragment_name: StringKey,
+        directive_name: StringKey,
     },
 
     #[error(

@@ -447,13 +447,23 @@ directive @exec_time_resolvers(
 Names fields that a server-to-client resolver's `@rootFragment` may read in
 addition to `id` and `__typename` when the operation runs at exec time.
 
-Exec time does not read the Relay store. It projects the root fragment from the
-normalized response for the payload that triggered the resolver, so a field is
-readable only if the response is guaranteed to carry it. Annotating a field here
-is an assertion by the schema owner that it is STABLE for the record's lifetime
-and ALWAYS ARRIVES IN THE SAME PAYLOAD as the record itself. Relay cannot check
-either property; without the annotation the field is a compile error rather than
-a silent `undefined` at runtime.
+Exec time does not read the Relay store. It projects the root fragment out of
+the normalized response, so a field is readable only if the response carries it.
+
+Annotating a field here is an assertion by the schema owner that it is STABLE
+for the record's lifetime and ALWAYS ARRIVES IN THE SAME PAYLOAD as the record
+itself. Relay checks NEITHER, and both matter for a concrete reason: the
+projection is memoized per record and root fragment, so the value copied from
+the FIRST payload that produced it is frozen for that record's lifetime. A later
+payload carrying a different value will not refresh it, and a first payload
+omitting the field leaves it missing for good. Annotate a field whose value can
+change and consumers will read a stale one with no error.
+
+Without the annotation, a non-identity selection that nothing else permits is a
+compile error rather than a silent `undefined` at runtime. Identity
+(`id`/`__typename`/`__id`), the magic-fragment corridor and -- in a Query-rooted
+root fragment -- client-extension fields are permitted on their own and need no
+`@UNSTABLE_key`.
 
 `unstable_` is not decoration: the shape of this directive is expected to change,
 so treat an annotation as something you may have to revisit rather than a stable
@@ -461,14 +471,26 @@ part of the schema.
 
 It is deliberately narrower than the `@key` of the GraphQL composite schemas spec
 (that spelling, without the prefix, is the spec's — this is a different, Relay-only
-directive named after it). Only a space-separated list of FLAT field names on
-the annotated type is accepted -- no nested selections, no arguments, no aliases.
-A nested form such as `fields: "a { b }"` is rejected rather than ignored. The
-annotation grants READ permission inside a root fragment only: it never
+directive named after it). Only a space-separated list of FLAT field names is
+accepted -- no nested selections, no arguments, no aliases -- and a nested form
+such as `fields: "a { b }"` is REJECTED rather than ignored. Two limits on that
+checking are worth knowing: the names are not resolved against the type, so a
+misspelling grants nothing and is not reported; and the field set is only parsed
+when a grant is actually consulted, so a malformed annotation on a type no
+exec-time root fragment reads is never examined.
+
+The annotation grants READ permission inside a root fragment only: it never
 contributes to a record's identity, and has no effect on DataID assignment,
 normalization, dedup or store lookup.
 
 Applied through a client schema extension, e.g.
 `extend type User @UNSTABLE_key(fields: "actor_key")`.
+
+A grant is matched against the parent type the SELECTION resolved against, which
+makes the INTERFACE form narrower than it looks. `extend interface Actor
+@UNSTABLE_key(fields: "display_name")` covers `... on Actor { display_name }`, but NOT
+`display_name` selected directly on a `User` that implements `Actor` — grants are
+not inherited by implementors. Annotate the concrete type as well if the field is
+read there.
 """
 directive @UNSTABLE_key(fields: String!) repeatable on OBJECT | INTERFACE

@@ -45,7 +45,7 @@ graphql`fragment QueryGreetingFragment on Query {
 //- schema.graphql
 type Query { hello: String }
 ==================================== OUTPUT ===================================
-✖︎ Server-to-client resolver @rootFragment `QueryGreetingFragment` in exec time resolvers may only select `__typename` and/or `id`. Found disallowed selection: hello. S2C resolvers must use identity-only @rootFragment.
+✖︎ Server-to-client resolver @rootFragment `QueryGreetingFragment` runs at exec time, where it is projected from the normalized response rather than read from the store. Found disallowed selection: `hello`. Allowed here: identity (`__typename`, `id`, `__id`), a field granted by `@UNSTABLE_key(fields: "...")` on the type that declares it, and the selections the resolver's own magic fragment transplants. Granting `hello` asserts it is stable for the record's lifetime and always arrives in the same payload as the record; where that does not hold, read the field at read time instead.
 
   Query_greeting.js:6:3
     5 │ fragment QueryGreetingFragment on Query {

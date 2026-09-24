@@ -1,0 +1,41 @@
+// Test: an inline fragment in an S2C root fragment is fine when its contents are.
+//
+// An inline fragment selects nothing itself — it refines a type and defers to
+// its contents. Rejecting the spread outright refused shapes whose every
+// selection was legal, and blamed the type condition rather than the field that
+// was actually unreadable.
+//
+// Here `... on User { id }` reads only identity, so it compiles. The negative
+// control is `exec_time_s2c_root_fragment_rejects_inline_fragment_field.invalid`,
+// the same shape with a non-identity field inside.
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    greeting
+  }
+}`
+
+//- User_greeting.js
+/**
+ * @relayField User.greeting: RelayResolverValue
+ * @rootFragment UserGreetingFragment
+ */
+graphql`fragment UserGreetingFragment on User {
+  ... on User {
+    id
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { id: ID!, name: String }

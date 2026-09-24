@@ -1,0 +1,37 @@
+// Test: descending into an inline fragment still catches what is inside it.
+//
+// Same shape as `exec_time_s2c_root_fragment_allows_inline_fragment`, but the
+// inline fragment selects `name`. Relaxing the spread must not relax its
+// contents, and the diagnostic should point at `name` rather than at the type
+// condition.
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    greeting
+  }
+}`
+
+//- User_greeting.js
+/**
+ * @relayField User.greeting: RelayResolverValue
+ * @rootFragment UserGreetingFragment
+ */
+graphql`fragment UserGreetingFragment on User {
+  ... on User {
+    name
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { id: ID!, name: String }

@@ -6,6 +6,8 @@ packages/relay-e2e-test/**
 **/node_modules/resolve/test/resolver/malformed_package_json/package.json
 
 [options]
+builtin_lib=core-only
+
 module.system=haste
 
 module.system.haste.paths.excludes=.*/__tests__/.*
@@ -30,4 +32,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.332.0
+^0.333.0

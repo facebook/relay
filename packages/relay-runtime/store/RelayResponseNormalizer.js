@@ -15,6 +15,7 @@ import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {PayloadData, PayloadError} from '../network/RelayNetworkTypes';
 import type {
   NormalizationActorChange,
+  NormalizationArgument,
   NormalizationClientEdgeToClientObject,
   NormalizationClientEdgeToServerObject,
   NormalizationDefer,
@@ -25,6 +26,7 @@ import type {
   NormalizationNode,
   NormalizationResolverField,
   NormalizationScalarField,
+  NormalizationSplitOperation,
   NormalizationStream,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
@@ -342,15 +344,25 @@ class RelayResponseNormalizer {
           this._normalizeActorChange(selection, record, data);
           break;
         case 'RelayResolver':
-        case 'RelayLiveResolver':
+        case 'RelayLiveResolver': {
           if (!this._useExecTimeResolvers) {
             this._normalizeResolver(selection, record, data);
-          } else if (selection.resolverInfo?.rootFragment != null) {
+            break;
+          }
+          const rootFragment = selection.resolverInfo?.rootFragment;
+          if (rootFragment != null) {
+            this._normalizeResolverRootFragment(
+              rootFragment,
+              selection.args,
+              record,
+              data,
+            );
             this._collectS2CExecution(selection, record);
           }
           break;
+        }
         case 'ClientEdgeToClientObject':
-        case 'ClientEdgeToServerObject':
+        case 'ClientEdgeToServerObject': {
           // Both variants share the same shape (linkedField, backingField,
           // resolverInfo) for the purposes of normalization. C2S edges are
           // only intended for the exec-time path (compiler enforces it), so
@@ -359,12 +371,21 @@ class RelayResponseNormalizer {
           // reaches it without exec-time resolvers enabled.
           if (!this._useExecTimeResolvers) {
             this._normalizeResolver(selection.backingField, record, data);
-          } else if (
-            selection.backingField.resolverInfo?.rootFragment != null
-          ) {
+            break;
+          }
+          const edgeRootFragment =
+            selection.backingField.resolverInfo?.rootFragment;
+          if (edgeRootFragment != null) {
+            this._normalizeResolverRootFragment(
+              edgeRootFragment,
+              selection.backingField.args,
+              record,
+              data,
+            );
             this._collectS2CExecution(selection, record);
           }
           break;
+        }
         default:
           selection as empty;
           invariant(
@@ -427,6 +448,41 @@ class RelayResponseNormalizer {
   ) {
     if (resolver.fragment != null) {
       this._normalizeInlineFragment(resolver.fragment, record, data);
+    }
+  }
+
+  /**
+   * The exec-time counterpart of `_normalizeResolver`. A resolver's root
+   * fragment is spread into the operation text, so the server sends its fields,
+   * but it rides the artifact as a SplitOperation hanging off `resolverInfo`
+   * rather than as sibling selections — so only an explicit descent writes it
+   * to the store. Without this the field arrives in the response and is
+   * dropped, and the exec-time projection has nothing to copy.
+   *
+   * `hasServerField` is set by the compiler on the split operation. An
+   * identity-only or client-only root fragment — the overwhelming majority —
+   * therefore costs one property read and no traversal.
+   *
+   * The split operation is written against the root fragment's own
+   * `@argumentDefinitions` (e.g. `nodes(ids: $ids)`), which the operation need
+   * not declare, so it is walked in the fragment's scope, bound from the
+   * resolver field's arguments — as a `FragmentSpread` is.
+   */
+  _normalizeResolverRootFragment(
+    rootFragment: NormalizationSplitOperation,
+    args: ?ReadonlyArray<NormalizationArgument>,
+    record: Record,
+    data: PayloadData,
+  ): void {
+    if (rootFragment.metadata?.hasServerField === true) {
+      const prevVariables = this._variables;
+      this._variables = getLocalVariables(
+        this._variables,
+        rootFragment.argumentDefinitions,
+        args,
+      );
+      this._traverseSelections(rootFragment, record, data);
+      this._variables = prevVariables;
     }
   }
 

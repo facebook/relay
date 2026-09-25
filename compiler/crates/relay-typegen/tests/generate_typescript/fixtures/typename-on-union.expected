@@ -243,6 +243,14 @@ export type TypenameOutside$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameOutsideWithAbstractType$data = {
+  readonly __typename: "Page";
+  readonly address: {
+    readonly city: string | null | undefined;
+    readonly country: string | null | undefined;
+  } | null | undefined;
+  readonly username: string | null | undefined;
+  readonly " $fragmentType": "TypenameOutsideWithAbstractType";
+} | {
   readonly __typename: "User";
   readonly address: {
     readonly city: string | null | undefined;
@@ -250,7 +258,7 @@ export type TypenameOutsideWithAbstractType$data = {
     readonly street: string | null | undefined;
   } | null | undefined;
   readonly firstName: string | null | undefined;
-  readonly username?: string | null | undefined;
+  readonly username: string | null | undefined;
   readonly " $fragmentType": "TypenameOutsideWithAbstractType";
 } | {
   // This will never be '%other', but we need some

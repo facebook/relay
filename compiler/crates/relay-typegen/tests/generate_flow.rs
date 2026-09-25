@@ -54,6 +54,7 @@ fn typename_discriminated_unions_flag(fixture: &Fixture<'_>) -> FeatureFlag {
             .into_iter()
             .collect(),
         },
+        "typename-abstract-discriminated-unions-disabled.graphql" => FeatureFlag::Disabled,
         _ => FeatureFlag::Enabled,
     }
 }

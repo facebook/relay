@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a46b8f848154033fc229f3eb939f6879>>
+ * @generated SignedSource<<67e1f818a897c43498d26b65f5031987>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -26,7 +26,7 @@ export type validateMutationTestIsNodeInlineFragmentMutation$variables = {
 export type validateMutationTestIsNodeInlineFragmentMutation$data = {
   readonly feedbackLike: ?{
     readonly feedback: ?{
-      readonly name?: ?string,
+      readonly name: ?string,
     },
   },
 };

@@ -13,7 +13,7 @@ export type ExampleQuery$variables = {};
 export type ExampleQuery$data = {
   readonly story: ?{
     readonly __typename: "Story",
-    readonly id?: string,
+    readonly id: string,
     readonly url: ?string,
   },
 };

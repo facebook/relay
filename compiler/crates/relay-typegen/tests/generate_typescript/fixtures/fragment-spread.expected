@@ -91,6 +91,18 @@ export type FragmentSpread$data = {
   readonly " $fragmentSpreads": FragmentRefs<"OtherFragment">;
   readonly " $fragmentType": "FragmentSpread";
 } | {
+  readonly __typename: "Bicycle" | "Comment" | "Feedback" | "FetchableType" | "Page" | "PhotoStory" | "Story";
+  readonly fragAndField: {
+    readonly uri: string | null | undefined;
+    readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
+  } | null | undefined;
+  readonly id: string;
+  readonly justFrag: {
+    readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
+  } | null | undefined;
+  readonly " $fragmentSpreads": FragmentRefs<"OtherFragment">;
+  readonly " $fragmentType": "FragmentSpread";
+} | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   readonly __typename: "%other";

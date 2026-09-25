@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<53cb8af2867fdd46790b16734728f8d1>>
+ * @generated SignedSource<<085d6bad8b67bc381728bacb347c9e9f>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,7 +25,7 @@ export type DataCheckerTest14Fragment$data = {
       readonly client_friend_edge_field: ?string,
       readonly cursor: ?string,
       readonly node: ?{
-        readonly client_actor_field?: ?string,
+        readonly client_actor_field: ?string,
         readonly client_foo: ?{
           readonly client_name: ?string,
           readonly profile_picture: ?{
@@ -33,7 +33,7 @@ export type DataCheckerTest14Fragment$data = {
           },
         },
         readonly id: string,
-        readonly profilePicture?: ?{
+        readonly profilePicture: ?{
           readonly height: ?number,
           readonly uri: ?string,
           readonly width: ?number,

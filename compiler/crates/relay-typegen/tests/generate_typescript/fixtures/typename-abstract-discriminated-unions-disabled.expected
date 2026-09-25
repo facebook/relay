@@ -1,0 +1,318 @@
+==================================== INPUT ====================================
+fragment RedundantAbstractSupertypesOnConcrete on User {
+  __typename
+  id
+
+  ... on Actor {
+    actorType: __typename
+
+    ... on Named {
+      namedType: __typename
+      name
+    }
+  }
+}
+
+fragment AbstractConcreteMixedInline on Actor {
+  __typename
+  id
+  ... on Named { name }
+  ... on User { firstName }
+  ... on Page { subscribeStatus }
+}
+
+fragment SingleConcreteWithTypename on Actor {
+  __typename
+  ... on User {
+    firstName
+  }
+}
+
+fragment SingleConcreteWithoutBaseFields on Actor {
+  ... on User {
+    __typename
+    firstName
+  }
+}
+
+
+fragment TypenameOnlyOnAbstract on Actor {
+  __typename
+}
+
+fragment SingleConcreteTypenameOnly on Actor {
+  __typename
+  ... on User {
+    userType: __typename
+  }
+}
+
+fragment AbstractConcreteMixed on Actor {
+  __typename
+  id
+  ... on Named {
+    name
+  }
+  ... on Page {
+    subscribeStatus
+  }
+}
+
+fragment AbstractSignatureGrouping on Actor {
+  __typename
+  id
+  ... on VideoLike {
+    canPlay
+  }
+}
+
+fragment NestedAbstractIntersection on Actor {
+  __typename
+  id
+  ... on Named {
+    name
+    ... on VideoLike {
+      canPlay
+    }
+  }
+}
+
+fragment AbstractFragmentSpread on Actor {
+  __typename
+  id
+  ...AbstractUnionNamedFragment @dangerously_unaliased_fixme
+  ... on Page {
+    subscribeStatus
+  }
+}
+
+query ConditionalLinkedFieldMerge($condition: Boolean!) {
+  node(id: "4") {
+    __typename
+    ... on VideoLike {
+      ... on User {
+        address @include(if: $condition) {
+          street
+        }
+      }
+    }
+    ... on Named {
+      ... on User {
+        address {
+          country
+        }
+      }
+    }
+  }
+}
+
+fragment AbstractTypenameAliasGrouping on Actor {
+  __typename
+  ... on VideoLike {
+    kind: __typename
+  }
+}
+
+fragment AbstractUnionNamedFragment on Named {
+  name
+}
+
+%extensions%
+
+interface VideoLike {
+  canPlay: Boolean
+}
+
+extend type User implements VideoLike {
+  canPlay: Boolean
+}
+
+extend type Page implements VideoLike {
+  canPlay: Boolean
+}
+
+type AbstractUnionActorOnly implements Actor {
+  id: ID!
+}
+==================================== OUTPUT ===================================
+export type ConditionalLinkedFieldMerge$variables = {
+  condition: boolean;
+};
+export type ConditionalLinkedFieldMerge$data = {
+  readonly node: {
+    readonly __typename: "User";
+    readonly address?: {
+      readonly country?: string | null | undefined;
+      readonly street?: string | null | undefined;
+    } | null | undefined;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
+  } | null | undefined;
+};
+export type ConditionalLinkedFieldMerge = {
+  response: ConditionalLinkedFieldMerge$data;
+  variables: ConditionalLinkedFieldMerge$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type AbstractConcreteMixed$data = {
+  readonly __typename: string;
+  readonly id: string;
+  readonly name?: string | null | undefined;
+  readonly subscribeStatus?: string | null | undefined;
+  readonly " $fragmentType": "AbstractConcreteMixed";
+};
+export type AbstractConcreteMixed$key = {
+  readonly " $data"?: AbstractConcreteMixed$data;
+  readonly " $fragmentSpreads": FragmentRefs<"AbstractConcreteMixed">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type AbstractConcreteMixedInline$data = {
+  readonly __typename: string;
+  readonly firstName?: string | null | undefined;
+  readonly id: string;
+  readonly name?: string | null | undefined;
+  readonly subscribeStatus?: string | null | undefined;
+  readonly " $fragmentType": "AbstractConcreteMixedInline";
+};
+export type AbstractConcreteMixedInline$key = {
+  readonly " $data"?: AbstractConcreteMixedInline$data;
+  readonly " $fragmentSpreads": FragmentRefs<"AbstractConcreteMixedInline">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type AbstractFragmentSpread$data = {
+  readonly __typename: string;
+  readonly id: string;
+  readonly subscribeStatus?: string | null | undefined;
+  readonly " $fragmentSpreads": FragmentRefs<"AbstractUnionNamedFragment">;
+  readonly " $fragmentType": "AbstractFragmentSpread";
+};
+export type AbstractFragmentSpread$key = {
+  readonly " $data"?: AbstractFragmentSpread$data;
+  readonly " $fragmentSpreads": FragmentRefs<"AbstractFragmentSpread">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type AbstractSignatureGrouping$data = {
+  readonly __typename: string;
+  readonly canPlay?: boolean | null | undefined;
+  readonly id: string;
+  readonly " $fragmentType": "AbstractSignatureGrouping";
+};
+export type AbstractSignatureGrouping$key = {
+  readonly " $data"?: AbstractSignatureGrouping$data;
+  readonly " $fragmentSpreads": FragmentRefs<"AbstractSignatureGrouping">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type AbstractTypenameAliasGrouping$data = {
+  readonly __typename: string;
+  readonly kind?: string;
+  readonly " $fragmentType": "AbstractTypenameAliasGrouping";
+};
+export type AbstractTypenameAliasGrouping$key = {
+  readonly " $data"?: AbstractTypenameAliasGrouping$data;
+  readonly " $fragmentSpreads": FragmentRefs<"AbstractTypenameAliasGrouping">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type AbstractUnionNamedFragment$data = {
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "AbstractUnionNamedFragment";
+};
+export type AbstractUnionNamedFragment$key = {
+  readonly " $data"?: AbstractUnionNamedFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"AbstractUnionNamedFragment">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type NestedAbstractIntersection$data = {
+  readonly __typename: string;
+  readonly canPlay?: boolean | null | undefined;
+  readonly id: string;
+  readonly name?: string | null | undefined;
+  readonly " $fragmentType": "NestedAbstractIntersection";
+};
+export type NestedAbstractIntersection$key = {
+  readonly " $data"?: NestedAbstractIntersection$data;
+  readonly " $fragmentSpreads": FragmentRefs<"NestedAbstractIntersection">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type RedundantAbstractSupertypesOnConcrete$data = {
+  readonly __typename: "User";
+  readonly actorType: "User";
+  readonly id: string;
+  readonly name: string | null | undefined;
+  readonly namedType: "User";
+  readonly " $fragmentType": "RedundantAbstractSupertypesOnConcrete";
+};
+export type RedundantAbstractSupertypesOnConcrete$key = {
+  readonly " $data"?: RedundantAbstractSupertypesOnConcrete$data;
+  readonly " $fragmentSpreads": FragmentRefs<"RedundantAbstractSupertypesOnConcrete">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type SingleConcreteTypenameOnly$data = {
+  readonly __typename: "User";
+  readonly userType: "User";
+  readonly " $fragmentType": "SingleConcreteTypenameOnly";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly userType: "%other";
+  readonly " $fragmentType": "SingleConcreteTypenameOnly";
+};
+export type SingleConcreteTypenameOnly$key = {
+  readonly " $data"?: SingleConcreteTypenameOnly$data;
+  readonly " $fragmentSpreads": FragmentRefs<"SingleConcreteTypenameOnly">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type SingleConcreteWithTypename$data = {
+  readonly __typename: "User";
+  readonly firstName: string | null | undefined;
+  readonly " $fragmentType": "SingleConcreteWithTypename";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly " $fragmentType": "SingleConcreteWithTypename";
+};
+export type SingleConcreteWithTypename$key = {
+  readonly " $data"?: SingleConcreteWithTypename$data;
+  readonly " $fragmentSpreads": FragmentRefs<"SingleConcreteWithTypename">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type SingleConcreteWithoutBaseFields$data = {
+  readonly __typename: "User";
+  readonly firstName: string | null | undefined;
+  readonly " $fragmentType": "SingleConcreteWithoutBaseFields";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly " $fragmentType": "SingleConcreteWithoutBaseFields";
+};
+export type SingleConcreteWithoutBaseFields$key = {
+  readonly " $data"?: SingleConcreteWithoutBaseFields$data;
+  readonly " $fragmentSpreads": FragmentRefs<"SingleConcreteWithoutBaseFields">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnlyOnAbstract$data = {
+  readonly __typename: string;
+  readonly " $fragmentType": "TypenameOnlyOnAbstract";
+};
+export type TypenameOnlyOnAbstract$key = {
+  readonly " $data"?: TypenameOnlyOnAbstract$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnlyOnAbstract">;
+};

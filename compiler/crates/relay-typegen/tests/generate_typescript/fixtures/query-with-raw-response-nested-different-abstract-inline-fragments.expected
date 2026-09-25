@@ -28,14 +28,13 @@ export type ExampleQuery$data = {
   readonly maybeNode: {
     readonly __typename: "NonNodeNoID";
     readonly name: string | null | undefined;
-    readonly tracking?: string | null | undefined;
   } | {
     readonly __typename: "Story";
     readonly body: {
       readonly text: string | null | undefined;
     } | null | undefined;
-    readonly name?: string | null | undefined;
-    readonly tracking?: string | null | undefined;
+    readonly name: string | null | undefined;
+    readonly tracking: string | null | undefined;
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.

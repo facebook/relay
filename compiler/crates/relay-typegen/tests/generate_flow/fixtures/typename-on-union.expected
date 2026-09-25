@@ -258,6 +258,14 @@ export type TypenameOutside$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutsideWithAbstractType$fragmentType: FragmentType;
 export type TypenameOutsideWithAbstractType$data = {
+  readonly __typename: "Page",
+  readonly address: ?{
+    readonly city: ?string,
+    readonly country: ?string,
+  },
+  readonly username: ?string,
+  readonly $fragmentType: TypenameOutsideWithAbstractType$fragmentType,
+} | {
   readonly __typename: "User",
   readonly address: ?{
     readonly city: ?string,
@@ -265,7 +273,7 @@ export type TypenameOutsideWithAbstractType$data = {
     readonly street: ?string,
   },
   readonly firstName: ?string,
-  readonly username?: ?string,
+  readonly username: ?string,
   readonly $fragmentType: TypenameOutsideWithAbstractType$fragmentType,
 } | {
   // This will never be '%other', but we need some

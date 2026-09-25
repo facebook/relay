@@ -67,12 +67,21 @@ fragment SomeFragment on User {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragment$fragmentType: FragmentType;
 export type InlineFragment$data = {
+  readonly __typename: "Page",
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: InlineFragment$fragmentType,
+} | {
   readonly __typename: "User",
   readonly id: string,
   readonly message: ?{
     readonly text: ?string,
   },
-  readonly name?: ?string,
+  readonly name: ?string,
+  readonly $fragmentType: InlineFragment$fragmentType,
+} | {
+  readonly __typename: "Bicycle" | "Comment" | "Feedback" | "FetchableType" | "PhotoStory" | "Story",
+  readonly id: string,
   readonly $fragmentType: InlineFragment$fragmentType,
 } | {
   // This will never be '%other', but we need some

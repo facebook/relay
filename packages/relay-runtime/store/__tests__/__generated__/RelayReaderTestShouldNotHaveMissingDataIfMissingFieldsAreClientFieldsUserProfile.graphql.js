@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f7ba4612b938328ca470409de44dc149>>
+ * @generated SignedSource<<c77cc2aba400b33eaaa50aafd1bbf55d>>
  * @flow
  * @lightSyntaxTransform
  */
@@ -25,9 +25,9 @@ export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientField
       readonly client_friend_edge_field: ?string,
       readonly cursor: ?string,
       readonly node: ?{
-        readonly client_actor_field?: ?string,
+        readonly client_actor_field: ?string,
         readonly id: string,
-        readonly profilePicture?: ?{
+        readonly profilePicture: ?{
           readonly height: ?number,
           readonly uri: ?string,
           readonly width: ?number,

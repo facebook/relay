@@ -782,14 +782,14 @@ enum MagicFragmentInlineFragmentArm {
     Incompatible,
 }
 
-impl<'program> Transformer<'program> for RelayResolverSpreadTransform<'program> {
+impl<'ir> Transformer<'ir> for RelayResolverSpreadTransform<'_> {
     const NAME: &'static str = "RelayResolversSpreadTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_selections(
         &mut self,
-        selections: &'program [Selection],
+        selections: &'ir [Selection],
     ) -> TransformedValue<Vec<Selection>> {
         // Lazy strategy mirroring the base `Transformer::transform_list`: keep
         // `next_selections` as `None` until a change is actually produced, then
@@ -834,6 +834,14 @@ impl<'program> Transformer<'program> for RelayResolverSpreadTransform<'program> 
                 // top-level selection wrapping the shadowed field's ancestor
                 // chain), spliced as a sibling so it normalizes into the
                 // consumer operation alongside the generic root-fragment spread.
+                // It copies the consumer's selections unlowered, so it gets the
+                // visit every other selection gets: without it, a resolver on the
+                // shadowed server type stays a bare client extension, which exec
+                // time never computes and whose root fragment read time never
+                // fetches.
+                let transplant = self
+                    .transform_selections(&transplant)
+                    .replace_or_else(|| transplant);
                 next.extend(transplant);
                 continue;
             }
@@ -866,7 +874,7 @@ impl<'program> Transformer<'program> for RelayResolverSpreadTransform<'program> 
         }
     }
 
-    fn transform_linked_field(&mut self, field: &'program LinkedField) -> Transformed<Selection> {
+    fn transform_linked_field(&mut self, field: &'ir LinkedField) -> Transformed<Selection> {
         match self.transformed_field(field) {
             Some(selection) => Transformed::Replace(selection),
             None => self.default_transform_linked_field(field),
@@ -875,7 +883,7 @@ impl<'program> Transformer<'program> for RelayResolverSpreadTransform<'program> 
 
     fn transform_inline_fragment(
         &mut self,
-        fragment: &'program graphql_ir::InlineFragment,
+        fragment: &'ir graphql_ir::InlineFragment,
     ) -> Transformed<Selection> {
         match ClientEdgeMetadata::find(fragment) {
             Some(client_edge_metadata) => {

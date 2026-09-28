@@ -1,0 +1,89 @@
+//- UserCombinedPage.js
+// A magic fragment whose consumer selects an interface field that the SERVER arm
+// implements with a client edge (`Page.owner`, a resolver returning the
+// `PageOwner` model).
+//
+// The transplant onto `page` must carry that edge as a `ClientEdgeToClientObject`
+// whose backing field is the `owner` resolver, as the edge's own linked field
+// does. That puts `...PageOwnerEdgeResolverFragment` into the operation text and
+// gives exec time a resolver node to collect for each server record.
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- ClientPageResolver.js
+/**
+ * @relayType ClientPage implements IPage
+ */
+export function ClientPage() {}
+
+//- PageOwnerResolver.js
+/**
+ * @relayType PageOwner
+ */
+export function PageOwner() {}
+
+//- PageOwnerNameResolver.js
+/**
+ * @relayField PageOwner.display_name: String
+ */
+export function display_name() {}
+
+//- PageOwnerEdgeResolver.js
+/**
+ * @relayField Page.owner: PageOwner
+ * @rootFragment PageOwnerEdgeResolverFragment
+ */
+graphql`fragment PageOwnerEdgeResolverFragment on Page {
+  id
+}`
+
+//- ClientPageOwnerResolver.js
+/**
+ * @relayField ClientPage.owner: PageOwner
+ */
+export function owner() {}
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      owner {
+        display_name
+      }
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  owner: PageOwner
+}
+
+extend type Page implements IPage

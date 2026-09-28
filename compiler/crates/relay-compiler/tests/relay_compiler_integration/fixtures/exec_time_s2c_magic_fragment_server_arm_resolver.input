@@ -1,0 +1,87 @@
+//- UserCombinedPage.js
+// A magic fragment whose consumer selects an interface field that the SERVER arm
+// implements with a server-to-client resolver (`Page.label`), next to a plain
+// server field (`title`).
+//
+// The server arm's selections are transplanted onto the shadowed field `page`,
+// and `label` must arrive there as a `RelayResolver` carrying its root fragment,
+// not as a bare `ClientExtension` scalar. The normalizer collects S2C executions
+// only from the selections it walks against the payload, and it never walks the
+// edge's `linkedField`, so the transplant is the one place the resolver can be
+// found. The operation text therefore also carries the root fragment's
+// `page_id: id` under the transplanted `page`.
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- ClientPageResolver.js
+/**
+ * @relayType ClientPage implements IPage
+ */
+export function ClientPage() {}
+
+//- ClientPageTitleResolver.js
+/**
+ * @relayField ClientPage.title: String
+ */
+export function title() {}
+
+//- ClientPageLabelResolver.js
+/**
+ * @relayField ClientPage.label: String
+ */
+export function label() {}
+
+//- PageLabelResolver.js
+/**
+ * @relayField Page.label: String
+ * @rootFragment PageLabelResolverFragment
+ */
+graphql`fragment PageLabelResolverFragment on Page {
+  page_id: id
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery @exec_time_resolvers {
+  me {
+    combined_page {
+      title
+      label
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+  label: String
+}
+
+extend type Page implements IPage

@@ -1,0 +1,84 @@
+//- UserCombinedPage.js
+// The read-time counterpart of `exec_time_s2c_magic_fragment_server_arm_resolver`:
+// the SERVER arm implements the interface field `label` with a resolver whose
+// root fragment reads `url`, a server field the consumer never selects.
+//
+// At read time the reader evaluates `label` off the server record through that
+// root fragment. A magic fragment has no refetch operation, so the transplant
+// onto `page` is the only place the operation can ask the server for `url`: the
+// transplant must carry `label` as a `RelayResolver`, which puts
+// `...PageLabelResolverFragment` into the operation text.
+/**
+ * @relayField User.combined_page: IPage
+ * @rootFragment UserCombinedPageResolverFragment
+ * @returnFragment UserCombinedPageReturnFragment
+ */
+graphql`fragment UserCombinedPageResolverFragment on User {
+  page {
+    ...UserCombinedPageReturnFragment
+  }
+}`
+
+//- ClientPageResolver.js
+/**
+ * @relayType ClientPage implements IPage
+ */
+export function ClientPage() {}
+
+//- ClientPageTitleResolver.js
+/**
+ * @relayField ClientPage.title: String
+ */
+export function title() {}
+
+//- ClientPageLabelResolver.js
+/**
+ * @relayField ClientPage.label: String
+ */
+export function label() {}
+
+//- PageLabelResolver.js
+/**
+ * @relayField Page.label: String
+ * @rootFragment PageLabelResolverFragment
+ */
+graphql`fragment PageLabelResolverFragment on Page {
+  url
+}`
+
+//- UserConsumer.js
+graphql`query UserConsumerQuery {
+  me {
+    combined_page {
+      title
+      label
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" },
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String, url: String }
+
+//- schema-extensions/extension.graphql
+interface IPage implements Node {
+  id: ID!
+  title: String
+  label: String
+}
+
+extend type Page implements IPage

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ebb5c739dabfb6a1b8181dca7190abb9>>
+ * @generated SignedSource<<3c48ca99b7444ba68f5197d1a80e1ad8>>
  */
 
 mod relay_compiler_integration;
@@ -346,6 +346,13 @@ async fn exec_time_s2c_magic_fragment_rejects_inner_sibling_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_rejects_inner_sibling.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_rejects_inner_sibling.invalid.expected");
     test_fixture(transform_fixture, file!(), "exec_time_s2c_magic_fragment_rejects_inner_sibling.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_rejects_inner_sibling.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_magic_fragment_server_arm_resolver() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_server_arm_resolver.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_server_arm_resolver.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_magic_fragment_server_arm_resolver.input", "relay_compiler_integration/fixtures/exec_time_s2c_magic_fragment_server_arm_resolver.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -1368,6 +1375,20 @@ async fn shadow_resolver_magic_fragment_plural_waterfall_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_plural_waterfall.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_plural_waterfall.invalid.expected");
     test_fixture(transform_fixture, file!(), "shadow_resolver_magic_fragment_plural_waterfall.invalid.input", "relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_plural_waterfall.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn shadow_resolver_magic_fragment_server_arm_client_edge() {
+    let input = include_str!("relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_server_arm_client_edge.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_server_arm_client_edge.expected");
+    test_fixture(transform_fixture, file!(), "shadow_resolver_magic_fragment_server_arm_client_edge.input", "relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_server_arm_client_edge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn shadow_resolver_magic_fragment_server_arm_resolver() {
+    let input = include_str!("relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_server_arm_resolver.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_server_arm_resolver.expected");
+    test_fixture(transform_fixture, file!(), "shadow_resolver_magic_fragment_server_arm_resolver.input", "relay_compiler_integration/fixtures/shadow_resolver_magic_fragment_server_arm_resolver.expected", input, expected).await;
 }
 
 #[tokio::test]

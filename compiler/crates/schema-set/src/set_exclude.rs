@@ -183,7 +183,7 @@ impl SetExclude for SetDirective {
                 other
                     .locations
                     .iter()
-                    .any(|other_loc| *this_loc == other_loc)
+                    .all(|other_loc| *this_loc != other_loc)
             })
             .cloned()
             .collect();

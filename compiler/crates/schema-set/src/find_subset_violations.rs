@@ -912,6 +912,20 @@ mod tests {
     }
 
     // ───────────────────────────────────────────────────────────────
+    // Directive locations
+    // ───────────────────────────────────────────────────────────────
+
+    #[test]
+    fn test_directive_location_removed() {
+        let v = violations("directive @d on FIELD", "directive @d on QUERY");
+        assert_eq!(v.len(), 1);
+        assert_eq!(
+            v[0].violation_type,
+            SubsetViolationType::DirectiveLocationRemoved,
+        );
+    }
+
+    // ───────────────────────────────────────────────────────────────
     // Field additions/removals
     // ───────────────────────────────────────────────────────────────
 

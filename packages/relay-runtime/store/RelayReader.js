@@ -1865,6 +1865,19 @@ class RelayReader {
         : null;
 
     if (implementsInterface == null) {
+      // The compiler lists every implementor of a client abstract type in the
+      // operation's `clientAbstractTypes`, so a listed type implements it even
+      // when no type record answers: `check()` writes none for an operation
+      // not written since `invalidateStore()`, and GC collects it once no
+      // retained operation references it. An unlisted type stays unknown,
+      // because nothing guarantees the owner was compiled with this fragment.
+      if (
+        this._owner.node.operation.clientAbstractTypes?.[abstractKey]?.includes(
+          typeName,
+        ) === true
+      ) {
+        return true;
+      }
       // In some cases, like a graph relationship change, we might have never
       // fetched the `__is[AbstractType]` flag for this concrete type. In this
       // case we need to report that we are missing data, in case that field is

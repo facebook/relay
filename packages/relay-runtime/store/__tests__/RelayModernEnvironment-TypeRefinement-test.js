@@ -10,7 +10,7 @@
  */
 
 'use strict';
-import type {Snapshot} from '../RelayStoreTypes';
+import type {RequestDescriptor, Snapshot} from '../RelayStoreTypes';
 import type {
   RelayModernEnvironmentTypeRefinementTest1Query$data,
   RelayModernEnvironmentTypeRefinementTest1Query$variables,
@@ -48,7 +48,10 @@ const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {getSingularSelector} = require('../RelayModernSelector');
+const {
+  createReaderSelector,
+  getSingularSelector,
+} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
@@ -1920,6 +1923,40 @@ describe('missing data detection', () => {
   });
 
   describe('Abstract types defined in client schema extension', () => {
+    function commitClientInterfaceRecord(
+      description: ?string = 'My Description',
+    ) {
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'OtherClientTypeImplementingClientInterface',
+        );
+        clientObj.setValue('4', 'id');
+        if (description != null) {
+          clientObj.setValue(description, 'description');
+        }
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+    }
+
+    function readClientInterfaceFragment(owner: RequestDescriptor) {
+      const snapshot = environment.lookup(
+        createReaderSelector(AbstractClientInterfaceFragment, '4', {}, owner),
+      );
+      return {
+        data: snapshot.data,
+        fieldErrors: snapshot.fieldErrors,
+        isMissingData: snapshot.isMissingData,
+      };
+    }
+
+    const CLEAN_READ = {
+      data: {description: 'My Description'},
+      fieldErrors: null,
+      isMissingData: false,
+    };
+
     it('retains client abstract type metadata while the operation is retained', () => {
       const source = RelayRecordSource.create();
       const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
@@ -2024,6 +2061,115 @@ describe('missing data detection', () => {
         description: 'My Description',
       });
       expect(fragmentSnapshot.isMissingData).toBe(false);
+    });
+
+    it('reads a client abstract type after invalidateStore() makes check() stale', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      commitClientInterfaceRecord();
+      environment.commitUpdate(store => {
+        store.invalidateStore();
+      });
+      expect(environment.check(operation)).toEqual({status: 'stale'});
+
+      expect(readClientInterfaceFragment(operation.request)).toEqual(
+        CLEAN_READ,
+      );
+    });
+
+    it('reads a client abstract type whose type record is gone after invalidateStore()', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      const typeID = generateTypeID(
+        'OtherClientTypeImplementingClientInterface',
+      );
+      commitClientInterfaceRecord();
+      // A writer recorded the type, then the record is deleted: like a GC
+      // sweep, that leaves the reader no answer.
+      environment.commitUpdate(store => {
+        store
+          .create(typeID, TYPE_SCHEMA_TYPE)
+          .setValue(true, '__isClientInterface');
+      });
+      environment.commitUpdate(store => {
+        store.delete(typeID);
+        store.invalidateStore();
+      });
+      expect(environment.getStore().getSource().get(typeID)).toBe(null);
+      expect(environment.check(operation)).toEqual({status: 'stale'});
+
+      expect(readClientInterfaceFragment(operation.request)).toEqual(
+        CLEAN_READ,
+      );
+    });
+
+    // Regression guard: it passes with or without the owner fallback. A reader
+    // whose owner does not list the type relies on the type record that
+    // another operation's check() wrote.
+    it('reads through an owner that does not list the type, after another operation wrote the type record', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      commitClientInterfaceRecord();
+      environment.check(operation);
+      const typeID = generateTypeID(
+        'OtherClientTypeImplementingClientInterface',
+      );
+      expect(environment.getStore().getSource().get(typeID)).toEqual({
+        __id: typeID,
+        __isClientInterface: true,
+        __typename: TYPE_SCHEMA_TYPE,
+      });
+      expect(concreteOperation.request.node.operation.clientAbstractTypes).toBe(
+        undefined,
+      );
+
+      expect(readClientInterfaceFragment(concreteOperation.request)).toEqual(
+        CLEAN_READ,
+      );
+    });
+
+    // A type judged not to implement the fragment's type is still read, but
+    // its missing fields are not reported as field errors. So a missing field
+    // tells a listed type (reported) apart from a non-implementor (not
+    // reported). `description` is a client field, so it never sets
+    // `isMissingData`.
+    it('treats a type the owner lists as implementing the client interface', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      commitClientInterfaceRecord(null);
+      environment.commitUpdate(store => {
+        store.invalidateStore();
+      });
+
+      expect(readClientInterfaceFragment(operation.request)).toEqual({
+        data: {description: undefined},
+        fieldErrors: [
+          {
+            fieldPath: 'description',
+            kind: 'missing_expected_data.log',
+            owner: 'RelayModernEnvironmentTypeRefinementTestClientInterface',
+            uiContext: undefined,
+          },
+        ],
+        isMissingData: false,
+      });
+    });
+
+    // Regression guard: a recorded answer wins over the owner's list.
+    it('keeps a recorded negative answer over the owner list', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      commitClientInterfaceRecord(null);
+      environment.commitUpdate(store => {
+        store
+          .create(
+            generateTypeID('OtherClientTypeImplementingClientInterface'),
+            TYPE_SCHEMA_TYPE,
+          )
+          .setValue(false, '__isClientInterface');
+        store.invalidateStore();
+      });
+
+      expect(readClientInterfaceFragment(operation.request)).toEqual({
+        data: {description: undefined},
+        fieldErrors: null,
+        isMissingData: false,
+      });
     });
 
     it('knows when concrete types match abstract types by metadata attached to normalizaiton AST: check after commited payload', () => {

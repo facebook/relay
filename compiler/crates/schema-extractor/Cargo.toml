@@ -14,4 +14,4 @@ flow_parser = { git = "https://github.com/facebook/flow.git" }
 intern = { path = "../intern" }
 rustc-hash = "2.1.3"
 serde = { version = "1.0.229", features = ["derive", "rc"] }
-thiserror = "2.0.20"
+thiserror = "2.0.21"

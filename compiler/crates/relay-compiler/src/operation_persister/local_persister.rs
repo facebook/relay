@@ -91,7 +91,7 @@ impl OperationPersister for LocalPersister {
         Ok(operation_hash)
     }
 
-    fn finalize(&self) -> Result<(), PersistError> {
+    async fn finalize(&self) -> Result<(), PersistError> {
         let ordered: BTreeMap<_, _> = self
             .query_map
             .iter()

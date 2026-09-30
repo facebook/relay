@@ -32,6 +32,7 @@ pub const TEST_PERSIST_URL_PREFIX: &str = "relay-test://";
 pub struct CapturedPersistRequest {
     pub request: PersistRequest,
     pub persist_id: String,
+    pub previous_id: Option<String>,
 }
 
 pub struct MockPersister {
@@ -51,13 +52,25 @@ impl MockPersister {
 #[async_trait]
 impl OperationPersister for MockPersister {
     async fn persist_artifact(&self, artifact: ArtifactForPersister) -> PersistResult<PersistId> {
-        let mut hasher = Md5::new();
-        hasher.update(artifact.text.as_bytes());
-        let persist_id = hasher
-            .finalize()
-            .iter()
-            .map(|b| format!("{b:02x}"))
-            .collect::<String>();
+        self.persist_artifact_with_previous_id(artifact, None).await
+    }
+
+    async fn persist_artifact_with_previous_id(
+        &self,
+        artifact: ArtifactForPersister,
+        previous_id: Option<PersistId>,
+    ) -> PersistResult<PersistId> {
+        let persist_id = if let Some(previous_id) = &previous_id {
+            previous_id.clone()
+        } else {
+            let mut hasher = Md5::new();
+            hasher.update(artifact.text.as_bytes());
+            hasher
+                .finalize()
+                .iter()
+                .map(|b| format!("{b:02x}"))
+                .collect::<String>()
+        };
 
         // Assembled by the real persister's logic, so params the config adds
         // (notably `schema_text`) are captured rather than silently skipped.
@@ -74,6 +87,7 @@ impl OperationPersister for MockPersister {
             .push(CapturedPersistRequest {
                 request,
                 persist_id: persist_id.clone(),
+                previous_id,
             });
 
         Ok(persist_id)
@@ -121,6 +135,9 @@ pub fn serialize_captured_requests(requests: &[CapturedPersistRequest]) -> Strin
         }
 
         out.push_str(&format!("persist_id: {}\n", captured.persist_id));
+        if let Some(previous_id) = &captured.previous_id {
+            out.push_str(&format!("previous_id: {previous_id}\n"));
+        }
     }
 
     out

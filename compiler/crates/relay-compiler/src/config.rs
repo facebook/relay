@@ -44,6 +44,7 @@ use relay_config::JsModuleFormat;
 pub use relay_config::LocalPersistConfig;
 use relay_config::ModuleImportConfig;
 pub use relay_config::PersistConfig;
+pub use relay_config::ProcessPersistConfig;
 pub use relay_config::ProjectConfig;
 use relay_config::ProjectName;
 pub use relay_config::RemotePersistConfig;
@@ -1885,7 +1886,18 @@ pub struct ArtifactForPersister {
 pub trait OperationPersister {
     async fn persist_artifact(&self, artifact: ArtifactForPersister) -> PersistResult<PersistId>;
 
-    fn finalize(&self) -> PersistResult<()> {
+    async fn persist_artifact_with_previous_id(
+        &self,
+        artifact: ArtifactForPersister,
+        previous_id: Option<PersistId>,
+    ) -> PersistResult<PersistId> {
+        match previous_id {
+            Some(previous_id) => Ok(previous_id),
+            None => self.persist_artifact(artifact).await,
+        }
+    }
+
+    async fn finalize(&self) -> PersistResult<()> {
         Ok(())
     }
 }

@@ -140,10 +140,33 @@ pub struct LocalPersistConfig {
     pub include_query_text: bool,
 }
 
+/// Configuration for a persistent process that exchanges one JSON object per line.
+///
+/// For each operation, the compiler writes a request to the process's stdin:
+/// `{"type":"persist","text":"...","relativePath":"...","overrideSchema":null,"previousId":null}`.
+/// `text` is the GraphQL operation, and `relativePath` is its generated artifact path.
+/// `overrideSchema` and `previousId` are strings when available, otherwise `null`.
+/// The process writes `{"type":"persisted","id":"..."}` to stdout in reply.
+/// After all operations succeed, the compiler sends `{"type":"finalize"}` and
+/// expects `{"type":"finalized"}`. Each request receives one response line;
+/// process diagnostics should go to stderr rather than stdout.
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ProcessPersistConfig {
+    /// Executable to start directly, without a shell.
+    pub command: PathBuf,
+
+    /// Arguments passed to the executable.
+    #[serde(default)]
+    pub args: Vec<String>,
+}
+
 /// Configuration for how the Relay Compiler should persist GraphQL queries.
 #[derive(Debug, Serialize, Clone, JsonSchema)]
 #[serde(untagged)]
 pub enum PersistConfig {
+    /// This variant represents a persistent child process used for query persistence.
+    Process(ProcessPersistConfig),
     /// This variant represents a remote persistence configuration, where GraphQL queries are sent to a remote endpoint for persistence.
     Remote(RemotePersistConfig),
     /// This variant represents a local persistence configuration, where GraphQL queries are persisted to a local JSON file.
@@ -157,6 +180,7 @@ pub enum PersistConfig {
 impl PersistConfig {
     pub fn include_query_text(&self) -> bool {
         match self {
+            PersistConfig::Process(_) => false,
             PersistConfig::Remote(remote_config) => remote_config.include_query_text,
             PersistConfig::Local(local_config) => local_config.include_query_text,
         }
@@ -166,6 +190,7 @@ impl PersistConfig {
     /// Only the remote variant has anywhere to send it.
     pub fn include_schema_text(&self) -> bool {
         match self {
+            PersistConfig::Process(_) => false,
             PersistConfig::Remote(remote_config) => remote_config.include_schema_text,
             PersistConfig::Local(_) => false,
         }
@@ -175,34 +200,40 @@ impl PersistConfig {
 impl<'de> Deserialize<'de> for PersistConfig {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> std::result::Result<Self, D::Error> {
         let value = Value::deserialize(deserializer)?;
-        match RemotePersistConfig::deserialize(value.clone()) {
-            Ok(remote_config) => {
-                // Both would be sent, and which one the endpoint honors is
-                // unspecified. The parameter is ours to set when
-                // `includeSchemaText` is on, so a configured one is a mistake.
-                if remote_config.include_schema_text
-                    && remote_config.params.contains_key(SCHEMA_TEXT_PARAM)
-                {
-                    return Err(Error::custom(format!(
-                        "`persistConfig.params.{SCHEMA_TEXT_PARAM}` cannot be set together with `includeSchemaText`, which sends the project's schema under that same parameter. Remove one of them."
-                    )));
-                }
+        match ProcessPersistConfig::deserialize(value.clone()) {
+            Ok(process_config) => Ok(PersistConfig::Process(process_config)),
+            Err(process_error) => match RemotePersistConfig::deserialize(value.clone()) {
+                Ok(remote_config) => {
+                    // Both would be sent, and which one the endpoint honors is
+                    // unspecified. The parameter is ours to set when
+                    // `includeSchemaText` is on, so a configured one is a mistake.
+                    if remote_config.include_schema_text
+                        && remote_config.params.contains_key(SCHEMA_TEXT_PARAM)
+                    {
+                        return Err(Error::custom(format!(
+                            "`persistConfig.params.{SCHEMA_TEXT_PARAM}` cannot be set together with `includeSchemaText`, which sends the project's schema under that same parameter. Remove one of them."
+                        )));
+                    }
 
-                Ok(PersistConfig::Remote(remote_config))
-            }
-            Err(remote_error) => match LocalPersistConfig::deserialize(value) {
-                Ok(local_config) => Ok(PersistConfig::Local(local_config)),
-                Err(local_error) => {
-                    let error_message = format!(
-                        r#"Persist configuration cannot be parsed as a remote configuration due to:
+                    Ok(PersistConfig::Remote(remote_config))
+                }
+                Err(remote_error) => match LocalPersistConfig::deserialize(value) {
+                    Ok(local_config) => Ok(PersistConfig::Local(local_config)),
+                    Err(local_error) => {
+                        let error_message = format!(
+                            r#"Persist configuration cannot be parsed as a process configuration due to:
+- {process_error:?}.
+
+It also cannot be parsed as a remote configuration due to:
 - {remote_error:?}.
 
 It also cannot be a local persist configuration due to:
 - {local_error:?}."#
-                    );
+                        );
 
-                    Err(Error::custom(error_message))
-                }
+                        Err(Error::custom(error_message))
+                    }
+                },
             },
         }
     }
@@ -813,5 +844,31 @@ mod tests {
         )
         .unwrap();
         assert!(matches!(config, PersistConfig::Remote(_)), "got {config:?}");
+    }
+
+    #[test]
+    fn persist_config_with_command_is_a_process_config() {
+        let config = parse_persist_config(
+            r#"{"command": "/path/to/persister", "args": ["--mode", "relay"]}"#,
+        )
+        .expect("process config should parse");
+        match config {
+            PersistConfig::Process(process_config) => {
+                assert_eq!(process_config.command, PathBuf::from("/path/to/persister"));
+                assert_eq!(
+                    process_config.args,
+                    vec!["--mode".to_owned(), "relay".to_owned()]
+                );
+            }
+            other => panic!("expected a process config, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn process_persist_config_does_not_include_query_or_schema_text() {
+        let config = parse_persist_config(r#"{"command": "/path/to/persister"}"#)
+            .expect("process config should parse");
+        assert!(!config.include_query_text());
+        assert!(!config.include_schema_text());
     }
 }

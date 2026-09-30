@@ -33,6 +33,7 @@ pub use project_config::ExtraArtifactsConfig;
 pub use project_config::LocalPersistAlgorithm;
 pub use project_config::LocalPersistConfig;
 pub use project_config::PersistConfig;
+pub use project_config::ProcessPersistConfig;
 pub use project_config::ProjectConfig;
 pub use project_config::RemotePersistConfig;
 pub use project_config::SCHEMA_TEXT_PARAM;

@@ -31,6 +31,7 @@ use relay_compiler::LocalPersister;
 use relay_compiler::NoopArtifactWriter;
 use relay_compiler::OperationPersister;
 use relay_compiler::PersistConfig;
+use relay_compiler::ProcessPersister;
 use relay_compiler::ProjectName;
 use relay_compiler::RemotePersister;
 use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
@@ -402,7 +403,7 @@ fn get_config(config_path: Option<PathBuf>) -> Result<Config, Error> {
 }
 
 /// Wire up the OSS CLI's default config extensions: the standard operation
-/// persister (Remote/Local from `project_config.persist`) and the default
+/// persister (Process/Remote/Local from `project_config.persist`) and the default
 /// extra-artifacts generator. Used by every entry point that drives a real
 /// build.
 fn apply_default_cli_extensions(config: &mut Config) {
@@ -410,6 +411,9 @@ fn apply_default_cli_extensions(config: &mut Config) {
         project_config.persist.as_ref().map(
             |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
                 match persist_config {
+                    PersistConfig::Process(process_config) => {
+                        Box::new(ProcessPersister::new(process_config.clone()))
+                    }
                     PersistConfig::Remote(remote_config) => {
                         Box::new(RemotePersister::new(remote_config.clone()))
                     }

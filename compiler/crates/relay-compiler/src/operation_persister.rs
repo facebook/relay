@@ -6,8 +6,10 @@
  */
 
 mod local_persister;
+mod process_persister;
 mod remote_persister;
 
 pub use local_persister::LocalPersister;
+pub use process_persister::ProcessPersister;
 pub use remote_persister::RemotePersister;
 pub use remote_persister::persist_params;

@@ -26,6 +26,7 @@ use relay_compiler::FileSourceKind;
 use relay_compiler::FileSourceResult;
 use relay_compiler::LocalPersister;
 use relay_compiler::OperationPersister;
+use relay_compiler::ProcessPersister;
 use relay_compiler::RemotePersister;
 use relay_compiler::WalkDirFileSourceResult;
 use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
@@ -187,6 +188,9 @@ fn configure_test_config(
         project_config.persist.as_ref().map(
             |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
                 match persist_config {
+                    PersistConfig::Process(process_config) => {
+                        Box::new(ProcessPersister::new(process_config.clone()))
+                    }
                     PersistConfig::Remote(remote_config)
                         if remote_config
                             .url

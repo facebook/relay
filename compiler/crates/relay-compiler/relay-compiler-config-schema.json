@@ -1162,6 +1162,10 @@
       "description": "Configuration for how the Relay Compiler should persist GraphQL queries.",
       "anyOf": [
         {
+          "description": "This variant represents a persistent child process used for query persistence.",
+          "$ref": "#/$defs/ProcessPersistConfig"
+        },
+        {
           "description": "This variant represents a remote persistence configuration, where GraphQL queries are sent to a remote endpoint for persistence.",
           "$ref": "#/$defs/RemotePersistConfig"
         },
@@ -1169,6 +1173,28 @@
           "description": "This variant represents a local persistence configuration, where GraphQL queries are persisted to a local JSON file.\n\nWhen this variant is used, the compiler will attempt to read the local file as a hash map,\nadd new queries to the map, and then serialize and write the resulting map to the configured path.\nThe file (and any missing parent directories) is created if it does not already exist.",
           "$ref": "#/$defs/LocalPersistConfig"
         }
+      ]
+    },
+    "ProcessPersistConfig": {
+      "description": "Configuration for a persistent process that exchanges one JSON object per line.\n\nFor each operation, the compiler writes a request to the process's stdin:\n`{\"type\":\"persist\",\"text\":\"...\",\"relativePath\":\"...\",\"overrideSchema\":null,\"previousId\":null}`.\n`text` is the GraphQL operation, and `relativePath` is its generated artifact path.\n`overrideSchema` and `previousId` are strings when available, otherwise `null`.\nThe process writes `{\"type\":\"persisted\",\"id\":\"...\"}` to stdout in reply.\nAfter all operations succeed, the compiler sends `{\"type\":\"finalize\"}` and\nexpects `{\"type\":\"finalized\"}`. Each request receives one response line;\nprocess diagnostics should go to stderr rather than stdout.",
+      "type": "object",
+      "properties": {
+        "args": {
+          "description": "Arguments passed to the executable.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "command": {
+          "description": "Executable to start directly, without a shell.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "command"
       ]
     },
     "ProjectName": {

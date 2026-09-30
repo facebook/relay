@@ -68,13 +68,19 @@ function getSingularSelector(
   fragment: ReaderFragment,
   item: unknown,
 ): ?SingularReaderSelector {
-  invariant(
-    typeof item === 'object' && item !== null && !Array.isArray(item),
-    'RelayModernSelector: Expected value for fragment `%s` to be an object, got ' +
-      '`%s`.',
-    fragment.name,
-    JSON.stringify(item),
-  );
+  // The check is kept out of the `invariant()` call so that `JSON.stringify()`
+  // only runs when it actually fails: arguments are evaluated eagerly, and
+  // relying on a build transform to strip them would make this hot path slow
+  // wherever that transform is not applied.
+  if (typeof item !== 'object' || item === null || Array.isArray(item)) {
+    invariant(
+      false,
+      'RelayModernSelector: Expected value for fragment `%s` to be an object, got ' +
+        '`%s`.',
+      fragment.name,
+      JSON.stringify(item),
+    );
+  }
   const dataID = item[ID_KEY];
   const fragments = item[FRAGMENTS_KEY];
   const mixedOwner = item[FRAGMENT_OWNER_KEY];
@@ -172,24 +178,30 @@ function getSelector(
   if (item == null) {
     return item;
   } else if (fragment.metadata && fragment.metadata.plural === true) {
-    invariant(
-      Array.isArray(item),
-      'RelayModernSelector: Expected value for fragment `%s` to be an array, got `%s`. ' +
-        'Remove `@relay(plural: true)` from fragment `%s` to allow the prop to be an object.',
-      fragment.name,
-      JSON.stringify(item),
-      fragment.name,
-    );
+    // As in `getSingularSelector()`, the checks stay outside of `invariant()` so
+    // that valid inputs never pay for `JSON.stringify()`.
+    if (!Array.isArray(item)) {
+      invariant(
+        false,
+        'RelayModernSelector: Expected value for fragment `%s` to be an array, got `%s`. ' +
+          'Remove `@relay(plural: true)` from fragment `%s` to allow the prop to be an object.',
+        fragment.name,
+        JSON.stringify(item),
+        fragment.name,
+      );
+    }
     return getPluralSelector(fragment, item);
   } else {
-    invariant(
-      !Array.isArray(item),
-      'RelayModernSelector: Expected value for fragment `%s` to be an object, got `%s`. ' +
-        'Add `@relay(plural: true)` to fragment `%s` to allow the prop to be an array of items.',
-      fragment.name,
-      JSON.stringify(item),
-      fragment.name,
-    );
+    if (Array.isArray(item)) {
+      invariant(
+        false,
+        'RelayModernSelector: Expected value for fragment `%s` to be an object, got `%s`. ' +
+          'Add `@relay(plural: true)` to fragment `%s` to allow the prop to be an array of items.',
+        fragment.name,
+        JSON.stringify(item),
+        fragment.name,
+      );
+    }
     return getSingularSelector(fragment, item);
   }
 }

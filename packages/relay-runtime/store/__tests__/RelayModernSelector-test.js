@@ -25,6 +25,7 @@ const {
   createReaderSelector,
   getDataIDsFromObject,
   getPluralSelector,
+  getSelector,
   getSelectorsFromObject,
   getSingularSelector,
   getVariablesFromObject,
@@ -124,11 +125,23 @@ describe('RelayModernSelector', () => {
     };
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('getSingularSelector()', () => {
     it('throws for invalid inputs', () => {
       expect(() => getSingularSelector(UserFragment, 'zuck')).toThrowError(
         'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to ' +
           'be an object, got `"zuck"`.',
+      );
+      expect(() => getSingularSelector(UserFragment, 42)).toThrowError(
+        'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to ' +
+          'be an object, got `42`.',
+      );
+      expect(() => getSingularSelector(UserFragment, null)).toThrowError(
+        'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to ' +
+          'be an object, got `null`.',
       );
       expect(() => getSingularSelector(UserFragment, [zuck])).toThrowError(
         'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be an object, got ' +
@@ -164,6 +177,20 @@ describe('RelayModernSelector', () => {
       expect(selector?.owner).toBe(owner.request);
     });
 
+    it('does not serialize valid fragment references', () => {
+      const stringify = jest.spyOn(JSON, 'stringify');
+
+      expect(getSingularSelector(UserFragment, zuck)).toEqual(
+        createReaderSelector(
+          UserFragment,
+          '4',
+          variables,
+          operationDescriptor.request,
+        ),
+      );
+      expect(stringify).not.toHaveBeenCalled();
+    });
+
     it('uses variables from owner', () => {
       const queryNode = UserQuery;
       // Pass owner with different variables
@@ -187,6 +214,56 @@ describe('RelayModernSelector', () => {
         ),
       );
       expect(selector?.owner).toBe(owner.request);
+    });
+  });
+
+  describe('getSelector()', () => {
+    it('throws for invalid inputs', () => {
+      expect(() => getSelector(UsersFragment, zuck)).toThrowError(
+        'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUsersFragment` to be an array, got ' +
+          '`' +
+          JSON.stringify(zuck) +
+          '`. Remove `@relay(plural: true)` from fragment ' +
+          '`RelayModernSelectorTestUsersFragment` to allow the prop to be an object.',
+      );
+      expect(() => getSelector(UserFragment, [zuck])).toThrowError(
+        'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be an object, got ' +
+          '`' +
+          JSON.stringify([zuck]) +
+          '`. Add `@relay(plural: true)` to fragment ' +
+          '`RelayModernSelectorTestUserFragment` to allow the prop to be an array of items.',
+      );
+    });
+
+    it('does not serialize valid singular fragment references', () => {
+      const stringify = jest.spyOn(JSON, 'stringify');
+
+      expect(getSelector(UserFragment, zuck)).toEqual(
+        createReaderSelector(
+          UserFragment,
+          '4',
+          variables,
+          operationDescriptor.request,
+        ),
+      );
+      expect(stringify).not.toHaveBeenCalled();
+    });
+
+    it('does not serialize valid plural fragment references', () => {
+      const stringify = jest.spyOn(JSON, 'stringify');
+
+      expect(getSelector(UsersFragment, [zuck])).toEqual({
+        kind: 'PluralReaderSelector',
+        selectors: [
+          createReaderSelector(
+            UsersFragment,
+            '4',
+            variables,
+            operationDescriptor.request,
+          ),
+        ],
+      });
+      expect(stringify).not.toHaveBeenCalled();
     });
   });
 

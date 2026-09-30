@@ -55,7 +55,7 @@ intern = { path = "../intern" }
 js-config-loader = { path = "../js-config-loader" }
 log = { version = "0.4.34", features = ["kv_unstable", "kv_unstable_std"] }
 md-5 = "0.10"
-persist-query = { path = "../persist-query" }
+persist-query = { path = "../persist-query", features = ["exclude-http-diagnostics-tests"] }
 petgraph = { version = "0.8", features = ["serde-1"] }
 program-with-dependencies = { path = "../program-with-dependencies" }
 rayon = "1.11.0"

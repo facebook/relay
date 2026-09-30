@@ -20,5 +20,9 @@ serde_json = { version = "1.0.151", features = ["alloc", "float_roundtrip", "raw
 thiserror = "2.0.21"
 url = "2.5.8"
 
+[dev-dependencies]
+tokio = { version = "1.53.1", features = ["full", "test-util", "tracing"] }
+
 [features]
+exclude-http-diagnostics-tests = []
 vendored = ["hyper-tls/vendored"]

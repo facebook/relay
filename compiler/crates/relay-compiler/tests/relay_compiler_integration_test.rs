@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3c48ca99b7444ba68f5197d1a80e1ad8>>
+ * @generated SignedSource<<a598340f93b7df7b4cb6c475bb8c4f9e>>
  */
 
 mod relay_compiler_integration;
@@ -654,6 +654,34 @@ async fn multiple_resolvers_returns_interfaces_of_all_strong_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.expected");
     test_fixture(transform_fixture, file!(), "multiple_resolvers_returns_interfaces_of_all_strong_model_type.input", "relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn no_inline_raw_response_type_typescript_abstract_spread() {
+    let input = include_str!("relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_abstract_spread.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_abstract_spread.expected");
+    test_fixture(transform_fixture, file!(), "no_inline_raw_response_type_typescript_abstract_spread.input", "relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_abstract_spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn no_inline_raw_response_type_typescript_drops_spread() {
+    let input = include_str!("relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_drops_spread.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_drops_spread.expected");
+    test_fixture(transform_fixture, file!(), "no_inline_raw_response_type_typescript_drops_spread.input", "relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_drops_spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn no_inline_raw_response_type_typescript_root_spread() {
+    let input = include_str!("relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_root_spread.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_root_spread.expected");
+    test_fixture(transform_fixture, file!(), "no_inline_raw_response_type_typescript_root_spread.input", "relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_root_spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn no_inline_raw_response_type_typescript_split_output_commonjs() {
+    let input = include_str!("relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_split_output_commonjs.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_split_output_commonjs.expected");
+    test_fixture(transform_fixture, file!(), "no_inline_raw_response_type_typescript_split_output_commonjs.input", "relay_compiler_integration/fixtures/no_inline_raw_response_type_typescript_split_output_commonjs.expected", input, expected).await;
 }
 
 #[tokio::test]

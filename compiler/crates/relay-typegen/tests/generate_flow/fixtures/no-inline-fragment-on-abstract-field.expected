@@ -1,0 +1,50 @@
+==================================== INPUT ====================================
+query noInlineFragmentOnAbstractFieldQuery @raw_response_type {
+  node(id: "1") {
+    # The normalization spread belongs only to the User branch, not the
+    # abstract Node catch-all.
+    ...noInlineFragment_user @alias
+  }
+}
+
+fragment noInlineFragment_user on User @no_inline(raw_response_type: true) {
+  name
+}
+==================================== OUTPUT ===================================
+import type { noInlineFragment_user$fragmentType } from "noInlineFragment_user.graphql";
+import type { noInlineFragment_user$normalization } from "noInlineFragment_user$normalization.graphql";
+export type noInlineFragmentOnAbstractFieldQuery$variables = {};
+export type noInlineFragmentOnAbstractFieldQuery$data = {
+  readonly node: ?{
+    readonly noInlineFragment_user: ?{
+      readonly $fragmentSpreads: noInlineFragment_user$fragmentType,
+    },
+  },
+};
+export type noInlineFragmentOnAbstractFieldQuery$rawResponse = {
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly id: string,
+    ...noInlineFragment_user$normalization,
+  } | {
+    readonly __typename: string,
+    readonly id: string,
+  }),
+};
+export type noInlineFragmentOnAbstractFieldQuery = {
+  rawResponse: noInlineFragmentOnAbstractFieldQuery$rawResponse,
+  response: noInlineFragmentOnAbstractFieldQuery$data,
+  variables: noInlineFragmentOnAbstractFieldQuery$variables,
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type noInlineFragment_user$fragmentType: FragmentType;
+export type noInlineFragment_user$data = {
+  readonly name: ?string,
+  readonly $fragmentType: noInlineFragment_user$fragmentType,
+};
+export type noInlineFragment_user$key = {
+  readonly $data?: noInlineFragment_user$data,
+  readonly $fragmentSpreads: noInlineFragment_user$fragmentType,
+  ...
+};

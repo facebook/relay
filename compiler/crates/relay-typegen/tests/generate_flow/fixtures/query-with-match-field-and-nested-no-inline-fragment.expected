@@ -1,0 +1,119 @@
+==================================== INPUT ====================================
+query MatchFieldWithNestedNoInlineFragmentQuery @raw_response_type {
+  node(id: "1") {
+    ...UserWithRenderer_user @alias
+  }
+}
+
+fragment UserWithRenderer_user on User {
+  nameRenderer @match {
+    ...PlainUserNameRendererWithNestedFragment_name
+      @module(name: "PlainUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRendererWithNestedFragment_name on PlainUserNameRenderer {
+  data {
+    text
+  }
+  ...PlainUserNameRendererNestedFragment_name
+}
+
+fragment PlainUserNameRendererNestedFragment_name on PlainUserNameRenderer
+@no_inline(raw_response_type: true) {
+  plaintext
+}
+==================================== OUTPUT ===================================
+import type { Local3DPayload } from "relay-runtime";
+import type { UserWithRenderer_user$fragmentType } from "UserWithRenderer_user.graphql";
+import type { PlainUserNameRendererNestedFragment_name$normalization } from "PlainUserNameRendererNestedFragment_name$normalization.graphql";
+export type MatchFieldWithNestedNoInlineFragmentQuery$variables = {};
+export type MatchFieldWithNestedNoInlineFragmentQuery$data = {
+  readonly node: ?{
+    readonly UserWithRenderer_user: ?{
+      readonly $fragmentSpreads: UserWithRenderer_user$fragmentType,
+    },
+  },
+};
+export type PlainUserNameRendererWithNestedFragment_name = {
+  readonly data: ?{
+    readonly id: ?string,
+    readonly text: ?string,
+  },
+  ...PlainUserNameRendererNestedFragment_name$normalization,
+};
+export type MatchFieldWithNestedNoInlineFragmentQuery$rawResponse = {
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly id: string,
+    readonly nameRenderer: ?(Local3DPayload<"UserWithRenderer_user", {
+      readonly __typename: "PlainUserNameRenderer",
+      ...PlainUserNameRendererWithNestedFragment_name,
+    }> | {
+      readonly __typename: "PlainUserNameRenderer",
+      readonly __module_component_UserWithRenderer_user: ?any,
+      readonly __module_operation_UserWithRenderer_user: ?any,
+      ...PlainUserNameRendererWithNestedFragment_name,
+    } | {
+      readonly __typename: string,
+    }),
+  } | {
+    readonly __typename: string,
+    readonly id: string,
+  }),
+};
+export type MatchFieldWithNestedNoInlineFragmentQuery = {
+  rawResponse: MatchFieldWithNestedNoInlineFragmentQuery$rawResponse,
+  response: MatchFieldWithNestedNoInlineFragmentQuery$data,
+  variables: MatchFieldWithNestedNoInlineFragmentQuery$variables,
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type PlainUserNameRendererNestedFragment_name$fragmentType: FragmentType;
+export type PlainUserNameRendererNestedFragment_name$data = {
+  readonly plaintext: ?string,
+  readonly $fragmentType: PlainUserNameRendererNestedFragment_name$fragmentType,
+};
+export type PlainUserNameRendererNestedFragment_name$key = {
+  readonly $data?: PlainUserNameRendererNestedFragment_name$data,
+  readonly $fragmentSpreads: PlainUserNameRendererNestedFragment_name$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { PlainUserNameRendererNestedFragment_name$fragmentType } from "PlainUserNameRendererNestedFragment_name.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type PlainUserNameRendererWithNestedFragment_name$fragmentType: FragmentType;
+export type PlainUserNameRendererWithNestedFragment_name$data = {
+  readonly data: ?{
+    readonly text: ?string,
+  },
+  readonly $fragmentSpreads: PlainUserNameRendererNestedFragment_name$fragmentType,
+  readonly $fragmentType: PlainUserNameRendererWithNestedFragment_name$fragmentType,
+};
+export type PlainUserNameRendererWithNestedFragment_name$key = {
+  readonly $data?: PlainUserNameRendererWithNestedFragment_name$data,
+  readonly $fragmentSpreads: PlainUserNameRendererWithNestedFragment_name$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { PlainUserNameRendererWithNestedFragment_name$fragmentType } from "PlainUserNameRendererWithNestedFragment_name.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type UserWithRenderer_user$fragmentType: FragmentType;
+export type UserWithRenderer_user$data = {
+  readonly nameRenderer: ?({
+    readonly __typename: "PlainUserNameRenderer",
+    readonly __fragmentPropName: ?string,
+    readonly __module_component: ?string,
+    readonly $fragmentSpreads: PlainUserNameRendererWithNestedFragment_name$fragmentType,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
+  readonly $fragmentType: UserWithRenderer_user$fragmentType,
+};
+export type UserWithRenderer_user$key = {
+  readonly $data?: UserWithRenderer_user$data,
+  readonly $fragmentSpreads: UserWithRenderer_user$fragmentType,
+  ...
+};

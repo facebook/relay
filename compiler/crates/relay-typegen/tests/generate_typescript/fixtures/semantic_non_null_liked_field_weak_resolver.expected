@@ -27,6 +27,7 @@ export type ClientUser__blob$normalization = {
   variables: ClientUser__blob$normalization$variables;
 };
 -------------------------------------------------------------------------------
+import { ClientUser__blob$normalization } from "ClientUser__blob$normalization.graphql";
 import { FragmentRefs } from "relay-runtime";
 import clientUserBlobResolverType from "bar";
 // Type assertion validating that `clientUserBlobResolverType` resolver is correctly implemented.

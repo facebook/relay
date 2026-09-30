@@ -1,0 +1,111 @@
+==================================== INPUT ====================================
+query MatchFieldWithApplicableAbstractFragmentQuery @raw_response_type {
+  node(id: "1") {
+    ...UserWithAbstractRenderer_user @alias
+  }
+}
+
+fragment UserWithAbstractRenderer_user on User {
+  nameRenderer @match {
+    ...PlainUserNameRendererWithAbstractFragment_name
+      @module(name: "PlainUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRendererWithAbstractFragment_name on PlainUserNameRenderer {
+  plaintext
+  ...UserNameRenderable_name
+}
+
+fragment UserNameRenderable_name on UserNameRenderable {
+  name
+}
+==================================== OUTPUT ===================================
+import type { Local3DPayload } from "relay-runtime";
+import type { UserWithAbstractRenderer_user$fragmentType } from "UserWithAbstractRenderer_user.graphql";
+export type MatchFieldWithApplicableAbstractFragmentQuery$variables = {};
+export type MatchFieldWithApplicableAbstractFragmentQuery$data = {
+  readonly node: ?{
+    readonly UserWithAbstractRenderer_user: ?{
+      readonly $fragmentSpreads: UserWithAbstractRenderer_user$fragmentType,
+    },
+  },
+};
+export type PlainUserNameRendererWithAbstractFragment_name = {
+  readonly __isUserNameRenderable: "PlainUserNameRenderer",
+  readonly name: ?string,
+  readonly plaintext: ?string,
+};
+export type MatchFieldWithApplicableAbstractFragmentQuery$rawResponse = {
+  readonly node: ?({
+    readonly __typename: "User",
+    readonly id: string,
+    readonly nameRenderer: ?(Local3DPayload<"UserWithAbstractRenderer_user", {
+      readonly __typename: "PlainUserNameRenderer",
+      ...PlainUserNameRendererWithAbstractFragment_name,
+    }> | {
+      readonly __typename: "PlainUserNameRenderer",
+      readonly __module_component_UserWithAbstractRenderer_user: ?any,
+      readonly __module_operation_UserWithAbstractRenderer_user: ?any,
+      ...PlainUserNameRendererWithAbstractFragment_name,
+    } | {
+      readonly __typename: string,
+    }),
+  } | {
+    readonly __typename: string,
+    readonly id: string,
+  }),
+};
+export type MatchFieldWithApplicableAbstractFragmentQuery = {
+  rawResponse: MatchFieldWithApplicableAbstractFragmentQuery$rawResponse,
+  response: MatchFieldWithApplicableAbstractFragmentQuery$data,
+  variables: MatchFieldWithApplicableAbstractFragmentQuery$variables,
+};
+-------------------------------------------------------------------------------
+import type { UserNameRenderable_name$fragmentType } from "UserNameRenderable_name.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type PlainUserNameRendererWithAbstractFragment_name$fragmentType: FragmentType;
+export type PlainUserNameRendererWithAbstractFragment_name$data = {
+  readonly plaintext: ?string,
+  readonly $fragmentSpreads: UserNameRenderable_name$fragmentType,
+  readonly $fragmentType: PlainUserNameRendererWithAbstractFragment_name$fragmentType,
+};
+export type PlainUserNameRendererWithAbstractFragment_name$key = {
+  readonly $data?: PlainUserNameRendererWithAbstractFragment_name$data,
+  readonly $fragmentSpreads: PlainUserNameRendererWithAbstractFragment_name$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type UserNameRenderable_name$fragmentType: FragmentType;
+export type UserNameRenderable_name$data = {
+  readonly name: ?string,
+  readonly $fragmentType: UserNameRenderable_name$fragmentType,
+};
+export type UserNameRenderable_name$key = {
+  readonly $data?: UserNameRenderable_name$data,
+  readonly $fragmentSpreads: UserNameRenderable_name$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { PlainUserNameRendererWithAbstractFragment_name$fragmentType } from "PlainUserNameRendererWithAbstractFragment_name.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type UserWithAbstractRenderer_user$fragmentType: FragmentType;
+export type UserWithAbstractRenderer_user$data = {
+  readonly nameRenderer: ?({
+    readonly __typename: "PlainUserNameRenderer",
+    readonly __fragmentPropName: ?string,
+    readonly __module_component: ?string,
+    readonly $fragmentSpreads: PlainUserNameRendererWithAbstractFragment_name$fragmentType,
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other",
+  }),
+  readonly $fragmentType: UserWithAbstractRenderer_user$fragmentType,
+};
+export type UserWithAbstractRenderer_user$key = {
+  readonly $data?: UserWithAbstractRenderer_user$data,
+  readonly $fragmentSpreads: UserWithAbstractRenderer_user$fragmentType,
+  ...
+};

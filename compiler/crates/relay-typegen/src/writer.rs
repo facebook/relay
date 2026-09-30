@@ -278,7 +278,7 @@ impl PartialOrd for Prop {
 }
 
 impl Prop {
-    fn get_sort_order_key(&self) -> (PropSortOrder, StringKey) {
+    fn get_sort_order_key(&self) -> (PropSortOrder, StringKey, bool) {
         match self {
             Prop::KeyValuePair(kvp) => (
                 if kvp.key == *KEY_TYPENAME {
@@ -289,9 +289,14 @@ impl Prop {
                     PropSortOrder::KeyValuePair
                 },
                 kvp.key,
+                false,
             ),
-            Prop::GetterSetterPair(pair) => (PropSortOrder::GetterSetterPair, pair.key),
-            Prop::Spread(spread) => (PropSortOrder::ObjectSpread, spread.value),
+            Prop::GetterSetterPair(pair) => (PropSortOrder::GetterSetterPair, pair.key, false),
+            Prop::Spread(spread) => (
+                PropSortOrder::ObjectSpread,
+                spread.value,
+                spread.conditional,
+            ),
         }
     }
 }
@@ -308,6 +313,7 @@ enum PropSortOrder {
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct SpreadProp {
     pub value: StringKey,
+    pub conditional: bool,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]

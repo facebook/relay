@@ -1,0 +1,48 @@
+//- src/Page.js
+
+graphql`query PageQuery($includeFooter: Boolean!) @raw_response_type {
+  me {
+    id
+    ...Header_user
+    ...Footer_user @alias @include(if: $includeFooter)
+  }
+}`
+
+//- src/Header.js
+
+graphql`fragment Header_user on User @no_inline(raw_response_type: true) {
+  name
+}`
+
+//- src/Footer.js
+
+graphql`fragment Footer_user on User @no_inline(raw_response_type: true) {
+  username
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "test_project"
+   },
+   "projects": {
+      "test_project": {
+         "schema": "schema.graphql",
+         "language": "typescript",
+         "featureFlags": {
+            "no_inline": { "kind": "enabled" }
+         }
+      }
+   }
+}
+
+//- schema.graphql
+type Query {
+   me: User
+}
+
+type User {
+   id: ID!
+   name: String
+   username: String
+}

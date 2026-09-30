@@ -78,6 +78,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                 "noInlineFragment_address".intern(),
                 "noInlineFragment_user".intern(),
                 "MarkdownUserNameRenderer_name".intern(),
+                "PlainUserNameRendererNestedFragment_name".intern(),
                 "Test_userRenderer".intern(),
                 "PlainUserNameRenderer_name".intern(),
             ]

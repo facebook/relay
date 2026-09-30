@@ -1,0 +1,40 @@
+//- src/Page.js
+
+graphql`query PageQuery @raw_response_type {
+  me {
+    id
+  }
+  ...Root_query
+}`
+
+//- src/Root.js
+
+graphql`fragment Root_query on Query @no_inline(raw_response_type: true) {
+  greeting
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "test_project"
+   },
+   "projects": {
+      "test_project": {
+         "schema": "schema.graphql",
+         "language": "typescript",
+         "featureFlags": {
+            "no_inline": { "kind": "enabled" }
+         }
+      }
+   }
+}
+
+//- schema.graphql
+type Query {
+   greeting: String
+   me: User
+}
+
+type User {
+   id: ID!
+}

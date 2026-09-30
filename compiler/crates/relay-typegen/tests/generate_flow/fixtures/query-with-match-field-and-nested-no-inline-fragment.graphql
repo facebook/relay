@@ -1,0 +1,24 @@
+query MatchFieldWithNestedNoInlineFragmentQuery @raw_response_type {
+  node(id: "1") {
+    ...UserWithRenderer_user @alias
+  }
+}
+
+fragment UserWithRenderer_user on User {
+  nameRenderer @match {
+    ...PlainUserNameRendererWithNestedFragment_name
+      @module(name: "PlainUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRendererWithNestedFragment_name on PlainUserNameRenderer {
+  data {
+    text
+  }
+  ...PlainUserNameRendererNestedFragment_name
+}
+
+fragment PlainUserNameRendererNestedFragment_name on PlainUserNameRenderer
+@no_inline(raw_response_type: true) {
+  plaintext
+}

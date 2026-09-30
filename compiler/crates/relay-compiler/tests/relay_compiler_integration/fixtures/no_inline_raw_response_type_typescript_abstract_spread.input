@@ -1,0 +1,61 @@
+//- src/Page.js
+
+graphql`query PageQuery @raw_response_type {
+  node {
+    id
+    ...User_node
+    ...Actor_node
+  }
+}`
+
+//- src/User.js
+
+graphql`fragment User_node on User @no_inline(raw_response_type: true) {
+  username
+}`
+
+//- src/Actor.js
+
+graphql`fragment Actor_node on Actor @no_inline(raw_response_type: true) {
+  name
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "test_project"
+   },
+   "projects": {
+      "test_project": {
+         "schema": "schema.graphql",
+         "language": "typescript",
+         "featureFlags": {
+            "enforce_fragment_alias_where_ambiguous": { "kind": "disabled" },
+            "no_inline": { "kind": "enabled" }
+         }
+      }
+   }
+}
+
+//- schema.graphql
+type Query {
+   node: Node
+}
+
+interface Node {
+   id: ID!
+}
+
+interface Actor {
+   name: String
+}
+
+type User implements Node & Actor {
+   id: ID!
+   name: String
+   username: String
+}
+
+type Page implements Node {
+   id: ID!
+}

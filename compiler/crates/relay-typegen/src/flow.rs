@@ -9,6 +9,7 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
 use ::intern::string_key::StringKey;
+use intern::intern;
 use itertools::Itertools;
 
 use crate::writer::AST;
@@ -244,7 +245,14 @@ impl FlowPrinter {
             match prop {
                 Prop::Spread(spread) => {
                     write!(&mut self.result, "...")?;
-                    self.write(&AST::Identifier(spread.value))?;
+                    if spread.conditional {
+                        self.write(&AST::GenericType {
+                            outer: intern!("Partial"),
+                            inner: vec![AST::Identifier(spread.value)],
+                        })?;
+                    } else {
+                        self.write(&AST::Identifier(spread.value))?;
+                    }
                     writeln!(&mut self.result, ",")?;
                     continue;
                 }
@@ -375,13 +383,14 @@ impl FlowPrinter {
 
 #[cfg(test)]
 mod tests {
-    use intern::intern;
+    use ::intern::intern;
 
     use super::*;
     use crate::writer::ExactObject;
     use crate::writer::InexactObject;
     use crate::writer::KeyValuePairProp;
     use crate::writer::SortedASTList;
+    use crate::writer::SpreadProp;
 
     fn print_type(ast: &AST) -> String {
         let mut printer = Box::new(FlowPrinter::new());
@@ -471,6 +480,19 @@ mod tests {
   foo?: string,
 }"
             .to_string()
+        );
+    }
+
+    #[test]
+    fn conditional_object_spread_becomes_partial() {
+        assert_eq!(
+            print_type(&AST::ExactObject(ExactObject::new(vec![Prop::Spread(
+                SpreadProp {
+                    value: intern!("Actor_card$normalization"),
+                    conditional: true,
+                }
+            )]))),
+            "{\n  ...Partial<Actor_card$normalization>,\n}".to_string()
         );
     }
 

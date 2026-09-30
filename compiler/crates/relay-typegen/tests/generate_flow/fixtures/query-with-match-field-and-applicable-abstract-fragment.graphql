@@ -1,0 +1,21 @@
+query MatchFieldWithApplicableAbstractFragmentQuery @raw_response_type {
+  node(id: "1") {
+    ...UserWithAbstractRenderer_user @alias
+  }
+}
+
+fragment UserWithAbstractRenderer_user on User {
+  nameRenderer @match {
+    ...PlainUserNameRendererWithAbstractFragment_name
+      @module(name: "PlainUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRendererWithAbstractFragment_name on PlainUserNameRenderer {
+  plaintext
+  ...UserNameRenderable_name
+}
+
+fragment UserNameRenderable_name on UserNameRenderable {
+  name
+}

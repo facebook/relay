@@ -63,6 +63,7 @@ export type User__pop_star_name$normalization = {
   variables: User__pop_star_name$normalization$variables;
 };
 -------------------------------------------------------------------------------
+import type { User__pop_star_name$normalization } from "User__pop_star_name$normalization.graphql";
 import type { FragmentRefs } from "relay-runtime";
 import userPopStarNameResolverType from "PopStarNameResolver";
 // Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.

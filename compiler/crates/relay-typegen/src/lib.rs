@@ -69,7 +69,6 @@ static TYPE_ID: LazyLock<ScalarName> = LazyLock::new(|| ScalarName("ID".intern()
 static TYPE_INT: LazyLock<ScalarName> = LazyLock::new(|| ScalarName("Int".intern()));
 static TYPE_STRING: LazyLock<ScalarName> = LazyLock::new(|| ScalarName("String".intern()));
 static VARIABLES: LazyLock<StringKey> = LazyLock::new(|| "variables".intern());
-static SPREAD_KEY: LazyLock<StringKey> = LazyLock::new(|| "\0SPREAD".intern());
 static RESULT_TYPE_NAME: LazyLock<StringKey> = LazyLock::new(|| "Result".intern());
 static LIVE_STATE_TYPE: LazyLock<StringKey> = LazyLock::new(|| "LiveState".intern());
 

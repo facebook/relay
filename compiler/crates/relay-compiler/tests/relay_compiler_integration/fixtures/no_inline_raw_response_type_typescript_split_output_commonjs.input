@@ -1,0 +1,41 @@
+//- src/queries/SplitOutputQuery.js
+
+// Keep the query and fragment in different directories so the normalization
+// type import must be relative to the fragment definition.
+graphql`query SplitOutputQuery @raw_response_type {
+  me {
+    ...SplitOutput_user
+  }
+}`
+
+//- src/fragments/SplitOutput.js
+
+graphql`fragment SplitOutput_user on User @no_inline(raw_response_type: true) {
+  name
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "test_project"
+   },
+   "projects": {
+      "test_project": {
+         "schema": "schema.graphql",
+         "language": "typescript",
+         "jsModuleFormat": "commonjs",
+         "featureFlags": {
+            "no_inline": { "kind": "enabled" }
+         }
+      }
+   }
+}
+
+//- schema.graphql
+type Query {
+   me: User
+}
+
+type User {
+   name: String
+}

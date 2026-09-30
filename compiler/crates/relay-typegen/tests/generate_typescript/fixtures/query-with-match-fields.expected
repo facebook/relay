@@ -57,17 +57,17 @@ export type Test$rawResponse = {
     readonly id: string;
     readonly nameRenderer: Local3DPayload<"NameRendererFragment", {
       readonly __typename: "MarkdownUserNameRenderer";
-    }> | Local3DPayload<"NameRendererFragment", {
+    } & MarkdownUserNameRenderer_name> | Local3DPayload<"NameRendererFragment", {
       readonly __typename: "PlainUserNameRenderer";
-    }> | {
+    } & PlainUserNameRenderer_name> | {
       readonly __typename: "MarkdownUserNameRenderer";
       readonly __module_component_NameRendererFragment: any | null | undefined;
       readonly __module_operation_NameRendererFragment: any | null | undefined;
-    } | {
+    } & MarkdownUserNameRenderer_name | {
       readonly __typename: "PlainUserNameRenderer";
       readonly __module_component_NameRendererFragment: any | null | undefined;
       readonly __module_operation_NameRendererFragment: any | null | undefined;
-    } | {
+    } & PlainUserNameRenderer_name | {
       readonly __typename: string;
     } | null | undefined;
   } | {

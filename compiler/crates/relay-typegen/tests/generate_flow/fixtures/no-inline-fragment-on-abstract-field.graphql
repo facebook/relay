@@ -1,0 +1,11 @@
+query noInlineFragmentOnAbstractFieldQuery @raw_response_type {
+  node(id: "1") {
+    # The normalization spread belongs only to the User branch, not the
+    # abstract Node catch-all.
+    ...noInlineFragment_user @alias
+  }
+}
+
+fragment noInlineFragment_user on User @no_inline(raw_response_type: true) {
+  name
+}

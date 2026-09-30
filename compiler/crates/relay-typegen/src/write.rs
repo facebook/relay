@@ -162,6 +162,8 @@ pub(crate) fn write_operation_type_exports_section(
     let raw_response_type_and_match_fields =
         if has_raw_response_type_directive(normalization_operation) {
             let mut match_fields = Default::default();
+            let root_concrete_type = (!normalization_operation.type_.is_abstract_type())
+                .then_some(normalization_operation.type_);
             let raw_response_selections = raw_response_visit_selections(
                 typegen_context,
                 normalization_operation.name.item,
@@ -172,14 +174,14 @@ pub(crate) fn write_operation_type_exports_section(
                 &mut imported_raw_response_types,
                 &mut runtime_imports,
                 &mut custom_scalars,
-                None,
+                root_concrete_type,
                 is_throw_on_field_error,
             );
             let raw_response_type = raw_response_selections_to_babel(
                 typegen_context,
                 normalization_operation.name.item,
                 raw_response_selections.into_iter(),
-                None,
+                root_concrete_type,
                 &mut encountered_enums,
                 &mut runtime_imports,
                 &mut custom_scalars,
@@ -326,6 +328,9 @@ pub(crate) fn write_split_operation_type_exports_section(
         .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
         .is_some();
 
+    let root_concrete_type = (!normalization_operation.type_.is_abstract_type())
+        .then_some(normalization_operation.type_);
+
     let raw_response_selections = raw_response_visit_selections(
         typegen_context,
         normalization_operation.name.item,
@@ -336,14 +341,14 @@ pub(crate) fn write_split_operation_type_exports_section(
         &mut imported_raw_response_types,
         &mut runtime_imports,
         &mut custom_scalars,
-        None,
+        root_concrete_type,
         is_throw_on_field_error,
     );
     let raw_response_type = raw_response_selections_to_babel(
         typegen_context,
         normalization_operation.name.item,
         raw_response_selections.into_iter(),
-        None,
+        root_concrete_type,
         &mut encountered_enums,
         &mut runtime_imports,
         &mut custom_scalars,
@@ -791,13 +796,11 @@ fn write_split_raw_response_type_imports(
         match typegen_context.project_config.js_module_format {
             JsModuleFormat::CommonJS => {
                 if typegen_context.has_unified_output {
-                    writer.write_import_fragment_type(
+                    writer.write_import_type(
                         &[imported_raw_response_type.lookup()],
                         &format!("./{imported_raw_response_type}.graphql"),
                     )?;
-                } else if let Some(imported_raw_response_document_location) =
-                    imported_raw_response_document_location
-                {
+                } else {
                     let artifact_import_path =
                         typegen_context.project_config.js_module_import_identifier(
                             &typegen_context.project_config.artifact_path_for_definition(
@@ -809,16 +812,14 @@ fn write_split_raw_response_type_imports(
                             ),
                         );
 
-                    writer.write_import_fragment_type(
+                    writer.write_import_type(
                         &[imported_raw_response_type.lookup()],
                         &format!("./{artifact_import_path}.graphql"),
                     )?;
-                } else {
-                    writer.write_any_type_definition(imported_raw_response_type.lookup())?;
                 }
             }
             JsModuleFormat::Haste => {
-                writer.write_import_fragment_type(
+                writer.write_import_type(
                     &[imported_raw_response_type.lookup()],
                     &format!("{imported_raw_response_type}.graphql"),
                 )?;

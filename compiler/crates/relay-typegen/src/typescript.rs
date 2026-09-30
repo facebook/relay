@@ -241,16 +241,41 @@ impl TypeScriptPrinter {
     }
 
     fn write_object(&mut self, props: &[Prop]) -> FmtResult {
-        if props.is_empty() {
-            write!(&mut self.result, "Record<PropertyKey, never>")?;
-            return Ok(());
+        let spread_count = props
+            .iter()
+            .filter(|prop| matches!(prop, Prop::Spread(_)))
+            .count();
+
+        if spread_count == 0 {
+            return self.write_object_literal(props);
         }
 
-        // Replication of babel printer oddity: objects only containing a spread
-        // are missing a newline.
-        if props.len() == 1
-            && let Prop::Spread(_) = props[0]
-        {
+        let mut needs_separator = false;
+        if spread_count < props.len() {
+            self.write_object_literal(props)?;
+            needs_separator = true;
+        }
+        for prop in props {
+            if let Prop::Spread(spread) = prop {
+                if needs_separator {
+                    write!(&mut self.result, " & ")?;
+                }
+                needs_separator = true;
+                if spread.conditional {
+                    self.write(&AST::GenericType {
+                        outer: intern!("Partial"),
+                        inner: vec![AST::Identifier(spread.value)],
+                    })?;
+                } else {
+                    self.write(&AST::Identifier(spread.value))?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn write_object_literal(&mut self, props: &[Prop]) -> FmtResult {
+        if props.is_empty() {
             write!(&mut self.result, "Record<PropertyKey, never>")?;
             return Ok(());
         }
@@ -412,6 +437,7 @@ mod tests {
     use crate::writer::InexactObject;
     use crate::writer::KeyValuePairProp;
     use crate::writer::SortedASTList;
+    use crate::writer::SpreadProp;
 
     fn print_type(ast: &AST) -> String {
         print_type_with_config(ast)
@@ -505,6 +531,110 @@ mod tests {
   foo?: string;
 }"
             .to_string()
+        );
+    }
+
+    #[test]
+    fn object_spread_becomes_intersection() {
+        assert_eq!(
+            print_type(&AST::ExactObject(ExactObject::new(vec![Prop::Spread(
+                SpreadProp {
+                    value: intern!("Header_user$normalization"),
+                    conditional: false,
+                }
+            )]))),
+            "Header_user$normalization".to_string()
+        );
+
+        assert_eq!(
+            print_type(&AST::ExactObject(ExactObject::new(vec![
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: intern!("id"),
+                    optional: false,
+                    read_only: true,
+                    value: AST::String,
+                }),
+                Prop::Spread(SpreadProp {
+                    value: intern!("Header_user$normalization"),
+                    conditional: false,
+                }),
+            ]))),
+            r"{
+  readonly id: string;
+} & Header_user$normalization"
+                .to_string()
+        );
+
+        assert_eq!(
+            print_type(&AST::ExactObject(ExactObject::new(vec![
+                Prop::Spread(SpreadProp {
+                    value: intern!("B$normalization"),
+                    conditional: false,
+                }),
+                Prop::Spread(SpreadProp {
+                    value: intern!("A$normalization"),
+                    conditional: false,
+                }),
+            ]))),
+            "A$normalization & B$normalization".to_string()
+        );
+    }
+
+    #[test]
+    fn conditional_object_spread_becomes_partial_intersection() {
+        assert_eq!(
+            print_type(&AST::ExactObject(ExactObject::new(vec![Prop::Spread(
+                SpreadProp {
+                    value: intern!("Actor_card$normalization"),
+                    conditional: true,
+                }
+            )]))),
+            "Partial<Actor_card$normalization>".to_string()
+        );
+    }
+
+    #[test]
+    fn nullable_object_spread_does_not_need_parentheses() {
+        assert_eq!(
+            print_type(&AST::Nullable(Box::new(AST::ExactObject(
+                ExactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("id"),
+                        optional: false,
+                        read_only: true,
+                        value: AST::String,
+                    }),
+                    Prop::Spread(SpreadProp {
+                        value: intern!("Header_user$normalization"),
+                        conditional: false,
+                    }),
+                ])
+            )))),
+            r"{
+  readonly id: string;
+} & Header_user$normalization | null | undefined"
+                .to_string()
+        );
+    }
+
+    #[test]
+    fn any_type_definition_is_omitted() {
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        printer
+            .write_any_type_definition("Header_user$normalization")
+            .unwrap();
+        assert_eq!(printer.into_string(), "");
+    }
+
+    #[test]
+    fn explicit_any_type_definition() {
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        printer
+            .write_type_definition("Header_user$normalization", &AST::Any)
+            .unwrap();
+        assert_eq!(
+            printer.into_string(),
+            "type Header_user$normalization = any;\n"
         );
     }
 

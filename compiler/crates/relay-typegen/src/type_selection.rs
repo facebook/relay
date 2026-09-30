@@ -17,7 +17,6 @@ use schema::TypeReference;
 use crate::JS_FIELD_NAME;
 use crate::KEY_CLIENTID;
 use crate::KEY_TYPENAME;
-use crate::SPREAD_KEY;
 use crate::writer::AST;
 
 #[derive(Debug, Clone)]
@@ -132,7 +131,9 @@ impl TypeSelection {
             TypeSelection::FragmentSpread(i) => format!("__fragments_{}", i.fragment_name).intern(),
             TypeSelection::InlineFragment(i) => format!("__fragments_{}", i.fragment_name).intern(),
             TypeSelection::ModuleDirective(md) => md.fragment_name.0,
-            TypeSelection::RawResponseFragmentSpread(_) => *SPREAD_KEY,
+            TypeSelection::RawResponseFragmentSpread(spread) => {
+                format!("\0SPREAD:{}", spread.value).intern()
+            }
         }
     }
 }
@@ -226,5 +227,30 @@ impl ScalarFieldSpecialSchemaField {
         } else {
             None
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use intern::intern;
+
+    use super::*;
+
+    #[test]
+    fn raw_response_fragment_spreads_have_distinct_keys() {
+        let first = TypeSelection::RawResponseFragmentSpread(RawResponseFragmentSpread {
+            value: intern!("First$normalization"),
+            conditional: false,
+            concrete_type: None,
+            abstract_type: None,
+        });
+        let second = TypeSelection::RawResponseFragmentSpread(RawResponseFragmentSpread {
+            value: intern!("Second$normalization"),
+            conditional: false,
+            concrete_type: None,
+            abstract_type: None,
+        });
+
+        assert_ne!(first.get_string_key(), second.get_string_key());
     }
 }

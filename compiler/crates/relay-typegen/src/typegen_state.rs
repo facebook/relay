@@ -157,4 +157,4 @@ pub(crate) enum ImportedResolverName {
 pub(crate) struct ImportedResolvers(pub(crate) IndexMap<StringKey, ImportedResolver>);
 
 #[derive(Default)]
-pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexMap<StringKey, Option<Location>>);
+pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexMap<StringKey, Location>);

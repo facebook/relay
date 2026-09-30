@@ -459,7 +459,7 @@ fn generate_resolver_type(
             } else {
                 imported_raw_response_types.0.insert(
                     normalization_info.normalization_operation.item.0,
-                    Some(normalization_info.normalization_operation.location),
+                    normalization_info.normalization_operation.location,
                 );
                 AST::RawType(normalization_info.normalization_operation.item.0)
             }
@@ -1127,11 +1127,15 @@ fn raw_response_visit_inline_fragment(
     if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
         let fragment_name = module_metadata.fragment_name;
         if !match_fields.0.contains_key(&fragment_name.0) {
+            let module_concrete_type = inline_fragment
+                .type_condition
+                .filter(|type_condition| !type_condition.is_abstract_type())
+                .or(enclosing_linked_field_concrete_type);
             let match_field = raw_response_selections_to_babel(
                 typegen_context,
                 operation_name,
                 selections.iter().filter(|sel| !sel.is_js_field()).cloned(),
-                None,
+                module_concrete_type,
                 encountered_enums,
                 runtime_imports,
                 custom_scalars,
@@ -1755,6 +1759,61 @@ pub(crate) fn raw_response_selections_to_babel(
 
     let mut types: Vec<AST> = Vec::new();
 
+    if let Some(concrete_type) = concrete_type {
+        let mut merged_selections = selections_to_map(base_fields.into_iter(), false);
+
+        if let Some(concrete_selections) = by_concrete_type.get(&concrete_type) {
+            merge_selection_maps(
+                &mut merged_selections,
+                selections_to_map(concrete_selections.iter().cloned(), false),
+                false,
+            );
+        }
+
+        for (abstract_type, abstract_selections) in &by_abstract_type {
+            if typegen_context
+                .schema
+                .is_named_type_subtype_of(concrete_type, *abstract_type)
+            {
+                merge_selection_maps(
+                    &mut merged_selections,
+                    selections_to_map(abstract_selections.iter().cloned(), false),
+                    false,
+                );
+            }
+        }
+
+        let merged_selections: Vec<_> = hashmap_into_values(merged_selections).collect();
+        types.push(AST::ExactObject(ExactObject::new(
+            merged_selections
+                .iter()
+                .cloned()
+                .map(|selection| {
+                    raw_response_make_prop(
+                        typegen_context,
+                        operation_name,
+                        selection,
+                        Some(concrete_type),
+                        encountered_enums,
+                        runtime_imports,
+                        custom_scalars,
+                    )
+                })
+                .collect(),
+        )));
+        append_local_3d_payload(
+            typegen_context,
+            operation_name,
+            &mut types,
+            &merged_selections,
+            Some(concrete_type),
+            encountered_enums,
+            runtime_imports,
+            custom_scalars,
+        );
+        return AST::Union(SortedASTList::new(types));
+    }
+
     if !by_concrete_type.is_empty() {
         let base_fields_map = selections_to_map(base_fields.clone().into_iter(), false);
         for (concrete_type, selections) in by_concrete_type {
@@ -2181,6 +2240,7 @@ fn raw_response_make_prop(
     match type_selection {
         TypeSelection::ModuleDirective(module_directive) => Prop::Spread(SpreadProp {
             value: module_directive.fragment_name.0,
+            conditional: false,
         }),
         TypeSelection::LinkedField(linked_field) => {
             let node_type = linked_field.node_type;
@@ -2244,7 +2304,10 @@ fn raw_response_make_prop(
                 })
             }
         }
-        TypeSelection::RawResponseFragmentSpread(f) => Prop::Spread(SpreadProp { value: f.value }),
+        TypeSelection::RawResponseFragmentSpread(f) => Prop::Spread(SpreadProp {
+            value: f.value,
+            conditional: optional,
+        }),
         _ => {
             panic!("Unexpected TypeSelection variant in raw_response_make_prop {type_selection:?}")
         }
@@ -2389,18 +2452,40 @@ pub(crate) fn raw_response_visit_selections(
                 // TODO: this may be stale after removal of Flight and @relay_client_component
                 if NoInlineFragmentSpreadMetadata::find(&spread.directives).is_some() {
                     let spread_type = spread.fragment.item.0;
-                    imported_raw_response_types.0.insert(
-                        spread_type,
-                        typegen_context
-                            .fragment_locations
-                            .location(&spread.fragment.item),
-                    );
+                    // apply_fragment_arguments rewrites no-inline spreads to use the
+                    // fragment definition location required by split-output paths.
+                    imported_raw_response_types
+                        .0
+                        .insert(spread_type, spread.fragment.location);
+                    let target_type = spread
+                        .signature
+                        .as_ref()
+                        .map(|signature| signature.type_condition);
+                    let target_always_matches = target_type.is_some_and(|target_type| {
+                        enclosing_linked_field_concrete_type.is_some_and(|parent_type| {
+                            typegen_context
+                                .schema
+                                .is_named_type_subtype_of(parent_type, target_type)
+                        })
+                    });
                     type_selections.push(TypeSelection::RawResponseFragmentSpread(
                         RawResponseFragmentSpread {
                             value: spread_type,
-                            conditional: false,
-                            concrete_type: None,
-                            abstract_type: None,
+                            conditional: target_type.is_some_and(|target_type| {
+                                !target_always_matches
+                                    && target_type.is_abstract_type()
+                                    && typegen_context
+                                        .project_config
+                                        .feature_flags
+                                        .disable_more_precise_abstract_selection_raw_response_type
+                                        .is_enabled_for(operation_name.0)
+                            }),
+                            concrete_type: target_type.filter(|target_type| {
+                                !target_always_matches && !target_type.is_abstract_type()
+                            }),
+                            abstract_type: target_type.filter(|target_type| {
+                                !target_always_matches && target_type.is_abstract_type()
+                            }),
                         },
                     ))
                 }

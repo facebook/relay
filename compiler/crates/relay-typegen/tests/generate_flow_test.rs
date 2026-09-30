@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<14fdfc048c58a85c2311fec0fb3719c2>>
+ * @generated SignedSource<<492b39483f583174c3e9f9a93519fce4>>
  */
 
 mod generate_flow;
@@ -321,6 +321,13 @@ async fn no_inline_fragment() {
 }
 
 #[tokio::test]
+async fn no_inline_fragment_on_abstract_field() {
+    let input = include_str!("generate_flow/fixtures/no-inline-fragment-on-abstract-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/no-inline-fragment-on-abstract-field.expected");
+    test_fixture(transform_fixture, file!(), "no-inline-fragment-on-abstract-field.graphql", "generate_flow/fixtures/no-inline-fragment-on-abstract-field.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn plural_fragment() {
     let input = include_str!("generate_flow/fixtures/plural-fragment.graphql");
     let expected = include_str!("generate_flow/fixtures/plural-fragment.expected");
@@ -367,6 +374,20 @@ async fn query_with_handles() {
     let input = include_str!("generate_flow/fixtures/query-with-handles.graphql");
     let expected = include_str!("generate_flow/fixtures/query-with-handles.expected");
     test_fixture(transform_fixture, file!(), "query-with-handles.graphql", "generate_flow/fixtures/query-with-handles.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_match_field_and_applicable_abstract_fragment() {
+    let input = include_str!("generate_flow/fixtures/query-with-match-field-and-applicable-abstract-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-match-field-and-applicable-abstract-fragment.expected");
+    test_fixture(transform_fixture, file!(), "query-with-match-field-and-applicable-abstract-fragment.graphql", "generate_flow/fixtures/query-with-match-field-and-applicable-abstract-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_match_field_and_nested_no_inline_fragment() {
+    let input = include_str!("generate_flow/fixtures/query-with-match-field-and-nested-no-inline-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-match-field-and-nested-no-inline-fragment.expected");
+    test_fixture(transform_fixture, file!(), "query-with-match-field-and-nested-no-inline-fragment.graphql", "generate_flow/fixtures/query-with-match-field-and-nested-no-inline-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -68,6 +68,7 @@ pub use server::LSPRequestDispatch;
 pub use server::LSPState;
 pub use server::Schemas;
 pub use utils::position_to_offset;
+pub use utils::uri_to_file_path;
 
 #[allow(clippy::large_enum_variant)]
 pub enum Feature {

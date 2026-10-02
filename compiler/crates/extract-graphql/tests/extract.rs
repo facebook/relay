@@ -32,3 +32,15 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         .collect::<Vec<_>>()
         .join("\n"))
 }
+
+#[test]
+fn reports_utf16_columns_for_inline_graphql() {
+    let feature = extract("😀 graphql`query TestQuery { id }`")
+        .into_iter()
+        .next()
+        .expect("expected a GraphQL source");
+    let source = feature.text_source();
+
+    assert_eq!(source.column_index, 11);
+    assert_eq!(source.text, "query TestQuery { id }");
+}

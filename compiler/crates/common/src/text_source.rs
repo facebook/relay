@@ -58,7 +58,7 @@ impl TextSource {
             // Make sure to only increment the character offset if this
             // isn't a newline.
             if !is_newline {
-                character += 1;
+                character += chr.len_utf16();
             }
         }
         let end_position = Position::new(line as u32, character as u32);
@@ -100,7 +100,7 @@ impl TextSource {
                 line += 1;
                 character = 0;
             } else {
-                character += 1;
+                character += chr.len_utf16();
             }
             bytes_seen += chr.len_utf8();
         }
@@ -147,12 +147,12 @@ impl TextSource {
 }
 
 /// Whether `chr` is a line terminator, given the char that immediately follows
-/// it. Treats a `\r` followed by another `\r` as a non-terminator.
+/// it. Treats `\r\n` as one line terminator.
 ///
 /// Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
 fn is_line_terminator(chr: char, next: Option<char>) -> bool {
     matches!(chr, '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}')
-        && !matches!((chr, next), ('\u{000D}', Some('\u{000D}')))
+        && !matches!((chr, next), ('\u{000D}', Some('\u{000A}')))
 }
 
 #[cfg(test)]
@@ -176,6 +176,23 @@ mod test {
         let range = text_source.to_span_range(span);
         assert_eq!(range.start, lsp_types::Position::new(0, 0));
         assert_eq!(range.end, lsp_types::Position::new(0, 3));
+    }
+
+    #[test]
+    fn to_span_range_uses_utf16_code_units() {
+        let text_source = TextSource::new("😀field", 0, 0);
+        let range = text_source.to_span_range(Span::new(0, 4));
+
+        assert_eq!(range.start, lsp_types::Position::new(0, 0));
+        assert_eq!(range.end, lsp_types::Position::new(0, 2));
+    }
+
+    #[test]
+    fn to_range_uses_utf16_code_units() {
+        let range = TextSource::new("😀field", 0, 0).to_range();
+
+        assert_eq!(range.start, lsp_types::Position::new(0, 0));
+        assert_eq!(range.end, lsp_types::Position::new(0, 7));
     }
 
     #[test]
@@ -211,6 +228,15 @@ fn foo() {
         let range = text_source.to_span_range(span);
         assert_eq!(range.start, lsp_types::Position::new(2, 4));
         assert_eq!(range.end, lsp_types::Position::new(2, 9));
+    }
+
+    #[test]
+    fn to_range_treats_crlf_as_one_line_terminator() {
+        let text_source = TextSource::from_whole_document("first\r\nsecond");
+        let range = text_source.to_span_range(Span::new(7, 13));
+
+        assert_eq!(range.start, lsp_types::Position::new(1, 0));
+        assert_eq!(range.end, lsp_types::Position::new(1, 6));
     }
 
     #[test]

@@ -88,7 +88,7 @@ impl Iterator for CharReader<'_> {
                     self.column_index = 0;
                 }
                 _ => {
-                    self.column_index += 1;
+                    self.column_index += ch.len_utf16();
                 }
             }
         }

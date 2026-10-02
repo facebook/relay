@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {ClientOnlyQueriesTest1Query} from '../../__tests__/__generated__/ClientOnlyQueriesTest1Query.graphql';
+import type {RelayModernEnvironmentExecuteWithSourceTestResolverQuery} from '../../../relay-runtime/store/__tests__/__generated__/RelayModernEnvironmentExecuteWithSourceTestResolverQuery.graphql';
 import type {PreloadableConcreteRequest} from '../EntryPointTypes.flow';
 import type {
   loadQueryTestQuery,
@@ -31,6 +33,7 @@ import type {
   OperationAvailabilityConfig,
 } from 'relay-runtime/network/RelayNetworkTypes';
 
+const pureClientReadTimeQuery = require('../../__tests__/__generated__/ClientOnlyQueriesTest1Query.graphql');
 const {loadQuery} = require('../loadQuery');
 const nullthrows = require('nullthrows');
 // Need React require for OSS build
@@ -47,6 +50,7 @@ const {
   graphql,
 } = require('relay-runtime');
 const execTimeQuery = require('relay-runtime/store/__tests__/__generated__/RelayModernEnvironmentExecuteWithDeferTestResolverQuery.graphql');
+const pureClientExecTimeQuery = require('relay-runtime/store/__tests__/__generated__/RelayModernEnvironmentExecuteWithSourceTestResolverQuery.graphql');
 const {
   createMockEnvironment,
   disallowConsoleErrors,
@@ -74,6 +78,21 @@ describe('loadQuery', () => {
     {
       kind: 'PreloadableConcreteRequest',
       params: query.params,
+    };
+
+  const pureClientExecTimePreloadableRequest: PreloadableConcreteRequest<RelayModernEnvironmentExecuteWithSourceTestResolverQuery> =
+    {
+      kind: 'PreloadableConcreteRequest',
+      params: {
+        ...pureClientExecTimeQuery.params,
+        metadata: {},
+      },
+    };
+
+  const pureClientReadTimePreloadableRequest: PreloadableConcreteRequest<ClientOnlyQueriesTest1Query> =
+    {
+      kind: 'PreloadableConcreteRequest',
+      params: pureClientReadTimeQuery.params,
     };
 
   const response = {
@@ -106,6 +125,8 @@ describe('loadQuery', () => {
   let resolvedModule:
     | Query<loadQueryTestQuery$variables, loadQueryTestQuery$data>
     | typeof execTimeQuery
+    | typeof pureClientExecTimeQuery
+    | typeof pureClientReadTimeQuery
     | null;
   let mockAvailability: {fetchTime?: number, status: string};
   let operationAvailabilityConfig: ?OperationAvailabilityConfig;
@@ -803,6 +824,147 @@ describe('loadQuery', () => {
         preloadedQuery.dispose();
         expect(disposeEnvironmentRetain).toHaveBeenCalledTimes(1);
       });
+    });
+  });
+
+  describe('when passed an id-less pure-client PreloadableConcreteRequest', () => {
+    beforeEach(() => {
+      resolvedModule = null;
+    });
+
+    it('uses the cache ID for the registry rendezvous without starting network work', () => {
+      const preloadedQuery = loadQuery(
+        environment,
+        pureClientExecTimePreloadableRequest,
+        {},
+      );
+      const cacheID = pureClientExecTimeQuery.params.cacheID;
+
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(PreloadableQueryRegistry.get).toHaveBeenCalledWith(cacheID);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(PreloadableQueryRegistry.onLoad).toHaveBeenCalledWith(
+        cacheID,
+        expect.any(Function),
+      );
+      expect(preloadedQuery.id).toBe(cacheID);
+      expect(preloadedQuery.source).toBeUndefined();
+      expect(fetch).not.toHaveBeenCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(environment.executeWithSource).not.toHaveBeenCalled();
+    });
+
+    it('starts exec-time execution after the full artifact loads', () => {
+      const preloadedQuery = loadQuery(
+        environment,
+        pureClientExecTimePreloadableRequest,
+        {},
+      );
+      Object.freeze(preloadedQuery);
+
+      expect(preloadedQuery.fetchPolicy).toBe('store-or-network');
+      expect(preloadedQuery.source).toBeUndefined();
+      expect(fetch).not.toHaveBeenCalled();
+
+      executeOnloadCallback(pureClientExecTimeQuery);
+
+      expect(preloadedQuery.fetchPolicy).toBe('store-and-network');
+      expect(preloadedQuery.source).toBeDefined();
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(fetch.mock.calls[0][0]).toBe(pureClientExecTimeQuery.params);
+      expect(
+        nullthrows(operationAvailabilityConfig).parentOperation,
+      ).not.toBeNull();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+      expect(executeWithPreloadedSource).not.toHaveBeenCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(environment.retain).toHaveBeenCalledTimes(1);
+    });
+
+    it('uses store-only after a read-time client artifact loads', () => {
+      const preloadedQuery = loadQuery(
+        environment,
+        pureClientReadTimePreloadableRequest,
+        {},
+      );
+
+      executeOnloadCallback(pureClientReadTimeQuery);
+
+      expect(preloadedQuery.fetchPolicy).toBe('store-only');
+      expect(preloadedQuery.source).toBeUndefined();
+      expect(fetch).not.toHaveBeenCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(environment.executeWithSource).not.toHaveBeenCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(environment.retain).toHaveBeenCalledTimes(1);
+    });
+
+    it('preserves an explicit store-only policy after an exec-time client artifact loads', () => {
+      const preloadedQuery = loadQuery(
+        environment,
+        pureClientExecTimePreloadableRequest,
+        {},
+        {fetchPolicy: 'store-only'},
+      );
+
+      executeOnloadCallback(pureClientExecTimeQuery);
+
+      expect(preloadedQuery.fetchPolicy).toBe('store-only');
+      expect(preloadedQuery.source).toBeUndefined();
+      expect(fetch).not.toHaveBeenCalled();
+      expect(executeObservable).toBeUndefined();
+      expect(disposeEnvironmentRetain).toBeDefined();
+    });
+
+    it('executes an already-registered exec-time client artifact', () => {
+      resolvedModule = pureClientExecTimeQuery;
+
+      const preloadedQuery = loadQuery(
+        environment,
+        pureClientExecTimePreloadableRequest,
+        {},
+      );
+
+      expect(preloadedQuery.fetchPolicy).toBe('store-and-network');
+      expect(preloadedQuery.source).toBeDefined();
+      expect(fetch).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(PreloadableQueryRegistry.onLoad).not.toHaveBeenCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+    });
+
+    it('can be disposed before the full artifact loads', () => {
+      const preloadedQuery = loadQuery(
+        environment,
+        pureClientExecTimePreloadableRequest,
+        {},
+      );
+
+      preloadedQuery.dispose();
+
+      expect(preloadedQuery.isDisposed).toBe(true);
+      expect(fetch).not.toHaveBeenCalled();
+      expect(disposeOnloadCallback).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(environment.retain).not.toHaveBeenCalled();
+    });
+
+    it('can be disposed after late exec-time execution starts', () => {
+      const preloadedQuery = loadQuery(
+        environment,
+        pureClientExecTimePreloadableRequest,
+        {},
+      );
+      executeOnloadCallback(pureClientExecTimeQuery);
+
+      preloadedQuery.dispose();
+
+      expect(preloadedQuery.isDisposed).toBe(true);
+      expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
+      expect(networkUnsubscribe).toHaveBeenCalledTimes(1);
+      expect(disposeEnvironmentRetain).toHaveBeenCalledTimes(1);
     });
   });
 

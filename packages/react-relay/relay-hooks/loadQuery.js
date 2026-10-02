@@ -321,10 +321,10 @@ function loadQuery<
       preloadableRequest as $FlowFixMe;
     ({params} = preloadableConcreteRequest);
 
-    ({id: queryId} = params);
+    queryId = params.id ?? params.cacheID;
     invariant(
-      queryId !== null,
-      'Relay: `loadQuery` requires that preloadable query `%s` has a persisted query id',
+      queryId != null,
+      'Relay: `loadQuery` requires that preloadable query `%s` has a persisted query id or cache id',
       params.name,
     );
 
@@ -340,8 +340,14 @@ function loadQuery<
       // ast, and we know that if we don't have the query ast
       // available, then this query could've never been written to the
       // store in the first place, so it couldn't have been cached.
+      const shouldCheckAvailabilityOnLoad =
+        fetchPolicy !== 'store-only' &&
+        params.id == null &&
+        params.text == null;
       const networkObservable =
-        fetchPolicy === 'store-only' ? null : makeNetworkRequest(params, null);
+        fetchPolicy === 'store-only' || shouldCheckAvailabilityOnLoad
+          ? null
+          : makeNetworkRequest(params, null);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       /* $FlowFixMe[incompatible-type] Error exposed after fixing this typing
        * unsoundness in flow */
@@ -349,6 +355,10 @@ function loadQuery<
         queryId,
         preloadedModule => {
           cancelOnLoadCallback();
+          if (shouldCheckAvailabilityOnLoad) {
+            checkAvailabilityAndExecute(preloadedModule);
+            return;
+          }
           if (providedFetchPolicy == null) {
             fetchPolicy = getDefaultFetchPolicy(preloadedModule);
           }
@@ -450,7 +460,10 @@ function loadQuery<
       return networkError;
     },
     releaseQuery,
-    source: didMakeNetworkRequest ? returnedObservable : undefined,
+    // $FlowFixMe[unsafe-getters-setters] - this has no side effects
+    get source() {
+      return didMakeNetworkRequest ? returnedObservable : undefined;
+    },
     variables,
   };
   return preloadedQuery;

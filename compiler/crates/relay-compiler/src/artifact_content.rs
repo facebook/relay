@@ -49,7 +49,7 @@ pub enum ArtifactContent {
     },
     PreloadableQueryParameters {
         normalization_operation: Arc<OperationDefinition>,
-        query_id: QueryID,
+        query_id: Option<QueryID>,
     },
     Fragment {
         reader_fragment: Arc<FragmentDefinition>,
@@ -132,7 +132,7 @@ impl ArtifactContent {
                 printer,
                 schema,
                 normalization_operation,
-                query_id,
+                query_id.as_ref(),
             )
             .unwrap(),
             ArtifactContent::SplitOperation {

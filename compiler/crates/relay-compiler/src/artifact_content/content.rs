@@ -49,17 +49,17 @@ pub fn generate_preloadable_query_parameters(
     printer: &mut Printer<'_>,
     schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
-    query_id: &QueryID,
+    query_id: Option<&QueryID>,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
-    let cloned_query_id = Some(query_id.clone());
-    request_parameters.id = &cloned_query_id;
+    let query_id = query_id.cloned();
+    request_parameters.id = &query_id;
 
     let mut content_sections = ContentSections::default();
 
     // -- Begin Docblock Section --
-    let extra_annotations = match query_id {
-        QueryID::Persisted { text_hash, .. } => vec![format!("@relayHash {}", text_hash)],
+    let extra_annotations = match &query_id {
+        Some(QueryID::Persisted { text_hash, .. }) => vec![format!("@relayHash {}", text_hash)],
         _ => vec![],
     };
     content_sections.push(ContentSection::Docblock(generate_docblock_section(
@@ -495,42 +495,33 @@ pub fn generate_operation(
 
     // -- Begin PreloadableQueryRegistry Section --
     let mut section = GenericSection::default();
-    if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
-        match project_config.typegen_config.language {
-            TypegenLanguage::Flow => {
-                if project_config.typegen_config.eager_es_modules {
-                    writeln!(
-                        section,
-                        "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
-                    )?;
-                    writeln!(
-                        section,
-                        "PreloadableQueryRegistry.set((node.params/*:: as any*/).id, node);",
-                    )?;
-                } else {
-                    writeln!(
-                        section,
-                        "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*:: as any*/).id, node);",
-                    )?;
-                }
+    if is_operation_preloadable(normalization_operation) {
+        let registry_key = match (id_and_text_hash, text) {
+            (Some(_), _) if project_config.typegen_config.language == TypegenLanguage::Flow => {
+                "(node.params/*:: as any*/).id"
             }
-            TypegenLanguage::JavaScript | TypegenLanguage::TypeScript => {
-                if project_config.typegen_config.eager_es_modules {
-                    writeln!(
-                        section,
-                        "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
-                    )?;
-                    writeln!(
-                        section,
-                        "PreloadableQueryRegistry.set(node.params.id, node);",
-                    )?;
-                } else {
-                    writeln!(
-                        section,
-                        "require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);",
-                    )?;
-                }
-            }
+            (Some(_), _) => "node.params.id",
+            // Client-only operations have no persisted ID or server text, but
+            // their request parameters contain a stable cache ID.
+            (None, None) => "node.params.cacheID",
+            (None, Some(_)) => panic!(
+                "Expected operation artifact to have an `id`. Ensure a `persistConfig` is setup for the current project."
+            ),
+        };
+        if project_config.typegen_config.eager_es_modules {
+            writeln!(
+                section,
+                "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
+            )?;
+            writeln!(
+                section,
+                "PreloadableQueryRegistry.set({registry_key}, node);",
+            )?;
+        } else {
+            writeln!(
+                section,
+                "require('relay-runtime').PreloadableQueryRegistry.set({registry_key}, node);",
+            )?;
         }
     }
     content_sections.push(ContentSection::Generic(section));

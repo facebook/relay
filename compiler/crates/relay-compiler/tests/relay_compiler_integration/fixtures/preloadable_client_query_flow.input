@@ -1,0 +1,26 @@
+//- foo.js
+graphql`
+  query fooQuery
+  @preloadable
+  @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
+    greeting
+  }
+`;
+
+//- Query_greeting.js
+/**
+ * @relayField Query.greeting: String
+ */
+export function greeting() {}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { userName: String }

@@ -262,13 +262,19 @@ fn generate_normalization_artifact(
 pub fn generate_preloadable_query_parameters_artifact(
     project_config: &ProjectConfig,
     normalization: &Arc<OperationDefinition>,
-    id_and_text_hash: &Option<QueryID>,
+    text: Option<&str>,
+    id_and_text_hash: Option<&QueryID>,
     source_keys: Vec<ArtifactSourceKey>,
     source_file: SourceLocationKey,
 ) -> Artifact {
-    let query_id = id_and_text_hash
-        .clone()
-        .expect("Expected operation artifact to have an `id`. Ensure a `persistConfig` is setup for the current project.");
+    let query_id = match (id_and_text_hash, text) {
+        (Some(query_id), _) => Some(query_id.clone()),
+        // Client-only operations have no server text to persist.
+        (None, None) => None,
+        (None, Some(_)) => panic!(
+            "Expected operation artifact to have an `id`. Ensure a `persistConfig` is setup for the current project."
+        ),
+    };
 
     let artifact_name = normalization.name.item.0.to_string() + "$parameters";
 

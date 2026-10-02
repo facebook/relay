@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a598340f93b7df7b4cb6c475bb8c4f9e>>
+ * @generated SignedSource<<62eedb1f9c27a623f5c20dbcf08c1c36>>
  */
 
 mod relay_compiler_integration;
@@ -731,6 +731,13 @@ async fn prefetchable_refetchable_pagination() {
     let input = include_str!("relay_compiler_integration/fixtures/prefetchable_refetchable_pagination.input");
     let expected = include_str!("relay_compiler_integration/fixtures/prefetchable_refetchable_pagination.expected");
     test_fixture(transform_fixture, file!(), "prefetchable_refetchable_pagination.input", "relay_compiler_integration/fixtures/prefetchable_refetchable_pagination.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn preloadable_client_query_flow() {
+    let input = include_str!("relay_compiler_integration/fixtures/preloadable_client_query_flow.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/preloadable_client_query_flow.expected");
+    test_fixture(transform_fixture, file!(), "preloadable_client_query_flow.input", "relay_compiler_integration/fixtures/preloadable_client_query_flow.expected", input, expected).await;
 }
 
 #[tokio::test]

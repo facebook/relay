@@ -103,8 +103,12 @@ function BasicUserRenderer() {
     // $FlowFixMe[not-a-function]
     return moduleProvider().default;
   };
-  // $FlowFixMe[underconstrained-implicit-instantiation]
-  return <MatchContainer loader={loader} match={fragmentData?.basicUser} />;
+  return (
+    <MatchContainer<{...}, null>
+      loader={loader}
+      match={fragmentData?.basicUser}
+    />
+  );
 }
 
 let logEvents: Array<LogEvent> = [];

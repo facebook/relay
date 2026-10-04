@@ -148,6 +148,7 @@ function handlePotentialSnapshotErrorsForState(
 function handleMissedUpdates(
   environment: IEnvironment,
   state: FragmentState,
+  useFreshSnapshot: boolean = false,
 ): null | [/* has data changed */ boolean, FragmentState] {
   if (state.kind === 'bailout') {
     return null;
@@ -161,10 +162,9 @@ function handleMissedUpdates(
   // so check for any updates to the data we're rendering:
   if (state.kind === 'singular') {
     const currentSnapshot = environment.lookup(state.snapshot.selector);
-    const updatedData = recycleNodesInto(
-      state.snapshot.data,
-      currentSnapshot.data,
-    );
+    const updatedData = useFreshSnapshot
+      ? currentSnapshot.data
+      : recycleNodesInto(state.snapshot.data, currentSnapshot.data);
     const updatedCurrentSnapshot: Snapshot = {
       data: updatedData,
       fieldErrors: currentSnapshot.fieldErrors,
@@ -190,7 +190,9 @@ function handleMissedUpdates(
     for (let index = 0; index < state.snapshots.length; index++) {
       const snapshot = state.snapshots[index];
       const currentSnapshot = environment.lookup(snapshot.selector);
-      const updatedData = recycleNodesInto(snapshot.data, currentSnapshot.data);
+      const updatedData = useFreshSnapshot
+        ? currentSnapshot.data
+        : recycleNodesInto(snapshot.data, currentSnapshot.data);
       const updatedCurrentSnapshot: Snapshot = {
         data: updatedData,
         fieldErrors: currentSnapshot.fieldErrors,
@@ -456,6 +458,16 @@ hook useFragmentInternal_EXPERIMENTAL(
   const [_state, setState] = useState<FragmentState>(() =>
     getFragmentState(environment, fragmentSelector),
   );
+  const storeSubscriptionRef = useRef<
+    | {
+        kind: 'initialized',
+        dispose: () => void,
+        selector: ?ReaderSelector,
+        environment: IEnvironment,
+      }
+    | {kind: 'missed-updates'}
+    | {kind: 'uninitialized'},
+  >({kind: 'uninitialized'});
   let state = _state;
   const previousEnvironment = state.environment;
 
@@ -470,6 +482,17 @@ hook useFragmentInternal_EXPERIMENTAL(
     // the component would render the wrong information temporarily (including
     // possibly incorrectly triggering some warnings below).
     state = newState;
+  }
+
+  // Effects do not run while an <Activity> is hidden, so reconcile missed store
+  // updates during render. Without a subscription, use unrecycled data so that
+  // memoized children receive new fragment refs and re-read their own data.
+  // $FlowFixMe[react-rule-unsafe-ref]
+  const isSubscribed = storeSubscriptionRef.current.kind === 'initialized';
+  const updates = handleMissedUpdates(environment, state, !isSubscribed);
+  if (updates != null && (updates[0] || !isSubscribed)) {
+    state = updates[1];
+    setState(state);
   }
 
   // The purpose of this is to detect whether we have ever committed, because we
@@ -607,9 +630,11 @@ hook useFragmentInternal_EXPERIMENTAL(
     // Suspend if an active operation bears on this fragment, either the
     // fragment's owner or some other mutation etc. that could affect it.
     // We only suspend when the component is first trying to mount or changing
-    // selectors, not if data becomes missing later:
+    // selectors, not if data becomes missing later. A render without a store
+    // subscription (e.g. in a hidden <Activity>) is treated like a mount:
     if (
       RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE ||
+      !isSubscribed ||
       environment !== previousEnvironment ||
       committedFragmentSelectorRef.current === false ||
       // $FlowFixMe[react-rule-unsafe-ref]
@@ -657,16 +682,6 @@ hook useFragmentInternal_EXPERIMENTAL(
   //   or detaches (<Activity> going hidden), and then re-subscribes when the component
   //   re-attaches (<Activity> going visible). These cases wouldn't fire the
   //   "update" effect because the state and environment don't change.
-  const storeSubscriptionRef = useRef<
-    | {
-        kind: 'initialized',
-        dispose: () => void,
-        selector: ?ReaderSelector,
-        environment: IEnvironment,
-      }
-    | {kind: 'missed-updates'}
-    | {kind: 'uninitialized'},
-  >({kind: 'uninitialized'});
   // $FlowFixMe[react-rule-hook] - the condition is static
   useEffect(() => {
     const storeSubscription = storeSubscriptionRef.current;

@@ -377,10 +377,7 @@ fn generate_resolver_type(
     let inner_ast = match &resolver_metadata.output_type_info {
         ResolverOutputTypeInfo::ScalarField => {
             if is_relay_resolver_type(typegen_context, schema_field) {
-                match schema_field_type.is_non_null() {
-                    true => AST::NonNullable(Box::new(AST::Mixed)),
-                    false => AST::Mixed,
-                }
+                AST::Mixed
             } else {
                 let type_ = &schema_field_type.inner();
                 expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
@@ -472,7 +469,19 @@ fn generate_resolver_type(
         ResolverOutputTypeInfo::Legacy => AST::Mixed,
     };
 
-    let ast = transform_type_reference_into_ast(&schema_field_type, |_| inner_ast);
+    // `__relay_model_instance` is exempt from the assertion transform below.
+    // `generate_model_instance_field` always builds it NonNull regardless of what
+    // the model resolver returns, because a strong model resolver is *expected* to
+    // return `?Model` -- null means "no such model", and
+    // `RelayReader._readClientEdge` nulls the whole edge before the instance field
+    // is ever read. The non-nullness belongs to the edge, not to the resolver, so
+    // asserting it against the resolver would be wrong.
+    let is_model_instance = schema_field.name.item == *RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
+    let ast = if is_model_instance || !hides_its_nullability(&inner_ast) {
+        transform_type_reference_into_ast(&schema_field_type, |_| inner_ast)
+    } else {
+        transform_type_reference_into_assertion_ast(&schema_field_type, |_| inner_ast)
+    };
 
     let return_type = if resolver_metadata.live {
         runtime_imports.resolver_live_state_type = true;
@@ -2336,6 +2345,72 @@ fn transform_non_nullable_type_reference_into_ast(
     match type_reference {
         TypeReference::List(of_type) => AST::ReadOnlyArray(Box::new(
             transform_type_reference_into_ast(of_type, transform_inner_type),
+        )),
+        TypeReference::Named(named_type) => transform_inner_type(named_type),
+        TypeReference::NonNull(_) => panic!("unexpected NonNull"),
+    }
+}
+
+/// Whether the type checker can see this type's nullability from the emitted
+/// syntax alone.
+///
+/// Absence of `Nullable` is already a real constraint for anything structurally
+/// evident -- Flow rejects `() => ?{id: string}` cast to `() => {id: string}` --
+/// so those assertions need no help and wrapping them only adds noise. It says
+/// nothing for a type that is printed as a *name*: the assertion then restates
+/// the resolver's own annotation, and nothing can fail a tautology.
+///
+/// Unrecognised variants default to "visible", i.e. no wrap. Being wrong that
+/// way costs a missed check, never a false positive.
+fn hides_its_nullability(ast: &AST) -> bool {
+    matches!(
+        ast,
+        // `unknown` admits null, so the bare type constrains nothing.
+        AST::Mixed
+            // Printed as a bare name; the definition may be a maybe type.
+            | AST::RawType(_)
+            | AST::Identifier(_)
+            | AST::GenericType { .. }
+            // Deferred lookups -- resolved by the type checker, not by us.
+            | AST::ReturnTypeOfFunctionWithName(_)
+            | AST::ReturnTypeOfMethodCall(_, _)
+            | AST::PropertyType { .. }
+    )
+}
+
+/// Like `transform_type_reference_into_ast`, but states every non-null level
+/// positively as `NonNullable<...>` rather than as the absence of `Nullable`.
+///
+/// Only used for leaf types that `hides_its_nullability` flags. Every level is
+/// wrapped because `@semanticNonNull(levels: [...])` can mark the list and its
+/// items independently.
+fn transform_type_reference_into_assertion_ast(
+    type_reference: &TypeReference<Type>,
+    transform_inner_type: impl FnOnce(&Type) -> AST,
+) -> AST {
+    match type_reference {
+        TypeReference::NonNull(non_null_ref) => AST::NonNullable(Box::new(
+            transform_non_nullable_type_reference_into_assertion_ast(
+                non_null_ref,
+                transform_inner_type,
+            ),
+        )),
+        _ => AST::Nullable(Box::new(
+            transform_non_nullable_type_reference_into_assertion_ast(
+                type_reference,
+                transform_inner_type,
+            ),
+        )),
+    }
+}
+
+fn transform_non_nullable_type_reference_into_assertion_ast(
+    type_reference: &TypeReference<Type>,
+    transform_inner_type: impl FnOnce(&Type) -> AST,
+) -> AST {
+    match type_reference {
+        TypeReference::List(of_type) => AST::ReadOnlyArray(Box::new(
+            transform_type_reference_into_assertion_ast(of_type, transform_inner_type),
         )),
         TypeReference::Named(named_type) => transform_inner_type(named_type),
         TypeReference::NonNull(_) => panic!("unexpected NonNull"),

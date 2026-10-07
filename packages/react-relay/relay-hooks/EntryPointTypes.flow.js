@@ -14,7 +14,7 @@
 /* eslint-disable no-unused-vars */
 
 import type {JSResourceReference} from 'JSResourceReference';
-import type {ElementConfig} from 'react';
+import type {ComponentProps} from 'react';
 import type {
   CacheConfig,
   FetchPolicy,
@@ -126,9 +126,9 @@ export type EntryPoint<
   getPreloadProps: (
     entryPointParams: TEntryPointParams,
   ) => PreloadProps<
-    ElementConfig<TEntryPointComponent>['queries'],
-    ElementConfig<TEntryPointComponent>['entryPoints'],
-    ElementConfig<TEntryPointComponent>['extraProps'],
+    ComponentProps<TEntryPointComponent>['queries'],
+    ComponentProps<TEntryPointComponent>['entryPoints'],
+    ComponentProps<TEntryPointComponent>['extraProps'],
   >,
   root: JSResourceReference<TEntryPointComponent>,
 }>;
@@ -196,11 +196,11 @@ export type PreloadProps<
 // Return type of `loadEntryPoint(...)`
 export type PreloadedEntryPoint<TEntryPointComponent> = Readonly<{
   dispose: () => void,
-  entryPoints: ElementConfig<TEntryPointComponent>['entryPoints'],
-  extraProps: ElementConfig<TEntryPointComponent>['extraProps'],
+  entryPoints: ComponentProps<TEntryPointComponent>['entryPoints'],
+  extraProps: ComponentProps<TEntryPointComponent>['extraProps'],
   getComponent: () => TEntryPointComponent,
   isDisposed: boolean,
-  queries: ElementConfig<TEntryPointComponent>['queries'],
+  queries: ComponentProps<TEntryPointComponent>['queries'],
   rootModuleID: string,
 }>;
 
@@ -216,7 +216,7 @@ export type EntryPointElementConfig<
     infer _EntryPointParams,
     infer EntryPointComponent,
   >
-    ? ElementConfig<EntryPointComponent>['props']
+    ? ComponentProps<EntryPointComponent>['props']
     : empty;
 
 export type ThinQueryParams<

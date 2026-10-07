@@ -74,9 +74,7 @@ function createContainerWithFragments<
   Component: TComponent,
   fragments: FragmentMap,
   taggedNode: GraphQLTaggedNode,
-): component(
-  ...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>
-) {
+): component(...$RelayProps<Props, RelayRefetchProp>) {
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {
@@ -492,9 +490,7 @@ function createContainer<
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
-): component(
-  ...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>
-) {
+): component(...$RelayProps<Props, RelayRefetchProp>) {
   // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,

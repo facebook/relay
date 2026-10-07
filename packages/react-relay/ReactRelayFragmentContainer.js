@@ -50,7 +50,7 @@ function createContainerWithFragments<
 >(
   Component: TComponent,
   fragments: FragmentMap,
-): component(...$RelayProps<React.ElementConfig<TComponent>, RelayProp>) {
+): component(...$RelayProps<Props, RelayProp>) {
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {

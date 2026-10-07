@@ -157,12 +157,12 @@ type MapRelayProp<T> = [readonly t: T] extends [
                 : T;
 
 export type RelayFragmentContainer<TComponent extends component(...empty)> =
-  component(...$RelayProps<React.ElementConfig<TComponent>, RelayProp>);
+  component(...$RelayProps<React.ComponentProps<TComponent>, RelayProp>);
 
 export type RelayPaginationContainer<TComponent extends component(...empty)> =
   component(
-    ...$RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>
+    ...$RelayProps<React.ComponentProps<TComponent>, RelayPaginationProp>
   );
 
 export type RelayRefetchContainer<TComponent extends component(...empty)> =
-  component(...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>);
+  component(...$RelayProps<React.ComponentProps<TComponent>, RelayRefetchProp>);

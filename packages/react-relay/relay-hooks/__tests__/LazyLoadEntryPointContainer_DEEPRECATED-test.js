@@ -80,7 +80,7 @@ const response = {
 let dataSource;
 let environment;
 let fetch;
-let entryPoint: React.ElementConfig<
+let entryPoint: React.ComponentProps<
   typeof LazyLoadEntryPointContainer_DEPRECATED,
 >['entryPoint'];
 let params;

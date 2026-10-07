@@ -272,6 +272,13 @@ pub struct FeatureFlags {
     /// throughout the project either way.
     #[serde(default)]
     pub emit_document_type_registry: FeatureFlag,
+
+    /// Generate the `id` field of strong Relay Resolver model types as
+    /// `ID @semanticNonNull` rather than `ID!`, so the model can implement an
+    /// interface alongside server types whose `id` is `ID @semanticNonNull`.
+    /// Limited and rollout variants are keyed by model type name.
+    #[serde(default)]
+    pub relay_resolver_model_semantic_non_null_id: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -313,6 +320,7 @@ impl Default for FeatureFlags {
             disable_more_precise_abstract_selection_raw_response_type: Default::default(),
             enable_typename_discriminated_unions: Default::default(),
             emit_document_type_registry: Default::default(),
+            relay_resolver_model_semantic_non_null_id: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

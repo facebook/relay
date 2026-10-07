@@ -59,40 +59,45 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         }
     });
 
-    let out = match extractor.resolve() {
-        Ok((objects, fields)) => objects
-            .into_iter()
-            .chain(
-                fields.into_iter().map(|field| {
+    let out =
+        match extractor.resolve() {
+            Ok((objects, fields)) => objects
+                .into_iter()
+                .chain(fields.into_iter().map(|field| {
                     DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(field))
-                }),
-            )
-            .map(|ir| {
-                // Extend schema with the IR and print SDL
-                let schema_document =
-                    ir.clone()
-                        .to_graphql_schema_ast(project_name, &schema, &Default::default())?;
-                for definition in &schema_document.definitions {
-                    extend_schema_with_resolver_type_system_definition(
-                        definition.clone(),
-                        Arc::get_mut(&mut schema)
-                            .expect("Expected to be able to get mutable reference to schema"),
-                        schema_document.location,
+                }))
+                .map(|ir| {
+                    // Extend schema with the IR and print SDL
+                    let schema_document = ir.clone().to_graphql_schema_ast(
+                        project_name,
+                        &schema,
+                        &Default::default(),
+                        &Default::default(),
                     )?;
-                }
+                    for definition in &schema_document.definitions {
+                        extend_schema_with_resolver_type_system_definition(
+                            definition.clone(),
+                            Arc::get_mut(&mut schema)
+                                .expect("Expected to be able to get mutable reference to schema"),
+                            schema_document.location,
+                        )?;
+                    }
 
-                let sdl = ir
-                    .clone()
-                    .to_sdl_string(project_name, &schema, &Default::default())?;
+                    let sdl = ir.clone().to_sdl_string(
+                        project_name,
+                        &schema,
+                        &Default::default(),
+                        &Default::default(),
+                    )?;
 
-                Ok((sdl.clone(), format!("{:#?}\n{}", &ir, sdl)))
-            })
-            .collect::<Vec<Result<_, Vec<Diagnostic>>>>(),
-        Err(err) => {
-            errors.extend(err);
-            Default::default()
-        }
-    };
+                    Ok((sdl.clone(), format!("{:#?}\n{}", ir, sdl)))
+                })
+                .collect::<Vec<Result<_, Vec<Diagnostic>>>>(),
+            Err(err) => {
+                errors.extend(err);
+                Default::default()
+            }
+        };
 
     let mut ok_out = vec![];
 

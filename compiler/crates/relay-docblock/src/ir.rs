@@ -12,6 +12,7 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::FeatureFlag;
 use common::InterfaceName;
 use common::Location;
 use common::Named;
@@ -38,6 +39,7 @@ use docblock_shared::RESOLVER_PROPERTY_LOOKUP_NAME;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use docblock_shared::RETURN_FRAGMENT_ARGUMENT_NAME;
 use docblock_shared::ResolverSourceHash;
+use docblock_shared::SEMANTIC_NON_NULL_FIELD;
 use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::BooleanNode;
@@ -95,10 +97,17 @@ pub enum ResolverTypeDocblockIr {
 }
 
 impl ResolverTypeDocblockIr {
-    pub fn to_graphql_schema_ast(&self, schema_config: &SchemaConfig) -> SchemaDocument {
+    pub fn to_graphql_schema_ast(
+        &self,
+        schema_config: &SchemaConfig,
+        semantic_non_null_model_id: &FeatureFlag,
+    ) -> SchemaDocument {
         let definitions = match self {
             ResolverTypeDocblockIr::StrongObjectResolver(strong_object_resolver) => {
-                vec![strong_object_resolver.type_definition(schema_config)]
+                vec![
+                    strong_object_resolver
+                        .type_definition(schema_config, semantic_non_null_model_id),
+                ]
             }
             ResolverTypeDocblockIr::WeakObjectType(weak_object) => vec![
                 weak_object.instance_scalar_type_definition(),
@@ -184,9 +193,15 @@ impl DocblockIr {
         project_name: ProjectName,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
+        semantic_non_null_model_id: &FeatureFlag,
     ) -> DiagnosticsResult<String> {
         Ok(self
-            .to_graphql_schema_ast(project_name, schema, schema_config)?
+            .to_graphql_schema_ast(
+                project_name,
+                schema,
+                schema_config,
+                semantic_non_null_model_id,
+            )?
             .definitions
             .iter()
             .map(|definition| format!("{}", definition))
@@ -206,9 +221,12 @@ impl DocblockIr {
         project_name: ProjectName,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
+        semantic_non_null_model_id: &FeatureFlag,
     ) -> DiagnosticsResult<SchemaDocument> {
         match self {
-            DocblockIr::Type(type_) => Ok(type_.to_graphql_schema_ast(schema_config)),
+            DocblockIr::Type(type_) => {
+                Ok(type_.to_graphql_schema_ast(schema_config, semantic_non_null_model_id))
+            }
             DocblockIr::Field(field) => {
                 field.to_graphql_schema_ast(project_name, schema, schema_config)
             }
@@ -955,28 +973,46 @@ pub struct StrongObjectIr {
 }
 
 impl StrongObjectIr {
-    pub fn type_definition(&self, schema_config: &SchemaConfig) -> TypeSystemDefinition {
+    pub fn type_definition(
+        &self,
+        schema_config: &SchemaConfig,
+        semantic_non_null_model_id: &FeatureFlag,
+    ) -> TypeSystemDefinition {
         let span = Span::empty();
+
+        let id_type = TypeAnnotation::Named(NamedTypeAnnotation {
+            name: string_key_as_identifier(*ID_TYPE),
+        });
+        let mut id_directives = vec![ConstantDirective {
+            span,
+            at: dummy_token(span),
+            name: string_key_as_identifier(
+                RELAY_RESOLVER_MODEL_GENERATED_ID_FIELD_DIRECTIVE_NAME.0,
+            ),
+            arguments: None,
+        }];
+        let id_type = if semantic_non_null_model_id.is_enabled_for(self.type_name.value) {
+            id_directives.push(ConstantDirective {
+                span,
+                at: dummy_token(span),
+                name: string_key_as_identifier(*SEMANTIC_NON_NULL_FIELD),
+                arguments: None,
+            });
+            id_type
+        } else {
+            TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
+                span,
+                type_: id_type,
+                exclamation: dummy_token(span),
+            }))
+        };
 
         let fields = vec![
             FieldDefinition {
                 name: string_key_as_identifier(schema_config.node_interface_id_field),
-                type_: TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
-                    span,
-                    type_: TypeAnnotation::Named(NamedTypeAnnotation {
-                        name: string_key_as_identifier(*ID_TYPE),
-                    }),
-                    exclamation: dummy_token(span),
-                })),
+                type_: id_type,
                 arguments: None,
-                directives: vec![ConstantDirective {
-                    span,
-                    at: dummy_token(span),
-                    name: string_key_as_identifier(
-                        RELAY_RESOLVER_MODEL_GENERATED_ID_FIELD_DIRECTIVE_NAME.0,
-                    ),
-                    arguments: None,
-                }],
+                directives: id_directives,
                 description: None,
                 hack_source: None,
                 span,

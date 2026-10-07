@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<62eedb1f9c27a623f5c20dbcf08c1c36>>
+ * @generated SignedSource<<0fa3349910c655828c9de2eec3602229>>
  */
 
 mod relay_compiler_integration;
@@ -1249,6 +1249,13 @@ async fn semantic_null_require_bubbling() {
     let input = include_str!("relay_compiler_integration/fixtures/semantic_null_require_bubbling.input");
     let expected = include_str!("relay_compiler_integration/fixtures/semantic_null_require_bubbling.expected");
     test_fixture(transform_fixture, file!(), "semantic_null_require_bubbling.input", "relay_compiler_integration/fixtures/semantic_null_require_bubbling.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn server_type_and_resolver_type_share_interface_semantic_non_null_id() {
+    let input = include_str!("relay_compiler_integration/fixtures/server_type_and_resolver_type_share_interface_semantic_non_null_id.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/server_type_and_resolver_type_share_interface_semantic_non_null_id.expected");
+    test_fixture(transform_fixture, file!(), "server_type_and_resolver_type_share_interface_semantic_non_null_id.input", "relay_compiler_integration/fixtures/server_type_and_resolver_type_share_interface_semantic_non_null_id.expected", input, expected).await;
 }
 
 #[tokio::test]

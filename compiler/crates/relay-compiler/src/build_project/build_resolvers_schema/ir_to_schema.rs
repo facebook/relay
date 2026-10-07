@@ -27,20 +27,24 @@ pub fn build_resolver_types_schema_documents(
     config: &Config,
     project_config: &ProjectConfig,
 ) -> Vec<SchemaDocument> {
-    let schema_config = &project_config.schema_config;
-    let base_config = project_config
+    let base_project_config = project_config
         .base
-        .map(|base_project_name| &config.projects[&base_project_name].schema_config);
+        .map(|base_project_name| &config.projects[&base_project_name]);
 
     type_irs
         .iter()
         .map(|type_ir| {
-            let ir_schema_config = if type_ir.is_base {
-                base_config.unwrap()
+            let ir_project_config = if type_ir.is_base {
+                base_project_config.unwrap()
             } else {
-                schema_config
+                project_config
             };
-            let schema_document = type_ir.ir.to_graphql_schema_ast(ir_schema_config);
+            let schema_document = type_ir.ir.to_graphql_schema_ast(
+                &ir_project_config.schema_config,
+                &ir_project_config
+                    .feature_flags
+                    .relay_resolver_model_semantic_non_null_id,
+            );
             if type_ir.is_base {
                 mark_document_as_base(schema_document)
             } else {

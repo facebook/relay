@@ -774,6 +774,13 @@
             "kind": "disabled"
           }
         },
+        "relay_resolver_model_semantic_non_null_id": {
+          "description": "Generate the `id` field of strong Relay Resolver model types as\n`ID @semanticNonNull` rather than `ID!`, so the model can implement an\ninterface alongside server types whose `id` is `ID @semanticNonNull`.\nLimited and rollout variants are keyed by model type name.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "shard_extra_artifacts": {
           "description": "Shard generated extra artifacts into subdirectories under\n`extraArtifactsOutput` that mirror the source file's relative path,\nhonoring `shardOutput` / `shardStripRegex`.",
           "$ref": "#/$defs/FeatureFlag",
@@ -1036,6 +1043,9 @@
             },
             "prefer_fetchable_in_refetch_queries": false,
             "relay_resolver_enable_interface_output_type": {
+              "kind": "disabled"
+            },
+            "relay_resolver_model_semantic_non_null_id": {
               "kind": "disabled"
             },
             "shard_extra_artifacts": {

@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 query WithVariables(
-  $id: ID!
+  $id: ID! @operation_variable
   $size: Int = 100
   $filter: FilterInput
   $items: [String!]!
@@ -16,6 +16,12 @@ query WithVariables(
       id
     }
   }
+}
+
+fragment WithFragmentVariable(
+  $size: Int @fragment_variable
+) on Image {
+  url(size: $size)
 }
 ==================================== OUTPUT ===================================
 visit_operation: Query WithVariables
@@ -38,7 +44,14 @@ visit_argument: if
 visit_variable: $enabled
 visit_scalar_field: id
 visit_variable_definition: $id
+visit_directive: @operation_variable at VariableDefinition
 visit_variable_definition: $size
 visit_variable_definition: $filter
 visit_variable_definition: $items
 visit_variable_definition: $enabled
+visit_fragment: WithFragmentVariable
+visit_scalar_field: url
+visit_argument: size
+visit_variable: $size
+visit_fragment_variable_definition: $size
+visit_directive: @fragment_variable at FragmentVariableDefinition

@@ -70,7 +70,7 @@ pub trait SyntaxVisitor {
         self.visit_selections(&fragment.selections.items);
         self.visit_directives(&fragment.directives, DirectiveLocation::FragmentDefinition);
         if let Some(variable_definitions) = &fragment.variable_definitions {
-            self.visit_variable_definitions(&variable_definitions.items);
+            self.visit_fragment_variable_definitions(&variable_definitions.items);
         }
     }
 
@@ -241,7 +241,7 @@ pub trait SyntaxVisitor {
         self.visit_constant_value(&argument.value)
     }
 
-    // Variable Definitions
+    // Operation Variable Definitions
     fn visit_variable_definitions(&mut self, variable_definitions: &[VariableDefinition]) {
         self.visit_list(variable_definitions, Self::visit_variable_definition)
     }
@@ -256,10 +256,38 @@ pub trait SyntaxVisitor {
             self.visit_constant_value(&default_value.value);
         }
 
-        // Visit directives on variable definition
+        // Visit directives on operation variable definition
         self.visit_directives(
             &variable_definition.directives,
             DirectiveLocation::VariableDefinition,
+        );
+    }
+
+    // Fragment Variable Definitions
+    fn visit_fragment_variable_definitions(&mut self, variable_definitions: &[VariableDefinition]) {
+        self.visit_list(
+            variable_definitions,
+            Self::visit_fragment_variable_definition,
+        )
+    }
+
+    fn visit_fragment_variable_definition(&mut self, variable_definition: &VariableDefinition) {
+        self.default_visit_fragment_variable_definition(variable_definition)
+    }
+
+    fn default_visit_fragment_variable_definition(
+        &mut self,
+        variable_definition: &VariableDefinition,
+    ) {
+        // Visit default value if present
+        if let Some(default_value) = &variable_definition.default_value {
+            self.visit_constant_value(&default_value.value);
+        }
+
+        // Visit directives on fragment variable definition
+        self.visit_directives(
+            &variable_definition.directives,
+            DirectiveLocation::FragmentVariableDefinition,
         );
     }
 

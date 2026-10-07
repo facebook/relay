@@ -10,8 +10,10 @@ use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
+use graphql_syntax::FragmentArgumentSyntaxKind;
+use graphql_syntax::ParserFeatures;
 use graphql_syntax::SyntaxVisitor;
-use graphql_syntax::parse_executable;
+use graphql_syntax::parse_executable_with_features;
 
 /// A test visitor that tracks all visited nodes
 struct TestVisitor {
@@ -119,6 +121,17 @@ impl SyntaxVisitor for TestVisitor {
         self.default_visit_variable_definition(variable_definition);
     }
 
+    fn visit_fragment_variable_definition(
+        &mut self,
+        variable_definition: &graphql_syntax::VariableDefinition,
+    ) {
+        self.log(format!(
+            "visit_fragment_variable_definition: ${}",
+            variable_definition.name.name
+        ));
+        self.default_visit_fragment_variable_definition(variable_definition);
+    }
+
     // TypeSystemDefinition visitors
 
     fn visit_type_system_definition(&mut self, definition: &graphql_syntax::TypeSystemDefinition) {
@@ -222,9 +235,14 @@ impl SyntaxVisitor for TestVisitor {
 }
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    let document = parse_executable(
+    let document = parse_executable_with_features(
         fixture.content,
         SourceLocationKey::standalone(fixture.file_name),
+        ParserFeatures {
+            fragment_argument_capability:
+                FragmentArgumentSyntaxKind::OnlyFragmentVariableDefinitions,
+            allow_string_literal_alias: false,
+        },
     )
     .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 

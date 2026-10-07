@@ -1,5 +1,5 @@
 query WithVariables(
-  $id: ID!
+  $id: ID! @operation_variable
   $size: Int = 100
   $filter: FilterInput
   $items: [String!]!
@@ -15,4 +15,10 @@ query WithVariables(
       id
     }
   }
+}
+
+fragment WithFragmentVariable(
+  $size: Int @fragment_variable
+) on Image {
+  url(size: $size)
 }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0fa3349910c655828c9de2eec3602229>>
+ * @generated SignedSource<<e51f538416c6090443463c5c01182f85>>
  */
 
 mod relay_compiler_integration;
@@ -276,6 +276,20 @@ async fn exec_time_resolver_query_root_shadow_routes() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_query_root_shadow_routes.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_query_root_shadow_routes.expected");
     test_fixture(transform_fixture, file!(), "exec_time_resolver_query_root_shadow_routes.input", "relay_compiler_integration/fixtures/exec_time_resolver_query_root_shadow_routes.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_resolver_rootless_client_to_server_edge() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_rootless_client_to_server_edge.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_rootless_client_to_server_edge.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_rootless_client_to_server_edge.input", "relay_compiler_integration/fixtures/exec_time_resolver_rootless_client_to_server_edge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_resolver_rootless_server_to_client_has_flag() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_rootless_server_to_client_has_flag.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_resolver_rootless_server_to_client_has_flag.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_resolver_rootless_server_to_client_has_flag.input", "relay_compiler_integration/fixtures/exec_time_resolver_rootless_server_to_client_has_flag.expected", input, expected).await;
 }
 
 #[tokio::test]

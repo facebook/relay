@@ -54,8 +54,7 @@ function createContainerWithFragments<
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {
-    // $FlowFixMe[missing-local-annot]
-    static displayName = containerName;
+    static displayName: ?string = containerName;
     constructor(props: $FlowFixMe) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);

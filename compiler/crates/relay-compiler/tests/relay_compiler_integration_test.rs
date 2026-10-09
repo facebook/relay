@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e51f538416c6090443463c5c01182f85>>
+ * @generated SignedSource<<5a935ff79cd20708975c09c62b6915dc>>
  */
 
 mod relay_compiler_integration;
@@ -773,6 +773,13 @@ async fn preloadable_query_typescript() {
     let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.input");
     let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.expected");
     test_fixture(transform_fixture, file!(), "preloadable_query_typescript.input", "relay_compiler_integration/fixtures/preloadable_query_typescript.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn preloadable_query_without_persist_config() {
+    let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_without_persist_config.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_without_persist_config.expected");
+    test_fixture(transform_fixture, file!(), "preloadable_query_without_persist_config.input", "relay_compiler_integration/fixtures/preloadable_query_without_persist_config.expected", input, expected).await;
 }
 
 #[tokio::test]

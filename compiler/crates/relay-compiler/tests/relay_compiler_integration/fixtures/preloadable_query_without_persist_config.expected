@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+//- foo.js
+// %without_extra_artifacts%
+graphql`
+  query fooQuery @preloadable {
+   userName
+  }`;
+
+//- relay.config.json
+{
+  "language": "flow",
+  "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query { userName: String }
+==================================== OUTPUT ===================================
+A thread that the Relay compiler spun up did not shut down gracefully: task 2 panicked with message "Expected operation artifact to have an `id`. Ensure a `persistConfig` is setup for the current project."

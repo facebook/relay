@@ -38,13 +38,18 @@ use relay_config::PersistConfig;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let project_fixture = ProjectFixture::deserialize(fixture.content);
+    let has_extra_artifacts = !fixture.content.contains("%without_extra_artifacts%");
 
     if project_fixture.file_changes().is_empty() {
-        return transform_project_fixture(&project_fixture).await;
+        return transform_project_fixture(&project_fixture, has_extra_artifacts).await;
     }
 
-    let incremental_result = transform_project_fixture(&project_fixture).await;
-    let full_result = transform_project_fixture(&project_fixture.with_file_changes_applied()).await;
+    let incremental_result = transform_project_fixture(&project_fixture, has_extra_artifacts).await;
+    let full_result = transform_project_fixture(
+        &project_fixture.with_file_changes_applied(),
+        has_extra_artifacts,
+    )
+    .await;
 
     if incremental_result == full_result {
         return incremental_result;
@@ -69,7 +74,10 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 ///
 /// If there are file changes in the ProjectFixture, an initial build will be
 /// done followed by an incremental build with the file changes applied.
-pub async fn transform_project_fixture(project_fixture: &ProjectFixture) -> Result<String, String> {
+pub async fn transform_project_fixture(
+    project_fixture: &ProjectFixture,
+    has_extra_artifacts: bool,
+) -> Result<String, String> {
     let has_file_changes = !project_fixture.file_changes().is_empty();
 
     let test_dir = TestDir::new();
@@ -88,7 +96,7 @@ pub async fn transform_project_fixture(project_fixture: &ProjectFixture) -> Resu
             }
         };
 
-        let (config, captured_requests) = configure_test_config(config);
+        let (config, captured_requests) = configure_test_config(config, has_extra_artifacts);
         let config = Arc::new(config);
 
         let compiler = Compiler::new(Arc::clone(&config), Arc::new(ConsoleLogger));
@@ -174,6 +182,7 @@ pub async fn transform_project_fixture(project_fixture: &ProjectFixture) -> Resu
 
 fn configure_test_config(
     mut config: Config,
+    has_extra_artifacts: bool,
 ) -> (
     Config,
     Arc<Mutex<Vec<mock_persister::CapturedPersistRequest>>>,
@@ -211,7 +220,9 @@ fn configure_test_config(
             },
         )
     }));
-    config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
+    if has_extra_artifacts {
+        config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
+    }
     (config, captured)
 }
 

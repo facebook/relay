@@ -1,0 +1,29 @@
+// Test: an exec-time resolver on a server type with no `@rootFragment` is an
+// error. Nothing schedules it at exec time, so it would never run and the field
+// would read `undefined`.
+
+//- FooQuery.js
+graphql`query FooQuery($text: String!) @exec_time_resolvers {
+  me {
+    echo(text: $text)
+  }
+}`
+
+//- User_echo.js
+/**
+ * @relayField User.echo(text: String!): RelayResolverValue
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { id: ID!, name: String }

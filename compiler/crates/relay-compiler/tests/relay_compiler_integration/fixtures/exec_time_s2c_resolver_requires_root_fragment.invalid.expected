@@ -1,0 +1,46 @@
+==================================== INPUT ====================================
+// Test: an exec-time resolver on a server type with no `@rootFragment` is an
+// error. Nothing schedules it at exec time, so it would never run and the field
+// would read `undefined`.
+
+//- FooQuery.js
+graphql`query FooQuery($text: String!) @exec_time_resolvers {
+  me {
+    echo(text: $text)
+  }
+}`
+
+//- User_echo.js
+/**
+ * @relayField User.echo(text: String!): RelayResolverValue
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { id: ID!, name: String }
+==================================== OUTPUT ===================================
+✖︎ Resolver `User.echo` is on a server type and is selected in an @exec_time_resolvers operation, but it declares no @rootFragment. At exec time a resolver on a server record runs once per record, scheduled by its root fragment; without one it never runs and the field reads `undefined`. Add a @rootFragment on `User` that selects `id` or `__typename`, or move the field to `Query` if it does not depend on the record.
+
+  FooQuery.js:3:5
+    2 │   me {
+    3 │     echo(text: $text)
+      │     ^^^^
+    4 │   }
+
+  ℹ︎ Resolver defined here
+
+  User_echo.js:2:21
+    1 │ *
+    2 │  * @relayField User.echo(text: String!): RelayResolverValue
+      │                     ^^^^
+    3 │

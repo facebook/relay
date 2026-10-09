@@ -136,6 +136,14 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "Resolver `{parent_type}.{field_name}` is on a server type and is selected in an @exec_time_resolvers operation, but it declares no @rootFragment. At exec time a resolver on a server record runs once per record, scheduled by its root fragment; without one it never runs and the field reads `undefined`. Add a @rootFragment on `{parent_type}` that selects `id` or `__typename`, or move the field to `Query` if it does not depend on the record."
+    )]
+    S2CResolverMissingRootFragment {
+        parent_type: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error(
         "Server-to-client resolver @rootFragment `{fragment_name}` cannot spread `{spread_name}`. At exec time the root fragment is checked selection by selection, and Relay does not follow a spread to see what it selects — so it cannot tell an identity-only fragment from one that reads server data. Inline the selections into `{fragment_name}` instead."
     )]
     S2CRootFragmentUnsupportedSpread {

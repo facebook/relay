@@ -1715,7 +1715,10 @@ impl ClientEdgesTransform<'_, '_> {
                 Some(s) => s,
                 None => return,
             },
-            None => return, // No @rootFragment — nothing to validate
+            None => {
+                self.validate_s2c_resolver_has_root_fragment(field, field_type, parent_type);
+                return;
+            }
         };
         // Look up the fragment definition
         let fragment_def_name = FragmentDefinitionName(fragment_name);
@@ -1735,6 +1738,41 @@ impl ClientEdgesTransform<'_, '_> {
             &mut errors,
         );
         self.errors.extend(errors);
+    }
+
+    /// An exec-time resolver on a server type is scheduled by its `@rootFragment`:
+    /// the normalizer collects it for each record the response holds, and nothing
+    /// else does. Without one it never runs and the field reads `undefined` with
+    /// no error.
+    ///
+    /// `Query` is exempt: the executor builds its resolvers with the query root
+    /// before any response arrives (`@exec_time_resolvers` is query-only, so no
+    /// other root type reaches here). A client-to-server edge is exempt too,
+    /// because the executor cannot run one under a server record with or without
+    /// a root fragment, so requiring one would only move the failure to runtime.
+    fn validate_s2c_resolver_has_root_fragment<T: graphql_ir::Field>(
+        &mut self,
+        field: &T,
+        field_type: &schema::Field,
+        parent_type: Type,
+    ) {
+        let schema = &self.program.schema;
+        let return_type = field_type.type_.inner();
+        let is_edge_to_server_object =
+            return_type.is_composite_type() && !schema.is_extension_type(return_type);
+        if Some(parent_type) == schema.query_type() || is_edge_to_server_object {
+            return;
+        }
+        self.errors.push(
+            Diagnostic::error(
+                ValidationMessage::S2CResolverMissingRootFragment {
+                    parent_type: schema.get_type_name(parent_type),
+                    field_name: field_type.name.item,
+                },
+                field.alias_or_name_location(),
+            )
+            .annotate("Resolver defined here", field_type.name.location),
+        );
     }
 }
 

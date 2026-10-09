@@ -1,0 +1,33 @@
+// Test: a rootless client-to-server edge on a server type compiles in an
+// @exec_time_resolvers operation. The executor cannot run a client-to-server
+// edge under a server record with or without a root fragment, so the
+// root-fragment requirement does not apply to it.
+
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    best_friend @waterfall {
+      name
+    }
+  }
+}`
+
+//- User_best_friend.js
+/**
+ * @relayField User.best_friend: User
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User implements Node { id: ID!, name: String }

@@ -12,8 +12,10 @@ use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlags;
 use common::NamedItem;
+use common::PointerAddress;
 use docblock_shared::SHADOW_RETURN_DIRECTIVE_NAME;
 use docblock_shared::SHADOW_RETURN_FRAGMENT_ARGUMENT_NAME;
+use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::LinkedField;
 use graphql_ir::Program;
@@ -69,6 +71,11 @@ struct ShadowResolversTransform<'program> {
     errors: Vec<Diagnostic>,
     /// Track which resolver fields have been validated to avoid duplicate validation
     validated_fields: HashSet<FieldID>,
+    /// Results keyed by the address of the selection's node. Client edges share
+    /// one selections subtree between the backing field and the linked field,
+    /// so nested client edges form a DAG whose unfolded size is 2^depth; without
+    /// this cache each shared subtree is re-traversed once per path to it.
+    seen: FnvHashMap<PointerAddress, Transformed<Selection>>,
 }
 
 impl<'program> ShadowResolversTransform<'program> {
@@ -83,6 +90,7 @@ impl<'program> ShadowResolversTransform<'program> {
             id_field_name,
             errors: Vec::new(),
             validated_fields: HashSet::new(),
+            seen: Default::default(),
         }
     }
 
@@ -356,6 +364,23 @@ impl Transformer<'_> for ShadowResolversTransform<'_> {
     const NAME: &'static str = "ShadowResolversTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
+        let key = match selection {
+            Selection::LinkedField(field) => PointerAddress::new(field.as_ref()),
+            Selection::InlineFragment(fragment) => PointerAddress::new(fragment.as_ref()),
+            Selection::Condition(condition) => PointerAddress::new(condition.as_ref()),
+            Selection::ScalarField(_) | Selection::FragmentSpread(_) => {
+                return self.default_transform_selection(selection);
+            }
+        };
+        if let Some(prev) = self.seen.get(&key) {
+            return prev.clone();
+        }
+        let result = self.default_transform_selection(selection);
+        self.seen.insert(key, result.clone());
+        result
+    }
 
     fn transform_scalar_field(
         &mut self,

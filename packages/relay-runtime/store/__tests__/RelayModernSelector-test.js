@@ -799,7 +799,7 @@ describe('RelayModernSelector', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       /*$FlowFixMe[unclear-type]*/
-      const fakeAstNode: Object = {};
+      const fakeAstNode: any = {};
       const clientEdgeTraversalInfoA = {
         clientEdgeDestinationID: 'a',
         readerClientEdge: fakeAstNode,
@@ -811,7 +811,7 @@ describe('RelayModernSelector', () => {
       const clientEdgeTraversalInfoANewNode = {
         clientEdgeDestinationID: 'a',
         /*$FlowFixMe[unclear-type]*/
-        readerClientEdge: {} as Object,
+        readerClientEdge: {} as any,
       };
       const baseSelector = createReaderSelector(
         UserFragment,

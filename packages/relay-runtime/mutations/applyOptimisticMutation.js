@@ -33,7 +33,7 @@ export type OptimisticMutationConfig<TMutation extends MutationParameters> = {
   mutation: GraphQLTaggedNode,
   variables: Variables,
   optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
-  optimisticResponse?: Object,
+  optimisticResponse?: any,
 };
 
 /**

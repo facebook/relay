@@ -24,8 +24,8 @@ type ValidationContext = {
   visitedPaths: Set<string>,
   path: string,
   variables: Variables,
-  missingDiff: Object,
-  extraDiff: Object,
+  missingDiff: any,
+  extraDiff: any,
   moduleImportPaths: Set<string>,
 };
 // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -41,7 +41,7 @@ let validateMutation:
 if (__DEV__) {
   const addFieldToDiff = (
     path: string,
-    diff: Object,
+    diff: any,
     isScalar: void | boolean,
   ) => {
     let deepLoc = diff;
@@ -56,9 +56,9 @@ if (__DEV__) {
     });
   };
   validateMutation = (
-    optimisticResponse: Object,
+    optimisticResponse: any,
     mutation: ConcreteRequest,
-    variables: ?Object,
+    variables: ?any,
   ) => {
     const operationName = mutation.operation.name;
     const context: ValidationContext = {
@@ -90,7 +90,7 @@ if (__DEV__) {
   };
 
   const validateSelections = (
-    optimisticResponse: Object,
+    optimisticResponse: any,
     selections: ReadonlyArray<NormalizationSelection>,
     context: ValidationContext,
   ) => {
@@ -100,7 +100,7 @@ if (__DEV__) {
   };
 
   const validateSelection = (
-    optimisticResponse: Object,
+    optimisticResponse: any,
     selection: NormalizationSelection,
     context: ValidationContext,
   ): void => {
@@ -177,7 +177,7 @@ if (__DEV__) {
   };
 
   const validateField = (
-    optimisticResponse: Object,
+    optimisticResponse: any,
     field: NormalizationField,
     context: ValidationContext,
   ) => {
@@ -234,7 +234,7 @@ if (__DEV__) {
   };
 
   const validateOptimisticResponse = (
-    optimisticResponse: Object,
+    optimisticResponse: any,
     context: ValidationContext,
   ) => {
     if (Array.isArray(optimisticResponse)) {
@@ -266,4 +266,4 @@ if (__DEV__) {
   };
 }
 
-module.exports = validateMutation as (Object, ConcreteRequest, ?Object) => void;
+module.exports = validateMutation as (any, ConcreteRequest, ?any) => void;

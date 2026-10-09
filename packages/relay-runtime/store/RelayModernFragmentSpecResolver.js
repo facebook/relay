@@ -72,7 +72,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   _callback: ?() => void;
   _context: RelayContext;
   _rootIsQueryRenderer: boolean;
-  _data: Object;
+  _data: any;
   _fragments: FragmentMap;
   _props: Props;
   _resolvers: Resolvers;
@@ -264,7 +264,7 @@ class SelectorResolver {
     }
   }
 
-  resolve(): ?Object {
+  resolve(): ?any {
     if (this._isMissingData === true) {
       // NOTE: This branch exists to handle the case in which:
       // - A RelayModern container is rendered as a descendant of a Relay Hook
@@ -415,7 +415,7 @@ class SelectorListResolver {
     this._resolvers.forEach(disposeCallback);
   }
 
-  resolve(): Array<?Object> {
+  resolve(): Array<?any> {
     if (this._stale) {
       // Avoid mapping the array multiple times, which could occur if data for
       // multiple indices changes in the same event loop.
@@ -468,7 +468,7 @@ class SelectorListResolver {
     this._stale = true;
   }
 
-  _onChange = (data: ?Object): void => {
+  _onChange = (data: ?any): void => {
     this._stale = true;
     this._callback();
   };

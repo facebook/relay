@@ -76,10 +76,10 @@ type FragmentVariablesGetter = (
 
 export type ConnectionConfig = {
   direction?: 'backward' | 'forward',
-  getConnectionFromProps?: (props: Object) => ?ConnectionData,
+  getConnectionFromProps?: (props: any) => ?ConnectionData,
   getFragmentVariables?: FragmentVariablesGetter,
   getVariables: (
-    props: Object,
+    props: any,
     paginationInfo: {
       count: number,
       cursor: ?string,

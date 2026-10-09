@@ -51,8 +51,8 @@ type PendingFetch = {
   cacheConfig: ?CacheConfig,
   ident: string,
   deferred: {
-    resolve: Function,
-    reject: Function,
+    resolve: any,
+    reject: any,
     ...
   },
   ...

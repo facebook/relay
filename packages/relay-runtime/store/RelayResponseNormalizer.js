@@ -950,7 +950,7 @@ class RelayResponseNormalizer {
   _validateRecordType(
     record: Record,
     field: NormalizationLinkedField,
-    payload: Object,
+    payload: any,
   ): void {
     if (RelayFeatureFlags.ENABLE_STORE_ID_COLLISION_LOGGING) {
       const typeName = field.concreteType ?? this._getRecordType(payload);

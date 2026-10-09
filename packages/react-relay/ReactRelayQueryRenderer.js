@@ -65,7 +65,7 @@ export type Props = Readonly<{
   fetchPolicy?: 'store-and-network' | 'network-only',
   environment: IEnvironment,
   query: ?GraphQLTaggedNode,
-  render: (renderProps: RenderProps<Object>) => React.Node,
+  render: (renderProps: RenderProps<any>) => React.Node,
   variables: Variables,
 }>;
 
@@ -76,7 +76,7 @@ type State = {
   prevQuery: ?GraphQLTaggedNode,
   queryFetcher: ReactRelayQueryFetcher,
   relayContext: RelayContext,
-  renderProps: RenderProps<Object>,
+  renderProps: RenderProps<any>,
   retryCallbacks: RetryCallbacks,
   requestCacheKey: ?string,
   snapshot: Snapshot | null,
@@ -281,7 +281,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   }
 }
 
-function getLoadingRenderProps(): RenderProps<Object> {
+function getLoadingRenderProps(): RenderProps<any> {
   return {
     error: null,
     props: null, // `props: null` indicates that the data is being fetched (i.e. loading)
@@ -289,7 +289,7 @@ function getLoadingRenderProps(): RenderProps<Object> {
   };
 }
 
-function getEmptyRenderProps(): RenderProps<Object> {
+function getEmptyRenderProps(): RenderProps<any> {
   return {
     error: null,
     props: {}, // `props: {}` indicates no data available
@@ -302,7 +302,7 @@ function getRenderProps(
   snapshot: ?Snapshot,
   queryFetcher: ReactRelayQueryFetcher,
   retryCallbacks: RetryCallbacks,
-): RenderProps<Object> {
+): RenderProps<any> {
   return {
     error: error ? error : null,
     props: snapshot ? snapshot.data : null,

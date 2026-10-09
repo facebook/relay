@@ -1566,7 +1566,7 @@ export type RelayResponsePayload = {
 export type ExecuteMutationConfig<TMutation extends MutationParameters> = {
   operation: OperationDescriptor,
   optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
-  optimisticResponse?: ?Object,
+  optimisticResponse?: ?any,
   updater?: ?SelectorStoreUpdater<TMutation['response']>,
   uploadables?: ?UploadableMap,
 };

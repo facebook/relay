@@ -188,8 +188,8 @@ const Index = () => {
             <div className="radiusLeft">
               <div className="outerPre">
                 <CodeBlock>
-                  {`import React from "react";
-import { graphql, usePreloadedQuery, /* ... */ } from "react-relay";
+                  {`import React from 'react';
+import {graphql, usePreloadedQuery /* ... */} from 'react-relay';
 
 const artistsQuery = graphql\`
   query ArtistQuery($artistID: String!) {
@@ -199,11 +199,9 @@ const artistsQuery = graphql\`
     }
   }
 \`;
-const artistsQueryReference = loadQuery(
-  environment,
-  artistsQuery,
-  {artistID: "1"}
-);
+const artistsQueryReference = loadQuery(environment, artistsQuery, {
+  artistID: '1',
+});
 
 export default function ArtistPage() {
   return (
@@ -212,7 +210,7 @@ export default function ArtistPage() {
         <ArtistView />
       </React.Suspense>
     </EnvironmentProvider>
-  )
+  );
 }
 
 function ArtistView() {
@@ -260,8 +258,8 @@ function ArtistView() {
             <div>
               <div className="outerPre">
                 <CodeBlock>
-                  {`import React from "react";
-import { graphql, useFragment} from "react-relay";
+                  {`import React from 'react';
+import {graphql, useFragment} from 'react-relay';
 
 export default function ArtistCard(props) {
   const {href, image, bio} = useFragment(
@@ -274,7 +272,7 @@ export default function ArtistCard(props) {
         }
       }
     \`,
-    props.artist
+    props.artist,
   );
   const imageUrl = image && image.url;
 

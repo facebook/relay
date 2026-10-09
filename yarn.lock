@@ -3699,10 +3699,10 @@ flatted@^3.1.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.6.tgz#022e9218c637f9f3fc9c35ab9c9193f05add60b2"
   integrity sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==
 
-flow-bin@^0.334.0:
-  version "0.334.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.334.0.tgz#75dc2fd59ec3135aa7d544d7c52bae35ed2831aa"
-  integrity sha512-yxo8AdJwRroEivEIZFzApPCyVsauhJy3T+nlbjbzyhO+9tzuGZIbt7hbHtAi1NCgQ9FkzFU1NNXF6ODayU+vfA==
+flow-bin@^0.335.0:
+  version "0.335.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.335.0.tgz#dd0d0d19b82c77d1d261d774e96bc624dd4143bc"
+  integrity sha512-a5Su683/8G03Cuj0nI9BMZxgg5M3VJtOA8R3/ADw7KcCXN2OdP72jC5ZtlpzWEwZjV+l/L+Up/Nw+CVYeghWxg==
 
 flow-eslint@0.333.0:
   version "0.333.0"

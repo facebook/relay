@@ -195,7 +195,7 @@ const artistsQuery = graphql\`
   query ArtistQuery($artistID: String!) {
     artist(id: $artistID) {
       name
-      ...ArtistDescription_artist
+      ...ArtistCard_artist
     }
   }
 \`;
@@ -264,7 +264,7 @@ import {graphql, useFragment} from 'react-relay';
 export default function ArtistCard(props) {
   const {href, image, bio} = useFragment(
     graphql\`
-      fragment ArtistHeader_artist on Artist {
+      fragment ArtistCard_artist on Artist {
         href
         bio
         image {

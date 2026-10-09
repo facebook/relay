@@ -321,7 +321,7 @@ impl WatchmanFileSource {
         });
         debug!(
             "WatchmanFileSource::try_saved_state(...) scm_since = {:?}",
-            &scm_since
+            scm_since
         );
 
         // Issue two watchman queries: One to get the saved state info, and one to get the changed files.
@@ -348,7 +348,7 @@ impl WatchmanFileSource {
         // First, use saved state query to download saved state from manifold.
         debug!(
             "WatchmanFileSource::try_saved_state(...) saved_state_result = {:?}",
-            &saved_state_result
+            saved_state_result
         );
         let saved_state_info = saved_state_result
             .saved_state_info()
@@ -356,7 +356,7 @@ impl WatchmanFileSource {
             .ok_or("no saved state in watchman response")?;
         debug!(
             "WatchmanFileSource::saved_state_info(...) file_source_result = {:?}",
-            &saved_state_info
+            saved_state_info
         );
 
         let saved_state_load_timer = perf_logger_event.start("saved_state_loading_time");
@@ -433,7 +433,7 @@ async fn query_file_result(
     let expression = get_watchman_expr(config);
     debug!(
         "WatchmanFileSource::query_file_result(...) get_watchman_expr = {:?}",
-        &expression
+        expression
     );
 
     // If `since` is available, we should not pass the `path` parameter.
@@ -463,7 +463,7 @@ async fn query_file_result(
     };
     debug!(
         "WatchmanFileSource::query_file_result(...) request = {:?}",
-        &request
+        request
     );
     let query_result = client.query::<WatchmanFile>(resolved_root, request).await?;
 

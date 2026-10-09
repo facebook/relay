@@ -640,7 +640,7 @@ pub fn extract_fragment_arguments(
                                 panic!("Expect ConstantValue::String as a type");
                             }
                         } else {
-                            panic!("Expect the constant value for the argDef: {:?}", &arg.value);
+                            panic!("Expect the constant value for the argDef: {:?}", arg.value);
                         };
 
                     Some(type_.map(|type_| Argument {

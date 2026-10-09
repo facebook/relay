@@ -265,8 +265,8 @@ pub fn build_resolvers_schema(
                 }
                 fields.push(ObjectEntry {
                     key: field.name.item,
-                    value: Primitive::Key(ast_builder.intern(Ast::Object(build_resolver_info(
-                        schema,
+                    value: Primitive::Key(build_resolver_info(
+                        ast_builder,
                         project_config,
                         artifact_path,
                         field,
@@ -279,7 +279,7 @@ pub fn build_resolvers_schema(
                             )),
                         },
                         resolver_type,
-                    )))),
+                    )),
                 });
             }
         }
@@ -297,15 +297,15 @@ pub fn build_resolvers_schema(
 }
 
 fn build_resolver_info(
-    schema: &SDLSchema,
+    ast_builder: &mut AstBuilder,
     project_config: &ProjectConfig,
     artifact_path: &PathBuf,
     field: &Field,
     import_path: StringKey,
     import_name: ModuleImportName,
     resolver_type: ResolverSchemaGenType,
-) -> Vec<ObjectEntry> {
-    let mut resolver_info = object! {
+) -> AstKey {
+    ast_builder.intern(Ast::Object(object! {
         resolver_function: match resolver_type {
             ResolverSchemaGenType::PropertyLookup { property_name } => {
                 Primitive::PropertyAccessor(property_name.to_string())
@@ -336,33 +336,7 @@ fn build_resolver_info(
             }
             None => Primitive::SkippableNull,
         },
-    };
-    if runs_on_server_record(schema, field) {
-        resolver_info.push(ObjectEntry {
-            key: CODEGEN_CONSTANTS.runs_on_server_record,
-            value: Primitive::Bool(true),
-        });
-    }
-    resolver_info
-}
-
-/// Whether an exec-time resolver hangs off a server record with no root
-/// fragment to schedule it by. It still runs once per record, and only the
-/// normalizer learns which records a response holds, so the runtime collects it
-/// on this flag alone.
-///
-/// Two kinds are left out. A resolver on `Query` is built with the query root
-/// before any response arrives, and collecting it would build it twice. A
-/// client-to-server edge cannot run under a server record yet.
-fn runs_on_server_record(schema: &SDLSchema, field: &Field) -> bool {
-    let return_type = field.type_.inner();
-    let is_edge_to_server_object =
-        return_type.is_composite_type() && !schema.is_extension_type(return_type);
-    get_resolver_fragment_dependency_name(field).is_none()
-        && !is_edge_to_server_object
-        && field.parent_type.is_some_and(|parent_type| {
-            !schema.is_extension_type(parent_type) && Some(parent_type) != schema.query_type()
-        })
+    }))
 }
 
 pub struct CodegenBuilder<'schema, 'builder, 'config> {
@@ -1037,12 +1011,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         inline_fragment: Option<Primitive>,
         root_fragment_reaches_server_field: bool,
     ) -> Primitive {
-        // Detect S2C resolvers: client extension fields on a server type that
-        // cannot run until the response has been normalized. Only relevant for
-        // exec-time resolver queries. Two kinds qualify: one whose `@rootFragment`
-        // reads server data, and one the runtime collects by
-        // `runs_on_server_record`. Routing on that same predicate keeps it from
-        // disagreeing with collection.
+        // Detect S2C resolvers: a client extension field on a server type whose
+        // `@rootFragment` reads server data, and so cannot run until the response
+        // has been normalized. Only relevant for exec-time resolver queries.
         //
         // The condition is the literal question, not a proxy for it. It used to
         // ask whether the resolver had a root fragment at all, and then exclude
@@ -1055,11 +1026,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         // different classification and does not take this path.
         if !context.has_server_to_client_resolvers && context.has_exec_time_resolvers_directive {
             let field = resolver_metadata.field(self.schema);
-            let reads_server_record = root_fragment_reaches_server_field
-                && field
-                    .parent_type
-                    .is_some_and(|parent_type| !self.schema.is_extension_type(parent_type));
-            if reads_server_record || runs_on_server_record(self.schema, field) {
+            if let Some(parent_type) = field.parent_type
+                && !self.schema.is_extension_type(parent_type)
+                && root_fragment_reaches_server_field
+            {
                 context.has_server_to_client_resolvers = true;
             }
         }
@@ -1125,7 +1095,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             .project_config
             .artifact_path_for_definition(self.definition_source_location);
         let resolver_info = build_resolver_info(
-            self.schema,
+            self.ast_builder,
             self.project_config,
             artifact_path,
             self.schema.field(resolver_metadata.field_id),
@@ -1139,7 +1109,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             },
             resolver_metadata.resolver_type,
         );
-        let resolver_info = self.object(resolver_info);
         let mut obj = object! {
             name: Primitive::String(field_name),
             args: match args {

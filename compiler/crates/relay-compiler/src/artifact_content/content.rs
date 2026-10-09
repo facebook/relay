@@ -495,19 +495,22 @@ pub fn generate_operation(
 
     // -- Begin PreloadableQueryRegistry Section --
     let mut section = GenericSection::default();
-    if is_operation_preloadable(normalization_operation) {
-        let registry_key = match (id_and_text_hash, text) {
-            (Some(_), _) if project_config.typegen_config.language == TypegenLanguage::Flow => {
-                "(node.params/*:: as any*/).id"
-            }
-            (Some(_), _) => "node.params.id",
-            // Client-only operations have no persisted ID or server text, but
-            // their request parameters contain a stable cache ID.
-            (None, None) => "node.params.cacheID",
-            (None, Some(_)) => panic!(
-                "Expected operation artifact to have an `id`. Ensure a `persistConfig` is setup for the current project."
-            ),
-        };
+    let registry_key = match (id_and_text_hash, text) {
+        (Some(_), _) if project_config.typegen_config.language == TypegenLanguage::Flow => {
+            Some("(node.params/*:: as any*/).id")
+        }
+        (Some(_), _) => Some("node.params.id"),
+        // Client-only operations have no persisted ID or server text, but
+        // their request parameters contain a stable cache ID.
+        (None, None) => Some("node.params.cacheID"),
+        // Unpersisted server operations have no registry key;
+        // `generate_preloadable_query_parameters_artifact` reports the missing
+        // `persistConfig`.
+        (None, Some(_)) => None,
+    };
+    if is_operation_preloadable(normalization_operation)
+        && let Some(registry_key) = registry_key
+    {
         if project_config.typegen_config.eager_es_modules {
             writeln!(
                 section,

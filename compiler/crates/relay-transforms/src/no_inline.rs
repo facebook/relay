@@ -96,10 +96,9 @@ pub fn is_raw_response_type_enabled(directive: &Directive) -> bool {
     }
 }
 
-/// If `@no_inline` is added to a fragment by @module or @relay_client_component
-/// transform, and the fragment is also used without these directives, manually
-/// adding `@no_inline` is required. Because in watch mode, if the path with @module
-/// or @relay_client_component isn't changed, `@no_inline` won't get added.
+/// If `@no_inline` is added to a fragment by the `@module` transform, and the
+/// fragment is also used without `@module`, manually adding `@no_inline` is
+/// required. In watch mode, an unchanged `@module` path will not add it again.
 pub fn validate_required_no_inline_directive(
     no_inline_fragments: &FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
     program: &Program,
@@ -158,8 +157,7 @@ impl Validator for RequiredNoInlineValidator<'_, '_> {
         if has_no_inline {
             return Ok(());
         }
-        // If the fragment spread isn't used for @module or @relay_client_component
-        // then explicit @no_inline is required.
+        // If the fragment spread isn't used for @module then explicit @no_inline is required.
         if spread.directives.is_empty()
             || !spread
                 .directives

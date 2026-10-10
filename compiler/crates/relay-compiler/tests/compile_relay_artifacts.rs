@@ -96,8 +96,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         "providedVariableNoInlineFragment".intern(),
         "noInlineFragment_parent".intern(),
         "noInlineAbstractFragment_parent".intern(),
-        "queryWithRelayClientComponentWithArgumentDefinitions_ClientComponentFragment".intern(),
-        "queryWithRelayClientComponent_ClientComponentFragment".intern(),
     ];
 
     let feature_flags = FeatureFlags {

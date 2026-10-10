@@ -29,9 +29,6 @@ use thiserror::Error;
 )]
 #[serde(tag = "type")]
 pub enum ValidationMessage {
-    #[error("This fragment spread already has a split normalization file generated.")]
-    DuplicateRelayClientComponentSplitOperation,
-
     #[error(
         "The Relay Resolver backing this field has an `@relay_resolver` directive with an invalid '{key}' argument. Expected a literal string value."
     )]

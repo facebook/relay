@@ -48,7 +48,6 @@ export interface EnvironmentConfig {
     readonly options?: unknown | undefined;
     readonly isServer?: boolean | undefined;
     readonly relayFieldLogger?: RelayFieldLogger | null | undefined;
-    readonly shouldProcessClientComponents?: boolean | null | undefined;
 }
 
 export default class RelayModernEnvironment implements Environment {

@@ -89,7 +89,6 @@ export type ExecuteConfig<TMutation extends MutationParameters> = {
   readonly operationTracker: OperationTracker,
   readonly optimisticConfig: ?OptimisticResponseConfig<TMutation>,
   readonly scheduler?: ?TaskScheduler,
-  readonly shouldProcessClientComponents?: ?boolean,
   readonly sink: Sink<GraphQLResponse>,
   readonly source: RelayObservable<NetworkResponse>,
   readonly treatMissingFieldsAsNull: boolean,
@@ -148,7 +147,6 @@ class Executor<TMutation extends MutationParameters> {
   _useExecTimeResolvers: boolean;
   _pendingModulePayloadsCount: number;
   readonly _getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue;
-  _shouldProcessClientComponents: ?boolean;
   _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
   _source: Map<
@@ -184,7 +182,6 @@ class Executor<TMutation extends MutationParameters> {
     operationTracker,
     optimisticConfig,
     scheduler,
-    shouldProcessClientComponents,
     sink,
     source,
     treatMissingFieldsAsNull,
@@ -226,7 +223,6 @@ class Executor<TMutation extends MutationParameters> {
     this._isClientPayload = isClientPayload === true;
     this._isSubscriptionOperation =
       this._operation.request.node.params.operationKind === 'subscription';
-    this._shouldProcessClientComponents = shouldProcessClientComponents;
     this._retainDisposables = new Map();
     this._seenActors = new Set();
     this._completeFns = [];
@@ -791,7 +787,6 @@ class Executor<TMutation extends MutationParameters> {
           getDataID: this._getDataID,
           log: this._log,
           path: [],
-          shouldProcessClientComponents: this._shouldProcessClientComponents,
           treatMissingFieldsAsNull,
         },
         this._useExecTimeResolvers,
@@ -910,7 +905,6 @@ class Executor<TMutation extends MutationParameters> {
         getDataID: this._getDataID,
         log: this._log,
         path: followupPayload.path,
-        shouldProcessClientComponents: this._shouldProcessClientComponents,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
       this._useExecTimeResolvers,
@@ -995,7 +989,6 @@ class Executor<TMutation extends MutationParameters> {
           getDataID: this._getDataID,
           log: this._log,
           path: [],
-          shouldProcessClientComponents: this._shouldProcessClientComponents,
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         },
         this._useExecTimeResolvers,
@@ -1462,7 +1455,6 @@ class Executor<TMutation extends MutationParameters> {
         getDataID: this._getDataID,
         log: this._log,
         path: placeholder.path,
-        shouldProcessClientComponents: this._shouldProcessClientComponents,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
       this._useExecTimeResolvers,
@@ -1696,7 +1688,6 @@ class Executor<TMutation extends MutationParameters> {
         getDataID: this._getDataID,
         log: this._log,
         path: [...normalizationPath, responseKey, String(itemIndex)],
-        shouldProcessClientComponents: this._shouldProcessClientComponents,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
       this._useExecTimeResolvers,

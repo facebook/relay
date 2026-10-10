@@ -1044,7 +1044,6 @@ describe('RelayReferenceMarker', () => {
         ),
         execTimeReferences,
         loader,
-        undefined,
         true,
       );
       expect(Array.from(execTimeReferences).sort()).toEqual([

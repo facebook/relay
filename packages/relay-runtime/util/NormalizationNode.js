@@ -231,12 +231,6 @@ export type NormalizationClientEdgeToServerObject = {
   readonly operation: ConcreteRequest,
 };
 
-export type NormalizationClientComponent = {
-  readonly args?: ?ReadonlyArray<NormalizationArgument>,
-  readonly kind: 'ClientComponent',
-  readonly fragment: NormalizationNode,
-};
-
 export type NormalizationTypeDiscriminator = {
   readonly kind: 'TypeDiscriminator',
   readonly abstractKey: string,
@@ -244,7 +238,6 @@ export type NormalizationTypeDiscriminator = {
 
 export type NormalizationSelection =
   | NormalizationCondition
-  | NormalizationClientComponent
   | NormalizationClientExtension
   | NormalizationClientEdgeToClientObject
   | NormalizationClientEdgeToServerObject

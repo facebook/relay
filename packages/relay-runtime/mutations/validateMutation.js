@@ -108,7 +108,6 @@ if (__DEV__) {
       case 'Condition':
         validateSelections(optimisticResponse, selection.selections, context);
         return;
-      case 'ClientComponent':
       case 'FragmentSpread':
         validateSelections(
           optimisticResponse,

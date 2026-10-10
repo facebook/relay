@@ -75,7 +75,7 @@ export interface NormalizationClientExtension {
     readonly selections: readonly NormalizationSelection[];
 }
 
-export type NormalizationField = NormalizationFlightField | NormalizationScalarField | NormalizationLinkedField;
+export type NormalizationField = NormalizationScalarField | NormalizationLinkedField;
 
 export interface NormalizationInlineFragment {
     readonly kind: 'InlineFragment';
@@ -156,18 +156,13 @@ export interface NormalizationScalarField {
     readonly storageKey?: string | null | undefined;
 }
 
+/** @deprecated Flight fields are no longer part of normalization selections. */
 export interface NormalizationFlightField {
     readonly kind: 'FlightField';
     readonly alias?: string | null | undefined;
     readonly name: string;
     readonly args?: readonly NormalizationArgument[] | null | undefined;
     readonly storageKey: string | null | undefined;
-}
-
-export interface NormalizationClientComponent {
-    readonly args?: readonly NormalizationArgument[] | null | undefined;
-    readonly kind: 'ClientComponent';
-    readonly fragment: NormalizationNode;
 }
 
 export interface NormalizationTypeDiscriminator {
@@ -177,11 +172,9 @@ export interface NormalizationTypeDiscriminator {
 
 export type NormalizationSelection =
     | NormalizationCondition
-    | NormalizationClientComponent
     | NormalizationClientExtension
     | NormalizationDefer
     | NormalizationField
-    | NormalizationFlightField
     | NormalizationFragmentSpread
     | NormalizationHandle
     | NormalizationInlineFragment

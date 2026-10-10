@@ -37,7 +37,6 @@ const {
 
 const {
   ACTOR_CHANGE,
-  CLIENT_COMPONENT,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EDGE_TO_SERVER_OBJECT,
   CLIENT_EXTENSION,
@@ -49,8 +48,8 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
-  RELAY_RESOLVER,
   RELAY_LIVE_RESOLVER,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -356,17 +355,6 @@ class RelayMockPayloadGenerator {
           break;
         }
 
-        case CLIENT_COMPONENT: {
-          mockData = this._traverseSelections(
-            selection.fragment.selections,
-            typeName,
-            isAbstractType,
-            path,
-            mockData,
-            defaultValues,
-          );
-          break;
-        }
         case FRAGMENT_SPREAD: {
           const prevVariables = this._variables;
           this._variables = __internal.getLocalVariables(

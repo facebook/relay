@@ -69,7 +69,6 @@ export type MultiActorEnvironmentConfig = Readonly<{
   operationLoader?: ?OperationLoader,
   relayFieldLogger?: ?RelayFieldLogger,
   scheduler?: ?TaskScheduler,
-  shouldProcessClientComponents?: ?boolean,
   treatMissingFieldsAsNull?: boolean,
   deferDeduplicatedFields?: boolean,
 }>;
@@ -94,7 +93,6 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   readonly _operationLoader: ?OperationLoader;
   readonly _relayFieldLogger: RelayFieldLogger;
   readonly _scheduler: ?TaskScheduler;
-  readonly _shouldProcessClientComponents: ?boolean;
   readonly _treatMissingFieldsAsNull: boolean;
   readonly _deferDeduplicatedFields: boolean;
 
@@ -110,7 +108,6 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     this._logFn = config.logFn ?? emptyFunction;
     this._operationExecutions = new Map();
     this._relayFieldLogger = config.relayFieldLogger ?? defaultRelayFieldLogger;
-    this._shouldProcessClientComponents = config.shouldProcessClientComponents;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull ?? false;
     this._deferDeduplicatedFields = config.deferDeduplicatedFields ?? false;
     this._isServer = config.isServer ?? false;
@@ -477,7 +474,6 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
           return this.forActor(actorIdentifier).getPublishQueue();
         },
         scheduler: this._scheduler,
-        shouldProcessClientComponents: this._shouldProcessClientComponents,
         sink,
         // NOTE: Some product tests expect `Network.execute` to be called only
         //       when the Observable is executed.

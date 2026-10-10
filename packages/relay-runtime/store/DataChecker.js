@@ -71,7 +71,6 @@ function check(
   handlers: ReadonlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
-  shouldProcessClientComponents: ?boolean,
   log: ?LogFunction,
   useExecTimeResolvers: ?boolean,
 ): Availability {
@@ -90,7 +89,6 @@ function check(
     handlers,
     operationLoader,
     getDataID,
-    shouldProcessClientComponents,
     log,
     useExecTimeResolvers,
   );
@@ -117,7 +115,6 @@ class DataChecker {
   _source: RecordSource;
   _useExecTimeResolvers: boolean;
   _variables: Variables;
-  _shouldProcessClientComponents: ?boolean;
   readonly _getSourceForActor: (
     actorIdentifier: ActorIdentifier,
   ) => RecordSource;
@@ -141,7 +138,6 @@ class DataChecker {
     handlers: ReadonlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
-    shouldProcessClientComponents: ?boolean,
     log: ?LogFunction,
     useExecTimeResolvers: ?boolean,
   ) {
@@ -161,7 +157,6 @@ class DataChecker {
     this._recordSourceProxy = recordSourceProxy;
     this._recordWasMissing = false;
     this._variables = variables;
-    this._shouldProcessClientComponents = shouldProcessClientComponents;
     this._log = log;
   }
 
@@ -487,12 +482,6 @@ class DataChecker {
             // missing
             this._handleMissing();
           } // else: if it does or doesn't implement, we don't need to check or skip anything else
-          break;
-        case 'ClientComponent':
-          if (this._shouldProcessClientComponents === false) {
-            break;
-          }
-          this._traverseSelections(selection.fragment.selections, dataID);
           break;
         case 'RelayResolver':
         case 'RelayLiveResolver':

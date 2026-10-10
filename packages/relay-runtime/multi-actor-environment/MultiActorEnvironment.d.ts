@@ -48,7 +48,6 @@ export type MultiActorEnvironmentConfig = Readonly<{
     operationLoader?: OperationLoader | null;
     relayFieldLogger?: RelayFieldLogger | null;
     scheduler?: TaskScheduler | null;
-    shouldProcessClientComponents?: boolean | null;
     treatMissingFieldsAsNull?: boolean;
 }>;
 

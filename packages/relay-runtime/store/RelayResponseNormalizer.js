@@ -83,7 +83,6 @@ export type NormalizationOptions = {
   readonly deferDeduplicatedFields: boolean,
   readonly log: ?LogFunction,
   readonly path?: ReadonlyArray<string>,
-  readonly shouldProcessClientComponents?: ?boolean,
   readonly actorIdentifier?: ?ActorIdentifier,
 };
 
@@ -128,7 +127,6 @@ class RelayResponseNormalizer {
   _recordSource: MutableRecordSource;
   _variables: Variables;
   _useExecTimeResolvers: boolean;
-  _shouldProcessClientComponents: ?boolean;
   _errorTrie: RelayErrorTrie | null;
   _log: ?LogFunction;
   _s2cExecutions: Map<
@@ -163,7 +161,6 @@ class RelayResponseNormalizer {
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
     this._variables = variables;
-    this._shouldProcessClientComponents = options.shouldProcessClientComponents;
     this._log = options.log;
     this._s2cExecutions = new Map();
   }
@@ -333,12 +330,6 @@ class RelayResponseNormalizer {
           this._isClientExtension = true;
           this._traverseSelections(selection, record, data);
           this._isClientExtension = isClientExtension;
-          break;
-        case 'ClientComponent':
-          if (this._shouldProcessClientComponents === false) {
-            break;
-          }
-          this._traverseSelections(selection.fragment, record, data);
           break;
         case 'ActorChange':
           this._normalizeActorChange(selection, record, data);

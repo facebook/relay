@@ -21,14 +21,12 @@ describe('new Environment()', () => {
       load: jest.fn(),
     };
     const getDataID = () => 'lol';
-    const shouldProcessClientComponents = true;
     const network = RelayNetwork.create(jest.fn());
     const environment = new RelayModernEnvironment({
       network,
       log,
       operationLoader,
       getDataID,
-      shouldProcessClientComponents,
     });
 
     const store = environment.getStore();

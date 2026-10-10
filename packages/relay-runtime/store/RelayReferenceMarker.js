@@ -47,7 +47,6 @@ function mark(
   selector: NormalizationSelector,
   references: DataIDSet,
   operationLoader: ?OperationLoader,
-  shouldProcessClientComponents: ?boolean,
   useExecTimeResolvers: ?boolean,
 ): void {
   const {dataID, node, variables} = selector;
@@ -56,7 +55,6 @@ function mark(
     variables,
     references,
     operationLoader,
-    shouldProcessClientComponents,
     useExecTimeResolvers,
   );
   marker.mark(node, dataID);
@@ -72,14 +70,12 @@ class RelayReferenceMarker {
   _references: DataIDSet;
   _variables: Variables;
   _useExecTimeResolvers: boolean;
-  _shouldProcessClientComponents: ?boolean;
 
   constructor(
     recordSource: RecordSource,
     variables: Variables,
     references: DataIDSet,
     operationLoader: ?OperationLoader,
-    shouldProcessClientComponents: ?boolean,
     useExecTimeResolvers: ?boolean,
   ) {
     this._operationLoader = operationLoader ?? null;
@@ -88,7 +84,6 @@ class RelayReferenceMarker {
     this._recordSource = recordSource;
     this._references = references;
     this._variables = variables;
-    this._shouldProcessClientComponents = shouldProcessClientComponents;
   }
 
   mark(node: NormalizationNode, dataID: DataID): void {
@@ -229,12 +224,6 @@ class RelayReferenceMarker {
           break;
         case 'ClientExtension':
           this._traverseSelections(selection.selections, record);
-          break;
-        case 'ClientComponent':
-          if (this._shouldProcessClientComponents === false) {
-            break;
-          }
-          this._traverseSelections(selection.fragment.selections, record);
           break;
         case 'RelayResolver':
         case 'RelayLiveResolver':

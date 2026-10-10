@@ -83,14 +83,12 @@ export type EnvironmentConfig = {
   readonly options?: unknown,
   readonly isServer?: boolean,
   readonly relayFieldLogger?: ?RelayFieldLogger,
-  readonly shouldProcessClientComponents?: ?boolean,
 };
 
 class RelayModernEnvironment implements IEnvironment {
   __log: LogFunction;
   readonly _defaultRenderPolicy: RenderPolicy;
   _operationLoader: ?OperationLoader;
-  _shouldProcessClientComponents: ?boolean;
   _network: INetwork;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
@@ -130,7 +128,6 @@ class RelayModernEnvironment implements IEnvironment {
         getDataID: config.getDataID,
         log: config.log,
         operationLoader: config.operationLoader,
-        shouldProcessClientComponents: config.shouldProcessClientComponents,
       });
 
     this.__log = config.log ?? emptyFunction;
@@ -165,7 +162,6 @@ class RelayModernEnvironment implements IEnvironment {
 
     this._operationTracker =
       config.operationTracker ?? new RelayOperationTracker();
-    this._shouldProcessClientComponents = config.shouldProcessClientComponents;
 
     // Register this Relay Environment with Relay DevTools if it exists.
     // Note: this must always be the last step in the constructor.
@@ -288,7 +284,6 @@ class RelayModernEnvironment implements IEnvironment {
         getDataID: this._getDataID,
         log: this.__log,
         path: [],
-        shouldProcessClientComponents: this._shouldProcessClientComponents,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
       false,
@@ -544,7 +539,6 @@ class RelayModernEnvironment implements IEnvironment {
         operationTracker: this._operationTracker,
         optimisticConfig,
         scheduler: this._scheduler,
-        shouldProcessClientComponents: this._shouldProcessClientComponents,
         sink,
         // NOTE: Some product tests expect `Network.execute` to be called only
         //       when the Observable is executed.

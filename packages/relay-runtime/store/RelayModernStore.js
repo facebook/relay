@@ -125,7 +125,6 @@ class RelayModernStore implements Store {
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: DataIDSet;
-  _shouldProcessClientComponents: ?boolean;
   _resolverContext: ?ResolverContext;
   _actorIdentifier: ?ActorIdentifier;
   _treatMissingFieldsAsNull: boolean;
@@ -141,7 +140,6 @@ class RelayModernStore implements Store {
       getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
-      shouldProcessClientComponents?: ?boolean,
       resolverContext?: ResolverContext,
 
       // Experimental
@@ -196,9 +194,6 @@ class RelayModernStore implements Store {
       this._resolverContext,
     );
     this._updatedRecordIDs = new Set();
-    this._shouldProcessClientComponents =
-      options?.shouldProcessClientComponents ?? false;
-
     this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
     this._deferDeduplicatedFields = options?.deferDeduplicatedFields ?? false;
     this._actorIdentifier = options?.actorIdentifier;
@@ -367,7 +362,6 @@ class RelayModernStore implements Store {
       handlers,
       this._operationLoader,
       this._getDataID,
-      this._shouldProcessClientComponents,
       this.__log,
       useExecTimeResolvers,
     );
@@ -940,7 +934,6 @@ class RelayModernStore implements Store {
           selector,
           references,
           this._operationLoader,
-          this._shouldProcessClientComponents,
           useExecTimeResolvers,
         );
         // Yield for other work after each operation
@@ -1005,7 +998,6 @@ class RelayModernStore implements Store {
       log: this.__log,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       deferDeduplicatedFields: this._deferDeduplicatedFields,
-      shouldProcessClientComponents: this._shouldProcessClientComponents,
       actorIdentifier: this._actorIdentifier,
     };
   }

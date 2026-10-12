@@ -130,6 +130,36 @@ Roles are [ARIA roles](https://testing-library.com/docs/queries/byrole/#api) (`b
 
 `wait` polls until a matching element appears (uses `findByText`/`findByRole`). Use it to wait for Suspense to resolve or for async data to arrive before snapshotting or interacting.
 
+## Incremental delivery (`@defer` / `@stream`)
+
+Both work with no per-fixture setup. Spread a fragment with `@defer`, or put
+`@stream(initialCount: N)` on a plural field, and the server delivers the rest
+in later payloads:
+
+```graphql
+query AppTestQuery {
+  user {
+    name
+    ...AppBioFragment @defer
+  }
+}
+```
+
+Give the deferred field an `async` resolver, or nothing is outstanding when the
+initial payload is sent.
+
+Do **not** declare the directives in a fixture. `runFixture.js` appends them to
+the generated `schema.graphql` and `GratsNetwork.ts` sets `enableDeferStream`.
+Declaring them under `schemaExtensions` is the trap: it compiles, but
+`skip_client_directives` then drops `@defer` from the printed query text, so the
+fixture passes with the deferred field silently empty.
+
+To assert on the *pending* state, have the resolver await a promise that client
+code resolves and drive it from a `steps` block; an `async` resolver alone
+settles a microtask later, so the fallback is a race. See
+`fixtures/defer/suspense-fallback.md` — server and client share a module realm,
+so `App.tsx` can import a non-schema `releaseBio()` from `./server`.
+
 ## Snapshots
 
 Snapshots are plain `.snap.md` files rather than jest's own `.snap` format, so they stay readable in review — but they follow jest's standard snapshot semantics:

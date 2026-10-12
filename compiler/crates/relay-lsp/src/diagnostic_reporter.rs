@@ -172,7 +172,7 @@ impl DiagnosticReporter {
             uri: uri.clone(),
             version: None,
         };
-        publish_diagnostic(params, &self.sender).ok();
+        publish_diagnostic(params, self.sender.as_ref()).ok();
     }
 
     #[cfg(test)]
@@ -343,7 +343,7 @@ fn is_sub_range(inner: Range, outer: Range) -> bool {
 /// Publish diagnostics to the client
 pub fn publish_diagnostic(
     diagnostic_params: PublishDiagnosticsParams,
-    sender: &Option<Sender<Message>>,
+    sender: Option<&Sender<Message>>,
 ) -> LSPProcessResult<()> {
     let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
     if let Some(sender) = sender {

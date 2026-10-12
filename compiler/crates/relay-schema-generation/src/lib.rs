@@ -247,7 +247,7 @@ impl RelayResolverExtractor {
         &mut self,
         text: &str,
         source_module_path: &str,
-        fragment_definitions: Option<&Vec<ExecutableDefinition>>,
+        fragment_definitions: Option<&[ExecutableDefinition]>,
     ) -> DiagnosticsResult<()> {
         // Assume the caller knows the text contains at least one resolver docblock tag
         // (@relayType, @relayField, or the legacy @RelayResolver)
@@ -618,7 +618,7 @@ impl RelayResolverExtractor {
     fn add_field_definition(
         &mut self,
         module_resolution: &ModuleResolution,
-        fragment_definitions: Option<&Vec<ExecutableDefinition>>,
+        fragment_definitions: Option<&[ExecutableDefinition]>,
         mut field_definition: UnresolvedFieldDefinition,
     ) -> DiagnosticsResult<()> {
         if let Some(entity_name) = field_definition.entity_name {

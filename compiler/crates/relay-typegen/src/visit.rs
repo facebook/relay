@@ -3158,7 +3158,7 @@ fn create_edge_to_return_type_ast(
         optional: false,
     })];
     if inner_type.is_abstract_type() && schema.is_extension_type(*inner_type) {
-        let get_object_names = |members: &Vec<ObjectID>| {
+        let get_object_names = |members: &[ObjectID]| {
             members
                 .iter()
                 .map(|id| schema.object(*id).name.item)

@@ -286,7 +286,7 @@ pub fn generate_operation(
     reader_operation: &OperationDefinition,
     typegen_operation: &OperationDefinition,
     source_hash: String,
-    text: Option<&String>,
+    text: Option<&str>,
     id_and_text_hash: Option<&QueryID>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
@@ -300,10 +300,10 @@ pub fn generate_operation(
             .as_ref()
             .is_some_and(|config| config.include_query_text())
         {
-            request_parameters.text = text.cloned();
+            request_parameters.text = text.map(str::to_owned);
         }
     } else {
-        request_parameters.text = text.cloned();
+        request_parameters.text = text.map(str::to_owned);
     }
 
     let operation_fragment = FragmentDefinition {
@@ -552,7 +552,7 @@ pub fn generate_split_operation(
     schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
     typegen_operation: Option<&Arc<OperationDefinition>>,
-    source_hash: Option<&String>,
+    source_hash: Option<&str>,
     fragment_locations: &FragmentLocations,
     no_optional_fields_in_raw_response_type: bool,
 ) -> Result<Vec<u8>, FmtError> {
@@ -665,7 +665,7 @@ pub fn generate_fragment(
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
-    source_hash: Option<&String>,
+    source_hash: Option<&str>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -705,7 +705,7 @@ fn generate_read_only_fragment(
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
-    source_hash: Option<&String>,
+    source_hash: Option<&str>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -833,7 +833,7 @@ fn generate_assignable_fragment(
     project_config: &ProjectConfig,
     schema: &SDLSchema,
     typegen_fragment: &FragmentDefinition,
-    source_hash: Option<&String>,
+    source_hash: Option<&str>,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();

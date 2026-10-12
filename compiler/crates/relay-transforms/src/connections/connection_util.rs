@@ -85,7 +85,7 @@ pub struct ConnectionMetadata {
 pub fn build_connection_metadata(
     connection_field: &LinkedField,
     connection_constants: ConnectionConstants,
-    path: Option<&Vec<StringKey>>,
+    path: Option<&[StringKey]>,
     is_stream_connection: bool,
     is_prefetchable_pagination: bool,
 ) -> ConnectionMetadata {
@@ -125,13 +125,13 @@ pub fn build_connection_metadata(
     // This path needs to include the value field to be correct for Result<> types
     let connection_path = match path {
         Some(path) => {
-            let mut interim_path = path.clone();
+            let mut interim_path = path.to_vec();
             if is_catch_to_result {
                 interim_path.push(StringKey::from_str("value").unwrap());
             }
             Some(interim_path)
         }
-        None => path.cloned(),
+        None => path.map(<[StringKey]>::to_vec),
     };
 
     ConnectionMetadata {

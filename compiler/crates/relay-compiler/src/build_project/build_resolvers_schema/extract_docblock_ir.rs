@@ -126,7 +126,12 @@ fn extract_docblock_ir_for_project(
 
     for (_, (asts, definitions)) in project_schema_docs.field_asts_and_definitions.0 {
         for ast in asts {
-            match parse_docblock_ast(&project_config.name, &ast, definitions, &parse_options) {
+            match parse_docblock_ast(
+                &project_config.name,
+                &ast,
+                definitions.map(Vec::as_slice),
+                &parse_options,
+            ) {
                 Ok(maybe_ir) => field_irs.extend(maybe_ir),
                 Err(errors) => parse_errors.extend(errors),
             };

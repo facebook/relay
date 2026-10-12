@@ -101,7 +101,7 @@ impl ArtifactContent {
                 reader_operation,
                 typegen_operation,
                 source_hash.into(),
-                text.as_ref(),
+                text.as_deref(),
                 id_and_text_hash.as_ref(),
                 skip_types,
                 fragment_locations,
@@ -147,7 +147,7 @@ impl ArtifactContent {
                 schema,
                 normalization_operation,
                 typegen_operation.as_ref(),
-                source_hash.as_ref(),
+                source_hash.as_deref(),
                 fragment_locations,
                 *no_optional_fields_in_raw_response_type,
             )
@@ -163,7 +163,7 @@ impl ArtifactContent {
                 schema,
                 reader_fragment,
                 typegen_fragment,
-                source_hash.as_ref(),
+                source_hash.as_deref(),
                 skip_types,
                 fragment_locations,
             )

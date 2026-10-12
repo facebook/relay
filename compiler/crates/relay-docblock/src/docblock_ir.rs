@@ -68,7 +68,7 @@ enum UsedTag {
 pub(crate) fn parse_docblock_ir(
     project_name: &ProjectName,
     untyped_representation: UntypedDocblockRepresentation,
-    definitions_in_file: Option<&Vec<ExecutableDefinition>>,
+    definitions_in_file: Option<&[ExecutableDefinition]>,
     parse_options: &ParseOptions<'_>,
     // The location corresponding to the entire docblock. Used for error messages like
     // "this field is missing".
@@ -335,7 +335,7 @@ fn parse_terse_relay_resolver_ir(
     fields: &mut HashMap<AllowedFieldName, IrField>,
     description: Option<WithLocation<StringKey>>,
     relay_resolver_field: PopulatedIrField,
-    definitions_in_file: Option<&Vec<ExecutableDefinition>>,
+    definitions_in_file: Option<&[ExecutableDefinition]>,
     location: Location,
     source_hash: ResolverSourceHash,
     parse_options: &ParseOptions<'_>,
@@ -496,7 +496,7 @@ fn parse_fragment_definition(
     root_fragment: Option<PopulatedIrField>,
     source_location: SourceLocationKey,
     field_arguments: Option<&List<InputValueDefinition>>,
-    definitions_in_file: Option<&Vec<ExecutableDefinition>>,
+    definitions_in_file: Option<&[ExecutableDefinition]>,
 ) -> DiagnosticsResult<(Option<WithLocation<StringKey>>, Option<Vec<Argument>>)> {
     let fragment_definition = root_fragment
         .map(|root_fragment| {
@@ -560,7 +560,7 @@ pub fn validate_fragment_arguments(
 pub fn assert_fragment_definition(
     root_fragment: WithLocation<StringKey>,
     fragment_name: StringKey,
-    definitions_in_file: Option<&Vec<ExecutableDefinition>>,
+    definitions_in_file: Option<&[ExecutableDefinition]>,
 ) -> Result<FragmentDefinition, Diagnostic> {
     let fragment_definition = definitions_in_file.and_then(|defs| {
         defs.iter().find(|item| {

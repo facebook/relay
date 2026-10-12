@@ -131,7 +131,7 @@ impl<'a> UsedSchemaIRCollector<'a> {
     fn visit_field_arguments(
         &mut self,
         parent_field_id: FieldID,
-        arguments: &Vec<graphql_ir::Argument>,
+        arguments: &[graphql_ir::Argument],
     ) {
         let parent_field_def = self.schema.field(parent_field_id);
         for argument in arguments {
@@ -160,7 +160,7 @@ impl<'a> UsedSchemaIRCollector<'a> {
     fn visit_directive_arguments(
         &mut self,
         schema_directive: &schema::Directive,
-        arguments: &Vec<graphql_ir::Argument>,
+        arguments: &[graphql_ir::Argument],
     ) {
         for argument in arguments {
             self.used_schema.touch_directive_argument(

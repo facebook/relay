@@ -49,7 +49,7 @@ pub struct ParseOptions<'a> {
 pub fn parse_docblock_ast(
     project_name: &ProjectName,
     ast: &DocblockAST,
-    definitions: Option<&Vec<ExecutableDefinition>>,
+    definitions: Option<&[ExecutableDefinition]>,
     parse_options: &ParseOptions<'_>,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
     let untyped_representation = parse_untyped_docblock_representation(ast)?;

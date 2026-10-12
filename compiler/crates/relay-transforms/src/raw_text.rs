@@ -81,7 +81,7 @@ impl Transformer<'_> for RawTextTransform<'_> {
     }
 }
 
-pub fn create_raw_text_directive(raw_text: &String) -> Directive {
+pub fn create_raw_text_directive(raw_text: &str) -> Directive {
     Directive {
         name: WithLocation::generated(*RAW_TEXT_DIRECTIVE_NAME),
         arguments: vec![Argument {

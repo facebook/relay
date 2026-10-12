@@ -126,7 +126,7 @@ pub(crate) fn get_full_schema_explorer_type_reference(
     type_name: &str,
     schema: &SDLSchema,
     documentation: &impl SchemaDocumentation,
-    filter: Option<&String>,
+    filter: Option<&str>,
     count: Option<usize>,
 ) -> SchemaExplorerTypeReference<SchemaExplorerSchemaType> {
     let description = documentation
@@ -206,7 +206,7 @@ fn get_schema_explorer_interface(
     interface_id: InterfaceID,
     schema: &SDLSchema,
     documentation: &impl SchemaDocumentation,
-    filter: Option<&String>,
+    filter: Option<&str>,
 ) -> SchemaExplorerInterface {
     let interface = schema.interface(interface_id);
     let implementing_objects = interface
@@ -290,7 +290,7 @@ fn get_schema_explorer_object(
     object_id: ObjectID,
     schema: &SDLSchema,
     documentation: &impl SchemaDocumentation,
-    filter: Option<&String>,
+    filter: Option<&str>,
     count: Option<usize>,
 ) -> SchemaExplorerObject {
     let object = schema.object(object_id);
@@ -360,7 +360,7 @@ fn get_schema_explorer_field(
     parent_type_name: StringKey,
     schema: &SDLSchema,
     documentation: &impl SchemaDocumentation,
-    filter: Option<&String>,
+    filter: Option<&str>,
 ) -> Option<SchemaExplorerField> {
     let field = schema.field(field_id);
     let field_name = field.name.item.to_string();

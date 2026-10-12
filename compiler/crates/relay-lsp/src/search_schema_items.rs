@@ -59,32 +59,32 @@ pub(crate) fn on_search_schema_items(
     let objects = filter_and_transform_items(
         schema.objects().map(|o| o.name.item.0),
         &schema_documentation,
-        filter.as_ref(),
+        filter.as_deref(),
     );
     let interfaces = filter_and_transform_items(
         schema.interfaces().map(|i| i.name.item.0),
         &schema_documentation,
-        filter.as_ref(),
+        filter.as_deref(),
     );
     let enums = filter_and_transform_items(
         schema.enums().map(|e| e.name.item.0),
         &schema_documentation,
-        filter.as_ref(),
+        filter.as_deref(),
     );
     let unions = filter_and_transform_items(
         schema.unions().map(|u| u.name.item.0),
         &schema_documentation,
-        filter.as_ref(),
+        filter.as_deref(),
     );
     let input_objects = filter_and_transform_items(
         schema.input_objects().map(|io| io.name.item.0),
         &schema_documentation,
-        filter.as_ref(),
+        filter.as_deref(),
     );
     let scalars = filter_and_transform_items(
         schema.scalars().map(|s| s.name.item.0),
         &schema_documentation,
-        filter.as_ref(),
+        filter.as_deref(),
     );
 
     let mut items = objects
@@ -109,7 +109,7 @@ pub(crate) fn on_search_schema_items(
 fn filter_and_transform_items<'a>(
     items: impl Iterator<Item = StringKey> + 'a,
     schema_documentation: &'a impl SchemaDocumentation,
-    filter: Option<&'a String>,
+    filter: Option<&'a str>,
 ) -> impl Iterator<Item = SchemaSearchItem> + 'a {
     items.filter_map(move |obj| {
         let name = obj.lookup();
@@ -117,7 +117,7 @@ fn filter_and_transform_items<'a>(
             .get_type_description(name)
             .map(|s| s.to_string());
 
-        if should_include_named_item(name, description.as_ref(), filter) {
+        if should_include_named_item(name, description.as_deref(), filter) {
             Some(SchemaSearchItem {
                 name: name.to_string(),
                 description,
@@ -128,11 +128,7 @@ fn filter_and_transform_items<'a>(
     })
 }
 
-fn should_include_named_item(
-    name: &str,
-    description: Option<&String>,
-    filter: Option<&String>,
-) -> bool {
+fn should_include_named_item(name: &str, description: Option<&str>, filter: Option<&str>) -> bool {
     if let Some(filter) = filter {
         if name.to_lowercase().contains(filter) {
             true
@@ -154,7 +150,7 @@ mod tests {
     fn test_no_filter() {
         assert!(should_include_named_item(
             "Yohan Blake",
-            Some(&"London 2012".to_string()),
+            Some("London 2012"),
             None
         ));
         assert!(should_include_named_item("Usain Bolt", None, None));
@@ -165,12 +161,12 @@ mod tests {
         assert!(should_include_named_item(
             "Michael Frater",
             None,
-            Some(&"michael".to_string())
+            Some("michael")
         ));
         assert!(should_include_named_item(
             "Nesta Carter",
-            Some(&"London 2012".to_string()),
-            Some(&"nesta".to_string())
+            Some("London 2012"),
+            Some("nesta")
         ));
     }
 
@@ -178,8 +174,8 @@ mod tests {
     fn test_filter_matches_description() {
         assert!(should_include_named_item(
             "Tiana Bartoletta",
-            Some(&"London 2012".to_string()),
-            Some(&"london".to_string())
+            Some("London 2012"),
+            Some("london")
         ));
     }
 
@@ -187,8 +183,8 @@ mod tests {
     fn test_non_matching_filter() {
         assert!(!should_include_named_item(
             "Allyson Felix",
-            Some(&"London 2012".to_string()),
-            Some(&"salt lake city".to_string())
+            Some("London 2012"),
+            Some("salt lake city")
         ));
     }
 }

@@ -64,7 +64,7 @@ pub(crate) fn on_explore_schema_for_type(
                 &params.item,
                 &schema,
                 &state.get_schema_documentation(&params.schema_name),
-                params.filter.as_ref().map(|x| x.to_lowercase()).as_ref(),
+                params.filter.as_ref().map(|x| x.to_lowercase()).as_deref(),
                 None,
             )
         })

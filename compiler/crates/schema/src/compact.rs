@@ -272,7 +272,7 @@ impl<'a> Writer<'a> {
         }
     }
 
-    fn w_opt_type(&mut self, opt: &Option<Type>) {
+    fn w_opt_type(&mut self, opt: Option<&Type>) {
         match opt {
             Some(t) => {
                 self.w_u8(1);
@@ -385,7 +385,7 @@ impl<'a> Writer<'a> {
         self.w_arg_defs(&field.arguments);
         self.w_type_ref(&field.type_);
         self.w_dir_vals(&field.directives);
-        self.w_opt_type(&field.parent_type);
+        self.w_opt_type(field.parent_type.as_ref());
         self.w_opt_sk(field.description);
         self.w_opt_sk(field.hack_source);
     }

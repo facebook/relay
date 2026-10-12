@@ -186,7 +186,7 @@ pub enum QueryID {
 }
 
 pub struct RequestParameters<'a> {
-    pub id: &'a Option<QueryID>,
+    pub id: Option<&'a QueryID>,
     pub name: StringKey,
     pub operation_kind: OperationKind,
     pub text: Option<String>,

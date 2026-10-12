@@ -235,9 +235,9 @@ impl FileSourceResult {
         }
     }
 
-    pub fn saved_state_info(&self) -> &Option<Value> {
+    pub fn saved_state_info(&self) -> Option<&Value> {
         match self {
-            Self::Watchman(file_source_result) => &file_source_result.saved_state_info,
+            Self::Watchman(file_source_result) => file_source_result.saved_state_info.as_ref(),
             Self::External(_) => unimplemented!(),
             Self::WalkDir(_) => unimplemented!(),
         }

@@ -193,7 +193,7 @@ pub fn build_request_params(operation: &OperationDefinition) -> RequestParameter
     RequestParameters {
         name: operation.name.item.0,
         operation_kind: operation.kind,
-        id: &None,
+        id: None,
         text: None,
     }
 }

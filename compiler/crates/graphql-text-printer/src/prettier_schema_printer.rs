@@ -103,7 +103,7 @@ fn type_system_definition_doc(definition: &TypeSystemDefinition) -> RcDoc<'stati
 // =============================================================================
 
 fn schema_definition_doc(def: &SchemaDefinition) -> RcDoc<'static, ()> {
-    let mut doc = description_doc(&def.description, "");
+    let mut doc = description_doc(def.description.as_ref(), "");
     doc = doc.append(RcDoc::text("schema"));
 
     let has_fields = !def.operation_types.items.is_empty();
@@ -166,7 +166,7 @@ fn operation_type_fields_doc(fields: &[OperationTypeDefinition]) -> RcDoc<'stati
 // =============================================================================
 
 fn object_type_definition_doc(def: &ObjectTypeDefinition) -> RcDoc<'static, ()> {
-    let mut doc = description_doc(&def.description, "");
+    let mut doc = description_doc(def.description.as_ref(), "");
     doc = doc.append(RcDoc::text("type "));
     doc = doc.append(RcDoc::text(def.name.value.to_string()));
     doc = doc.append(implements_interfaces_doc(&def.interfaces));
@@ -215,7 +215,7 @@ fn object_type_extension_doc(ext: &ObjectTypeExtension) -> RcDoc<'static, ()> {
 // =============================================================================
 
 fn interface_type_definition_doc(def: &InterfaceTypeDefinition) -> RcDoc<'static, ()> {
-    let mut doc = description_doc(&def.description, "");
+    let mut doc = description_doc(def.description.as_ref(), "");
     doc = doc.append(RcDoc::text("interface "));
     doc = doc.append(RcDoc::text(def.name.value.to_string()));
     doc = doc.append(implements_interfaces_doc(&def.interfaces));
@@ -287,7 +287,7 @@ fn compute_type_prefix_len(
 // =============================================================================
 
 fn union_type_definition_doc(def: &UnionTypeDefinition) -> RcDoc<'static, ()> {
-    let mut doc = description_doc(&def.description, "");
+    let mut doc = description_doc(def.description.as_ref(), "");
     doc = doc.append(RcDoc::text("union "));
     doc = doc.append(RcDoc::text(def.name.value.to_string()));
 
@@ -369,7 +369,7 @@ fn union_members_doc(
 // =============================================================================
 
 fn enum_type_definition_doc(def: &EnumTypeDefinition) -> RcDoc<'static, ()> {
-    let mut doc = description_doc(&def.description, "");
+    let mut doc = description_doc(def.description.as_ref(), "");
     doc = doc.append(RcDoc::text("enum "));
     doc = doc.append(RcDoc::text(def.name.value.to_string()));
 
@@ -426,7 +426,7 @@ fn enum_values_doc(values: &[EnumValueDefinition]) -> RcDoc<'static, ()> {
 }
 
 fn enum_value_doc(value: &EnumValueDefinition) -> RcDoc<'static, ()> {
-    let mut doc = description_doc(&value.description, "  ");
+    let mut doc = description_doc(value.description.as_ref(), "  ");
     doc = doc.append(RcDoc::text("  "));
     doc = doc.append(RcDoc::text(value.name.value.to_string()));
 
@@ -446,7 +446,7 @@ fn enum_value_doc(value: &EnumValueDefinition) -> RcDoc<'static, ()> {
 // =============================================================================
 
 fn input_object_type_definition_doc(def: &InputObjectTypeDefinition) -> RcDoc<'static, ()> {
-    let mut doc = description_doc(&def.description, "");
+    let mut doc = description_doc(def.description.as_ref(), "");
     doc = doc.append(RcDoc::text("input "));
     doc = doc.append(RcDoc::text(def.name.value.to_string()));
 
@@ -506,7 +506,7 @@ fn input_fields_doc(fields: &[InputValueDefinition]) -> RcDoc<'static, ()> {
 }
 
 fn input_field_doc(input: &InputValueDefinition, directive_indent: isize) -> RcDoc<'static, ()> {
-    let mut doc = description_doc(&input.description, "  ");
+    let mut doc = description_doc(input.description.as_ref(), "  ");
     doc = doc.append(RcDoc::text("  "));
     // Base indent for input fields is 2 spaces
     doc = doc.append(input_value_definition_doc(input, 2, directive_indent));
@@ -518,7 +518,7 @@ fn input_field_doc(input: &InputValueDefinition, directive_indent: isize) -> RcD
 // =============================================================================
 
 fn scalar_type_definition_doc(def: &ScalarTypeDefinition) -> RcDoc<'static, ()> {
-    let mut doc = description_doc(&def.description, "");
+    let mut doc = description_doc(def.description.as_ref(), "");
     doc = doc.append(RcDoc::text("scalar "));
     doc = doc.append(RcDoc::text(def.name.value.to_string()));
 
@@ -553,7 +553,7 @@ fn scalar_type_extension_doc(ext: &ScalarTypeExtension) -> RcDoc<'static, ()> {
 // =============================================================================
 
 fn directive_definition_doc(def: &DirectiveDefinition) -> RcDoc<'static, ()> {
-    let mut doc = description_doc(&def.description, "");
+    let mut doc = description_doc(def.description.as_ref(), "");
     doc = doc.append(RcDoc::text("directive @"));
     doc = doc.append(RcDoc::text(def.name.value.to_string()));
 
@@ -590,7 +590,7 @@ fn directive_definition_doc(def: &DirectiveDefinition) -> RcDoc<'static, ()> {
             let arg_docs: Vec<RcDoc<'static, ()>> = arguments
                 .iter()
                 .map(|arg| {
-                    let mut arg_doc = description_doc(&arg.description, "  ");
+                    let mut arg_doc = description_doc(arg.description.as_ref(), "  ");
                     // Base indent for directive definition args is 2 spaces
                     arg_doc = arg_doc.append(RcDoc::text("  ").append(input_value_definition_doc(
                         arg,
@@ -661,7 +661,7 @@ fn field_definitions_doc(fields: &[FieldDefinition]) -> RcDoc<'static, ()> {
 
 fn field_definition_doc(field: &FieldDefinition) -> RcDoc<'static, ()> {
     let name = field.name.value.to_string();
-    let mut doc = description_doc(&field.description, "  ");
+    let mut doc = description_doc(field.description.as_ref(), "  ");
     doc = doc.append(RcDoc::text("  "));
     doc = doc.append(RcDoc::text(name.clone()));
 
@@ -738,7 +738,7 @@ fn expanded_arguments_definition_doc(arguments: &[InputValueDefinition]) -> RcDo
     let arg_docs: Vec<RcDoc<'static, ()>> = arguments
         .iter()
         .map(|arg| {
-            let mut arg_doc = description_doc(&arg.description, "    ");
+            let mut arg_doc = description_doc(arg.description.as_ref(), "    ");
             // Base indent for field args is 4 spaces, directive break adds 2 more = 6 total
             arg_doc = arg_doc.append(RcDoc::text("    ").append(input_value_definition_doc(
                 arg,
@@ -839,7 +839,7 @@ fn input_value_definition_doc(
 // Description
 // =============================================================================
 
-fn description_doc(description: &Option<StringNode>, indent: &str) -> RcDoc<'static, ()> {
+fn description_doc(description: Option<&StringNode>, indent: &str) -> RcDoc<'static, ()> {
     match description {
         Some(desc) => {
             let value = desc.value.to_string();

@@ -202,7 +202,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    validate(&program, &project_config, &None)
+    validate(&program, &project_config, None)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     // TODO pass base fragment names

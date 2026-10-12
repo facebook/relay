@@ -254,8 +254,12 @@ pub fn validate_program(
 ) -> Result<Vec<Diagnostic>, Vec<Diagnostic>> {
     let timer = log_event.start("validate_time");
     log_event.number("validate_documents_count", program.document_count());
-    let result = validate(program, project_config, &config.additional_validations)
-        .map(|result| result.diagnostics);
+    let result = validate(
+        program,
+        project_config,
+        config.additional_validations.as_ref(),
+    )
+    .map(|result| result.diagnostics);
 
     log_event.stop(timer);
 
@@ -272,8 +276,12 @@ pub fn validate_reader_program(
 ) -> Result<Vec<Diagnostic>, Vec<Diagnostic>> {
     let timer = log_event.start("validate_reader_time");
     log_event.number("validate_reader_documents_count", program.document_count());
-    let result = validate_reader(program, project_config, &config.additional_validations)
-        .map(|result| result.diagnostics);
+    let result = validate_reader(
+        program,
+        project_config,
+        config.additional_validations.as_ref(),
+    )
+    .map(|result| result.diagnostics);
 
     log_event.stop(timer);
 
@@ -715,7 +723,7 @@ pub async fn commit_project(
                 should_stop_updating_artifacts,
                 &artifacts,
                 &fragment_locations,
-                &artifacts_file_hash_map,
+                artifacts_file_hash_map.as_ref(),
                 &log_event,
             )?;
             for artifact in &artifacts {
@@ -752,7 +760,7 @@ pub async fn commit_project(
                 should_stop_updating_artifacts,
                 &artifacts,
                 &fragment_locations,
-                &artifacts_file_hash_map,
+                artifacts_file_hash_map.as_ref(),
                 &log_event,
             )?;
             artifacts.into_par_iter().for_each(|artifact| {
@@ -853,7 +861,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     should_stop_updating_artifacts: F,
     artifacts: &[Artifact],
     fragment_locations: &FragmentLocations,
-    artifacts_file_hash_map: &Option<FxHashMap<String, Option<String>>>,
+    artifacts_file_hash_map: Option<&FxHashMap<String, Option<String>>>,
     log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectFailure> {
     // Cumulative CPU time summed across all parallel rayon threads (not

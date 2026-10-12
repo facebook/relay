@@ -33,7 +33,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
         let test_path_regex = Some(Regex::new(r#"^test"#).unwrap());
 
-        let next_program = generate_test_operation_metadata(&program, &test_path_regex)
+        let next_program = generate_test_operation_metadata(&program, test_path_regex.as_ref())
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
         let printer_options = PrinterOptions {

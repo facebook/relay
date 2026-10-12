@@ -843,7 +843,7 @@ impl InMemorySchema {
                     ..
                 }) => {
                     insert_into_type_map(name.value, Type::Object(ObjectID(next_object_id)));
-                    field_count += len_of_option_list(fields);
+                    field_count += len_of_option_list(fields.as_ref());
                     next_object_id += 1;
                 }
                 TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
@@ -855,7 +855,7 @@ impl InMemorySchema {
                         name.value,
                         Type::Interface(InterfaceID(next_interface_id)),
                     );
-                    field_count += len_of_option_list(fields);
+                    field_count += len_of_option_list(fields.as_ref());
                     next_interface_id += 1;
                 }
                 TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition { name, .. }) => {
@@ -1474,7 +1474,7 @@ impl InMemorySchema {
                         )]);
                     }
                 }
-                let arguments = self.build_arguments(arguments, *location_key)?;
+                let arguments = self.build_arguments(arguments.as_ref(), *location_key)?;
                 // Retain every applied directive (including duplicates) so the
                 // post-build validation pass can detect a non-repeatable
                 // directive applied more than once.
@@ -1527,13 +1527,13 @@ impl InMemorySchema {
                 let parent_id = Type::Object(ObjectID(self.objects.len() as u32));
                 let fields = if is_extension {
                     self.build_extend_fields(
-                        fields,
-                        &mut HashMap::with_capacity(len_of_option_list(fields)),
+                        fields.as_ref(),
+                        &mut HashMap::with_capacity(len_of_option_list(fields.as_ref())),
                         *location_key,
                         Some(parent_id),
                     )?
                 } else {
-                    self.build_fields(fields, *location_key, Some(parent_id))?
+                    self.build_fields(fields.as_ref(), *location_key, Some(parent_id))?
                 };
                 let interfaces = interfaces
                     .iter()
@@ -1563,13 +1563,13 @@ impl InMemorySchema {
                 let parent_id = Type::Interface(InterfaceID(self.interfaces.len() as u32));
                 let fields = if is_extension {
                     self.build_extend_fields(
-                        fields,
-                        &mut HashMap::with_capacity(len_of_option_list(fields)),
+                        fields.as_ref(),
+                        &mut HashMap::with_capacity(len_of_option_list(fields.as_ref())),
                         *location_key,
                         Some(parent_id),
                     )?
                 } else {
-                    self.build_fields(fields, *location_key, Some(parent_id))?
+                    self.build_fields(fields.as_ref(), *location_key, Some(parent_id))?
                 };
                 let interfaces = interfaces
                     .iter()
@@ -1620,7 +1620,7 @@ impl InMemorySchema {
                 directives,
                 ..
             }) => {
-                let fields = self.build_arguments(fields, *location_key)?;
+                let fields = self.build_arguments(fields.as_ref(), *location_key)?;
                 let directives = self.build_directive_values(directives);
                 self.input_objects.push(InputObject {
                     name: WithLocation::new(
@@ -1700,14 +1700,15 @@ impl InMemorySchema {
                     })?;
 
                     let field_ids = &obj.fields;
-                    let mut existing_fields =
-                        HashMap::with_capacity(field_ids.len() + len_of_option_list(fields));
+                    let mut existing_fields = HashMap::with_capacity(
+                        field_ids.len() + len_of_option_list(fields.as_ref()),
+                    );
                     for field_id in field_ids {
                         let field_name = self.fields[field_id.as_usize()].name;
                         existing_fields.insert(field_name.item, field_name.location);
                     }
                     let client_fields = self.build_extend_fields(
-                        fields,
+                        fields.as_ref(),
                         &mut existing_fields,
                         *location_key,
                         Some(Type::Object(id)),
@@ -1758,14 +1759,15 @@ impl InMemorySchema {
                         )]
                     })?;
                     let field_ids = &interface.fields;
-                    let mut existing_fields =
-                        HashMap::with_capacity(field_ids.len() + len_of_option_list(fields));
+                    let mut existing_fields = HashMap::with_capacity(
+                        field_ids.len() + len_of_option_list(fields.as_ref()),
+                    );
                     for field_id in field_ids {
                         let field_name = self.fields[field_id.as_usize()].name;
                         existing_fields.insert(field_name.item, field_name.location);
                     }
                     let client_fields = self.build_extend_fields(
-                        fields,
+                        fields.as_ref(),
                         &mut existing_fields,
                         *location_key,
                         Some(Type::Interface(id)),
@@ -1893,7 +1895,7 @@ impl InMemorySchema {
                         .iter()
                         .map(|field| (field.name.item.0, field.name.location))
                         .collect();
-                    let client_fields = self.build_arguments(fields, *location_key)?;
+                    let client_fields = self.build_arguments(fields.as_ref(), *location_key)?;
                     for field in client_fields.iter() {
                         let field_name = field.name.item.0;
                         if let Some(prev_location) =
@@ -2053,7 +2055,7 @@ impl InMemorySchema {
 
     fn build_fields(
         &mut self,
-        field_defs: &Option<List<FieldDefinition>>,
+        field_defs: Option<&List<FieldDefinition>>,
         field_location_key: SourceLocationKey,
         parent_type: Option<Type>,
     ) -> DiagnosticsResult<Vec<FieldID>> {
@@ -2063,7 +2065,7 @@ impl InMemorySchema {
                 .iter()
                 .map(|field_def| {
                     let arguments =
-                        self.build_arguments(&field_def.arguments, field_location_key)?;
+                        self.build_arguments(field_def.arguments.as_ref(), field_location_key)?;
                     let type_ = self.build_type_reference(&field_def.type_, field_location_key)?;
                     let directives = self.build_directive_values(&field_def.directives);
                     let description = field_def.description.as_ref().map(|desc| desc.value);
@@ -2093,7 +2095,7 @@ impl InMemorySchema {
 
     fn build_extend_fields(
         &mut self,
-        field_defs: &Option<List<FieldDefinition>>,
+        field_defs: Option<&List<FieldDefinition>>,
         existing_fields: &mut HashMap<StringKey, Location>,
         source_location_key: SourceLocationKey,
         parent_type: Option<Type>,
@@ -2109,7 +2111,8 @@ impl InMemorySchema {
                             .annotate("previously defined here", prev_location),
                     ]);
                 }
-                let arguments = self.build_arguments(&field_def.arguments, source_location_key)?;
+                let arguments =
+                    self.build_arguments(field_def.arguments.as_ref(), source_location_key)?;
                 let directives = self.build_directive_values(&field_def.directives);
                 let type_ = self.build_type_reference(&field_def.type_, source_location_key)?;
                 let description = field_def.description.as_ref().map(|desc| desc.value);
@@ -2136,7 +2139,7 @@ impl InMemorySchema {
 
     fn build_arguments(
         &mut self,
-        arg_defs: &Option<List<InputValueDefinition>>,
+        arg_defs: Option<&List<InputValueDefinition>>,
         source_location_key: SourceLocationKey,
     ) -> DiagnosticsResult<ArgumentDefinitions> {
         if let Some(arg_defs) = arg_defs {
@@ -2294,8 +2297,8 @@ fn is_type_system_extension(definition: &TypeSystemDefinition) -> bool {
     }
 }
 
-fn len_of_option_list<T>(option_list: &Option<List<T>>) -> usize {
-    option_list.as_ref().map_or(0, |list| list.items.len())
+fn len_of_option_list<T>(option_list: Option<&List<T>>) -> usize {
+    option_list.map_or(0, |list| list.items.len())
 }
 
 fn expect_object_type_name(type_map: &TypeMap, object_id: ObjectID) -> StringKey {

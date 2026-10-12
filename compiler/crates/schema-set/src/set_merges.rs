@@ -103,7 +103,7 @@ fn merge_locations(target: &mut Vec<Location>, source: &[Location]) {
     }
 }
 
-fn merge_coordinate(target: &mut Option<SchemaCoordinate>, source: &Option<SchemaCoordinate>) {
+fn merge_coordinate(target: &mut Option<SchemaCoordinate>, source: Option<&SchemaCoordinate>) {
     match (target.as_mut(), source) {
         (Some(existing), Some(incoming)) if existing != incoming => {
             panic!(
@@ -112,7 +112,7 @@ fn merge_coordinate(target: &mut Option<SchemaCoordinate>, source: &Option<Schem
             );
         }
         (None, Some(_)) => {
-            *target = source.clone();
+            *target = source.cloned();
         }
         _ => {}
     }
@@ -226,7 +226,7 @@ impl Merges for SetType {
 impl Merges for SetEnum {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_definition(&mut self.definition, &other.definition);
-        merge_coordinate(&mut self.coordinate, &other.coordinate);
+        merge_coordinate(&mut self.coordinate, other.coordinate.as_ref());
         for (value_name, other_value) in other.values {
             self.values.entry(value_name).or_insert(other_value);
         }
@@ -238,7 +238,7 @@ impl Merges for SetEnum {
 impl Merges for SetInterface {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_definition(&mut self.definition, &other.definition);
-        merge_coordinate(&mut self.coordinate, &other.coordinate);
+        merge_coordinate(&mut self.coordinate, other.coordinate.as_ref());
         merge_directive_values(self, other.directives);
 
         merge_members(&mut self.interfaces, other.interfaces)?;
@@ -272,7 +272,7 @@ impl MergesFromAbstractDefinition<SetInterface> for SetInterface {
 impl Merges for SetObject {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_definition(&mut self.definition, &other.definition);
-        merge_coordinate(&mut self.coordinate, &other.coordinate);
+        merge_coordinate(&mut self.coordinate, other.coordinate.as_ref());
         merge_directive_values(self, other.directives);
 
         merge_members(&mut self.interfaces, other.interfaces)?;
@@ -305,7 +305,7 @@ impl MergesFromAbstractDefinition<SetInterface> for SetObject {
 impl Merges for SetUnion {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_definition(&mut self.definition, &other.definition);
-        merge_coordinate(&mut self.coordinate, &other.coordinate);
+        merge_coordinate(&mut self.coordinate, other.coordinate.as_ref());
         merge_directive_values(self, other.directives);
         merge_members(&mut self.members, other.members)?;
         Ok(())
@@ -315,7 +315,7 @@ impl Merges for SetUnion {
 impl Merges for SetInputObject {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_definition(&mut self.definition, &other.definition);
-        merge_coordinate(&mut self.coordinate, &other.coordinate);
+        merge_coordinate(&mut self.coordinate, other.coordinate.as_ref());
         // This merges the Input Object's fields
         merge_arguments(self, other.fields, &self.name.to_string())?;
         merge_directive_values(self, other.directives);
@@ -326,7 +326,7 @@ impl Merges for SetInputObject {
 impl Merges for SetScalar {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_definition(&mut self.definition, &other.definition);
-        merge_coordinate(&mut self.coordinate, &other.coordinate);
+        merge_coordinate(&mut self.coordinate, other.coordinate.as_ref());
         merge_directive_values(self, other.directives);
         Ok(())
     }
@@ -335,7 +335,7 @@ impl Merges for SetScalar {
 impl Merges for SetDirective {
     fn merge(&mut self, other: Self) -> DiagnosticsResult<()> {
         merge_definition(&mut self.definition, &other.definition);
-        merge_coordinate(&mut self.coordinate, &other.coordinate);
+        merge_coordinate(&mut self.coordinate, other.coordinate.as_ref());
         merge_arguments(self, other.arguments, &self.name.to_string())?;
 
         // We CANNOT just use extend, as locations is a Vec<DirectiveLocation>
@@ -352,7 +352,7 @@ impl Merges for SetDirective {
 impl SetField {
     fn merge_with_parent(&mut self, other: Self, parent_type: &str) -> DiagnosticsResult<()> {
         merge_definition(&mut self.definition, &other.definition);
-        merge_coordinate(&mut self.coordinate, &other.coordinate);
+        merge_coordinate(&mut self.coordinate, other.coordinate.as_ref());
 
         if self.type_ != other.type_ {
             let existing_location = first_definition_location(&self.definition);
@@ -426,7 +426,7 @@ impl Merges for SetMemberType {
 impl SetArgument {
     fn merge_with_parent(&mut self, other: Self, parent_type: &str) -> DiagnosticsResult<()> {
         merge_definition(&mut self.definition, &other.definition);
-        merge_coordinate(&mut self.coordinate, &other.coordinate);
+        merge_coordinate(&mut self.coordinate, other.coordinate.as_ref());
 
         if self.type_ != other.type_ {
             let existing_location = first_definition_location(&self.definition);

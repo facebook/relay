@@ -85,7 +85,7 @@ pub struct ConnectionMetadata {
 pub fn build_connection_metadata(
     connection_field: &LinkedField,
     connection_constants: ConnectionConstants,
-    path: &Option<Vec<StringKey>>,
+    path: Option<&Vec<StringKey>>,
     is_stream_connection: bool,
     is_prefetchable_pagination: bool,
 ) -> ConnectionMetadata {
@@ -131,7 +131,7 @@ pub fn build_connection_metadata(
             }
             Some(interim_path)
         }
-        None => path.clone(),
+        None => path.cloned(),
     };
 
     ConnectionMetadata {

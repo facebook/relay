@@ -292,7 +292,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         conditions: Option<Vec<&Condition>>,
     ) -> FmtResult {
         let schema_field = self.schema.field(field.definition.item);
-        self.print_alias_and_name(&field.alias, schema_field.name.item)?;
+        self.print_alias_and_name(field.alias.as_ref(), schema_field.name.item)?;
         self.print_arguments(&field.arguments)?;
         self.print_directives(&field.directives, conditions, None)
     }
@@ -303,7 +303,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         conditions: Option<Vec<&Condition>>,
     ) -> FmtResult {
         let schema_field = self.schema.field(field.definition.item);
-        self.print_alias_and_name(&field.alias, schema_field.name.item)?;
+        self.print_alias_and_name(field.alias.as_ref(), schema_field.name.item)?;
         self.print_arguments(&field.arguments)?;
         self.print_directives(&field.directives, conditions, None)?;
         self.print_selections(&field.selections, schema_field.name.item)?;
@@ -657,7 +657,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
 
     fn print_alias_and_name(
         &mut self,
-        alias: &Option<WithLocation<StringKey>>,
+        alias: Option<&WithLocation<StringKey>>,
         name: StringKey,
     ) -> FmtResult {
         if let Some(alias) = alias

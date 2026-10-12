@@ -1379,7 +1379,7 @@ impl fmt::Debug for Config {
             ..
         } = self;
 
-        fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
+        fn option_fn_to_string<T>(option: Option<&T>) -> &'static str {
             if option.is_some() { "Some(Fn)" } else { "None" }
         }
 
@@ -1408,20 +1408,20 @@ impl fmt::Debug for Config {
             .field("saved_state_config", saved_state_config)
             .field(
                 "create_operation_persister",
-                &option_fn_to_string(create_operation_persister),
+                &option_fn_to_string(create_operation_persister.as_ref()),
             )
             .field(
                 "generate_extra_artifacts",
-                &option_fn_to_string(generate_extra_artifacts),
+                &option_fn_to_string(generate_extra_artifacts.as_ref()),
             )
             .field(
                 "saved_state_loader",
-                &option_fn_to_string(saved_state_loader),
+                &option_fn_to_string(saved_state_loader.as_ref()),
             )
             .field("saved_state_version", saved_state_version)
             .field(
                 "post_artifacts_write",
-                &option_fn_to_string(post_artifacts_write),
+                &option_fn_to_string(post_artifacts_write.as_ref()),
             )
             .finish()
     }

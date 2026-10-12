@@ -116,14 +116,14 @@ fn build_current_map(
 }
 
 fn compare_fields(
-    optional_current_fields: &Option<List<FieldDefinition>>,
+    optional_current_fields: Option<&List<FieldDefinition>>,
     optional_previous_fields: Option<List<FieldDefinition>>,
 ) -> (Vec<TypeChange>, Vec<TypeChange>, Vec<ArgumentChange>) {
     let mut added: Vec<TypeChange> = vec![];
     let mut removed: Vec<TypeChange> = vec![];
     let mut field_changed: Vec<ArgumentChange> = vec![];
 
-    match (optional_current_fields.as_ref(), optional_previous_fields) {
+    match (optional_current_fields, optional_previous_fields) {
         (Some(current_fields), Some(previous_fields)) => {
             let mut previous_values = previous_fields
                 .items
@@ -433,8 +433,10 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
                             ..
                         },
                     )) => {
-                        let (added, removed, changed) =
-                            compare_fields(optional_current_fields, optional_previous_fields);
+                        let (added, removed, changed) = compare_fields(
+                            optional_current_fields.as_ref(),
+                            optional_previous_fields,
+                        );
                         if !added.is_empty() || !removed.is_empty() || !changed.is_empty() {
                             changes.push(DefinitionChange::InterfaceChanged {
                                 name: name.value,
@@ -469,8 +471,10 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
                         fields: optional_current_fields,
                         ..
                     })) => {
-                        let (added, removed, changed) =
-                            compare_fields(optional_current_fields, optional_previous_fields);
+                        let (added, removed, changed) = compare_fields(
+                            optional_current_fields.as_ref(),
+                            optional_previous_fields,
+                        );
                         let (interfaces_added, interfaces_removed) =
                             compare_string_keys(current_interfaces, previous_interfaces);
                         if !added.is_empty()

@@ -187,11 +187,11 @@ pub fn create_node_resolution_info(
 /// we need to display resolution info for this field
 fn build_node_resolution_info_for_argument(
     field_name: StringKey,
-    arguments: &Option<List<Argument>>,
+    arguments: Option<&List<Argument>>,
     position_span: Span,
     node_resolution_info: &mut NodeResolutionInfo,
 ) -> Option<()> {
-    if let Some(arguments) = &arguments {
+    if let Some(arguments) = arguments {
         let argument = arguments
             .items
             .iter()
@@ -230,7 +230,7 @@ fn build_node_resolution_info_from_selections(
                 } = node;
                 if build_node_resolution_info_for_argument(
                     name.value,
-                    &node.arguments,
+                    node.arguments.as_ref(),
                     position_span,
                     node_resolution_info,
                 )
@@ -284,7 +284,7 @@ fn build_node_resolution_info_from_selections(
 
                 if build_node_resolution_info_for_argument(
                     name.value,
-                    &node.arguments,
+                    node.arguments.as_ref(),
                     position_span,
                     node_resolution_info,
                 )

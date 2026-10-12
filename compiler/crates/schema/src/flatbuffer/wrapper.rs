@@ -92,8 +92,8 @@ fn extend_without_duplicates<T: Eq + Hash>(vec: &mut Vec<T>, items: Vec<T>) {
     vec.extend(new_items);
 }
 
-fn len_of_option_list<T>(list: &Option<List<T>>) -> usize {
-    list.as_ref().map_or(0, |l| l.items.len())
+fn len_of_option_list<T>(list: Option<&List<T>>) -> usize {
+    list.map_or(0, |l| l.items.len())
 }
 
 pub struct SchemaWrapper {
@@ -410,7 +410,7 @@ impl SchemaWrapper {
 
     fn build_arguments(
         &self,
-        arg_defs: &Option<List<InputValueDefinition>>,
+        arg_defs: Option<&List<InputValueDefinition>>,
         source_location_key: SourceLocationKey,
     ) -> DiagnosticsResult<ArgumentDefinitions> {
         if let Some(arg_defs) = arg_defs {
@@ -493,7 +493,7 @@ impl SchemaWrapper {
 
     fn build_extend_fields(
         &mut self,
-        field_defs: &Option<List<FieldDefinition>>,
+        field_defs: Option<&List<FieldDefinition>>,
         existing_fields: &mut HashMap<StringKey, Location>,
         source_location_key: SourceLocationKey,
         parent_type: Option<Type>,
@@ -509,7 +509,8 @@ impl SchemaWrapper {
                             .annotate("previously defined here", prev_location),
                     ]);
                 }
-                let arguments = self.build_arguments(&field_def.arguments, source_location_key)?;
+                let arguments =
+                    self.build_arguments(field_def.arguments.as_ref(), source_location_key)?;
                 let directives = self.build_directive_values(&field_def.directives);
                 let type_ = self.build_type_reference(&field_def.type_, source_location_key)?;
                 let description = field_def.description.as_ref().map(|desc| desc.value);
@@ -618,7 +619,7 @@ impl SchemaWrapper {
 
         let mut existing_fields = HashMap::new();
         let fields = self.build_extend_fields(
-            &object.fields,
+            object.fields.as_ref(),
             &mut existing_fields,
             location_key,
             Some(object_type),
@@ -667,7 +668,7 @@ impl SchemaWrapper {
 
         // Collect existing field names
         let mut existing_fields =
-            HashMap::with_capacity(obj.fields.len() + len_of_option_list(&ext.fields));
+            HashMap::with_capacity(obj.fields.len() + len_of_option_list(ext.fields.as_ref()));
         for field_id in &obj.fields {
             let field = self.field(*field_id);
             existing_fields.insert(field.name.item, field.name.location);
@@ -675,7 +676,7 @@ impl SchemaWrapper {
 
         // Build new fields in overlay
         let new_field_ids = self.build_extend_fields(
-            &ext.fields,
+            ext.fields.as_ref(),
             &mut existing_fields,
             location_key,
             Some(Type::Object(id)),
@@ -750,7 +751,7 @@ impl SchemaWrapper {
 
         // Collect existing field names
         let mut existing_fields =
-            HashMap::with_capacity(iface.fields.len() + len_of_option_list(&ext.fields));
+            HashMap::with_capacity(iface.fields.len() + len_of_option_list(ext.fields.as_ref()));
         for field_id in &iface.fields {
             let field = self.field(*field_id);
             existing_fields.insert(field.name.item, field.name.location);
@@ -758,7 +759,7 @@ impl SchemaWrapper {
 
         // Build new fields in overlay
         let new_field_ids = self.build_extend_fields(
-            &ext.fields,
+            ext.fields.as_ref(),
             &mut existing_fields,
             location_key,
             Some(Type::Interface(id)),

@@ -91,7 +91,7 @@ pub fn print_request(
 pub fn print_request_params(
     schema: &SDLSchema,
     operation: &OperationDefinition,
-    query_id: &Option<QueryID>,
+    query_id: Option<&QueryID>,
     project_config: &ProjectConfig,
     top_level_statements: &mut TopLevelStatements,
 ) -> String {

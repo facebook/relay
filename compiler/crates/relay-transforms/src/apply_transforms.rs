@@ -156,7 +156,7 @@ fn apply_common_transforms(
     // raw_text stores the operation text before transforms and should be executed first
     let mut program = log_event.time("raw_text", || set_raw_text(&program))?;
 
-    let custom_transforms = &custom_transforms_config.and_then(|c| c.common_transforms.as_ref());
+    let custom_transforms = custom_transforms_config.and_then(|c| c.common_transforms.as_ref());
     program = apply_before_custom_transforms(
         &program,
         custom_transforms,
@@ -263,7 +263,7 @@ fn apply_reader_transforms(
     let log_event = perf_logger.create_event("apply_reader_transforms");
     log_event.string("project", project_config.name.to_string());
 
-    let custom_transforms = &custom_transforms_config.and_then(|c| c.reader_transforms.as_ref());
+    let custom_transforms = custom_transforms_config.and_then(|c| c.reader_transforms.as_ref());
     let mut program = apply_before_custom_transforms(
         &program,
         custom_transforms,
@@ -354,7 +354,7 @@ fn apply_operation_transforms(
     let log_event = perf_logger.create_event("apply_operation_transforms");
     log_event.string("project", project_config.name.to_string());
 
-    let custom_transforms = &custom_transforms_config.and_then(|c| c.operation_transforms.as_ref());
+    let custom_transforms = custom_transforms_config.and_then(|c| c.operation_transforms.as_ref());
     let mut program = apply_before_custom_transforms(
         &program,
         custom_transforms,
@@ -450,7 +450,7 @@ fn apply_normalization_transforms(
     }
 
     let custom_transforms =
-        &custom_transforms_config.and_then(|c| c.normalization_transforms.as_ref());
+        custom_transforms_config.and_then(|c| c.normalization_transforms.as_ref());
     let mut program = apply_before_custom_transforms(
         &program,
         custom_transforms,
@@ -532,7 +532,7 @@ fn apply_normalization_transforms(
     }
 
     program = log_event.time("generate_test_operation_metadata", || {
-        generate_test_operation_metadata(&program, &project_config.test_path_regex)
+        generate_test_operation_metadata(&program, project_config.test_path_regex.as_ref())
     })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("generate_test_operation_metadata", &program);
@@ -567,7 +567,7 @@ fn apply_operation_text_transforms(
     log_event.string("project", project_config.name.to_string());
 
     let custom_transforms =
-        &custom_transforms_config.and_then(|c| c.operation_text_transforms.as_ref());
+        custom_transforms_config.and_then(|c| c.operation_text_transforms.as_ref());
     let mut program = apply_before_custom_transforms(
         &program,
         custom_transforms,
@@ -673,7 +673,7 @@ fn apply_typegen_transforms(
     let log_event = perf_logger.create_event("apply_typegen_transforms");
     log_event.string("project", project_config.name.to_string());
 
-    let custom_transforms = &custom_transforms_config.and_then(|c| c.typegen_transforms.as_ref());
+    let custom_transforms = custom_transforms_config.and_then(|c| c.typegen_transforms.as_ref());
     let mut program = apply_before_custom_transforms(
         &program,
         custom_transforms,

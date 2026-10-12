@@ -112,35 +112,63 @@ impl fmt::Display for TypeSystemDefinition {
                 directives,
                 operation_types,
                 ..
-            }) => write_schema_extension_helper(f, directives, operation_types),
+            }) => write_schema_extension_helper(f, directives, operation_types.as_ref()),
             TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
                 name,
                 interfaces,
                 fields,
                 directives,
                 ..
-            }) => write_object_helper(f, &name.value, interfaces, fields, directives, false),
+            }) => write_object_helper(
+                f,
+                &name.value,
+                interfaces,
+                fields.as_ref(),
+                directives,
+                false,
+            ),
             TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
                 name,
                 interfaces,
                 fields,
                 directives,
                 ..
-            }) => write_object_helper(f, &name.value, interfaces, fields, directives, true),
+            }) => write_object_helper(
+                f,
+                &name.value,
+                interfaces,
+                fields.as_ref(),
+                directives,
+                true,
+            ),
             TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
                 name,
                 interfaces,
                 fields,
                 directives,
                 ..
-            }) => write_interface_helper(f, &name.value, interfaces, fields, directives, false),
+            }) => write_interface_helper(
+                f,
+                &name.value,
+                interfaces,
+                fields.as_ref(),
+                directives,
+                false,
+            ),
             TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
                 name,
                 interfaces,
                 fields,
                 directives,
                 ..
-            }) => write_interface_helper(f, &name.value, interfaces, fields, directives, true),
+            }) => write_interface_helper(
+                f,
+                &name.value,
+                interfaces,
+                fields.as_ref(),
+                directives,
+                true,
+            ),
             TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition {
                 name,
                 directives,
@@ -163,7 +191,7 @@ impl fmt::Display for TypeSystemDefinition {
             }) => write_directive_definition_helper(
                 f,
                 &name.value,
-                arguments,
+                arguments.as_ref(),
                 repeatable,
                 locations,
                 directives,
@@ -178,29 +206,45 @@ impl fmt::Display for TypeSystemDefinition {
                 directives,
                 fields,
                 ..
-            }) => {
-                write_input_object_type_definition_helper(f, &name.value, directives, fields, false)
-            }
+            }) => write_input_object_type_definition_helper(
+                f,
+                &name.value,
+                directives,
+                fields.as_ref(),
+                false,
+            ),
             TypeSystemDefinition::InputObjectTypeExtension(InputObjectTypeExtension {
                 name,
                 directives,
                 fields,
                 ..
-            }) => {
-                write_input_object_type_definition_helper(f, &name.value, directives, fields, true)
-            }
+            }) => write_input_object_type_definition_helper(
+                f,
+                &name.value,
+                directives,
+                fields.as_ref(),
+                true,
+            ),
             TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition {
                 name,
                 directives,
                 values,
                 ..
-            }) => write_enum_type_definition_helper(f, &name.value, directives, values, false),
+            }) => write_enum_type_definition_helper(
+                f,
+                &name.value,
+                directives,
+                values.as_ref(),
+                false,
+            ),
             TypeSystemDefinition::EnumTypeExtension(EnumTypeExtension {
                 name,
                 directives,
                 values,
                 ..
-            }) => write_enum_type_definition_helper(f, &name.value, directives, values, true),
+            }) => {
+                write_enum_type_definition_helper(f, &name.value, directives, values.as_ref(), true)
+            }
             TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
                 name,
                 directives,
@@ -757,11 +801,11 @@ fn write_schema_definition_helper(
 fn write_schema_extension_helper(
     f: &mut fmt::Formatter<'_>,
     directives: &[ConstantDirective],
-    operation_types: &Option<List<OperationTypeDefinition>>,
+    operation_types: Option<&List<OperationTypeDefinition>>,
 ) -> fmt::Result {
     write!(f, "extend schema")?;
     write_directives(f, directives)?;
-    if let Some(operation_types) = operation_types.as_ref() {
+    if let Some(operation_types) = operation_types {
         write_fields(f, &operation_types.items)?;
     }
     writeln!(f)
@@ -771,7 +815,7 @@ fn write_object_helper(
     f: &mut fmt::Formatter<'_>,
     name: &StringKey,
     interfaces: &[Identifier],
-    fields: &Option<List<FieldDefinition>>,
+    fields: Option<&List<FieldDefinition>>,
     directives: &[ConstantDirective],
     is_extension: bool,
 ) -> fmt::Result {
@@ -785,7 +829,7 @@ fn write_object_helper(
         write_list(f, interfaces, " & ")?;
     }
     write_directives(f, directives)?;
-    if let Some(fields) = fields.as_ref() {
+    if let Some(fields) = fields {
         write_fields(f, &fields.items)?;
     }
     writeln!(f)
@@ -795,7 +839,7 @@ fn write_interface_helper(
     f: &mut fmt::Formatter<'_>,
     name: &StringKey,
     interfaces: &[Identifier],
-    fields: &Option<List<FieldDefinition>>,
+    fields: Option<&List<FieldDefinition>>,
     directives: &[ConstantDirective],
     is_extension: bool,
 ) -> fmt::Result {
@@ -809,7 +853,7 @@ fn write_interface_helper(
         write_list(f, interfaces, " & ")?;
     }
     write_directives(f, directives)?;
-    if let Some(fields) = fields.as_ref() {
+    if let Some(fields) = fields {
         write_fields(f, &fields.items)?;
     }
     writeln!(f)
@@ -838,13 +882,13 @@ fn write_union_type_definition_helper(
 fn write_directive_definition_helper(
     f: &mut fmt::Formatter<'_>,
     name: &StringKey,
-    arguments: &Option<List<InputValueDefinition>>,
+    arguments: Option<&List<InputValueDefinition>>,
     repeatable: &bool,
     locations: &[DirectiveLocation],
     directives: &[ConstantDirective],
 ) -> fmt::Result {
     write!(f, "directive @{name}")?;
-    if let Some(arguments) = arguments.as_ref() {
+    if let Some(arguments) = arguments {
         write_arguments(f, &arguments.items)?;
     }
     write_directives(f, directives)?;
@@ -870,7 +914,7 @@ fn write_input_object_type_definition_helper(
     f: &mut fmt::Formatter<'_>,
     name: &StringKey,
     directives: &[ConstantDirective],
-    fields: &Option<List<InputValueDefinition>>,
+    fields: Option<&List<InputValueDefinition>>,
     is_extension: bool,
 ) -> fmt::Result {
     if is_extension {
@@ -879,7 +923,7 @@ fn write_input_object_type_definition_helper(
 
     write!(f, "input {name}")?;
     write_directives(f, directives)?;
-    if let Some(fields) = fields.as_ref() {
+    if let Some(fields) = fields {
         write_fields(f, &fields.items)?;
     }
     writeln!(f)
@@ -889,7 +933,7 @@ fn write_enum_type_definition_helper(
     f: &mut fmt::Formatter<'_>,
     name: &StringKey,
     directives: &[ConstantDirective],
-    values: &Option<List<EnumValueDefinition>>,
+    values: Option<&List<EnumValueDefinition>>,
     is_extension: bool,
 ) -> fmt::Result {
     if is_extension {
@@ -898,7 +942,7 @@ fn write_enum_type_definition_helper(
 
     write!(f, "enum {name}")?;
     write_directives(f, directives)?;
-    if let Some(values) = values.as_ref() {
+    if let Some(values) = values {
         write_fields(f, &values.items)?;
     }
 

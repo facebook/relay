@@ -45,7 +45,7 @@ pub struct CustomTransformsConfig {
 
 pub(crate) fn apply_before_custom_transforms(
     program: &Program,
-    custom_transforms: &Option<&CustomTransforms>,
+    custom_transforms: Option<&CustomTransforms>,
     project_config: &ProjectConfig,
     base_fragment_names: &BaseFragmentNames,
     log_event: &impl PerfLogEvent,
@@ -66,7 +66,7 @@ pub(crate) fn apply_before_custom_transforms(
 
 pub(crate) fn apply_after_custom_transforms(
     program: &Program,
-    custom_transforms: &Option<&CustomTransforms>,
+    custom_transforms: Option<&CustomTransforms>,
     project_config: &ProjectConfig,
     base_fragment_names: &BaseFragmentNames,
     log_event: &impl PerfLogEvent,

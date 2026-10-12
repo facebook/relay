@@ -109,7 +109,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         ..Default::default()
     };
 
-    validate(&program, &project_config, &None)
+    validate(&program, &project_config, None)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     // TODO pass base fragment names

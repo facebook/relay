@@ -1050,7 +1050,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let field_id = match self.lookup_field(
             parent_type.inner(),
             field.name.value,
-            &field.arguments,
+            field.arguments.as_ref(),
             &field.directives,
         ) {
             Some(field_id) => field_id,
@@ -1087,11 +1087,11 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 self.location.with_span(span),
             )]);
         }
-        let alias = self.build_alias(&field.alias);
+        let alias = self.build_alias(field.alias.as_ref());
         let relay_supported_arg_optional = self.options.relay_mode.is_some();
         let arguments = self.build_arguments(
             field.name.span,
-            &field.arguments,
+            field.arguments.as_ref(),
             &field_definition.arguments,
             |arg_name: &StringKey| {
                 if relay_supported_arg_optional {
@@ -1139,7 +1139,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let field_id = match self.lookup_field(
             parent_type.inner(),
             field_name,
-            &field.arguments,
+            field.arguments.as_ref(),
             &field.directives,
         ) {
             Some(field_id) => field_id,
@@ -1177,10 +1177,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 self.location.with_span(span),
             )]);
         }
-        let alias = self.build_alias(&field.alias);
+        let alias = self.build_alias(field.alias.as_ref());
         let arguments = self.build_arguments(
             field.name.span,
-            &field.arguments,
+            field.arguments.as_ref(),
             &field_definition.arguments,
             |_| true,
             |argument_name, suggestions| ValidationMessageWithData::UnknownFieldArgument {
@@ -1206,7 +1206,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         field: &graphql_syntax::ScalarField,
     ) -> DiagnosticsResult<ScalarField> {
         let field_id = self.schema.clientid_field();
-        let alias = self.build_alias(&field.alias);
+        let alias = self.build_alias(field.alias.as_ref());
         if let Some(arguments) = &field.arguments {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidArgumentsOnTypenameField,
@@ -1231,7 +1231,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         field: &graphql_syntax::ScalarField,
     ) -> DiagnosticsResult<ScalarField> {
         let field_id = self.schema.typename_field();
-        let alias = self.build_alias(&field.alias);
+        let alias = self.build_alias(field.alias.as_ref());
         if let Some(arguments) = &field.arguments {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidArgumentsOnTypenameField,
@@ -1256,7 +1256,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         field: &graphql_syntax::ScalarField,
     ) -> DiagnosticsResult<ScalarField> {
         let field_id = self.schema.fetch_token_field();
-        let alias = self.build_alias(&field.alias);
+        let alias = self.build_alias(field.alias.as_ref());
         if let Some(arguments) = &field.arguments {
             return Err(Diagnostic::error(
                 ValidationMessage::InvalidArgumentsOnFetchTokenField,
@@ -1279,7 +1279,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
 
     fn build_alias(
         &mut self,
-        alias: &Option<graphql_syntax::Alias>,
+        alias: Option<&graphql_syntax::Alias>,
     ) -> Option<WithLocation<StringKey>> {
         alias.as_ref().map(|alias| {
             alias
@@ -1291,7 +1291,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_arguments(
         &mut self,
         span: Span,
-        arguments: &Option<graphql_syntax::List<graphql_syntax::Argument>>,
+        arguments: Option<&graphql_syntax::List<graphql_syntax::Argument>>,
         argument_definitions: &ArgumentDefinitions,
         is_non_nullable_field_required: impl Fn(&StringKey) -> bool,
         get_unknown_argument_message: impl Fn(StringKey, Vec<StringKey>) -> ValidationMessageWithData,
@@ -1459,7 +1459,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         }
         let arguments = self.build_arguments(
             directive.name.span,
-            &directive.arguments,
+            directive.arguments.as_ref(),
             &directive_definition.arguments,
             |_| true,
             |argument_name, suggestions| ValidationMessageWithData::UnknownDirectiveArgument {
@@ -2097,7 +2097,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         &self,
         parent_type: Type,
         field_name: StringKey,
-        arguments: &Option<graphql_syntax::List<graphql_syntax::Argument>>,
+        arguments: Option<&graphql_syntax::List<graphql_syntax::Argument>>,
         directives: &[graphql_syntax::Directive],
     ) -> Option<FieldID> {
         if let Some(field_id) = self.schema.named_field(parent_type, field_name) {

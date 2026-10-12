@@ -400,12 +400,12 @@ fn parse_terse_relay_resolver_ir(
     });
 
     validate_field_type_annotation(&field, type_str, parse_options)?;
-    validate_field_arguments(&field.arguments, location.source_location())?;
+    validate_field_arguments(field.arguments.as_ref(), location.source_location())?;
 
     let (fragment_type_condition, fragment_arguments) = parse_fragment_definition(
         root_fragment,
         relay_resolver_field.value.location.source_location(),
-        &field.arguments,
+        field.arguments.as_ref(),
         definitions_in_file,
     )?;
 
@@ -495,7 +495,7 @@ fn try_into_populated_field(
 fn parse_fragment_definition(
     root_fragment: Option<PopulatedIrField>,
     source_location: SourceLocationKey,
-    field_arguments: &Option<List<InputValueDefinition>>,
+    field_arguments: Option<&List<InputValueDefinition>>,
     definitions_in_file: Option<&Vec<ExecutableDefinition>>,
 ) -> DiagnosticsResult<(Option<WithLocation<StringKey>>, Option<Vec<Argument>>)> {
     let fragment_definition = root_fragment
@@ -514,7 +514,7 @@ fn parse_fragment_definition(
         .transpose()?;
 
     if let (Some(field_arguments), Some(fragment_definition), Some(fragment_arguments)) =
-        (&field_arguments, &fragment_definition, &fragment_arguments)
+        (field_arguments, &fragment_definition, &fragment_arguments)
     {
         validate_fragment_arguments(
             source_location,
@@ -673,11 +673,11 @@ fn validate_field_type_annotation(
 }
 
 fn validate_field_arguments(
-    arguments: &Option<List<InputValueDefinition>>,
+    arguments: Option<&List<InputValueDefinition>>,
     source_location: SourceLocationKey,
 ) -> DiagnosticsResult<()> {
     let mut errors = vec![];
-    if let Some(field_arguments) = &arguments {
+    if let Some(field_arguments) = arguments {
         for argument in field_arguments.items.iter() {
             if let Some(default_value) = &argument.default_value {
                 errors.push(Diagnostic::error(

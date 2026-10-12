@@ -497,7 +497,7 @@ impl<'s> ConnectionTransform<'s> {
         let connection_metadata = build_connection_metadata(
             connection_field,
             self.connection_constants,
-            &self.current_path,
+            self.current_path.as_ref(),
             connection_directive.name.item
                 == self.connection_constants.stream_connection_directive_name,
             if let Some(arg) = connection_directive

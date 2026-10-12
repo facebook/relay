@@ -58,7 +58,7 @@ pub static EMIT_RAW_TEXT_ARG: LazyLock<ArgumentName> =
 /// directories matching the regex.
 pub fn generate_test_operation_metadata(
     program: &Program,
-    test_path_regex: &Option<Regex>,
+    test_path_regex: Option<&Regex>,
 ) -> DiagnosticsResult<Program> {
     let mut transformer = GenerateTestOperationMetadata::new(program, test_path_regex);
     let next_program = transformer
@@ -74,12 +74,12 @@ pub fn generate_test_operation_metadata(
 
 struct GenerateTestOperationMetadata<'a> {
     program: &'a Program,
-    test_path_regex: &'a Option<Regex>,
+    test_path_regex: Option<&'a Regex>,
     errors: Vec<Diagnostic>,
 }
 
 impl<'a> GenerateTestOperationMetadata<'a> {
-    fn new(program: &'a Program, test_path_regex: &'a Option<Regex>) -> Self {
+    fn new(program: &'a Program, test_path_regex: Option<&'a Regex>) -> Self {
         GenerateTestOperationMetadata {
             program,
             test_path_regex,

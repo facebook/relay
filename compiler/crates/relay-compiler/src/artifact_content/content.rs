@@ -53,7 +53,7 @@ pub fn generate_preloadable_query_parameters(
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
     let query_id = query_id.cloned();
-    request_parameters.id = &query_id;
+    request_parameters.id = query_id.as_ref();
 
     let mut content_sections = ContentSections::default();
 
@@ -286,8 +286,8 @@ pub fn generate_operation(
     reader_operation: &OperationDefinition,
     typegen_operation: &OperationDefinition,
     source_hash: String,
-    text: &Option<String>,
-    id_and_text_hash: &Option<QueryID>,
+    text: Option<&String>,
+    id_and_text_hash: Option<&QueryID>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -300,10 +300,10 @@ pub fn generate_operation(
             .as_ref()
             .is_some_and(|config| config.include_query_text())
         {
-            request_parameters.text.clone_from(text);
+            request_parameters.text = text.cloned();
         }
     } else {
-        request_parameters.text.clone_from(text);
+        request_parameters.text = text.cloned();
     }
 
     let operation_fragment = FragmentDefinition {
@@ -551,7 +551,7 @@ pub fn generate_split_operation(
     printer: &mut Printer<'_>,
     schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
-    typegen_operation: &Option<Arc<OperationDefinition>>,
+    typegen_operation: Option<&Arc<OperationDefinition>>,
     source_hash: Option<&String>,
     fragment_locations: &FragmentLocations,
     no_optional_fields_in_raw_response_type: bool,

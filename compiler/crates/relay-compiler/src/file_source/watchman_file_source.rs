@@ -352,7 +352,6 @@ impl WatchmanFileSource {
         );
         let saved_state_info = saved_state_result
             .saved_state_info()
-            .as_ref()
             .ok_or("no saved state in watchman response")?;
         debug!(
             "WatchmanFileSource::saved_state_info(...) file_source_result = {:?}",

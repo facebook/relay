@@ -46,7 +46,7 @@ pub type AdditionalValidations =
 pub fn validate_reader(
     program: &Program,
     project_config: &ProjectConfig,
-    additional_validations: &Option<AdditionalValidations>,
+    additional_validations: Option<&AdditionalValidations>,
 ) -> DiagnosticsResult<WithDiagnostics<()>> {
     let output = try_all(vec![
         // This validation is in this list because it depends upon
@@ -65,7 +65,7 @@ pub fn validate_reader(
 pub fn validate(
     program: &Program,
     project_config: &ProjectConfig,
-    additional_validations: &Option<AdditionalValidations>,
+    additional_validations: Option<&AdditionalValidations>,
 ) -> DiagnosticsResult<WithDiagnostics<()>> {
     let output = try_all(vec![
         validate_variables(project_config, program),

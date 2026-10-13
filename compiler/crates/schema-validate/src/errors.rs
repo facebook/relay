@@ -84,4 +84,9 @@ pub enum SchemaValidationError {
 
     #[error("Cyclic reference found for interface inheritance: {0}.")]
     CyclicInterfaceInheritance(String),
+
+    #[error(
+        "'{0}' is in the `disable_schema_validation` allowlist but has no schema validation errors. Remove it from the allowlist."
+    )]
+    UnusedExemptCoordinate(StringKey),
 }

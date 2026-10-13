@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+//- foo.js
+graphql`query fooQuery {
+  greeting
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "disable_schema_validation": {
+      "kind": "limited",
+      "allowlist": ["Person"]
+    }
+  }
+}
+
+//- schema.graphql
+# There is no `Person` type, so its allowlist entry is reported without a location.
+type Query {
+  greeting: String
+}
+==================================== OUTPUT ===================================
+✖︎ 'Person' is in the `disable_schema_validation` allowlist but has no schema validation errors. Remove it from the allowlist.
+
+<generated>: <missing source>

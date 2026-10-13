@@ -1,0 +1,22 @@
+//- foo.js
+graphql`query fooQuery {
+  greeting
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "disable_schema_validation": {
+      "kind": "limited",
+      "allowlist": ["Query.greeting"]
+    }
+  }
+}
+
+//- schema.graphql
+# `Query.greeting` has no errors, so its allowlist entry is reported at the field.
+type Query {
+  greeting: String
+}

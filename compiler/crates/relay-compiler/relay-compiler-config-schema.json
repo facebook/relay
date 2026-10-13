@@ -654,7 +654,7 @@
           "default": false
         },
         "disable_schema_validation": {
-          "description": "Disable validating the composite schema (server, client schema\nextensions, Relay Resolvers) after it's built.\n\nThe limited and rollout variants are keyed by schema coordinate and\ndisable validation for those coordinates only: `Type` skips every check\non that type, and `Type.field` skips the checks on that field, including\nwhether it satisfies the interfaces `Type` implements. The rest of the\nschema is still validated.\n\n`true` and `false` are accepted for the enabled and disabled variants.",
+          "description": "Disable validating the composite schema (server, client schema\nextensions, Relay Resolvers) after it's built.\n\nThe limited and rollout variants are keyed by schema coordinate and\ndisable validation for those coordinates only: `Type` skips every check\non that type, and `Type.field` skips the checks on that field, including\nwhether it satisfies the interfaces `Type` implements. The rest of the\nschema is still validated.\n\nAn entry of a limited allowlist that skips no error is reported as an\nerror, so the allowlist shrinks as the errors behind it are fixed.\n\n`true` and `false` are accepted for the enabled and disabled variants.",
           "anyOf": [
             {
               "type": "boolean"

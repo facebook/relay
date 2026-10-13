@@ -135,6 +135,9 @@ pub struct FeatureFlags {
     /// whether it satisfies the interfaces `Type` implements. The rest of the
     /// schema is still validated.
     ///
+    /// An entry of a limited allowlist that skips no error is reported as an
+    /// error, so the allowlist shrinks as the errors behind it are fixed.
+    ///
     /// `true` and `false` are accepted for the enabled and disabled variants.
     #[serde(default, deserialize_with = "deserialize_bool_or_feature_flag")]
     #[schemars(schema_with = "bool_or_feature_flag_schema")]

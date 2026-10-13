@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<41255bc2fe6a52198f0dd1d66c160414>>
+ * @generated SignedSource<<22c037d1d49f5351055f12ca678518e3>>
  */
 
 mod relay_compiler_integration;
@@ -199,6 +199,34 @@ async fn disable_schema_validation_exempt_type_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_exempt_type.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_exempt_type.invalid.expected");
     test_fixture(transform_fixture, file!(), "disable_schema_validation_exempt_type.invalid.input", "relay_compiler_integration/fixtures/disable_schema_validation_exempt_type.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn disable_schema_validation_unused_field_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_unused_field.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_unused_field.invalid.expected");
+    test_fixture(transform_fixture, file!(), "disable_schema_validation_unused_field.invalid.input", "relay_compiler_integration/fixtures/disable_schema_validation_unused_field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn disable_schema_validation_unused_missing_field_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_unused_missing_field.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_unused_missing_field.invalid.expected");
+    test_fixture(transform_fixture, file!(), "disable_schema_validation_unused_missing_field.invalid.input", "relay_compiler_integration/fixtures/disable_schema_validation_unused_missing_field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn disable_schema_validation_unused_missing_type_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_unused_missing_type.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_unused_missing_type.invalid.expected");
+    test_fixture(transform_fixture, file!(), "disable_schema_validation_unused_missing_type.invalid.input", "relay_compiler_integration/fixtures/disable_schema_validation_unused_missing_type.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn disable_schema_validation_unused_type_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_unused_type.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_unused_type.invalid.expected");
+    test_fixture(transform_fixture, file!(), "disable_schema_validation_unused_type.invalid.input", "relay_compiler_integration/fixtures/disable_schema_validation_unused_type.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

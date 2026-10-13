@@ -1,0 +1,31 @@
+==================================== INPUT ====================================
+//- foo.js
+graphql`query fooQuery {
+  greeting
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "disable_schema_validation": {
+      "kind": "limited",
+      "allowlist": ["Query"]
+    }
+  }
+}
+
+//- schema.graphql
+# `Query` has no errors, so its allowlist entry is reported at the type.
+type Query {
+  greeting: String
+}
+==================================== OUTPUT ===================================
+✖︎ 'Query' is in the `disable_schema_validation` allowlist but has no schema validation errors. Remove it from the allowlist.
+
+  schema.graphql:2:6
+    1 │ # `Query` has no errors, so its allowlist entry is reported at the type.
+    2 │ type Query {
+      │      ^^^^^
+    3 │   greeting: String

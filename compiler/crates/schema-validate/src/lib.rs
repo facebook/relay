@@ -66,7 +66,8 @@ pub struct SchemaValidationOptions<'a> {
     pub allow_introspection_names: bool,
     /// Schema coordinates to skip: `Type` skips every check on that type, and
     /// `Type.field` skips the checks on that field, including whether it
-    /// satisfies the interfaces `Type` implements.
+    /// satisfies the interfaces `Type` implements. An entry of a limited
+    /// allowlist that skips no error is reported.
     pub exempt_coordinates: &'a FeatureFlag,
 }
 
@@ -87,6 +88,8 @@ pub struct ValidationContext<'schema> {
     schema: &'schema SDLSchema,
     options: &'schema SchemaValidationOptions<'schema>,
     diagnostics: Vec<Diagnostic>,
+    /// Exempt coordinates that skipped at least one error.
+    used_exempt_coordinates: FnvHashSet<StringKey>,
 }
 
 impl<'schema> ValidationContext<'schema> {
@@ -98,6 +101,7 @@ impl<'schema> ValidationContext<'schema> {
             schema,
             options,
             diagnostics: Default::default(),
+            used_exempt_coordinates: Default::default(),
         }
     }
 
@@ -105,6 +109,7 @@ impl<'schema> ValidationContext<'schema> {
         self.validate_root_types();
         self.validate_directives();
         self.validate_types();
+        self.validate_exempt_coordinates_are_used();
     }
 
     fn validate_root_types(&mut self) {
@@ -160,17 +165,33 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_types(&mut self) {
         let exempt_coordinates = self.options.exempt_coordinates;
-        let diagnostics = self
+        let (diagnostics, used_exempt_coordinates) = self
             .schema
             .get_type_map_par_iter()
-            .filter(|(type_name, _)| !exempt_coordinates.is_enabled_for(**type_name))
-            .flat_map(|(type_name, type_)| {
+            .map(|(type_name, type_)| {
                 let mut child_visitor = Self::new(self.schema, self.options);
                 child_visitor.validate_type(*type_name, type_);
-                child_visitor.diagnostics
+                if !child_visitor.diagnostics.is_empty()
+                    && exempt_coordinates.is_enabled_for(*type_name)
+                {
+                    child_visitor.diagnostics.clear();
+                    child_visitor.used_exempt_coordinates.insert(*type_name);
+                }
+                (
+                    child_visitor.diagnostics,
+                    child_visitor.used_exempt_coordinates,
+                )
             })
-            .collect::<Vec<Diagnostic>>();
+            .reduce(
+                || (Vec::new(), FnvHashSet::default()),
+                |(mut diagnostics, mut used), (more_diagnostics, more_used)| {
+                    diagnostics.extend(more_diagnostics);
+                    used.extend(more_used);
+                    (diagnostics, used)
+                },
+            );
         self.diagnostics.extend(diagnostics);
+        self.used_exempt_coordinates.extend(used_exempt_coordinates);
     }
 
     fn validate_type(&mut self, type_name: StringKey, type_: &Type) {
@@ -626,7 +647,8 @@ impl<'schema> ValidationContext<'schema> {
     }
 
     /// Runs the checks on the field `type_name.field_name`, dropping the
-    /// diagnostics they report if that schema coordinate is exempt.
+    /// diagnostics they report if that schema coordinate is exempt. The checks
+    /// must only report diagnostics about this field.
     fn validate_field(
         &mut self,
         type_name: StringKey,
@@ -635,13 +657,56 @@ impl<'schema> ValidationContext<'schema> {
     ) {
         let first_diagnostic = self.diagnostics.len();
         validate(self);
-        if self.diagnostics.len() > first_diagnostic
-            && self
-                .options
-                .exempt_coordinates
-                .is_enabled_for(format!("{type_name}.{field_name}").intern())
-        {
+        if self.diagnostics.len() == first_diagnostic {
+            return;
+        }
+        let coordinate = format!("{type_name}.{field_name}").intern();
+        if self.options.exempt_coordinates.is_enabled_for(coordinate) {
             self.diagnostics.truncate(first_diagnostic);
+            self.used_exempt_coordinates.insert(coordinate);
+        }
+    }
+
+    /// Reports each entry of a limited allowlist that skipped no error, so the
+    /// allowlist shrinks as the errors behind it are fixed.
+    fn validate_exempt_coordinates_are_used(&mut self) {
+        let FeatureFlag::Limited { allowlist } = self.options.exempt_coordinates else {
+            return;
+        };
+        let diagnostics = allowlist
+            .iter()
+            .filter(|coordinate| !self.used_exempt_coordinates.contains(*coordinate))
+            .map(|coordinate| {
+                Diagnostic::error(
+                    SchemaValidationError::UnusedExemptCoordinate(*coordinate),
+                    self.exempt_coordinate_location(*coordinate),
+                )
+            })
+            .collect::<Vec<_>>();
+        self.diagnostics.extend(diagnostics);
+    }
+
+    /// The definition of the field `coordinate` names, or of its type if the
+    /// type has no such field. Generated if the schema has no such type.
+    fn exempt_coordinate_location(&self, coordinate: StringKey) -> Location {
+        let (type_name, field_name) = match coordinate.lookup().split_once('.') {
+            Some((type_name, field_name)) => (type_name, Some(field_name.intern())),
+            None => (coordinate.lookup(), None),
+        };
+        let Some(type_) = self.schema.get_type(type_name.intern()) else {
+            return Location::generated();
+        };
+        let field_id = field_name.and_then(|field_name| match type_ {
+            Type::Object(id) => self.schema.object(id).named_field(field_name, self.schema),
+            Type::Interface(id) => self
+                .schema
+                .interface(id)
+                .named_field(field_name, self.schema),
+            _ => None,
+        });
+        match field_id {
+            Some(field_id) => self.schema.field(field_id).name.location,
+            None => self.get_type_definition_location(type_),
         }
     }
 

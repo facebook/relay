@@ -1,0 +1,79 @@
+// Test: `campaigns` is implemented by a different resolver on each implementor
+// of `IAccount`, so the abstract-type expansion copies it, together with the
+// deferred spread nested under it, into one inline fragment per implementor.
+// The single authored @defer must compile, and every copy keeps its one label.
+//- AccountComponent.js
+graphql`query AccountComponentQuery {
+  account {
+    ...AccountComponent_account
+  }
+}`
+
+graphql`fragment AccountComponent_account on IAccount {
+  campaigns {
+    ...AccountComponent_campaign @defer
+  }
+}`
+
+graphql`fragment AccountComponent_campaign on Campaign @relay(plural: true) {
+  id
+}`
+
+//- AccountResolvers.js
+/**
+ * @relayType ClientAccount implements IAccount
+ */
+export function ClientAccount() {}
+
+/**
+ * @relayType OtherAccount implements IAccount
+ */
+export function OtherAccount() {}
+
+/**
+ * @relayType Campaign
+ */
+export function Campaign() {}
+
+//- ClientAccountCampaignsResolver.js
+/**
+ * @relayField ClientAccount.campaigns: [Campaign]
+ */
+export function campaigns() {}
+
+//- OtherAccountCampaignsResolver.js
+/**
+ * @relayField OtherAccount.campaigns: [Campaign]
+ */
+export function campaigns() {}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "relay_resolver_enable_interface_output_type": {"kind": "enabled"}
+  }
+}
+
+//- schema.graphql
+directive @defer(
+  label: String
+  if: Boolean = true
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+type Query {
+  greeting: String
+}
+
+//- schema-extensions/extension.graphql
+interface IAccount {
+  id: ID!
+  campaigns: [Campaign]
+}
+
+extend type Query {
+  account: IAccount
+}

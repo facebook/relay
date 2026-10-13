@@ -175,9 +175,6 @@ fn apply_common_transforms(
         )
     })?;
 
-    program = log_event.time("relay_resolvers_abstract_types", || {
-        relay_resolvers_abstract_types(&program, &project_config.feature_flags)
-    })?;
     program = log_event.time("transform_connections", || {
         transform_connections(
             &program,
@@ -192,6 +189,12 @@ fn apply_common_transforms(
             &program,
             &project_config.schema_config.defer_stream_interface,
         )
+    })?;
+    // Must run after transform_defer_stream: it copies selections into one inline
+    // fragment per implementor, and each copy of an authored @defer or @stream must
+    // keep the single label assigned to it.
+    program = log_event.time("relay_resolvers_abstract_types", || {
+        relay_resolvers_abstract_types(&program, &project_config.feature_flags)
     })?;
     program = log_event.time("transform_match", || {
         transform_match(

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<22c037d1d49f5351055f12ca678518e3>>
+ * @generated SignedSource<<98cabe9f77d023ccfec535f4d815b3d0>>
  */
 
 mod relay_compiler_integration;
@@ -17,6 +17,13 @@ async fn abstract_type_expands_one_inline_fragment_per_implementor() {
     let input = include_str!("relay_compiler_integration/fixtures/abstract_type_expands_one_inline_fragment_per_implementor.input");
     let expected = include_str!("relay_compiler_integration/fixtures/abstract_type_expands_one_inline_fragment_per_implementor.expected");
     test_fixture(transform_fixture, file!(), "abstract_type_expands_one_inline_fragment_per_implementor.input", "relay_compiler_integration/fixtures/abstract_type_expands_one_inline_fragment_per_implementor.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn abstract_type_expansion_copies_nested_defer() {
+    let input = include_str!("relay_compiler_integration/fixtures/abstract_type_expansion_copies_nested_defer.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/abstract_type_expansion_copies_nested_defer.expected");
+    test_fixture(transform_fixture, file!(), "abstract_type_expansion_copies_nested_defer.input", "relay_compiler_integration/fixtures/abstract_type_expansion_copies_nested_defer.expected", input, expected).await;
 }
 
 #[tokio::test]

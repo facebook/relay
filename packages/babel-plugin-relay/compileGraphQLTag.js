@@ -46,7 +46,7 @@ function posixifyPath(path: string): string {
  */
 function compileGraphQLTag(
   t: $FlowFixMe,
-  path: Object,
+  path: any,
   state: BabelState,
   ast: DocumentNode,
 ): void {
@@ -80,11 +80,11 @@ function compileGraphQLTag(
 
   return createNode(t, state, path, definition, {
     artifactDirectory,
-    eagerEsModules,
     buildCommand,
+    eagerEsModules,
     isDevelopment,
-    isHasteMode,
     isDevVariable,
+    isHasteMode,
   });
 }
 
@@ -113,7 +113,7 @@ function createNode(
     // Use haste style global requires, defaults to false.
     isHasteMode: boolean,
   },
-): Object {
+): any {
   const definitionName = graphqlDefinition.name && graphqlDefinition.name.value;
   if (!definitionName) {
     throw new Error('GraphQL operations and fragments must contain names');

@@ -4883,951 +4883,939 @@ declare module '@babel/types' {
     name: string,
   ): BabelNodeTSTypeParameter;
   declare export function isArrayExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ArrayExpression;
   declare export function isAssignmentExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is AssignmentExpression;
   declare export function isBinaryExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is BinaryExpression;
   declare export function isInterpreterDirective(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is InterpreterDirective;
   declare export function isDirective(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is Directive;
   declare export function isDirectiveLiteral(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DirectiveLiteral;
   declare export function isBlockStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is BlockStatement;
   declare export function isBreakStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is BreakStatement;
   declare export function isCallExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is CallExpression;
   declare export function isCatchClause(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is CatchClause;
   declare export function isConditionalExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ConditionalExpression;
   declare export function isContinueStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ContinueStatement;
   declare export function isDebuggerStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DebuggerStatement;
   declare export function isDoWhileStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DoWhileStatement;
   declare export function isEmptyStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EmptyStatement;
   declare export function isExpressionStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ExpressionStatement;
-  declare export function isFile(node: ?Object, opts?: ?Object): node is File;
+  declare export function isFile(node: ?any, opts?: ?any): node is File;
   declare export function isForInStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ForInStatement;
   declare export function isForStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ForStatement;
   declare export function isFunctionDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is FunctionDeclaration;
   declare export function isFunctionExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is FunctionExpression;
   declare export function isIdentifier(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is Identifier;
   declare export function isIfStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is IfStatement;
   declare export function isLabeledStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is LabeledStatement;
   declare export function isStringLiteral(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is StringLiteral;
   declare export function isNumericLiteral(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is NumericLiteral;
   declare export function isNullLiteral(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is NullLiteral;
   declare export function isBooleanLiteral(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is BooleanLiteral;
   declare export function isRegExpLiteral(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is RegExpLiteral;
   declare export function isLogicalExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is LogicalExpression;
   declare export function isMemberExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is MemberExpression;
   declare export function isNewExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is NewExpression;
-  declare export function isProgram(
-    node: ?Object,
-    opts?: ?Object,
-  ): node is Program;
+  declare export function isProgram(node: ?any, opts?: ?any): node is Program;
   declare export function isObjectExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectExpression;
   declare export function isObjectMethod(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectMethod;
   declare export function isObjectProperty(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectProperty;
   declare export function isRestElement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is RestElement;
   declare export function isReturnStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ReturnStatement;
   declare export function isSequenceExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is SequenceExpression;
   declare export function isParenthesizedExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ParenthesizedExpression;
   declare export function isSwitchCase(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is SwitchCase;
   declare export function isSwitchStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is SwitchStatement;
   declare export function isThisExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ThisExpression;
   declare export function isThrowStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ThrowStatement;
   declare export function isTryStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TryStatement;
   declare export function isUnaryExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is UnaryExpression;
   declare export function isUpdateExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is UpdateExpression;
   declare export function isVariableDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is VariableDeclaration;
   declare export function isVariableDeclarator(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is VariableDeclarator;
   declare export function isWhileStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is WhileStatement;
   declare export function isWithStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is WithStatement;
   declare export function isAssignmentPattern(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is AssignmentPattern;
   declare export function isArrayPattern(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ArrayPattern;
   declare export function isArrowFunctionExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ArrowFunctionExpression;
   declare export function isClassBody(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ClassBody;
   declare export function isClassExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ClassExpression;
   declare export function isClassDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ClassDeclaration;
   declare export function isExportAllDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ExportAllDeclaration;
   declare export function isExportDefaultDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ExportDefaultDeclaration;
   declare export function isExportNamedDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ExportNamedDeclaration;
   declare export function isExportSpecifier(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ExportSpecifier;
   declare export function isForOfStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ForOfStatement;
   declare export function isImportDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ImportDeclaration;
   declare export function isImportDefaultSpecifier(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ImportDefaultSpecifier;
   declare export function isImportNamespaceSpecifier(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ImportNamespaceSpecifier;
   declare export function isImportSpecifier(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ImportSpecifier;
   declare export function isMetaProperty(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is MetaProperty;
   declare export function isClassMethod(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ClassMethod;
   declare export function isObjectPattern(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectPattern;
   declare export function isSpreadElement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is SpreadElement;
-  declare export function isSuper(node: ?Object, opts?: ?Object): node is Super;
+  declare export function isSuper(node: ?any, opts?: ?any): node is Super;
   declare export function isTaggedTemplateExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TaggedTemplateExpression;
   declare export function isTemplateElement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TemplateElement;
   declare export function isTemplateLiteral(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TemplateLiteral;
   declare export function isYieldExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is YieldExpression;
   declare export function isAnyTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is AnyTypeAnnotation;
   declare export function isArrayTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ArrayTypeAnnotation;
   declare export function isBooleanTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is BooleanTypeAnnotation;
   declare export function isBooleanLiteralTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is BooleanLiteralTypeAnnotation;
   declare export function isNullLiteralTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is NullLiteralTypeAnnotation;
   declare export function isClassImplements(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ClassImplements;
   declare export function isDeclareClass(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclareClass;
   declare export function isDeclareFunction(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclareFunction;
   declare export function isDeclareInterface(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclareInterface;
   declare export function isDeclareModule(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclareModule;
   declare export function isDeclareModuleExports(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclareModuleExports;
   declare export function isDeclareTypeAlias(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclareTypeAlias;
   declare export function isDeclareOpaqueType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclareOpaqueType;
   declare export function isDeclareVariable(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclareVariable;
   declare export function isDeclareExportDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclareExportDeclaration;
   declare export function isDeclareExportAllDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclareExportAllDeclaration;
   declare export function isDeclaredPredicate(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclaredPredicate;
   declare export function isExistsTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ExistsTypeAnnotation;
   declare export function isFunctionTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is FunctionTypeAnnotation;
   declare export function isFunctionTypeParam(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is FunctionTypeParam;
   declare export function isGenericTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is GenericTypeAnnotation;
   declare export function isInferredPredicate(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is InferredPredicate;
   declare export function isInterfaceExtends(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is InterfaceExtends;
   declare export function isInterfaceDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is InterfaceDeclaration;
   declare export function isInterfaceTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is InterfaceTypeAnnotation;
   declare export function isIntersectionTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is IntersectionTypeAnnotation;
   declare export function isMixedTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is MixedTypeAnnotation;
   declare export function isEmptyTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EmptyTypeAnnotation;
   declare export function isNullableTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is NullableTypeAnnotation;
   declare export function isNumberLiteralTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is NumberLiteralTypeAnnotation;
   declare export function isNumberTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is NumberTypeAnnotation;
   declare export function isObjectTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectTypeAnnotation;
   declare export function isObjectTypeInternalSlot(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectTypeInternalSlot;
   declare export function isObjectTypeCallProperty(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectTypeCallProperty;
   declare export function isObjectTypeIndexer(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectTypeIndexer;
   declare export function isObjectTypeProperty(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectTypeProperty;
   declare export function isObjectTypeSpreadProperty(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectTypeSpreadProperty;
   declare export function isOpaqueType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is OpaqueType;
   declare export function isQualifiedTypeIdentifier(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is QualifiedTypeIdentifier;
   declare export function isStringLiteralTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is StringLiteralTypeAnnotation;
   declare export function isStringTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is StringTypeAnnotation;
   declare export function isSymbolTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is SymbolTypeAnnotation;
   declare export function isThisTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ThisTypeAnnotation;
   declare export function isTupleTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TupleTypeAnnotation;
   declare export function isTypeofTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TypeofTypeAnnotation;
   declare export function isTypeAlias(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TypeAlias;
   declare export function isTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TypeAnnotation;
   declare export function isTypeCastExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TypeCastExpression;
   declare export function isTypeParameter(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TypeParameter;
   declare export function isTypeParameterDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TypeParameterDeclaration;
   declare export function isTypeParameterInstantiation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TypeParameterInstantiation;
   declare export function isUnionTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is UnionTypeAnnotation;
-  declare export function isVariance(
-    node: ?Object,
-    opts?: ?Object,
-  ): node is Variance;
+  declare export function isVariance(node: ?any, opts?: ?any): node is Variance;
   declare export function isVoidTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is VoidTypeAnnotation;
   declare export function isEnumDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EnumDeclaration;
   declare export function isEnumBooleanBody(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EnumBooleanBody;
   declare export function isEnumNumberBody(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EnumNumberBody;
   declare export function isEnumStringBody(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EnumStringBody;
   declare export function isEnumSymbolBody(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EnumSymbolBody;
   declare export function isEnumBooleanMember(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EnumBooleanMember;
   declare export function isEnumNumberMember(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EnumNumberMember;
   declare export function isEnumStringMember(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EnumStringMember;
   declare export function isEnumDefaultedMember(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EnumDefaultedMember;
   declare export function isJSXAttribute(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXAttribute;
   declare export function isJSXClosingElement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXClosingElement;
   declare export function isJSXElement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXElement;
   declare export function isJSXEmptyExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXEmptyExpression;
   declare export function isJSXExpressionContainer(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXExpressionContainer;
   declare export function isJSXSpreadChild(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXSpreadChild;
   declare export function isJSXIdentifier(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXIdentifier;
   declare export function isJSXMemberExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXMemberExpression;
   declare export function isJSXNamespacedName(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXNamespacedName;
   declare export function isJSXOpeningElement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXOpeningElement;
   declare export function isJSXSpreadAttribute(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXSpreadAttribute;
-  declare export function isJSXText(
-    node: ?Object,
-    opts?: ?Object,
-  ): node is JSXText;
+  declare export function isJSXText(node: ?any, opts?: ?any): node is JSXText;
   declare export function isJSXFragment(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXFragment;
   declare export function isJSXOpeningFragment(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXOpeningFragment;
   declare export function isJSXClosingFragment(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is JSXClosingFragment;
-  declare export function isNoop(node: ?Object, opts?: ?Object): node is Noop;
+  declare export function isNoop(node: ?any, opts?: ?any): node is Noop;
   declare export function isPlaceholder(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is Placeholder;
   declare export function isV8IntrinsicIdentifier(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is V8IntrinsicIdentifier;
   declare export function isArgumentPlaceholder(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ArgumentPlaceholder;
   declare export function isAwaitExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is AwaitExpression;
   declare export function isBindExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is BindExpression;
   declare export function isClassProperty(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ClassProperty;
   declare export function isOptionalMemberExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is OptionalMemberExpression;
   declare export function isPipelineTopicExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is PipelineTopicExpression;
   declare export function isPipelineBareFunction(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is PipelineBareFunction;
   declare export function isPipelinePrimaryTopicReference(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is PipelinePrimaryTopicReference;
   declare export function isOptionalCallExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is OptionalCallExpression;
   declare export function isClassPrivateProperty(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ClassPrivateProperty;
   declare export function isClassPrivateMethod(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ClassPrivateMethod;
-  declare export function isImport(
-    node: ?Object,
-    opts?: ?Object,
-  ): node is Import;
+  declare export function isImport(node: ?any, opts?: ?any): node is Import;
   declare export function isImportAttribute(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ImportAttribute;
   declare export function isDecorator(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is Decorator;
   declare export function isDoExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DoExpression;
   declare export function isExportDefaultSpecifier(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ExportDefaultSpecifier;
   declare export function isExportNamespaceSpecifier(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ExportNamespaceSpecifier;
   declare export function isPrivateName(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is PrivateName;
   declare export function isBigIntLiteral(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is BigIntLiteral;
   declare export function isRecordExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is RecordExpression;
   declare export function isTupleExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TupleExpression;
   declare export function isTSParameterProperty(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSParameterProperty;
   declare export function isTSDeclareFunction(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSDeclareFunction;
   declare export function isTSDeclareMethod(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSDeclareMethod;
   declare export function isTSQualifiedName(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSQualifiedName;
   declare export function isTSCallSignatureDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSCallSignatureDeclaration;
   declare export function isTSConstructSignatureDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSConstructSignatureDeclaration;
   declare export function isTSPropertySignature(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSPropertySignature;
   declare export function isTSMethodSignature(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSMethodSignature;
   declare export function isTSIndexSignature(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSIndexSignature;
   declare export function isTSAnyKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSAnyKeyword;
   declare export function isTSBooleanKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSBooleanKeyword;
   declare export function isTSBigIntKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSBigIntKeyword;
   declare export function isTSNeverKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSNeverKeyword;
   declare export function isTSNullKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSNullKeyword;
   declare export function isTSNumberKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSNumberKeyword;
   declare export function isTSObjectKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSObjectKeyword;
   declare export function isTSStringKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSStringKeyword;
   declare export function isTSSymbolKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSSymbolKeyword;
   declare export function isTSUndefinedKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSUndefinedKeyword;
   declare export function isTSUnknownKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSUnknownKeyword;
   declare export function isTSVoidKeyword(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSVoidKeyword;
   declare export function isTSThisType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSThisType;
   declare export function isTSFunctionType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSFunctionType;
   declare export function isTSConstructorType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSConstructorType;
   declare export function isTSTypeReference(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTypeReference;
   declare export function isTSTypePredicate(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTypePredicate;
   declare export function isTSTypeQuery(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTypeQuery;
   declare export function isTSTypeLiteral(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTypeLiteral;
   declare export function isTSArrayType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSArrayType;
   declare export function isTSTupleType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTupleType;
   declare export function isTSOptionalType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSOptionalType;
   declare export function isTSRestType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSRestType;
   declare export function isTSUnionType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSUnionType;
   declare export function isTSIntersectionType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSIntersectionType;
   declare export function isTSConditionalType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSConditionalType;
   declare export function isTSInferType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSInferType;
   declare export function isTSParenthesizedType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSParenthesizedType;
   declare export function isTSTypeOperator(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTypeOperator;
   declare export function isTSIndexedAccessType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSIndexedAccessType;
   declare export function isTSMappedType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSMappedType;
   declare export function isTSLiteralType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSLiteralType;
   declare export function isTSExpressionWithTypeArguments(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSExpressionWithTypeArguments;
   declare export function isTSInterfaceDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSInterfaceDeclaration;
   declare export function isTSInterfaceBody(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSInterfaceBody;
   declare export function isTSTypeAliasDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTypeAliasDeclaration;
   declare export function isTSAsExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSAsExpression;
   declare export function isTSTypeAssertion(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTypeAssertion;
   declare export function isTSEnumDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSEnumDeclaration;
   declare export function isTSEnumMember(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSEnumMember;
   declare export function isTSModuleDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSModuleDeclaration;
   declare export function isTSModuleBlock(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSModuleBlock;
   declare export function isTSImportType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSImportType;
   declare export function isTSImportEqualsDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSImportEqualsDeclaration;
   declare export function isTSExternalModuleReference(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSExternalModuleReference;
   declare export function isTSNonNullExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSNonNullExpression;
   declare export function isTSExportAssignment(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSExportAssignment;
   declare export function isTSNamespaceExportDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSNamespaceExportDeclaration;
   declare export function isTSTypeAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTypeAnnotation;
   declare export function isTSTypeParameterInstantiation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTypeParameterInstantiation;
   declare export function isTSTypeParameterDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTypeParameterDeclaration;
   declare export function isTSTypeParameter(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is TSTypeParameter;
   declare export function isExpression(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | ArrayExpression
     | AssignmentExpression
@@ -5876,12 +5864,12 @@ declare module '@babel/types' {
     | TSTypeAssertion
     | TSNonNullExpression;
   declare export function isBinary(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is BinaryExpression | LogicalExpression;
   declare export function isScopable(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | BlockStatement
     | CatchClause
@@ -5902,8 +5890,8 @@ declare module '@babel/types' {
     | ClassPrivateMethod
     | TSModuleBlock;
   declare export function isBlockParent(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | BlockStatement
     | CatchClause
@@ -5922,12 +5910,12 @@ declare module '@babel/types' {
     | ClassPrivateMethod
     | TSModuleBlock;
   declare export function isBlock(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is BlockStatement | Program | TSModuleBlock;
   declare export function isStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | BlockStatement
     | BreakStatement
@@ -5977,8 +5965,8 @@ declare module '@babel/types' {
     | TSExportAssignment
     | TSNamespaceExportDeclaration;
   declare export function isTerminatorless(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | BreakStatement
     | ContinueStatement
@@ -5987,17 +5975,17 @@ declare module '@babel/types' {
     | YieldExpression
     | AwaitExpression;
   declare export function isCompletionStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     BreakStatement | ContinueStatement | ReturnStatement | ThrowStatement;
   declare export function isConditional(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ConditionalExpression | IfStatement;
   declare export function isLoop(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | DoWhileStatement
     | ForInStatement
@@ -6005,24 +5993,24 @@ declare module '@babel/types' {
     | WhileStatement
     | ForOfStatement;
   declare export function isWhile(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DoWhileStatement | WhileStatement;
   declare export function isExpressionWrapper(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ExpressionStatement | ParenthesizedExpression | TypeCastExpression;
   declare export function isFor(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ForInStatement | ForStatement | ForOfStatement;
   declare export function isForXStatement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ForInStatement | ForOfStatement;
   declare export function isFunction(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | FunctionDeclaration
     | FunctionExpression
@@ -6031,8 +6019,8 @@ declare module '@babel/types' {
     | ClassMethod
     | ClassPrivateMethod;
   declare export function isFunctionParent(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | FunctionDeclaration
     | FunctionExpression
@@ -6041,8 +6029,8 @@ declare module '@babel/types' {
     | ClassMethod
     | ClassPrivateMethod;
   declare export function isPureish(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | FunctionDeclaration
     | FunctionExpression
@@ -6054,8 +6042,8 @@ declare module '@babel/types' {
     | ArrowFunctionExpression
     | BigIntLiteral;
   declare export function isDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | FunctionDeclaration
     | VariableDeclaration
@@ -6084,8 +6072,8 @@ declare module '@babel/types' {
     | TSEnumDeclaration
     | TSModuleDeclaration;
   declare export function isPatternLike(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | Identifier
     | RestElement
@@ -6096,8 +6084,8 @@ declare module '@babel/types' {
     | TSTypeAssertion
     | TSNonNullExpression;
   declare export function isLVal(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | Identifier
     | MemberExpression
@@ -6110,12 +6098,12 @@ declare module '@babel/types' {
     | TSTypeAssertion
     | TSNonNullExpression;
   declare export function isTSEntityName(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is Identifier | TSQualifiedName;
   declare export function isLiteral(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | StringLiteral
     | NumericLiteral
@@ -6125,8 +6113,8 @@ declare module '@babel/types' {
     | TemplateLiteral
     | BigIntLiteral;
   declare export function isImmutable(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | StringLiteral
     | NumericLiteral
@@ -6144,8 +6132,8 @@ declare module '@babel/types' {
     | JSXOpeningFragment
     | JSXClosingFragment;
   declare export function isUserWhitespacable(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | ObjectMethod
     | ObjectProperty
@@ -6155,45 +6143,45 @@ declare module '@babel/types' {
     | ObjectTypeProperty
     | ObjectTypeSpreadProperty;
   declare export function isMethod(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectMethod | ClassMethod | ClassPrivateMethod;
   declare export function isObjectMember(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectMethod | ObjectProperty;
   declare export function isProperty(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ObjectProperty | ClassProperty | ClassPrivateProperty;
   declare export function isUnaryLike(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is UnaryExpression | SpreadElement;
   declare export function isPattern(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is AssignmentPattern | ArrayPattern | ObjectPattern;
   declare export function isClass(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ClassExpression | ClassDeclaration;
   declare export function isModuleDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | ExportAllDeclaration
     | ExportDefaultDeclaration
     | ExportNamedDeclaration
     | ImportDeclaration;
   declare export function isExportDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     ExportAllDeclaration | ExportDefaultDeclaration | ExportNamedDeclaration;
   declare export function isModuleSpecifier(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | ExportSpecifier
     | ImportDefaultSpecifier
@@ -6202,8 +6190,8 @@ declare module '@babel/types' {
     | ExportNamespaceSpecifier
     | ExportDefaultSpecifier;
   declare export function isFlow(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | AnyTypeAnnotation
     | ArrayTypeAnnotation
@@ -6257,8 +6245,8 @@ declare module '@babel/types' {
     | TypeParameterDeclaration
     | TypeParameterInstantiation;
   declare export function isFlowType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | AnyTypeAnnotation
     | ArrayTypeAnnotation
@@ -6285,8 +6273,8 @@ declare module '@babel/types' {
     | UnionTypeAnnotation
     | VoidTypeAnnotation;
   declare export function isFlowBaseAnnotation(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | AnyTypeAnnotation
     | BooleanTypeAnnotation
@@ -6299,8 +6287,8 @@ declare module '@babel/types' {
     | ThisTypeAnnotation
     | VoidTypeAnnotation;
   declare export function isFlowDeclaration(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | DeclareClass
     | DeclareFunction
@@ -6316,24 +6304,24 @@ declare module '@babel/types' {
     | OpaqueType
     | TypeAlias;
   declare export function isFlowPredicate(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is DeclaredPredicate | InferredPredicate;
   declare export function isEnumBody(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is EnumBooleanBody | EnumNumberBody | EnumStringBody | EnumSymbolBody;
   declare export function isEnumMember(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | EnumBooleanMember
     | EnumNumberMember
     | EnumStringMember
     | EnumDefaultedMember;
   declare export function isJSX(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | JSXAttribute
     | JSXClosingElement
@@ -6351,12 +6339,12 @@ declare module '@babel/types' {
     | JSXOpeningFragment
     | JSXClosingFragment;
   declare export function isPrivate(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is ClassPrivateProperty | ClassPrivateMethod | PrivateName;
   declare export function isTSTypeElement(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | TSCallSignatureDeclaration
     | TSConstructSignatureDeclaration
@@ -6364,8 +6352,8 @@ declare module '@babel/types' {
     | TSMethodSignature
     | TSIndexSignature;
   declare export function isTSType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | TSAnyKeyword
     | TSBooleanKeyword
@@ -6402,8 +6390,8 @@ declare module '@babel/types' {
     | TSExpressionWithTypeArguments
     | TSImportType;
   declare export function isTSBaseType(
-    node: ?Object,
-    opts?: ?Object,
+    node: ?any,
+    opts?: ?any,
   ): node is
     | TSAnyKeyword
     | TSBooleanKeyword
@@ -6419,22 +6407,10 @@ declare module '@babel/types' {
     | TSVoidKeyword
     | TSThisType
     | TSLiteralType;
-  declare export function isNumberLiteral(
-    node: ?Object,
-    opts?: ?Object,
-  ): boolean;
-  declare export function isRegexLiteral(
-    node: ?Object,
-    opts?: ?Object,
-  ): boolean;
-  declare export function isRestProperty(
-    node: ?Object,
-    opts?: ?Object,
-  ): boolean;
-  declare export function isSpreadProperty(
-    node: ?Object,
-    opts?: ?Object,
-  ): boolean;
+  declare export function isNumberLiteral(node: ?any, opts?: ?any): boolean;
+  declare export function isRegexLiteral(node: ?any, opts?: ?any): boolean;
+  declare export function isRestProperty(node: ?any, opts?: ?any): boolean;
+  declare export function isSpreadProperty(node: ?any, opts?: ?any): boolean;
   declare export function createTypeAnnotationBasedOnTypeof(
     type:
       | 'string'
@@ -6587,15 +6563,12 @@ declare module '@babel/types' {
     h: TraversalHandler<T>,
     state?: T,
   ): void;
-  declare export function shallowEqual(
-    actual: Object,
-    expected: Object,
-  ): boolean;
+  declare export function shallowEqual(actual: any, expected: any): boolean;
   declare export function buildMatchMemberExpression(
     match: string,
     allowPartial?: boolean,
   ): (?BabelNode) => boolean;
-  declare export function is(type: string, n: BabelNode, opts: Object): boolean;
+  declare export function is(type: string, n: BabelNode, opts: any): boolean;
   declare export function isBinding(
     node: BabelNode,
     parent: BabelNode,
@@ -6603,7 +6576,7 @@ declare module '@babel/types' {
   ): boolean;
   declare export function isBlockScoped(node: BabelNode): boolean;
   declare export function isLet(node: BabelNode): node is VariableDeclaration;
-  declare export function isNode(node: ?Object): boolean;
+  declare export function isNode(node: ?any): boolean;
   declare export function isNodesEquivalent(a: any, b: any): boolean;
   declare export function isPlaceholderType(
     placeholderType: string,

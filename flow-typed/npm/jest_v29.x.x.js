@@ -181,7 +181,7 @@ type JestPromiseType = {
  * Jest allows functions and classes to be used as test names in test() and
  * describe()
  */
-type JestTestName = string | Function;
+type JestTestName = string | any;
 
 type FakeableAPI =
   | 'Date'
@@ -773,7 +773,7 @@ interface JestExpectType {
   /**
    * Use .toMatchObject to check that a javascript object matches a subset of the properties of an object.
    */
-  toMatchObject(object: Object | Array<Object>): void;
+  toMatchObject(object: any | Array<any>): void;
   /**
    * Use .toStrictEqual to check that a javascript object matches a subset of the properties of an object.
    */
@@ -881,7 +881,7 @@ type JestObjectType = {
   /**
    * Determines if the given function is a mocked function.
    */
-  isMockFunction(fn: Function): boolean,
+  isMockFunction(fn: any): boolean,
   /**
    * Alias of `createMockFromModule`.
    */
@@ -900,11 +900,7 @@ type JestObjectType = {
    * The third argument can be used to create virtual mocks -- mocks of modules
    * that don't exist anywhere in the system.
    */
-  mock(
-    moduleName: string,
-    moduleFactory?: any,
-    options?: Object,
-  ): JestObjectType,
+  mock(moduleName: string, moduleFactory?: any, options?: any): JestObjectType,
   /**
    * Returns the actual module instead of a mock, bypassing all checks on
    * whether the module should receive a mock implementation or not.
@@ -978,7 +974,7 @@ type JestObjectType = {
    * object[methodName].
    */
   spyOn(
-    object: Object,
+    object: any,
     methodName: string,
     accessType?: 'get' | 'set',
   ): JestMockFn<any, any>,
@@ -1240,13 +1236,13 @@ declare var expect: {
   anything(): any,
   // MODIFIED: Array -> $ReadOnlyArray
   arrayContaining(value: ReadonlyArray<unknown>): Array<unknown>,
-  objectContaining(value: Object): Object,
+  objectContaining(value: any): any,
   /** Matches any received string that contains the exact expected string. */
   stringContaining(value: string): string,
   stringMatching(value: string | RegExp): string,
   not: {
     arrayContaining: (value: ReadonlyArray<unknown>) => Array<unknown>,
-    objectContaining: (value: {...}) => Object,
+    objectContaining: (value: {...}) => any,
     stringContaining: (value: string) => string,
     stringMatching: (value: string | RegExp) => string,
     ...
@@ -1256,7 +1252,7 @@ declare var expect: {
 
 // TODO handle return type
 // http://jasmine.github.io/2.4/introduction.html#section-Spies
-declare function spyOn(value: unknown, method: string): Object;
+declare function spyOn(value: unknown, method: string): any;
 
 /** Holds all functions related to manipulating test runner */
 declare var jest: JestObjectType;
@@ -1276,7 +1272,7 @@ declare var jasmine: {
     baseName: string,
     methodNames: Array<string>,
   ): {[methodName: string]: JestSpyType, ...},
-  objectContaining(value: Object): Object,
+  objectContaining(value: any): any,
   stringMatching(value: string): string,
   ...
 };

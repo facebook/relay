@@ -36,7 +36,7 @@ type Props = {
   environment: IEnvironment,
   query: GraphQLTaggedNode,
   // $FlowFixMe[unclear-type]
-  render: ({props: ?Object, ...}) => React.Node,
+  render: ({props: ?any, ...}) => React.Node,
   variables: Variables,
   ...
 };

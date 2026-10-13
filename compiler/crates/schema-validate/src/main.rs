@@ -10,6 +10,7 @@ use std::path::Path;
 
 use clap::Parser;
 use common::DiagnosticsResult;
+use common::FeatureFlag;
 use common::SourceLocationKey;
 use common::TextSource;
 use graphql_cli::DiagnosticPrinter;
@@ -35,6 +36,7 @@ pub fn main() {
                 &schema,
                 SchemaValidationOptions {
                     allow_introspection_names: false,
+                    exempt_coordinates: &FeatureFlag::Disabled,
                 },
             ) {
                 let printer = DiagnosticPrinter::new(sources);

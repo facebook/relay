@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<80ef679fa64587aecb6ada6b8bcf440c>>
+ * @generated SignedSource<<41255bc2fe6a52198f0dd1d66c160414>>
  */
 
 mod relay_compiler_integration;
@@ -178,6 +178,27 @@ async fn delete_match_removes_normalization() {
     let input = include_str!("relay_compiler_integration/fixtures/delete_match_removes_normalization.input");
     let expected = include_str!("relay_compiler_integration/fixtures/delete_match_removes_normalization.expected");
     test_fixture(transform_fixture, file!(), "delete_match_removes_normalization.input", "relay_compiler_integration/fixtures/delete_match_removes_normalization.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn disable_schema_validation_exempt_field_definition_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_exempt_field_definition.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_exempt_field_definition.invalid.expected");
+    test_fixture(transform_fixture, file!(), "disable_schema_validation_exempt_field_definition.invalid.input", "relay_compiler_integration/fixtures/disable_schema_validation_exempt_field_definition.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn disable_schema_validation_exempt_field_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_exempt_field.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_exempt_field.invalid.expected");
+    test_fixture(transform_fixture, file!(), "disable_schema_validation_exempt_field.invalid.input", "relay_compiler_integration/fixtures/disable_schema_validation_exempt_field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn disable_schema_validation_exempt_type_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_exempt_type.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/disable_schema_validation_exempt_type.invalid.expected");
+    test_fixture(transform_fixture, file!(), "disable_schema_validation_exempt_type.invalid.input", "relay_compiler_integration/fixtures/disable_schema_validation_exempt_type.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

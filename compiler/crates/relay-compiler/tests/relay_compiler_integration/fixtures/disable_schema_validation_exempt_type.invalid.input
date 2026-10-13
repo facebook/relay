@@ -1,0 +1,35 @@
+//- foo.js
+graphql`query fooQuery {
+  greeting
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "disable_schema_validation": {
+      "kind": "limited",
+      "allowlist": ["Unchecked"]
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+interface Named {
+  name: String
+}
+
+# `Unchecked` is exempt, so its missing `name` is not reported.
+type Unchecked implements Named {
+  id: ID
+}
+
+# `Checked` is not exempt, so the same error is reported.
+type Checked implements Named {
+  id: ID
+}

@@ -363,7 +363,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .get(&ProjectName::from(project_name))
             .unwrap();
 
-        if project_config.feature_flags.disable_schema_validation {
+        if project_config
+            .feature_flags
+            .disable_schema_validation
+            .is_fully_enabled()
+        {
             return Ok(());
         }
 

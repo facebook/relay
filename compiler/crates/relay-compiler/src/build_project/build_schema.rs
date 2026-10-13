@@ -315,7 +315,8 @@ fn maybe_validate_schema(
     project_config: &ProjectConfig,
     schema: &SDLSchema,
 ) -> DiagnosticsResult<()> {
-    if project_config.feature_flags.disable_schema_validation {
+    let disable_schema_validation = &project_config.feature_flags.disable_schema_validation;
+    if disable_schema_validation.is_fully_enabled() {
         return Ok(());
     }
 
@@ -323,6 +324,7 @@ fn maybe_validate_schema(
         schema,
         SchemaValidationOptions {
             allow_introspection_names: true,
+            exempt_coordinates: disable_schema_validation,
         },
     )
 }

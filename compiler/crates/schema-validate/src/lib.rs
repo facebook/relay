@@ -13,6 +13,7 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::FeatureFlag;
 use common::InterfaceName;
 use common::Location;
 use common::Named;
@@ -61,11 +62,15 @@ static TYPE_NAME_REGEX: LazyLock<Regex> =
 static SEMANTIC_NON_NULL_DIRECTIVE: LazyLock<DirectiveName> =
     LazyLock::new(|| DirectiveName("semanticNonNull".intern()));
 
-pub struct SchemaValidationOptions {
+pub struct SchemaValidationOptions<'a> {
     pub allow_introspection_names: bool,
+    /// Schema coordinates to skip: `Type` skips every check on that type, and
+    /// `Type.field` skips the checks on that field, including whether it
+    /// satisfies the interfaces `Type` implements.
+    pub exempt_coordinates: &'a FeatureFlag,
 }
 
-pub fn validate(schema: &SDLSchema, options: SchemaValidationOptions) -> DiagnosticsResult<()> {
+pub fn validate(schema: &SDLSchema, options: SchemaValidationOptions<'_>) -> DiagnosticsResult<()> {
     let mut validation_context = ValidationContext::new(schema, &options);
     validation_context.validate();
     if validation_context.diagnostics.is_empty() {
@@ -80,12 +85,15 @@ pub fn validate(schema: &SDLSchema, options: SchemaValidationOptions) -> Diagnos
 
 pub struct ValidationContext<'schema> {
     schema: &'schema SDLSchema,
-    options: &'schema SchemaValidationOptions,
+    options: &'schema SchemaValidationOptions<'schema>,
     diagnostics: Vec<Diagnostic>,
 }
 
 impl<'schema> ValidationContext<'schema> {
-    pub fn new(schema: &'schema SDLSchema, options: &'schema SchemaValidationOptions) -> Self {
+    pub fn new(
+        schema: &'schema SDLSchema,
+        options: &'schema SchemaValidationOptions<'schema>,
+    ) -> Self {
         Self {
             schema,
             options,
@@ -151,9 +159,11 @@ impl<'schema> ValidationContext<'schema> {
     }
 
     fn validate_types(&mut self) {
+        let exempt_coordinates = self.options.exempt_coordinates;
         let diagnostics = self
             .schema
             .get_type_map_par_iter()
+            .filter(|(type_name, _)| !exempt_coordinates.is_enabled_for(**type_name))
             .flat_map(|(type_name, type_)| {
                 let mut child_visitor = Self::new(self.schema, self.options);
                 child_visitor.validate_type(*type_name, type_);
@@ -216,68 +226,70 @@ impl<'schema> ValidationContext<'schema> {
         let mut field_names: FnvHashMap<StringKey, Location> = FnvHashMap::default();
         for field_id in fields {
             let field = self.schema.field(*field_id);
-            if let Some(field_loc) = field_names.get(&field.name.item) {
-                self.report_diagnostic(
-                    Diagnostic::error(
-                        SchemaValidationError::DuplicateField(field.name.item),
-                        field.name.location,
-                    )
-                    .annotate("Previously defined here:", field_loc.clone()),
-                );
-                continue;
-            }
-            field_names.insert(field.name.item, field.name.location);
-
-            // Ensure they are named correctly.
-            self.validate_name(field.name.item, field.name.location);
-
-            // Ensure the type is an output type
-            if !is_output_type(&field.type_) {
-                self.report_diagnostic(Diagnostic::error(
-                    SchemaValidationError::InvalidFieldType(
-                        type_name,
-                        field.name.item,
-                        field.type_.inner().get_variant_name().to_string(),
-                    ),
-                    field.name.location,
-                ))
-            }
-
-            let mut arg_names: FnvHashMap<ArgumentName, Location> = FnvHashMap::default();
-            for argument in field.arguments.iter() {
-                // Ensure they are named correctly.
-                self.validate_name(argument.name.item.0, argument.name.location);
-
-                // Ensure they are unique per field.
-                // Ensure unique arguments per directive.
-                if let Some(previous_loc) = arg_names.get(&argument.name.item) {
-                    self.report_diagnostic(
+            self.validate_field(type_name, field.name.item, |this| {
+                if let Some(field_loc) = field_names.get(&field.name.item) {
+                    this.report_diagnostic(
                         Diagnostic::error(
-                            SchemaValidationError::DuplicateArgument(
-                                argument.name.item,
-                                field.name.item,
-                            ),
+                            SchemaValidationError::DuplicateField(field.name.item),
                             field.name.location,
                         )
-                        .annotate("Previously defined here:", *previous_loc),
+                        .annotate("Previously defined here:", field_loc.clone()),
                     );
-                    continue;
+                    return;
                 }
-                arg_names.insert(argument.name.item, argument.name.location);
+                field_names.insert(field.name.item, field.name.location);
 
-                // Ensure the type is an input type
-                if !is_input_type(&argument.type_) {
-                    self.report_diagnostic(Diagnostic::error(
-                        SchemaValidationError::InvalidArgumentType(
+                // Ensure they are named correctly.
+                this.validate_name(field.name.item, field.name.location);
+
+                // Ensure the type is an output type
+                if !is_output_type(&field.type_) {
+                    this.report_diagnostic(Diagnostic::error(
+                        SchemaValidationError::InvalidFieldType(
                             type_name,
                             field.name.item,
-                            argument.name.item,
-                            argument.type_.inner().get_variant_name().to_string(),
+                            field.type_.inner().get_variant_name().to_string(),
                         ),
-                        argument.name.location, // Note: Schema does not retain location information for argument type reference
-                    ));
+                        field.name.location,
+                    ))
                 }
-            }
+
+                let mut arg_names: FnvHashMap<ArgumentName, Location> = FnvHashMap::default();
+                for argument in field.arguments.iter() {
+                    // Ensure they are named correctly.
+                    this.validate_name(argument.name.item.0, argument.name.location);
+
+                    // Ensure they are unique per field.
+                    // Ensure unique arguments per directive.
+                    if let Some(previous_loc) = arg_names.get(&argument.name.item) {
+                        this.report_diagnostic(
+                            Diagnostic::error(
+                                SchemaValidationError::DuplicateArgument(
+                                    argument.name.item,
+                                    field.name.item,
+                                ),
+                                field.name.location,
+                            )
+                            .annotate("Previously defined here:", *previous_loc),
+                        );
+                        continue;
+                    }
+                    arg_names.insert(argument.name.item, argument.name.location);
+
+                    // Ensure the type is an input type
+                    if !is_input_type(&argument.type_) {
+                        this.report_diagnostic(Diagnostic::error(
+                            SchemaValidationError::InvalidArgumentType(
+                                type_name,
+                                field.name.item,
+                                argument.name.item,
+                                argument.type_.inner().get_variant_name().to_string(),
+                            ),
+                            argument.name.location, // Note: Schema does not retain location information for argument type reference
+                        ));
+                    }
+                }
+            });
         }
     }
 
@@ -389,139 +401,140 @@ impl<'schema> ValidationContext<'schema> {
 
         // Assert each interface field is implemented.
         for (field_name, interface_field) in interface_field_map {
-            // Assert interface field exists on object.
-            if !object_field_map.contains_key(&field_name) {
-                self.report_diagnostic(
-                    Diagnostic::error(
-                        SchemaValidationError::InterfaceFieldNotProvided(
-                            interface.name.item,
-                            field_name,
-                            type_.type_kind(),
-                            typename,
-                        ),
-                        *type_.location(),
-                    )
-                    .annotate(
-                        "The interface field is defined here:",
-                        interface_field.name.location,
-                    ),
-                );
-                continue;
-            }
-
-            let object_field = object_field_map.get(&field_name).unwrap();
-            // Assert interface field type is satisfied by object field type, by being
-            // a valid subtype. (covariant)
-            let object_field_semantic_type = SemanticTypeReference::new(
-                object_field.type_.clone(),
-                self.schema,
-                object_field.directives.clone(),
-            );
-            let interface_field_semantic_type = SemanticTypeReference::new(
-                interface_field.type_.clone(),
-                self.schema,
-                interface_field.directives.clone(),
-            );
-
-            if !self.schema.is_type_subtype_of(
-                &object_field.semantic_type(),
-                &interface_field.semantic_type(),
-            ) {
-                self.report_diagnostic(
-                    Diagnostic::error(
-                        SchemaValidationError::NotASubType(
-                            interface.name.item,
-                            field_name,
-                            get_type_string(&interface_field_semantic_type),
-                            typename,
-                            get_type_string(&object_field_semantic_type),
-                        ),
-                        object_field.name.location,
-                    )
-                    .annotate(
-                        "The interface field is defined here:",
-                        interface_field.name.location,
-                    ),
-                );
-            }
-
-            // Assert each interface field arg is implemented.
-            for interface_argument in interface_field.arguments.iter() {
-                let object_argument = object_field
-                    .arguments
-                    .iter()
-                    .find(|arg| arg.name.item == interface_argument.name.item);
-
-                // Assert interface field arg exists on object field.
-                if object_argument.is_none() {
-                    self.report_diagnostic(
+            self.validate_field(typename, field_name, |this| {
+                // Assert interface field exists on object.
+                let Some(object_field) = object_field_map.get(&field_name) else {
+                    this.report_diagnostic(
                         Diagnostic::error(
-                            SchemaValidationError::InterfaceFieldArgumentNotProvided(
+                            SchemaValidationError::InterfaceFieldNotProvided(
                                 interface.name.item,
                                 field_name,
-                                interface_argument.name.item,
+                                type_.type_kind(),
                                 typename,
+                            ),
+                            *type_.location(),
+                        )
+                        .annotate(
+                            "The interface field is defined here:",
+                            interface_field.name.location,
+                        ),
+                    );
+                    return;
+                };
+
+                // Assert interface field type is satisfied by object field type, by being
+                // a valid subtype. (covariant)
+                let object_field_semantic_type = SemanticTypeReference::new(
+                    object_field.type_.clone(),
+                    this.schema,
+                    object_field.directives.clone(),
+                );
+                let interface_field_semantic_type = SemanticTypeReference::new(
+                    interface_field.type_.clone(),
+                    this.schema,
+                    interface_field.directives.clone(),
+                );
+
+                if !this.schema.is_type_subtype_of(
+                    &object_field.semantic_type(),
+                    &interface_field.semantic_type(),
+                ) {
+                    this.report_diagnostic(
+                        Diagnostic::error(
+                            SchemaValidationError::NotASubType(
+                                interface.name.item,
+                                field_name,
+                                get_type_string(&interface_field_semantic_type),
+                                typename,
+                                get_type_string(&object_field_semantic_type),
                             ),
                             object_field.name.location,
                         )
                         .annotate(
-                            "The interface field argument is defined here:",
-                            interface_argument.name.location,
-                        ),
-                    );
-                    continue;
-                }
-                let object_argument = object_argument.unwrap();
-
-                // Assert interface field arg type matches object field arg type.
-                // (invariant)
-                // TODO: change to contravariant?
-                if interface_argument.type_ != object_argument.type_ {
-                    self.report_diagnostic(
-                        Diagnostic::error(
-                            SchemaValidationError::NotEqualType(
-                                interface.name.item,
-                                field_name,
-                                interface_argument.name.item,
-                                self.schema.get_type_string(&interface_argument.type_),
-                                typename,
-                                self.schema.get_type_string(&object_argument.type_),
-                            ),
-                            object_argument.name.location,
-                        )
-                        .annotate(
-                            "The interface field argument is defined here:",
-                            interface_argument.name.location,
-                        ),
-                    );
-                }
-                // TODO: validate default values?
-            }
-
-            // Assert additional arguments must not be required.
-            for object_argument in object_field.arguments.iter() {
-                if !interface_field
-                    .arguments
-                    .contains(object_argument.name.item.0)
-                    && object_argument.type_.is_non_null()
-                {
-                    self.report_diagnostic(
-                        Diagnostic::error(
-                            SchemaValidationError::MissingRequiredArgument(
-                                typename,
-                                field_name,
-                                object_argument.name.item,
-                                interface.name.item,
-                            ),
-                            object_argument.name.location,
-                        )
-                        .annotate(
-                            "The interface field is define here:",
+                            "The interface field is defined here:",
                             interface_field.name.location,
                         ),
                     );
                 }
-            }
+
+                // Assert each interface field arg is implemented.
+                for interface_argument in interface_field.arguments.iter() {
+                    let object_argument = object_field
+                        .arguments
+                        .iter()
+                        .find(|arg| arg.name.item == interface_argument.name.item);
+
+                    // Assert interface field arg exists on object field.
+                    if object_argument.is_none() {
+                        this.report_diagnostic(
+                            Diagnostic::error(
+                                SchemaValidationError::InterfaceFieldArgumentNotProvided(
+                                    interface.name.item,
+                                    field_name,
+                                    interface_argument.name.item,
+                                    typename,
+                                ),
+                                object_field.name.location,
+                            )
+                            .annotate(
+                                "The interface field argument is defined here:",
+                                interface_argument.name.location,
+                            ),
+                        );
+                        continue;
+                    }
+                    let object_argument = object_argument.unwrap();
+
+                    // Assert interface field arg type matches object field arg type.
+                    // (invariant)
+                    // TODO: change to contravariant?
+                    if interface_argument.type_ != object_argument.type_ {
+                        this.report_diagnostic(
+                            Diagnostic::error(
+                                SchemaValidationError::NotEqualType(
+                                    interface.name.item,
+                                    field_name,
+                                    interface_argument.name.item,
+                                    this.schema.get_type_string(&interface_argument.type_),
+                                    typename,
+                                    this.schema.get_type_string(&object_argument.type_),
+                                ),
+                                object_argument.name.location,
+                            )
+                            .annotate(
+                                "The interface field argument is defined here:",
+                                interface_argument.name.location,
+                            ),
+                        );
+                    }
+                    // TODO: validate default values?
+                }
+
+                // Assert additional arguments must not be required.
+                for object_argument in object_field.arguments.iter() {
+                    if !interface_field
+                        .arguments
+                        .contains(object_argument.name.item.0)
+                        && object_argument.type_.is_non_null()
+                    {
+                        this.report_diagnostic(
+                            Diagnostic::error(
+                                SchemaValidationError::MissingRequiredArgument(
+                                    typename,
+                                    field_name,
+                                    object_argument.name.item,
+                                    interface.name.item,
+                                ),
+                                object_argument.name.location,
+                            )
+                            .annotate(
+                                "The interface field is define here:",
+                                interface_field.name.location,
+                            ),
+                        );
+                    }
+                }
+            });
         }
     }
 
@@ -610,6 +623,26 @@ impl<'schema> ValidationContext<'schema> {
             .map(|id| self.schema.field(*id))
             .map(|field| (field.name.item, field.clone()))
             .collect::<FnvHashMap<_, _>>()
+    }
+
+    /// Runs the checks on the field `type_name.field_name`, dropping the
+    /// diagnostics they report if that schema coordinate is exempt.
+    fn validate_field(
+        &mut self,
+        type_name: StringKey,
+        field_name: StringKey,
+        validate: impl FnOnce(&mut Self),
+    ) {
+        let first_diagnostic = self.diagnostics.len();
+        validate(self);
+        if self.diagnostics.len() > first_diagnostic
+            && self
+                .options
+                .exempt_coordinates
+                .is_enabled_for(format!("{type_name}.{field_name}").intern())
+        {
+            self.diagnostics.truncate(first_diagnostic);
+        }
     }
 
     fn report_diagnostic(&mut self, diagnostic: Diagnostic) {

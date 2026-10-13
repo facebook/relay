@@ -13,8 +13,16 @@ use indexmap::IndexSet;
 use intern::Lookup;
 use intern::string_key::StringKey;
 use schemars::JsonSchema;
+use schemars::Schema;
+use schemars::SchemaGenerator;
+use schemars::json_schema;
 use serde::Deserialize;
+use serde::Deserializer;
 use serde::Serialize;
+use serde::de;
+use serde::de::MapAccess;
+use serde::de::Visitor;
+use serde::de::value::MapAccessDeserializer;
 
 use crate::Rollout;
 use crate::rollout::RolloutRange;
@@ -119,9 +127,18 @@ pub struct FeatureFlags {
     pub allow_resolver_non_nullable_return_type: FeatureFlag,
 
     /// Disable validating the composite schema (server, client schema
-    /// extensions, Relay Resolvers) after its built.
-    #[serde(default)]
-    pub disable_schema_validation: bool,
+    /// extensions, Relay Resolvers) after it's built.
+    ///
+    /// The limited and rollout variants are keyed by schema coordinate and
+    /// disable validation for those coordinates only: `Type` skips every check
+    /// on that type, and `Type.field` skips the checks on that field, including
+    /// whether it satisfies the interfaces `Type` implements. The rest of the
+    /// schema is still validated.
+    ///
+    /// `true` and `false` are accepted for the enabled and disabled variants.
+    #[serde(default, deserialize_with = "deserialize_bool_or_feature_flag")]
+    #[schemars(schema_with = "bool_or_feature_flag_schema")]
+    pub disable_schema_validation: FeatureFlag,
 
     /// Feature flag to prefer `fetch_MyType()` generatior over `node()` query generator
     /// in @refetchable transform
@@ -362,6 +379,54 @@ fn enabled_feature_flag() -> FeatureFlag {
     FeatureFlag::Enabled
 }
 
+/// Deserializes a feature flag that also accepts `true` and `false` for the
+/// enabled and disabled variants, so that a boolean flag can become a feature
+/// flag without breaking existing configs.
+fn deserialize_bool_or_feature_flag<'de, D>(deserializer: D) -> Result<FeatureFlag, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct BoolOrFeatureFlagVisitor;
+
+    impl<'de> Visitor<'de> for BoolOrFeatureFlagVisitor {
+        type Value = FeatureFlag;
+
+        fn expecting(&self, formatter: &mut Formatter<'_>) -> FmtResult {
+            formatter.write_str("a boolean or a feature flag object")
+        }
+
+        fn visit_bool<E>(self, value: bool) -> Result<FeatureFlag, E>
+        where
+            E: de::Error,
+        {
+            Ok(if value {
+                FeatureFlag::Enabled
+            } else {
+                FeatureFlag::Disabled
+            })
+        }
+
+        fn visit_map<A>(self, map: A) -> Result<FeatureFlag, A::Error>
+        where
+            A: MapAccess<'de>,
+        {
+            FeatureFlag::deserialize(MapAccessDeserializer::new(map))
+        }
+    }
+
+    deserializer.deserialize_any(BoolOrFeatureFlagVisitor)
+}
+
+/// JSON schema of the values `deserialize_bool_or_feature_flag` accepts.
+fn bool_or_feature_flag_schema(generator: &mut SchemaGenerator) -> Schema {
+    json_schema!({
+        "anyOf": [
+            { "type": "boolean" },
+            generator.subschema_for::<FeatureFlag>(),
+        ]
+    })
+}
+
 impl FeatureFlag {
     pub fn is_enabled_for(&self, name: StringKey) -> bool {
         match self {
@@ -396,6 +461,10 @@ impl Display for FeatureFlag {
 
 #[cfg(test)]
 mod tests {
+    use intern::string_key::Intern;
+    use serde_json::Value;
+    use serde_json::json;
+
     use super::*;
 
     #[test]
@@ -419,5 +488,67 @@ mod tests {
         // When deserializing from an empty JSON object, serde applies per-field defaults.
         let flags: FeatureFlags = serde_json::from_str("{} ").expect("valid json");
         assert_eq!(flags, FeatureFlags::default());
+    }
+
+    fn deserialize_disable_schema_validation(value: Value) -> Result<FeatureFlag, String> {
+        serde_json::from_value::<FeatureFlags>(json!({ "disable_schema_validation": value }))
+            .map(|flags| flags.disable_schema_validation)
+            .map_err(|error| error.to_string())
+    }
+
+    #[test]
+    fn disable_schema_validation_accepts_booleans() {
+        assert_eq!(
+            deserialize_disable_schema_validation(json!(true)),
+            Ok(FeatureFlag::Enabled),
+            "`true` should mean the enabled variant"
+        );
+        assert_eq!(
+            deserialize_disable_schema_validation(json!(false)),
+            Ok(FeatureFlag::Disabled),
+            "`false` should mean the disabled variant"
+        );
+    }
+
+    #[test]
+    fn disable_schema_validation_accepts_feature_flags() {
+        let flag = deserialize_disable_schema_validation(json!({
+            "kind": "limited",
+            "allowlist": ["User.name"]
+        }))
+        .expect("a limited feature flag should be accepted");
+        assert!(flag.is_enabled_for("User.name".intern()));
+        assert!(
+            !flag.is_enabled_for("User.id".intern()),
+            "only the allowlisted coordinate should be enabled"
+        );
+    }
+
+    #[test]
+    fn disable_schema_validation_reports_invalid_values() {
+        let error = deserialize_disable_schema_validation(json!({ "kind": "limited" }))
+            .expect_err("a limited feature flag needs an allowlist");
+        assert!(error.contains("missing field `allowlist`"), "{error}");
+
+        let error = deserialize_disable_schema_validation(json!("yes"))
+            .expect_err("a string is neither a boolean nor a feature flag");
+        assert!(
+            error.contains("expected a boolean or a feature flag object"),
+            "{error}"
+        );
+    }
+
+    #[test]
+    fn disable_schema_validation_round_trips() {
+        let flags = FeatureFlags {
+            disable_schema_validation: FeatureFlag::Limited {
+                allowlist: ["User.name".intern()].into_iter().collect(),
+            },
+            ..Default::default()
+        };
+        let serialized = serde_json::to_value(&flags).expect("flags should serialize");
+        let deserialized: FeatureFlags =
+            serde_json::from_value(serialized).expect("serialized flags should deserialize");
+        assert_eq!(deserialized, flags);
     }
 }

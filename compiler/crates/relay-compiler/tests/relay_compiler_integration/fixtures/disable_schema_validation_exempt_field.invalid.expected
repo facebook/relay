@@ -1,0 +1,49 @@
+==================================== INPUT ====================================
+//- foo.js
+graphql`query fooQuery {
+  greeting
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "disable_schema_validation": {
+      "kind": "limited",
+      "allowlist": ["Person.name"]
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+interface Named {
+  name: String
+  nickname: String
+}
+
+# `Person.name` is exempt, so its wrong type is not reported, but the missing
+# `nickname` is.
+type Person implements Named {
+  name: Int
+}
+==================================== OUTPUT ===================================
+✖︎ Interface field 'Named.nickname' expected but type 'Person' does not provide it.
+
+  schema.graphql:12:6
+   11 │ # `nickname` is.
+   12 │ type Person implements Named {
+      │      ^^^^^^
+   13 │   name: Int
+
+  ℹ︎ The interface field is defined here:
+
+  schema.graphql:7:3
+    6 │   name: String
+    7 │   nickname: String
+      │   ^^^^^^^^
+    8 │ }

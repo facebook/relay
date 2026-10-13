@@ -1,0 +1,32 @@
+//- foo.js
+graphql`query fooQuery {
+  greeting
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "disable_schema_validation": {
+      "kind": "limited",
+      "allowlist": ["Person.unchecked"]
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+input Location {
+  lat: Float
+}
+
+# `Person.unchecked` is exempt, so its input object type is not reported, but
+# the same error on `Person.checked` is.
+type Person {
+  unchecked: Location
+  checked: Location
+}

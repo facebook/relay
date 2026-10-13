@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::FeatureFlag;
 use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
@@ -26,6 +27,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             &schema,
             SchemaValidationOptions {
                 allow_introspection_names: false,
+                exempt_coordinates: &FeatureFlag::Disabled,
             },
         )
     });

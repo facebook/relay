@@ -1,0 +1,32 @@
+//- foo.js
+graphql`query fooQuery {
+  greeting
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "disable_schema_validation": {
+      "kind": "limited",
+      "allowlist": ["Person.name"]
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+interface Named {
+  name: String
+  nickname: String
+}
+
+# `Person.name` is exempt, so its wrong type is not reported, but the missing
+# `nickname` is.
+type Person implements Named {
+  name: Int
+}

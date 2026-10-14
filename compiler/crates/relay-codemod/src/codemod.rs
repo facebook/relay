@@ -366,9 +366,7 @@ mod tests {
     }
 
     fn file_uri(path: &Path) -> Uri {
-        format!("file://{}", path.display())
-            .parse()
-            .expect("valid temporary file URI")
+        relay_lsp::utils::path_to_file_uri(path).expect("valid temporary file URI")
     }
 
     fn action(changes: HashMap<Uri, Vec<TextEdit>>) -> CodeActionOrCommand {

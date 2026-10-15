@@ -206,6 +206,27 @@ async function typecheck(tempDir: string): Promise<Array<string>> {
   return output.split('\n').map(line => scrubAbsolutePaths(line, tempDir));
 }
 
+/**
+ * Mirrors graphql-js's own defer/stream directives.
+ *
+ * These have to land in the *server* schema. Via `schemaExtensions` they still
+ * compile, but `skip_client_directives` then drops `@defer` from the printed
+ * query text, so no patch is ever sent and the fixture passes with its deferred
+ * field silently empty.
+ */
+const INCREMENTAL_DELIVERY_SDL = `
+directive @defer(
+  label: String
+  if: Boolean = true
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @stream(
+  label: String
+  initialCount: Int = 0
+  if: Boolean = true
+) on FIELD
+`;
+
 export async function runFixture(tempDir: string): Promise<Array<string>> {
   const tsconfigPath = path.join(tempDir, 'tsconfig.json');
   const relayConfigPath = path.join(tempDir, 'template', 'relay.config.json');
@@ -214,6 +235,13 @@ export async function runFixture(tempDir: string): Promise<Array<string>> {
 
   // 1. Run grats to generate template/schema.graphql + schema.ts
   await run(gratsBin, ['--tsconfig', tsconfigPath]);
+
+  // 1b. Grats has no reason to emit these, but relay-compiler rejects `@defer`
+  // as an unknown directive without them.
+  await fs.promises.appendFile(
+    path.join(tempDir, 'template', 'schema.graphql'),
+    INCREMENTAL_DELIVERY_SDL,
+  );
 
   // 2. Run relay-compiler to generate __generated__/ artifacts
   await run(relayBin, [relayConfigPath], {

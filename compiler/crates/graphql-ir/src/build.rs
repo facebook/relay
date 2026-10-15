@@ -258,7 +258,7 @@ pub fn build_variable_definitions(
             allow_custom_scalar_literals: true, // for compatibility
         },
     );
-    builder.build_variable_definitions(definitions)
+    builder.build_variable_definitions(definitions, DirectiveLocation::VariableDefinition)
 }
 
 pub fn build_directives(
@@ -428,9 +428,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         };
 
         let variable_definitions = match operation.variable_definitions {
-            Some(ref variable_definitions) => {
-                self.build_variable_definitions(&variable_definitions.items)?
-            }
+            Some(ref variable_definitions) => self.build_variable_definitions(
+                &variable_definitions.items,
+                DirectiveLocation::VariableDefinition,
+            )?,
             None => Default::default(),
         };
         self.defined_variables = variable_definitions
@@ -499,6 +500,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_variable_definitions(
         &mut self,
         definitions: &[graphql_syntax::VariableDefinition],
+        directive_location: DirectiveLocation,
     ) -> DiagnosticsResult<Vec<VariableDefinition>> {
         // check for duplicate variables
         let mut seen_variables = StringKeyMap::default();
@@ -520,23 +522,21 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             seen_variables.insert(variable.name.name, variable.span);
         }
         try_map(definitions, |definition| {
-            self.build_variable_definition(definition)
+            self.build_variable_definition(definition, directive_location)
         })
     }
 
     fn build_variable_definition(
         &mut self,
         definition: &graphql_syntax::VariableDefinition,
+        directive_location: DirectiveLocation,
     ) -> DiagnosticsResult<VariableDefinition> {
         let type_ = self.build_type_annotation_for_input(&definition.type_)?;
         let default_value = match &definition.default_value {
             Some(default_value) => Some(self.build_variable_default_value(default_value, &type_)?),
             None => None,
         };
-        let directives = self.build_directives(
-            &definition.directives,
-            DirectiveLocation::VariableDefinition,
-        )?;
+        let directives = self.build_directives(&definition.directives, directive_location)?;
 
         Ok(VariableDefinition {
             name: definition

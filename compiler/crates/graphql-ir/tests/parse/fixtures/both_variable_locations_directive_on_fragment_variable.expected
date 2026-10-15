@@ -1,0 +1,58 @@
+==================================== INPUT ====================================
+fragment Foo($local: Boolean @configurable) on User {
+  id
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: both_variable_locations_directive_on_fragment_variable.graphql:9:12,
+                item: FragmentDefinitionName(
+                    "Foo",
+                ),
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: both_variable_locations_directive_on_fragment_variable.graphql:13:19,
+                        item: VariableName(
+                            "local",
+                        ),
+                    },
+                    type_: Named(
+                        Scalar(3),
+                    ),
+                    default_value: None,
+                    directives: [
+                        Directive {
+                            name: WithLocation {
+                                location: both_variable_locations_directive_on_fragment_variable.graphql:29:42,
+                                item: DirectiveName(
+                                    "configurable",
+                                ),
+                            },
+                            arguments: [],
+                            data: None,
+                            location: both_variable_locations_directive_on_fragment_variable.graphql:29:42,
+                        },
+                    ],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(71),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: both_variable_locations_directive_on_fragment_variable.graphql:56:58,
+                        item: FieldID(466),
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+]

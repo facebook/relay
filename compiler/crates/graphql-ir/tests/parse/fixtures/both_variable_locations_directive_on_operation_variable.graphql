@@ -1,0 +1,5 @@
+query Foo($local: Boolean @configurable) {
+  node(id: "4") {
+    id
+  }
+}

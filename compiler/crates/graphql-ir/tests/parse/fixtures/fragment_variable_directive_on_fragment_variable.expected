@@ -1,0 +1,58 @@
+==================================== INPUT ====================================
+fragment Foo($local: Boolean @fragment_variable) on User {
+  id
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: fragment_variable_directive_on_fragment_variable.graphql:9:12,
+                item: FragmentDefinitionName(
+                    "Foo",
+                ),
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment_variable_directive_on_fragment_variable.graphql:13:19,
+                        item: VariableName(
+                            "local",
+                        ),
+                    },
+                    type_: Named(
+                        Scalar(3),
+                    ),
+                    default_value: None,
+                    directives: [
+                        Directive {
+                            name: WithLocation {
+                                location: fragment_variable_directive_on_fragment_variable.graphql:29:47,
+                                item: DirectiveName(
+                                    "fragment_variable",
+                                ),
+                            },
+                            arguments: [],
+                            data: None,
+                            location: fragment_variable_directive_on_fragment_variable.graphql:29:47,
+                        },
+                    ],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(71),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: fragment_variable_directive_on_fragment_variable.graphql:61:63,
+                        item: FieldID(466),
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+]

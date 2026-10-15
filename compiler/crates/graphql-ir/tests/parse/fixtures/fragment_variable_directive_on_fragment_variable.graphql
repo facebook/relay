@@ -1,0 +1,3 @@
+fragment Foo($local: Boolean @fragment_variable) on User {
+  id
+}

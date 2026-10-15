@@ -1,0 +1,6 @@
+# expected-to-throw
+query Foo($local: Boolean @fragment_variable) {
+  node(id: "4") {
+    id
+  }
+}

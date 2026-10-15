@@ -24,9 +24,13 @@ directive @customDirective(level: Int!) on FIELD | FRAGMENT_SPREAD
 
 directive @fixme_fat_interface on FIELD
 
-directive @configurable on VARIABLE_DEFINITION
+directive @configurable on VARIABLE_DEFINITION | FRAGMENT_VARIABLE_DEFINITION
 
 directive @_auto_hoisted on VARIABLE_DEFINITION
+
+directive @fragment_variable on FRAGMENT_VARIABLE_DEFINITION
+
+directive @operation_variable on VARIABLE_DEFINITION
 
 directive @defer(
   label: String!

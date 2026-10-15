@@ -230,7 +230,7 @@ fn build_fragment_signature(
                 schema,
                 &variable_definitions.items,
                 fragment.location,
-                graphql_syntax::DirectiveLocation::VariableDefinition,
+                graphql_syntax::DirectiveLocation::FragmentVariableDefinition,
             )
         })
         .or_else(|| {
@@ -404,7 +404,7 @@ fn build_fragment_variable_definitions(
                                     let directive = build_directive(
                                         schema,
                                         &ast_directive,
-                                        graphql_syntax::DirectiveLocation::VariableDefinition,
+                                        graphql_syntax::DirectiveLocation::FragmentVariableDefinition,
                                         // We currently don't have the ability to pass offset locations
                                         // to the parser call, so we first use a generated location and
                                         // later override it with an approximation.

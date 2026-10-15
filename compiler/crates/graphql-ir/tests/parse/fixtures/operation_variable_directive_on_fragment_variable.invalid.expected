@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo($local: Boolean @operation_variable) on User {
+  id
+}
+==================================== ERROR ====================================
+✖︎ Directive 'operation_variable' not supported in this location. Supported location(s): VARIABLE_DEFINITION
+
+  operation_variable_directive_on_fragment_variable.invalid.graphql:2:31
+    1 │ # expected-to-throw
+    2 │ fragment Foo($local: Boolean @operation_variable) on User {
+      │                               ^^^^^^^^^^^^^^^^^^
+    3 │   id

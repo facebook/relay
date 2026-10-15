@@ -1,0 +1,5 @@
+query Foo($local: Boolean @operation_variable) {
+  node(id: "4") {
+    id
+  }
+}

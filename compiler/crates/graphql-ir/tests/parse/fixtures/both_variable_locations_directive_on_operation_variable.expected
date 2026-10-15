@@ -1,0 +1,88 @@
+==================================== INPUT ====================================
+query Foo($local: Boolean @configurable) {
+  node(id: "4") {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: WithLocation {
+                location: both_variable_locations_directive_on_operation_variable.graphql:6:9,
+                item: OperationDefinitionName(
+                    "Foo",
+                ),
+            },
+            type_: Object(0),
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: both_variable_locations_directive_on_operation_variable.graphql:10:16,
+                        item: VariableName(
+                            "local",
+                        ),
+                    },
+                    type_: Named(
+                        Scalar(3),
+                    ),
+                    default_value: None,
+                    directives: [
+                        Directive {
+                            name: WithLocation {
+                                location: both_variable_locations_directive_on_operation_variable.graphql:26:39,
+                                item: DirectiveName(
+                                    "configurable",
+                                ),
+                            },
+                            arguments: [],
+                            data: None,
+                            location: both_variable_locations_directive_on_operation_variable.graphql:26:39,
+                        },
+                    ],
+                },
+            ],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: both_variable_locations_directive_on_operation_variable.graphql:45:49,
+                        item: FieldID(10),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: both_variable_locations_directive_on_operation_variable.graphql:50:52,
+                                item: ArgumentName(
+                                    "id",
+                                ),
+                            },
+                            value: WithLocation {
+                                location: both_variable_locations_directive_on_operation_variable.graphql:54:57,
+                                item: Constant(
+                                    String(
+                                        "4",
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: both_variable_locations_directive_on_operation_variable.graphql:65:67,
+                                item: FieldID(221),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

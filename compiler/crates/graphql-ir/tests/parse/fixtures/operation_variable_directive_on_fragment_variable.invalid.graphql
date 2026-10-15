@@ -1,0 +1,4 @@
+# expected-to-throw
+fragment Foo($local: Boolean @operation_variable) on User {
+  id
+}

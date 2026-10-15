@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<70e9fab00385e2c241115c446365700e>>
+ * @generated SignedSource<<ce59b638307a3020c8cf6b129498acf4>>
  */
 
 mod parse;
@@ -66,6 +66,20 @@ async fn argument_with_default() {
     let input = include_str!("parse/fixtures/argument_with_default.graphql");
     let expected = include_str!("parse/fixtures/argument_with_default.expected");
     test_fixture(transform_fixture, file!(), "argument_with_default.graphql", "parse/fixtures/argument_with_default.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn both_variable_locations_directive_on_fragment_variable() {
+    let input = include_str!("parse/fixtures/both_variable_locations_directive_on_fragment_variable.graphql");
+    let expected = include_str!("parse/fixtures/both_variable_locations_directive_on_fragment_variable.expected");
+    test_fixture(transform_fixture, file!(), "both_variable_locations_directive_on_fragment_variable.graphql", "parse/fixtures/both_variable_locations_directive_on_fragment_variable.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn both_variable_locations_directive_on_operation_variable() {
+    let input = include_str!("parse/fixtures/both_variable_locations_directive_on_operation_variable.graphql");
+    let expected = include_str!("parse/fixtures/both_variable_locations_directive_on_operation_variable.expected");
+    test_fixture(transform_fixture, file!(), "both_variable_locations_directive_on_operation_variable.graphql", "parse/fixtures/both_variable_locations_directive_on_operation_variable.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -241,6 +255,20 @@ async fn fragment_spread_within_wrong_parent_type_invalid() {
     let input = include_str!("parse/fixtures/fragment-spread-within-wrong-parent-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/fragment-spread-within-wrong-parent-type.invalid.expected");
     test_fixture(transform_fixture, file!(), "fragment-spread-within-wrong-parent-type.invalid.graphql", "parse/fixtures/fragment-spread-within-wrong-parent-type.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_variable_directive_on_fragment_variable() {
+    let input = include_str!("parse/fixtures/fragment_variable_directive_on_fragment_variable.graphql");
+    let expected = include_str!("parse/fixtures/fragment_variable_directive_on_fragment_variable.expected");
+    test_fixture(transform_fixture, file!(), "fragment_variable_directive_on_fragment_variable.graphql", "parse/fixtures/fragment_variable_directive_on_fragment_variable.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_variable_directive_on_operation_variable_invalid() {
+    let input = include_str!("parse/fixtures/fragment_variable_directive_on_operation_variable.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment_variable_directive_on_operation_variable.invalid.expected");
+    test_fixture(transform_fixture, file!(), "fragment_variable_directive_on_operation_variable.invalid.graphql", "parse/fixtures/fragment_variable_directive_on_operation_variable.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -570,6 +598,20 @@ async fn object_argument() {
     let input = include_str!("parse/fixtures/object-argument.graphql");
     let expected = include_str!("parse/fixtures/object-argument.expected");
     test_fixture(transform_fixture, file!(), "object-argument.graphql", "parse/fixtures/object-argument.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn operation_variable_directive_on_fragment_variable_invalid() {
+    let input = include_str!("parse/fixtures/operation_variable_directive_on_fragment_variable.invalid.graphql");
+    let expected = include_str!("parse/fixtures/operation_variable_directive_on_fragment_variable.invalid.expected");
+    test_fixture(transform_fixture, file!(), "operation_variable_directive_on_fragment_variable.invalid.graphql", "parse/fixtures/operation_variable_directive_on_fragment_variable.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn operation_variable_directive_on_operation_variable() {
+    let input = include_str!("parse/fixtures/operation_variable_directive_on_operation_variable.graphql");
+    let expected = include_str!("parse/fixtures/operation_variable_directive_on_operation_variable.expected");
+    test_fixture(transform_fixture, file!(), "operation_variable_directive_on_operation_variable.graphql", "parse/fixtures/operation_variable_directive_on_operation_variable.expected", input, expected).await;
 }
 
 #[tokio::test]

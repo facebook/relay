@@ -226,7 +226,12 @@ fn build_fragment_signature(
         .variable_definitions
         .as_ref()
         .map(|variable_definitions| {
-            build_variable_definitions(schema, &variable_definitions.items, fragment.location)
+            build_variable_definitions(
+                schema,
+                &variable_definitions.items,
+                fragment.location,
+                graphql_syntax::DirectiveLocation::VariableDefinition,
+            )
         })
         .or_else(|| {
             argument_definition_directives

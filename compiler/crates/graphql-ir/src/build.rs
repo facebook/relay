@@ -243,6 +243,7 @@ pub fn build_variable_definitions(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::VariableDefinition],
     location: Location,
+    directive_location: DirectiveLocation,
 ) -> DiagnosticsResult<Vec<VariableDefinition>> {
     let signatures = Default::default();
     let mut builder = Builder::new(
@@ -258,7 +259,7 @@ pub fn build_variable_definitions(
             allow_custom_scalar_literals: true, // for compatibility
         },
     );
-    builder.build_variable_definitions(definitions, DirectiveLocation::VariableDefinition)
+    builder.build_variable_definitions(definitions, directive_location)
 }
 
 pub fn build_directives(

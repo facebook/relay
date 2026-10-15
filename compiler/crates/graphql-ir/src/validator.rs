@@ -219,8 +219,7 @@ pub trait Validator {
         &mut self,
         variable_definition: &VariableDefinition,
     ) -> DiagnosticsResult<()> {
-        let _ = variable_definition;
-        Ok(())
+        self.validate_directives(&variable_definition.directives)
     }
 
     // Values

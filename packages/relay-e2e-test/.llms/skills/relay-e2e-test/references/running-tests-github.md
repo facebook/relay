@@ -23,13 +23,13 @@ All commands run from the repo root.
 
 Run all e2e tests:
 
-```
+```bash
 yarn test:e2e
 ```
 
 Run a single fixture by name (use the path without extension, e.g. `queries/greeting`):
 
-```
+```bash
 yarn test:e2e -- --testNamePattern greeting
 ```
 

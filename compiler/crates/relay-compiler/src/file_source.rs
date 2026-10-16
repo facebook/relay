@@ -34,6 +34,7 @@ use graphql_watchman::WatchmanFileSourceResult;
 use graphql_watchman::WatchmanFileSourceSubscription;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use log::warn;
+pub use read_file_to_string::read_file_to_bytes;
 pub use read_file_to_string::read_file_to_string;
 use serde::Deserialize;
 use serde_bser::value::Value;

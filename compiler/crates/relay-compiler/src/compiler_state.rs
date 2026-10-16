@@ -63,6 +63,7 @@ use crate::file_source::LocatedJavascriptSourceFeatures;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::file_source::categorize_files;
 use crate::file_source::extract_javascript_features_from_file;
+use crate::file_source::read_file_to_bytes;
 use crate::file_source::read_file_to_string;
 
 /// Set of project names.
@@ -456,13 +457,8 @@ impl CompilerState {
             ..Default::default()
         };
 
-        let file_source_result = process_categorized_sources(
-            categorized,
-            config,
-            file_source_changes,
-            perf_logger,
-            false,
-        )?;
+        let file_source_result =
+            process_categorized_sources(categorized, config, perf_logger, false)?;
         for file_source in file_source_result {
             match file_source {
                 FileSourceIntermediateResult::Source(
@@ -735,13 +731,8 @@ impl CompilerState {
             let categorized = log_event.time("categorize_files_time", || {
                 categorize_files(config, &file_source_changes)
             });
-            let file_source_result = process_categorized_sources(
-                categorized,
-                config,
-                &file_source_changes,
-                perf_logger,
-                true,
-            )?;
+            let file_source_result =
+                process_categorized_sources(categorized, config, perf_logger, true)?;
             for file_source in file_source_result {
                 match file_source {
                     FileSourceIntermediateResult::Source(
@@ -999,7 +990,7 @@ impl CompilerState {
 }
 
 fn process_intermediate_schema_change(
-    file_source_changes: &FileSourceResult,
+    config: &Config,
     files: Vec<File>,
 ) -> Result<(FnvHashMap<PathBuf, String>, Vec<PathBuf>)> {
     let mut removed_sources = vec![];
@@ -1007,7 +998,7 @@ fn process_intermediate_schema_change(
     for file in files {
         let file_name = file.name.clone();
         if file.exists {
-            added_sources.insert(file_name, read_file_to_string(file_source_changes, &file)?);
+            added_sources.insert(file_name, read_file_to_string(config, &file)?);
         } else {
             removed_sources.push(file_name);
         }
@@ -1016,7 +1007,7 @@ fn process_intermediate_schema_change(
 }
 
 fn process_intermediate_compact_schema_change(
-    file_source_changes: &FileSourceResult,
+    config: &Config,
     files: Vec<File>,
 ) -> Result<(IncrementalSourceSet<Vec<u8>>, Vec<PathBuf>)> {
     let mut removed_sources = vec![];
@@ -1024,12 +1015,7 @@ fn process_intermediate_compact_schema_change(
     for file in files {
         let file_name = file.name.clone();
         if file.exists {
-            let absolute_path = file.absolute_path(file_source_changes.resolved_root());
-            let bytes = std::fs::read(&absolute_path).map_err(|err| Error::ReadFileError {
-                file: absolute_path,
-                source: err,
-            })?;
-            added_sources.insert(file_name, bytes);
+            added_sources.insert(file_name, read_file_to_bytes(config, &file)?);
         } else {
             removed_sources.push(file_name);
         }
@@ -1040,7 +1026,6 @@ fn process_intermediate_compact_schema_change(
 fn process_categorized_sources(
     categorized: HashMap<FileGroup, Vec<File>>,
     config: &Config,
-    file_source_changes: &FileSourceResult,
     perf_logger: &impl PerfLogger,
     preserve_empty: bool,
 ) -> Result<Vec<FileSourceIntermediateResult>> {
@@ -1049,14 +1034,8 @@ fn process_categorized_sources(
         .map(|(category, files)| match category {
             FileGroup::Source { project_set } => {
                 // Slow step: reading from disk and parsing
-                let (graphql_sources, docblock_sources, full_sources) = extract_sources(
-                    &project_set,
-                    files,
-                    file_source_changes,
-                    preserve_empty,
-                    perf_logger,
-                    config,
-                )?;
+                let (graphql_sources, docblock_sources, full_sources) =
+                    extract_sources(&project_set, files, preserve_empty, perf_logger, config)?;
                 Ok(FileSourceIntermediateResult::Source(
                     project_set,
                     graphql_sources,
@@ -1065,8 +1044,7 @@ fn process_categorized_sources(
                 ))
             }
             FileGroup::Schema { project_set } => {
-                let (added, removed) =
-                    process_intermediate_schema_change(file_source_changes, files)?;
+                let (added, removed) = process_intermediate_schema_change(config, files)?;
                 Ok(FileSourceIntermediateResult::Schema(
                     project_set,
                     added,
@@ -1074,8 +1052,7 @@ fn process_categorized_sources(
                 ))
             }
             FileGroup::CompactSchema { project_set } => {
-                let (added, removed) =
-                    process_intermediate_compact_schema_change(file_source_changes, files)?;
+                let (added, removed) = process_intermediate_compact_schema_change(config, files)?;
                 Ok(FileSourceIntermediateResult::CompactSchema(
                     project_set,
                     added,
@@ -1083,8 +1060,7 @@ fn process_categorized_sources(
                 ))
             }
             FileGroup::Extension { project_set } => {
-                let (added, removed) =
-                    process_intermediate_schema_change(file_source_changes, files)?;
+                let (added, removed) = process_intermediate_schema_change(config, files)?;
                 Ok(FileSourceIntermediateResult::Extension(
                     project_set,
                     added,
@@ -1103,7 +1079,6 @@ fn process_categorized_sources(
 fn extract_sources(
     project_set: &ProjectSet,
     files: Vec<File>,
-    file_source_changes: &FileSourceResult,
     preserve_empty: bool,
     perf_logger: &impl PerfLogger,
     config: &Config,
@@ -1116,7 +1091,7 @@ fn extract_sources(
         .par_iter()
         .map(|file| {
             if file.exists {
-                match extract_javascript_features_from_file(file_source_changes, file, config) {
+                match extract_javascript_features_from_file(file, config) {
                     Ok(features) => Ok((file, features)),
                     Err(err) => Err(err),
                 }

@@ -82,6 +82,8 @@ use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
 use crate::errors::Error;
 use crate::errors::Result;
+use crate::file_system::FileSystem;
+use crate::file_system::StdFileSystem;
 use crate::path_validator::PathValidator;
 use crate::source_control_for_root;
 use crate::status_reporter::BuildStatus;
@@ -379,6 +381,11 @@ pub struct Config {
 
     /// Type of file source to use in the Compiler
     pub file_source_config: FileSourceKind,
+
+    /// Reads compiler inputs (sources, schemas, extensions) under `root_dir`.
+    /// Defaults to [`StdFileSystem`]; hosts may inject a backend that talks
+    /// to their virtual file system directly.
+    pub file_system: Arc<dyn FileSystem>,
 
     /// A set of custom transform functions, that can be applied before,
     /// and after each major transformation step (common, operations, etc)
@@ -798,6 +805,7 @@ impl Config {
                 is_multi_project,
             )),
             daemon_build_status: None,
+            file_system: Arc::new(StdFileSystem::new(root_dir.clone())),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,

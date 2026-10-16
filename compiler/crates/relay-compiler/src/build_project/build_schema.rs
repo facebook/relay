@@ -75,7 +75,9 @@ fn build_schema_impl(
         {
             bytes
         } else {
-            owned_bytes = std::fs::read(config.root_dir.join(compact_path))
+            owned_bytes = config
+                .file_system
+                .read(compact_path)
                 .map_err(|e| vec![Diagnostic::error(e.to_string(), Location::generated())])?;
             &owned_bytes
         };

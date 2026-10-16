@@ -6,20 +6,33 @@
  */
 
 use super::File;
-use super::FileSourceResult;
+use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
 
-/// Reads a file into a string.
-pub fn read_file_to_string(file_source_result: &FileSourceResult, file: &File) -> Result<String> {
+/// Reads a file into a string through the config's file system.
+pub fn read_file_to_string(config: &Config, file: &File) -> Result<String> {
     assert!(
         file.exists,
         "Can't read from non-existent file: {:?}",
-        &file.name
+        file.name
     );
-    let absolute_path = file.absolute_path(file_source_result.resolved_root());
-    std::fs::read_to_string(&absolute_path).map_err(|err| Error::FileRead {
-        file: absolute_path.clone(),
-        source: err,
-    })
+    config
+        .file_system
+        .read_to_string(&file.name)
+        .map_err(|err| Error::FileRead {
+            file: config.root_dir.join(&file.name),
+            source: err,
+        })
+}
+
+/// Reads a file's bytes through the config's file system.
+pub fn read_file_to_bytes(config: &Config, file: &File) -> Result<Vec<u8>> {
+    config
+        .file_system
+        .read(&file.name)
+        .map_err(|err| Error::ReadFileError {
+            file: config.root_dir.join(&file.name),
+            source: err,
+        })
 }

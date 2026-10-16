@@ -17,7 +17,6 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use super::File;
-use super::FileSourceResult;
 use super::read_file_to_string;
 use crate::errors::Result;
 use crate::file_source::Config;
@@ -58,11 +57,10 @@ impl SourceReader for FsSourceReader {
 /// Reads and extracts `graphql` tagged literals and Relay-specific docblocks
 /// from a JavaScript file.
 pub fn extract_javascript_features_from_file(
-    file_source_result: &FileSourceResult,
     file: &File,
     config: &Config,
 ) -> Result<LocatedJavascriptSourceFeatures> {
-    let contents = read_file_to_string(file_source_result, file)?;
+    let contents = read_file_to_string(config, file)?;
     let features = extract_graphql::extract(&contents);
     let mut graphql_sources = Vec::new();
     let mut docblock_sources = Vec::new();

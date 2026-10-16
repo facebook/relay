@@ -40,6 +40,8 @@ function wrapNetworkWithLogObserver(
   network: INetwork,
 ): INetwork {
   return {
+    UNSTABLE_preloadQueryOnQueryAstLoad:
+      network?.UNSTABLE_preloadQueryOnQueryAstLoad,
     execute(
       params: RequestParameters,
       variables: Variables,

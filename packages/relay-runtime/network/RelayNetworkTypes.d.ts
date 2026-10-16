@@ -17,6 +17,10 @@ import {ObservableFromValue, RelayObservable} from './RelayObservable';
 export interface Network {
     execute: ExecuteFunction;
     executeWithPreloadedSource?: ExecuteWithPreloadedSourceFunction;
+    UNSTABLE_preloadQueryOnQueryAstLoad?: (
+        queryID: string,
+        variables: Variables,
+    ) => void;
 }
 export type LogRequestInfoFunction = (arg: any) => void;
 

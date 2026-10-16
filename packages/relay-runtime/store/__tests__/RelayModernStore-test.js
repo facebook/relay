@@ -2651,6 +2651,62 @@ function cloneEventWithSets(event: LogEvent) {
           runNextScheduledJob();
           expect(getStoreRecordIDs()).toEqual(['b', 'c', 'client:root']);
         });
+
+        describe('shouldScheduleGCAfterPublish_EXPERIMENTAL', () => {
+          let shouldScheduleGC;
+
+          function publishUnretainedNode(nodeID: string) {
+            store.publish(
+              getRecordSourceImplementation({
+                [nodeID]: {__id: nodeID, __typename: 'User'},
+              }),
+            );
+            store.notify();
+          }
+
+          beforeEach(() => {
+            shouldScheduleGC = jest.fn(() => false);
+            store = new RelayModernStore(source, {
+              gcReleaseBufferSize: 0,
+              gcScheduler: mockScheduler,
+              queryCacheExpirationTime: 0,
+              shouldScheduleGCAfterPublish_EXPERIMENTAL: shouldScheduleGC,
+            });
+          });
+
+          it('is called once per publish', () => {
+            publishUnretainedNode('a');
+            expect(shouldScheduleGC).toHaveBeenCalledTimes(1);
+            publishUnretainedNode('b');
+            expect(shouldScheduleGC).toHaveBeenCalledTimes(2);
+          });
+
+          it('does not schedule GC when it returns false', () => {
+            publishUnretainedNode('a');
+            expect(schedulerQueue.length).toBe(0);
+            expect(getStoreRecordIDs()).toEqual(['a', 'client:root']);
+          });
+
+          it('schedules a GC that keeps retained data when it returns true', () => {
+            writeAndRetainNode('a');
+            shouldScheduleGC.mockReturnValue(true);
+            publishUnretainedNode('b');
+            expect(schedulerQueue.length).toBe(1);
+            runNextScheduledJob(); // mark operation one
+            runNextScheduledJob(); // sweep
+            expect(getStoreRecordIDs()).toEqual(['a', 'client:root']);
+          });
+
+          it('waits for holdGC to be released', () => {
+            const gcHold = store.holdGC();
+            shouldScheduleGC.mockReturnValue(true);
+            publishUnretainedNode('a');
+            expect(schedulerQueue.length).toBe(0);
+            gcHold.dispose();
+            runNextScheduledJob();
+            expect(getStoreRecordIDs()).toEqual([]);
+          });
+        });
       });
 
       describe('holdGC()', () => {

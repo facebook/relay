@@ -123,6 +123,7 @@ class RelayModernStore implements Store {
   >;
   _shouldRetainWithinTTL_EXPERIMENTAL: boolean;
   _shouldScheduleGC: boolean;
+  _shouldScheduleGCAfterPublish: ?() => boolean;
   _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: DataIDSet;
   _resolverContext: ?ResolverContext;
@@ -144,6 +145,9 @@ class RelayModernStore implements Store {
 
       // Experimental
       shouldRetainWithinTTL_EXPERIMENTAL?: boolean,
+      // Called after each publish(); returning true schedules a GC, in
+      // addition to the release-buffer trigger.
+      shouldScheduleGCAfterPublish_EXPERIMENTAL?: ?() => boolean,
 
       // These additional config options are only used if the experimental
       // @outputType resolver feature is used
@@ -183,6 +187,8 @@ class RelayModernStore implements Store {
     this._releaseBuffer = [];
     this._roots = new Map();
     this._shouldScheduleGC = false;
+    this._shouldScheduleGCAfterPublish =
+      options?.shouldScheduleGCAfterPublish_EXPERIMENTAL ?? null;
     this._resolverCache = new LiveResolverCache(
       () => this._getMutableRecordSource(),
       this,
@@ -666,6 +672,9 @@ class RelayModernStore implements Store {
         source,
         optimistic: target === this._optimisticSource,
       });
+    }
+    if (this._shouldScheduleGCAfterPublish?.() === true) {
+      this.scheduleGC();
     }
   }
 

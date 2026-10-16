@@ -1,0 +1,51 @@
+// A client-edge fragment shared by exec-time and ordinary queries must have
+// identical artifacts after an ordinary-query-only incremental rebuild.
+
+//- ExecQuery.js
+graphql`query ExecQuery @exec_time_resolvers {
+  me {
+    ...Shared_user
+  }
+}`
+
+//- ReadQuery.js
+graphql`query ReadQuery {
+  me {
+    ...Shared_user
+  }
+}`
+
+//- Shared.js
+graphql`fragment Shared_user on User {
+  best_friend @waterfall {
+    name
+  }
+}`
+
+//- User_best_friend.js
+/**
+ * @relayField User.best_friend: User
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User implements Node { id: ID!, name: String }
+
+//-++ ReadQuery.js
+graphql`query ReadQuery {
+  me {
+    id
+    ...Shared_user
+  }
+}`

@@ -1247,7 +1247,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         // schema extensions, but we'll start with limiting them to resolvers.
         let resolver_directive = field_type.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
 
-        let is_client_edge = field_type.is_extension && resolver_directive.is_some();
+        let is_client_edge = is_client_edge_field(field_type);
 
         let waterfall_directive = field
             .directives()
@@ -2134,5 +2134,58 @@ fn has_output_type(directive: Option<&DirectiveValue>) -> bool {
             get_bool_argument_is_true(&directive.arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME)
         }
         None => false,
+    }
+}
+
+fn is_client_edge_field(field: &schema::Field) -> bool {
+    field.is_extension
+        && field
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .is_some()
+}
+
+/// Whether `client_edges` can compile a selection of this field differently
+/// depending on the operations that reach it: such an edge generates a
+/// `ClientEdgeQuery` that inherits `use_exec_time_resolvers` from its callers,
+/// or targets a mixed abstract type whose server operations are suppressed only
+/// under unconditional exec time. Interface fields count when an implementor's
+/// field is such an edge, since `relay_resolvers_abstract_types` fans them out
+/// later. Incremental builds rebuild fragments selecting them with all callers.
+pub fn is_caller_dependent_client_edge(schema: &SDLSchema, field_id: FieldID) -> bool {
+    let field = schema.field(field_id);
+    if is_server_reaching_client_edge(schema, field) {
+        return true;
+    }
+    let Some(Type::Interface(interface_id)) = field.parent_type else {
+        return false;
+    };
+    schema
+        .interface(interface_id)
+        .recursively_implementing_objects(schema)
+        .iter()
+        .filter_map(|object_id| schema.named_field(Type::Object(*object_id), field.name.item))
+        .any(|concrete_field_id| {
+            is_server_reaching_client_edge(schema, schema.field(concrete_field_id))
+        })
+}
+
+fn is_server_reaching_client_edge(schema: &SDLSchema, field: &schema::Field) -> bool {
+    let return_type = field.type_.inner();
+    if !is_client_edge_field(field) || !return_type.is_composite_type() {
+        return false;
+    }
+    if !schema.is_extension_type(return_type) {
+        return true;
+    }
+    let is_server_object = |object_id: &ObjectID| !schema.object(*object_id).is_extension;
+    match return_type {
+        Type::Interface(interface_id) => schema
+            .interface(interface_id)
+            .recursively_implementing_objects(schema)
+            .iter()
+            .any(is_server_object),
+        Type::Union(union_id) => schema.union(union_id).members.iter().any(is_server_object),
+        _ => false,
     }
 }

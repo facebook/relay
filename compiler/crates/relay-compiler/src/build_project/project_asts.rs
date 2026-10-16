@@ -30,6 +30,8 @@ pub struct ProjectAsts {
     pub changed_names: ExecutableDefinitionNameSet,
     pub base_definition_names: ExecutableDefinitionNameSet,
     pub definitions: Vec<ExecutableDefinition>,
+    /// Fragments that a changed or deleted definition no longer spreads.
+    pub removed_spread_names: ExecutableDefinitionNameSet,
 }
 
 pub struct ProjectAstData {
@@ -139,6 +141,11 @@ pub fn get_project_asts(
             definitions,
             base_definition_names,
             changed_names: find_changed_names(graphql_asts, project_config),
+            removed_spread_names: std::iter::once(project_config.name)
+                .chain(project_config.base)
+                .filter_map(|name| graphql_asts.get(&name))
+                .flat_map(|asts| asts.removed_spread_names.iter().copied())
+                .collect(),
         },
         base_fragment_names,
     })

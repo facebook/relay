@@ -1,0 +1,51 @@
+// The only @exec_time_resolvers caller of a fragment with a client edge to a
+// server object stops spreading it. The fragment itself is unchanged, but its
+// ClientEdgeQuery must lose `use_exec_time_resolvers`.
+
+//- ExecTimeQuery.js
+graphql`query ExecTimeQuery @exec_time_resolvers {
+  me {
+    ...SharedFragment
+  }
+}`
+
+//- ReadTimeQuery.js
+graphql`query ReadTimeQuery {
+  me {
+    ...SharedFragment
+  }
+}`
+
+//- SharedFragment.js
+graphql`fragment SharedFragment on User {
+  best_friend @waterfall {
+    name
+  }
+}`
+
+//- UserBestFriendResolver.js
+/**
+ * @relayField User.best_friend: User
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User implements Node { id: ID!, name: String }
+
+//-++ ExecTimeQuery.js
+graphql`query ExecTimeQuery @exec_time_resolvers {
+  me {
+    name
+  }
+}`

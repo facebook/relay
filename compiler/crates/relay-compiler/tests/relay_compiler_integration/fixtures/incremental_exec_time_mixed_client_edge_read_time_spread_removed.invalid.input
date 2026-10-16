@@ -1,0 +1,61 @@
+// A fragment with a client edge to an interface that has a server implementor
+// is spread by an unconditional @exec_time_resolvers query and by a read-time
+// query. When the read-time caller stops spreading it, the fragment becomes
+// exec-time-only: the edge's server refetch operation is suppressed and its
+// `@waterfall` is rejected, exactly as in a full build.
+
+//- ExecTimeQuery.js
+graphql`query ExecTimeQuery @exec_time_resolvers {
+  ...SharedFragment
+}`
+
+//- ReadTimeQuery.js
+graphql`query ReadTimeQuery {
+  ...SharedFragment
+}`
+
+//- SharedFragment.js
+graphql`fragment SharedFragment on Query {
+  vehicle @waterfall {
+    name
+  }
+}`
+
+//- VehicleResolvers.js
+/**
+ * @relayField Query.vehicle: IVehicle
+ */
+
+/**
+ * @relayType ClientVehicle implements IVehicle
+ */
+
+/**
+ * @relayField ClientVehicle.name: String
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { greeting: String, node(id: ID!): Node }
+interface Node { id: ID! }
+type ServerVehicle implements Node { id: ID!, name: String }
+
+//- schema-extensions/extension.graphql
+interface IVehicle { id: ID!, name: String }
+extend type ServerVehicle implements IVehicle
+
+//-++ ReadTimeQuery.js
+graphql`query ReadTimeQuery {
+  greeting
+}`

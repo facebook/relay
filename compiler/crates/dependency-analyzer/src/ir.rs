@@ -14,6 +14,7 @@ use graphql_ir::*;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 use relay_transforms::get_all_resolver_fragment_dependency_names;
+use relay_transforms::is_caller_dependent_client_edge;
 use rustc_hash::FxHashMap;
 use rustc_hash::FxHashSet;
 use schema::SDLSchema;
@@ -49,6 +50,11 @@ impl fmt::Debug for Node {
 /// New implicit dependencies are detected by walking the changed documents,
 /// whereas preexisting implicit dependencies must be passed in as
 /// `implicit_dependencies`.
+///
+/// When `client_edge_closure` is set, the result also includes every caller of
+/// a fragment whose client edges compile differently depending on its callers.
+/// The set it holds names fragments that lost a spread: they lost a caller, so
+/// they are rebuilt along with that closure.
 pub fn get_reachable_ir(
     definitions: Vec<ExecutableDefinition>,
     base_definition_names: ExecutableDefinitionNameSet,
@@ -56,6 +62,7 @@ pub fn get_reachable_ir(
     schema: &SDLSchema,
     schema_changes: FxHashSet<check::IncrementalBuildSchemaChange>,
     log_event: &impl PerfLogEvent,
+    client_edge_closure: Option<ExecutableDefinitionNameSet>,
 ) -> Vec<ExecutableDefinition> {
     let timer = log_event.start("get_reachable_ir_time");
     let result = if changed_names.is_empty() && schema_changes.is_empty() {
@@ -75,16 +82,51 @@ pub fn get_reachable_ir(
 
         let mut visited = Default::default();
         let mut filtered_definitions = Default::default();
+        let mut added = vec![];
 
         for key in all_changed_names.into_iter() {
             if dependency_graph.contains_key(&key) {
                 add_related_nodes(
                     &mut visited,
                     &mut filtered_definitions,
+                    &mut added,
                     &dependency_graph,
                     &base_definition_names,
                     key,
                 );
+            }
+        }
+
+        if let Some(removed_spread_names) = client_edge_closure {
+            // Adding the whole subtree lets the worklist below give client-edge
+            // fragments under a fragment that lost a spread their remaining callers.
+            for name in removed_spread_names {
+                if dependency_graph.contains_key(&name) {
+                    add_descendants(
+                        &mut filtered_definitions,
+                        &mut added,
+                        &dependency_graph,
+                        name,
+                    );
+                }
+            }
+
+            // Some client-edge fragments compile differently depending on their
+            // callers, so include all of them. Each definition is queued once, when
+            // it enters the result; newly included callers can queue more fragments.
+            while let Some(name) = added.pop() {
+                if let Some(ExecutableDefinition::Fragment(fragment)) = &dependency_graph[&name].ir
+                    && selections_have_caller_dependent_client_edges(schema, &fragment.selections)
+                {
+                    add_related_nodes(
+                        &mut visited,
+                        &mut filtered_definitions,
+                        &mut added,
+                        &dependency_graph,
+                        &base_definition_names,
+                        name,
+                    );
+                }
             }
         }
 
@@ -152,6 +194,25 @@ fn build_dependency_graph(
         }
     }
     dependency_graph
+}
+
+fn selections_have_caller_dependent_client_edges(
+    schema: &SDLSchema,
+    selections: &[Selection],
+) -> bool {
+    selections.iter().any(|selection| match selection {
+        Selection::LinkedField(field) => {
+            is_caller_dependent_client_edge(schema, field.definition.item)
+                || selections_have_caller_dependent_client_edges(schema, &field.selections)
+        }
+        Selection::InlineFragment(fragment) => {
+            selections_have_caller_dependent_client_edges(schema, &fragment.selections)
+        }
+        Selection::Condition(condition) => {
+            selections_have_caller_dependent_client_edges(schema, &condition.selections)
+        }
+        Selection::ScalarField(_) | Selection::FragmentSpread(_) => false,
+    })
 }
 
 fn update_dependency_graph(
@@ -254,6 +315,7 @@ fn visit_selections(
 fn add_related_nodes(
     visited: &mut ExecutableDefinitionNameSet,
     result: &mut ExecutableDefinitionNameMap<ExecutableDefinition>,
+    added: &mut ExecutableDefinitionNameVec,
     dependency_graph: &ExecutableDefinitionNameMap<Node>,
     base_definition_names: &ExecutableDefinitionNameSet,
     key: ExecutableDefinitionName,
@@ -270,13 +332,14 @@ fn add_related_nodes(
     };
     if parents.is_empty() {
         if !base_definition_names.contains(&key) {
-            add_descendants(result, dependency_graph, key);
+            add_descendants(result, added, dependency_graph, key);
         }
     } else {
         for parent in parents {
             add_related_nodes(
                 visited,
                 result,
+                added,
                 dependency_graph,
                 base_definition_names,
                 *parent,
@@ -285,9 +348,11 @@ fn add_related_nodes(
     }
 }
 
-// Recursively add all descendants of current node into the `result`
+// Recursively add all descendants of current node into the `result`, recording
+// each newly added name in `added`
 fn add_descendants(
     result: &mut ExecutableDefinitionNameMap<ExecutableDefinition>,
+    added: &mut ExecutableDefinitionNameVec,
     dependency_graph: &ExecutableDefinitionNameMap<Node>,
     key: ExecutableDefinitionName,
 ) {
@@ -301,8 +366,9 @@ fn add_descendants(
             ..
         }) => {
             result.insert(key, def.clone());
+            added.push(key);
             for child in children {
-                add_descendants(result, dependency_graph, *child);
+                add_descendants(result, added, dependency_graph, *child);
             }
         }
         Some(Node { ir: None, .. }) => {

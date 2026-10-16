@@ -119,6 +119,7 @@ pub use client_edges::ClientEdgeMetadataDirective;
 pub use client_edges::ClientEdgeModelResolver;
 pub use client_edges::ClientEdgeServerObjectOperation;
 pub use client_edges::client_edges;
+pub use client_edges::is_caller_dependent_client_edge;
 pub use client_edges::remove_client_edge_selections;
 pub use client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
 pub use client_extensions::client_extensions;

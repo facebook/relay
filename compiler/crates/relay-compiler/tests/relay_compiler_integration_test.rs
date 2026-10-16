@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<98cabe9f77d023ccfec535f4d815b3d0>>
+ * @generated SignedSource<<8ca77b2988ee8522804c10eda403e24b>>
  */
 
 mod relay_compiler_integration;
@@ -545,6 +545,27 @@ async fn incremental_delete_module_fragment() {
 }
 
 #[tokio::test]
+async fn incremental_exec_time_client_edge_exec_time_query_deleted() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_exec_time_client_edge_exec_time_query_deleted.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_exec_time_client_edge_exec_time_query_deleted.expected");
+    test_fixture(transform_fixture, file!(), "incremental_exec_time_client_edge_exec_time_query_deleted.input", "relay_compiler_integration/fixtures/incremental_exec_time_client_edge_exec_time_query_deleted.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_exec_time_client_edge_exec_time_spread_removed() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_exec_time_client_edge_exec_time_spread_removed.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_exec_time_client_edge_exec_time_spread_removed.expected");
+    test_fixture(transform_fixture, file!(), "incremental_exec_time_client_edge_exec_time_spread_removed.input", "relay_compiler_integration/fixtures/incremental_exec_time_client_edge_exec_time_spread_removed.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_exec_time_mixed_client_edge_read_time_spread_removed_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_exec_time_mixed_client_edge_read_time_spread_removed.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_exec_time_mixed_client_edge_read_time_spread_removed.invalid.expected");
+    test_fixture(transform_fixture, file!(), "incremental_exec_time_mixed_client_edge_read_time_spread_removed.invalid.input", "relay_compiler_integration/fixtures/incremental_exec_time_mixed_client_edge_read_time_spread_removed.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn incremental_file_deletion() {
     let input = include_str!("relay_compiler_integration/fixtures/incremental_file_deletion.input");
     let expected = include_str!("relay_compiler_integration/fixtures/incremental_file_deletion.expected");
@@ -612,6 +633,41 @@ async fn incremental_schema_field_nullability_change() {
     let input = include_str!("relay_compiler_integration/fixtures/incremental_schema_field_nullability_change.input");
     let expected = include_str!("relay_compiler_integration/fixtures/incremental_schema_field_nullability_change.expected");
     test_fixture(transform_fixture, file!(), "incremental_schema_field_nullability_change.input", "relay_compiler_integration/fixtures/incremental_schema_field_nullability_change.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_shared_exec_time_client_edge() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_shared_exec_time_client_edge.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_shared_exec_time_client_edge.expected");
+    test_fixture(transform_fixture, file!(), "incremental_shared_exec_time_client_edge.input", "relay_compiler_integration/fixtures/incremental_shared_exec_time_client_edge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_shared_exec_time_mixed_client_edge() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_shared_exec_time_mixed_client_edge.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_shared_exec_time_mixed_client_edge.expected");
+    test_fixture(transform_fixture, file!(), "incremental_shared_exec_time_mixed_client_edge.input", "relay_compiler_integration/fixtures/incremental_shared_exec_time_mixed_client_edge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_shared_exec_time_mixed_client_edge_feature_disabled() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_shared_exec_time_mixed_client_edge_feature_disabled.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_shared_exec_time_mixed_client_edge_feature_disabled.expected");
+    test_fixture(transform_fixture, file!(), "incremental_shared_exec_time_mixed_client_edge_feature_disabled.input", "relay_compiler_integration/fixtures/incremental_shared_exec_time_mixed_client_edge_feature_disabled.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_shared_exec_time_refetch_client_edge() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_shared_exec_time_refetch_client_edge.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_shared_exec_time_refetch_client_edge.expected");
+    test_fixture(transform_fixture, file!(), "incremental_shared_exec_time_refetch_client_edge.input", "relay_compiler_integration/fixtures/incremental_shared_exec_time_refetch_client_edge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_shared_exec_time_refetch_client_edge_feature_disabled() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_shared_exec_time_refetch_client_edge_feature_disabled.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_shared_exec_time_refetch_client_edge_feature_disabled.expected");
+    test_fixture(transform_fixture, file!(), "incremental_shared_exec_time_refetch_client_edge_feature_disabled.input", "relay_compiler_integration/fixtures/incremental_shared_exec_time_refetch_client_edge_feature_disabled.expected", input, expected).await;
 }
 
 #[tokio::test]

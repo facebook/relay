@@ -150,6 +150,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         &schema,
         schema_changes,
         &NoopPerfLoggerEvent,
+        None,
     );
 
     let mut texts = result
@@ -158,4 +159,136 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         .collect::<Vec<_>>();
     texts.sort();
     Ok(texts.join("\n\n"))
+}
+
+#[test]
+fn client_edge_fragments_include_transitive_callers() {
+    let schema = get_test_schema_with_extensions(
+        r#"extend type User {
+            best_friend: User @relay_resolver(import_path: "BestFriendResolver")
+        }"#,
+    );
+    let source = r#"
+        query ReadQuery { me { ...SharedA } }
+        query ExecQuery { me { ...SharedA ...SharedB } }
+        query OtherQuery { me { ...SharedB } }
+        query UnrelatedQuery { me { name } }
+        fragment SharedA on User { best_friend { name } }
+        fragment SharedB on User { best_friend { name } }
+    "#;
+    assert_eq!(
+        reachable_names_with_resolver_context(&schema, source, None),
+        vec!["ReadQuery", "SharedA"],
+    );
+    assert_eq!(
+        reachable_names_with_resolver_context(&schema, source, Some(&[])),
+        vec!["ExecQuery", "OtherQuery", "ReadQuery", "SharedA", "SharedB"],
+    );
+}
+
+#[test]
+fn interface_client_edge_fragments_include_callers() {
+    let schema = get_test_schema_with_extensions(
+        r#"
+        interface Cat { id: ID!, friend: User }
+        extend type Query { cat: Cat }
+        type Tabby implements Cat @__RelayResolverModel {
+            id: ID!
+            friend: User @relay_resolver(import_path: "TabbyResolver")
+        }
+        "#,
+    );
+    let source = r#"
+        query ReadQuery { cat { ...SharedCat } }
+        query ExecQuery { cat { ...SharedCat } }
+        fragment SharedCat on Cat { friend { name } }
+    "#;
+    assert_eq!(
+        reachable_names_with_resolver_context(&schema, source, Some(&[])),
+        vec!["ExecQuery", "ReadQuery", "SharedCat"],
+    );
+}
+
+#[test]
+fn scalar_and_client_only_resolvers_do_not_expand_callers() {
+    let schema = get_test_schema_with_extensions(
+        r#"
+        type ClientValue @__RelayResolverModel { id: ID!, name: String }
+        extend type User {
+            client_name: String @relay_resolver(import_path: "ClientNameResolver")
+            client_value: ClientValue @relay_resolver(import_path: "ClientValueResolver")
+        }
+        "#,
+    );
+    let source = r#"
+        query ReadQuery { me { ...Shared_user } }
+        query ExecQuery { me { ...Shared_user } }
+        fragment Shared_user on User { client_name client_value { name } }
+    "#;
+    assert_eq!(
+        reachable_names_with_resolver_context(&schema, source, Some(&[])),
+        vec!["ReadQuery", "Shared_user"],
+    );
+}
+
+#[test]
+fn removed_spreads_rebuild_client_edge_fragments_with_remaining_callers() {
+    let schema = get_test_schema_with_extensions(
+        r#"extend type User {
+            best_friend: User @relay_resolver(import_path: "BestFriendResolver")
+        }"#,
+    );
+    // `ReadQuery` used to spread `Wrapper` and `Plain`.
+    let source = r#"
+        query ReadQuery { me { name } }
+        query WrapperQuery { me { ...Wrapper } }
+        query SharedQuery { me { ...Shared } }
+        query PlainQuery { me { ...Plain } }
+        fragment Wrapper on User { ...Shared }
+        fragment Shared on User { best_friend { name } }
+        fragment Plain on User { name }
+    "#;
+    assert_eq!(
+        reachable_names_with_resolver_context(&schema, source, None),
+        vec!["ReadQuery"],
+    );
+    assert_eq!(
+        reachable_names_with_resolver_context(&schema, source, Some(&["Wrapper", "Plain"])),
+        vec![
+            "Plain",
+            "ReadQuery",
+            "Shared",
+            "SharedQuery",
+            "Wrapper",
+            "WrapperQuery"
+        ],
+    );
+}
+
+fn reachable_names_with_resolver_context(
+    schema: &SDLSchema,
+    source: &str,
+    removed_spread_names: Option<&[&str]>,
+) -> Vec<String> {
+    let ast = parse_executable(source, SourceLocationKey::generated()).unwrap();
+    let definitions = build(schema, &ast.definitions).unwrap();
+    let mut names: Vec<_> = get_reachable_ir(
+        definitions,
+        Default::default(),
+        FxHashSet::from_iter([OperationDefinitionName("ReadQuery".intern()).into()]),
+        schema,
+        Default::default(),
+        &NoopPerfLoggerEvent,
+        removed_spread_names.map(|names| {
+            names
+                .iter()
+                .map(|name| FragmentDefinitionName(name.intern()).into())
+                .collect()
+        }),
+    )
+    .into_iter()
+    .map(|definition| definition.name_with_location().item.to_string())
+    .collect();
+    names.sort();
+    names
 }

@@ -1,0 +1,61 @@
+// Read-time sharing must prevent unconditional exec-time suppression of a
+// mixed abstract client edge, even when only its exec-time caller changes.
+
+//- ExecQuery.js
+graphql`query ExecQuery @exec_time_resolvers {
+  ...Shared_query
+}`
+
+//- ReadQuery.js
+graphql`query ReadQuery {
+  ...Shared_query
+}`
+
+//- Shared.js
+graphql`fragment Shared_query on Query {
+  vehicle @waterfall {
+    common_name
+  }
+}`
+
+//- VehicleResolvers.js
+/**
+ * @relayField Query.vehicle: IVehicle
+ */
+
+/**
+ * @relayType ClientVehicle implements IVehicle
+ */
+
+/**
+ * @relayField ClientVehicle.common_name: String
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": {"kind": "enabled"}
+  }
+}
+
+//- schema.graphql
+type Query { node(id: ID!): Node }
+interface Node { id: ID! }
+type ServerVehicle implements Node { id: ID!, common_name: String }
+
+//- schema-extensions/extension.graphql
+interface IVehicle { id: ID!, common_name: String }
+extend type ServerVehicle implements IVehicle
+
+//-++ ExecQuery.js
+graphql`query ExecQuery @exec_time_resolvers {
+  node(id: "1") {
+    id
+  }
+  ...Shared_query
+}`

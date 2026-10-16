@@ -21,6 +21,7 @@ use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinitionName;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::ParserFeatures;
+use intern::string_key::StringKey;
 use rayon::iter::IntoParallelRefIterator;
 use relay_config::ProjectConfig;
 use relay_config::ProjectName;
@@ -67,6 +68,33 @@ fn collect_module_fragment_spreads_from_selections(
     }
 }
 
+fn collect_fragment_spread_names(
+    selections: &[graphql_syntax::Selection],
+    out: &mut HashSet<StringKey>,
+) {
+    for selection in selections {
+        match selection {
+            graphql_syntax::Selection::FragmentSpread(spread) => {
+                out.insert(spread.name.value);
+            }
+            graphql_syntax::Selection::InlineFragment(inline_fragment) => {
+                collect_fragment_spread_names(&inline_fragment.selections.items, out);
+            }
+            graphql_syntax::Selection::LinkedField(field) => {
+                collect_fragment_spread_names(&field.selections.items, out);
+            }
+            graphql_syntax::Selection::ScalarField(_) => {}
+        }
+    }
+}
+
+fn definition_selections(definition: &ExecutableDefinition) -> &[graphql_syntax::Selection] {
+    match definition {
+        ExecutableDefinition::Operation(operation) => &operation.selections.items,
+        ExecutableDefinition::Fragment(fragment) => &fragment.selections.items,
+    }
+}
+
 /// A collection of GraphQL abstract syntax trees (ASTs) for a set of files.
 ///
 /// Stores definitions both per-file (for per-file lookup) and in a pre-flattened
@@ -83,6 +111,8 @@ pub struct GraphQLAsts {
     pub pending_definition_names: ExecutableDefinitionNameSet,
     /// Names of fragments and operations that are deleted.
     pub removed_definition_names: Vec<ArtifactSourceKey>,
+    /// Names of fragments that a changed or deleted definition no longer spreads.
+    pub removed_spread_names: ExecutableDefinitionNameSet,
 }
 
 impl GraphQLAsts {
@@ -148,6 +178,7 @@ impl GraphQLAsts {
         let mut asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>> = Default::default();
         let mut pending_definition_names: ExecutableDefinitionNameSet = HashSet::default();
         let mut removed_definition_names = Vec::new();
+        let mut removed_spread_names: ExecutableDefinitionNameSet = HashSet::default();
 
         if let Some(dirty_definitions) = dirty_definitions {
             pending_definition_names.extend(dirty_definitions);
@@ -214,11 +245,13 @@ impl GraphQLAsts {
             local_pending_definition_names,
             local_syntax_errors,
             local_removed_definition_names,
+            local_removed_spread_names,
         } in pending_results
         {
             pending_definition_names.extend(local_pending_definition_names);
             syntax_errors.extend(local_syntax_errors);
             removed_definition_names.extend(local_removed_definition_names);
+            removed_spread_names.extend(local_removed_spread_names);
             asts.insert(file_name.clone(), definitions_for_file);
         }
 
@@ -245,6 +278,7 @@ impl GraphQLAsts {
                 all_definitions,
                 pending_definition_names,
                 removed_definition_names,
+                removed_spread_names,
             })
         } else {
             Err(Error::DiagnosticsError {
@@ -260,6 +294,7 @@ struct PendingSourceResult<'a> {
     local_pending_definition_names: Vec<ExecutableDefinitionName>,
     local_syntax_errors: Vec<Diagnostic>,
     local_removed_definition_names: Vec<ArtifactSourceKey>,
+    local_removed_spread_names: Vec<ExecutableDefinitionName>,
 }
 
 fn parse_pending_graphql_source_and_collect_removed_definitions<'a>(
@@ -272,6 +307,7 @@ fn parse_pending_graphql_source_and_collect_removed_definitions<'a>(
     let mut local_pending_definition_names: Vec<ExecutableDefinitionName> = vec![];
     let mut local_syntax_errors = vec![];
     let mut local_removed_definition_names = vec![];
+    let mut local_removed_spread_names = vec![];
     for LocatedGraphQLSource {
         index,
         graphql_source,
@@ -308,6 +344,10 @@ fn parse_pending_graphql_source_and_collect_removed_definitions<'a>(
     // and collect definition names that are removed from that file.
     // (A definition moved to another file is considered as a deletion and a new source)
     if let Some(processed_graphql_sources) = graphql_sources.processed.get(file_name) {
+        let mut spread_names = HashSet::new();
+        for definition in &definitions_for_file {
+            collect_fragment_spread_names(definition_selections(definition), &mut spread_names);
+        }
         for LocatedGraphQLSource {
             index,
             graphql_source,
@@ -321,6 +361,13 @@ fn parse_pending_graphql_source_and_collect_removed_definitions<'a>(
                 parser_features,
             ) {
                 for def in document.definitions {
+                    let mut old_spreads = HashSet::new();
+                    collect_fragment_spread_names(definition_selections(&def), &mut old_spreads);
+                    local_removed_spread_names.extend(
+                        old_spreads.difference(&spread_names).map(|name| {
+                            ExecutableDefinitionName::from(FragmentDefinitionName(*name))
+                        }),
+                    );
                     match def {
                         ExecutableDefinition::Operation(operation) => {
                             let still_exists = definitions_for_file.iter().any(|def| {
@@ -387,5 +434,6 @@ fn parse_pending_graphql_source_and_collect_removed_definitions<'a>(
         local_pending_definition_names,
         local_syntax_errors,
         local_removed_definition_names,
+        local_removed_spread_names,
     }
 }

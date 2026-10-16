@@ -16,7 +16,13 @@ import type {
   PreloadableConcreteRequest,
 } from '../EntryPointTypes.flow';
 import type {loadQuerySourceBehaviorTestQuery} from './__generated__/loadQuerySourceBehaviorTestQuery.graphql';
-import type {OperationType, Query} from 'relay-runtime';
+import type {
+  Observer,
+  OperationType,
+  Query,
+  Sink,
+  Subscription,
+} from 'relay-runtime';
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const {loadQuery} = require('../loadQuery');
@@ -110,7 +116,9 @@ beforeEach(() => {
       sink = _sink;
     });
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-    const originalSubscribe = observable.subscribe.bind(observable);
+    const originalSubscribe: (
+      observer: Observer<unknown> | Sink<unknown>,
+    ) => Subscription = observable.subscribe.bind(observable);
     networkUnsubscribe = jest.fn<[], $FlowFixMe>();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
       const subscription = originalSubscribe(...args);

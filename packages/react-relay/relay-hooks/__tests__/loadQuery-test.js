@@ -23,8 +23,11 @@ import type {
   INetwork,
   LogEvent,
   LogRequestInfoFunction,
+  Observer,
   Query,
   RequestParameters,
+  Sink,
+  Subscription,
   UploadableMap,
   Variables,
 } from 'relay-runtime';
@@ -146,7 +149,9 @@ describe('loadQuery', () => {
           sink = _sink;
         });
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        const originalSubscribe = observable.subscribe.bind(observable);
+        const originalSubscribe: (
+          observer: Observer<unknown> | Sink<unknown>,
+        ) => Subscription = observable.subscribe.bind(observable);
         networkUnsubscribe = jest.fn<[], $FlowFixMe>();
         jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
           const subscription = originalSubscribe(...args);

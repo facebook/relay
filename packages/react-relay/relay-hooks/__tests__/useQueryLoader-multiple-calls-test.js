@@ -12,6 +12,8 @@
 
 'use strict';
 
+import type {Observer, Sink, Subscription} from 'relay-runtime';
+
 const loadQueryModule = require('../loadQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const usePreloadedQuery = require('../usePreloadedQuery');
@@ -76,7 +78,9 @@ beforeEach(() => {
       sink = _sink;
     });
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-    const originalSubscribe = observable.subscribe.bind(observable);
+    const originalSubscribe: (
+      observer: Observer<unknown> | Sink<unknown>,
+    ) => Subscription = observable.subscribe.bind(observable);
     networkUnsubscribe = jest.fn<[], $FlowFixMe>();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
       const subscription = originalSubscribe(...args);

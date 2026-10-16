@@ -18,7 +18,13 @@ import type {
 import type {ObservableFromValue} from '../../network/RelayObservable';
 import type {RequestParameters} from '../../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
-import type {Snapshot} from '../RelayStoreTypes';
+import type {
+  DataIDSet,
+  OperationDescriptor,
+  RecordSource,
+  RequestDescriptor,
+  Snapshot,
+} from '../RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -61,9 +67,15 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        (store as $FlowFixMe).notify = jest.fn(store.notify.bind(store));
+        (store as $FlowFixMe).notify = jest.fn<
+          [sourceOperation?: OperationDescriptor, invalidateStore?: boolean],
+          ReadonlyArray<RequestDescriptor>,
+        >(store.notify.bind(store));
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        (store as $FlowFixMe).publish = jest.fn(store.publish.bind(store));
+        (store as $FlowFixMe).publish = jest.fn<
+          [source: RecordSource, idsMarkedForInvalidation?: DataIDSet],
+          void,
+        >(store.publish.bind(store));
         const fetch = jest.fn<
           [
             RequestParameters,

@@ -74,7 +74,11 @@ function recycleNodesIntoImpl<T>(
           // $FlowFixMe[cannot-write]
           nextObject[key] = nextValue;
         }
-        return wasEqual && nextValue === prevObject[key];
+        return (
+          wasEqual &&
+          nextValue === prevObject[key] &&
+          Object.hasOwn(prevObject, key)
+        );
       }, true) && prevKeys.length === nextKeys.length;
   }
   return canRecycle ? prevData : nextData;

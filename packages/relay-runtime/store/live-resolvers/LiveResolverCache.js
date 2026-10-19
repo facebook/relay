@@ -750,11 +750,18 @@ class LiveResolverCache implements ResolverCache {
             continue;
           }
           for (const anotherRecordID of recordSet) {
+            if (recordSource.get(anotherRecordID) == null) {
+              recordSet.delete(anotherRecordID);
+              continue;
+            }
             markInvalidatedResolverRecord(anotherRecordID, recordSource);
             if (!visited.has(anotherRecordID)) {
               visited.add(anotherRecordID);
               recordsToVisit.push(anotherRecordID);
             }
+          }
+          if (recordSet.size === 0) {
+            this._resolverIDToRecordIDs.delete(fragment);
           }
         }
       }

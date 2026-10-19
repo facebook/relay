@@ -50,6 +50,26 @@ const SUSPENDS_QUERY = graphql`
   }
 `;
 
+const OPTIMISTIC_UPDATES_QUERY = graphql`
+  query LiveResolversTestOptimisticUpdatesQuery {
+    me {
+      greeting
+    }
+  }
+`;
+
+const OPTIMISTIC_UPDATES_MUTATION = graphql`
+  mutation LiveResolversTestOptimisticUpdatesMutation(
+    $input: ActorNameChangeInput!
+  ) {
+    actorNameChange(input: $input) {
+      actor {
+        name
+      }
+    }
+  }
+`;
+
 test('unsubscribe happens when record is updated due to missing data', () => {
   const source = RelayRecordSource.create({
     'client:root': {
@@ -439,16 +459,7 @@ test('Reflects optimistic updates, and reverts of optimistic updates', () => {
       name: 'Alice',
     },
   });
-  const operation = createOperationDescriptor(
-    graphql`
-      query LiveResolversTestOptimisticUpdatesQuery {
-        me {
-          greeting
-        }
-      }
-    `,
-    {},
-  );
+  const operation = createOperationDescriptor(OPTIMISTIC_UPDATES_QUERY, {});
 
   const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
@@ -467,20 +478,9 @@ test('Reflects optimistic updates, and reverts of optimistic updates', () => {
   environment.subscribe(snapshot, handler);
 
   const mutationSub = environment.applyMutation({
-    operation: createOperationDescriptor(
-      graphql`
-        mutation LiveResolversTestOptimisticUpdatesMutation(
-          $input: ActorNameChangeInput!
-        ) {
-          actorNameChange(input: $input) {
-            actor {
-              name
-            }
-          }
-        }
-      `,
-      {input: {newName: 'Bob'}},
-    ),
+    operation: createOperationDescriptor(OPTIMISTIC_UPDATES_MUTATION, {
+      input: {newName: 'Bob'},
+    }),
     response: {
       actorNameChange: {
         actor: {
@@ -504,6 +504,62 @@ test('Reflects optimistic updates, and reverts of optimistic updates', () => {
   expect(handler.mock.calls.length).toBe(2);
   expect(handler.mock.calls[1][0].data).toEqual({
     me: {greeting: 'Hello, Alice!'},
+  });
+});
+
+test('does not warn after reverting an optimistic resolver update', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '4'},
+    },
+    '4': {
+      __id: '4',
+      __typename: 'User',
+      name: 'Alice',
+    },
+  });
+  const operation = createOperationDescriptor(OPTIMISTIC_UPDATES_QUERY, {});
+  const store = new RelayModernStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  expect(environment.lookup(operation.fragment).data).toEqual({
+    me: {greeting: 'Hello, Alice!'},
+  });
+
+  const mutationSub = environment.applyMutation({
+    operation: createOperationDescriptor(OPTIMISTIC_UPDATES_MUTATION, {
+      input: {newName: 'Bob'},
+    }),
+    response: {
+      actorNameChange: {
+        actor: {
+          __typename: 'User',
+          id: '4',
+          name: 'Bob',
+        },
+      },
+    },
+    updater: null,
+  });
+
+  mutationSub.dispose();
+  environment.commitUpdate(storeProxy => {
+    const user = storeProxy.get('4');
+    if (user == null) {
+      throw new Error('Expected to find user record');
+    }
+    user.setValue('Claire', 'name');
+  });
+
+  expect(environment.lookup(operation.fragment).data).toEqual({
+    me: {greeting: 'Hello, Claire!'},
   });
 });
 

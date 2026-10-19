@@ -58,7 +58,8 @@ export type FeatureFlags = {
   // disambiguate the same resolver being used at both read time and exec time.
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: boolean,
 
-  // Enable the fix for usePaginationFragment stucking in loading state
+  // @deprecated No longer read: the usePaginationFragment isLoading fix is
+  // always on. Kept until callers stop setting it; will be removed.
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: boolean,
 
   // Enable logging an ID collision in the Relay store

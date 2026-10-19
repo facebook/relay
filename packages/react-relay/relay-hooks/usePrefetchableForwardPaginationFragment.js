@@ -39,7 +39,6 @@ const {
 } = require('relay-runtime');
 const {
   ConnectionInterface,
-  RelayFeatureFlags,
   getSelector,
   getValueAtPath,
 } = require('relay-runtime');
@@ -204,9 +203,7 @@ hook usePrefetchableForwardPaginationFragment<
       },
       complete: setIsLoadingFalse,
       error: handleError,
-      unsubscribe: RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX
-        ? setIsLoadingFalse
-        : undefined,
+      unsubscribe: setIsLoadingFalse,
     };
   }, [setIsLoadingMore]);
   const handleReset = useCallback(() => {

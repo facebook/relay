@@ -2731,7 +2731,16 @@ describe.each([
             expect(callback).toBeCalledTimes(0);
             expect(unsubscribe).toBeCalledTimes(1);
             expect(fetch).toBeCalledTimes(1); // the loadNext call
-            expect(renderSpy).toHaveBeenCalledTimes(0);
+            // Disposing the request resets the loading state
+            expectFragmentResults([
+              {
+                data: initialUser,
+                hasNext: true,
+                hasPrevious: false,
+                isLoadingNext: false,
+                isLoadingPrevious: false,
+              },
+            ]);
 
             resolveQuery({
               data: {
@@ -4366,7 +4375,6 @@ describe.each([
       });
 
       it('resets `isLoading` to false, hen loadMore gets interrupted by refresh, and useLoadMore does not trigger a reset', () => {
-        RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX = true;
         renderFragment();
         expectFragmentResults([
           {
@@ -4507,8 +4515,6 @@ describe.each([
           isLoadingNext: false,
           isLoadingPrevious: false,
         });
-
-        RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX = false;
       });
     });
 

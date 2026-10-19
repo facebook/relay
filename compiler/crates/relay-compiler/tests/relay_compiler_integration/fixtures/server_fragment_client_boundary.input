@@ -1,0 +1,35 @@
+//- src/Fragments.js
+
+graphql`fragment ServerParent_user on User @server {
+  name
+  ...ClientCard_user @alias(as: "clientCard")
+}`
+
+graphql`fragment ClientCard_user on User {
+  id
+  name
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}

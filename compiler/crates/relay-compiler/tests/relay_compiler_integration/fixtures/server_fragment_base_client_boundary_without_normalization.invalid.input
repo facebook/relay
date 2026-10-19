@@ -1,0 +1,42 @@
+//- base_src/ClientCard.js
+
+graphql`fragment ClientCard_user on User {
+  name
+}`
+
+//- derived_src/ServerPanel.js
+
+graphql`fragment ServerPanel_user on User @server {
+  ...ClientCard_user @alias(as: "clientCard")
+}`
+
+//- relay.config.json
+{
+  "sources": {
+    "base_src": "base_project",
+    "derived_src": "derived_project"
+  },
+  "projects": {
+    "base_project": {
+      "schema": "schema.graphql",
+      "language": "javascript"
+    },
+    "derived_project": {
+      "schema": "schema.graphql",
+      "base": "base_project",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+}

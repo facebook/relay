@@ -49,6 +49,96 @@ type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 /// itself in `text`.
 pub const SCHEMA_TEXT_PARAM: &str = "schema_text";
 
+/// The host integration whose Relay RSC capability defaults should be used.
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Default,
+    Deserialize,
+    Eq,
+    JsonSchema,
+    PartialEq,
+    Serialize
+)]
+pub enum RelayRscHostMode {
+    /// A server-owned integration with no client-rooted operations or Cells by
+    /// default. Incremental delivery is enabled by default.
+    #[default]
+    #[serde(rename = "nextjs")]
+    NextJs,
+    /// The CometJS integration, including client-rooted operations,
+    /// incremental delivery, and Cells by default.
+    #[serde(rename = "cometjs")]
+    CometJs,
+}
+
+/// Host defaults and project-specific overrides for Relay RSC compilation.
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Default,
+    Deserialize,
+    Eq,
+    JsonSchema,
+    PartialEq,
+    Serialize
+)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct RelayRscProjectConfig {
+    /// Selects the host capability defaults. Defaults to `nextjs`.
+    #[serde(default)]
+    mode: RelayRscHostMode,
+    /// Whether client-rooted operations may reach Relay RSC fields.
+    #[serde(default)]
+    allow_client_rooted_operations: Option<bool>,
+    /// Whether the host accepts Relay's supported incremental RSC responses.
+    #[serde(default)]
+    allow_incremental_delivery: Option<bool>,
+    /// Whether the compiler may generate Relay RSC Cell definitions.
+    #[serde(default)]
+    enable_cells: Option<bool>,
+}
+
+/// The fully resolved Relay RSC capabilities consumed by compiler passes.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct RelayRscCapabilities {
+    /// Whether client-rooted operations may reach Relay RSC fields.
+    pub allow_client_rooted_operations: bool,
+    /// Whether the host accepts Relay's supported incremental RSC responses.
+    pub allow_incremental_delivery: bool,
+    /// Whether the compiler may generate Relay RSC Cell definitions.
+    pub enable_cells: bool,
+}
+
+impl RelayRscProjectConfig {
+    fn resolve(&self) -> RelayRscCapabilities {
+        let defaults = match self.mode {
+            RelayRscHostMode::NextJs => RelayRscCapabilities {
+                allow_client_rooted_operations: false,
+                allow_incremental_delivery: true,
+                enable_cells: false,
+            },
+            RelayRscHostMode::CometJs => RelayRscCapabilities {
+                allow_client_rooted_operations: true,
+                allow_incremental_delivery: true,
+                enable_cells: true,
+            },
+        };
+
+        RelayRscCapabilities {
+            allow_client_rooted_operations: self
+                .allow_client_rooted_operations
+                .unwrap_or(defaults.allow_client_rooted_operations),
+            allow_incremental_delivery: self
+                .allow_incremental_delivery
+                .unwrap_or(defaults.allow_incremental_delivery),
+            enable_cells: self.enable_cells.unwrap_or(defaults.enable_cells),
+        }
+    }
+}
+
 /// Configuration for remote persistence of GraphQL documents.
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
@@ -370,6 +460,8 @@ pub struct ProjectConfig {
     pub extra: serde_json::Value,
     /// Feature flags for the project.
     pub feature_flags: Arc<FeatureFlags>,
+    /// Relay RSC host defaults and project-specific capability overrides.
+    pub relay_rsc: RelayRscProjectConfig,
     /// Regular expression to match test files.
     pub test_path_regex: Option<Regex>,
     /// Rollout configuration for the project.
@@ -412,6 +504,7 @@ impl Default for ProjectConfig {
             persist: None,
             variable_names_comment: false,
             extra: Default::default(),
+            relay_rsc: Default::default(),
             test_path_regex: None,
             rollout: Default::default(),
             js_module_format: Default::default(),
@@ -446,6 +539,7 @@ impl Debug for ProjectConfig {
             variable_names_comment,
             extra,
             feature_flags,
+            relay_rsc,
             test_path_regex,
             rollout,
             js_module_format,
@@ -475,6 +569,7 @@ impl Debug for ProjectConfig {
             .field("variable_names_comment", variable_names_comment)
             .field("extra", extra)
             .field("feature_flags", feature_flags)
+            .field("relay_rsc", relay_rsc)
             .field("test_path_regex", test_path_regex)
             .field("rollout", rollout)
             .field("js_module_format", js_module_format)
@@ -488,6 +583,13 @@ impl Debug for ProjectConfig {
 }
 
 impl ProjectConfig {
+    /// Returns Relay RSC host capabilities when the project-wide gate is on.
+    pub fn relay_rsc_capabilities(&self) -> Option<RelayRscCapabilities> {
+        self.feature_flags
+            .enable_relay_rsc
+            .then(|| self.relay_rsc.resolve())
+    }
+
     /// Gets the correct path for a generated artifact based on its originating source file's
     /// location, and the project's configuration.
     pub fn create_path_for_artifact(

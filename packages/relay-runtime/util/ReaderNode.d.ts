@@ -42,6 +42,7 @@ export interface ReaderFragment {
             readonly mask?: boolean;
             readonly plural?: boolean;
             readonly refetch?: ReaderRefetchMetadata;
+            readonly serverFragment?: true;
         }
         | null
         | undefined;

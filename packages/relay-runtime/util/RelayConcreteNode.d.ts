@@ -7,7 +7,7 @@
 
 import {NormalizationOperation, NormalizationSplitOperation} from './NormalizationNode';
 import {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
-import { OperationType } from './RelayRuntimeTypes';
+import {ClientOperationType, OperationType, ServerOperationType} from './RelayRuntimeTypes';
 
 /**
  * Represents a common GraphQL request that can be executed, an `operation`
@@ -15,11 +15,22 @@ import { OperationType } from './RelayRuntimeTypes';
  * from that operation to read the response data (masking data from child
  * fragments).
  */
-export interface ConcreteRequest {
+export interface ConcreteRequest<_TQuery extends ClientOperationType = ClientOperationType> {
+    readonly __relayOperationType?: _TQuery;
     readonly kind: 'Request';
     readonly fragment: ReaderFragment;
     readonly operation: NormalizationOperation;
     readonly params: RequestParameters;
+    readonly serverHandoff?: unknown;
+}
+
+export interface ServerRequest<_TQuery extends ServerOperationType = ServerOperationType> {
+    readonly __relayOperationType?: _TQuery;
+    readonly kind: 'Request';
+    readonly fragment: ReaderFragment;
+    readonly operation: NormalizationOperation;
+    readonly params: RequestParameters;
+    readonly serverHandoff: unknown;
 }
 
 /**
@@ -68,6 +79,7 @@ export type RequestParameters =
 
 export type GeneratedNode =
     | ConcreteRequest
+    | ServerRequest
     | ReaderFragment
     | ReaderInlineDataFragment
     | NormalizationSplitOperation

@@ -193,7 +193,8 @@ impl<'p> Printer<'p> {
             self.project_config,
             fragment_definition.name.map(|x| x.0),
         );
-        let fragment = Primitive::Key(fragment_builder.build_fragment(fragment_definition, true));
+        let fragment =
+            Primitive::Key(fragment_builder.build_fragment(fragment_definition, true, false));
         let key = self.builder.intern(Ast::Object(object! {
             fragment: fragment,
             kind: Primitive::String(CODEGEN_CONSTANTS.updatable_query),

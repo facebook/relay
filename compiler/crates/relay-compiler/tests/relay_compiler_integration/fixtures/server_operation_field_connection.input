@@ -1,0 +1,56 @@
+//- src/ServerConnection.js
+
+// `@connection` on a field inside a server query is allowed: the server
+// operation normalizes and hands off the connection's records.
+graphql`query ServerConnectionQuery @server {
+  me {
+    friends(first: 1) @connection(key: "ServerConnectionQuery_friends") {
+      edges {
+        node {
+          name
+        }
+      }
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+  friends(first: Int, after: ID): FriendsConnection
+}
+
+type FriendsConnection {
+  edges: [FriendsEdge]
+  pageInfo: PageInfo
+}
+
+type FriendsEdge {
+  cursor: ID
+  node: User
+}
+
+type PageInfo {
+  startCursor: ID
+  endCursor: ID
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+}

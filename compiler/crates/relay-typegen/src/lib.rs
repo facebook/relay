@@ -51,6 +51,10 @@ pub(crate) static KEY_DATA: LazyLock<StringKey> = LazyLock::new(|| "$data".inter
 static KEY_FRAGMENT_SPREADS: LazyLock<StringKey> = LazyLock::new(|| "$fragmentSpreads".intern());
 static KEY_UPDATABLE_FRAGMENT_SPREADS: LazyLock<StringKey> =
     LazyLock::new(|| "$updatableFragmentSpreads".intern());
+pub(crate) static KEY_SERVER_FRAGMENT: LazyLock<StringKey> =
+    LazyLock::new(|| "$serverFragment".intern());
+pub(crate) static KEY_SERVER_OPERATION: LazyLock<StringKey> =
+    LazyLock::new(|| "$serverOperation".intern());
 pub(crate) static KEY_FRAGMENT_TYPE: LazyLock<StringKey> =
     LazyLock::new(|| "$fragmentType".intern());
 static FRAGMENT_PROP_NAME: LazyLock<StringKey> = LazyLock::new(|| "__fragmentPropName".intern());

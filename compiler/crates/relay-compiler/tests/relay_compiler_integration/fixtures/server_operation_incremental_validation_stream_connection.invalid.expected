@@ -1,0 +1,88 @@
+==================================== INPUT ====================================
+//- src/ServerStreamConnection.js
+
+// `@stream_connection` is found as authored, without relying on
+// `transform_connections` to expand it into `@stream` on `edges` and
+// `@defer` on `pageInfo` first.
+graphql`query ServerStreamConnectionQuery @server {
+  me {
+    friends(first: 1)
+      @stream_connection(
+        key: "ServerStreamConnectionQuery_friends"
+        initial_count: 1
+      ) {
+      edges {
+        node {
+          name
+        }
+      }
+    }
+  }
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+directive @stream(
+  label: String!
+  initialCount: Int!
+  if: Boolean = true
+  useCustomizedBatch: Boolean = false
+) on FIELD
+
+directive @defer(
+  label: String!
+  if: Boolean = true
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+  friends(first: Int, after: ID): FriendsConnection
+}
+
+type FriendsConnection {
+  edges: [FriendsEdge]
+  pageInfo: PageInfo
+}
+
+type FriendsEdge {
+  cursor: ID
+  node: User
+}
+
+type PageInfo {
+  startCursor: ID
+  endCursor: ID
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+}
+==================================== OUTPUT ===================================
+✖︎ Relay RSC operation `ServerStreamConnectionQuery` cannot use `@defer` or `@stream`: incremental delivery of server-owned operations is not supported yet.
+
+  src/ServerStreamConnection.js:8:7
+    7 │     friends(first: 1)
+    8 │       @stream_connection(
+      │       ^^^^^^^^^^^^^^^^^^^
+    9 │         key: "ServerStreamConnectionQuery_friends"
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │         initial_count: 1
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^
+   11 │       ) {
+      │ ^^^^^^^
+   12 │       edges {

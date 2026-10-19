@@ -1,0 +1,51 @@
+==================================== INPUT ====================================
+//- src/ServerRootDefer.js
+
+// `@defer` on a spread directly under the operation root is found as
+// authored, without relying on `transform_defer_stream` to wrap the spread
+// in a deferred inline fragment first.
+graphql`query ServerRootDeferQuery @server {
+  ...ServerRootDefer_query @defer(label: "ServerRootDeferQuery$query")
+}`
+
+graphql`fragment ServerRootDefer_query on Query @server {
+  me {
+    name
+  }
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+directive @defer(
+  label: String!
+  if: Boolean = true
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+}
+==================================== OUTPUT ===================================
+✖︎ Relay RSC operation `ServerRootDeferQuery` cannot use `@defer` or `@stream`: incremental delivery of server-owned operations is not supported yet.
+
+  src/ServerRootDefer.js:6:28
+    5 │ query ServerRootDeferQuery @server {
+    6 │   ...ServerRootDefer_query @defer(label: "ServerRootDeferQuery$query")
+      │                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │ }

@@ -1,0 +1,65 @@
+==================================== INPUT ====================================
+//- src/ServerMatch.js
+
+// `@match` on a field and `@module` on a spread inside a server query are
+// outside the server-owned selection directive allowlist.
+graphql`query ServerMatchQuery @server {
+  me {
+    nameRenderer @match {
+      ...ServerMatch_plainRenderer @module(name: "PlainRenderer.react")
+    }
+  }
+}`
+
+graphql`fragment ServerMatch_plainRenderer on PlainUserNameRenderer @server {
+  plaintext
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "jsModuleFormat": "commonjs",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+scalar JSDependency
+
+type Query {
+  me: User
+}
+
+type User {
+  nameRenderer(supported: [String!]): UserNameRenderer
+}
+
+union UserNameRenderer = PlainUserNameRenderer
+
+type PlainUserNameRenderer {
+  plaintext: String
+  js(module: String!, id: String): JSDependency
+}
+==================================== OUTPUT ===================================
+✖︎ Server-owned Relay RSC document `ServerMatchQuery` cannot select `@match` or `@module`; place module selections in an aliased client-owned fragment until server-owned module execution is supported.
+
+  src/ServerMatch.js:6:18
+    5 │   me {
+    6 │     nameRenderer @match {
+      │                  ^^^^^^
+    7 │       ...ServerMatch_plainRenderer @module(name: "PlainRenderer.react")
+
+✖︎ Server-owned Relay RSC document `ServerMatchQuery` cannot select `@match` or `@module`; place module selections in an aliased client-owned fragment until server-owned module execution is supported.
+
+  src/ServerMatch.js:7:36
+    6 │     nameRenderer @match {
+    7 │       ...ServerMatch_plainRenderer @module(name: "PlainRenderer.react")
+      │                                    ^^^^^^^
+    8 │     }

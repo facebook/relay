@@ -1,0 +1,33 @@
+//- src/ServerRequired.js
+
+// `@required` on a field inside a server query is outside the server-owned
+// selection directive allowlist.
+graphql`query ServerRequiredQuery @server {
+  me {
+    name @required(action: LOG)
+  }
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}

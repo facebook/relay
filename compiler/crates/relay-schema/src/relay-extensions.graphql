@@ -374,6 +374,15 @@ directive @updatable on QUERY | FRAGMENT_DEFINITION
 """
 (Relay Only)
 
+Marks a query or fragment as consumed by server code. Server ownership is
+explicit because JavaScript module directives do not establish how a Relay
+document is consumed.
+"""
+directive @server on QUERY | FRAGMENT_DEFINITION
+
+"""
+(Relay Only)
+
 Marks a given fragment as assignable.
 
 [Read More](https://relay.dev/docs/guided-tour/updating-data/imperatively-modifying-linked-fields/)

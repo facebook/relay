@@ -1,0 +1,48 @@
+//- src/ServerMatch.js
+
+// `@match` on a field and `@module` on a spread inside a server query are
+// outside the server-owned selection directive allowlist.
+graphql`query ServerMatchQuery @server {
+  me {
+    nameRenderer @match {
+      ...ServerMatch_plainRenderer @module(name: "PlainRenderer.react")
+    }
+  }
+}`
+
+graphql`fragment ServerMatch_plainRenderer on PlainUserNameRenderer @server {
+  plaintext
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "jsModuleFormat": "commonjs",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+scalar JSDependency
+
+type Query {
+  me: User
+}
+
+type User {
+  nameRenderer(supported: [String!]): UserNameRenderer
+}
+
+union UserNameRenderer = PlainUserNameRenderer
+
+type PlainUserNameRenderer {
+  plaintext: String
+  js(module: String!, id: String): JSDependency
+}

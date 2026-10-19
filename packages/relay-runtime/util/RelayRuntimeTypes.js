@@ -20,6 +20,7 @@ import type {
   ClientRequest,
   ConcreteRequest,
   ConcreteUpdatableQuery,
+  ServerRequest,
 } from './RelayConcreteNode';
 
 /**
@@ -42,6 +43,16 @@ export type OperationType = {
   readonly variables: Variables,
   readonly response: unknown,
   readonly rawResponse?: {...},
+};
+
+export type ClientOperationType = {
+  ...OperationType,
+  readonly $serverOperation?: empty,
+};
+
+export type ServerOperationType = {
+  ...OperationType,
+  readonly $serverOperation: true,
 };
 
 export type VariablesOf<T extends OperationType> = T['variables'];
@@ -116,6 +127,12 @@ declare export opaque type Query<
   out TData,
   TRawResponse = void,
 >: Operation<TVariables, TData, TRawResponse>;
+
+declare export opaque type ServerQuery<
+  in TVariables extends Variables,
+  out TData,
+  TRawResponse = void,
+>: ServerRequest;
 
 /**
  * Return type of graphql tag literals for client-only queries.

@@ -196,6 +196,7 @@ pub(crate) struct TypeSelectionFragmentSpread {
     // type of the fragment spread.
     pub(crate) type_condition_info: Option<TypeConditionInfo>,
     pub(crate) is_updatable_fragment_spread: bool,
+    pub(crate) is_server_fragment_spread: bool,
 }
 
 pub(crate) type TypeSelectionMap = IndexMap<TypeSelectionKey, TypeSelection>;

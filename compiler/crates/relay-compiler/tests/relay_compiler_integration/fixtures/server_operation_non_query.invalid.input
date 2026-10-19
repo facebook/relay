@@ -1,0 +1,36 @@
+//- src/ServerOperations.js
+
+graphql`mutation ServerMutation @server {
+  setName
+}`
+
+graphql`subscription ServerSubscription @server {
+  updatedName
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+type Mutation {
+  setName: String
+}
+
+type Subscription {
+  updatedName: String
+}

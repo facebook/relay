@@ -1,0 +1,51 @@
+==================================== INPUT ====================================
+//- src/ServerOperations.js
+
+graphql`mutation ServerMutation @server {
+  setName
+}`
+
+graphql`subscription ServerSubscription @server {
+  updatedName
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+type Mutation {
+  setName: String
+}
+
+type Subscription {
+  updatedName: String
+}
+==================================== OUTPUT ===================================
+✖︎ Directive 'server' not supported in this location. Supported location(s): QUERY, FRAGMENT_DEFINITION
+
+  src/ServerOperations.js:2:34
+    2 │ mutation ServerMutation @server {
+      │                          ^^^^^^
+    3 │   setName
+
+✖︎ Directive 'server' not supported in this location. Supported location(s): QUERY, FRAGMENT_DEFINITION
+
+  src/ServerOperations.js:6:42
+    6 │ subscription ServerSubscription @server {
+      │                                  ^^^^^^
+    7 │   updatedName

@@ -16,6 +16,8 @@ use relay_config::TypegenConfig;
 use crate::KEY_DATA;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_SERVER_FRAGMENT;
+use crate::KEY_SERVER_OPERATION;
 use crate::writer::AST;
 use crate::writer::FunctionTypeAssertion;
 use crate::writer::KeyValuePairProp;
@@ -306,6 +308,8 @@ impl TypeScriptPrinter {
                     if key_value_pair.key == *KEY_FRAGMENT_SPREADS
                         || key_value_pair.key == *KEY_FRAGMENT_TYPE
                         || key_value_pair.key == *KEY_DATA
+                        || key_value_pair.key == *KEY_SERVER_FRAGMENT
+                        || key_value_pair.key == *KEY_SERVER_OPERATION
                     {
                         write!(&mut self.result, "\" {}\"", key_value_pair.key)?;
                     } else {

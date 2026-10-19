@@ -1,0 +1,47 @@
+==================================== INPUT ====================================
+//- src/ServerUnmasked.js
+
+// `@relay(mask: false)` on a client fragment spread would inline the client
+// fragment's selections into the server query without an aliased
+// client-component boundary.
+graphql`query ServerUnmaskedQuery @server {
+  me {
+    ...ServerUnmasked_user @relay(mask: false)
+  }
+}`
+
+graphql`fragment ServerUnmasked_user on User {
+  name
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}
+==================================== OUTPUT ===================================
+✖︎ Server-owned document `ServerUnmaskedQuery` cannot unmask its spread of `ServerUnmasked_user` with `@relay`: an unmasked spread inlines the fragment's selections into the server-owned document instead of crossing an aliased client-component boundary.
+
+  src/ServerUnmasked.js:7:28
+    6 │   me {
+    7 │     ...ServerUnmasked_user @relay(mask: false)
+      │                            ^^^^^^
+    8 │   }

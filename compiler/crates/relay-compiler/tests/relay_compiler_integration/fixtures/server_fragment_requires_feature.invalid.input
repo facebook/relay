@@ -1,0 +1,25 @@
+//- src/ServerFragment.js
+
+graphql`fragment ServerFragment_user on User @server {
+  name
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript"
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+}

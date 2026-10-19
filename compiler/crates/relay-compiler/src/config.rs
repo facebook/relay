@@ -47,6 +47,7 @@ pub use relay_config::PersistConfig;
 pub use relay_config::ProcessPersistConfig;
 pub use relay_config::ProjectConfig;
 use relay_config::ProjectName;
+use relay_config::RelayRscProjectConfig;
 pub use relay_config::RemotePersistConfig;
 use relay_config::ResolversSchemaModuleConfig;
 use relay_config::SchemaConfig;
@@ -750,6 +751,11 @@ impl Config {
                     None => None,
                 };
 
+                let feature_flags = Arc::new(feature_flags_for_project(
+                    config_file_project.feature_flags,
+                    &config_file_feature_flags,
+                    is_multi_project,
+                ));
                 let project_config = ProjectConfig {
                     name: project_name,
                     base: config_file_project.base,
@@ -773,11 +779,8 @@ impl Config {
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
                     test_path_regex,
-                    feature_flags: Arc::new(feature_flags_for_project(
-                        config_file_project.feature_flags,
-                        &config_file_feature_flags,
-                        is_multi_project,
-                    )),
+                    feature_flags,
+                    relay_rsc: config_file_project.relay_rsc,
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
                     relativize_js_module_paths: config_file_project.relativize_js_module_paths,
@@ -1098,6 +1101,7 @@ fn unify_roots(mut paths: Vec<PathBuf>) -> Vec<PathBuf> {
 #[cfg(test)]
 mod test {
     use common::FeatureFlag;
+    use relay_config::RelayRscCapabilities;
 
     use super::*;
 
@@ -1154,6 +1158,163 @@ mod test {
                 .disable_deduping_common_structures_in_raw_response_types
                 .is_fully_enabled()
         );
+    }
+
+    fn relay_rsc_capabilities_from_config(config: &str) -> Option<RelayRscCapabilities> {
+        Config::from_string_for_test(config)
+            .expect("should parse Relay RSC config")
+            .projects
+            .values()
+            .next()
+            .expect("should contain one project")
+            .relay_rsc_capabilities()
+    }
+
+    #[test]
+    fn relay_rsc_is_project_gated_and_defaults_to_nextjs() {
+        let directly_constructed_project = ProjectConfig {
+            feature_flags: Arc::new(FeatureFlags {
+                enable_relay_rsc: true,
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+        let nextjs_capabilities = RelayRscCapabilities {
+            allow_client_rooted_operations: false,
+            allow_incremental_delivery: true,
+            enable_cells: false,
+        };
+
+        assert_eq!(
+            directly_constructed_project.relay_rsc_capabilities(),
+            Some(nextjs_capabilities)
+        );
+        assert_eq!(
+            relay_rsc_capabilities_from_config(
+                r#"{
+                "src": ".",
+                "schema": ".",
+                "language": "flow",
+                "relayRsc": {"mode": "cometjs"}
+            }"#
+            ),
+            None
+        );
+        assert_eq!(
+            relay_rsc_capabilities_from_config(
+                r#"{
+                "src": ".",
+                "schema": ".",
+                "language": "flow",
+                "featureFlags": {"enable_relay_rsc": true}
+            }"#
+            ),
+            Some(nextjs_capabilities)
+        );
+    }
+
+    #[test]
+    fn relay_rsc_host_modes_resolve_defaults_and_overrides() {
+        let all_capabilities = RelayRscCapabilities {
+            allow_client_rooted_operations: true,
+            allow_incremental_delivery: true,
+            enable_cells: true,
+        };
+
+        assert_eq!(
+            relay_rsc_capabilities_from_config(
+                r#"{
+                "src": ".",
+                "schema": ".",
+                "language": "flow",
+                "featureFlags": {"enable_relay_rsc": true},
+                "relayRsc": {"mode": "cometjs"}
+            }"#
+            ),
+            Some(all_capabilities)
+        );
+        assert_eq!(
+            relay_rsc_capabilities_from_config(
+                r#"{
+                "src": ".",
+                "schema": ".",
+                "language": "flow",
+                "featureFlags": {"enable_relay_rsc": true},
+                "relayRsc": {
+                    "mode": "nextjs",
+                    "allowClientRootedOperations": true,
+                    "enableCells": true
+                }
+            }"#
+            ),
+            Some(all_capabilities)
+        );
+        assert_eq!(
+            relay_rsc_capabilities_from_config(
+                r#"{
+                "src": ".",
+                "schema": ".",
+                "language": "flow",
+                "featureFlags": {"enable_relay_rsc": true},
+                "relayRsc": {
+                    "mode": "cometjs",
+                    "allowIncrementalDelivery": false
+                }
+            }"#
+            ),
+            Some(RelayRscCapabilities {
+                allow_client_rooted_operations: true,
+                allow_incremental_delivery: false,
+                enable_cells: true,
+            })
+        );
+    }
+
+    #[test]
+    fn relay_rsc_config_resolves_in_multi_project_files() {
+        assert_eq!(
+            relay_rsc_capabilities_from_config(
+                r#"{
+                "sources": {"src": "app"},
+                "projects": {
+                    "app": {
+                        "schema": ".",
+                        "language": "flow",
+                        "featureFlags": {"enable_relay_rsc": true},
+                        "relayRsc": {
+                            "mode": "cometjs",
+                            "enableCells": false
+                        }
+                    }
+                }
+            }"#
+            ),
+            Some(RelayRscCapabilities {
+                allow_client_rooted_operations: true,
+                allow_incremental_delivery: true,
+                enable_cells: false,
+            })
+        );
+    }
+
+    #[test]
+    fn relay_rsc_rejects_unknown_configuration() {
+        for invalid_relay_rsc in [
+            r#"{"mode": "unknown"}"#,
+            r#"{"mode": "nextjs", "unknownSetting": true}"#,
+        ] {
+            let config = format!(
+                r#"{{
+                    "src": ".",
+                    "schema": ".",
+                    "language": "flow",
+                    "relayRsc": {invalid_relay_rsc}
+                }}"#,
+            );
+
+            Config::from_string_for_test(&config)
+                .expect_err("unknown Relay RSC configuration should be rejected");
+        }
     }
 
     /// Asserts the consume-once invariant of `load_saved_state_file` and
@@ -1569,6 +1730,10 @@ pub struct SingleProjectConfigFile {
     #[serde(default)]
     pub feature_flags: Option<FeatureFlags>,
 
+    /// Relay RSC host defaults and project-specific capability overrides.
+    #[serde(default)]
+    pub relay_rsc: RelayRscProjectConfig,
+
     #[serde(default)]
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
 
@@ -1599,6 +1764,7 @@ impl Default for SingleProjectConfigFile {
             js_module_format: JsModuleFormat::CommonJS,
             relativize_js_module_paths: true,
             feature_flags: None,
+            relay_rsc: Default::default(),
             module_import_config: Default::default(),
             resolvers_schema_module: Default::default(),
             no_source_control: Some(false),
@@ -1683,6 +1849,7 @@ impl SingleProjectConfigFile {
             typegen_config: self.typegen_config,
             js_module_format: self.js_module_format,
             feature_flags: self.feature_flags,
+            relay_rsc: self.relay_rsc,
             module_import_config: self.module_import_config,
             relativize_js_module_paths: self.relativize_js_module_paths,
             resolvers_schema_module: self.resolvers_schema_module,
@@ -1836,6 +2003,10 @@ pub struct ConfigFileProject {
     /// WARNING! These are not stable and may change at any time.
     #[serde(default)]
     pub feature_flags: Option<FeatureFlags>,
+
+    /// Relay RSC host defaults and project-specific capability overrides.
+    #[serde(default)]
+    pub relay_rsc: RelayRscProjectConfig,
 
     /// A generic rollout state for larger codegen changes. The default is to
     /// pass, otherwise it should be a number between 0 and 100 as a percentage.

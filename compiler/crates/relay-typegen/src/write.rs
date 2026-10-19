@@ -34,6 +34,7 @@ use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::RefetchableMetadata;
 use relay_transforms::RelayDirective;
+use relay_transforms::SERVER_DIRECTIVE;
 use schema::Schema;
 
 use crate::FUTURE_ENUM_VALUE;
@@ -42,6 +43,7 @@ use crate::KEY_DATA;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
 use crate::KEY_RAW_RESPONSE;
+use crate::KEY_SERVER_FRAGMENT;
 use crate::KEY_TYPENAME;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
 use crate::MaskStatus;
@@ -262,6 +264,10 @@ pub(crate) fn write_operation_type_exports_section(
         variables_identifier_key,
         response_identifier_key,
         raw_response_prop,
+        typegen_operation
+            .directives
+            .named(*SERVER_DIRECTIVE)
+            .is_some(),
     )?;
     writer.write_export_type(
         typegen_operation.name.item.0.lookup(),
@@ -520,11 +526,21 @@ pub(crate) fn write_fragment_type_exports_section(
         read_only: true,
         value: AST::FragmentReference(SortedStringKeyList::new(vec![fragment_name])),
     });
+    let mut ref_type_props = vec![ref_type_data_property, ref_type_fragment_spreads_property];
+    if fragment_definition
+        .directives
+        .named(*SERVER_DIRECTIVE)
+        .is_some()
+    {
+        ref_type_props.push(Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_SERVER_FRAGMENT,
+            optional: false,
+            read_only: true,
+            value: AST::RawType("true".intern()),
+        }));
+    }
     let is_plural_fragment = is_plural(fragment_definition);
-    let mut ref_type = AST::InexactObject(InexactObject::new(vec![
-        ref_type_data_property,
-        ref_type_fragment_spreads_property,
-    ]));
+    let mut ref_type = AST::InexactObject(InexactObject::new(ref_type_props));
     if is_plural_fragment {
         ref_type = AST::ReadOnlyArray(Box::new(ref_type));
     }

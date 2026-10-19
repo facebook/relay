@@ -55,6 +55,7 @@ use scope::format_local_variable;
 use thiserror::Error;
 
 use super::get_applied_fragment_name;
+use crate::ClientComponentBoundaryMetadata;
 use crate::RawResponseGenerationMode;
 use crate::RelayResolverMetadata;
 use crate::match_::DIRECTIVE_SPLIT_OPERATION;
@@ -342,7 +343,26 @@ impl Transformer<'_> for ApplyFragmentArgumentsTransform<'_, '_, '_> {
             };
         }
 
-        match self.apply_fragment(spread, fragment) {
+        let applied_fragment = self.apply_fragment(spread, fragment);
+
+        if self.is_normalization
+            && ClientComponentBoundaryMetadata::find(&spread.directives).is_some()
+        {
+            let Some(applied_fragment) = applied_fragment else {
+                return Transformed::Delete;
+            };
+
+            let arguments = self.transform_arguments(&spread.arguments);
+            let directives = self.transform_directives(&spread.directives);
+            return Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
+                fragment: applied_fragment.name,
+                arguments: arguments.replace_or_else(|| spread.arguments.clone()),
+                directives: directives.replace_or_else(|| spread.directives.clone()),
+                signature: Some(applied_fragment.as_ref().into()),
+            })));
+        }
+
+        match applied_fragment {
             Some(applied_fragment) => {
                 let directives = self
                     .transform_directives(&spread.directives)

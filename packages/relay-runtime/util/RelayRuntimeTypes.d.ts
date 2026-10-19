@@ -26,6 +26,14 @@ export interface OperationType {
     readonly rawResponse?: unknown | undefined;
 }
 
+export interface ClientOperationType extends OperationType {
+    readonly ' $serverOperation'?: never;
+}
+
+export interface ServerOperationType extends OperationType {
+    readonly ' $serverOperation': true;
+}
+
 export type VariablesOf<TQuery extends OperationType> = TQuery['variables'];
 
 export type DisposeFn = () => void;

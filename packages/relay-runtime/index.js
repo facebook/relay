@@ -226,6 +226,7 @@ export type {
   GeneratedNode,
   PreloadableConcreteRequest,
   RequestParameters,
+  ServerRequest,
 } from './util/RelayConcreteNode';
 export type {
   CacheConfig,
@@ -240,6 +241,8 @@ export type {
   Operation,
   OperationType,
   Query,
+  ServerOperationType,
+  ServerQuery,
   ClientQuery,
   RefetchableFragment,
   RenderPolicy,

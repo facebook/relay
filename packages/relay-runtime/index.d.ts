@@ -157,6 +157,7 @@ export {
     GeneratedNode,
     PreloadableConcreteRequest,
     RequestParameters,
+    ServerRequest,
 } from './util/RelayConcreteNode';
 export { RelayReplaySubject as ReplaySubject } from './util/RelayReplaySubject';
 export * from './util/RelayRuntimeTypes';

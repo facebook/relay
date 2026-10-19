@@ -1,0 +1,37 @@
+//- src/ServerCatch.js
+
+// `@catch` on a field inside a server fragment is outside the server-owned
+// selection directive allowlist, like `@catch` on the fragment itself.
+graphql`query ServerCatchQuery @server {
+  me {
+    ...ServerCatch_user
+  }
+}`
+
+graphql`fragment ServerCatch_user on User @server {
+  name @catch
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}

@@ -31,6 +31,9 @@ use crate::generate_relay_resolvers_operations_for_nested_objects::generate_rela
 use crate::generate_relay_resolvers_root_fragment_split_operation::generate_relay_resolvers_root_fragment_split_operation;
 use crate::match_::hash_supported_argument;
 use crate::relay_resolvers_abstract_types::relay_resolvers_abstract_types;
+use crate::server_documents::annotate_server_fragment_spreads;
+use crate::server_documents::validate_server_documents;
+use crate::server_documents::validate_server_operation_incremental_delivery;
 use crate::skip_updatable_queries::skip_updatable_queries;
 
 #[derive(Debug, Clone)]
@@ -175,6 +178,15 @@ fn apply_common_transforms(
         )
     })?;
 
+    log_event.time("validate_server_documents", || {
+        validate_server_documents(&program, project_config.relay_rsc_capabilities().is_some())
+    })?;
+    log_event.time("validate_server_operation_incremental_delivery", || {
+        validate_server_operation_incremental_delivery(
+            &program,
+            &project_config.schema_config.defer_stream_interface,
+        )
+    })?;
     program = log_event.time("transform_connections", || {
         transform_connections(
             &program,
@@ -214,6 +226,14 @@ fn apply_common_transforms(
             &base_fragment_names,
             false,
             transferrable_refetchable_query_directives,
+        )
+    })?;
+
+    program = log_event.time("infer_client_component_boundaries", || {
+        infer_client_component_boundaries(
+            &program,
+            &project_config.feature_flags.no_inline,
+            &base_fragment_names,
         )
     })?;
 
@@ -471,6 +491,7 @@ fn apply_normalization_transforms(
             &base_fragment_names,
         )
     })?;
+
     if let Some(print_stats) = maybe_print_stats {
         print_stats("apply_fragment_arguments", &program);
     }
@@ -549,6 +570,13 @@ fn apply_normalization_transforms(
         &log_event,
         maybe_print_stats,
     )?;
+
+    program = log_event.time("generate_server_operation_handoffs", || {
+        generate_server_operation_handoffs(
+            &program,
+            project_config.schema_config.node_interface_id_field,
+        )
+    })?;
 
     log_event.complete();
 
@@ -776,6 +804,9 @@ fn apply_typegen_transforms(
             transferrable_refetchable_query_directives,
         )
     })?;
+    program = log_event.time("annotate_server_fragment_spreads", || {
+        annotate_server_fragment_spreads(&program)
+    });
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, &base_fragment_names)
     });

@@ -1,0 +1,54 @@
+//- src/ServerUser.js
+
+graphql`query ServerUserQuery(
+  $scale: Int!
+  $showName: Boolean!
+) @server {
+  me {
+    key
+    name @include(if: $showName)
+    ...ServerPanel_user @arguments(scale: $scale)
+  }
+}`
+
+graphql`fragment ServerPanel_user on User
+@server
+@argumentDefinitions(scale: {type: "Int!"}) {
+  key
+  ...ClientCard_user
+    @arguments(scale: $scale)
+    @alias(as: "clientCard")
+}`
+
+graphql`fragment ClientCard_user on User
+@argumentDefinitions(scale: {type: "Int!"}) {
+  greeting(scale: $scale)
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "flow",
+      "schemaConfig": {
+        "nodeInterfaceIdField": "key"
+      },
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  key: ID!
+  name: String
+  greeting(scale: Int!): String
+}

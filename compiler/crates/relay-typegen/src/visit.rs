@@ -66,6 +66,7 @@ use relay_transforms::NoInlineFragmentSpreadMetadata;
 use relay_transforms::RelayResolverMetadata;
 use relay_transforms::RequiredMetadataDirective;
 use relay_transforms::ResolverOutputTypeInfo;
+use relay_transforms::SERVER_DIRECTIVE_FOR_TYPEGEN;
 use relay_transforms::TypeConditionInfo;
 use relay_transforms::UPDATABLE_DIRECTIVE_FOR_TYPEGEN;
 use relay_transforms::relay_resolvers::ResolverSchemaGenType;
@@ -85,6 +86,8 @@ use crate::KEY_CLIENTID;
 use crate::KEY_DATA_ID;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_SERVER_FRAGMENT;
+use crate::KEY_SERVER_OPERATION;
 use crate::KEY_TYPENAME;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
 use crate::LIVE_STATE_TYPE;
@@ -337,6 +340,10 @@ fn visit_fragment_spread(
             is_updatable_fragment_spread: fragment_spread
                 .directives
                 .named(*UPDATABLE_DIRECTIVE_FOR_TYPEGEN)
+                .is_some(),
+            is_server_fragment_spread: fragment_spread
+                .directives
+                .named(*SERVER_DIRECTIVE_FOR_TYPEGEN)
                 .is_some(),
         });
 
@@ -3007,6 +3014,8 @@ fn merge_selection_maps(
 fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item = TypeSelection> {
     let mut regular_fragment_spreads = None;
     let mut updatable_fragment_spreads = None;
+    let mut saw_server_fragment_spread = false;
+    let mut emitted_server_fragment = false;
     let mut props = props.into_iter();
     std::iter::from_fn(move || {
         while let Some(prop) = props.next() {
@@ -3016,6 +3025,9 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                         .get_or_insert_with(Vec::new)
                         .push(inline_fragment.fragment_name);
                 } else {
+                    if inline_fragment.is_server_fragment_spread {
+                        saw_server_fragment_spread = true;
+                    }
                     regular_fragment_spreads
                         .get_or_insert_with(Vec::new)
                         .push(inline_fragment.fragment_name);
@@ -3035,6 +3047,18 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
             return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: *KEY_FRAGMENT_SPREADS,
                 value: AST::FragmentReference(SortedStringKeyList::new(refs_as_stringkeys)),
+                special_field: None,
+                conditional: false,
+                concrete_type: None,
+                abstract_type: None,
+                is_result_type: false,
+            }));
+        }
+        if saw_server_fragment_spread && !emitted_server_fragment {
+            emitted_server_fragment = true;
+            return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
+                field_name_or_alias: *KEY_SERVER_FRAGMENT,
+                value: AST::RawType("true".intern()),
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
@@ -3115,6 +3139,7 @@ pub(crate) fn get_operation_type_export(
     variables_identifier_key: StringKey,
     response_identifier_key: StringKey,
     raw_response_prop: Option<KeyValuePairProp>,
+    is_server_operation: bool,
 ) -> Result<ExactObject, std::fmt::Error> {
     let mut operation_types = vec![
         Prop::KeyValuePair(KeyValuePairProp {
@@ -3132,6 +3157,14 @@ pub(crate) fn get_operation_type_export(
     ];
     if let Some(raw_response_prop) = raw_response_prop {
         operation_types.push(raw_response_prop.into());
+    }
+    if is_server_operation {
+        operation_types.push(Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_SERVER_OPERATION,
+            read_only: true,
+            optional: false,
+            value: AST::RawType("true".intern()),
+        }));
     }
 
     Ok(ExactObject::new(operation_types))

@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+//- src/ServerFragment.js
+
+graphql`fragment ServerFragment_user on User @server {
+  name
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript"
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+}
+==================================== OUTPUT ===================================
+✖︎ Server-owned fragment `ServerFragment_user` requires the `enable_relay_rsc` feature flag.
+
+  src/ServerFragment.js:2:46
+    2 │ fragment ServerFragment_user on User @server {
+      │                                      ^^^^^^^
+    3 │   name

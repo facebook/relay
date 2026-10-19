@@ -29,6 +29,15 @@ export type ConcreteRequest = {
   readonly fragment: ReaderFragment,
   readonly operation: NormalizationOperation,
   readonly params: RequestParameters,
+  readonly serverHandoff?: unknown,
+};
+
+export type ServerRequest = {
+  readonly kind: 'Request',
+  readonly fragment: ReaderFragment,
+  readonly operation: NormalizationOperation,
+  readonly params: RequestParameters,
+  readonly serverHandoff: unknown,
 };
 
 export type ConcreteUpdatableQuery = {
@@ -120,6 +129,7 @@ export type ClientRequest = {
 
 export type GeneratedNode =
   | ConcreteRequest
+  | ServerRequest
   | ReaderFragment
   | ReaderInlineDataFragment
   | NormalizationSplitOperation

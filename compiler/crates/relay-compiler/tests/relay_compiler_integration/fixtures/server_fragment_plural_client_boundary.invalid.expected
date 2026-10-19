@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+//- src/Fragments.js
+
+graphql`fragment ServerParent_user on User @server {
+  ...ClientCards_user
+}`
+
+graphql`fragment ClientCards_user on User @relay(plural: true) {
+  name
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+}
+==================================== OUTPUT ===================================
+✖︎ Server-owned document `ServerParent_user` cannot hand off plural client fragment `ClientCards_user`; spread it from each singular item instead.
+
+  src/Fragments.js:3:6
+    2 │ fragment ServerParent_user on User @server {
+    3 │   ...ClientCards_user
+      │      ^^^^^^^^^^^^^^^^
+    4 │ }

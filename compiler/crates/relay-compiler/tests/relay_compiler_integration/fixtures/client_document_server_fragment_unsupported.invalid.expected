@@ -1,0 +1,43 @@
+==================================== INPUT ====================================
+//- src/Query.js
+
+graphql`query ClientQuery {
+  me {
+    ...ServerChild_user
+  }
+}`
+
+graphql`fragment ServerChild_user on User @server {
+  name
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+}
+==================================== OUTPUT ===================================
+✖︎ Client-owned document `ClientQuery` cannot spread server-owned fragment `ServerChild_user`; client-rooted Relay RSC is not yet supported by this compiler slice.
+
+  src/Query.js:4:8
+    3 │   me {
+    4 │     ...ServerChild_user
+      │        ^^^^^^^^^^^^^^^^
+    5 │   }

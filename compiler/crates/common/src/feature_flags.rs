@@ -94,6 +94,11 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_relay_resolver_mutations: bool,
 
+    /// Enable Relay React Server Component compilation for this project.
+    /// Host-specific behavior is configured through `relayRsc`.
+    #[serde(default)]
+    pub enable_relay_rsc: bool,
+
     /// Perform strict validations when custom scalar types are used
     #[serde(default)]
     pub enable_strict_custom_scalars: bool,
@@ -315,6 +320,7 @@ impl Default for FeatureFlags {
             enable_resolver_normalization_ast: Default::default(),
             enable_exec_time_resolvers_directive: Default::default(),
             enable_relay_resolver_mutations: Default::default(),
+            enable_relay_rsc: Default::default(),
             enable_strict_custom_scalars: Default::default(),
             allow_resolvers_in_mutation_response: Default::default(),
             allow_required_in_mutation_response: Default::default(),

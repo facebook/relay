@@ -1,0 +1,40 @@
+//- src/ServerUser.ts
+
+graphql`query ServerUserQuery @server {
+  actor {
+    ... on User {
+      ...ClientCard_user @alias(as: "clientCard")
+    }
+  }
+}`
+
+graphql`fragment ClientCard_user on User {
+  name
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "typescript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  actor: Actor
+}
+
+interface Actor {
+  name: String
+}
+
+type User implements Actor {
+  name: String
+}

@@ -245,7 +245,7 @@ pub fn generate_updatable_query(
         &project_config.typegen_config.language,
         &mut section,
         "node",
-        generated_types.ast_type,
+        &generated_types.ast_type,
         &request,
     )?;
     content_sections.push(ContentSection::Generic(section));
@@ -432,7 +432,7 @@ pub fn generate_operation(
         &project_config.typegen_config.language,
         &mut section,
         "node",
-        generated_types.ast_type,
+        &generated_types.ast_type,
         &request,
     )?;
     content_sections.push(ContentSection::Generic(section));
@@ -795,7 +795,7 @@ fn generate_read_only_fragment(
         &project_config.typegen_config.language,
         &mut section,
         "node",
-        generated_types.ast_type,
+        &generated_types.ast_type,
         &fragment,
     )?;
     content_sections.push(ContentSection::Generic(section));

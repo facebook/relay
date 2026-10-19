@@ -45,6 +45,7 @@ export type ReaderFragment = {
     readonly mask?: boolean,
     readonly plural?: boolean,
     readonly refetch?: ReaderRefetchMetadata,
+    readonly serverFragment?: true,
     readonly vultureHash?: string,
   },
   readonly argumentDefinitions: ReadonlyArray<ReaderArgumentDefinition>,

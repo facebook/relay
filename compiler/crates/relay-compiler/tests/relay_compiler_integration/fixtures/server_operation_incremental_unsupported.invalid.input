@@ -1,0 +1,53 @@
+//- src/ServerFriends.js
+
+graphql`query ServerFriendsQuery @server {
+  friends @stream(initialCount: 1, label: "ServerFriendsQuery$friends") {
+    name
+  }
+}`
+
+graphql`query ServerDeferredQuery @server {
+  me {
+    ...DeferredUser_user @defer(label: "ServerDeferredQuery$user")
+  }
+}`
+
+graphql`fragment DeferredUser_user on User @server {
+  name
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+directive @stream(
+  label: String!
+  initialCount: Int!
+  if: Boolean = true
+  useCustomizedBatch: Boolean = false
+) on FIELD
+
+directive @defer(
+  label: String!
+  if: Boolean = true
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+type Query {
+  friends: [User]
+  me: User
+}
+
+type User {
+  name: String
+}

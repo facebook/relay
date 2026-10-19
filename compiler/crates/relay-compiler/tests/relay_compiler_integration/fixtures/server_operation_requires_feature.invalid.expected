@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+//- src/ServerUser.js
+
+graphql`query ServerUserQuery @server {
+  me {
+    name
+  }
+}`
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript"
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  name: String
+}
+==================================== OUTPUT ===================================
+✖︎ Server-owned operation `ServerUserQuery` requires the `enable_relay_rsc` feature flag.
+
+  src/ServerUser.js:2:31
+    2 │ query ServerUserQuery @server {
+      │                       ^^^^^^^
+    3 │   me {

@@ -172,6 +172,16 @@
           "type": "boolean",
           "default": true
         },
+        "relayRsc": {
+          "description": "Relay RSC host defaults and project-specific capability overrides.",
+          "$ref": "#/$defs/RelayRscProjectConfig",
+          "default": {
+            "allowClientRootedOperations": null,
+            "allowIncrementalDelivery": null,
+            "enableCells": null,
+            "mode": "nextjs"
+          }
+        },
         "requireCustomScalarTypes": {
           "description": "Require all GraphQL scalar types mapping to be defined, will throw\nif a GraphQL scalar type doesn't have a JS type",
           "type": "boolean",
@@ -714,6 +724,11 @@
           "type": "boolean",
           "default": false
         },
+        "enable_relay_rsc": {
+          "description": "Enable Relay React Server Component compilation for this project.\nHost-specific behavior is configured through `relayRsc`.",
+          "type": "boolean",
+          "default": false
+        },
         "enable_resolver_normalization_ast": {
           "description": "Fully build the normalization AST for Resolvers",
           "type": "boolean",
@@ -1031,6 +1046,7 @@
             "enable_exec_time_resolvers_directive": false,
             "enable_fragment_argument_transform": false,
             "enable_relay_resolver_mutations": false,
+            "enable_relay_rsc": false,
             "enable_resolver_normalization_ast": false,
             "enable_shadow_resolvers": {
               "kind": "disabled"
@@ -1244,6 +1260,57 @@
           }
         }
       ]
+    },
+    "RelayRscHostMode": {
+      "description": "The host integration whose Relay RSC capability defaults should be used.",
+      "oneOf": [
+        {
+          "description": "A server-owned integration with no client-rooted operations or Cells by\ndefault. Incremental delivery is enabled by default.",
+          "type": "string",
+          "const": "nextjs"
+        },
+        {
+          "description": "The CometJS integration, including client-rooted operations,\nincremental delivery, and Cells by default.",
+          "type": "string",
+          "const": "cometjs"
+        }
+      ]
+    },
+    "RelayRscProjectConfig": {
+      "description": "Host defaults and project-specific overrides for Relay RSC compilation.",
+      "type": "object",
+      "properties": {
+        "allowClientRootedOperations": {
+          "description": "Whether client-rooted operations may reach Relay RSC fields.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "allowIncrementalDelivery": {
+          "description": "Whether the host accepts Relay's supported incremental RSC responses.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "enableCells": {
+          "description": "Whether the compiler may generate Relay RSC Cell definitions.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "mode": {
+          "description": "Selects the host capability defaults. Defaults to `nextjs`.",
+          "$ref": "#/$defs/RelayRscHostMode",
+          "default": "nextjs"
+        }
+      },
+      "additionalProperties": false
     },
     "RemotePersistConfig": {
       "description": "Configuration for remote persistence of GraphQL documents.",
@@ -1658,6 +1725,16 @@
           "description": "Whether to treat all JS module names as relative to './' (true) or not.\ndefault: true",
           "type": "boolean",
           "default": true
+        },
+        "relayRsc": {
+          "description": "Relay RSC host defaults and project-specific capability overrides.",
+          "$ref": "#/$defs/RelayRscProjectConfig",
+          "default": {
+            "allowClientRootedOperations": null,
+            "allowIncrementalDelivery": null,
+            "enableCells": null,
+            "mode": "nextjs"
+          }
         },
         "requireCustomScalarTypes": {
           "description": "Require all GraphQL scalar types mapping to be defined, will throw\nif a GraphQL scalar type doesn't have a JS type",

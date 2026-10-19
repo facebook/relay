@@ -21,6 +21,7 @@ use graphql_ir::Transformer;
 use graphql_ir::node_identifier::LocationAgnosticHash;
 use graphql_ir::node_identifier::LocationAgnosticPartialEq;
 
+use crate::ClientComponentBoundaryMetadata;
 use crate::NoInlineFragmentSpreadMetadata;
 use crate::RelayLocationAgnosticBehavior;
 
@@ -140,6 +141,7 @@ impl Transformer<'_> for InlineFragmentsTransform<'_> {
             Selection::FragmentSpread(selection) => {
                 let should_skip_inline = selection.directives.iter().any(|directive| {
                     directive.name.item == NoInlineFragmentSpreadMetadata::directive_name()
+                        || directive.name.item == ClientComponentBoundaryMetadata::directive_name()
                 });
                 if should_skip_inline {
                     Transformed::Keep

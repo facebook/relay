@@ -45,6 +45,7 @@ use relay_config::ProjectConfig;
 use relay_config::Surface;
 use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use relay_transforms::CatchMetadataDirective;
+use relay_transforms::ClientComponentBoundaryMetadata;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::ClientEdgeMetadataDirective;
 use relay_transforms::ClientEdgeModelResolver;
@@ -67,6 +68,8 @@ use relay_transforms::RelayDirective;
 use relay_transforms::RelayResolverMetadata;
 use relay_transforms::RequiredMetadataDirective;
 use relay_transforms::ResolverOutputTypeInfo;
+use relay_transforms::SERVER_DIRECTIVE;
+use relay_transforms::ServerOperationHandoffMetadata;
 use relay_transforms::StreamDirective;
 use relay_transforms::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
 use relay_transforms::extract_connection_metadata_from_directive;
@@ -161,6 +164,7 @@ pub fn build_request(
         project_config,
         definition_source_location,
     );
+    let server_handoff = operation_builder.build_server_handoff(operation);
     let operation_primitive = Primitive::Key(operation_builder.build_operation(operation));
     let mut fragment_builder = CodegenBuilder::new(
         schema,
@@ -169,14 +173,22 @@ pub fn build_request(
         project_config,
         definition_source_location,
     );
-    let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
+    let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true, false));
 
-    ast_builder.intern(Ast::Object(object! {
+    let mut request = object! {
         fragment: fragment,
         kind: Primitive::String(CODEGEN_CONSTANTS.request),
         operation: operation_primitive,
         params: Primitive::Key(request_parameters),
-    }))
+    };
+    if let Some(server_handoff) = server_handoff {
+        request.push(ObjectEntry {
+            key: CODEGEN_CONSTANTS.server_handoff,
+            value: server_handoff,
+        });
+    }
+
+    ast_builder.intern(Ast::Object(request))
 }
 
 pub fn build_preloadable_request(
@@ -229,7 +241,11 @@ pub fn build_fragment(
         project_config,
         definition_source_location,
     );
-    builder.build_fragment(fragment, false)
+    builder.build_fragment(
+        fragment,
+        false,
+        fragment.directives.named(*SERVER_DIRECTIVE).is_some(),
+    )
 }
 
 pub fn build_resolvers_schema(
@@ -635,6 +651,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         &mut self,
         fragment: &FragmentDefinition,
         skip_connection_metadata: bool,
+        emit_server_fragment_marker: bool,
     ) -> AstKey {
         let mut context = ContextualMetadata::default();
         if fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_some() {
@@ -647,7 +664,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     &fragment.variable_definitions,
                     &fragment.used_global_variables),
             kind: Primitive::String(CODEGEN_CONSTANTS.fragment_value),
-            metadata: self.build_fragment_metadata(context, fragment, skip_connection_metadata),
+            metadata: self.build_fragment_metadata(
+                context,
+                fragment,
+                skip_connection_metadata,
+                emit_server_fragment_marker,
+            ),
             name: Primitive::String(fragment.name.item.0),
             selections: selections,
             type_: Primitive::String(self.schema.get_type_name(fragment.type_condition)),
@@ -669,6 +691,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         context: ContextualMetadata,
         fragment: &FragmentDefinition,
         skip_connection_metadata: bool,
+        emit_server_fragment_marker: bool,
     ) -> Primitive {
         let connection_metadata = extract_connection_metadata_from_directive(&fragment.directives);
 
@@ -680,6 +703,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         };
 
         let mut metadata = self.build_internal_metadata_directives(&fragment.directives);
+
+        if emit_server_fragment_marker {
+            metadata.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.server_fragment,
+                value: Primitive::Bool(true),
+            });
+        }
 
         if !skip_connection_metadata && let Some(connection_metadata) = &connection_metadata {
             metadata.push(self.build_connection_metadata(connection_metadata))
@@ -1518,6 +1548,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     }
 
     fn build_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
+        if self.variant == CodegenVariant::Normalization
+            && let Some(boundary) = ClientComponentBoundaryMetadata::find(&frag_spread.directives)
+        {
+            return self.build_client_component_fragment_spread(frag_spread, boundary);
+        }
         if let Some(no_inline_metadata) =
             NoInlineFragmentSpreadMetadata::find(&frag_spread.directives)
         {
@@ -1593,6 +1628,82 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         } else {
             primitive
         }
+    }
+
+    fn build_client_component_fragment_spread(
+        &mut self,
+        frag_spread: &FragmentSpread,
+        boundary: &ClientComponentBoundaryMetadata,
+    ) -> Primitive {
+        let fragment = self.build_graphql_artifact_dependency(WithLocation::new(
+            boundary.fragment_location,
+            boundary.normalization_operation.into(),
+        ));
+        let kind = Primitive::String(CODEGEN_CONSTANTS.fragment_spread);
+
+        Primitive::Key(match self.build_arguments(&frag_spread.arguments) {
+            None => self.object(object! {
+                fragment: fragment,
+                kind: kind,
+            }),
+            Some(args) => self.object(object! {
+                args: Primitive::Key(args),
+                fragment: fragment,
+                kind: kind,
+            }),
+        })
+    }
+
+    fn build_server_handoff(&mut self, operation: &OperationDefinition) -> Option<Primitive> {
+        let handoff = ServerOperationHandoffMetadata::find(&operation.directives)?;
+        let client_fragments = handoff
+            .client_fragments
+            .iter()
+            .map(|client_fragment| {
+                let client_normalization =
+                    self.build_graphql_artifact_dependency(WithLocation::new(
+                        client_fragment.fragment_location,
+                        client_fragment.client_normalization_operation.into(),
+                    ));
+                let fragment = self.build_graphql_artifact_dependency(WithLocation::new(
+                    client_fragment.fragment_location,
+                    client_fragment.fragment.into(),
+                ));
+                Primitive::Key(self.object(object! {
+                    client_normalization: client_normalization,
+                    fragment: fragment,
+                }))
+            })
+            .collect();
+        let client_normalization = self.build_graphql_artifact_dependency(WithLocation::new(
+            operation.name.location,
+            handoff.client_normalization_operation.into(),
+        ));
+        let client_fragments = Primitive::Key(self.array(client_fragments));
+
+        Some(Primitive::Key(self.object(object! {
+            client_fragments: client_fragments,
+            client_normalization: client_normalization,
+        })))
+    }
+
+    fn build_graphql_artifact_dependency(
+        &self,
+        definition_name: WithLocation<ExecutableDefinitionName>,
+    ) -> Primitive {
+        let path = self.project_config.js_module_import_identifier(
+            &self
+                .project_config
+                .artifact_path_for_definition(self.definition_source_location),
+            &self.project_config.create_path_for_artifact(
+                definition_name.location.source_location(),
+                definition_name.item.to_string(),
+            ),
+        );
+        Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Path {
+            path,
+            name: definition_name.item,
+        })
     }
 
     /// Where a resolver's function is imported from, and the name the generated

@@ -19,6 +19,8 @@ export type FeatureFlags = {
   ENABLE_DO_NOT_WRAP_LIVE_QUERY: boolean,
   ENABLE_NOTIFY_SUBSCRIPTION: boolean,
   BATCH_ASYNC_MODULE_UPDATES_FN: ?(() => void) => Disposable,
+  // @deprecated No longer read: containers always subscribe on commit. Kept
+  // until callers stop setting it; will be removed.
   ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT: boolean,
   MAX_DATA_ID_LENGTH: ?number,
   STRING_INTERN_LEVEL: number,

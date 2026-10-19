@@ -48,7 +48,6 @@ const React = require('react');
 const {
   ConnectionInterface,
   Observable,
-  RelayFeatureFlags,
   createFragmentSpecResolver,
   createOperationDescriptor,
   getDataIDsFromObject,
@@ -365,24 +364,13 @@ function createContainerWithFragments<
       this._refetchSubscription = null;
       this._refetchVariables = null;
 
-      if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
-        this._resolver = createFragmentSpecResolver(
-          relayContext,
-          containerName,
-          fragments,
-          props,
-          rootIsQueryRenderer,
-        );
-      } else {
-        this._resolver = createFragmentSpecResolver(
-          relayContext,
-          containerName,
-          fragments,
-          props,
-          rootIsQueryRenderer,
-          this._handleFragmentDataUpdate,
-        );
-      }
+      this._resolver = createFragmentSpecResolver(
+        relayContext,
+        containerName,
+        fragments,
+        props,
+        rootIsQueryRenderer,
+      );
       this.state = {
         contextForChildren: relayContext,
         data: this._resolver.resolve(),
@@ -396,18 +384,14 @@ function createContainerWithFragments<
 
     componentDidMount() {
       this._isUnmounted = false;
-      if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
-        this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
-      }
+      this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
     }
 
     componentDidUpdate(prevProps: Props, prevState: ContainerState) {
-      if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
-        if (prevState.resolverGeneration !== this.state.resolverGeneration) {
-          this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
-        } else {
-          this._rerenderIfStoreHasChanged();
-        }
+      if (prevState.resolverGeneration !== this.state.resolverGeneration) {
+        this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
+      } else {
+        this._rerenderIfStoreHasChanged();
       }
     }
 
@@ -442,24 +426,13 @@ function createContainerWithFragments<
       ) {
         this._cleanup();
         // Child containers rely on context.relay being mutated (for gDSFP).
-        if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
-          this._resolver = createFragmentSpecResolver(
-            relayContext,
-            containerName,
-            fragments,
-            nextProps,
-            rootIsQueryRenderer,
-          );
-        } else {
-          this._resolver = createFragmentSpecResolver(
-            relayContext,
-            containerName,
-            fragments,
-            nextProps,
-            rootIsQueryRenderer,
-            this._handleFragmentDataUpdate,
-          );
-        }
+        this._resolver = createFragmentSpecResolver(
+          relayContext,
+          containerName,
+          fragments,
+          nextProps,
+          rootIsQueryRenderer,
+        );
         this.setState(prevState => ({
           contextForChildren: relayContext,
           prevContext: relayContext,

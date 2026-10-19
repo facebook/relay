@@ -32,7 +32,6 @@ const {
 } = require('../util/handlePotentialSnapshotErrors');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
 const recycleNodesInto = require('../util/recycleNodesInto');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
@@ -139,9 +138,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
 
   setCallback(props: Props, callback: () => void): void {
     this._callback = callback;
-    if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
-      this.setProps(props);
-    }
+    this.setProps(props);
   }
 
   setProps(props: Props): void {
@@ -248,11 +245,7 @@ class SelectorResolver {
     this._environment = environment;
     this._rootIsQueryRenderer = rootIsQueryRenderer;
     this._selector = selector;
-    if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
-      if (subscribeOnConstruction) {
-        this._subscription = environment.subscribe(snapshot, this._onChange);
-      }
-    } else {
+    if (subscribeOnConstruction) {
       this._subscription = environment.subscribe(snapshot, this._onChange);
     }
   }

@@ -11,7 +11,6 @@
 'use strict';
 
 const {graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayStoreUtils = require('../RelayStoreUtils');
 
 describe('RelayStoreUtils', () => {
@@ -214,14 +213,6 @@ describe('RelayStoreUtils', () => {
   });
 
   describe('getHandleStorageKey', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = true;
-    });
-
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = false;
-    });
-
     it('creates a key with no arguments', () => {
       const UserQuery = graphql`
         query RelayStoreUtilsTest1Query {

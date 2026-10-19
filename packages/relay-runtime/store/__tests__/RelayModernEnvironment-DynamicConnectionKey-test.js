@@ -20,7 +20,6 @@ const {
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const {graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -52,8 +51,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = true;
-
         query = graphql`
           query RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery(
             $id: ID!
@@ -132,10 +129,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 network: RelayNetwork.create(fetch),
                 store,
               });
-      });
-
-      afterEach(() => {
-        RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = false;
       });
 
       it('publishes initial results to the store', () => {

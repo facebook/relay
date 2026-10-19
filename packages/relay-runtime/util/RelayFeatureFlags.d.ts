@@ -8,8 +8,6 @@
 import { Disposable } from './RelayRuntimeTypes';
 
 export interface FeatureFlags {
-    ENABLE_VARIABLE_CONNECTION_KEY: boolean;
-    ENABLE_RELAY_RESOLVERS: boolean;
     ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: boolean;
     ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: boolean;
     ENABLE_DO_NOT_WRAP_LIVE_QUERY: boolean;
@@ -32,7 +30,6 @@ export interface FeatureFlags {
     ENABLE_USE_PAGINATION_IS_LOADING_FIX: boolean;
     ENABLE_STORE_ID_COLLISION_LOGGING: boolean;
     DISALLOW_NESTED_UPDATES: boolean;
-    ENABLE_TYPENAME_PREFIXED_DATA_ID: boolean;
     CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: boolean;
     ENABLE_READER_FRAGMENTS_LOGGING: boolean;
 }

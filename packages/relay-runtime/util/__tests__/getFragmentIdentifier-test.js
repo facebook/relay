@@ -320,10 +320,6 @@ describe('getFragmentIdentifier Optimized', () => {
     });
   });
 
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = false;
-  });
-
   it('returns correct identifier when fragment ref is undefined', () => {
     const identifier = getFragmentIdentifier(singularFragment, undefined);
     expect(identifier).toEqual(

@@ -14,8 +14,6 @@
 import type {Disposable} from '../util/RelayRuntimeTypes';
 
 export type FeatureFlags = {
-  ENABLE_VARIABLE_CONNECTION_KEY: boolean,
-  ENABLE_RELAY_RESOLVERS: boolean,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: boolean,
   ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: boolean,
   ENABLE_DO_NOT_WRAP_LIVE_QUERY: boolean,
@@ -69,9 +67,6 @@ export type FeatureFlags = {
   // Throw on nested store updates
   DISALLOW_NESTED_UPDATES: boolean,
 
-  // Enable prefixing of DataID in the store with __typename
-  ENABLE_TYPENAME_PREFIXED_DATA_ID: boolean,
-
   // Relay previously had a bug where it would fail to check for missing client
   // edge to server data in fragments nested within client edge Relay Resolver
   // fields. This feature flag fixes the behavior but comes with a perf cost.
@@ -116,8 +111,6 @@ export type FeatureFlags = {
 };
 
 const RelayFeatureFlags: FeatureFlags = {
-  ENABLE_VARIABLE_CONNECTION_KEY: false,
-  ENABLE_RELAY_RESOLVERS: false,
   ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION: false,
   ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: false,
   ENABLE_DO_NOT_WRAP_LIVE_QUERY: false,
@@ -139,7 +132,6 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: true,
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,
   DISALLOW_NESTED_UPDATES: false,
-  ENABLE_TYPENAME_PREFIXED_DATA_ID: false,
   ENABLE_UI_CONTEXT_ON_RELAY_LOGGER: false,
   CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: false,
   FILTER_OUT_RELAY_RESOLVER_RECORDS: false,

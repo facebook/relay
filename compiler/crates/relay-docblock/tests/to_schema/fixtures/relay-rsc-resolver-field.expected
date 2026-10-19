@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// relay:enable_relay_rsc
+
+/**
+ * @relayField User.fullNameRsc: RelayRscValue
+ * @rootFragment UserFullNameRsc_user
+ */
+graphql`
+  fragment UserFullNameRsc_user on User @server {
+    firstName
+    lastName
+  }
+`;
+==================================== OUTPUT ===================================
+extend type User {
+  fullNameRsc: RelayRscValue @relay_resolver(has_output_type: true, import_name: "FullNameRsc", import_path: "/path/to/test/fixture/relay-rsc-resolver-field.js", fragment_name: "UserFullNameRsc_user") @resolver_source_hash(value: "200064504879f4fcf4f5ecdf45aaa42d")
+}

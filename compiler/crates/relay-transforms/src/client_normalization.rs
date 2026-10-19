@@ -35,9 +35,12 @@ use schema::Schema;
 use thiserror::Error;
 
 use crate::ClientComponentBoundaryMetadata;
+use crate::ClientRscSeamMetadata;
 use crate::NoInlineFragmentSpreadMetadata;
+use crate::RscSeamMetadata;
 use crate::SERVER_DIRECTIVE;
 use crate::SplitOperationMetadata;
+use crate::rsc_seam_arguments;
 
 const CLIENT_NORMALIZATION_SUFFIX: &str = "$clientNormalization";
 
@@ -231,6 +234,17 @@ impl<'program> ClientProjection<'program> {
     }
 
     fn project_fragment_spread(&mut self, spread: &FragmentSpread, kept: &mut Vec<Selection>) {
+        if let Some(seam) = RscSeamMetadata::find(&spread.directives) {
+            let mut directives = spread.directives.clone();
+            directives.push(ClientRscSeamMetadata.into());
+            kept.push(Selection::FragmentSpread(Arc::new(FragmentSpread {
+                arguments: rsc_seam_arguments(spread, seam),
+                directives,
+                ..spread.clone()
+            })));
+            return;
+        }
+
         if let Some(boundary) = ClientComponentBoundaryMetadata::find(&spread.directives) {
             self.client_fragments.push(ServerOperationClientFragment {
                 fragment: boundary.fragment,

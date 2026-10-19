@@ -553,6 +553,7 @@ impl RelayResolverExtractor {
                                         field_arguments,
                                         root_fragment.location.source_location(),
                                         fragment_arguments,
+                                        false,
                                     )?;
                                 }
 

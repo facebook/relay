@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// relay:enable_relay_rsc
+// expected-to-throw
+
+/**
+ * @relayField User.userPanel: RelayRscValue
+ * @rootFragment UserPanel_
+ */
+graphql`
+  fragment UserPanel_ on User @server {
+    name
+  }
+`;
+==================================== ERROR ====================================
+✖︎ Relay Resolver-authored RSC field `userPanel` derives an empty component prop name from root fragment `UserPanel_`. Rename the fragment to end with a non-empty suffix.
+
+  /path/to/test/fixture/relay-rsc-resolver-field-empty-fragment-prop.invalid.js:13:18
+   12 │  * @relayField User.userPanel: RelayRscValue
+   13 │  * @rootFragment UserPanel_
+      │                  ^^^^^^^^^^
+   14 │

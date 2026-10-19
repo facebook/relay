@@ -16,6 +16,7 @@ mod validation_message;
 pub use constants::MATCH_CONSTANTS;
 pub use hash_supported_argument::hash_supported_argument;
 pub use match_transform::ModuleMetadata;
+pub use match_transform::fragment_prop_name;
 pub use match_transform::transform_match;
 pub use split_module_import::split_module_import;
 pub use split_operation_metadata::DIRECTIVE_SPLIT_OPERATION;

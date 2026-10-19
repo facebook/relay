@@ -1,0 +1,54 @@
+==================================== INPUT ====================================
+//- src/Page.js
+
+// An RSC Resolver field must have the nullable type `RelayRscValue`.
+graphql`query ServerRscNonNullQuery @server {
+  me {
+    panel: rscPanel
+  }
+}`
+
+//- src/RscPanel.js
+
+/**
+ * @relayField User.rscPanel: RelayRscValue!
+ * @rootFragment RscPanel_user
+ */
+graphql`fragment RscPanel_user on User @server {
+  name
+}`
+
+export function RscPanel() {}
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "jsModuleFormat": "commonjs",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}
+==================================== OUTPUT ===================================
+✖︎ Relay Resolver-authored RSC field `rscPanel` must use the nullable scalar type `RelayRscValue` exactly; lists and `RelayRscValue!` are not supported.
+
+  src/RscPanel.js:3:31
+    2 │ *
+    3 │  * @relayField User.rscPanel: RelayRscValue!
+      │                               ^^^^^^^^^^^^^^
+    4 │  * @rootFragment RscPanel_user

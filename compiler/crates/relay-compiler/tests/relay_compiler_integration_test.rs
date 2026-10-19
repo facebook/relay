@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<97c3d5dc3785c5515bccb33cf248b1e5>>
+ * @generated SignedSource<<522c46c3816df7c953499e9970bf1aa3>>
  */
 
 mod relay_compiler_integration;
@@ -1557,6 +1557,69 @@ async fn server_operation_typescript() {
     let input = include_str!("relay_compiler_integration/fixtures/server_operation_typescript.input");
     let expected = include_str!("relay_compiler_integration/fixtures/server_operation_typescript.expected");
     test_fixture(transform_fixture, file!(), "server_operation_typescript.input", "relay_compiler_integration/fixtures/server_operation_typescript.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn server_rsc_resolver_base_root_fragment_cross_language() {
+    let input = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_base_root_fragment_cross_language.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_base_root_fragment_cross_language.expected");
+    test_fixture(transform_fixture, file!(), "server_rsc_resolver_base_root_fragment_cross_language.input", "relay_compiler_integration/fixtures/server_rsc_resolver_base_root_fragment_cross_language.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn server_rsc_resolver_base_root_fragment_shared_normalization_artifact() {
+    let input = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_base_root_fragment_shared_normalization_artifact.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_base_root_fragment_shared_normalization_artifact.expected");
+    test_fixture(transform_fixture, file!(), "server_rsc_resolver_base_root_fragment_shared_normalization_artifact.input", "relay_compiler_integration/fixtures/server_rsc_resolver_base_root_fragment_shared_normalization_artifact.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn server_rsc_resolver_base_root_fragment_unselected_in_base() {
+    let input = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_base_root_fragment_unselected_in_base.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_base_root_fragment_unselected_in_base.expected");
+    test_fixture(transform_fixture, file!(), "server_rsc_resolver_base_root_fragment_unselected_in_base.input", "relay_compiler_integration/fixtures/server_rsc_resolver_base_root_fragment_unselected_in_base.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn server_rsc_resolver_field_catch_rejected_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_field_catch_rejected.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_field_catch_rejected.invalid.expected");
+    test_fixture(transform_fixture, file!(), "server_rsc_resolver_field_catch_rejected.invalid.input", "relay_compiler_integration/fixtures/server_rsc_resolver_field_catch_rejected.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn server_rsc_resolver_field_non_null_rejected_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_field_non_null_rejected.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_field_non_null_rejected.invalid.expected");
+    test_fixture(transform_fixture, file!(), "server_rsc_resolver_field_non_null_rejected.invalid.input", "relay_compiler_integration/fixtures/server_rsc_resolver_field_non_null_rejected.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn server_rsc_resolver_field_required_rejected_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_field_required_rejected.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_field_required_rejected.invalid.expected");
+    test_fixture(transform_fixture, file!(), "server_rsc_resolver_field_required_rejected.invalid.input", "relay_compiler_integration/fixtures/server_rsc_resolver_field_required_rejected.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn server_rsc_resolver_incremental_validation_root_fragment_defer_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_incremental_validation_root_fragment_defer.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_incremental_validation_root_fragment_defer.invalid.expected");
+    test_fixture(transform_fixture, file!(), "server_rsc_resolver_incremental_validation_root_fragment_defer.invalid.input", "relay_compiler_integration/fixtures/server_rsc_resolver_incremental_validation_root_fragment_defer.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn server_rsc_resolver_throw_on_field_error_document_rejected_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_throw_on_field_error_document_rejected.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_throw_on_field_error_document_rejected.invalid.expected");
+    test_fixture(transform_fixture, file!(), "server_rsc_resolver_throw_on_field_error_document_rejected.invalid.input", "relay_compiler_integration/fixtures/server_rsc_resolver_throw_on_field_error_document_rejected.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn server_rsc_resolver_throw_on_field_error_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_throw_on_field_error_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/server_rsc_resolver_throw_on_field_error_fragment.expected");
+    test_fixture(transform_fixture, file!(), "server_rsc_resolver_throw_on_field_error_fragment.input", "relay_compiler_integration/fixtures/server_rsc_resolver_throw_on_field_error_fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

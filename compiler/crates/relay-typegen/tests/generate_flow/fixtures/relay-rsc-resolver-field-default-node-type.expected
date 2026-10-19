@@ -1,0 +1,49 @@
+==================================== INPUT ====================================
+# relay:enable_relay_rsc
+
+fragment RelayRscResolverFieldDefaultNodeType_user on User @server {
+  name
+}
+
+query RelayRscResolverFieldDefaultNodeTypeQuery @server {
+  me {
+    displayName: fullNameRsc
+  }
+}
+
+# %extensions%
+
+extend type User {
+  fullNameRsc: RelayRscValue
+    @relay_resolver(
+      fragment_name: "RelayRscResolverFieldDefaultNodeType_user"
+      import_path: "./FullNameRsc.server.js"
+      import_name: "FullNameRsc"
+    )
+}
+==================================== OUTPUT ===================================
+import type { ReactNode } from "react";
+export type RelayRscResolverFieldDefaultNodeTypeQuery$variables = {};
+export type RelayRscResolverFieldDefaultNodeTypeQuery$data = {
+  readonly me: ?{
+    readonly displayName: ReactNode,
+  },
+};
+export type RelayRscResolverFieldDefaultNodeTypeQuery = {
+  readonly $serverOperation: true,
+  response: RelayRscResolverFieldDefaultNodeTypeQuery$data,
+  variables: RelayRscResolverFieldDefaultNodeTypeQuery$variables,
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayRscResolverFieldDefaultNodeType_user$fragmentType: FragmentType;
+export type RelayRscResolverFieldDefaultNodeType_user$data = {
+  readonly name: ?string,
+  readonly $fragmentType: RelayRscResolverFieldDefaultNodeType_user$fragmentType,
+};
+export type RelayRscResolverFieldDefaultNodeType_user$key = {
+  readonly $data?: RelayRscResolverFieldDefaultNodeType_user$data,
+  readonly $serverFragment: true,
+  readonly $fragmentSpreads: RelayRscResolverFieldDefaultNodeType_user$fragmentType,
+  ...
+};

@@ -224,6 +224,7 @@ pub fn extract_feature_from_text(
                             enable_interface_output_type: &project_config
                                 .feature_flags
                                 .relay_resolver_enable_interface_output_type,
+                            enable_relay_rsc: project_config.relay_rsc_capabilities().is_some(),
                             allow_resolver_non_nullable_return_type: &project_config
                                 .feature_flags
                                 .allow_resolver_non_nullable_return_type,

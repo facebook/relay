@@ -1,0 +1,50 @@
+//- src/Page.js
+
+// `@throwOnFieldError` on a server fragment that selects an RSC Resolver field
+// compiles.
+graphql`query ServerRscThrowOnFieldErrorQuery @server {
+  me {
+    ...ServerRscThrowOnFieldError_user
+  }
+}`
+
+graphql`fragment ServerRscThrowOnFieldError_user on User @server @throwOnFieldError {
+  panel: rscPanel
+}`
+
+//- src/RscPanel.js
+
+/**
+ * @relayField User.rscPanel: RelayRscValue
+ * @rootFragment RscPanel_user
+ */
+graphql`fragment RscPanel_user on User @server {
+  name
+}`
+
+export function RscPanel() {}
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "jsModuleFormat": "commonjs",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}

@@ -237,6 +237,18 @@ fn apply_common_transforms(
         )
     })?;
 
+    program = log_event.time("lower_rsc_resolver_fields", || {
+        lower_rsc_resolver_fields(
+            &program,
+            &base_fragment_names,
+            project_config.relay_rsc_capabilities().is_some(),
+            project_config
+                .effective_module_import_config()
+                .dynamic_module_provider
+                .is_some(),
+        )
+    })?;
+
     program = log_event.time("provided_variable_fragment_transform", || {
         provided_variable_fragment_transform(&program)
     })?;

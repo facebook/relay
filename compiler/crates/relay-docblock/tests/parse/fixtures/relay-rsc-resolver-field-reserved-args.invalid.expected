@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// relay:enable_relay_rsc
+// expected-to-throw
+
+/**
+ * @relayField User.fullNameRsc: RelayRscValue
+ * @rootFragment UserFullNameRsc_args
+ */
+graphql`
+  fragment UserFullNameRsc_args on User @server {
+    firstName
+    lastName
+  }
+`;
+==================================== ERROR ====================================
+✖︎ Relay Resolver-authored RSC field `fullNameRsc` derives reserved component prop name `args` from root fragment `UserFullNameRsc_args`. Rename the fragment suffix.
+
+  /path/to/test/fixture/relay-rsc-resolver-field-reserved-args.invalid.js:13:18
+   12 │  * @relayField User.fullNameRsc: RelayRscValue
+   13 │  * @rootFragment UserFullNameRsc_args
+      │                  ^^^^^^^^^^^^^^^^^^^^
+   14 │

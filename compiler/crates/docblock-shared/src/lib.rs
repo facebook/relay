@@ -16,6 +16,28 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 pub use resolver_source_hash::ResolverSourceHash;
 
+/// The component export that implements a Relay RSC field: the field name in
+/// PascalCase, split on `_` (`rsc_tableRow` is implemented by `RscTableRow`).
+/// `None` when the converted name does not start with a letter.
+pub fn relay_rsc_component_export_name(field_name: &str) -> Option<String> {
+    let export_name: String = field_name
+        .split('_')
+        .flat_map(|part| {
+            let mut chars = part.chars();
+            chars
+                .next()
+                .into_iter()
+                .flat_map(char::to_uppercase)
+                .chain(chars)
+        })
+        .collect();
+    export_name
+        .as_bytes()
+        .first()
+        .is_some_and(u8::is_ascii_alphabetic)
+        .then_some(export_name)
+}
+
 /// Check if a string contains any resolver docblock tag
 /// (`@RelayResolver`, `@relayType`, or `@relayField`).
 ///
@@ -54,6 +76,15 @@ pub static RELAY_RESOLVER_DIRECTIVE_NAME: LazyLock<DirectiveName> =
 /// extensions `../../relay-schema/src/relay-extensions.graphql`.
 pub static RESOLVER_VALUE_SCALAR_NAME: LazyLock<ScalarName> =
     LazyLock::new(|| ScalarName("RelayResolverValue".intern()));
+/// The compiler-owned scalar used to identify a Relay Resolver-authored React
+/// Server Component field. Unlike `RelayResolverValue`, its consumer type is
+/// the project's configured RSC node type and the authored module must never
+/// be executed by the browser Relay reader.
+pub static RELAY_RSC_VALUE_SCALAR_NAME: LazyLock<ScalarName> =
+    LazyLock::new(|| ScalarName("RelayRscValue".intern()));
+/// The directive used by Resolver-authored RSC validation.
+pub static SERVER_DIRECTIVE: LazyLock<DirectiveName> =
+    LazyLock::new(|| DirectiveName("server".intern()));
 /// The name of the docblock tag that Relay looks for to determine if a field is a resolver.
 /// @RelayResolver
 pub static RELAY_RESOLVER_FIELD: LazyLock<StringKey> = LazyLock::new(|| "RelayResolver".intern());
@@ -221,3 +252,42 @@ pub static RELAY_RESOLVER_SOURCE_HASH: LazyLock<DirectiveName> =
 /// Argument name used with @resolver_source_hash to specify the hash value.
 pub static RELAY_RESOLVER_SOURCE_HASH_VALUE: LazyLock<ArgumentName> =
     LazyLock::new(|| ArgumentName("value".intern()));
+
+#[cfg(test)]
+mod tests {
+    use super::relay_rsc_component_export_name;
+
+    #[test]
+    fn relay_rsc_component_export_name_is_pascal_case() {
+        assert_eq!(
+            relay_rsc_component_export_name("rsc_tableRow").as_deref(),
+            Some("RscTableRow"),
+            "each `_`-separated part starts with a capital"
+        );
+        assert_eq!(
+            relay_rsc_component_export_name("incrementalProofCell").as_deref(),
+            Some("IncrementalProofCell"),
+            "a camelCase name only gains a leading capital"
+        );
+        assert_eq!(
+            relay_rsc_component_export_name("_rsc__row_").as_deref(),
+            Some("RscRow"),
+            "empty parts contribute nothing"
+        );
+        assert_eq!(
+            relay_rsc_component_export_name("__"),
+            None,
+            "a name made only of `_` names no component"
+        );
+        assert_eq!(
+            relay_rsc_component_export_name("_1panel"),
+            None,
+            "removing a leading underscore must not produce a digit-leading JS identifier"
+        );
+        assert_eq!(
+            relay_rsc_component_export_name("rsc_1panel").as_deref(),
+            Some("Rsc1panel"),
+            "digits remain valid after the initial letter"
+        );
+    }
+}

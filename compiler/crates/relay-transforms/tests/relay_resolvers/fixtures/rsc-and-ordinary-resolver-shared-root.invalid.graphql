@@ -1,0 +1,21 @@
+#expected-to-throw
+
+fragment SharedResolverRoot_user on User {
+  name
+  ...SharedResolverNested_user
+}
+
+fragment SharedResolverNested_user on User {
+  id
+}
+
+# %extensions%
+
+scalar RelayRscValue
+
+extend type User {
+  ordinary_shared_root: String
+    @relay_resolver(fragment_name: "SharedResolverRoot_user", import_path: "OrdinarySharedRootResolver")
+  rsc_shared_root: RelayRscValue
+    @relay_resolver(fragment_name: "SharedResolverRoot_user", import_path: "RscSharedRootResolver")
+}

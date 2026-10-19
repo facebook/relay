@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<10491b62e84d0c18eb2bae50effc594f>>
+ * @generated SignedSource<<273bd1cb5102ab2706edfde161eed5e1>>
  */
 
 mod parse;
@@ -192,6 +192,125 @@ async fn relay_resolver_with_fragment_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-with-fragment.invalid.js", "parse/fixtures/relay-resolver-with-fragment.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field.js", "parse/fixtures/relay-rsc-resolver-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_compatible_root_argument() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-compatible-root-argument.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-compatible-root-argument.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-compatible-root-argument.js", "parse/fixtures/relay-rsc-resolver-field-compatible-root-argument.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_default_on_field_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-default-on-field.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-default-on-field.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-default-on-field.invalid.js", "parse/fixtures/relay-rsc-resolver-field-default-on-field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_disabled_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-disabled.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-disabled.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-disabled.invalid.js", "parse/fixtures/relay-rsc-resolver-field-disabled.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_empty_fragment_prop_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-empty-fragment-prop.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-empty-fragment-prop.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-empty-fragment-prop.invalid.js", "parse/fixtures/relay-rsc-resolver-field-empty-fragment-prop.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_incompatible_root_argument_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-incompatible-root-argument.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-incompatible-root-argument.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-incompatible-root-argument.invalid.js", "parse/fixtures/relay-rsc-resolver-field-incompatible-root-argument.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_list_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-list.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-list.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-list.invalid.js", "parse/fixtures/relay-rsc-resolver-field-list.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_live_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-live.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-live.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-live.invalid.js", "parse/fixtures/relay-rsc-resolver-field-live.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_mismatched_root_argument_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-mismatched-root-argument.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-mismatched-root-argument.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-mismatched-root-argument.invalid.js", "parse/fixtures/relay-rsc-resolver-field-mismatched-root-argument.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_missing_root_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-missing-root.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-missing-root.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-missing-root.invalid.js", "parse/fixtures/relay-rsc-resolver-field-missing-root.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_nested_list_default_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-nested-list-default.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-nested-list-default.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-nested-list-default.invalid.js", "parse/fixtures/relay-rsc-resolver-field-nested-list-default.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_non_null_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-non-null.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-non-null.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-non-null.invalid.js", "parse/fixtures/relay-rsc-resolver-field-non-null.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_null_default_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-null-default.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-null-default.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-null-default.invalid.js", "parse/fixtures/relay-rsc-resolver-field-null-default.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_plural_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-plural.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-plural.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-plural.invalid.js", "parse/fixtures/relay-rsc-resolver-field-plural.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_reserved_args_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-reserved-args.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-reserved-args.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-reserved-args.invalid.js", "parse/fixtures/relay-rsc-resolver-field-reserved-args.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_return_fragment_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-return-fragment.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-return-fragment.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-return-fragment.invalid.js", "parse/fixtures/relay-rsc-resolver-field-return-fragment.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_without_server_invalid() {
+    let input = include_str!("parse/fixtures/relay-rsc-resolver-field-without-server.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-rsc-resolver-field-without-server.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-without-server.invalid.js", "parse/fixtures/relay-rsc-resolver-field-without-server.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

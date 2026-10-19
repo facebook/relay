@@ -1,0 +1,190 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// relay:enable_relay_rsc
+
+/**
+ * @relayField User.avatarRsc(size: Int!, tone: String): RelayRscValue
+ * @rootFragment UserAvatarRsc_user
+ */
+graphql`
+  fragment UserAvatarRsc_user on User
+  @argumentDefinitions(size: {type: "Int", defaultValue: 64})
+  @server {
+    name
+  }
+`;
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 22:31,
+                    token: Token {
+                        span: 22:31,
+                        kind: Identifier,
+                    },
+                    value: "avatarRsc",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 59:72,
+                            token: Token {
+                                span: 59:72,
+                                kind: Identifier,
+                            },
+                            value: "RelayRscValue",
+                        },
+                    },
+                ),
+                arguments: Some(
+                    List {
+                        span: 31:57,
+                        start: Token {
+                            span: 31:32,
+                            kind: OpenParen,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 32:36,
+                                    token: Token {
+                                        span: 32:36,
+                                        kind: Identifier,
+                                    },
+                                    value: "size",
+                                },
+                                type_: NonNull(
+                                    NonNullTypeAnnotation {
+                                        span: 38:42,
+                                        type_: Named(
+                                            NamedTypeAnnotation {
+                                                name: Identifier {
+                                                    span: 38:41,
+                                                    token: Token {
+                                                        span: 38:41,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "Int",
+                                                },
+                                            },
+                                        ),
+                                        exclamation: Token {
+                                            span: 41:42,
+                                            kind: Exclamation,
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                description: None,
+                                span: 32:44,
+                            },
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 44:48,
+                                    token: Token {
+                                        span: 44:48,
+                                        kind: Identifier,
+                                    },
+                                    value: "tone",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 50:56,
+                                            token: Token {
+                                                span: 50:56,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                description: None,
+                                span: 44:56,
+                            },
+                        ],
+                        end: Token {
+                            span: 56:57,
+                            kind: CloseParen,
+                        },
+                    },
+                ),
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 22:72,
+            },
+            type_: WithLocation {
+                location: /path/to/test/fixture/relay-rsc-resolver-field-compatible-root-argument.js:17:21,
+                item: "User",
+            },
+            root_fragment: Some(
+                WithLocation {
+                    location: /path/to/test/fixture/relay-rsc-resolver-field-compatible-root-argument.js:90:108,
+                    item: FragmentDefinitionName(
+                        "UserAvatarRsc_user",
+                    ),
+                },
+            ),
+            return_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            may_waterfall: None,
+            location: /path/to/test/fixture/relay-rsc-resolver-field-compatible-root-argument.js:0:109,
+            fragment_arguments: Some(
+                [
+                    Argument {
+                        name: Identifier {
+                            span: 62:66,
+                            token: Token {
+                                span: 62:66,
+                                kind: Identifier,
+                            },
+                            value: "size",
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 0:3,
+                                    token: Token {
+                                        span: 0:3,
+                                        kind: Identifier,
+                                    },
+                                    value: "Int",
+                                },
+                            },
+                        ),
+                        default_value: Some(
+                            Int(
+                                IntNode {
+                                    token: Token {
+                                        span: 96:98,
+                                        kind: IntegerLiteral,
+                                    },
+                                    value: 64,
+                                },
+                            ),
+                        ),
+                    },
+                ],
+            ),
+            source_hash: ResolverSourceHash(
+                "26be286619e8a83770173a5b22ec01bd",
+            ),
+            type_confirmed: false,
+            property_lookup_name: None,
+        },
+    ),
+)

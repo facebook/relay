@@ -10,6 +10,7 @@ use std::path::PathBuf;
 use common::ScalarName;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
+use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use schemars::JsonSchema;
 use serde::Deserialize;
@@ -179,6 +180,12 @@ pub struct TypegenConfig {
     /// {"name:: "MyErrorName", "path": "../src/MyError"}
     pub custom_error_type: Option<CustomTypeImport>,
 
+    /// The consumer-visible type of a Resolver-authored `RelayRscValue`.
+    /// For example: "unknown" or {"name": "ReactNode", "path": "react"}.
+    /// Defaults to `ReactNode` imported from `react` when omitted.
+    #[serde(default = "default_rsc_node_type")]
+    pub rsc_node_type: Option<CustomType>,
+
     /// Indicates the type to import and use as the context for Relay Resolvers.
     #[serde(default)]
     pub resolver_context_type: Option<ResolverContextTypeInput>,
@@ -195,6 +202,13 @@ fn get_true() -> bool {
     true
 }
 
+fn default_rsc_node_type() -> Option<CustomType> {
+    Some(CustomType::Path(CustomTypeImport {
+        name: "ReactNode".intern(),
+        path: "react".into(),
+    }))
+}
+
 impl Default for TypegenConfig {
     fn default() -> Self {
         TypegenConfig {
@@ -208,6 +222,7 @@ impl Default for TypegenConfig {
             eager_es_modules: Default::default(),
             typescript_exclude_undefined_from_nullable_union: Default::default(),
             custom_error_type: None,
+            rsc_node_type: default_rsc_node_type(),
             resolver_context_type: Default::default(),
             one_of_type: Default::default(),
         }

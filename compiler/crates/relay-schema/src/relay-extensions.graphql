@@ -353,6 +353,15 @@ scalar RelayResolverValue
 """
 (Relay Only)
 
+A compiler-owned marker for Relay Resolver-authored React Server Component
+fields. Fields of this type lower to the RSC protocol and are never executed as
+ordinary browser Relay Resolvers.
+"""
+scalar RelayRscValue
+
+"""
+(Relay Only)
+
 Marks a Client Schema Extension type as being an Output Type. This means that if
 a Relay Resolver returns an edge to this type, the Resolver will be expected to
 return the full object, rather than an ID.

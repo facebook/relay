@@ -71,6 +71,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                             } else {
                                 &FeatureFlag::Disabled
                             },
+                            enable_relay_rsc: fixture.content.contains("// relay:enable_relay_rsc"),
                             allow_resolver_non_nullable_return_type: if fixture
                                 .content
                                 .contains("// relay:allow_resolver_non_nullable_return_type")

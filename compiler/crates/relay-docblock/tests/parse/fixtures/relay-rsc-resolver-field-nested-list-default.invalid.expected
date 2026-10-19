@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+// relay:enable_relay_rsc
+
+/**
+ * @relayField User.avatarRsc(sizes: [Int!]!): RelayRscValue
+ * @rootFragment UserAvatarRsc_user
+ */
+graphql`
+  fragment UserAvatarRsc_user on User
+  @argumentDefinitions(sizes: {type: "[Int]", defaultValue: [1, null]})
+  @server {
+    name
+  }
+`;
+==================================== ERROR ====================================
+✖︎ Relay Resolver-authored RSC argument `sizes` cannot retain root fragment default `[1, null]` because it is invalid for the public field type `[Int!]!`.
+
+  /path/to/test/fixture/relay-rsc-resolver-field-nested-list-default.invalid.js:17:61
+   16 │   fragment UserAvatarRsc_user on User
+   17 │   @argumentDefinitions(sizes: {type: "[Int]", defaultValue: [1, null]})
+      │                                                             ^^^^^^^^^
+   18 │   @server {

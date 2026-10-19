@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# relay:enable_relay_rsc
+# Removing leading underscores must not create a digit-leading JS export.
+
+fragment RelayRscResolverFieldDigitExport_user on User @server {
+  name
+}
+
+query RelayRscResolverFieldDigitExportQuery @server {
+  me {
+    _1panel
+  }
+}
+
+# %extensions%
+
+extend type User {
+  _1panel: RelayRscValue
+    @relay_resolver(
+      fragment_name: "RelayRscResolverFieldDigitExport_user"
+      import_path: "./Panel.server.js"
+      import_name: "1panel"
+    )
+}
+==================================== ERROR ====================================
+✖︎ The RSC field `_1panel` does not produce a valid PascalCase component export starting with a letter.
+
+  relay-rsc-resolver-field-digit-export.graphql:11:5
+   10 │   me {
+   11 │     _1panel
+      │     ^^^^^^^
+   12 │   }

@@ -1,0 +1,68 @@
+//- base_src/RscPanel.js
+
+/**
+ * @relayField User.rscPanel: RelayRscValue
+ * @rootFragment RscPanel_user
+ */
+graphql`fragment RscPanel_user on User @server {
+  name
+}`
+
+export function RscPanel() {}
+
+//- base_src/BasePage.js
+
+graphql`query BasePageQuery @server {
+  me {
+    panel: rscPanel
+  }
+}`
+
+//- derived_src/DerivedPage.ts
+
+// The RSC Resolver's root fragment comes from a Flow base project, and the
+// derived project is TypeScript. Only the base project writes
+// `RscPanel_user$normalization`, and the derived project imports it like the
+// base fragment's other artifacts.
+graphql`query DerivedPageQuery @server {
+  me {
+    panel: rscPanel
+  }
+}`
+
+//- relay.config.json
+{
+  "sources": {
+    "base_src": "base_project",
+    "derived_src": "derived_project"
+  },
+  "projects": {
+    "base_project": {
+      "schema": "schema.graphql",
+      "language": "flow",
+      "jsModuleFormat": "commonjs",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    },
+    "derived_project": {
+      "schema": "schema.graphql",
+      "base": "base_project",
+      "language": "typescript",
+      "jsModuleFormat": "commonjs",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}

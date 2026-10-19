@@ -19,7 +19,9 @@ use docblock_shared::ARGUMENT_TYPE;
 use docblock_shared::DEFAULT_VALUE;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::PROVIDER_ARG_NAME;
+use docblock_shared::RELAY_RSC_VALUE_SCALAR_NAME;
 use docblock_shared::ResolverSourceHash;
+use docblock_shared::SERVER_DIRECTIVE;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::reexport::StringKey;
 use graphql_syntax::ConstantValue;
@@ -344,6 +346,7 @@ fn parse_terse_relay_resolver_ir(
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
     let return_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::ReturnFragmentField)?;
+    let live = get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?;
     let may_waterfall =
         get_optional_unpopulated_field_named(fields, AllowedFieldName::MayWaterfallField)?;
     // `@mayWaterfall` only makes sense on a shadow resolver: it declares that the
@@ -399,14 +402,30 @@ fn parse_terse_relay_resolver_ir(
         value: description.item,
     });
 
-    validate_field_type_annotation(&field, type_str, parse_options)?;
-    validate_field_arguments(field.arguments.as_ref(), location.source_location())?;
+    let is_rsc_resolver_field = field.type_.inner().name.value == RELAY_RSC_VALUE_SCALAR_NAME.0;
+    if is_rsc_resolver_field {
+        validate_rsc_resolver_field(
+            &field,
+            root_fragment.as_ref(),
+            return_fragment.as_ref(),
+            live.as_ref(),
+            definitions_in_file,
+            parse_options,
+            type_str.location.source_location(),
+        )?;
+    } else {
+        validate_field_type_annotation(&field, type_str, parse_options)?;
+    }
+    if !is_rsc_resolver_field {
+        validate_field_arguments(field.arguments.as_ref(), location.source_location())?;
+    }
 
     let (fragment_type_condition, fragment_arguments) = parse_fragment_definition(
         root_fragment,
         relay_resolver_field.value.location.source_location(),
         field.arguments.as_ref(),
         definitions_in_file,
+        is_rsc_resolver_field,
     )?;
 
     if let Some(fragment_type_condition) = fragment_type_condition {
@@ -438,7 +457,7 @@ fn parse_terse_relay_resolver_ir(
             .map(|return_fragment| return_fragment.value.map(FragmentDefinitionName)),
         location,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
-        live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
+        live,
         may_waterfall,
         semantic_non_null,
         fragment_arguments,
@@ -446,6 +465,117 @@ fn parse_terse_relay_resolver_ir(
         type_confirmed: false,
         property_lookup_name: None,
     })
+}
+
+fn validate_rsc_resolver_field(
+    field: &FieldDefinition,
+    root_fragment: Option<&PopulatedIrField>,
+    return_fragment: Option<&PopulatedIrField>,
+    live: Option<&UnpopulatedIrField>,
+    definitions_in_file: Option<&[ExecutableDefinition]>,
+    parse_options: &ParseOptions<'_>,
+    source_location: SourceLocationKey,
+) -> DiagnosticsResult<()> {
+    let field_name = field.name.value;
+    let field_location = Location::new(source_location, field.name.span);
+
+    if !parse_options.enable_relay_rsc {
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::RscResolverFieldFeatureDisabled { field_name },
+            field_location,
+        )]);
+    }
+
+    if !matches!(field.type_, TypeAnnotation::Named(_)) {
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::RscResolverFieldInvalidType { field_name },
+            Location::new(field_location.source_location(), field.type_.span()),
+        )]);
+    }
+
+    if let Some(live) = live {
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::RscResolverFieldLiveUnsupported { field_name },
+            live.key_location,
+        )]);
+    }
+
+    if let Some(return_fragment) = return_fragment {
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::RscResolverFieldReturnFragmentUnsupported { field_name },
+            return_fragment.key_location,
+        )]);
+    }
+
+    let Some(root_fragment) = root_fragment else {
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::RscResolverFieldRequiresRootFragment { field_name },
+            field_location,
+        )]);
+    };
+    let fragment_name = root_fragment.value.item;
+    let fragment_definition =
+        assert_fragment_definition(root_fragment.value, fragment_name, definitions_in_file)?;
+
+    if fragment_definition
+        .directives
+        .named(SERVER_DIRECTIVE.0)
+        .is_none()
+    {
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::RscResolverFieldRequiresServerFragment {
+                field_name,
+                fragment_name,
+            },
+            fragment_definition.location,
+        )]);
+    }
+
+    let is_plural = fragment_definition
+        .directives
+        .named("relay".intern())
+        .and_then(|directive| directive.arguments.as_ref())
+        .and_then(|arguments| arguments.items.named("plural".intern()))
+        .is_some_and(|argument| {
+            matches!(
+                &argument.value,
+                graphql_syntax::Value::Constant(ConstantValue::Boolean(value)) if value.value
+            )
+        });
+    if is_plural {
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::RscResolverFieldPluralRootFragment {
+                field_name,
+                fragment_name,
+            },
+            fragment_definition.location,
+        )]);
+    }
+
+    let fragment_prop_name = fragment_name
+        .lookup()
+        .rsplit_once('_')
+        .map_or(fragment_name.lookup(), |(_, suffix)| suffix);
+    if fragment_prop_name.is_empty() {
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::RscResolverFieldEmptyFragmentProp {
+                field_name,
+                fragment_name,
+            },
+            root_fragment.value.location,
+        )]);
+    }
+    if fragment_prop_name == "args" {
+        return Err(vec![Diagnostic::error(
+            IrParsingErrorMessages::RscResolverFieldReservedFragmentProp {
+                field_name,
+                fragment_name,
+            },
+            root_fragment.value.location,
+        )]);
+    }
+
+    Ok(())
 }
 
 fn get_optional_unpopulated_field_named(
@@ -497,6 +627,7 @@ fn parse_fragment_definition(
     source_location: SourceLocationKey,
     field_arguments: Option<&List<InputValueDefinition>>,
     definitions_in_file: Option<&[ExecutableDefinition]>,
+    allow_compatible_argument_overlap: bool,
 ) -> DiagnosticsResult<(Option<WithLocation<StringKey>>, Option<Vec<Argument>>)> {
     let fragment_definition = root_fragment
         .map(|root_fragment| {
@@ -521,6 +652,7 @@ fn parse_fragment_definition(
             field_arguments,
             fragment_definition.location.source_location(),
             fragment_arguments,
+            allow_compatible_argument_overlap,
         )?;
     }
     let fragment_type_condition = fragment_definition.as_ref().map(|fragment_definition| {
@@ -539,9 +671,41 @@ pub fn validate_fragment_arguments(
     field_arguments: &List<InputValueDefinition>,
     fragment_source_location: SourceLocationKey,
     fragment_arguments: &[Argument],
+    allow_compatible_argument_overlap: bool,
 ) -> DiagnosticsResult<()> {
     for field_arg in &field_arguments.items {
         if let Some(fragment_arg) = fragment_arguments.named(field_arg.name.value) {
+            if allow_compatible_argument_overlap {
+                if is_input_type_subtype(&field_arg.type_, &fragment_arg.type_) {
+                    if let Some(default_value) = &fragment_arg.default_value
+                        && !is_constant_value_compatible_with_type(default_value, &field_arg.type_)
+                    {
+                        return Err(vec![Diagnostic::error(
+                            IrParsingErrorMessages::RscResolverFieldArgumentDefaultValueMismatch {
+                                argument_name: field_arg.name.value,
+                                default_value: default_value.to_string(),
+                                field_type: field_arg.type_.to_string(),
+                            },
+                            Location::new(fragment_source_location, default_value.span()),
+                        )]);
+                    }
+                    continue;
+                }
+                return Err(vec![
+                    Diagnostic::error(
+                        IrParsingErrorMessages::RscResolverFieldArgumentTypeMismatch {
+                            argument_name: field_arg.name.value,
+                            field_type: field_arg.type_.to_string(),
+                            fragment_type: fragment_arg.type_.to_string(),
+                        },
+                        Location::new(field_source_location, field_arg.name.span),
+                    )
+                    .annotate(
+                        "root fragment argument is declared here",
+                        Location::new(fragment_source_location, fragment_arg.name.span),
+                    ),
+                ]);
+            }
             return Err(vec![
                 Diagnostic::error(
                     IrParsingErrorMessages::ConflictingArguments,
@@ -555,6 +719,45 @@ pub fn validate_fragment_arguments(
         }
     }
     Ok(())
+}
+
+// A public field may narrow wrapper nullability, so retained fragment defaults
+// must remain valid under that narrower type, including nested list items.
+fn is_constant_value_compatible_with_type(value: &ConstantValue, type_: &TypeAnnotation) -> bool {
+    match type_ {
+        TypeAnnotation::NonNull(inner) => {
+            !matches!(value, ConstantValue::Null(_))
+                && is_constant_value_compatible_with_type(value, &inner.type_)
+        }
+        TypeAnnotation::List(inner) => match value {
+            ConstantValue::Null(_) => true,
+            ConstantValue::List(items) => items
+                .items
+                .iter()
+                .all(|item| is_constant_value_compatible_with_type(item, &inner.type_)),
+            _ => is_constant_value_compatible_with_type(value, &inner.type_),
+        },
+        TypeAnnotation::Named(_) => true,
+    }
+}
+
+// Every value accepted by the public field must also be valid for the fragment:
+// non-null may flow to nullable, lists recurse, and named input types must match.
+fn is_input_type_subtype(field_type: &TypeAnnotation, fragment_type: &TypeAnnotation) -> bool {
+    match (field_type, fragment_type) {
+        (TypeAnnotation::NonNull(field), TypeAnnotation::NonNull(fragment)) => {
+            is_input_type_subtype(&field.type_, &fragment.type_)
+        }
+        (TypeAnnotation::NonNull(field), fragment) => is_input_type_subtype(&field.type_, fragment),
+        (_, TypeAnnotation::NonNull(_)) => false,
+        (TypeAnnotation::List(field), TypeAnnotation::List(fragment)) => {
+            is_input_type_subtype(&field.type_, &fragment.type_)
+        }
+        (TypeAnnotation::Named(field), TypeAnnotation::Named(fragment)) => {
+            field.name.value == fragment.name.value
+        }
+        _ => false,
+    }
 }
 
 pub fn assert_fragment_definition(

@@ -35,6 +35,7 @@ use schema::Schema;
 use schema::Type;
 
 use crate::DIRECTIVE_SPLIT_OPERATION;
+use crate::RscSeamMetadata;
 use crate::ValidationMessage;
 use crate::create_metadata_directive;
 
@@ -263,6 +264,12 @@ impl RelayTestOperationMetadata {
                             processing_queue.push((path, &inline_fragment.selections));
                         }
                         Selection::FragmentSpread(spread) => {
+                            // PROTOTYPE (Relay RSC): a Relay RSC field's root
+                            // fragment. The server renders the field, so the
+                            // fragment's fields are not in the client payload.
+                            if RscSeamMetadata::find(&spread.directives).is_some() {
+                                continue;
+                            }
                             // Must be a shared normalization fragment
                             let operation = program
                                 .operation(OperationDefinitionName(spread.fragment.item.0))

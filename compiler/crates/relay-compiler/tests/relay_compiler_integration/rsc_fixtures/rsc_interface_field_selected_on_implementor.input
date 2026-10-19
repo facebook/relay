@@ -1,0 +1,55 @@
+//- src/Page.js
+
+// One interface RSC field, selected through the interface and through an
+// implementing type.
+graphql`query RscInterfaceFieldSelectedOnImplementorQuery @server {
+  viewer {
+    rscPanel
+  }
+  me {
+    rscPanel
+  }
+}`
+
+//- src/RscPanel.js
+
+/**
+ * @relayField Actor.rscPanel: RelayRscValue
+ * @rootFragment RscPanel_actor
+ */
+graphql`fragment RscPanel_actor on Actor @server {
+  name
+}`
+
+export function RscPanel() {}
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "jsModuleFormat": "commonjs",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+  viewer: Actor
+}
+
+interface Actor {
+  id: ID!
+  name: String
+}
+
+type User implements Actor {
+  id: ID!
+  name: String
+}

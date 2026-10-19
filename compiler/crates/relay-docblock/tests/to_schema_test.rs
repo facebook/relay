@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e944ddf0722b0026b425db8f9f0d8e86>>
+ * @generated SignedSource<<708ca9d928d92e4b0d0307e9e2dfd030>>
  */
 
 mod to_schema;
@@ -143,6 +143,20 @@ async fn relay_resolver_with_field_args() {
     let input = include_str!("to_schema/fixtures/relay-resolver-with-field-args.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-with-field-args.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-with-field-args.js", "to_schema/fixtures/relay-resolver-with-field-args.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field() {
+    let input = include_str!("to_schema/fixtures/relay-rsc-resolver-field.js");
+    let expected = include_str!("to_schema/fixtures/relay-rsc-resolver-field.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field.js", "to_schema/fixtures/relay-rsc-resolver-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_overlapping_argument() {
+    let input = include_str!("to_schema/fixtures/relay-rsc-resolver-field-overlapping-argument.js");
+    let expected = include_str!("to_schema/fixtures/relay-rsc-resolver-field-overlapping-argument.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-overlapping-argument.js", "to_schema/fixtures/relay-rsc-resolver-field-overlapping-argument.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<492b39483f583174c3e9f9a93519fce4>>
+ * @generated SignedSource<<fdb168d80b932f7cf758df830216d6e3>>
  */
 
 mod generate_flow;
@@ -780,6 +780,41 @@ async fn relay_resolver_with_output_type_scalar_required() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-scalar-required.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-scalar-required.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-with-output-type-scalar-required.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-scalar-required.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field() {
+    let input = include_str!("generate_flow/fixtures/relay-rsc-resolver-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-rsc-resolver-field.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field.graphql", "generate_flow/fixtures/relay-rsc-resolver-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_default_node_type() {
+    let input = include_str!("generate_flow/fixtures/relay-rsc-resolver-field-default-node-type.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-rsc-resolver-field-default-node-type.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-default-node-type.graphql", "generate_flow/fixtures/relay-rsc-resolver-field-default-node-type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_digit_export() {
+    let input = include_str!("generate_flow/fixtures/relay-rsc-resolver-field-digit-export.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-rsc-resolver-field-digit-export.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-digit-export.graphql", "generate_flow/fixtures/relay-rsc-resolver-field-digit-export.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_lowercase_export() {
+    let input = include_str!("generate_flow/fixtures/relay-rsc-resolver-field-lowercase-export.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-rsc-resolver-field-lowercase-export.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-lowercase-export.graphql", "generate_flow/fixtures/relay-rsc-resolver-field-lowercase-export.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_raw_node_type() {
+    let input = include_str!("generate_flow/fixtures/relay-rsc-resolver-field-raw-node-type.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-rsc-resolver-field-raw-node-type.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-raw-node-type.graphql", "generate_flow/fixtures/relay-rsc-resolver-field-raw-node-type.expected", input, expected).await;
 }
 
 #[tokio::test]

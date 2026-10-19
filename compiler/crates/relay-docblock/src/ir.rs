@@ -35,12 +35,14 @@ use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
+use docblock_shared::RELAY_RSC_VALUE_SCALAR_NAME;
 use docblock_shared::RESOLVER_PROPERTY_LOOKUP_NAME;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use docblock_shared::RETURN_FRAGMENT_ARGUMENT_NAME;
 use docblock_shared::ResolverSourceHash;
 use docblock_shared::SEMANTIC_NON_NULL_FIELD;
 use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
+use docblock_shared::relay_rsc_component_export_name;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantArgument;
@@ -63,6 +65,7 @@ use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
 use graphql_syntax::TypeAnnotation;
 use graphql_syntax::TypeSystemDefinition;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use relay_config::ProjectName;
@@ -364,6 +367,9 @@ trait ResolverIr: Sized {
     fn named_import(&self) -> Option<StringKey>;
     fn source_hash(&self) -> ResolverSourceHash;
     fn semantic_non_null(&self) -> Option<ConstantDirective>;
+    fn cell(&self) -> Option<ConstantDirective> {
+        None
+    }
     fn type_confirmed(&self) -> bool;
     fn property_lookup_name(&self) -> Option<WithLocation<StringKey>>;
     fn return_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>>;
@@ -413,6 +419,10 @@ trait ResolverIr: Sized {
 
         if let Some(semantic_non_null) = self.semantic_non_null() {
             directives.push(semantic_non_null)
+        }
+
+        if let Some(cell) = self.cell() {
+            directives.push(cell)
         }
 
         directives
@@ -743,10 +753,33 @@ trait ResolverTypeDefinitionIr: ResolverIr {
             |output_type| output_type.inner().item.clone(),
         );
 
+        let is_rsc_resolver_field = matches!(
+            &edge_to,
+            TypeAnnotation::Named(type_) if type_.name.value == RELAY_RSC_VALUE_SCALAR_NAME.0
+        );
         let args = match (self.fragment_argument_definitions(), self.field_arguments()) {
             (None, None) => None,
             (None, Some(b)) => Some(b.clone()),
             (Some(a), None) => Some(a),
+            (Some(mut a), Some(b)) if is_rsc_resolver_field => {
+                for field_argument in &b.items {
+                    if let Some(fragment_argument) = a
+                        .items
+                        .iter_mut()
+                        .find(|argument| argument.name.value == field_argument.name.value)
+                    {
+                        let default_value = field_argument
+                            .default_value
+                            .clone()
+                            .or_else(|| fragment_argument.default_value.clone());
+                        *fragment_argument = field_argument.clone();
+                        fragment_argument.default_value = default_value;
+                    } else {
+                        a.items.push(field_argument.clone());
+                    }
+                }
+                Some(a)
+            }
             (Some(a), Some(b)) => Some(List::generated(
                 a.items
                     .into_iter()
@@ -901,12 +934,26 @@ impl ResolverIr for TerseRelayResolverIr {
         self.semantic_non_null.clone()
     }
 
+    fn cell(&self) -> Option<ConstantDirective> {
+        self.field.directives.named("cell".intern()).cloned()
+    }
+
     fn live(&self) -> Option<UnpopulatedIrField> {
         self.live
     }
 
     fn named_import(&self) -> Option<StringKey> {
-        Some(self.field.name.value)
+        let field_name = self.field.name.value;
+        let is_rsc_field = self.field.type_.inner().name.value == RELAY_RSC_VALUE_SCALAR_NAME.0;
+        if !is_rsc_field {
+            return Some(field_name);
+        }
+        // An RSC field is rendered as a component, so its export is named
+        // like one; Relay RSC validation reports a name that maps to none.
+        Some(
+            relay_rsc_component_export_name(field_name.lookup())
+                .map_or(field_name, |export_name| export_name.intern()),
+        )
     }
 
     fn source_hash(&self) -> ResolverSourceHash {

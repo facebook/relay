@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+// relay:enable_relay_rsc
+
+/**
+ * @relayField User.avatarRsc(size: Int): RelayRscValue
+ * @rootFragment UserAvatarRsc_user
+ */
+graphql`
+  fragment UserAvatarRsc_user on User
+  @argumentDefinitions(size: {type: "Int!"})
+  @server {
+    name
+  }
+`;
+==================================== ERROR ====================================
+✖︎ Relay Resolver-authored RSC argument `size` has incompatible types: the public field declares `Int`, but the root fragment expects `Int!`.
+
+  /path/to/test/fixture/relay-rsc-resolver-field-incompatible-root-argument.invalid.js:12:31
+   11 │ *
+   12 │  * @relayField User.avatarRsc(size: Int): RelayRscValue
+      │                               ^^^^
+   13 │  * @rootFragment UserAvatarRsc_user
+
+  ℹ︎ root fragment argument is declared here
+
+  /path/to/test/fixture/relay-rsc-resolver-field-incompatible-root-argument.invalid.js:17:24
+   16 │   fragment UserAvatarRsc_user on User
+   17 │   @argumentDefinitions(size: {type: "Int!"})
+      │                        ^^^^
+   18 │   @server {

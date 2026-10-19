@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# relay:enable_relay_rsc
+# An RSC field is implemented by the component export named after the field in
+# PascalCase, so a lowercase export is rejected.
+
+fragment RelayRscResolverFieldLowercaseExport_user on User @server {
+  name
+}
+
+query RelayRscResolverFieldLowercaseExportQuery @server {
+  me {
+    fullNameRsc
+  }
+}
+
+# %extensions%
+
+extend type User {
+  fullNameRsc: RelayRscValue
+    @relay_resolver(
+      fragment_name: "RelayRscResolverFieldLowercaseExport_user"
+      import_path: "./FullNameRsc.server.js"
+      import_name: "fullNameRsc"
+    )
+}
+==================================== ERROR ====================================
+✖︎ The RSC field `fullNameRsc` must be exported by a component named `FullNameRsc`, its field name in PascalCase.
+
+  relay-rsc-resolver-field-lowercase-export.graphql:12:5
+   11 │   me {
+   12 │     fullNameRsc
+      │     ^^^^^^^^^^^
+   13 │   }

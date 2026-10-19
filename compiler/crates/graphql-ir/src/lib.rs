@@ -28,6 +28,8 @@ pub use build::DIRECTIVE_ARGUMENTS;
 pub use build::FIXME_FAT_INTERFACE;
 pub use build::FragmentVariablesSemantic;
 pub use build::RelayMode;
+pub use build::ValidationLevel;
+pub use build::build_constant_value;
 pub use build::build_directive;
 pub use build::build_ir as build;
 pub use build::build_ir_in_relay_mode;

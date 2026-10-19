@@ -25,11 +25,13 @@ use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
 use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::is_operation_preloadable;
 use relay_typegen::FragmentLocations;
+use relay_typegen::RscResolverSignatureTypeAssertionParams;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
 use relay_typegen::generate_fragment_type_exports_section;
 use relay_typegen::generate_named_validator_export;
 use relay_typegen::generate_operation_type_exports_section;
+use relay_typegen::generate_rsc_resolver_signature_type_assertion_section;
 use relay_typegen::generate_split_operation_type_exports_section;
 use schema::SDLSchema;
 use signedsource::SIGNING_TOKEN;
@@ -1202,5 +1204,33 @@ pub fn generate_resolvers_schema_module_content(
     content_sections.push(ContentSection::Generic(section));
     // -- End Exports Section --
 
+    content_sections.into_signed_bytes()
+}
+
+/// Generates a typecheck-only artifact for a Resolver-authored RSC component.
+pub fn generate_rsc_resolver_signature_content(
+    config: &Config,
+    params: RscResolverSignatureTypeAssertionParams<'_>,
+) -> Result<Vec<u8>, FmtError> {
+    let mut content_sections = ContentSections::default();
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        params.project_config,
+        vec!["@relayRscResolverSignature".to_string()],
+        params.signature_definition.item,
+    )?));
+
+    // This artifact exists only so Flow or TypeScript checks its erased types.
+    // `@ts-nocheck` would make the assertion a no-op, so do not use the shared
+    // generated-artifact lint preamble here.
+    let mut section = GenericSection::default();
+    writeln!(section, "/* eslint-disable */")?;
+    writeln!(section)?;
+    write!(
+        section,
+        "{}",
+        generate_rsc_resolver_signature_type_assertion_section(params)
+    )?;
+    content_sections.push(ContentSection::Generic(section));
     content_sections.into_signed_bytes()
 }

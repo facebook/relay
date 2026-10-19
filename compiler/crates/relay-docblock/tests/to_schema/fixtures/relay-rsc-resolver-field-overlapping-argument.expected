@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// relay:enable_relay_rsc
+
+/**
+ * @relayField User.avatarRsc(size: Int, tone: String): RelayRscValue
+ * @rootFragment UserAvatarRsc_user
+ */
+graphql`
+  fragment UserAvatarRsc_user on User
+  @argumentDefinitions(size: {type: "Int", defaultValue: 64})
+  @server {
+    name
+  }
+`;
+==================================== OUTPUT ===================================
+extend type User {
+  avatarRsc(size: Int = 64, tone: String): RelayRscValue @relay_resolver(has_output_type: true, import_name: "AvatarRsc", import_path: "/path/to/test/fixture/relay-rsc-resolver-field-overlapping-argument.js", fragment_name: "UserAvatarRsc_user") @resolver_source_hash(value: "c29a4579735357bdc442976178100d11")
+}

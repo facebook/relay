@@ -9,6 +9,8 @@
 // `tests/`, so point it at the file's actual location next to the fixtures.
 #[path = "relay_compiler_integration/mock_persister.rs"]
 mod mock_persister;
+#[path = "relay_compiler_integration/rsc_contract_tests.rs"]
+mod rsc_contract_tests;
 
 use std::path::Path;
 use std::path::PathBuf;
@@ -41,11 +43,16 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let has_extra_artifacts = !fixture.content.contains("%without_extra_artifacts%");
 
     if project_fixture.file_changes().is_empty() {
-        return transform_project_fixture(&project_fixture, has_extra_artifacts).await;
+        return transform_project_fixture_with_extra_artifacts(
+            &project_fixture,
+            has_extra_artifacts,
+        )
+        .await;
     }
 
-    let incremental_result = transform_project_fixture(&project_fixture, has_extra_artifacts).await;
-    let full_result = transform_project_fixture(
+    let incremental_result =
+        transform_project_fixture_with_extra_artifacts(&project_fixture, has_extra_artifacts).await;
+    let full_result = transform_project_fixture_with_extra_artifacts(
         &project_fixture.with_file_changes_applied(),
         has_extra_artifacts,
     )
@@ -74,7 +81,11 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 ///
 /// If there are file changes in the ProjectFixture, an initial build will be
 /// done followed by an incremental build with the file changes applied.
-pub async fn transform_project_fixture(
+pub async fn transform_project_fixture(project_fixture: &ProjectFixture) -> Result<String, String> {
+    transform_project_fixture_with_extra_artifacts(project_fixture, true).await
+}
+
+async fn transform_project_fixture_with_extra_artifacts(
     project_fixture: &ProjectFixture,
     has_extra_artifacts: bool,
 ) -> Result<String, String> {

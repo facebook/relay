@@ -59,6 +59,24 @@ pub enum IrParsingErrorMessages {
     ConflictingArguments,
 
     #[error(
+        "Relay Resolver-authored RSC argument `{argument_name}` has incompatible types: the public field declares `{field_type}`, but the root fragment expects `{fragment_type}`."
+    )]
+    RscResolverFieldArgumentTypeMismatch {
+        argument_name: StringKey,
+        field_type: String,
+        fragment_type: String,
+    },
+
+    #[error(
+        "Relay Resolver-authored RSC argument `{argument_name}` cannot retain root fragment default `{default_value}` because it is invalid for the public field type `{field_type}`."
+    )]
+    RscResolverFieldArgumentDefaultValueMismatch {
+        argument_name: StringKey,
+        default_value: String,
+        field_type: String,
+    },
+
+    #[error(
         "The compiler attempted to parse \"{user_provided}\" as a GraphQL type (e.g. `Viewer` or `User`), but had unparsed characters remaining. Try removing everything after \"{parsed}\"."
     )]
     RemainingCharsWhenParsingIdentifier {
@@ -117,6 +135,61 @@ pub enum IrParsingErrorMessages {
         "The `@mayWaterfall` docblock tag requires `@returnFragment`. `@mayWaterfall` declares that a shadow resolver may return a pointer to a different server object, so it is only meaningful on a resolver that returns a fragment."
     )]
     MayWaterfallRequiresReturnFragment,
+
+    #[error(
+        "Relay Resolver-authored RSC field `{field_name}` requires the `enable_relay_rsc` feature flag."
+    )]
+    RscResolverFieldFeatureDisabled { field_name: StringKey },
+
+    #[error(
+        "Relay Resolver-authored RSC field `{field_name}` must use the nullable scalar type `RelayRscValue` exactly; lists and `RelayRscValue!` are not supported."
+    )]
+    RscResolverFieldInvalidType { field_name: StringKey },
+
+    #[error(
+        "Relay Resolver-authored RSC field `{field_name}` requires exactly one `@rootFragment`."
+    )]
+    RscResolverFieldRequiresRootFragment { field_name: StringKey },
+
+    #[error(
+        "Root fragment `{fragment_name}` for Relay Resolver-authored RSC field `{field_name}` must be marked `@server`."
+    )]
+    RscResolverFieldRequiresServerFragment {
+        field_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error(
+        "Relay Resolver-authored RSC field `{field_name}` cannot use plural root fragment `{fragment_name}`."
+    )]
+    RscResolverFieldPluralRootFragment {
+        field_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error(
+        "Relay Resolver-authored RSC field `{field_name}` derives an empty component prop name from root fragment `{fragment_name}`. Rename the fragment to end with a non-empty suffix."
+    )]
+    RscResolverFieldEmptyFragmentProp {
+        field_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error(
+        "Relay Resolver-authored RSC field `{field_name}` derives reserved component prop name `args` from root fragment `{fragment_name}`. Rename the fragment suffix."
+    )]
+    RscResolverFieldReservedFragmentProp {
+        field_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error("Relay Resolver-authored RSC field `{field_name}` cannot be `@live`.")]
+    RscResolverFieldLiveUnsupported { field_name: StringKey },
+
+    #[error(
+        "Relay Resolver-authored RSC field `{field_name}` cannot use `@returnFragment` or `@mayWaterfall`."
+    )]
+    RscResolverFieldReturnFragmentUnsupported { field_name: StringKey },
 }
 
 #[derive(

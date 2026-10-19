@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+// relay:enable_relay_rsc
+
+/**
+ * @relayField User.avatarRsc(size: Int = 32): String
+ * @rootFragment UserAvatarRsc_user
+ */
+graphql`
+  fragment UserAvatarRsc_user on User
+  @argumentDefinitions(size: {type: "Int", defaultValue: 64})
+  @server {
+    name
+  }
+`;
+==================================== ERROR ====================================
+✖︎ Defining arguments with default values for resolver fields is not supported, yet.
+
+  /path/to/test/fixture/relay-rsc-resolver-field-default-on-field.invalid.js:12:43
+   11 │ *
+   12 │  * @relayField User.avatarRsc(size: Int = 32): String
+      │                                           ^^
+   13 │  * @rootFragment UserAvatarRsc_user

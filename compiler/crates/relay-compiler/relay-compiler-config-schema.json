@@ -215,6 +215,21 @@
           "$ref": "#/$defs/Rollout",
           "default": null
         },
+        "rscNodeType": {
+          "description": "The consumer-visible type of a Resolver-authored `RelayRscValue`.\nFor example: \"unknown\" or {\"name\": \"ReactNode\", \"path\": \"react\"}.\nDefaults to `ReactNode` imported from `react` when omitted.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CustomType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": {
+            "name": "ReactNode",
+            "path": "react"
+          }
+        },
         "schema": {
           "description": "Path to the schema.graphql or a directory containing a schema broken up\nin multiple *.graphql files.\nExactly 1 of these options needs to be defined.",
           "type": [
@@ -1763,6 +1778,21 @@
             }
           ],
           "default": null
+        },
+        "rscNodeType": {
+          "description": "The consumer-visible type of a Resolver-authored `RelayRscValue`.\nFor example: \"unknown\" or {\"name\": \"ReactNode\", \"path\": \"react\"}.\nDefaults to `ReactNode` imported from `react` when omitted.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CustomType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": {
+            "name": "ReactNode",
+            "path": "react"
+          }
         },
         "schema": {
           "description": "Path to schema.graphql",

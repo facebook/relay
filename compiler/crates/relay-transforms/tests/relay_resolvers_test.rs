@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c4953c95b3cbfebed7b3bd1b96325e9d>>
+ * @generated SignedSource<<709eb324cd34d01317a19a31be2f2bd4>>
  */
 
 mod relay_resolvers;
@@ -157,6 +157,13 @@ async fn resolver_fragment_unmasked_spread() {
     let input = include_str!("relay_resolvers/fixtures/resolver-fragment-unmasked-spread.graphql");
     let expected = include_str!("relay_resolvers/fixtures/resolver-fragment-unmasked-spread.expected");
     test_fixture(transform_fixture, file!(), "resolver-fragment-unmasked-spread.graphql", "relay_resolvers/fixtures/resolver-fragment-unmasked-spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn rsc_and_ordinary_resolver_shared_root_invalid() {
+    let input = include_str!("relay_resolvers/fixtures/rsc-and-ordinary-resolver-shared-root.invalid.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/rsc-and-ordinary-resolver-shared-root.invalid.expected");
+    test_fixture(transform_fixture, file!(), "rsc-and-ordinary-resolver-shared-root.invalid.graphql", "relay_resolvers/fixtures/rsc-and-ordinary-resolver-shared-root.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -1,0 +1,54 @@
+//- src/Page.js
+
+graphql`query RscComponentExportCollisionQuery @server {
+  me {
+    first: rsc_panel
+    second: rscPanel
+  }
+}`
+
+//- src/RscPanel.js
+
+/**
+ * @relayField User.rsc_panel: RelayRscValue
+ * @rootFragment RscPanelFirst_user
+ */
+graphql`fragment RscPanelFirst_user on User @server {
+  name
+}`
+
+/**
+ * @relayField User.rscPanel: RelayRscValue
+ * @rootFragment RscPanelSecond_user
+ */
+graphql`fragment RscPanelSecond_user on User @server {
+  name
+}`
+
+// Both fields name their component `RscPanel`.
+export function RscPanel() {}
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "jsModuleFormat": "commonjs",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}

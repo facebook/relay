@@ -1,0 +1,49 @@
+==================================== INPUT ====================================
+# relay:enable_relay_rsc
+# relay:rsc_node_type = unknown
+
+fragment RelayRscResolverFieldRawNodeType_user on User @server {
+  name
+}
+
+query RelayRscResolverFieldRawNodeTypeQuery @server {
+  me {
+    displayName: fullNameRsc
+  }
+}
+
+# %extensions%
+
+extend type User {
+  fullNameRsc: RelayRscValue
+    @relay_resolver(
+      fragment_name: "RelayRscResolverFieldRawNodeType_user"
+      import_path: "./FullNameRsc.server.js"
+      import_name: "FullNameRsc"
+    )
+}
+==================================== OUTPUT ===================================
+export type RelayRscResolverFieldRawNodeTypeQuery$variables = {};
+export type RelayRscResolverFieldRawNodeTypeQuery$data = {
+  readonly me: ?{
+    readonly displayName: unknown,
+  },
+};
+export type RelayRscResolverFieldRawNodeTypeQuery = {
+  readonly $serverOperation: true,
+  response: RelayRscResolverFieldRawNodeTypeQuery$data,
+  variables: RelayRscResolverFieldRawNodeTypeQuery$variables,
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayRscResolverFieldRawNodeType_user$fragmentType: FragmentType;
+export type RelayRscResolverFieldRawNodeType_user$data = {
+  readonly name: ?string,
+  readonly $fragmentType: RelayRscResolverFieldRawNodeType_user$fragmentType,
+};
+export type RelayRscResolverFieldRawNodeType_user$key = {
+  readonly $data?: RelayRscResolverFieldRawNodeType_user$data,
+  readonly $serverFragment: true,
+  readonly $fragmentSpreads: RelayRscResolverFieldRawNodeType_user$fragmentType,
+  ...
+};

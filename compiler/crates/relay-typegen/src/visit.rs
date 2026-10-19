@@ -23,6 +23,7 @@ use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
+use docblock_shared::RELAY_RSC_VALUE_SCALAR_NAME;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use graphql_ir::Condition;
 use graphql_ir::Directive;
@@ -348,6 +349,20 @@ fn visit_fragment_spread(
         });
 
         type_selections.push(spread_selection);
+    }
+}
+
+pub(crate) fn rsc_node_type(
+    typegen_context: &'_ TypegenContext<'_>,
+    custom_scalars: &mut CustomScalarsImports,
+) -> AST {
+    match &typegen_context.project_config.typegen_config.rsc_node_type {
+        Some(CustomType::Name(type_name)) => AST::RawType(*type_name),
+        Some(CustomType::Path(custom_type)) => {
+            custom_scalars.insert((custom_type.name, custom_type.path.clone()));
+            AST::RawType(custom_type.name)
+        }
+        None => AST::Mixed,
     }
 }
 
@@ -782,6 +797,14 @@ fn is_relay_resolver_type(typegen_context: &'_ TypegenContext<'_>, field: &Field
     }
 }
 
+fn is_relay_rsc_value_type(typegen_context: &'_ TypegenContext<'_>, field: &Field) -> bool {
+    if let Some(scalar_id) = field.type_.inner().get_scalar_id() {
+        typegen_context.schema.scalar(scalar_id).name.item == *RELAY_RSC_VALUE_SCALAR_NAME
+    } else {
+        false
+    }
+}
+
 /// Build relay resolver field type
 #[allow(clippy::too_many_arguments)]
 fn relay_resolver_field_type(
@@ -864,6 +887,27 @@ fn visit_relay_resolver(
     imported_resolvers: &mut ImportedResolvers,
     emit_semantic_types: bool,
 ) {
+    let schema_field = resolver_metadata.field(typegen_context.schema);
+    if typegen_context
+        .project_config
+        .relay_rsc_capabilities()
+        .is_some()
+        && is_relay_rsc_value_type(typegen_context, schema_field)
+    {
+        let field_name = resolver_metadata.field_name(typegen_context.schema);
+        let key = resolver_metadata.field_alias.unwrap_or(field_name);
+        type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
+            field_name_or_alias: key,
+            special_field: None,
+            value: rsc_node_type(typegen_context, custom_scalars),
+            conditional: false,
+            concrete_type: None,
+            abstract_type: None,
+            is_result_type: false,
+        }));
+        return;
+    }
+
     import_relay_resolver_function_type(
         typegen_context,
         fragment_name,

@@ -42,6 +42,7 @@ pub use validate_resolver_schema::validate_resolver_schema;
 
 pub struct ParseOptions<'a> {
     pub enable_interface_output_type: &'a FeatureFlag,
+    pub enable_relay_rsc: bool,
     pub allow_resolver_non_nullable_return_type: &'a FeatureFlag,
     pub allow_legacy_relay_resolver_tag: &'a FeatureFlag,
 }

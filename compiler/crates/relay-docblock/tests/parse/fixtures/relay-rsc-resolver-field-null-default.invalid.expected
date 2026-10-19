@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+// relay:enable_relay_rsc
+
+/**
+ * @relayField User.avatarRsc(size: Int!): RelayRscValue
+ * @rootFragment UserAvatarRsc_user
+ */
+graphql`
+  fragment UserAvatarRsc_user on User
+  @argumentDefinitions(size: {type: "Int", defaultValue: null})
+  @server {
+    name
+  }
+`;
+==================================== ERROR ====================================
+✖︎ Relay Resolver-authored RSC argument `size` cannot retain root fragment default `null` because it is invalid for the public field type `Int!`.
+
+  /path/to/test/fixture/relay-rsc-resolver-field-null-default.invalid.js:17:58
+   16 │   fragment UserAvatarRsc_user on User
+   17 │   @argumentDefinitions(size: {type: "Int", defaultValue: null})
+      │                                                          ^^^^
+   18 │   @server {

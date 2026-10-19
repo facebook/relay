@@ -1,0 +1,54 @@
+==================================== INPUT ====================================
+//- src/Page.js
+
+// `@throwOnFieldError` on a server-owned operation is rejected because the
+// operation's own field errors are not raised when its data is read.
+graphql`query ServerRscThrowOnFieldErrorQuery @server @throwOnFieldError {
+  me {
+    panel: rscPanel
+  }
+}`
+
+//- src/RscPanel.js
+
+/**
+ * @relayField User.rscPanel: RelayRscValue
+ * @rootFragment RscPanel_user
+ */
+graphql`fragment RscPanel_user on User @server {
+  name
+}`
+
+export function RscPanel() {}
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "jsModuleFormat": "commonjs",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}
+==================================== OUTPUT ===================================
+✖︎ Server-owned operation `ServerRscThrowOnFieldErrorQuery` cannot use `@throwOnFieldError` because a server-owned operation's own field errors are not raised when its data is read. Add `@throwOnFieldError` to the server-owned fragments that read those fields instead.
+
+  src/Page.js:4:55
+    4 │ query ServerRscThrowOnFieldErrorQuery @server @throwOnFieldError {
+      │                                               ^^^^^^^^^^^^^^^^^^
+    5 │   me {

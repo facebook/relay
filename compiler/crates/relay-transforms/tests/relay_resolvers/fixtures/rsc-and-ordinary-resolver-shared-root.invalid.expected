@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+#expected-to-throw
+
+fragment SharedResolverRoot_user on User {
+  name
+  ...SharedResolverNested_user
+}
+
+fragment SharedResolverNested_user on User {
+  id
+}
+
+# %extensions%
+
+scalar RelayRscValue
+
+extend type User {
+  ordinary_shared_root: String
+    @relay_resolver(fragment_name: "SharedResolverRoot_user", import_path: "OrdinarySharedRootResolver")
+  rsc_shared_root: RelayRscValue
+    @relay_resolver(fragment_name: "SharedResolverRoot_user", import_path: "RscSharedRootResolver")
+}
+==================================== ERROR ====================================
+✖︎ Expected fragment spread into Relay Resolver root fragment to be annotated with `@inline` or `@relay(mask: false)`. Relay Resolvers only support reading `@inline` fragments and unmasked fragments.
+
+  rsc-and-ordinary-resolver-shared-root.invalid.graphql:5:6
+    4 │   name
+    5 │   ...SharedResolverNested_user
+      │      ^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │ }
+
+  ℹ︎ Fragment is defined
+
+  rsc-and-ordinary-resolver-shared-root.invalid.graphql:8:10
+    7 │ 
+    8 │ fragment SharedResolverNested_user on User {
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^
+    9 │   id

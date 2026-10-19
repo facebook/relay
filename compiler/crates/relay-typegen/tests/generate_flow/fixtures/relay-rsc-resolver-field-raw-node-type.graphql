@@ -1,0 +1,23 @@
+# relay:enable_relay_rsc
+# relay:rsc_node_type = unknown
+
+fragment RelayRscResolverFieldRawNodeType_user on User @server {
+  name
+}
+
+query RelayRscResolverFieldRawNodeTypeQuery @server {
+  me {
+    displayName: fullNameRsc
+  }
+}
+
+# %extensions%
+
+extend type User {
+  fullNameRsc: RelayRscValue
+    @relay_resolver(
+      fragment_name: "RelayRscResolverFieldRawNodeType_user"
+      import_path: "./FullNameRsc.server.js"
+      import_name: "FullNameRsc"
+    )
+}

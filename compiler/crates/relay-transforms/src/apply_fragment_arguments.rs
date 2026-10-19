@@ -58,6 +58,7 @@ use super::get_applied_fragment_name;
 use crate::ClientComponentBoundaryMetadata;
 use crate::RawResponseGenerationMode;
 use crate::RelayResolverMetadata;
+use crate::RscSeamMetadata;
 use crate::match_::DIRECTIVE_SPLIT_OPERATION;
 use crate::match_::SplitOperationMetadata;
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
@@ -346,7 +347,8 @@ impl Transformer<'_> for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         let applied_fragment = self.apply_fragment(spread, fragment);
 
         if self.is_normalization
-            && ClientComponentBoundaryMetadata::find(&spread.directives).is_some()
+            && (ClientComponentBoundaryMetadata::find(&spread.directives).is_some()
+                || RscSeamMetadata::find(&spread.directives).is_some())
         {
             let Some(applied_fragment) = applied_fragment else {
                 return Transformed::Delete;
@@ -419,6 +421,20 @@ impl Transformer<'_> for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     RelayResolverMetadata {
                         field_arguments: new_args,
                         ..resolver_metadata.clone()
+                    }
+                    .into()
+                })
+                .into();
+        }
+        if directive.name.item == RscSeamMetadata::directive_name()
+            && let Some(seam) = RscSeamMetadata::from(directive)
+        {
+            return self
+                .transform_arguments(&seam.component_arguments)
+                .map(|component_arguments| {
+                    RscSeamMetadata {
+                        component_arguments,
+                        ..seam.clone()
                     }
                     .into()
                 })

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1cb5af3786b27f356af84af885731db8>>
+ * @generated SignedSource<<b339de4100acb87e4ef629a9b5527878>>
  */
 
 mod generate_typescript;
@@ -444,6 +444,27 @@ async fn relay_resolver_with_output_type_relay_resolver_value_required() {
     let input = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.graphql");
     let expected = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-with-output-type-relay-resolver-value-required.graphql", "generate_typescript/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field() {
+    let input = include_str!("generate_typescript/fixtures/relay-rsc-resolver-field.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-rsc-resolver-field.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field.graphql", "generate_typescript/fixtures/relay-rsc-resolver-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_default_node_type() {
+    let input = include_str!("generate_typescript/fixtures/relay-rsc-resolver-field-default-node-type.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-rsc-resolver-field-default-node-type.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-default-node-type.graphql", "generate_typescript/fixtures/relay-rsc-resolver-field-default-node-type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_rsc_resolver_field_raw_node_type() {
+    let input = include_str!("generate_typescript/fixtures/relay-rsc-resolver-field-raw-node-type.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-rsc-resolver-field-raw-node-type.expected");
+    test_fixture(transform_fixture, file!(), "relay-rsc-resolver-field-raw-node-type.graphql", "generate_typescript/fixtures/relay-rsc-resolver-field-raw-node-type.expected", input, expected).await;
 }
 
 #[tokio::test]

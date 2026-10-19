@@ -35,6 +35,7 @@ use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::RefetchableMetadata;
 use relay_transforms::RelayDirective;
 use relay_transforms::SERVER_DIRECTIVE;
+use relay_transforms::rsc_fragment_prop_name;
 use schema::Schema;
 
 use crate::FUTURE_ENUM_VALUE;
@@ -48,6 +49,7 @@ use crate::KEY_TYPENAME;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
 use crate::MaskStatus;
 use crate::RAW_RESPONSE_TYPE_DIRECTIVE_NAME;
+use crate::RscResolverSignatureTypeAssertionParams;
 use crate::TypegenContext;
 use crate::VALIDATOR_EXPORT_NAME;
 use crate::typegen_state::EncounteredEnums;
@@ -68,6 +70,7 @@ use crate::visit::make_custom_error_import;
 use crate::visit::make_result_type;
 use crate::visit::raw_response_selections_to_babel;
 use crate::visit::raw_response_visit_selections;
+use crate::visit::rsc_node_type;
 use crate::visit::transform_input_type;
 use crate::visit::visit_selections;
 use crate::writer::AST;
@@ -83,6 +86,266 @@ use crate::writer::Writer;
 use crate::writer::deduplicate_raw_response_types;
 
 pub(crate) type CustomScalarsImports = HashSet<(StringKey, PathBuf)>;
+
+const RSC_COMPONENT_TYPE_NAME: &str = "__RelayRscComponent";
+const RSC_EXPECTED_ARG_NAMES_TYPE_NAME: &str = "__RelayRscExpectedArgNames";
+const RSC_EXPECTED_ARGS_TYPE_NAME: &str = "__RelayRscExpectedArgs";
+const RSC_EXPECTED_COMPONENT_TYPE_NAME: &str = "__RelayRscExpectedComponent";
+const RSC_EXPECTED_PROPS_TYPE_NAME: &str = "__RelayRscExpectedProps";
+const RSC_SIGNATURE_ASSERT_TYPE_NAME: &str = "__RelayRscAssert";
+const RSC_SIGNATURE_CHECK_TYPE_NAME: &str = "__RelayRscResolverSignature";
+
+pub(crate) fn write_rsc_resolver_signature_type_assertion(
+    typegen_context: &'_ TypegenContext<'_>,
+    params: &RscResolverSignatureTypeAssertionParams<'_>,
+    writer: &mut Box<dyn Writer>,
+) -> FmtResult {
+    let signature_artifact_path = typegen_context
+        .project_config
+        .artifact_path_for_definition(params.signature_definition);
+    let component_source_path = PathBuf::from(params.component_import_path.lookup());
+    let component_import_path = typegen_context
+        .project_config
+        .js_module_import_identifier(&signature_artifact_path, &component_source_path);
+    let component_import_path = strip_source_extension(component_import_path.lookup());
+
+    let fragment_name = params.root_fragment.name.item;
+    let fragment_key_type = format!("{fragment_name}$key");
+    let fragment_import_path = fragment_type_import_path(typegen_context, params.root_fragment);
+    let fragment_prop_name = rsc_fragment_prop_name(fragment_name);
+    let fragment_argument_names: HashSet<StringKey> = params
+        .root_fragment
+        .variable_definitions
+        .iter()
+        .map(|definition| definition.name.item.0)
+        .collect();
+
+    let mut input_object_types = Default::default();
+    let mut encountered_enums = Default::default();
+    let mut custom_scalars = CustomScalarsImports::default();
+    let runtime_argument_names: Vec<StringKey> = params
+        .schema_field
+        .arguments
+        .iter()
+        .filter(|argument| !fragment_argument_names.contains(&argument.name.item.0))
+        .map(|argument| argument.name.item.0)
+        .collect();
+    let has_runtime_arguments = !runtime_argument_names.is_empty();
+    let runtime_arguments: Vec<KeyValuePairProp> = params
+        .schema_field
+        .arguments
+        .iter()
+        .filter(|argument| !fragment_argument_names.contains(&argument.name.item.0))
+        .map(|argument| KeyValuePairProp {
+            key: argument.name.item.0,
+            value: transform_input_type(
+                typegen_context,
+                &argument.type_,
+                &mut input_object_types,
+                &mut encountered_enums,
+                &mut custom_scalars,
+            ),
+            read_only: true,
+            optional: !argument.type_.is_non_null() || argument.default_value.is_some(),
+        })
+        .collect();
+    let node_type = rsc_node_type(typegen_context, &mut custom_scalars);
+    let return_type = AST::Union(SortedASTList::new(vec![
+        node_type.clone(),
+        AST::GenericType {
+            outer: intern!("Promise"),
+            inner: vec![node_type],
+        },
+    ]));
+    let expected_args_type = AST::ExactObject(ExactObject::new(
+        runtime_arguments
+            .into_iter()
+            .map(|mut argument| {
+                argument.read_only = false;
+                Prop::KeyValuePair(argument)
+            })
+            .collect(),
+    ));
+    let expected_props_type = AST::ExactObject(ExactObject::new(vec![
+        Prop::KeyValuePair(KeyValuePairProp {
+            key: fragment_prop_name,
+            value: AST::RawType(fragment_key_type.as_str().intern()),
+            read_only: false,
+            optional: false,
+        }),
+        Prop::KeyValuePair(KeyValuePairProp {
+            key: intern!("args"),
+            value: AST::RawType(RSC_EXPECTED_ARGS_TYPE_NAME.intern()),
+            read_only: false,
+            optional: false,
+        }),
+    ]));
+
+    match typegen_context.project_config.typegen_config.language {
+        TypegenLanguage::Flow => writeln!(
+            writer,
+            "import typeof {{{} as {RSC_COMPONENT_TYPE_NAME}}} from \"{component_import_path}\";",
+            params.component_export_name,
+        )?,
+        TypegenLanguage::TypeScript => writeln!(
+            writer,
+            "type {RSC_COMPONENT_TYPE_NAME} = typeof import(\"{component_import_path}\")[\"{}\"];",
+            params.component_export_name,
+        )?,
+        TypegenLanguage::JavaScript => return Ok(()),
+    }
+    write_erased_type_import(writer, &fragment_key_type, &fragment_import_path)?;
+    write_rsc_signature_enum_definitions(typegen_context, encountered_enums, writer)?;
+    write_erased_custom_scalar_imports(custom_scalars, writer)?;
+    write_input_object_types(
+        input_object_types
+            .into_iter()
+            .map(|(key, value)| (key, value.unwrap_resolved_type())),
+        writer,
+    )?;
+
+    write!(writer, "type {RSC_EXPECTED_ARG_NAMES_TYPE_NAME} = ")?;
+    if runtime_argument_names.is_empty() {
+        // Flow spells the empty type `empty`; it rejects `never`.
+        let empty_type = match typegen_context.project_config.typegen_config.language {
+            TypegenLanguage::Flow => "empty",
+            _ => "never",
+        };
+        write!(writer, "{empty_type}")?;
+    } else {
+        writer.write(&AST::Union(SortedASTList::new(
+            runtime_argument_names
+                .into_iter()
+                .map(|name| AST::StringLiteral(StringLiteral(name)))
+                .collect(),
+        )))?;
+    }
+    writeln!(writer, ";")?;
+    write!(writer, "type {RSC_EXPECTED_ARGS_TYPE_NAME} = ")?;
+    if !has_runtime_arguments
+        && typegen_context.project_config.typegen_config.language == TypegenLanguage::TypeScript
+    {
+        // `Record<never, never>` is the genuinely keyless TypeScript callable input shape.
+        write!(writer, "Record<never, never>")?;
+    } else {
+        writer.write(&expected_args_type)?;
+    }
+    writeln!(writer, ";")?;
+    write!(writer, "type {RSC_EXPECTED_PROPS_TYPE_NAME} = ")?;
+    writer.write(&expected_props_type)?;
+    writeln!(writer, ";")?;
+    write!(
+        writer,
+        "type {RSC_EXPECTED_COMPONENT_TYPE_NAME} = (props: {RSC_EXPECTED_PROPS_TYPE_NAME}) => "
+    )?;
+    writer.write(&return_type)?;
+    writeln!(writer, ";")?;
+    writeln!(
+        writer,
+        "type {RSC_SIGNATURE_ASSERT_TYPE_NAME}<T extends {RSC_EXPECTED_COMPONENT_TYPE_NAME}, Args extends [any], RequiredProps extends keyof Args[0], RequiredArgs extends keyof Args[0][\"args\"], CallableProps extends Args[0]> = T;"
+    )?;
+    writeln!(
+        writer,
+        "export type {RSC_SIGNATURE_CHECK_TYPE_NAME} = {RSC_SIGNATURE_ASSERT_TYPE_NAME}<{RSC_COMPONENT_TYPE_NAME}, Parameters<{RSC_COMPONENT_TYPE_NAME}>, keyof {RSC_EXPECTED_PROPS_TYPE_NAME}, {RSC_EXPECTED_ARG_NAMES_TYPE_NAME}, {RSC_EXPECTED_PROPS_TYPE_NAME}>;"
+    )?;
+    Ok(())
+}
+
+fn strip_source_extension(path: &str) -> &str {
+    path.strip_suffix(".tsx")
+        .or_else(|| path.strip_suffix(".ts"))
+        .or_else(|| path.strip_suffix(".jsx"))
+        .or_else(|| path.strip_suffix(".js"))
+        .unwrap_or(path)
+}
+
+fn fragment_type_import_path(
+    typegen_context: &'_ TypegenContext<'_>,
+    fragment: &FragmentDefinition,
+) -> String {
+    match typegen_context.project_config.js_module_format {
+        JsModuleFormat::CommonJS => {
+            let signature_artifact_path = typegen_context
+                .project_config
+                .artifact_path_for_definition(typegen_context.definition_source_location);
+            let fragment_artifact_path = typegen_context.project_config.create_path_for_artifact(
+                fragment.name.location.source_location(),
+                format!("{}.graphql", fragment.name.item),
+            );
+            let relative_path = typegen_context
+                .project_config
+                .js_module_import_identifier(&signature_artifact_path, &fragment_artifact_path);
+            let relative_path = relative_path.lookup();
+            if relative_path.starts_with('.') {
+                relative_path.to_string()
+            } else {
+                format!("./{relative_path}")
+            }
+        }
+        JsModuleFormat::Haste => format!("{}.graphql", fragment.name.item),
+    }
+}
+
+fn write_erased_type_import(writer: &mut Box<dyn Writer>, name: &str, path: &str) -> FmtResult {
+    writer.write_import_type(&[name], path)
+}
+
+fn write_erased_custom_scalar_imports(
+    custom_scalars: CustomScalarsImports,
+    writer: &mut Box<dyn Writer>,
+) -> FmtResult {
+    for (name, path) in custom_scalars.iter().sorted_by_key(|(key, _)| *key) {
+        write_erased_type_import(
+            writer,
+            name.lookup(),
+            path.to_str().expect("valid UTF-8 path"),
+        )?;
+    }
+    Ok(())
+}
+
+fn write_rsc_signature_enum_definitions(
+    typegen_context: &'_ TypegenContext<'_>,
+    encountered_enums: EncounteredEnums,
+    writer: &mut Box<dyn Writer>,
+) -> FmtResult {
+    let enum_ids = encountered_enums.into_sorted_vec(typegen_context.schema);
+    let maybe_suffix = &typegen_context
+        .project_config
+        .typegen_config
+        .enum_module_suffix;
+    for enum_id in enum_ids {
+        let enum_type = typegen_context.schema.enum_(enum_id);
+        if !enum_type.is_extension
+            && let Some(suffix) = maybe_suffix
+        {
+            write_erased_type_import(
+                writer,
+                enum_type.name.item.lookup(),
+                &format!("{}{}", enum_type.name.item, suffix),
+            )?;
+        } else {
+            let mut members: Vec<AST> = enum_type
+                .values
+                .iter()
+                .map(|enum_value| AST::StringLiteral(StringLiteral(enum_value.value)))
+                .collect();
+            if !(enum_type.is_extension
+                || typegen_context
+                    .project_config
+                    .typegen_config
+                    .no_future_proof_enums)
+            {
+                members.push(AST::StringLiteral(StringLiteral(*FUTURE_ENUM_VALUE)));
+            }
+            writer.write_export_type(
+                enum_type.name.item.lookup(),
+                &AST::Union(SortedASTList::new(members)),
+            )?;
+        }
+    }
+    Ok(())
+}
 
 static THROW_ON_FIELD_ERROR_DIRECTIVE: LazyLock<DirectiveName> =
     LazyLock::new(|| DirectiveName("throwOnFieldError".intern()));

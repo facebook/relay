@@ -31,6 +31,8 @@ use relay_codegen::JsModuleFormat;
 use relay_codegen::print_provided_variables;
 use relay_config::CustomType;
 use relay_config::CustomTypeImport;
+use relay_config::ModuleImportConfig;
+use relay_config::ModuleProvider;
 use relay_config::ProjectConfig;
 use relay_config::ProjectName;
 use relay_test_schema::get_test_schema;
@@ -59,6 +61,7 @@ fn typename_discriminated_unions_flag(fixture: &Fixture<'_>) -> FeatureFlag {
 }
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+    let enable_relay_rsc = fixture.content.contains("# relay:enable_relay_rsc");
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
         [source, extensions] => (source, get_test_schema_with_extensions(extensions)),
@@ -95,6 +98,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             "query-with-disabled-deduplicated-raw-response-type.graphql" => FeatureFlag::Enabled,
             _ => FeatureFlag::Disabled,
         },
+        enable_relay_rsc,
         enable_typename_discriminated_unions: typename_discriminated_unions_flag(fixture),
         ..Default::default()
     };
@@ -148,11 +152,31 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let project_config = ProjectConfig {
         name: ProjectName::default(),
         js_module_format: JsModuleFormat::Haste,
+        module_import_config: if enable_relay_rsc {
+            ModuleImportConfig {
+                dynamic_module_provider: Some(ModuleProvider::Custom {
+                    statement: "() => import('<$module>')".intern(),
+                }),
+                ..Default::default()
+            }
+        } else {
+            ModuleImportConfig::default()
+        },
         feature_flags: Arc::new(feature_flags),
         typegen_config: TypegenConfig {
             language: TypegenLanguage::Flow,
             custom_scalar_types,
             custom_error_type,
+            rsc_node_type: if fixture.content.contains("# relay:rsc_node_type = unknown") {
+                Some(CustomType::Name("unknown".intern()))
+            } else if fixture.content.contains("# relay:rsc_node_type") {
+                Some(CustomType::Path(CustomTypeImport {
+                    name: "ReactNode".intern(),
+                    path: "react".into(),
+                }))
+            } else {
+                TypegenConfig::default().rsc_node_type
+            },
             ..Default::default()
         },
         ..Default::default()

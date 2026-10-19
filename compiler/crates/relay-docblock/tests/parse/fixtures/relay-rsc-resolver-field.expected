@@ -1,0 +1,78 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// relay:enable_relay_rsc
+
+/**
+ * @relayField User.fullNameRsc: RelayRscValue
+ * @rootFragment UserFullNameRsc_user
+ */
+graphql`
+  fragment UserFullNameRsc_user on User @server {
+    firstName
+    lastName
+  }
+`;
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 22:33,
+                    token: Token {
+                        span: 22:33,
+                        kind: Identifier,
+                    },
+                    value: "fullNameRsc",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 35:48,
+                            token: Token {
+                                span: 35:48,
+                                kind: Identifier,
+                            },
+                            value: "RelayRscValue",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 22:48,
+            },
+            type_: WithLocation {
+                location: /path/to/test/fixture/relay-rsc-resolver-field.js:17:21,
+                item: "User",
+            },
+            root_fragment: Some(
+                WithLocation {
+                    location: /path/to/test/fixture/relay-rsc-resolver-field.js:66:86,
+                    item: FragmentDefinitionName(
+                        "UserFullNameRsc_user",
+                    ),
+                },
+            ),
+            return_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            may_waterfall: None,
+            location: /path/to/test/fixture/relay-rsc-resolver-field.js:0:87,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "200064504879f4fcf4f5ecdf45aaa42d",
+            ),
+            type_confirmed: false,
+            property_lookup_name: None,
+        },
+    ),
+)

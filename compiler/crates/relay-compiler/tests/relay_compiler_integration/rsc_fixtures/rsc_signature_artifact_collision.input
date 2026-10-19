@@ -1,0 +1,53 @@
+//- src/RscPanel.jsx
+
+import type {ReactNode} from 'react';
+import type {RscPanel_user$key} from './__generated__/RscPanel_user.graphql';
+
+// Two fields share a root fragment and a component export, so they share one
+// signature artifact path. Neither field is selected.
+
+/**
+ * @relayField User.rscPanel(tone: String!): RelayRscValue
+ * @rootFragment RscPanel_user
+ */
+
+/**
+ * @relayField User.rsc_panel(size: Int!): RelayRscValue
+ * @rootFragment RscPanel_user
+ */
+graphql`fragment RscPanel_user on User @server {
+  name
+}`
+
+export function RscPanel(props: {
+  user: RscPanel_user$key,
+  args: {tone: string},
+}): ReactNode {
+  return null;
+}
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "flow",
+      "jsModuleFormat": "commonjs",
+      "rscNodeType": {"name": "ReactNode", "path": "react"},
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}

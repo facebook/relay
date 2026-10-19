@@ -1,0 +1,53 @@
+//- src/Page.ts
+
+graphql`query ServerRscResolverSignatureTypeScriptQuery @server {
+  me {
+    panel: rscPanel
+  }
+}`
+
+//- src/RscPanel.tsx
+
+import type {ReactNode} from 'react';
+import type {RscPanel_user$key} from './__generated__/RscPanel_user.graphql';
+
+/**
+ * @relayField User.rscPanel: RelayRscValue
+ * @rootFragment RscPanel_user
+ */
+graphql`fragment RscPanel_user on User @server {
+  name
+}`
+
+export function RscPanel(props: {
+  user: RscPanel_user$key;
+  args: Record<never, never>;
+}): ReactNode {
+  return null;
+}
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "typescript",
+      "jsModuleFormat": "commonjs",
+      "rscNodeType": {"name": "ReactNode", "path": "react"},
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}

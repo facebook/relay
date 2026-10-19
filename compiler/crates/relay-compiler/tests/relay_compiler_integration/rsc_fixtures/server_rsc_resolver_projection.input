@@ -1,0 +1,66 @@
+//- src/Page.js
+
+graphql`query ServerRscResolverProjectionQuery @server {
+  me {
+    panel: rscPanel
+    noArgsPanel
+  }
+}`
+
+//- src/RscPanel.js
+
+/**
+ * @relayField User.rscPanel(size: Int! = 64, tone: String! = "quiet"): RelayRscValue
+ * @rootFragment RscPanel_user
+ */
+graphql`fragment RscPanel_user on User
+  @argumentDefinitions(size: {type: "Int!"})
+  @server {
+  profilePicture(size: $size) {
+    uri
+  }
+}`
+
+export function RscPanel() {}
+
+//- src/NoArgsPanel.jsx
+
+/**
+ * @relayField User.noArgsPanel: RelayRscValue
+ * @rootFragment NoArgsPanel_user
+ */
+graphql`fragment NoArgsPanel_user on User @server {
+  name
+}`
+
+export function NoArgsPanel() {}
+
+//- relay.config.json
+{
+  "sources": {"src": "test_project"},
+  "projects": {
+    "test_project": {
+      "schema": "schema.graphql",
+      "language": "javascript",
+      "jsModuleFormat": "commonjs",
+      "featureFlags": {
+        "enable_relay_rsc": true
+      }
+    }
+  }
+}
+
+//- schema.graphql
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+  profilePicture(size: Int): Image
+}
+
+type Image {
+  uri: String
+}

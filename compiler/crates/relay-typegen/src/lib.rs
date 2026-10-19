@@ -32,11 +32,13 @@ use relay_config::ProjectConfig;
 pub use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
 use relay_transforms::UPDATABLE_DIRECTIVE;
+use schema::Field;
 use schema::SDLSchema;
 pub use typegen_state::FragmentLocations;
 pub use write::has_raw_response_type_directive;
 use write::write_fragment_type_exports_section;
 use write::write_operation_type_exports_section;
+use write::write_rsc_resolver_signature_type_assertion;
 use write::write_split_operation_type_exports_section;
 use write::write_validator_function;
 use writer::new_writer_from_config;
@@ -268,6 +270,45 @@ pub fn generate_split_operation_type_exports_section(
         &mut writer,
     )
     .unwrap();
+    writer.into_string()
+}
+
+/// Inputs for a typecheck-only assertion of a Resolver-authored RSC component.
+pub struct RscResolverSignatureTypeAssertionParams<'a> {
+    pub signature_definition: WithLocation<StringKey>,
+    pub schema_field: &'a Field,
+    pub root_fragment: &'a FragmentDefinition,
+    pub component_import_path: StringKey,
+    pub component_export_name: StringKey,
+    pub schema: &'a SDLSchema,
+    pub project_config: &'a ProjectConfig,
+    pub fragment_locations: &'a FragmentLocations,
+}
+
+/// Generates erased types that check a Resolver-authored RSC component's signature.
+pub fn generate_rsc_resolver_signature_type_assertion_section(
+    params: RscResolverSignatureTypeAssertionParams<'_>,
+) -> String {
+    if params.project_config.typegen_config.language == TypegenLanguage::JavaScript
+        || params.project_config.relay_rsc_capabilities().is_none()
+    {
+        return String::new();
+    }
+
+    let typegen_context = TypegenContext::new(
+        params.schema,
+        params.project_config,
+        false,
+        params.signature_definition,
+        params.fragment_locations,
+        TypegenOptions {
+            no_optional_fields_in_raw_response_type: false,
+            is_extra_artifact_branch_module: false,
+        },
+    );
+    let mut writer = new_writer_from_config(&params.project_config.typegen_config);
+    write_rsc_resolver_signature_type_assertion(&typegen_context, &params, &mut writer)
+        .expect("writing an RSC Resolver signature assertion should not fail");
     writer.into_string()
 }
 

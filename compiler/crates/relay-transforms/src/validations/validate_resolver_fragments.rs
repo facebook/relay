@@ -10,6 +10,7 @@ use common::DiagnosticsResult;
 use common::NamedItem;
 use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RSC_VALUE_SCALAR_NAME;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentDefinitionNameSet;
@@ -32,37 +33,55 @@ pub fn validate_resolver_fragments(program: &Program) -> DiagnosticsResult<()> {
 struct ValidateResolverFragments<'a> {
     program: &'a Program,
     resolver_fragments: FragmentDefinitionNameSet,
+    non_rsc_resolver_fragments: FragmentDefinitionNameSet,
+    rsc_resolver_fragments: FragmentDefinitionNameSet,
     current_fragment: Option<FragmentDefinition>,
 }
 
 impl<'a> ValidateResolverFragments<'a> {
     fn new(program: &'a Program) -> Self {
+        let mut resolver_fragments = FragmentDefinitionNameSet::default();
+        let mut non_rsc_resolver_fragments = FragmentDefinitionNameSet::default();
+        let mut rsc_resolver_fragments = FragmentDefinitionNameSet::default();
+        for field in program.schema.fields() {
+            if !field.is_extension {
+                continue;
+            }
+            let Some(fragment_name) = field
+                .directives
+                .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+                .and_then(|directive| {
+                    get_argument_value(
+                        &directive.arguments,
+                        *FRAGMENT_KEY_ARGUMENT_NAME,
+                        field.name.location,
+                    )
+                    .ok()
+                    .map(FragmentDefinitionName)
+                })
+            else {
+                continue;
+            };
+            resolver_fragments.insert(fragment_name);
+            if field
+                .type_
+                .inner()
+                .get_scalar_id()
+                .is_some_and(|scalar_id| {
+                    program.schema.scalar(scalar_id).name.item == *RELAY_RSC_VALUE_SCALAR_NAME
+                })
+            {
+                rsc_resolver_fragments.insert(fragment_name);
+            } else {
+                non_rsc_resolver_fragments.insert(fragment_name);
+            }
+        }
         Self {
             program,
             current_fragment: None,
-            resolver_fragments: program
-                .schema
-                .fields()
-                .filter_map(|field| {
-                    if !field.is_extension {
-                        return None;
-                    }
-
-                    field
-                        .directives
-                        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
-                        .and_then(|directive| {
-                            let arguments = &directive.arguments;
-                            get_argument_value(
-                                arguments,
-                                *FRAGMENT_KEY_ARGUMENT_NAME,
-                                field.name.location,
-                            )
-                            .ok()
-                            .map(FragmentDefinitionName)
-                        })
-                })
-                .collect::<FragmentDefinitionNameSet>(),
+            non_rsc_resolver_fragments,
+            resolver_fragments,
+            rsc_resolver_fragments,
         }
     }
 }
@@ -91,6 +110,19 @@ impl<'a> Validator for ValidateResolverFragments<'a> {
     fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> DiagnosticsResult<()> {
         let fragment_definition = self.program.fragment(spread.fragment.item);
         if let Some(fragment_def) = fragment_definition {
+            // Resolver-authored RSC fields receive an opaque fragment ref and
+            // read it through useServerFragment. Unlike ordinary Relay
+            // Resolvers, that execution model intentionally supports masked
+            // server/client composition and preserves the fragment boundary
+            // needed for an independently suspending @defer child.
+            if self.current_fragment.as_ref().is_some_and(|fragment| {
+                self.rsc_resolver_fragments.contains(&fragment.name.item)
+                    && !self
+                        .non_rsc_resolver_fragments
+                        .contains(&fragment.name.item)
+            }) {
+                return Ok(());
+            }
             if fragment_def
                 .directives
                 .named(*INLINE_DIRECTIVE_NAME)

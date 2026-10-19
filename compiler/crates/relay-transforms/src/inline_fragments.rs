@@ -24,6 +24,7 @@ use graphql_ir::node_identifier::LocationAgnosticPartialEq;
 use crate::ClientComponentBoundaryMetadata;
 use crate::NoInlineFragmentSpreadMetadata;
 use crate::RelayLocationAgnosticBehavior;
+use crate::RscSeamMetadata;
 
 /// Expand fragment spreads into inline fragments containing the named
 /// fragment's directives and selections. Used for constructing a Normalization
@@ -142,6 +143,7 @@ impl Transformer<'_> for InlineFragmentsTransform<'_> {
                 let should_skip_inline = selection.directives.iter().any(|directive| {
                     directive.name.item == NoInlineFragmentSpreadMetadata::directive_name()
                         || directive.name.item == ClientComponentBoundaryMetadata::directive_name()
+                        || directive.name.item == RscSeamMetadata::directive_name()
                 });
                 if should_skip_inline {
                     Transformed::Keep

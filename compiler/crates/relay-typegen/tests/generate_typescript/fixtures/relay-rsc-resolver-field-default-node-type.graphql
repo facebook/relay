@@ -1,0 +1,22 @@
+# relay:enable_relay_rsc
+
+fragment RelayRscResolverFieldDefaultNodeType_user on User @server {
+  name
+}
+
+query RelayRscResolverFieldDefaultNodeTypeQuery @server {
+  me {
+    displayName: fullNameRsc
+  }
+}
+
+# %extensions%
+
+extend type User {
+  fullNameRsc: RelayRscValue
+    @relay_resolver(
+      fragment_name: "RelayRscResolverFieldDefaultNodeType_user"
+      import_path: "./FullNameRsc.server.tsx"
+      import_name: "FullNameRsc"
+    )
+}

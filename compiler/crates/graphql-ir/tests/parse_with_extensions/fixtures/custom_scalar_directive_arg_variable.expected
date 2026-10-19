@@ -44,7 +44,7 @@ extend type Query {
                     },
                     type_: NonNull(
                         Named(
-                            Scalar(9),
+                            Scalar(10),
                         ),
                     ),
                     default_value: None,
@@ -88,7 +88,7 @@ extend type Query {
                                                 },
                                                 type_: NonNull(
                                                     Named(
-                                                        Scalar(9),
+                                                        Scalar(10),
                                                     ),
                                                 ),
                                             },
@@ -147,7 +147,7 @@ extend type Query {
                                                 },
                                                 type_: NonNull(
                                                     Named(
-                                                        Scalar(9),
+                                                        Scalar(10),
                                                     ),
                                                 ),
                                             },

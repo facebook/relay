@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// relay:enable_relay_rsc
+// expected-to-throw
+
+/**
+ * @relayField User.fullNameRsc: RelayRscValue
+ * @rootFragment UserFullNameRsc_user
+ * @returnFragment UserFullNameRscReturn_user
+ */
+graphql`
+  fragment UserFullNameRsc_user on User @server {
+    firstName
+    lastName
+  }
+`;
+==================================== ERROR ====================================
+✖︎ Relay Resolver-authored RSC field `fullNameRsc` cannot use `@returnFragment` or `@mayWaterfall`.
+
+  /path/to/test/fixture/relay-rsc-resolver-field-return-fragment.invalid.js:14:5
+   13 │  * @rootFragment UserFullNameRsc_user
+   14 │  * @returnFragment UserFullNameRscReturn_user
+      │     ^^^^^^^^^^^^^^
+   15 │

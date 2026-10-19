@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::MAIN_SEPARATOR;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::LazyLock;
@@ -50,6 +51,7 @@ use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::ClientEdgeMetadataDirective;
 use relay_transforms::ClientEdgeModelResolver;
 use relay_transforms::ClientExtensionAbstractTypeMetadataDirective;
+use relay_transforms::ClientRscSeamMetadata;
 use relay_transforms::ConnectionConstants;
 use relay_transforms::ConnectionMetadata;
 use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
@@ -68,6 +70,7 @@ use relay_transforms::RelayDirective;
 use relay_transforms::RelayResolverMetadata;
 use relay_transforms::RequiredMetadataDirective;
 use relay_transforms::ResolverOutputTypeInfo;
+use relay_transforms::RscSeamMetadata;
 use relay_transforms::SERVER_DIRECTIVE;
 use relay_transforms::ServerOperationHandoffMetadata;
 use relay_transforms::StreamDirective;
@@ -75,6 +78,7 @@ use relay_transforms::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
 use relay_transforms::extract_connection_metadata_from_directive;
 use relay_transforms::extract_handle_field_directives;
 use relay_transforms::extract_values_from_handle_field_directive;
+use relay_transforms::fragment_prop_name;
 use relay_transforms::generate_abstract_type_refinement_key;
 use relay_transforms::get_normalization_fragment_filename;
 use relay_transforms::get_normalization_operation_name;
@@ -85,6 +89,8 @@ use relay_transforms::relay_resolvers::ResolverSchemaGenType;
 use relay_transforms::relay_resolvers::get_resolver_info;
 use relay_transforms::relay_resolvers::resolver_import_alias;
 use relay_transforms::remove_directive;
+use relay_transforms::rsc_fragment_prop_name;
+use relay_transforms::rsc_seam_arguments;
 use schema::Field;
 use schema::SDLSchema;
 use schema::Schema;
@@ -111,6 +117,10 @@ pub static EXEC_TIME_RESOLVERS: LazyLock<DirectiveName> =
 pub static EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT: LazyLock<ArgumentName> =
     LazyLock::new(|| ArgumentName("enabledProvider".intern()));
 static FRAGMENT_KEY: LazyLock<StringKey> = LazyLock::new(|| "fragment".intern());
+
+fn rsc_field_name(definition_id: StringKey) -> StringKey {
+    format!("rsc${}", definition_id.lookup()).intern()
+}
 
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,
@@ -481,6 +491,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             has_exec_time_resolvers_enabled_provider: exec_time_resolvers_enabled_provider
                 .is_some(),
             has_server_to_client_resolvers: false,
+            rsc_seams: Vec::new(),
             use_experimental_provider,
         };
         match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
@@ -505,8 +516,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         value: Primitive::Bool(true),
                     });
                 }
-                let metadata = Primitive::Key(self.object(metadata_entries));
                 let selections = self.build_selections(&mut context, operation.selections.iter());
+                if !context.rsc_seams.is_empty() {
+                    metadata_entries.push(self.build_rsc_descriptors(&context.rsc_seams));
+                }
+                let metadata = Primitive::Key(self.object(metadata_entries));
                 let mut fields = object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.split_operation),
                     metadata: metadata,
@@ -912,7 +926,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         match selection {
             Selection::Condition(condition) => vec![self.build_condition(context, condition)],
             Selection::FragmentSpread(frag_spread) => {
-                vec![self.build_fragment_spread(frag_spread)]
+                self.build_fragment_spread_selections(context, frag_spread)
             }
             Selection::InlineFragment(inline_fragment) => {
                 let defer = inline_fragment.directives.named(
@@ -1628,6 +1642,254 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         } else {
             primitive
         }
+    }
+
+    fn build_fragment_spread_selections(
+        &mut self,
+        context: &mut ContextualMetadata,
+        frag_spread: &FragmentSpread,
+    ) -> Vec<Primitive> {
+        if let Some(seam) = RscSeamMetadata::find(&frag_spread.directives) {
+            if ClientRscSeamMetadata::find(&frag_spread.directives).is_some() {
+                assert!(self.variant == CodegenVariant::Normalization);
+                if !context
+                    .rsc_seams
+                    .iter()
+                    .any(|existing| existing.definition_id == seam.definition_id)
+                {
+                    context.rsc_seams.push(seam.clone());
+                }
+                return vec![self.build_rsc_handle(frag_spread, seam)];
+            }
+            return match self.variant {
+                CodegenVariant::Reader => vec![self.build_rsc_seam_reader(frag_spread, seam)],
+                CodegenVariant::Normalization => {
+                    vec![self.build_rsc_seam_normalization(frag_spread, seam)]
+                }
+            };
+        }
+        vec![self.build_fragment_spread(frag_spread)]
+    }
+
+    fn build_rsc_descriptors(&mut self, seams: &[RscSeamMetadata]) -> ObjectEntry {
+        let descriptors = seams
+            .iter()
+            .map(|seam| {
+                let fragment_prop_name = rsc_fragment_prop_name(seam.fragment_name);
+                let component_argument_names = Primitive::Key(
+                    self.array(
+                        seam.component_argument_names()
+                            .map(|name| Primitive::String(name.0))
+                            .collect(),
+                    ),
+                );
+                let normalization_fragment = self.build_graphql_artifact_dependency(
+                    WithLocation::new(seam.fragment_location, seam.normalization_operation.into()),
+                );
+                let reader_fragment = self.build_graphql_artifact_dependency(WithLocation::new(
+                    seam.fragment_location,
+                    seam.fragment_name.into(),
+                ));
+                Primitive::Key(self.object(object! {
+                    component_argument_names: component_argument_names,
+                    component_export_name: Primitive::String(seam.component_export_name),
+                    component_module_provider: self.build_rsc_component_module_provider(seam),
+                    definition_id: Primitive::String(seam.definition_id),
+                    fragment_prop_name: Primitive::String(fragment_prop_name),
+                    normalization_fragment: normalization_fragment,
+                    reader_fragment: reader_fragment,
+                    render_id: Primitive::String(self.rsc_render_id(seam)),
+                }))
+            })
+            .collect();
+        ObjectEntry {
+            key: CODEGEN_CONSTANTS.rsc,
+            value: Primitive::Key(self.array(descriptors)),
+        }
+    }
+
+    fn build_rsc_seam_normalization(
+        &mut self,
+        frag_spread: &FragmentSpread,
+        seam: &RscSeamMetadata,
+    ) -> Primitive {
+        let fragment = self.build_graphql_artifact_dependency(WithLocation::new(
+            seam.fragment_location,
+            seam.normalization_operation.into(),
+        ));
+        let args = self.build_rsc_fragment_arguments(frag_spread, seam);
+        let identity_args = self.build_public_rsc_seam_arguments(frag_spread, seam);
+        let mut fields = object! {
+            args: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => Primitive::Key(key),
+            },
+            fragment: fragment,
+            kind: Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
+        };
+        fields.push(ObjectEntry {
+            key: CODEGEN_CONSTANTS.rsc_identity_args,
+            // The runtime uses this key's presence to reject stale compiler metadata.
+            value: identity_args.map_or(Primitive::Null, Primitive::Key),
+        });
+        fields.push(ObjectEntry {
+            key: CODEGEN_CONSTANTS.rsc_render_id,
+            value: Primitive::String(self.rsc_render_id(seam)),
+        });
+        Primitive::Key(self.object(fields))
+    }
+
+    fn build_rsc_handle(
+        &mut self,
+        frag_spread: &FragmentSpread,
+        seam: &RscSeamMetadata,
+    ) -> Primitive {
+        let client_id_field_name = self.schema.field(self.schema.clientid_field()).name.item;
+        let public_arguments: Vec<&Argument> = frag_spread
+            .arguments
+            .iter()
+            .filter(|argument| seam.is_public_argument(argument.name.item))
+            .collect();
+        let identity_arguments = self.build_arguments_from_refs(public_arguments.clone());
+        let handler_arguments = self.build_arguments(&frag_spread.arguments);
+        let filters = if public_arguments.is_empty() {
+            Primitive::SkippableNull
+        } else {
+            Primitive::Key(
+                self.array(
+                    public_arguments
+                        .iter()
+                        .map(|argument| Primitive::String(argument.name.item.0))
+                        .collect(),
+                ),
+            )
+        };
+        let source_field = Primitive::Key(self.object(object! {
+            alias: Primitive::SkippableNull,
+            args: identity_arguments.map_or(Primitive::SkippableNull, Primitive::Key),
+            kind: Primitive::String(CODEGEN_CONSTANTS.scalar_field),
+            name: Primitive::String(client_id_field_name),
+            storage_key: Primitive::SkippableNull,
+        }));
+        let mut handle_object = object! {
+            alias: Primitive::SkippableNull,
+            args: identity_arguments.map_or(Primitive::SkippableNull, Primitive::Key),
+            filters: filters,
+            handle: Primitive::String("rsc".intern()),
+            key: Primitive::String(seam.definition_id),
+            kind: Primitive::String(CODEGEN_CONSTANTS.scalar_handle),
+            name: Primitive::String(client_id_field_name),
+        };
+        // `handleArgs` is optional but not nullable in the runtime's
+        // NormalizationHandle type, so a handle without arguments omits it.
+        if let Some(handler_arguments) = handler_arguments {
+            handle_object.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.handle_args,
+                value: Primitive::Key(handler_arguments),
+            });
+        }
+        let handle_field = Primitive::Key(self.object(handle_object));
+        let selections = Primitive::Key(self.array(vec![source_field, handle_field]));
+        Primitive::Key(self.object(object! {
+            kind: Primitive::String(CODEGEN_CONSTANTS.client_extension),
+            selections: selections,
+        }))
+    }
+
+    fn build_rsc_seam_reader(
+        &mut self,
+        frag_spread: &FragmentSpread,
+        seam: &RscSeamMetadata,
+    ) -> Primitive {
+        let arguments = self.build_public_rsc_seam_arguments(frag_spread, seam);
+        Primitive::Key(self.object(object! {
+            alias: Primitive::String(seam.alias),
+            args: arguments.map_or(Primitive::SkippableNull, Primitive::Key),
+            kind: Primitive::String(CODEGEN_CONSTANTS.scalar_field),
+            name: Primitive::String(rsc_field_name(seam.definition_id)),
+            storage_key: Primitive::SkippableNull,
+        }))
+    }
+
+    fn build_rsc_fragment_arguments(
+        &mut self,
+        frag_spread: &FragmentSpread,
+        seam: &RscSeamMetadata,
+    ) -> Option<AstKey> {
+        let arguments: Vec<_> = rsc_seam_arguments(frag_spread, seam)
+            .into_iter()
+            .filter(|argument| !seam.is_component_argument(argument.name.item))
+            .collect();
+        self.build_arguments(&arguments)
+    }
+
+    fn build_public_rsc_seam_arguments(
+        &mut self,
+        frag_spread: &FragmentSpread,
+        seam: &RscSeamMetadata,
+    ) -> Option<AstKey> {
+        let arguments: Vec<_> = rsc_seam_arguments(frag_spread, seam)
+            .into_iter()
+            .filter(|argument| seam.is_public_argument(argument.name.item))
+            .collect();
+        self.build_arguments(&arguments)
+    }
+
+    fn build_rsc_component_module_provider(&self, seam: &RscSeamMetadata) -> Primitive {
+        let dynamic_module_provider = self
+            .project_config
+            .effective_module_import_config()
+            .dynamic_module_provider
+            .expect("validated Relay RSC metadata requires a dynamic module provider");
+        let module = self.project_config.js_module_import_identifier(
+            &self
+                .project_config
+                .artifact_path_for_definition(self.definition_source_location),
+            &PathBuf::from(seam.component_module_name.lookup()),
+        );
+        Primitive::DynamicImport {
+            provider: dynamic_module_provider,
+            module,
+        }
+    }
+
+    fn rsc_render_id(&self, seam: &RscSeamMetadata) -> StringKey {
+        let fragment_name = seam.fragment_name.0.lookup();
+        let component_module = self.canonical_rsc_component_module_identity(seam);
+        let component_export_name = seam.component_export_name.lookup();
+        format!(
+            "rsc-render:v2:{}:{}:{}:{}:{}:{}",
+            fragment_name.len(),
+            fragment_name,
+            component_module.len(),
+            component_module,
+            component_export_name.len(),
+            component_export_name,
+        )
+        .intern()
+    }
+
+    fn canonical_rsc_component_module_identity(&self, seam: &RscSeamMetadata) -> String {
+        let module_name = seam.component_module_name.lookup();
+        if matches!(self.project_config.js_module_format, JsModuleFormat::Haste) {
+            return self
+                .project_config
+                .js_module_import_identifier(
+                    &self
+                        .project_config
+                        .artifact_path_for_definition(self.definition_source_location),
+                    &PathBuf::from(module_name),
+                )
+                .lookup()
+                .to_owned();
+        }
+        let mut module_path = normalize_path(Path::new(module_name));
+        if module_path.extension().is_some_and(|extension| {
+            matches!(extension.to_str(), Some("js" | "jsx" | "ts" | "tsx"))
+        }) {
+            module_path.set_extension("");
+        }
+        module_path.to_string_lossy().replace(MAIN_SEPARATOR, "/")
     }
 
     fn build_client_component_fragment_spread(
@@ -2898,8 +3160,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         inline_fragment: &InlineFragment,
     ) -> Vec<Primitive> {
         let fragment_name = module_metadata.fragment_name;
-        let fragment_name_str = fragment_name.0.lookup();
-        let underscore_idx = fragment_name_str.find('_').unwrap_or_else(|| {
+        let module_prop_name = fragment_prop_name(fragment_name).unwrap_or_else(|| {
             panic!(
                 "@module fragments should be named 'FragmentName_propName', got '{fragment_name}'."
             )
@@ -2921,7 +3182,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             },
             document_name: Primitive::String(module_metadata.key),
             fragment_name: Primitive::String(fragment_name.0),
-            fragment_prop_name: Primitive::String(fragment_name_str[underscore_idx + 1..].intern()),
+            fragment_prop_name: Primitive::String(module_prop_name),
             kind: Primitive::String(CODEGEN_CONSTANTS.module_import),
         };
 
@@ -3333,6 +3594,7 @@ struct ContextualMetadata {
     has_exec_time_resolvers_directive: bool,
     has_exec_time_resolvers_enabled_provider: bool,
     has_server_to_client_resolvers: bool,
+    rsc_seams: Vec<RscSeamMetadata>,
     use_experimental_provider: Option<WithLocation<StringKey>>,
 }
 

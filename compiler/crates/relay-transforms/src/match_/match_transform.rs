@@ -451,7 +451,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 // so this is just an internal sanity check
                 panic!(
                     "Invalid @module selection: expected all selections at path '{:?} to have the same 'key', got '{}' and '{}'.",
-                    &self.path, match_directive_key_argument, matches.match_directive_key_argument
+                    self.path, match_directive_key_argument, matches.match_directive_key_argument
                 );
             }
 
@@ -1168,6 +1168,16 @@ pub struct ModuleMetadata {
     pub no_inline: bool,
 }
 associated_data_impl!(ModuleMetadata);
+
+/// The prop a component receives a `Module_propName` fragment under: the text
+/// after the first `_`.
+pub fn fragment_prop_name(fragment_name: FragmentDefinitionName) -> Option<StringKey> {
+    fragment_name
+        .0
+        .lookup()
+        .split_once('_')
+        .map(|(_, prop_name)| prop_name.intern())
+}
 
 fn build_string_literal_argument(
     name: ArgumentName,

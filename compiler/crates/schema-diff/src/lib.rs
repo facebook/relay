@@ -14,6 +14,8 @@ pub mod definitions;
 use common::SourceLocationKey;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
+use graphql_syntax::ConstantDirective;
+use graphql_syntax::ConstantValue;
 use graphql_syntax::EnumTypeDefinition;
 use graphql_syntax::FieldDefinition;
 use graphql_syntax::Identifier;
@@ -27,6 +29,7 @@ use graphql_syntax::TypeSystemDefinition;
 use graphql_syntax::UnionTypeDefinition;
 use graphql_syntax::parse_schema_document;
 use intern::string_key::StringKey;
+use schema::DirectiveValue;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type as SchemaType;
@@ -142,7 +145,12 @@ fn compare_fields(
                     Some(previous_field) => {
                         let previous_field_type = Type::from(previous_field.type_.clone());
                         let field_type = Type::from(field.type_.clone());
-                        if previous_field_type != field_type {
+                        // A directive change is reported like a type change, as an
+                        // `added`/`removed` pair, so `check::is_field_changes_safe` marks
+                        // the enclosing type for an incremental rebuild.
+                        if previous_field_type != field_type
+                            || directives_differ(&field.directives, &previous_field.directives)
+                        {
                             added.push(TypeChange {
                                 name: field.name.value,
                                 type_: field_type,
@@ -280,6 +288,102 @@ fn compare_input_value_definition(
     }));
 
     (added, removed)
+}
+
+/// Whether two directive lists differ, ignoring source positions (the derived
+/// `PartialEq` on syntax nodes compares spans and tokens). Directive order is
+/// significant (spec §2.12); argument order is not (§2.6).
+fn directives_differ(current: &[ConstantDirective], previous: &[ConstantDirective]) -> bool {
+    current.len() != previous.len()
+        || current.iter().zip(previous).any(|(current, previous)| {
+            current.name.value != previous.name.value
+                || arguments_differ(
+                    current
+                        .arguments
+                        .iter()
+                        .flat_map(|list| &list.items)
+                        .map(|argument| (argument.name.value, &argument.value)),
+                    previous
+                        .arguments
+                        .iter()
+                        .flat_map(|list| &list.items)
+                        .map(|argument| (argument.name.value, &argument.value)),
+                )
+        })
+}
+
+/// `directives_differ` for directives read from an `SDLSchema`.
+fn directive_values_differ(current: &[DirectiveValue], previous: &[DirectiveValue]) -> bool {
+    current.len() != previous.len()
+        || current.iter().zip(previous).any(|(current, previous)| {
+            current.name != previous.name
+                || arguments_differ(
+                    current
+                        .arguments
+                        .iter()
+                        .map(|argument| (argument.name.0, &argument.value)),
+                    previous
+                        .arguments
+                        .iter()
+                        .map(|argument| (argument.name.0, &argument.value)),
+                )
+        })
+}
+
+/// Arguments, or input-object literal fields, matched by name.
+fn arguments_differ<'a>(
+    current: impl Iterator<Item = (StringKey, &'a ConstantValue)>,
+    previous: impl Iterator<Item = (StringKey, &'a ConstantValue)>,
+) -> bool {
+    let mut previous_values = previous.collect::<FnvHashMap<_, _>>();
+
+    for (name, value) in current {
+        match previous_values.remove(&name) {
+            Some(previous_value) if !constant_values_differ(value, previous_value) => {}
+            _ => return true,
+        }
+    }
+    !previous_values.is_empty()
+}
+
+fn constant_values_differ(current: &ConstantValue, previous: &ConstantValue) -> bool {
+    match (current, previous) {
+        (ConstantValue::Int(current), ConstantValue::Int(previous)) => {
+            current.value != previous.value
+        }
+        (ConstantValue::Float(current), ConstantValue::Float(previous)) => {
+            current.value != previous.value
+        }
+        (ConstantValue::String(current), ConstantValue::String(previous)) => {
+            current.value != previous.value
+        }
+        (ConstantValue::Boolean(current), ConstantValue::Boolean(previous)) => {
+            current.value != previous.value
+        }
+        (ConstantValue::Null(_), ConstantValue::Null(_)) => false,
+        (ConstantValue::Enum(current), ConstantValue::Enum(previous)) => {
+            current.value != previous.value
+        }
+        (ConstantValue::List(current), ConstantValue::List(previous)) => {
+            current.items.len() != previous.items.len()
+                || current
+                    .items
+                    .iter()
+                    .zip(&previous.items)
+                    .any(|(current, previous)| constant_values_differ(current, previous))
+        }
+        (ConstantValue::Object(current), ConstantValue::Object(previous)) => arguments_differ(
+            current
+                .items
+                .iter()
+                .map(|field| (field.name.value, &field.value)),
+            previous
+                .items
+                .iter()
+                .map(|field| (field.name.value, &field.value)),
+        ),
+        _ => true,
+    }
 }
 
 fn compare_string_keys(
@@ -626,7 +730,10 @@ fn compare_schema_fields(
             Some(prev_field) => {
                 let curr_type = type_ref_to_diff_type(current_schema, &current_field.type_);
                 let prev_type = type_ref_to_diff_type(previous_schema, &prev_field.type_);
-                if curr_type != prev_type {
+                // Reported like a type change; see `compare_fields`.
+                if curr_type != prev_type
+                    || directive_values_differ(&current_field.directives, &prev_field.directives)
+                {
                     added.push(TypeChange {
                         name,
                         type_: curr_type,

@@ -1,18 +1,18 @@
-// expected-to-throw
-# schema-diff's `compare_fields` only compares field names, field types and
-# argument types -- it never inspects the directives attached to a field
-# definition. Adding `@semanticNonNull` to `Query.greeting` therefore produces no
-# `ObjectChanged` entry at all.
+# A field's DIRECTIVES are codegen inputs, so schema-diff's `compare_fields` has
+# to compare them and not just field names, field types and argument types.
+# Adding `@semanticNonNull` to `Query.greeting` must therefore produce an
+# `ObjectChanged` entry for `Query`.
 #
-# The unrelated `Unrelated` object is what makes this observable: without it
-# `diff()` would end up with an empty change list and return `GenericChange`
-# (-> `Unsafe` -> full rebuild). With it the only change is `ObjectAdded`, which
-# `get_safety` classifies as `Safe`, so `build_programs` picks
-# `BuildMode::Incremental` and `fooFragment` is never recompiled.
+# The unrelated `Unrelated` object is what makes the gap observable: without it
+# `diff()` ends up with an empty change list and returns `GenericChange`
+# (-> `Unsafe` -> full rebuild), which masks the problem. With it, a
+# `compare_fields` that ignored directives would report only `ObjectAdded`,
+# which `get_safety` classifies as `Safe`, so `build_programs` would pick
+# `BuildMode::Incremental` and never recompile `fooFragment`.
 #
-# A clean build types `greeting` as `string` (semantic-non-null is honored
-# because the fragment is `@throwOnFieldError`); the incremental build keeps the
-# stale `string | null | undefined`.
+# `greeting` types as `string` (semantic-non-null is honored because the
+# fragment is `@throwOnFieldError`), and the incremental build must agree with a
+# clean build rather than keeping the stale `string | null | undefined`.
 
 //- foo.js
 graphql`

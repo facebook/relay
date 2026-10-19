@@ -1714,6 +1714,162 @@ fn test_input_object_removed_is_safe_with_incremental_build() {
     )
 }
 
+#[test]
+fn test_field_directive_added() {
+    assert_eq!(
+        diff(
+            r"
+            directive @d(a: String) on FIELD_DEFINITION
+            type User {
+                # The directive is added here
+                name: String @d
+            }
+            #",
+            r"
+            directive @d(a: String) on FIELD_DEFINITION
+            type User {
+                name: String
+            }
+            #"
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::ObjectChanged {
+            name: "User".intern(),
+            added: vec![TypeChange {
+                name: "name".intern(),
+                type_: Type::Named("String".intern()),
+            }],
+            removed: vec![TypeChange {
+                name: "name".intern(),
+                type_: Type::Named("String".intern()),
+            }],
+            changed: vec![],
+            interfaces_added: vec![],
+            interfaces_removed: vec![],
+        }])
+    );
+}
+
+#[test]
+fn test_field_directive_argument_changed() {
+    assert_eq!(
+        diff(
+            r#"
+            directive @d(a: String) on FIELD_DEFINITION
+            type User {
+                # Only the directive's argument value changes
+                name: String @d(a: "new")
+            }
+            #"#,
+            r#"
+            directive @d(a: String) on FIELD_DEFINITION
+            type User {
+                name: String @d(a: "old")
+            }
+            #"#
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::ObjectChanged {
+            name: "User".intern(),
+            added: vec![TypeChange {
+                name: "name".intern(),
+                type_: Type::Named("String".intern()),
+            }],
+            removed: vec![TypeChange {
+                name: "name".intern(),
+                type_: Type::Named("String".intern()),
+            }],
+            changed: vec![],
+            interfaces_added: vec![],
+            interfaces_removed: vec![],
+        }])
+    );
+}
+
+#[test]
+fn test_field_directive_moved_is_unchanged() {
+    // Adding `Unrelated` first shifts the source position of `@d(a: "x")`
+    // without changing it, so `User` must not be reported as changed.
+    assert_eq!(
+        diff(
+            r#"
+            directive @d(a: String) on FIELD_DEFINITION
+            type Unrelated { x: String }
+            type User {
+                name: String @d(a: "x")
+            }
+            #"#,
+            r#"
+            directive @d(a: String) on FIELD_DEFINITION
+            type User {
+                name: String @d(a: "x")
+            }
+            #"#
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::ObjectAdded("Unrelated".intern())])
+    );
+}
+
+#[test]
+fn test_field_directive_arguments_reordered_is_unchanged() {
+    // No definition changes are found, so the text-only difference falls
+    // through to `GenericChange`.
+    assert_eq!(
+        diff(
+            r#"
+            directive @d(a: String, b: String) on FIELD_DEFINITION
+            type User {
+                # Same arguments as before, in a different order
+                name: String @d(b: "y", a: "x")
+            }
+            #"#,
+            r#"
+            directive @d(a: String, b: String) on FIELD_DEFINITION
+            type User {
+                name: String @d(a: "x", b: "y")
+            }
+            #"#
+        ),
+        SchemaChange::GenericChange
+    );
+}
+
+#[test]
+fn test_field_directive_reordered() {
+    // Directive order is significant (spec §2.12), so swapping two directives
+    // is a change.
+    assert_eq!(
+        diff(
+            r"
+            directive @a on FIELD_DEFINITION
+            directive @b on FIELD_DEFINITION
+            type User {
+                name: String @b @a
+            }
+            #",
+            r"
+            directive @a on FIELD_DEFINITION
+            directive @b on FIELD_DEFINITION
+            type User {
+                name: String @a @b
+            }
+            #"
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::ObjectChanged {
+            name: "User".intern(),
+            added: vec![TypeChange {
+                name: "name".intern(),
+                type_: Type::Named("String".intern()),
+            }],
+            removed: vec![TypeChange {
+                name: "name".intern(),
+                type_: Type::Named("String".intern()),
+            }],
+            changed: vec![],
+            interfaces_added: vec![],
+            interfaces_removed: vec![],
+        }])
+    );
+}
+
 // Tests verifying that detect_changes_from_schemas produces the same results
 // as detect_changes for all type-definition-level changes.
 
@@ -2084,6 +2240,133 @@ fn test_schema_diff_change_object_field_arguments() {
             key: String
             name(a: ID!): String
             user(a: ID!): String
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_field_directive_added() {
+    let current = r"
+        directive @d(a: String) on FIELD_DEFINITION
+        type User {
+            # The directive is added here
+            name: String @d
+        }
+    ";
+    let previous = r"
+        directive @d(a: String) on FIELD_DEFINITION
+        type User {
+            name: String
+        }
+    ";
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_field_directive_argument_changed() {
+    let current = r#"
+        directive @d(a: String) on FIELD_DEFINITION
+        type User {
+            # Only the directive's argument value changes
+            name: String @d(a: "new")
+        }
+    "#;
+    let previous = r#"
+        directive @d(a: String) on FIELD_DEFINITION
+        type User {
+            name: String @d(a: "old")
+        }
+    "#;
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_field_directive_moved_is_unchanged() {
+    // Adding `Unrelated` first shifts the source position of `@d(a: "x")`
+    // without changing it, so `User` must not be reported as changed.
+    let current = r#"
+        directive @d(a: String) on FIELD_DEFINITION
+        type Unrelated { x: String }
+        type User {
+            name: String @d(a: "x")
+        }
+    "#;
+    let previous = r#"
+        directive @d(a: String) on FIELD_DEFINITION
+        type User {
+            name: String @d(a: "x")
+        }
+    "#;
+    assert_eq!(
+        diff(current, previous),
+        diff_from_schemas(current, previous)
+    );
+}
+
+#[test]
+fn test_schema_diff_field_directive_arguments_reordered_is_unchanged() {
+    let current = r#"
+        directive @d(a: String, b: String) on FIELD_DEFINITION
+        type User {
+            # Same arguments as before, in a different order
+            name: String @d(b: "y", a: "x")
+        }
+    "#;
+    let previous = r#"
+        directive @d(a: String, b: String) on FIELD_DEFINITION
+        type User {
+            name: String @d(a: "x", b: "y")
+        }
+    "#;
+    assert_eq!(diff_from_schemas(current, previous), SchemaChange::None);
+}
+
+#[test]
+fn test_schema_diff_field_directive_object_fields_reordered_is_unchanged() {
+    let current = r#"
+        input I { a: String, b: String }
+        directive @d(i: I) on FIELD_DEFINITION
+        type User {
+            # Same input-object fields as before, in a different order
+            name: String @d(i: {b: "y", a: "x"})
+        }
+    "#;
+    let previous = r#"
+        input I { a: String, b: String }
+        directive @d(i: I) on FIELD_DEFINITION
+        type User {
+            name: String @d(i: {a: "x", b: "y"})
+        }
+    "#;
+    assert_eq!(diff_from_schemas(current, previous), SchemaChange::None);
+}
+
+#[test]
+fn test_schema_diff_field_directive_reordered() {
+    // Directive order is significant (spec §2.12), so swapping two directives
+    // is a change.
+    let current = r"
+        directive @a on FIELD_DEFINITION
+        directive @b on FIELD_DEFINITION
+        type User {
+            name: String @b @a
+        }
+    ";
+    let previous = r"
+        directive @a on FIELD_DEFINITION
+        directive @b on FIELD_DEFINITION
+        type User {
+            name: String @a @b
         }
     ";
     assert_eq!(

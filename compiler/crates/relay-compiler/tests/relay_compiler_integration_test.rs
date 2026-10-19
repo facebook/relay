@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<522c46c3816df7c953499e9970bf1aa3>>
+ * @generated SignedSource<<9cf907b3e2207fe563642166b13a9f6e>>
  */
 
 mod relay_compiler_integration;
@@ -633,6 +633,13 @@ async fn incremental_schema_change_with_base_project() {
     let input = include_str!("relay_compiler_integration/fixtures/incremental_schema_change_with_base_project.input");
     let expected = include_str!("relay_compiler_integration/fixtures/incremental_schema_change_with_base_project.expected");
     test_fixture(transform_fixture, file!(), "incremental_schema_change_with_base_project.input", "relay_compiler_integration/fixtures/incremental_schema_change_with_base_project.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_schema_field_directive_not_diffed() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_schema_field_directive_not_diffed.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_schema_field_directive_not_diffed.expected");
+    test_fixture(transform_fixture, file!(), "incremental_schema_field_directive_not_diffed.input", "relay_compiler_integration/fixtures/incremental_schema_field_directive_not_diffed.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -1,0 +1,42 @@
+// expected-to-throw
+# schema-diff's `compare_fields` only compares field names, field types and
+# argument types -- it never inspects the directives attached to a field
+# definition. Adding `@semanticNonNull` to `Query.greeting` therefore produces no
+# `ObjectChanged` entry at all.
+#
+# The unrelated `Unrelated` object is what makes this observable: without it
+# `diff()` would end up with an empty change list and return `GenericChange`
+# (-> `Unsafe` -> full rebuild). With it the only change is `ObjectAdded`, which
+# `get_safety` classifies as `Safe`, so `build_programs` picks
+# `BuildMode::Incremental` and `fooFragment` is never recompiled.
+#
+# A clean build types `greeting` as `string` (semantic-non-null is honored
+# because the fragment is `@throwOnFieldError`); the incremental build keeps the
+# stale `string | null | undefined`.
+
+//- foo.js
+graphql`
+  fragment fooFragment on Query @throwOnFieldError {
+    greeting
+  }
+`
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+//-++ schema.graphql
+type Query {
+  greeting: String @semanticNonNull
+}
+
+type Unrelated {
+  x: String
+}

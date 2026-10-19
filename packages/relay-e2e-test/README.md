@@ -63,4 +63,4 @@ The repo's other TypeScript check, `yarn typecheck:ts`, only verifies that `rela
 
 ## Writing fixtures
 
-For the complete writing guide including fixture format, server/client code patterns, the interaction DSL, and snapshot behavior, see [`.llms/skills/relay-e2e-test.md`](.llms/skills/relay-e2e-test.md).
+For the complete writing guide including fixture format, server/client code patterns, the interaction DSL, and snapshot behavior, see [`.llms/skills/relay-e2e-test/SKILL.md`](.llms/skills/relay-e2e-test/SKILL.md).

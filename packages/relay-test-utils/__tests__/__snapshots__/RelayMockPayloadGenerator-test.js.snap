@@ -1697,6 +1697,84 @@ fragment RelayMockPayloadGeneratorTest13Fragment on Viewer {
 }
 `;
 
+exports[`plural linked field selected twice at the same path does not double-nest across concrete + abstract inline fragments (#5258) 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest72Query {
+  me {
+    allPhones {
+      isVerified
+    }
+    ... on Actor {
+      __isActor: __typename
+      allPhones {
+        phoneNumber {
+          displayNumber
+        }
+      }
+    }
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "me": {
+      "allPhones": [
+        {
+          "isVerified": "<mock-value-for-field-\\"isVerified\\">",
+          "phoneNumber": {
+            "displayNumber": "<mock-value-for-field-\\"displayNumber\\">"
+          }
+        }
+      ],
+      "__isActor": true,
+      "id": "<User-mock-id-1>"
+    }
+  }
+}
+`;
+
+exports[`plural linked field selected twice at the same path does not double-nest under an @include condition 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest71Query(
+  $showDetails: Boolean!
+) {
+  node(id: "my-id") {
+    __typename
+    ... on User {
+      allPhones {
+        isVerified
+      }
+      allPhones @include(if: $showDetails) {
+        phoneNumber {
+          displayNumber
+        }
+      }
+    }
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "allPhones": [
+        {
+          "isVerified": "<mock-value-for-field-\\"isVerified\\">",
+          "phoneNumber": {
+            "displayNumber": "<mock-value-for-field-\\"displayNumber\\">"
+          }
+        }
+      ],
+      "id": "<mock-id-1>"
+    }
+  }
+}
+`;
+
 exports[`should generate data for @match with PlainUserNameRenderer_name and use defaults from mock resolvers 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest67Query {

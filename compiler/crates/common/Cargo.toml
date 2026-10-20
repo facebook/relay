@@ -23,6 +23,7 @@ rayon = "1.11.0"
 schemars = { version = "1.2.2", features = ["indexmap2"] }
 serde = { version = "1.0.229", features = ["derive", "rc"] }
 serde_json = { version = "1.0.151", features = ["alloc", "float_roundtrip", "raw_value", "unbounded_depth"] }
+thiserror = "2.0.21"
 typetag = "0.2.23"
 
 [dev-dependencies]

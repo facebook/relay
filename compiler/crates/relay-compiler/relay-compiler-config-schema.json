@@ -1435,13 +1435,13 @@
       "additionalProperties": false
     },
     "Rollout": {
-      "description": "A utility to enable gradual rollout of large codegen changes.\nCan be constructed as the Default which passes or a percentage between 0 and\n100.",
+      "description": "A utility to enable gradual rollout of large codegen changes.\nCan be constructed as the Default which passes or a percentage between 0 and\n100. Percentages may be fractional with up to two decimal places (e.g.\n`12.5`), which allows rolling out a change to very large projects in steps\nsmaller than 1%.",
       "type": [
-        "integer",
+        "number",
         "null"
       ],
-      "format": "uint8",
-      "maximum": 255,
+      "format": "float",
+      "maximum": 100,
       "minimum": 0
     },
     "RolloutRange": {

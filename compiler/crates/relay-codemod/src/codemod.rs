@@ -299,16 +299,9 @@ fn valid_percent(s: &str) -> Result<FeatureFlag, String> {
             Err("numbers must be between 0 and 100, inclusive, and the first number must be less than or equal to the second".to_string())
         }
     } else {
-        // turn s into a u8
-        let s = s.parse::<u8>().map_err(|_| "not a number".to_string())?;
-        // check if s is less than 100
-        if (0..=100).contains(&s) {
-            Ok(FeatureFlag::Rollout {
-                rollout: Rollout(Some(s)),
-            })
-        } else {
-            Err("number must be between 0 and 100, inclusive".to_string())
-        }
+        let s = s.parse::<f32>().map_err(|_| "not a number".to_string())?;
+        let rollout = Rollout::try_from(Some(s)).map_err(|err| err.to_string())?;
+        Ok(FeatureFlag::Rollout { rollout })
     }
 }
 

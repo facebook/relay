@@ -780,13 +780,6 @@
           "type": "boolean",
           "default": false
         },
-        "legacy_include_path_in_required_reader_nodes": {
-          "description": "The `path` field in `@required` Reader AST nodes is no longer used. But\nremoving them in one diff is too large of a change to ship at once.\n\nThis flag will allow us to use the rollout FeatureFlag to remove them\nacross a number of diffs.",
-          "$ref": "#/$defs/FeatureFlag",
-          "default": {
-            "kind": "disabled"
-          }
-        },
         "no_inline": {
           "description": "For now, this also disallows fragments with variable definitions\nThis also makes @module to opt in using @no_inline internally\nNOTE that the presence of a fragment in this list only controls whether a fragment is *allowed* to\nuse @no_inline: whether the fragment is inlined or not depends on whether it actually uses that\ndirective.",
           "$ref": "#/$defs/FeatureFlag",
@@ -1074,9 +1067,6 @@
               "kind": "enabled"
             },
             "enforce_module_name_prefix_for_non_haste": false,
-            "legacy_include_path_in_required_reader_nodes": {
-              "kind": "disabled"
-            },
             "no_inline": {
               "kind": "disabled"
             },

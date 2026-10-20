@@ -1320,24 +1320,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         required_metadata: &RequiredMetadataDirective,
         primitive: Primitive,
     ) -> Primitive {
-        let mut obj = object! {
+        Primitive::Key(self.object(object! {
             kind: Primitive::String(CODEGEN_CONSTANTS.required_field),
             field: primitive,
             action: Primitive::String(required_metadata.action.into()),
-        };
-
-        if self
-            .project_config
-            .feature_flags
-            .legacy_include_path_in_required_reader_nodes
-            .is_enabled_for(self.definition_source_location.item)
-        {
-            obj.push(ObjectEntry {
-                key: CODEGEN_CONSTANTS.path,
-                value: Primitive::String(required_metadata.path),
-            });
-        }
-        Primitive::Key(self.object(obj))
+        }))
     }
 
     fn build_catch_node(

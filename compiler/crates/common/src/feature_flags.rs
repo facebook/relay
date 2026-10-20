@@ -215,14 +215,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub disable_deduping_common_structures_in_raw_response_types: FeatureFlag,
 
-    /// The `path` field in `@required` Reader AST nodes is no longer used. But
-    /// removing them in one diff is too large of a change to ship at once.
-    ///
-    /// This flag will allow us to use the rollout FeatureFlag to remove them
-    /// across a number of diffs.
-    #[serde(default)]
-    pub legacy_include_path_in_required_reader_nodes: FeatureFlag,
-
     /// Disallow @required action THROW on semantically nullable fields.
     /// When enabled, this will prevent the use of THROW action on fields
     /// that are semantically nullable (e.g., fields that can legitimately
@@ -337,7 +329,6 @@ impl Default for FeatureFlags {
             disable_deduping_common_structures_in_artifacts: Default::default(),
             dedupe_common_structures_in_raw_response_types: Default::default(),
             disable_deduping_common_structures_in_raw_response_types: Default::default(),
-            legacy_include_path_in_required_reader_nodes: Default::default(),
             disallow_required_action_throw_on_semantically_nullable_fields: Default::default(),
             enable_shadow_resolvers: Default::default(),
             allow_legacy_relay_resolver_tag: Default::default(),

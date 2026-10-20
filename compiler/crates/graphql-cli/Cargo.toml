@@ -9,5 +9,5 @@ repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
-colored = "2.1.0"
+colored = "3.1.1"
 common = { path = "../common" }

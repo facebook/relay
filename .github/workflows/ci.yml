@@ -199,7 +199,7 @@ jobs:
         with:
           # Should stay in sync with tools/third-party/rustfmt/.rustfmt-version
           # and the RUSTUP_TOOLCHAIN env var in the rustfmt step below
-          toolchain: nightly-2025-08-01
+          toolchain: nightly-2026-07-05
           override: true
           components: rustfmt
       - name: "rustfmt"
@@ -208,7 +208,7 @@ jobs:
         env:
           # Must match the toolchain installed above. This overrides
           # compiler/rust-toolchain.toml which would otherwise take precedence.
-          RUSTUP_TOOLCHAIN: nightly-2025-08-01
+          RUSTUP_TOOLCHAIN: nightly-2026-07-05
 
   build-compiler:
     name: Build Rust Compiler (${{ matrix.target.os }})

@@ -1,0 +1,15 @@
+# `me` is a `User`, so the spread fragment's `Page` branch can never match.
+query ObjectRefinementQuery {
+  me {
+    ...ActorFragment
+  }
+}
+
+fragment ActorFragment on Actor {
+  ... on User {
+    name
+  }
+  ... on Page {
+    name
+  }
+}

@@ -1,0 +1,13 @@
+# Removing the `Page` branch empties its condition, which is removed too.
+query EmptiedWrappersQuery($cond: Boolean!) {
+  me {
+    ...ActorFragment
+  }
+}
+
+fragment ActorFragment on Actor {
+  name
+  ... on Page @include(if: $cond) {
+    name
+  }
+}

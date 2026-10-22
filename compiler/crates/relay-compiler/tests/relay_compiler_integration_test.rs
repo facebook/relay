@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7f77c7265c6d1032bddbbb77c6091639>>
+ * @generated SignedSource<<ae0e01a8c5f5f666f5591172d36f6d38>>
  */
 
 mod relay_compiler_integration;
@@ -360,6 +360,13 @@ async fn exec_time_s2c_client_to_server_edge_without_root_fragment() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_client_to_server_edge_without_root_fragment.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_client_to_server_edge_without_root_fragment.expected");
     test_fixture(transform_fixture, file!(), "exec_time_s2c_client_to_server_edge_without_root_fragment.input", "relay_compiler_integration/fixtures/exec_time_s2c_client_to_server_edge_without_root_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_flag_ignores_impossible_interface_arm() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_flag_ignores_impossible_interface_arm.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_flag_ignores_impossible_interface_arm.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_flag_ignores_impossible_interface_arm.input", "relay_compiler_integration/fixtures/exec_time_s2c_flag_ignores_impossible_interface_arm.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -1956,6 +1963,20 @@ async fn simple_fragment_name_change() {
     let input = include_str!("relay_compiler_integration/fixtures/simple_fragment_name_change.input");
     let expected = include_str!("relay_compiler_integration/fixtures/simple_fragment_name_change.expected");
     test_fixture(transform_fixture, file!(), "simple_fragment_name_change.input", "relay_compiler_integration/fixtures/simple_fragment_name_change.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn skip_impossible_inline_fragments_emptied_refinement() {
+    let input = include_str!("relay_compiler_integration/fixtures/skip_impossible_inline_fragments_emptied_refinement.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/skip_impossible_inline_fragments_emptied_refinement.expected");
+    test_fixture(transform_fixture, file!(), "skip_impossible_inline_fragments_emptied_refinement.input", "relay_compiler_integration/fixtures/skip_impossible_inline_fragments_emptied_refinement.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn skip_impossible_inline_fragments_limited() {
+    let input = include_str!("relay_compiler_integration/fixtures/skip_impossible_inline_fragments_limited.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/skip_impossible_inline_fragments_limited.expected");
+    test_fixture(transform_fixture, file!(), "skip_impossible_inline_fragments_limited.input", "relay_compiler_integration/fixtures/skip_impossible_inline_fragments_limited.expected", input, expected).await;
 }
 
 #[tokio::test]

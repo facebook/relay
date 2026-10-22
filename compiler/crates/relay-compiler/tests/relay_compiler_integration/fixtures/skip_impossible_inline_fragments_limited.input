@@ -1,0 +1,45 @@
+//- ActorFragment.js
+// `skip_impossible_inline_fragments` is limited to `PrunedQuery`: its
+// normalization AST drops the `Page` branch that `me: User` can never enter,
+// while `KeptQuery`, not on the allowlist, keeps it.
+graphql`fragment ActorFragment on Actor {
+  ... on User {
+    name
+  }
+  ... on Page {
+    name
+  }
+}`
+
+//- PrunedQuery.js
+graphql`query PrunedQuery {
+  me {
+    ...ActorFragment
+  }
+}`
+
+//- KeptQuery.js
+graphql`query KeptQuery {
+  me {
+    ...ActorFragment
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "skip_impossible_inline_fragments": {
+      "kind": "limited",
+      "allowlist": ["PrunedQuery"]
+    }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+interface Actor { name: String }
+type User implements Actor { name: String }
+type Page implements Actor { name: String }

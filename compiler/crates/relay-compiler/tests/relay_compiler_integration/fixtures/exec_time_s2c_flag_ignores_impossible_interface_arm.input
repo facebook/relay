@@ -1,0 +1,98 @@
+// `PageLabelFragment` selects `label` on the client interface `IPage`, so
+// `relay_resolvers_abstract_types` gives the fragment one arm per implementor:
+// the server `Page` arm runs a server-to-client resolver, the `ClientPage` arm a
+// client resolver. Once the fragment is inlined, only the arm matching the
+// parent's runtime type can be entered: `selected_page` is a `ClientPage`, so
+// its normalization AST drops the `Page` arm and `SelectedPageQuery` must not
+// set `has_server_to_client_resolvers`. Under the server field `page`,
+// `ServerPageQuery` drops the `ClientPage` arm and keeps the flag.
+// `PageArmFragment` has only the `Page` arm: under `selected_page` its `IPage`
+// refinement is emptied rather than kept with the dead arm, so
+// `SelectedPageArmQuery` does not set the flag either.
+
+//- PageLabelFragment.js
+graphql`fragment PageLabelFragment on IPage {
+  label
+}`
+
+//- SelectedPageQuery.js
+graphql`query SelectedPageQuery @exec_time_resolvers {
+  selected_page {
+    ...PageLabelFragment
+  }
+}`
+
+//- PageArmFragment.js
+graphql`fragment PageArmFragment on IPage {
+  ... on Page {
+    label
+  }
+}`
+
+//- SelectedPageArmQuery.js
+graphql`query SelectedPageArmQuery @exec_time_resolvers {
+  selected_page {
+    ...PageArmFragment
+  }
+}`
+
+//- ServerPageQuery.js
+graphql`query ServerPageQuery @exec_time_resolvers {
+  me {
+    page {
+      ...PageLabelFragment
+    }
+  }
+}`
+
+//- ClientPageResolvers.js
+/**
+ * @relayType ClientPage implements IPage
+ */
+export function ClientPage() {}
+
+/**
+ * @relayField ClientPage.label: String
+ */
+export function label() {}
+
+/**
+ * @relayField Query.selected_page: ClientPage
+ */
+export function selected_page() {}
+
+//- PageLabelResolver.js
+/**
+ * @relayField Page.label: String
+ * @rootFragment PageLabelResolverFragment
+ */
+graphql`fragment PageLabelResolverFragment on Page {
+  page_id: id
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true,
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" },
+    "skip_impossible_inline_fragments": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User, node(id: ID!): Node }
+interface Node { id: ID! }
+type User { name: String, page: Page }
+type Page implements Node { id: ID!, title: String }
+
+//- schema-extensions/extension.graphql
+interface IPage {
+  id: ID!
+  label: String
+}
+
+extend type Page implements IPage

@@ -537,7 +537,14 @@ fn apply_normalization_transforms(
         print_stats("skip_unreachable_node", &program);
     }
 
-    program = log_event.time("inline_fragments", || inline_fragments(&program));
+    program = log_event.time("inline_fragments", || {
+        inline_fragments(
+            &program,
+            &project_config
+                .feature_flags
+                .skip_impossible_inline_fragments,
+        )
+    });
     if let Some(print_stats) = maybe_print_stats {
         print_stats("inline_fragments", &program);
     }

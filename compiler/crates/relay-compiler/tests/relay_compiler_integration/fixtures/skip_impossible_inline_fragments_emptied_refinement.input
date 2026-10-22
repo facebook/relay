@@ -1,0 +1,59 @@
+//- ActorPageFragment.js
+// An abstract refinement whose branches are all impossible stays, with its
+// selections removed: the normalizer records on the type whether the record
+// implements it. `me` is a `User`, so `ActorPageFragment` keeps only the
+// `Actor` check, which codegen emits as a TypeDiscriminator for a server
+// interface; `@dangerously_unaliased_fixme` does not keep the dead branch.
+// `client_thing` is a `ClientThing`, so `OtherClientFragment` keeps an empty
+// `IClientThing` refinement; a client interface has no discriminator.
+graphql`fragment ActorPageFragment on Actor {
+  ... on Page {
+    name
+  }
+}`
+
+//- OtherClientFragment.js
+graphql`fragment OtherClientFragment on IClientThing {
+  ... on OtherClientThing {
+    label
+  }
+}`
+
+//- ServerAbstractQuery.js
+graphql`query ServerAbstractQuery {
+  me {
+    name
+    ...ActorPageFragment @dangerously_unaliased_fixme
+  }
+}`
+
+//- ClientAbstractQuery.js
+graphql`query ClientAbstractQuery {
+  client_thing {
+    label
+    ...OtherClientFragment
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": ["schema-extensions"],
+  "featureFlags": {
+    "skip_impossible_inline_fragments": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+interface Actor { name: String }
+type User implements Actor { name: String }
+type Page implements Actor { name: String }
+
+//- schema-extensions/extension.graphql
+interface IClientThing { label: String }
+type ClientThing implements IClientThing { label: String }
+type OtherClientThing implements IClientThing { label: String }
+extend type Query { client_thing: ClientThing }

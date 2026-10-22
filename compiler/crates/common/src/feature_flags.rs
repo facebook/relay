@@ -296,6 +296,15 @@ pub struct FeatureFlags {
     /// Limited and rollout variants are keyed by model type name.
     #[serde(default)]
     pub relay_resolver_model_semantic_non_null_id: FeatureFlag,
+
+    /// Remove inline fragments on an object type from normalization ASTs when
+    /// the record they apply to is known to be of a different object type,
+    /// such as the branches for other implementors left when a fragment on an
+    /// abstract type is spread into a field of an object type. Limited and
+    /// rollout variants are keyed by operation name, which for a split
+    /// operation is `<Fragment>$normalization`.
+    #[serde(default)]
+    pub skip_impossible_inline_fragments: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -338,6 +347,7 @@ impl Default for FeatureFlags {
             enable_typename_discriminated_unions: Default::default(),
             emit_document_type_registry: Default::default(),
             relay_resolver_model_semantic_non_null_id: Default::default(),
+            skip_impossible_inline_fragments: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

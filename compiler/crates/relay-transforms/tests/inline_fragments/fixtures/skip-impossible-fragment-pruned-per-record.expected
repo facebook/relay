@@ -1,0 +1,50 @@
+==================================== INPUT ====================================
+# `ActorFragment` is spread under a `Node`, whose type comes from the response,
+# and under a `User`; the `Page` branch of the fragment it spreads is removed
+# only under the `User`.
+query FragmentPerRecordQuery {
+  node(id: "1") {
+    ...ActorFragment
+    ... on User {
+      nearest_neighbor {
+        ...ActorFragment
+      }
+    }
+  }
+}
+
+fragment ActorFragment on Actor {
+  name
+  ...ActorBranchesFragment
+}
+
+fragment ActorBranchesFragment on Actor {
+  id
+  ... on Page {
+    username
+  }
+}
+==================================== OUTPUT ===================================
+query FragmentPerRecordQuery {
+  node(id: "1") {
+    ... on Actor {
+      name
+      ... on Actor {
+        id
+        ... on Page {
+          username
+        }
+      }
+    }
+    ... on User {
+      nearest_neighbor {
+        ... on Actor {
+          name
+          ... on Actor {
+            id
+          }
+        }
+      }
+    }
+  }
+}

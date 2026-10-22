@@ -1,0 +1,23 @@
+# The runtime enters every refinement on an operation's root record, whatever
+# its type, so nothing is removed there: the `User` branch stays.
+query RootRefinementQuery {
+  ...RootFragment
+}
+
+fragment RootFragment on RootInterface {
+  ... on User {
+    name
+  }
+}
+
+%extensions%
+
+interface RootInterface {
+  name: String
+}
+
+extend type Query implements RootInterface {
+  name: String
+}
+
+extend type User implements RootInterface

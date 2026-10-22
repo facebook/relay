@@ -1,0 +1,14 @@
+# `User` does not implement `FeedUnit`, but the refinement stays: the normalizer
+# records on `User` whether it implements `FeedUnit`, and readers depend on it.
+query AbstractRefinementQuery {
+  me {
+    ...NodeFragment
+  }
+}
+
+fragment NodeFragment on Node {
+  id
+  ... on FeedUnit {
+    id
+  }
+}

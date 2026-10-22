@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::FeatureFlag;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::Program;
@@ -33,8 +34,10 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         let schema = get_test_schema_with_extensions(extensions);
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
-        let next_program =
-            skip_redundant_nodes(&inline_fragments(&program), defer_stream_interface);
+        let next_program = skip_redundant_nodes(
+            &inline_fragments(&program, &FeatureFlag::Disabled),
+            defer_stream_interface,
+        );
         next_program
             .operations()
             .map(|def| print_operation(&schema, def, printer_options.clone()))
@@ -44,8 +47,10 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         let ast = parse_executable(fixture.content, source_location).unwrap();
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
-        let next_program =
-            skip_redundant_nodes(&inline_fragments(&program), defer_stream_interface);
+        let next_program = skip_redundant_nodes(
+            &inline_fragments(&program, &FeatureFlag::Disabled),
+            defer_stream_interface,
+        );
         next_program
             .operations()
             .map(|def| print_operation(&schema, def, printer_options.clone()))

@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+# The response decides the type of a `Node`, so every branch is kept.
+query AbstractFieldQuery {
+  node(id: "1") {
+    ...ActorFragment
+  }
+}
+
+fragment ActorFragment on Actor {
+  ... on User {
+    name
+  }
+  ... on Page {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+query AbstractFieldQuery {
+  node(id: "1") {
+    ... on Actor {
+      ... on User {
+        name
+      }
+      ... on Page {
+        name
+      }
+    }
+  }
+}

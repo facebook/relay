@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9cf907b3e2207fe563642166b13a9f6e>>
+ * @generated SignedSource<<7f77c7265c6d1032bddbbb77c6091639>>
  */
 
 mod relay_compiler_integration;
@@ -507,6 +507,13 @@ async fn exec_time_s2c_root_fragment_rejects_unkeyed_field_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_unkeyed_field.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_unkeyed_field.invalid.expected");
     test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_rejects_unkeyed_field.invalid.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_rejects_unkeyed_field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_s2c_root_fragment_split_operation() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_split_operation.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_split_operation.expected");
+    test_fixture(transform_fixture, file!(), "exec_time_s2c_root_fragment_split_operation.input", "relay_compiler_integration/fixtures/exec_time_s2c_root_fragment_split_operation.expected", input, expected).await;
 }
 
 #[tokio::test]

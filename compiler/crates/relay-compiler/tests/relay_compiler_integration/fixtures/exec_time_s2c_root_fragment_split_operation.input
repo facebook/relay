@@ -1,0 +1,40 @@
+// Test: an exec-time server-to-client resolver compiled with
+// `resolversSchemaModule`.
+//
+// `resolversSchemaModule` marks every resolver root fragment with the internal
+// `__IsResolverRootFragment` directive so a `$normalization` split operation is
+// emitted for it. An S2C root fragment is also spread into the operation text,
+// so `skip_client_extensions` visits the marked fragment while building that
+// text. The marker is IR metadata with no schema definition: it must be
+// stripped like the other internal directives, not looked up in the schema
+// (which panicked with "Unknown directive __IsResolverRootFragment").
+//- FooQuery.js
+graphql`query FooQuery @exec_time_resolvers {
+  me {
+    greeting
+  }
+}`
+
+//- User_greeting.js
+/**
+ * @relayField User.greeting: RelayResolverValue
+ * @rootFragment UserGreetingFragment
+ */
+graphql`fragment UserGreetingFragment on User {
+  id
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  },
+  "resolversSchemaModule": {}
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { id: ID!, name: String }

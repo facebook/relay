@@ -35,8 +35,7 @@ function stableCopy<T extends unknown>(value: T): T {
 // `stableCopy` above and is intended to detect cycles early before they get
 // passed to `stableCopy` which would result in a stack overflow.
 function hasCycle(value: unknown, parents: Set<unknown> = new Set()): boolean {
-  // $FlowFixMe[sketchy-null-mixed]
-  if (!value || typeof value !== 'object') {
+  if (value == null || typeof value !== 'object') {
     return false;
   }
   if (parents.has(value)) {

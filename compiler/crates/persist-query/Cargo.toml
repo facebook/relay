@@ -16,7 +16,7 @@ hyper = { version = "=1.11.0", features = ["client", "http1", "http2"] }
 hyper-tls = "0.6"
 hyper-util = { version = "0.1.21", features = ["client-legacy", "http1", "http2", "server-auto", "service", "tokio"] }
 serde = { version = "1.0.229", features = ["derive", "rc"] }
-serde_json = { version = "1.0.151", features = ["alloc", "float_roundtrip", "raw_value", "unbounded_depth"] }
+serde_json = { version = "1.0.154", features = ["alloc", "float_roundtrip", "raw_value", "unbounded_depth"] }
 thiserror = "2.0.21"
 url = "2.5.8"
 

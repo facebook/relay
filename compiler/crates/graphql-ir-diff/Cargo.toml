@@ -25,5 +25,5 @@ itertools = "0.15.0"
 schema = { path = "../schema" }
 
 [dev-dependencies]
-indoc = "2.0.2"
+indoc = "2.0.8"
 pretty_assertions = { version = "1.4.1", features = ["alloc"], default-features = false }

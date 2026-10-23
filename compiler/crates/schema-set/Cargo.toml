@@ -13,7 +13,7 @@ common = { path = "../common" }
 errors = { path = "../errors" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-indoc = "2.0.2"
+indoc = "2.0.8"
 intern = { path = "../intern" }
 program-with-dependencies = { path = "../program-with-dependencies" }
 schema = { path = "../schema" }

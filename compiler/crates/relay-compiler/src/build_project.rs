@@ -419,29 +419,17 @@ pub fn build_programs(
         .into_par_iter()
         .map(
             |program| -> Result<(Programs, Vec<Diagnostic>), Vec<Diagnostic>> {
-                let arc_program = Arc::new(program);
-
-                // Run validation and transforms concurrently using rayon::join.
-                // Both closures execute within the existing rayon thread pool —
-                // one runs on the current thread, the other is available for
-                // work-stealing by idle rayon threads.
-                let (validate_result, transform_result) = rayon::join(
-                    || validate_program(config, project_config, &arc_program, log_event),
-                    || {
-                        transform_program(
-                            project_config,
-                            Arc::clone(&arc_program),
-                            Arc::clone(&base_fragment_names),
-                            Arc::clone(&perf_logger),
-                            log_event,
-                            config.custom_transforms.as_ref(),
-                            config.transferrable_refetchable_query_directives.clone(),
-                        )
-                    },
-                );
-
-                let mut diagnostics = validate_result?;
-                let programs = transform_result?;
+                let mut diagnostics =
+                    validate_program(config, project_config, &program, log_event)?;
+                let programs = transform_program(
+                    project_config,
+                    Arc::new(program),
+                    Arc::clone(&base_fragment_names),
+                    Arc::clone(&perf_logger),
+                    log_event,
+                    config.custom_transforms.as_ref(),
+                    config.transferrable_refetchable_query_directives.clone(),
+                )?;
 
                 diagnostics.extend(validate_reader_program(
                     config,

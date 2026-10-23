@@ -1,0 +1,67 @@
+==================================== INPUT ====================================
+//- connection.js
+graphql`
+  query ConnectionMissingCountQuery {
+    friends(first: 1) @connection(key: "ConnectionMissingCountQuery_friends") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+`
+
+//- relay.config.json
+{
+  "language": "javascript",
+  "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query {
+  friends(first: Int): FriendsConnection
+}
+
+type FriendsConnection {
+  edges: [FriendsEdge]
+  pageInfo: PageInfo
+}
+
+type FriendsEdge {
+  cursor: String
+  node: User
+}
+
+type User {
+  id: ID!
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+//-++ connection.js
+graphql`
+  query ConnectionMissingCountQuery {
+    # Invalid input must produce a diagnostic, not reach the connection transform.
+    friends @connection(key: "ConnectionMissingCountQuery_friends") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+`
+==================================== OUTPUT ===================================
+✖︎ Expected field 'friends' to be passed a 'first' or 'last' argument.
+
+  connection.js:4:5
+    3 │     # Invalid input must produce a diagnostic, not reach the connection transform.
+    4 │     friends @connection(key: "ConnectionMissingCountQuery_friends") {
+      │     ^^^^^^^
+    5 │       edges {

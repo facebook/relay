@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ae0e01a8c5f5f666f5591172d36f6d38>>
+ * @generated SignedSource<<ef025f95fae3321d2d3c3afbdf0a432f>>
  */
 
 mod relay_compiler_integration;
@@ -157,6 +157,13 @@ async fn config_validation_project_missing() {
     let input = include_str!("relay_compiler_integration/fixtures/config_validation_project_missing.input");
     let expected = include_str!("relay_compiler_integration/fixtures/config_validation_project_missing.expected");
     test_fixture(transform_fixture, file!(), "config_validation_project_missing.input", "relay_compiler_integration/fixtures/config_validation_project_missing.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn connection_missing_count_args_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/connection_missing_count_args.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/connection_missing_count_args.invalid.expected");
+    test_fixture(transform_fixture, file!(), "connection_missing_count_args.invalid.input", "relay_compiler_integration/fixtures/connection_missing_count_args.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

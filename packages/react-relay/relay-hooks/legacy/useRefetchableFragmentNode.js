@@ -541,8 +541,10 @@ if (__DEV__) {
         return;
       }
       const {ID_KEY} = require('relay-runtime');
-      // $FlowExpectedError[incompatible-use]
-      const resultID = refetchedFragmentRef[ID_KEY];
+      const resultID =
+        typeof refetchedFragmentRef === 'object'
+          ? refetchedFragmentRef[ID_KEY]
+          : null;
       if (resultID != null && resultID !== previousIDAndTypename.id) {
         warning(
           false,

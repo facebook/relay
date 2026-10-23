@@ -38,7 +38,7 @@ function getValidGraphQLTag(path: any): ?DocumentNode {
 
   const text = quasis[0].value.raw;
 
-  const ast = GraphQL.parse(text, {experimentalFragmentVariables: true});
+  const ast = GraphQL.parse(text, {experimentalFragmentArguments: true});
 
   if (ast.definitions.length === 0) {
     throw new Error('BabelPluginRelay: Unexpected empty graphql tag.');

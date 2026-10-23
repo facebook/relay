@@ -13,6 +13,7 @@
 
 import type {BabelState} from './BabelPluginRelay';
 import type {
+  ASTNode,
   DocumentNode,
   FragmentDefinitionNode,
   OperationDefinitionNode,
@@ -30,6 +31,137 @@ const {
 } = require('path');
 
 const GENERATED = './__generated__/';
+
+function printForHash(node: ASTNode): string {
+  return match (node) {
+    {kind: 'OperationDefinition', ...} as const current =>
+      printOperationForHash(current),
+    {kind: 'VariableDefinition', ...} as const current =>
+      printForHash(current.variable) +
+        ': ' +
+        printForHash(current.type) +
+        wrap(
+          ' = ',
+          current.defaultValue == null
+            ? ''
+            : printForHash(current.defaultValue),
+        ) +
+        wrap(' ', printNodes(current.directives, ' ')),
+    {kind: 'SelectionSet', ...} as const current =>
+      wrap(
+        '{\n',
+        wrap('  ', printNodes(current.selections, '\n').replace(/\n/g, '\n  ')),
+        '\n}',
+      ),
+    {kind: 'Field', ...} as const current =>
+      joinStrings(
+        [
+          wrap('', current.alias?.value, ': ') +
+            current.name.value +
+            wrap('(', printNodes(current.arguments, ', '), ')'),
+          printNodes(current.directives, ' '),
+          current.selectionSet == null
+            ? ''
+            : printForHash(current.selectionSet),
+        ],
+        ' ',
+      ),
+    {
+      kind: 'Argument' | 'FragmentArgument' | 'ObjectField',
+      ...
+    } as const current =>
+      current.name.value + ': ' + printForHash(current.value),
+    {kind: 'FragmentSpread', ...} as const current =>
+      '...' +
+        current.name.value +
+        wrap('(', printNodes(current.arguments, ', '), ')') +
+        wrap(' ', printNodes(current.directives, ' ')),
+    {kind: 'InlineFragment', ...} as const current =>
+      joinStrings(
+        [
+          '...',
+          wrap('on ', current.typeCondition?.name.value),
+          printNodes(current.directives, ' '),
+          printForHash(current.selectionSet),
+        ],
+        ' ',
+      ),
+    {kind: 'FragmentDefinition', ...} as const current =>
+      'fragment ' +
+        current.name.value +
+        wrap('(', printNodes(current.variableDefinitions, ', '), ')') +
+        ' on ' +
+        current.typeCondition.name.value +
+        ' ' +
+        wrap('', printNodes(current.directives, ' '), ' ') +
+        printForHash(current.selectionSet),
+    {kind: 'ListValue', ...} as const current =>
+      '[' + printNodes(current.values, ', ') + ']',
+    {kind: 'ObjectValue', ...} as const current =>
+      '{' + printNodes(current.fields, ', ') + '}',
+    {kind: 'Directive', ...} as const current =>
+      '@' +
+        current.name.value +
+        wrap('(', printNodes(current.arguments, ', '), ')'),
+    {kind: 'StringValue', ...} as const current =>
+      current.block === true
+        ? printBlockStringForHash(current.value)
+        : (JSON.stringify(current.value) ?? '""'),
+    _ as const current => print(current),
+  };
+}
+
+function printOperationForHash(node: OperationDefinitionNode): string {
+  const prefix = joinStrings(
+    [
+      node.operation,
+      joinStrings([
+        node.name?.value,
+        wrap('(', printNodes(node.variableDefinitions, ', '), ')'),
+      ]),
+      printNodes(node.directives, ' '),
+    ],
+    ' ',
+  );
+  return (
+    (prefix === 'query' ? '' : prefix + ' ') + printForHash(node.selectionSet)
+  );
+}
+
+function printBlockStringForHash(value: string): string {
+  const singleLine = !value.includes('\n');
+  const multiline = !singleLine || value.endsWith('"') || value.endsWith('\\');
+  let result = '';
+  if (
+    multiline &&
+    !(singleLine && (value.startsWith(' ') || value.startsWith('\t')))
+  ) {
+    result += '\n  ';
+  }
+  result += value.replace(/\n/g, '\n  ');
+  if (multiline) {
+    result += '\n';
+  }
+  return '"""' + result.replace(/"""/g, '\\"""') + '"""';
+}
+
+function printNodes(nodes: ?ReadonlyArray<ASTNode>, separator: string): string {
+  return nodes?.map(printForHash).join(separator) ?? '';
+}
+
+function joinStrings(
+  parts: ReadonlyArray<?string>,
+  separator: string = '',
+): string {
+  return parts.filter(part => part != null && part !== '').join(separator);
+}
+
+function wrap(start: string, value: ?string, end: string = ''): string {
+  if (value == null || value === '') {
+    return '';
+  }
+  return start + value + end;
+}
 
 /**
  * Converts backslashes in a path to forward slashes (POSIX style) for
@@ -129,7 +261,7 @@ function createNode(
 
   const hash = crypto
     .createHash('md5')
-    .update(print(graphqlDefinition), 'utf8')
+    .update(printForHash(graphqlDefinition), 'utf8')
     .digest('hex');
 
   let topScope = path.scope;

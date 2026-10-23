@@ -12,6 +12,18 @@
 
 const transformerWithOptions = require('./transformerWithOptions');
 
+describe('experimental fragment arguments', () => {
+  it('accepts fragment variables, defaults, and named-spread arguments', async () => {
+    const code = await transformerWithOptions({
+      eagerEsModules: false,
+      jsModuleFormat: 'haste',
+    })(
+      'graphql`fragment TestFrag($scale: Int = 2) on Node { ...Child(scale: $scale) }`',
+    );
+    expect(code).toContain("require('TestFrag.graphql')");
+  });
+});
+
 describe('`development` option', () => {
   it('tests the hash when `development` is set', async () => {
     expect(

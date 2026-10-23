@@ -1,0 +1,282 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @flow strict-local
+ * @format
+ * @oncall relay
+ */
+
+// GraphQL.js v17 no longer ships Flow definitions. These cover the Babel plugin's APIs.
+declare module 'graphql' {
+  /** An identifier in a GraphQL document. */
+  declare export type NameNode = Readonly<{kind: 'Name', value: string, ...}>;
+
+  /** The root AST node for a parsed GraphQL document. */
+  declare export type DocumentNode = Readonly<{
+    kind: 'Document',
+    definitions: ReadonlyArray<DefinitionNode>,
+    ...
+  }>;
+
+  /** Any top-level definition that may appear in a GraphQL document. */
+  declare export type DefinitionNode =
+    OperationDefinitionNode | FragmentDefinitionNode | TypeSystemNode;
+
+  /** A query, mutation, or subscription operation definition. */
+  declare export type OperationDefinitionNode = Readonly<{
+    kind: 'OperationDefinition',
+    operation: 'query' | 'mutation' | 'subscription',
+    name?: NameNode,
+    variableDefinitions?: ReadonlyArray<VariableDefinitionNode>,
+    directives?: ReadonlyArray<DirectiveNode>,
+    selectionSet: SelectionSetNode,
+    ...
+  }>;
+
+  /** A reusable fragment definition declared in an executable document. */
+  declare export type FragmentDefinitionNode = Readonly<{
+    kind: 'FragmentDefinition',
+    name: NameNode,
+    /** Experimental variable definitions declared by this fragment definition. */
+    variableDefinitions?: ReadonlyArray<VariableDefinitionNode>,
+    typeCondition: NamedTypeNode,
+    directives?: ReadonlyArray<DirectiveNode>,
+    selectionSet: SelectionSetNode,
+    ...
+  }>;
+
+  /** A variable declaration in an operation or experimental fragment definition. */
+  declare export type VariableDefinitionNode = Readonly<{
+    kind: 'VariableDefinition',
+    variable: VariableNode,
+    type: TypeNode,
+    defaultValue?: ValueNode,
+    directives?: ReadonlyArray<DirectiveNode>,
+    ...
+  }>;
+
+  /** A variable reference, such as `$id`. */
+  declare export type VariableNode = Readonly<{
+    kind: 'Variable',
+    name: NameNode,
+    ...
+  }>;
+
+  /** A set of fields and fragments selected from an object, interface, or union. */
+  declare export type SelectionSetNode = Readonly<{
+    kind: 'SelectionSet',
+    selections: ReadonlyArray<
+      FieldNode | FragmentSpreadNode | InlineFragmentNode,
+    >,
+    ...
+  }>;
+
+  /** A field selected in an executable GraphQL document. */
+  declare export type FieldNode = Readonly<{
+    kind: 'Field',
+    alias?: NameNode,
+    name: NameNode,
+    arguments?: ReadonlyArray<ArgumentNode>,
+    directives?: ReadonlyArray<DirectiveNode>,
+    selectionSet?: SelectionSetNode,
+    ...
+  }>;
+
+  /** An argument supplied to a field or directive. */
+  declare export type ArgumentNode = Readonly<{
+    kind: 'Argument',
+    name: NameNode,
+    value: ValueNode,
+    ...
+  }>;
+
+  /** Variable definition declared by a fragment argument. */
+  declare export type FragmentArgumentNode = Readonly<{
+    /** AST node kind for a fragment argument. */
+    kind: 'FragmentArgument',
+    /** Variable name declared by this fragment argument. */
+    name: NameNode,
+    /** Default value literal for this fragment argument, if provided. */
+    value: ValueNode,
+    ...
+  }>;
+
+  /** A named fragment spread, such as `...userFields`. */
+  declare export type FragmentSpreadNode = Readonly<{
+    kind: 'FragmentSpread',
+    name: NameNode,
+    /** Argument values supplied to the referenced fragment. */
+    arguments?: ReadonlyArray<FragmentArgumentNode>,
+    directives?: ReadonlyArray<DirectiveNode>,
+    ...
+  }>;
+
+  /** An inline fragment spread with an optional type condition. */
+  declare export type InlineFragmentNode = Readonly<{
+    kind: 'InlineFragment',
+    typeCondition?: NamedTypeNode,
+    directives?: ReadonlyArray<DirectiveNode>,
+    selectionSet: SelectionSetNode,
+    ...
+  }>;
+
+  /** A directive applied to an executable or type-system location. */
+  declare export type DirectiveNode = Readonly<{
+    kind: 'Directive',
+    name: NameNode,
+    arguments?: ReadonlyArray<ArgumentNode>,
+    ...
+  }>;
+
+  /** A named type reference. */
+  declare export type NamedTypeNode = Readonly<{
+    kind: 'NamedType',
+    name: NameNode,
+    ...
+  }>;
+
+  /** A list type reference. */
+  declare export type ListTypeNode = Readonly<{
+    kind: 'ListType',
+    type: TypeNode,
+    ...
+  }>;
+  /** A non-null type reference. */
+  declare export type NonNullTypeNode = Readonly<{
+    kind: 'NonNullType',
+    type: NamedTypeNode | ListTypeNode,
+    ...
+  }>;
+  declare export type TypeNode = NamedTypeNode | ListTypeNode | NonNullTypeNode;
+
+  /** A string value literal. */
+  declare export type StringValueNode = Readonly<{
+    kind: 'StringValue',
+    value: string,
+    block?: boolean,
+    ...
+  }>;
+  declare export type ScalarValueNode =
+    | Readonly<{
+        kind: 'IntValue' | 'FloatValue' | 'EnumValue',
+        value: string,
+        ...
+      }>
+    | Readonly<{kind: 'BooleanValue', value: boolean, ...}>
+    | Readonly<{kind: 'NullValue', ...}>;
+  /** A list value literal. */
+  declare export type ListValueNode = Readonly<{
+    kind: 'ListValue',
+    values: ReadonlyArray<ValueNode>,
+    ...
+  }>;
+  /** An input object value literal. */
+  declare export type ObjectValueNode = Readonly<{
+    kind: 'ObjectValue',
+    fields: ReadonlyArray<ObjectFieldNode>,
+    ...
+  }>;
+  /** A field inside an input object value literal. */
+  declare export type ObjectFieldNode = Readonly<{
+    kind: 'ObjectField',
+    name: NameNode,
+    value: ValueNode,
+    ...
+  }>;
+  /** Any value literal that may appear in an executable GraphQL document. */
+  declare export type ValueNode =
+    | VariableNode
+    | StringValueNode
+    | ScalarValueNode
+    | ListValueNode
+    | ObjectValueNode;
+
+  declare export type TypeSystemNode = Readonly<{
+    kind:
+      | 'SchemaDefinition'
+      | 'ScalarTypeDefinition'
+      | 'ObjectTypeDefinition'
+      | 'InterfaceTypeDefinition'
+      | 'UnionTypeDefinition'
+      | 'EnumTypeDefinition'
+      | 'InputObjectTypeDefinition'
+      | 'DirectiveDefinition'
+      | 'SchemaExtension'
+      | 'ScalarTypeExtension'
+      | 'ObjectTypeExtension'
+      | 'InterfaceTypeExtension'
+      | 'UnionTypeExtension'
+      | 'EnumTypeExtension'
+      | 'InputObjectTypeExtension'
+      | 'DirectiveExtension',
+    ...
+  }>;
+
+  /** The list of all possible AST node types. */
+  declare export type ASTNode =
+    | NameNode
+    | DocumentNode
+    | DefinitionNode
+    | VariableDefinitionNode
+    | SelectionSetNode
+    | FieldNode
+    | ArgumentNode
+    | FragmentArgumentNode
+    | FragmentSpreadNode
+    | InlineFragmentNode
+    | DirectiveNode
+    | TypeNode
+    | ValueNode
+    | ObjectFieldNode;
+
+  /**
+   * Given a GraphQL source, parses it into a Document.
+   * Throws GraphQLError if a syntax error is encountered.
+   */
+  declare export function parse(
+    source: string,
+    options?: Readonly<{
+      /**
+       * By default, the parser creates AST nodes that know the location
+       * in the source that they correspond to. This configuration flag
+       * disables that behavior for performance or testing.
+       */
+      noLocation?: boolean,
+      /**
+       * Parser CPU and memory usage is linear to the number of tokens in a document
+       * however in extreme cases it becomes quadratic due to memory exhaustion.
+       * Parsing happens before validation so even invalid queries can burn lots of
+       * CPU time and memory.
+       * To prevent this you can set a maximum number of tokens allowed within a document.
+       */
+      maxTokens?: number,
+      /**
+       * EXPERIMENTAL:
+       *
+       * If enabled, the parser will understand and parse fragment variable definitions
+       * and arguments on fragment spreads. Fragment variable definitions will be represented
+       * in the `variableDefinitions` field of the FragmentDefinitionNode.
+       * Fragment spread arguments will be represented in the `arguments` field of FragmentSpreadNode.
+       * @example
+       * ```graphql prettier-ignore
+       * {
+       *   t { ...A(var: true) }
+       * }
+       * fragment A($var: Boolean = false) on T {
+       *   ...B(x: $var)
+       * }
+       * ```
+       */
+      experimentalFragmentArguments?: boolean,
+    }>,
+  ): DocumentNode;
+
+  /**
+   * Converts an AST into a string, using one set of reasonable
+   * formatting rules.
+   */
+  declare export function print(node: ASTNode): string;
+}

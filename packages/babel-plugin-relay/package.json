@@ -19,7 +19,7 @@
   "dependencies": {
     "babel-plugin-macros": "^2.0.0",
     "cosmiconfig": "^5.0.5",
-    "graphql": "15.3.0"
+    "graphql": "17.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

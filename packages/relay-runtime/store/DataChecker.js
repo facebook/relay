@@ -13,6 +13,8 @@
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
+  NormalizationClientEdgeToClientObject,
+  NormalizationClientEdgeToServerObject,
   NormalizationLinkedField,
   NormalizationLiveResolverField,
   NormalizationModuleImport,
@@ -413,7 +415,10 @@ class DataChecker {
               // unsure if the type implements the interface: data is
               // missing so don't bother reading the fragment
               this._handleMissing();
-            } // else false: known to not implement the interface
+            } else {
+              // false: known to not implement the interface
+              this.onRefinementRuledOut();
+            }
           }
           break;
         }
@@ -487,12 +492,16 @@ class DataChecker {
         case 'RelayLiveResolver':
           if (!this._useExecTimeResolvers) {
             this._checkResolver(selection, dataID);
+          } else {
+            this.checkExecTimeResolver(selection, dataID);
           }
           break;
         case 'ClientEdgeToClientObject':
         case 'ClientEdgeToServerObject':
           if (!this._useExecTimeResolvers) {
             this._checkResolver(selection.backingField, dataID);
+          } else {
+            this.checkExecTimeResolver(selection, dataID);
           }
           break;
         default:
@@ -505,6 +514,21 @@ class DataChecker {
       }
     });
   }
+  // Methods without a leading underscore can be overridden by a subclass, such
+  // as `ExecTimeS2CDataChecker`.
+
+  // An exec-time resolver's value is not in the store: nothing to check.
+  checkExecTimeResolver(
+    _resolver:
+      | NormalizationClientEdgeToClientObject
+      | NormalizationClientEdgeToServerObject
+      | NormalizationLiveResolverField
+      | NormalizationResolverField,
+    _dataID: DataID,
+  ): void {}
+
+  onRefinementRuledOut(): void {}
+
   _checkResolver(
     resolver: NormalizationResolverField | NormalizationLiveResolverField,
     dataID: DataID,
@@ -653,5 +677,6 @@ class DataChecker {
 }
 
 module.exports = {
+  DataChecker,
   check,
 };

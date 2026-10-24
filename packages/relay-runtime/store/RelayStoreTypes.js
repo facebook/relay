@@ -1542,6 +1542,16 @@ export type RelayFieldLoggerEvent =
 export type RelayFieldLogger = (event: RelayFieldLoggerEvent) => void;
 
 /**
+ * Exec-time server-to-client (S2C) work: build `selections`, resolvers and
+ * client edges with a root fragment, beneath the record `recordID`.
+ */
+export type S2CExecution = {
+  readonly recordID: DataID,
+  readonly selections: ReadonlyArray<NormalizationSelection>,
+  readonly typeName: string,
+};
+
+/**
  * The results of normalizing a query.
  */
 export type RelayResponsePayload = {
@@ -1551,11 +1561,7 @@ export type RelayResponsePayload = {
   readonly followupPayloads: ?Array<FollowupPayload>,
   readonly isFinal: boolean,
   readonly isPreNormalized?: boolean,
-  readonly s2cExecutions?: ?ReadonlyArray<{
-    readonly recordID: DataID,
-    readonly selections: ReadonlyArray<NormalizationSelection>,
-    readonly typeName: string,
-  }>,
+  readonly s2cExecutions?: ?ReadonlyArray<S2CExecution>,
   readonly source: MutableRecordSource,
   readonly storeUpdater?: ?(store: RecordSourceProxy) => void,
 };

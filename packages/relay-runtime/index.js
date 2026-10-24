@@ -43,6 +43,7 @@ const createFragmentSpecResolver = require('./store/createFragmentSpecResolver')
 const createRelayContext = require('./store/createRelayContext');
 const createRelayLoggingContext = require('./store/createRelayLoggingContext');
 const defaultGetDataID = require('./store/defaultGetDataID');
+const ExecTimeS2CDataChecker = require('./store/ExecTimeS2CDataChecker');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const {
   isSuspenseSentinel,
@@ -344,6 +345,7 @@ const __internal = {
   getObservableForActiveRequest:
     fetchQueryInternal.getObservableForActiveRequest,
   NormalizationEngine: NormalizationEngine,
+  ExecTimeS2CDataChecker: ExecTimeS2CDataChecker,
   normalizeResponse: normalizeResponse,
   withProvidedVariables: withProvidedVariables,
 };

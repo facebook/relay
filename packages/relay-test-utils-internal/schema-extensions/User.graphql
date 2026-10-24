@@ -17,3 +17,7 @@ extend type User {
   client_extension_linked_field: User
   some_field(some_arg_name: Int!): Int
 }
+
+# For exec-time server-to-client resolver tests: lets an S2C root fragment read
+# `alternate_name` from the normalized response.
+extend type User @UNSTABLE_key(fields: "alternate_name")

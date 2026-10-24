@@ -1,0 +1,14 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
+# The return interface of an exec-time "magic fragment" resolver that dispatches
+# over `nodes(ids:)`, as production dispatcher resolvers do.
+interface IExecTimeS2CThing {
+  id: ID!
+}
+
+extend type User implements IExecTimeS2CThing
+
+extend type Page implements IExecTimeS2CThing
+
+# Lets an S2C root fragment read `name` through an `... on Actor` refinement.
+extend interface Actor @UNSTABLE_key(fields: "name")

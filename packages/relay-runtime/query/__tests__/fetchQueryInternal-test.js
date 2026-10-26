@@ -981,6 +981,39 @@ describe('getObservableForActiveRequest', () => {
     expect(events).toEqual(['complete']);
   });
 
+  it('completes when subscribed after the request was unsubscribed (canceled)', () => {
+    const subscription = fetchQuery(environment, query).subscribe({});
+    const observable = getObservableForActiveRequest(
+      environment,
+      query.request,
+    );
+    expect(observable).not.toEqual(null);
+    if (!observable) {
+      return;
+    }
+
+    subscription.unsubscribe();
+    observable.subscribe(observer);
+    expect(events).toEqual(['complete']);
+  });
+
+  it('completes when subscribed after the request was canceled and re-issued', () => {
+    const subscription = fetchQuery(environment, query).subscribe({});
+    const observable = getObservableForActiveRequest(
+      environment,
+      query.request,
+    );
+    expect(observable).not.toEqual(null);
+    if (!observable) {
+      return;
+    }
+
+    subscription.unsubscribe();
+    fetchQuery(environment, query).subscribe({});
+    observable.subscribe(observer);
+    expect(events).toEqual(['complete']);
+  });
+
   it('calls next asynchronously with subsequent non-final payloads', () => {
     fetchQuery(environment, query).subscribe({});
     const observable = getObservableForActiveRequest(

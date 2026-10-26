@@ -596,3 +596,32 @@ it('re-detects a reloaded request (new query owner) with the same variables', as
   // New owner → observable refreshed → the reloaded request is detected.
   expect(states[states.length - 1]).toBe(true);
 });
+
+it('returns false when the owner request is cancelled between render and the effect subscribing', async () => {
+  // A request cancelled via unsubscribe records no terminal event in its
+  // replay subject, so a subscription made after the cancellation never hears
+  // that the request ended.
+  const subscription = fetchQuery(environment, operation).subscribe({});
+  expect(fetch).toBeCalledTimes(1);
+  const states: Array<boolean> = [];
+  function CancelInLayoutEffect() {
+    React.useLayoutEffect(() => {
+      subscription.unsubscribe();
+    }, []);
+    return null;
+  }
+  function Component() {
+    states.push(useIsParentQueryActive(fragment, fragmentRef));
+    return <CancelInLayoutEffect />;
+  }
+  await act(() => {
+    ReactTestingLibrary.render(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
+  await act(() => jest.runAllImmediates());
+  expect(states[0]).toBe(true);
+  expect(states[states.length - 1]).toBe(false);
+});

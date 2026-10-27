@@ -111,6 +111,14 @@ export type FeatureFlags = {
   // stays reachable by `unsubscribe`. Defaults off; without it the alternate is
   // orphaned and runs to completion, matching prior behavior.
   ENABLE_IF_EMPTY_CANCELLATION: boolean,
+
+  // Performance optimizations of the runtime, by the code they change. Each
+  // keeps the previous implementation for when its flag is off. They don't
+  // change results. Set them once, to true, before creating any environment:
+  // a store picks some of its helpers when it is created.
+  //
+  // Storage keys, type IDs and handle fields.
+  ENABLE_PERF_STORAGE_KEYS: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -143,6 +151,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_READER_FRAGMENTS_LOGGING: false,
   ENABLE_CATCH_IGNORE_HANDLED_FIELD_ERRORS: false,
   ENABLE_IF_EMPTY_CANCELLATION: false,
+  ENABLE_PERF_STORAGE_KEYS: false,
 };
 
 module.exports = RelayFeatureFlags;

@@ -9,10 +9,15 @@ import { Network, Observable, GraphQLResponse } from "relay-runtime";
 import type { RelayObservable } from "relay-runtime/lib/network/RelayObservable";
 import type { AsyncExecutionResult, ExecutionResult } from "graphql";
 import type { PromiseOrValue } from "graphql/jsutils/PromiseOrValue";
-import { execute, subscribe, parse } from "graphql";
+import { execute, subscribe, parse, GraphQLSchema } from "graphql";
 import { getSchema } from "./schema";
 
-const executableSchema = getSchema();
+// graphql-js ignores `@defer`/`@stream` unless the schema sets this. It is
+// constructor-only and `toConfig()` drops it, hence the re-wrap.
+const executableSchema = new GraphQLSchema({
+  ...getSchema().toConfig(),
+  enableDeferStream: true,
+});
 
 // The async branch yields `AsyncExecutionResult`, not `ExecutionResult`: under
 // incremental delivery each payload after the first is an `ExecutionPatchResult`,
@@ -23,13 +28,22 @@ type GraphQLResult = PromiseOrValue<
   ExecutionResult | AsyncIterable<AsyncExecutionResult>
 >;
 
+// `@stream` ends with a bookkeeping-only `{hasNext: false}`, which is not a
+// `GraphQLResponse`; Relay warns "No data returned for operation". Completion
+// is signalled by the observable, so dropping it loses nothing.
+function isDeliverablePayload(value: AsyncExecutionResult): boolean {
+  return "data" in value || "errors" in value;
+}
+
 function toObservable(result: GraphQLResult): RelayObservable<GraphQLResponse> {
   return Observable.create<GraphQLResponse>((sink) => {
     (async () => {
       const resolved = await result;
       if (Symbol.asyncIterator in resolved) {
         for await (const value of resolved) {
-          sink.next(value as GraphQLResponse);
+          if (isDeliverablePayload(value)) {
+            sink.next(value as GraphQLResponse);
+          }
         }
       } else {
         sink.next(resolved as GraphQLResponse);

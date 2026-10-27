@@ -23,7 +23,6 @@ import type {
   Observable,
   OperationType,
   PreloadableConcreteRequest,
-  RequestParameters,
   VariablesOf as _VariablesOf,
 } from 'relay-runtime';
 

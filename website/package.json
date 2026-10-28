@@ -1,5 +1,5 @@
 {
-  "repository": "facebook/relay",
+  "repository": "meta/relay",
   "license": "MIT",
   "private": true,
   "scripts": {

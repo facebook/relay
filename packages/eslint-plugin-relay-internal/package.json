@@ -10,10 +10,10 @@
   ],
   "license": "MIT",
   "homepage": "https://relay.dev",
-  "bugs": "https://github.com/facebook/relay/issues",
+  "bugs": "https://github.com/meta/relay/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/facebook/relay.git",
+    "url": "https://github.com/meta/relay.git",
     "directory": "packages/relay-test-utils-internal"
   },
   "main": "./lib/index.js",

@@ -25,6 +25,15 @@ func() {}
     5 │ func() {}
 
 
+✖︎ Unexpected identifier, expected the end of an expression statement (`;`)
+
+  module.js:5:1
+    3 │ 
+    4 │ / @RelayResolver
+    5 │ func() {}
+      │ ^^^^
+
+
 ✖︎ Unexpected token `{`, expected the end of an expression statement (`;`)
 
   module.js:5:8

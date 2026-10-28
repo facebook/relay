@@ -499,8 +499,7 @@ class LiveResolverCache implements ResolverCache {
       const shouldPublish = this._liveResolverBatchRecordSource != null;
       // We lazily create the record source. If one has not been created, there
       // is nothing to publish.
-      if (shouldPublish) {
-        // $FlowFixMe[incompatible-type]  Null checked
+      if (this._liveResolverBatchRecordSource != null) {
         this._store.publish(this._liveResolverBatchRecordSource);
       }
 

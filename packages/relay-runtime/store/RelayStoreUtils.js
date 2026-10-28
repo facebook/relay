@@ -185,6 +185,9 @@ function getReadTimeResolverStorageKey(
     | NormalizationLiveResolverField,
   variables: Variables,
 ): string {
+  if (RelayFeatureFlags.ENABLE_PERF_STORAGE_KEYS) {
+    return getReadTimeResolverStorageKeyPerf(field, variables);
+  }
   const storageKey = getStorageKey(field, variables);
   return RelayFeatureFlags.ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX
     ? '$r:' + storageKey // Using inlined string to test the performance impact
@@ -320,5 +323,77 @@ const RelayStoreUtils = {
   getModuleOperationKey,
   getFieldNotificationKey,
 } as const;
+
+// ----------------------------------------------------------------------
+// Optimized variants (`*Perf`) of the functions above.
+// Used only when ENABLE_PERF_STORAGE_KEYS is on; with it off the code above runs
+// unchanged.
+
+function getReadTimeResolverStorageKeyPerf(
+  field:
+    | ReaderRelayResolver
+    | ReaderRelayLiveResolver
+    | NormalizationResolverField
+    | NormalizationLiveResolverField,
+  variables: Variables,
+): string {
+  if (!RelayFeatureFlags.ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX) {
+    return getStorageKey(field, variables);
+  }
+  const cached = staticReadTimeResolverStorageKeys.get(field);
+  if (cached != null) {
+    return cached;
+  }
+  const storageKey = '$r:' + getStorageKey(field, variables); // Using inlined string to test the performance impact
+  if (cached === undefined) {
+    staticReadTimeResolverStorageKeys.set(
+      field,
+      argumentsReferenceVariables(getArguments(field)) ? null : storageKey,
+    );
+  }
+  return storageKey;
+}
+
+// Resolver fields are read on every render and notify, and their prefixed
+// storage key used to be rebuilt each time. When no argument references a
+// variable the key depends only on the field node, so it is built once per
+// node. `null` marks nodes whose key depends on variables.
+const staticReadTimeResolverStorageKeys: WeakMap<
+  | ReaderRelayResolver
+  | ReaderRelayLiveResolver
+  | NormalizationResolverField
+  | NormalizationLiveResolverField,
+  string | null,
+> = new WeakMap();
+
+function argumentsReferenceVariables(
+  args: ?ReadonlyArray<?(NormalizationArgument | ReaderArgument)>,
+): boolean {
+  if (args == null) {
+    return false;
+  }
+  for (let ii = 0; ii < args.length; ii++) {
+    if (argumentReferencesVariables(args[ii])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function argumentReferencesVariables(
+  arg: ?(NormalizationArgument | ReaderArgument),
+): boolean {
+  if (arg == null || arg.kind === LITERAL) {
+    return false;
+  }
+  if (arg.kind === OBJECT_VALUE) {
+    return argumentsReferenceVariables(arg.fields);
+  }
+  if (arg.kind === LIST_VALUE) {
+    return argumentsReferenceVariables(arg.items);
+  }
+  // Variables, and any argument kind added later.
+  return true;
+}
 
 module.exports = RelayStoreUtils;

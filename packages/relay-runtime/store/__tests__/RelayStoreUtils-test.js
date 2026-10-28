@@ -11,6 +11,7 @@
 'use strict';
 
 const {graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayStoreUtils = require('../RelayStoreUtils');
 
 describe('RelayStoreUtils', () => {
@@ -157,6 +158,83 @@ describe('RelayStoreUtils', () => {
           foo: 'Foo Text',
         }),
       ).toBe('storySearch(query:{"limit":10,"offset":100,"text":"Foo Text"})');
+    });
+  });
+
+  describe('getReadTimeResolverStorageKey()', () => {
+    const resolverField = (args, fragmentArgs) => ({
+      kind: 'RelayResolver',
+      name: 'greeting',
+      args,
+      fragment:
+        fragmentArgs === undefined
+          ? null
+          : {kind: 'FragmentSpread', name: 'Fragment', args: fragmentArgs},
+      storageKey: null,
+      isOutputType: false,
+      resolverModule: () => null,
+      path: 'greeting',
+    });
+
+    it('prefixes keys and reuses the key of fields without variables', () => {
+      const field = resolverField([
+        {kind: 'Literal', name: 'salutation', value: 'Hello'},
+      ]);
+      const first = RelayStoreUtils.getReadTimeResolverStorageKey(field, {});
+      expect(first).toBe('$r:greeting(salutation:"Hello")');
+      expect(RelayStoreUtils.getReadTimeResolverStorageKey(field, {a: 1})).toBe(
+        first,
+      );
+    });
+
+    it('recomputes keys that depend on variables', () => {
+      const field = resolverField(
+        [{kind: 'Literal', name: 'salutation', value: 'Hello'}],
+        [
+          {
+            kind: 'ObjectValue',
+            name: 'filter',
+            fields: [{kind: 'Variable', name: 'id', variableName: 'id'}],
+          },
+        ],
+      );
+      expect(
+        RelayStoreUtils.getReadTimeResolverStorageKey(field, {id: '1'}),
+      ).toBe('$r:greeting(salutation:"Hello",filter:{"id":"1"})');
+      expect(
+        RelayStoreUtils.getReadTimeResolverStorageKey(field, {id: '2'}),
+      ).toBe('$r:greeting(salutation:"Hello",filter:{"id":"2"})');
+    });
+
+    it('recomputes keys of list arguments that contain variables', () => {
+      const field = resolverField([
+        {
+          kind: 'ListValue',
+          name: 'ids',
+          items: [{kind: 'Variable', name: 'ids.0', variableName: 'id'}],
+        },
+      ]);
+      expect(
+        RelayStoreUtils.getReadTimeResolverStorageKey(field, {id: '1'}),
+      ).toBe('$r:greeting(ids:["1"])');
+      expect(
+        RelayStoreUtils.getReadTimeResolverStorageKey(field, {id: '2'}),
+      ).toBe('$r:greeting(ids:["2"])');
+    });
+
+    it('does not prefix when the prefix flag is off', () => {
+      const field = resolverField(null);
+      expect(RelayStoreUtils.getReadTimeResolverStorageKey(field, {})).toBe(
+        '$r:greeting',
+      );
+      RelayFeatureFlags.ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX = false;
+      try {
+        expect(RelayStoreUtils.getReadTimeResolverStorageKey(field, {})).toBe(
+          'greeting',
+        );
+      } finally {
+        RelayFeatureFlags.ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX = true;
+      }
     });
   });
 

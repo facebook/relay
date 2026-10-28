@@ -14,6 +14,7 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::env;
 use std::fmt;
+use std::fmt::Write;
 use std::fs::File as FsFile;
 use std::hash::Hash;
 use std::io::BufReader;
@@ -661,7 +662,7 @@ impl CompilerState {
                         SDLSchema::InMemory(schema::compact::deserialize_parallel(old));
                     let schema_change =
                         detect_changes_from_schemas(&current_schema, &previous_schema);
-                    let schema_change_string = schema_change.to_string();
+                    let schema_change_string = schema_change_for_logging(&schema_change);
                     let schema_change_safety = if schema_change == SchemaChange::None {
                         SchemaChangeSafety::Safe
                     } else {
@@ -691,7 +692,7 @@ impl CompilerState {
             && !schema_sources.pending.is_empty()
         {
             let schema_change = self.get_schema_change(schema_sources);
-            let schema_change_string = schema_change.to_string();
+            let schema_change_string = schema_change_for_logging(&schema_change);
             let schema_change_safety = if schema_change == SchemaChange::None {
                 SchemaChangeSafety::Safe
             } else if let Some(schema) = built_schema {
@@ -1167,9 +1168,55 @@ mod clock_json_string {
     }
 }
 
+/// Longest `schema_change` value written to the perf log. The diff behind an
+/// unsafe schema change can run to megabytes when a large schema changes.
+const MAX_LOGGED_SCHEMA_CHANGE_LEN: usize = 1000;
+
+/// Keeps the first `MAX_LOGGED_SCHEMA_CHANGE_LEN` bytes written to it, then
+/// fails, which stops the formatting.
+#[derive(Default)]
+struct LoggedSchemaChange(String);
+
+impl Write for LoggedSchemaChange {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        let room = MAX_LOGGED_SCHEMA_CHANGE_LEN - self.0.len();
+        if s.len() <= room {
+            self.0.push_str(s);
+            return Ok(());
+        }
+        let end = (0..=room)
+            .rev()
+            .find(|&index| s.is_char_boundary(index))
+            .expect("should find a char boundary because 0 is always one");
+        self.0.push_str(&s[..end]);
+        Err(fmt::Error)
+    }
+}
+
+/// Formats `schema_change` for the perf log, cut off after
+/// `MAX_LOGGED_SCHEMA_CHANGE_LEN` bytes.
+fn schema_change_for_logging(schema_change: &SchemaChange) -> String {
+    let mut logged = LoggedSchemaChange::default();
+    if write!(logged, "{schema_change}").is_ok() {
+        return logged.0;
+    }
+    let mut text = logged.0;
+    match schema_change {
+        SchemaChange::DefinitionChanges(changes) => {
+            text.push_str(&format!("... ({} definition changes)", changes.len()))
+        }
+        SchemaChange::None | SchemaChange::GenericChange | SchemaChange::InvalidSchema => {
+            text.push_str("...")
+        }
+    }
+    text
+}
+
 #[cfg(test)]
 mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use schema_diff::definitions::DefinitionChange;
+
     use super::*;
 
     impl Source for Vec<u32> {
@@ -1469,5 +1516,41 @@ mod tests {
         let proj = project("nonexistent");
 
         assert!(!state.project_has_pending_schema_changes(proj));
+    }
+
+    #[test]
+    fn schema_change_for_logging_keeps_small_diff() {
+        let schema_change =
+            SchemaChange::DefinitionChanges(vec![DefinitionChange::ObjectAdded("User".intern())]);
+
+        assert_eq!(
+            schema_change_for_logging(&schema_change),
+            schema_change.to_string(),
+            "a diff under the limit should be logged in full"
+        );
+    }
+
+    #[test]
+    fn schema_change_for_logging_truncates_large_diff() {
+        let schema_change = SchemaChange::DefinitionChanges(
+            (0..1000)
+                .map(|index| DefinitionChange::ObjectAdded(format!("Type{index}").intern()))
+                .collect(),
+        );
+        let full = schema_change.to_string();
+        let logged = schema_change_for_logging(&schema_change);
+
+        assert!(
+            full.len() > MAX_LOGGED_SCHEMA_CHANGE_LEN,
+            "test diff should exceed the limit"
+        );
+        assert!(
+            logged.starts_with(&full[..MAX_LOGGED_SCHEMA_CHANGE_LEN]),
+            "should keep the start of the diff: {logged}"
+        );
+        assert!(
+            logged.ends_with("... (1000 definition changes)"),
+            "should say how many changes there were: {logged}"
+        );
     }
 }

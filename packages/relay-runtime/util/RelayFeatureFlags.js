@@ -112,6 +112,10 @@ export type FeatureFlags = {
   // orphaned and runs to completion, matching prior behavior.
   ENABLE_IF_EMPTY_CANCELLATION: boolean,
 
+  // Temporary flag for the rollout of a useFragment fix: a store update that a
+  // subscription delivers keeps the store epoch it was read at.
+  ENABLE_FRAGMENT_SUBSCRIPTION_UPDATE_FIX: boolean,
+
   // Performance optimizations of the runtime, by the code they change. Each
   // keeps the previous implementation for when its flag is off. They don't
   // change results. Set them once, to true, before creating any environment:
@@ -151,6 +155,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_READER_FRAGMENTS_LOGGING: false,
   ENABLE_CATCH_IGNORE_HANDLED_FIELD_ERRORS: false,
   ENABLE_IF_EMPTY_CANCELLATION: false,
+  ENABLE_FRAGMENT_SUBSCRIPTION_UPDATE_FIX: false,
   ENABLE_PERF_STORAGE_KEYS: false,
 };
 

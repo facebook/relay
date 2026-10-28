@@ -277,6 +277,12 @@ function subscribeToSnapshot(
     return () => {};
   } else if (state.kind === 'singular') {
     const disposable = environment.subscribe(state.snapshot, latestSnapshot => {
+      // The updater can run later, after store updates that this subscription
+      // doesn't receive (e.g. once <Activity> has hidden the component).
+      const latestSnapshotEpoch =
+        RelayFeatureFlags.ENABLE_FRAGMENT_SUBSCRIPTION_UPDATE_FIX
+          ? environment.getStore().getEpoch()
+          : null;
       setState(prevState => {
         // In theory a setState from a subscription could be batched together
         // with a setState to change the fragment selector. Guard against this
@@ -301,7 +307,7 @@ function subscribeToSnapshot(
         } else {
           nextState = {
             environment: state.environment,
-            epoch: environment.getStore().getEpoch(),
+            epoch: latestSnapshotEpoch ?? environment.getStore().getEpoch(),
             kind: 'singular',
             selector: state.selector,
             snapshot: latestSnapshot,
@@ -316,6 +322,10 @@ function subscribeToSnapshot(
   } else {
     const disposables = state.snapshots.map((snapshot, index) =>
       environment.subscribe(snapshot, latestSnapshot => {
+        const latestSnapshotEpoch =
+          RelayFeatureFlags.ENABLE_FRAGMENT_SUBSCRIPTION_UPDATE_FIX
+            ? environment.getStore().getEpoch()
+            : null;
         setState(prevState => {
           // In theory a setState from a subscription could be batched together
           // with a setState to change the fragment selector. Guard against this
@@ -345,7 +355,7 @@ function subscribeToSnapshot(
             updated[index] = latestSnapshot;
             nextState = {
               environment: state.environment,
-              epoch: environment.getStore().getEpoch(),
+              epoch: latestSnapshotEpoch ?? environment.getStore().getEpoch(),
               kind: 'plural',
               selector: state.selector,
               snapshots: updated,

@@ -416,11 +416,10 @@ function loadQuery<
     if (isNetworkRequestCancelled) {
       return;
     }
-    if (didExecuteNetworkSource) {
-      /* $FlowFixMe[constant-condition] Error discovered during Constant
-       * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
-      unsubscribeFromExecution && unsubscribeFromExecution();
-    } else {
+    if (unsubscribeFromExecution != null) {
+      unsubscribeFromExecution();
+    }
+    if (!didExecuteNetworkSource) {
       /* $FlowFixMe[constant-condition] Error discovered during Constant
        * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();

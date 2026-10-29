@@ -493,6 +493,68 @@ describe('when passed a PreloadableConcreteRequest', () => {
   });
 });
 
+describe.each(['before', 'between', 'after'])(
+  'deduplicated execution disposal with AST registration %s the two loads',
+  registration => {
+    function loadTwoReferences() {
+      if (registration === 'before') {
+        PreloadableQueryRegistry.set(ID, query);
+      }
+      const first = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {fetchPolicy: 'network-only'},
+      );
+      if (registration === 'between') {
+        PreloadableQueryRegistry.set(ID, query);
+      }
+      const second = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {fetchPolicy: 'network-only'},
+      );
+      if (registration === 'after') {
+        PreloadableQueryRegistry.set(ID, query);
+      }
+      expect(fetch).toHaveBeenCalledTimes(1);
+      return [first, second];
+    }
+
+    it.each([
+      [0, 1],
+      [1, 0],
+    ])(
+      'releases the execution only after disposing refs %i then %i',
+      (firstIndex: number, lastIndex: number) => {
+        const refs = loadTwoReferences();
+        refs[firstIndex].dispose();
+        expect(executeUnsubscribe).not.toHaveBeenCalled();
+        expect(networkUnsubscribe).not.toHaveBeenCalled();
+        refs[lastIndex].dispose();
+        expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
+        refs[lastIndex].dispose();
+        refs[firstIndex].dispose();
+        expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
+      },
+    );
+
+    it('releases followers even after the shared execution settles without completing', () => {
+      const [creator, follower] = loadTwoReferences();
+      sink.next(response);
+      const operation = createOperationDescriptor(query, variables);
+      expect(environment.isRequestActive(operation.request.identifier)).toBe(
+        false,
+      );
+      creator.dispose();
+      expect(executeUnsubscribe).not.toHaveBeenCalled();
+      follower.dispose();
+      expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
+    });
+  },
+);
+
 describe('when passed a query AST', () => {
   it('should pass network responses onto source', () => {
     callLoadQuery<loadQuerySourceBehaviorTestQuery>(query);

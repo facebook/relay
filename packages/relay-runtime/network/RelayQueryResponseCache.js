@@ -100,6 +100,7 @@ class RelayQueryResponseCache {
     // Purge least-recently updated key when max size reached
     if (this._responses.size > this._size) {
       const firstKey = this._responses.keys().next();
+      // $FlowFixMe[sketchy-null-bool]
       if (!firstKey.done) {
         this._responses.delete(firstKey.value);
       }

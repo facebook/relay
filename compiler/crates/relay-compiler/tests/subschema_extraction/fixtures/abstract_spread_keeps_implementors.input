@@ -1,0 +1,49 @@
+# validate-extracted-schema
+# An abstract-to-abstract inline fragment must retain the intersecting
+# concrete types: without them the extracted subschema rejects the spread as
+# "this type can never occur" for the parent type.
+
+//- src/AbstractSpreadQuery.js
+graphql`
+  query AbstractSpreadQuery {
+    widget {
+      ... on SpecialWidget {
+        specialField
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  widget: Widget
+  unrelated: String
+}
+
+interface Widget {
+  id: ID
+}
+
+interface SpecialWidget implements Widget {
+  id: ID
+  specialField: String
+}
+
+type ConcreteSpecialWidget implements SpecialWidget & Widget {
+  id: ID
+  specialField: String
+}
+
+type OtherWidget implements Widget {
+  id: ID
+}

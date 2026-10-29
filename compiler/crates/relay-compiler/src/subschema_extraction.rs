@@ -200,7 +200,11 @@ pub(crate) fn extract_subschema(
 
     let options = UsedSchemaCollectionOptions {
         include_implementations_when_typename_requested: None,
-        include_all_overlapping_concrete_types: false,
+        // Retain the concrete types at every abstract-to-abstract spread.
+        // Without them the extracted subschema rejects the project's own
+        // documents: `... on Child` under an abstract parent is "a type that
+        // can never occur" once their last shared implementor is pruned.
+        include_all_overlapping_concrete_types: true,
         include_directives_on_schema_definitions: true,
         include_directive_definitions: true,
         include_implicit_output_enum_values: true,

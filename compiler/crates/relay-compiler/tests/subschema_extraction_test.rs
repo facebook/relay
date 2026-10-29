@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f7969df55436618966c2dfb62fd0bf22>>
+ * @generated SignedSource<<81aecdf705c1b7ece289de2ce569b8ec>>
  */
 
 mod subschema_extraction;
 
 use subschema_extraction::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn abstract_spread_keeps_implementors() {
+    let input = include_str!("subschema_extraction/fixtures/abstract_spread_keeps_implementors.input");
+    let expected = include_str!("subschema_extraction/fixtures/abstract_spread_keeps_implementors.expected");
+    test_fixture(transform_fixture, file!(), "abstract_spread_keeps_implementors.input", "subschema_extraction/fixtures/abstract_spread_keeps_implementors.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn connection_page_info() {

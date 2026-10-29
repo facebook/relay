@@ -59,6 +59,7 @@ const RelayModernRecord = require('./RelayModernRecord');
 const {
   FIELD_GRANULAR_NOTIFICATIONS_KEY,
   FRAGMENT_OWNER_KEY,
+  FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
   FRAGMENT_PROP_NAME_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
@@ -2013,14 +2014,27 @@ function extractStoreIDFromResponse(
 // Used only when ENABLE_PERF_READER is on; otherwise the code above runs
 // unchanged.
 
+// Fragment pointers to fragment spreads without arguments (nearly all) share
+// these arguments objects.
+const NO_FRAGMENT_ARGUMENTS: Arguments = Object.freeze({});
+
+const NO_FRAGMENT_ARGUMENTS_WITHIN_UNMATCHED_TYPE_REFINEMENT: Arguments =
+  Object.freeze({[FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT]: true});
+
+// Snapshots of reads without missing live resolver fields (nearly all) share
+// this array.
+const NO_MISSING_LIVE_RESOLVER_FIELDS: ReadonlyArray<DataID> = Object.freeze(
+  [],
+);
+
 /**
  * @private
  */
 class RelayReaderOptimized {
   _parentClientEdge: ClientEdgeTraversalInfo | null;
   _isMissingData: boolean;
-  _missingClientEdges: Array<MissingClientEdgeRequestInfo>;
-  _missingLiveResolverFields: Array<DataID>;
+  _missingClientEdges: ?Array<MissingClientEdgeRequestInfo>;
+  _missingLiveResolverFields: ?Array<DataID>;
   _isWithinUnmatchedTypeRefinement: boolean;
   _fieldErrors: ?FieldErrors;
   _fieldGranularNotificationDataID: ?DataID;
@@ -2033,7 +2047,7 @@ class RelayReaderOptimized {
   _useExecTimeResolvers: boolean;
   _recordSource: RecordSource;
   _seenRecords: DataIDSet;
-  _updatedDataIDs: DataIDSet;
+  _updatedDataIDs: ?DataIDSet;
   _selector: SingularReaderSelector;
   _variables: Variables;
   _resolverCache: ResolverCache;
@@ -2052,8 +2066,8 @@ class RelayReaderOptimized {
     resolverContext: ?ResolverContext,
   ) {
     this._parentClientEdge = selector.parentClientEdge;
-    this._missingClientEdges = [];
-    this._missingLiveResolverFields = [];
+    this._missingClientEdges = null;
+    this._missingLiveResolverFields = null;
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
     this._fieldErrors = null;
@@ -2070,7 +2084,7 @@ class RelayReaderOptimized {
     this._variables = selector.variables;
     this._resolverCache = resolverCache;
     this._fragmentName = selector.node.name;
-    this._updatedDataIDs = new Set();
+    this._updatedDataIDs = null;
     this._resolverContext = resolverContext;
     this._log = log;
   }
@@ -2125,9 +2139,10 @@ class RelayReaderOptimized {
       data = this._catchErrors(data, catchTo, null) as $FlowFixMe;
     }
 
-    if (this._updatedDataIDs.size > 0) {
-      this._resolverCache.notifyUpdatedSubscribers(this._updatedDataIDs);
-      this._updatedDataIDs.clear();
+    const updatedDataIDs = this._updatedDataIDs;
+    if (updatedDataIDs != null && updatedDataIDs.size > 0) {
+      this._resolverCache.notifyUpdatedSubscribers(updatedDataIDs);
+      this._updatedDataIDs = null;
     }
 
     if (RelayFeatureFlags.ENABLE_READER_FRAGMENTS_LOGGING) {
@@ -2141,10 +2156,12 @@ class RelayReaderOptimized {
       data,
       fieldErrors: this._fieldErrors,
       isMissingData: this._isMissingData && isDataExpectedToBePresent,
-      missingClientEdges: this._missingClientEdges.length
-        ? this._missingClientEdges
-        : null,
-      missingLiveResolverFields: this._missingLiveResolverFields,
+      missingClientEdges:
+        this._missingClientEdges != null && this._missingClientEdges.length
+          ? this._missingClientEdges
+          : null,
+      missingLiveResolverFields:
+        this._missingLiveResolverFields ?? NO_MISSING_LIVE_RESOLVER_FIELDS,
       seenRecords: this._seenRecords,
       selector: this._selector,
     };
@@ -2215,7 +2232,7 @@ class RelayReaderOptimized {
     // inside a client extension field); we never want to fetch in response to
     // missing data off of a client extension field.
     if (this._parentClientEdge !== null) {
-      this._missingClientEdges.push({
+      this._addMissingClientEdge({
         clientEdgeDestinationID: this._parentClientEdge.clientEdgeDestinationID,
         request: this._parentClientEdge.readerClientEdge.operation,
       });
@@ -2596,7 +2613,8 @@ class RelayReaderOptimized {
         case 'Defer':
         case 'ClientExtension': {
           const isMissingData = this._isMissingData;
-          const alreadyMissingClientEdges = this._missingClientEdges.length;
+          const alreadyMissingClientEdges =
+            this._missingClientEdges?.length ?? 0;
           const prevParentClientEdge = this._parentClientEdge;
           this._parentClientEdge = null;
           const hasExpectedData = this._traverseSelections(
@@ -2609,8 +2627,10 @@ class RelayReaderOptimized {
           // able to fetch, or there is a missing data in one of the live resolvers.
           this._isMissingData =
             isMissingData ||
-            this._missingClientEdges.length > alreadyMissingClientEdges ||
-            this._missingLiveResolverFields.length > 0;
+            (this._missingClientEdges?.length ?? 0) >
+              alreadyMissingClientEdges ||
+            (this._missingLiveResolverFields != null &&
+              this._missingLiveResolverFields.length > 0);
           this._parentClientEdge = prevParentClientEdge;
           if (!hasExpectedData) {
             return false;
@@ -2865,22 +2885,18 @@ class RelayReaderOptimized {
       if (cachedSnapshot.missingClientEdges != null) {
         for (let i = 0; i < cachedSnapshot.missingClientEdges.length; i++) {
           const missing = cachedSnapshot.missingClientEdges[i];
-          this._missingClientEdges.push(missing);
+          this._addMissingClientEdge(missing);
         }
       }
-      if (cachedSnapshot.missingLiveResolverFields != null) {
-        this._isMissingData =
-          this._isMissingData ||
-          cachedSnapshot.missingLiveResolverFields.length > 0;
-
-        for (
-          let i = 0;
-          i < cachedSnapshot.missingLiveResolverFields.length;
-          i++
-        ) {
-          const missingResolverField =
-            cachedSnapshot.missingLiveResolverFields[i];
-          this._missingLiveResolverFields.push(missingResolverField);
+      const missingLiveResolverFields =
+        cachedSnapshot.missingLiveResolverFields;
+      if (
+        missingLiveResolverFields != null &&
+        missingLiveResolverFields.length > 0
+      ) {
+        this._isMissingData = true;
+        for (let i = 0; i < missingLiveResolverFields.length; i++) {
+          this._addMissingLiveResolverField(missingLiveResolverFields[i]);
         }
       }
       if (cachedSnapshot.fieldErrors != null) {
@@ -2943,14 +2959,38 @@ class RelayReaderOptimized {
     // they know when to unsuspend.
     if (suspenseID != null) {
       this._isMissingData = true;
-      this._missingLiveResolverFields.push(suspenseID);
+      this._addMissingLiveResolverField(suspenseID);
     }
     if (updatedDataIDs != null) {
+      let readerUpdatedDataIDs = this._updatedDataIDs;
+      if (readerUpdatedDataIDs == null) {
+        readerUpdatedDataIDs = new Set();
+        this._updatedDataIDs = readerUpdatedDataIDs;
+      }
+      const target = readerUpdatedDataIDs;
       // Iterating a Set with for of is okay
       // eslint-disable-next-line relay-internal/no-for-of-loops
       updatedDataIDs.forEach(recordID => {
-        this._updatedDataIDs.add(recordID);
+        target.add(recordID);
       });
+    }
+  }
+
+  // Most reads have no missing client edges or resolver updates, so those
+  // collections are only allocated when first needed.
+  _addMissingLiveResolverField(id: DataID): void {
+    if (this._missingLiveResolverFields == null) {
+      this._missingLiveResolverFields = [id];
+    } else {
+      this._missingLiveResolverFields.push(id);
+    }
+  }
+
+  _addMissingClientEdge(missing: MissingClientEdgeRequestInfo): void {
+    if (this._missingClientEdges == null) {
+      this._missingClientEdges = [missing];
+    } else {
+      this._missingClientEdges.push(missing);
     }
   }
 
@@ -3712,11 +3752,16 @@ class RelayReaderOptimized {
     if (data[ID_KEY] == null) {
       data[ID_KEY] = RelayModernRecord.getDataID(record);
     }
-    const args = getArgumentValues(
-      fragmentSpread.args,
-      this._variables,
-      this._isWithinUnmatchedTypeRefinement,
-    );
+    const args =
+      fragmentSpread.args == null
+        ? this._isWithinUnmatchedTypeRefinement
+          ? NO_FRAGMENT_ARGUMENTS_WITHIN_UNMATCHED_TYPE_REFINEMENT
+          : NO_FRAGMENT_ARGUMENTS
+        : getArgumentValues(
+            fragmentSpread.args,
+            this._variables,
+            this._isWithinUnmatchedTypeRefinement,
+          );
     // $FlowFixMe[cannot-write] - writing into read-only field
     fragmentPointers[fragmentSpread.name] = args;
     data[FRAGMENT_OWNER_KEY] = this._owner;

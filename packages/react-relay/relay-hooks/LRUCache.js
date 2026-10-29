@@ -53,8 +53,7 @@ class LRUCache<T> implements Cache<T> {
     this._map.set(key, value);
     if (this._map.size > this._capacity) {
       const firstKey = this._map.keys().next();
-      // $FlowFixMe[sketchy-null-bool]
-      if (!firstKey.done) {
+      if (firstKey.done !== true) {
         this._map.delete(firstKey.value);
       }
     }

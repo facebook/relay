@@ -3236,7 +3236,13 @@ class RelayReaderOptimized {
     data: SelectorData,
   ): ?unknown {
     const fieldName = field.alias ?? field.name;
-    const storageKey = getStorageKey(field, this._variables);
+    // A field without arguments is stored under its name, and one whose
+    // arguments are all literals under the static `storageKey` the compiler
+    // emits for it.
+    const storageKey =
+      (field.kind === 'ScalarField' &&
+        (field.args == null ? field.name : field.storageKey)) ||
+      getStorageKey(field, this._variables);
     if (this._fieldGranularNotificationDataID != null) {
       this._seenRecords.add(
         getFieldNotificationKey(
@@ -3266,7 +3272,9 @@ class RelayReaderOptimized {
     data: SelectorData,
   ): ?unknown {
     const fieldName = field.alias ?? field.name;
-    const storageKey = getStorageKey(field, this._variables);
+    // See _readScalar.
+    const storageKey =
+      field.args == null ? field.name : getStorageKey(field, this._variables);
     if (this._fieldGranularNotificationDataID != null) {
       this._seenRecords.add(
         getFieldNotificationKey(
@@ -3409,7 +3417,9 @@ class RelayReaderOptimized {
     record: Record,
     data: SelectorData,
   ): ?unknown {
-    const storageKey = getStorageKey(field, this._variables);
+    // See _readScalar.
+    const storageKey =
+      field.args == null ? field.name : getStorageKey(field, this._variables);
     if (this._fieldGranularNotificationDataID != null) {
       this._seenRecords.add(
         getFieldNotificationKey(

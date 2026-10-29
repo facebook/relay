@@ -123,6 +123,8 @@ export type FeatureFlags = {
   //
   // Storage keys, type IDs and handle fields.
   ENABLE_PERF_STORAGE_KEYS: boolean,
+  // RelayReader.
+  ENABLE_PERF_READER: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -157,6 +159,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_IF_EMPTY_CANCELLATION: false,
   ENABLE_FRAGMENT_SUBSCRIPTION_UPDATE_FIX: false,
   ENABLE_PERF_STORAGE_KEYS: false,
+  ENABLE_PERF_READER: false,
 };
 
 module.exports = RelayFeatureFlags;

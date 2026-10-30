@@ -457,4 +457,12 @@ describe('recycleNodesInto', () => {
     expect(nextData.a).toBe(nextObject);
     expect(nextData.a.b).toBe(nextItem);
   });
+
+  it('does not recycle objects whose key sets differ but have equal sizes', () => {
+    const prevData = {a: 1, b: undefined};
+    const nextData = {a: 1, c: undefined};
+    const result = recycleNodesInto(prevData, nextData);
+    expect(result).toBe(nextData);
+    expect(Object.keys(result)).toEqual(['a', 'c']);
+  });
 });

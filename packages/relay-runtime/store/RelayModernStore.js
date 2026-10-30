@@ -875,14 +875,12 @@ class RelayModernStore implements Store {
       return;
     }
     const gcRun = this._collect();
-    // $FlowFixMe[sketchy-null-bool]
-    while (!gcRun.next().done) {}
+    while (gcRun.next().done !== true) {}
   }
 
   _gcStep = () => {
     if (this._gcRun) {
-      // $FlowFixMe[sketchy-null-bool]
-      if (this._gcRun.next().done) {
+      if (this._gcRun.next().done === true) {
         this._gcRun = null;
       } else {
         this._gcScheduler(this._gcStep);

@@ -1,0 +1,55 @@
+// expected-to-throw
+// A `@module` spread makes its fragment `@no_inline` implicitly, so any plain
+// spread of that fragment requires an explicit `@no_inline` on the fragment.
+// A full build of the final state reports the missing directive. The
+// incremental build must report it too, even though the document containing
+// the plain spread did not change.
+
+//- RendererTest.js
+graphql`
+  query RendererTestQuery {
+    renderer {
+      ...Renderer_renderer
+    }
+  }
+`;
+
+//- Renderer.js
+graphql`
+  fragment Renderer_renderer on Renderer {
+    text
+  }
+`;
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "./schema.graphql",
+  "featureFlags": {
+    "no_inline": {
+      "kind": "enabled"
+    }
+  }
+}
+
+//- schema.graphql
+scalar JSDependency
+
+type Query {
+  renderer: Renderer
+}
+
+type Renderer {
+  text: String
+  js(module: String!): JSDependency
+}
+
+//-++ Parent.js
+// The only change: a new fragment spreads `Renderer_renderer` with `@module`.
+graphql`
+  fragment Parent_query on Query {
+    renderer {
+      ...Renderer_renderer @module(name: "Renderer.react")
+    }
+  }
+`;

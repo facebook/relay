@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d98ef53eed8358dbdfa8f1b3bdfb7d1f>>
+ * @generated SignedSource<<39211b8ce5b9bdcd3b660802f9a31e33>>
  */
 
 mod relay_compiler_integration;
@@ -654,6 +654,13 @@ async fn incremental_object_removed_with_interface() {
     let input = include_str!("relay_compiler_integration/fixtures/incremental_object_removed_with_interface.input");
     let expected = include_str!("relay_compiler_integration/fixtures/incremental_object_removed_with_interface.expected");
     test_fixture(transform_fixture, file!(), "incremental_object_removed_with_interface.input", "relay_compiler_integration/fixtures/incremental_object_removed_with_interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn incremental_plain_fragment_module_spread_added_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/incremental_plain_fragment_module_spread_added.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/incremental_plain_fragment_module_spread_added.invalid.expected");
+    test_fixture(transform_fixture, file!(), "incremental_plain_fragment_module_spread_added.invalid.input", "relay_compiler_integration/fixtures/incremental_plain_fragment_module_spread_added.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

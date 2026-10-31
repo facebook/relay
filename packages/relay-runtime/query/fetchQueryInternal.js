@@ -159,7 +159,7 @@ function fetchQueryDeduped(
           unsubscribe: subscription => {
             const cachedReq = getCachedRequest(requestCache, identifier);
             cachedReq.subject.unsubscribe();
-            cachedReq.subjectForInFlightStatus.unsubscribe();
+            cachedReq.subjectForInFlightStatus.complete();
           },
         });
     }
@@ -211,13 +211,6 @@ function getActiveStatusObservableForCachedRequest(
   cachedRequest: RequestCacheEntry,
 ): Observable<void> {
   return Observable.create(sink => {
-    // A request that was unsubscribed (canceled) records no terminal event for
-    // the subject to replay, so detect that it has ended via the request cache
-    // (the entry is removed once the request terminates for any reason).
-    if (requestCache.get(cachedRequest.identifier) !== cachedRequest) {
-      sink.complete();
-      return;
-    }
     const subscription = cachedRequest.subjectForInFlightStatus.subscribe({
       error: sink.error,
       next: response => {

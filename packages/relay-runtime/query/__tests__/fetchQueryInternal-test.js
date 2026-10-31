@@ -1014,6 +1014,23 @@ describe('getObservableForActiveRequest', () => {
     expect(events).toEqual(['complete']);
   });
 
+  it('errors when subscribed after the request errored', () => {
+    fetchQuery(environment, query).subscribe({error: jest.fn()});
+    const observable = getObservableForActiveRequest(
+      environment,
+      query.request,
+    );
+    expect(observable).not.toEqual(null);
+    if (!observable) {
+      return;
+    }
+
+    const error = new Error('Oops');
+    environment.mock.reject(gqlQuery, error);
+    observable.subscribe(observer);
+    expect(events).toEqual(['error', error]);
+  });
+
   it('calls next asynchronously with subsequent non-final payloads', () => {
     fetchQuery(environment, query).subscribe({});
     const observable = getObservableForActiveRequest(
